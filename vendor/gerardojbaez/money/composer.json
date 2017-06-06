@@ -1,0 +1,25 @@
+{
+    "name": "gerardojbaez/money",
+    "description": "A simple and cross-platform alternative to PHP money_format(). 91 currencies supported, including INR.",
+    "keywords": ["money_format", "money", "currency", "formatter"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gerardo Báez",
+            "email": "gerardojbaez@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.5.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.4.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gerardojbaez\\Money\\": "src/"
+        },
+        "files": ["src/helpers.php"]
+    }
+}

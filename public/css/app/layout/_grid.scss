@@ -1,0 +1,420 @@
+$margin: 1.5em;
+$gutterWidth: 1em;
+$containerWidth: 94vw;
+$maxWidth: 1800px;
+$contentWidthNarrow: 800px;
+$cols-1: 1;
+$cols-2: 2;
+$cols-3: 3;
+$cols-4: 4;
+$cols-5: 5;
+$cols-6: 6;
+$cols-7: 7;
+$cols-8: 8;
+$cols-9: 9;
+$cols-10: 10;
+$cols-11: 11;
+$cols-12: 12;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+// Grid, nice n simple
+//
+.wps-l-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  list-style: none;
+  max-width: $maxWidth;
+  margin: -#{$space-l} 0 $space-l -#{$space-l};
+}
+
+
+
+.wps-l-col {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  max-width: 100%;
+}
+
+
+[class*="wps-col-"] {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 1px;
+  // padding: $gutterWidth;
+  padding: $space-l 0 0 $space-l;
+
+  @include respond-to(320, 'max') {
+    // padding: 2em;
+  }
+}
+
+
+.wps-l-contain {
+  max-width: $containerWidth;
+  margin: 0 auto;
+
+  @include respond-to(1200, 'max') {
+    max-width: 94vw;
+  }
+
+  @include siteMaxWidth();
+
+}
+
+.wps-l-contain-narrow {
+  max-width: $contentWidthNarrow;
+  margin: 0 auto;
+
+  @include respond-to(1000, 'max') {
+    max-width: 700px;
+  }
+
+  @include respond-to(600, 'max') {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+
+/*
+
+Columns (as a proportion)
+E.g., 2 === one half, 3 === one third, 4 === one fourth, etc
+
+*/
+.wps-col-1 {
+  @include rowMachine($cols-1);
+}
+
+.wps-col-2 {
+  @include rowMachine($cols-2);
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-3 {
+  @include rowMachine($cols-3);
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-4 {
+  @include rowMachine($cols-4);
+
+  @include respond-to(800, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-5 {
+  @include rowMachine($cols-5);
+
+  @include respond-to(800, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-6 {
+  @include rowMachine($cols-6);
+
+  @include respond-to(1000, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(800, 'max') {
+    @include rowMachine($cols-3);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-7 {
+  @include rowMachine($cols-7);
+
+  @include respond-to(1100, 'max') {
+    @include rowMachine($cols-5);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-3);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-8 {
+  @include rowMachine($cols-8);
+
+  @include respond-to(1100, 'max') {
+    @include rowMachine($cols-5);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-3);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-9 {
+  @include rowMachine($cols-9);
+
+  @include respond-to(1100, 'max') {
+    @include rowMachine($cols-8);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-3);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-10 {
+  @include rowMachine($cols-10);
+
+  @include respond-to(1100, 'max') {
+    @include rowMachine($cols-8);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-3);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-11 {
+  @include rowMachine($cols-11);
+
+  @include respond-to(1100, 'max') {
+    @include rowMachine($cols-9);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-7);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-5);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+.wps-col-12 {
+  @include rowMachine($cols-12);
+
+  @include respond-to(1300, 'max') {
+    @include rowMachine($cols-10);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-8);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.wps-l-col-reverse {
+  flex-direction: column-reverse;
+}
+
+.wps-l-col-center {
+  align-items: center;
+}
+
+.wps-l-col-left {
+  align-self: flex-start;
+}
+
+//
+// Ordering
+//
+.wps-l-order-1 {
+  order: 1;
+}
+
+.wps-l-order-2 {
+  order: 2;
+}
+
+.wps-l-order-3 {
+  order: 3;
+}
+
+.wps-l-order-4 {
+  order: 4;
+}
+
+.wps-l-order-5 {
+  order: 5;
+}
+
+.wps-l-order-6 {
+  order: 6;
+}
+
+.wps-l-order-7 {
+  order: 7;
+}
+
+//
+// Row aignment
+//
+.wps-l-row-left {
+  justify-content: flex-start;
+}
+
+.wps-l-row-right {
+  justify-content: flex-end;
+}
+
+.wps-l-row-center {
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.wps-l-row-justify {
+  justify-content: space-between;
+
+  // &:after {
+  //   content: "";
+  //   flex: auto;
+  // }
+}
+
+.wps-l-row-spaced {
+  justify-content: space-around;
+}
+
+.wps-l-row-reverse {
+  flex-direction: row-reverse;
+}
+
+//
+// Spacing
+//
+.wps-l-fit {
+  flex-grow: 1;
+}
+
+.wps-l-fill {
+  flex: 1;
+  min-width: 0;
+}
+
+.wps-l-contained {
+  flex: none;
+}

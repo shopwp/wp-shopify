@@ -1,0 +1,59 @@
+/*
+
+Font sizes
+
+*/
+$font-xxxs:   em(12px);
+$font-xxs:    em(14px);
+$font-xs:     em(16px);
+$font-s:      em(18px);
+$font-m:      em(22px);
+$font-l:      em(24px);
+$font-xl:     em(36px);
+$font-xxl:    em(46px);
+$font-xxxl:   em(56px);
+
+/*
+
+General Spacing
+
+*/
+$space-xxs:    em(5px);
+$space-xs:    em(7px);
+$space-s:     em(10px);
+$space-m:     em(20px);
+$space-l:     em(30px);
+$space-xl:    em(60px);
+
+$btn-space-top: 1em;
+$btn-space-sides: 2em;
+
+/*
+
+Misc
+
+*/
+$dimOpacity: 0.6;
+$siteMaxWidth: 1600px;
+
+/*
+
+Breakpoints
+
+*/
+$breakpoints: (
+  320: 320px,
+  400: 400px,
+  500: 500px,
+  600: 600px,
+  700: 700px,
+  800: 800px,
+  900: 900px,
+  1000: 1000px,
+  1100: 1100px,
+  1200: 1200px,
+  1300: 1300px,
+  1400: 1400px,
+  1500: 1500px,
+  1600: 1600px
+);
