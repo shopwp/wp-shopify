@@ -1,0 +1,48 @@
+.nav-links {
+  text-align: center;
+  font-size: $font-m;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: $space-xl;
+}
+
+.page-numbers {
+  background: color(lightgreen);
+  color: white;
+  padding: 0.5em 1em;
+  text-decoration: none;
+  margin: 0 5px;
+
+  &:hover {
+    color: white;
+    opacity: 0.8;
+  }
+
+  &.prev,
+  &.next {
+    background: white;
+    color: color(darkblue);
+
+    &:hover {
+      color: color(darkblue);
+    }
+  }
+}
+
+span.current {
+  margin: 0;
+  padding: 0.5em 1em;
+  background: white;
+  color: color(darkblue);
+
+  &:hover {
+    color: color(darkblue);
+  }
+}
+
+.screen-reader-text {
+  display: none;
+  font-size: $font-l;
+  text-align: center;
+}

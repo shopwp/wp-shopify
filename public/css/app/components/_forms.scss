@@ -1,0 +1,13 @@
+// TODO: Not currently working
+.wps-cart {
+  button,
+  input,
+  select,
+  textarea {
+
+    &[disabled="disabled"]:hover {
+      cursor: not-allowed;
+    }
+
+  }
+}

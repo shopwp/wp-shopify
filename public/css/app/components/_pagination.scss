@@ -1,0 +1,54 @@
+.wps-products-pagination {
+  margin: $space-l 0;
+}
+
+.wps-products-page-counter {
+  text-align: center;
+  font-size: $font-xs;
+  margin-bottom: $space-m;
+}
+
+.wps-products-page-inactive {
+  padding: $space-xs;
+  margin: 0 $space-xxs;
+  background-color: color(white);
+  color: color(base);
+  min-width: 40px;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.wps-products-page-current {
+  padding: $space-xs;
+  margin: 0 $space-xxs;
+  background-color: color(base);
+  color: color(white);
+  min-width: 40px;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.wps-products-page-first,
+.wps-products-page-last {
+  padding: $space-xs;
+  margin: 0 $space-xxs;
+  min-width: 40px;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  color: color(base);
+}
+
+.wps-products-page-next,
+.wps-products-page-previous {
+  padding: $space-xs;
+  margin: 0 $space-xxs;
+  background-color: color(white);
+  color: color(base);
+  min-width: 40px;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}

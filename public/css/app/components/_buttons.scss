@@ -1,0 +1,136 @@
+.wps-btn {
+  padding: $btn-space-top $btn-space-sides;
+  background-color: color(lightgreen);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: $font-s;
+  display: inline-block;
+  border-radius: none;
+  border: none;
+  position: relative;
+  line-height: 1;
+  text-align: center;
+  color: white;
+
+  @include respond-to(600, 'max') {
+    font-size: 1em;
+  }
+
+  &:hover {
+    color: white;
+    background-color: color(linksHover);
+    opacity: 1;
+  }
+
+  &.wps-is-disabled {
+    &:hover {
+      background-color: color(lightgreen);
+    }
+  }
+
+  &.wps-btn-secondary.wps-is-disabled {
+    &:hover {
+      background-color: color(lightblue);
+    }
+  }
+
+}
+
+.wps-btn-secondary {
+  background-color: color(lightblue);
+
+  &:hover {
+    background-color: color(darkblue);
+  }
+}
+
+
+.wps-btn-outline {
+  background-color: transparent;
+  border: 3px solid color(darkblue);
+  color: color(darkblue);
+
+  &:hover {
+    color: white;
+    background-color: color(darkblue);
+  }
+}
+
+
+.wps-btn-sm {
+  padding: $btn-space-top $btn-space-sides;
+  font-size: $font-xxs;
+
+  @include respond-to(600, 'max') {
+    font-size: 1em;
+  }
+}
+
+.wps-btn-lg {
+  padding: $btn-space-top $btn-space-sides;
+  font-size: $font-l;
+
+  @include respond-to(600, 'max') {
+    font-size: 1em;
+  }
+}
+
+.wps-btn-cart {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 0 1em;
+  position: relative;
+
+  &:focus {
+    outline: 0;
+  }
+
+  // &:hover {
+  //   opacity: $dimOpacity;
+  // }
+}
+
+.wps-btn-close {
+  width: 30px;
+  margin-top: 0;
+  height: 30px;
+  position: absolute;
+  right: 9px;
+  top: 0;
+  font-size: $font-xxl;
+  color: color(darkblue);
+  border: none;
+  background: transparent;
+  transition: transform 100ms ease;
+  cursor: pointer;
+  line-height: 1.4;
+  padding: 0;
+
+  &:hover {
+    opacity: $dimOpacity;
+  }
+
+  span {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+}
+
+.wps-btn-checkout {
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 1em;
+  text-align: center;
+  color: white;
+}
+
+.wps-btn-wrapper {
+  margin-top: 0;
+  padding-top: 0;
+}
