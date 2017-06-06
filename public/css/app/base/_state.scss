@@ -1,0 +1,504 @@
+/*
+
+Fade in
+
+*/
+@keyframes wpShopFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+/*
+
+Fade out
+
+*/
+@keyframes wpShopFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+/*
+
+Slide In Right
+
+*/
+@keyframes wpShopSlideInRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+
+/*
+
+Slide Out Right
+
+*/
+@keyframes wpShopSlideOutRight {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    visibility: hidden;
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+
+/*
+
+Bounce In
+
+*/
+@keyframes wpShopBounceInDown {
+  from, 60%, 75%, 90%, to {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -3000px, 0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translate3d(0, 25px, 0);
+  }
+
+  75% {
+    transform: translate3d(0, -10px, 0);
+  }
+
+  90% {
+    transform: translate3d(0, 5px, 0);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+
+/*
+
+Bounce Out Up
+
+*/
+@keyframes wpShopBounceOutUp {
+  20% {
+    transform: translate3d(0, -10px, 0);
+  }
+
+  40%, 45% {
+    opacity: 1;
+    transform: translate3d(0, 20px, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, -2000px, 0);
+  }
+}
+
+
+/*
+
+Bounce In Right
+
+*/
+@keyframes wpShopBounceInRight {
+  from, 60%, 75%, 90%, to {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+
+  from {
+    opacity: 0;
+    transform: translate3d(3000px, 0, 0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translate3d(-25px, 0, 0);
+  }
+
+  75% {
+    transform: translate3d(10px, 0, 0);
+  }
+
+  90% {
+    transform: translate3d(-5px, 0, 0);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+
+/*
+
+Bounce Out Right
+
+*/
+@keyframes wpShopBounceOutRight {
+  20% {
+    transform: translate3d(-20px, 0, 0);
+  }
+
+  to {
+    transform: translate3d(800px, 0, 0);
+  }
+}
+
+
+/*
+
+Slide In Down
+
+*/
+@keyframes wpShopSlideInDown {
+  from {
+    transform: translate3d(0, -100%, 0);
+    visibility: visible;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+
+/*
+
+Slide Out Up
+
+*/
+@keyframes wpShopSlideOutUp {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    visibility: hidden;
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+
+/*
+
+Zoom out
+
+*/
+@keyframes wpShopZoomOut {
+  from {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    transform: scale3d(.3, .3, .3);
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+/*
+
+Flip In X
+
+*/
+@keyframes wpShopFlipInX {
+  from {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    animation-timing-function: ease-in;
+    opacity: 0;
+  }
+
+  40% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    animation-timing-function: ease-in;
+  }
+
+  60% {
+    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    opacity: 1;
+  }
+
+  80% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+  }
+
+  to {
+    transform: perspective(400px);
+  }
+}
+
+
+/*
+
+Flip Out X
+
+*/
+@keyframes wpShopFlipOutX {
+  from {
+    transform: perspective(400px);
+  }
+
+  30% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    opacity: 1;
+  }
+
+  to {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    opacity: 0;
+  }
+}
+
+
+/*
+
+Shake
+
+*/
+@keyframes wpShopShake {
+  from, to {
+    transform: translate3d(0, 0, 0);
+  }
+
+  10%, 30%, 50%, 70%, 90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+
+  20%, 40%, 60%, 80% {
+    transform: translate3d(10px, 0, 0);
+  }
+}
+
+
+// General
+.wps-animated {
+  animation-delay: 0s;
+  animation-duration: 0.2s;
+  animation-fill-mode: both;
+}
+
+
+// Shake
+.wps-shake {
+  animation-name: wpShopShake;
+
+  &.wps-animated {
+    animation-duration: 0.7s;
+  }
+}
+
+
+// Fades
+.wps-fadeIn {
+  animation-name: wpShopFadeIn;
+}
+
+.wps-fadeOut {
+  animation-name: wpShopFadeOut;
+}
+
+
+// Slides
+.wps-slideInRight {
+  animation-name: wpShopSlideInRight;
+}
+
+.wps-slideOutRight {
+  animation-name: wpShopSlideOutRight;
+}
+
+.wps-slideInDown {
+  animation-name: wpShopSlideInDown;
+}
+
+.wps-slideOutUp {
+  animation-name: wpShopSlideOutUp;
+}
+
+
+// Visibles
+.wps-is-visible {
+  display: block !important;
+}
+
+
+// Bounces
+.wps-bounceInDown {
+  animation-name: wpShopBounceInDown;
+}
+
+.wps-bounceOutUp {
+  animation-name: wpShopBounceOutUp;
+}
+
+.wps-bounceInRight {
+  animation-name: wpShopBounceInRight;
+}
+
+.wps-bounceOutRight {
+  animation-name: wpShopBounceOutRight;
+  // animation-timing-function: ease-in !important;
+
+  &.wps-animated.wps-cart {
+    animation-duration: 0.7s;
+  }
+}
+
+
+// Zooms
+.wps-zoomOut {
+  animation-name: wpShopZoomOut;
+}
+
+
+// Flips
+.wps-flipInX {
+  animation-name: wpShopFlipInX;
+  backface-visibility: visible !important;
+}
+
+.wps-flipOutX {
+  animation-name: wpShopFlipOutX;
+  backface-visibility: visible !important;
+}
+
+
+// Notices
+.wps-notice {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  font-size: 20px;
+  padding: 1.2em;
+  z-index: 999999;
+  text-align: center;
+  margin-top: 0;
+
+  &.wps-animated {
+    animation-duration: 2s;
+  }
+}
+
+.wps-notice-inline {
+  text-align: center;
+  width: 100%;
+  font-size: 1em;
+  padding: 1.2em;
+  margin-top: 0;
+
+  p {
+    margin: 0;
+  }
+
+  &.wps-animated {
+    animation-duration: 2s;
+  }
+
+}
+
+.wps-notice-inline-sm {
+  padding: 0.8em;
+}
+
+.wps-notice-success {
+  background-color: color(lightgreen);
+  color: white;
+}
+
+.wps-notice-warning {
+  background-color: color(notice);
+  color: color(darkblue);
+}
+
+.wps-notice-error {
+  background-color: color(error);
+  color: color(darkblue);
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+// Disabled
+.wps-is-disabled {
+
+  &.wps-is-loading {
+    &:before {
+      content: '';
+      position: absolute;
+      box-sizing: border-box;
+      z-index: 9;
+      border-radius: 100%;
+      animation: spin 0.6s infinite linear;
+      top: 37%;
+      left: 43%;
+      border: 2px solid color(lightblue);
+      border-top-color: #ddd;
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  &:after {
+    content: '';
+    width: 100%;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: white;
+    opacity: $dimOpacity !important;
+  }
+
+  &:hover {
+    cursor: not-allowed !important;
+    // background-color: color(lightblue) !important;
+  }
+}
+
+@mixin transition-fast() {
+  transition: background-color .2s ease;
+}
+
+.wps-is-hidden {
+  display: none;
+  opacity: 0;
+
+  @include transition-fast;
+
+}
