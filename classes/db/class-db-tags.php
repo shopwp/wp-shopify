@@ -93,8 +93,6 @@ class Tags extends \WPS\DB {
     foreach ($tags as $key => $tag) {
 
       $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
-      error_log('TAG PRODUCT $tagData');
-      error_log(print_r($tagData, true));
 
       $results[] = $this->insert($tagData, 'tag');
 
