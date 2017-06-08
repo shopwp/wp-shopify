@@ -21,7 +21,6 @@ Text Domain:       wps
 Domain Path:       /languages
 
 */
-namespace WPS;
 
 if ( !function_exists('version_compare') || version_compare(PHP_VERSION, '5.3.0', '<' )) {
 	exit;
@@ -44,162 +43,365 @@ use WPS\Waypoints;
 use WPS\AJAX;
 use WPS\WS;
 use WPS\CPT;
+use WPS\I18N;
 use WPS\Webhooks;
 use WPS\License;
 use WPS\Deactivator;
 use WPS\Activator;
+
 
 /*
 
 Begins execution of the plugin.
 
 Since everything within the plugin is registered via hooks,
-then kicking off the plugin from this point in the file does
+kicking off the plugin from this point in the file does
 not affect the page life cycle.
 
 */
-final class Boot {
+if ( ! class_exists('WP_Shopify') ) {
 
-	private static $instantiated = null;
+	final class WP_Shopify {
 
-	public $Config = null;
-	public $Activator = null;
-	public $Deactivator = null;
-	public $Frontend = null;
-	public $Backend = null;
-	public $Hooks = null;
-	public $Products = null;
-	public $Collections = null;
-	public $Waypoints = null;
-	public $AJAX = null;
-	public $WS = null;
-	public $Webhooks = null;
-	public $License = null;
-	public $I18N = null;
-	public $CPT = null;
+		protected static $instantiated = null;
+
+		public $Config = null;
+		public $Activator = null;
+		public $Deactivator = null;
+		public $Frontend = null;
+		public $Backend = null;
+		public $Hooks = null;
+		public $Products = null;
+		public $Collections = null;
+		public $Waypoints = null;
+		public $AJAX = null;
+		public $WS = null;
+		public $Webhooks = null;
+		public $License = null;
+		public $I18N = null;
+		public $CPT = null;
 
 
-	/*
+		/*
 
-	Creates a new class if one hasn't already been created.
-	Ensures only one instance is used.
+		Initialize the class
 
-	*/
-	public static function instance() {
+		*/
+		public function __construct() {
 
-		if (is_null(self::$instantiated)) {
-			// error_log('... Creating a new instance ...');
-			self::$instantiated = new self();
+			do_action('wps_before_bootstrap');
 
-		} else {
-			// error_log('... Already found an instance ...');
+			$this->Config 				= new Config();
+			$this->Activator 			= new Activator($this->Config);
+			$this->Deactivator 		= new Deactivator($this->Config);
+			$this->Frontend 			= new Frontend($this->Config);
+			$this->Backend 				= new Backend($this->Config);
+			$this->Hooks 					= Hooks::instance($this->Config);
+			$this->Products 			= new Products_General($this->Config);
+			$this->Collections 		= new Collections($this->Config);
+			$this->Waypoints 			= new Waypoints($this->Config);
+			$this->AJAX 					= new AJAX($this->Config);
+			$this->WS 						= new WS($this->Config);
+			$this->Webhooks 			= new Webhooks($this->Config);
+			$this->License 				= new License($this->Config);
+			$this->I18N 					= new I18N($this->Config);
+			$this->CPT 						= new CPT($this->Config);
+
+			$this->License->init();
+			$this->Activator->init();
+			$this->Deactivator->init();
+			$this->Frontend->wps_frontend_hooks();
+			$this->Backend->wps_backend_hooks();
+			// $this->Hooks->init();
+			$this->I18N->init();
+			$this->CPT->init();
+
+			$this->init_hooks($this->Hooks);
+
+			do_action('wps_after_bootstrap');
+
 		}
 
-		return self::$instantiated;
 
-	}
+		/*
 
+		Creates a new class if one hasn't already been created.
+		Ensures only one instance is used.
 
-	/*
+		*/
+		public static function instance() {
 
-	Initialize the class
+			if (is_null(self::$instantiated)) {
+				error_log('... Creating a new instance ...');
+				self::$instantiated = new self();
 
-	*/
-	public function __construct() {
+			} else {
+				error_log('... Already found an instance ...');
+			}
 
-		do_action('wps_before_bootstrap');
+			return self::$instantiated;
 
-		$this->Config 				= new Config();
-		$this->Activator 			= new Activator($this->Config);
-		$this->Deactivator 		= new Deactivator($this->Config);
-		$this->Frontend 			= new Frontend($this->Config);
-		$this->Backend 				= new Backend($this->Config);
-		$this->Hooks 					= new Hooks($this->Config);
-		$this->Products 			= new Products_General($this->Config);
-		$this->Collections 		= new Collections($this->Config);
-		$this->Waypoints 			= new Waypoints($this->Config);
-		$this->AJAX 					= new AJAX($this->Config);
-		$this->WS 						= new WS($this->Config);
-		$this->Webhooks 			= new Webhooks($this->Config);
-		$this->License 				= new License($this->Config);
-		$this->I18N 					= new I18N($this->Config);
-		$this->CPT 						= new CPT($this->Config);
-
-		$this->License->init();
-		$this->Activator->init();
-		$this->Deactivator->init();
-		$this->Frontend->wps_frontend_hooks();
-		$this->Backend->wps_backend_hooks();
-		$this->Hooks->init();
-		$this->I18N->init();
-		$this->CPT->init();
-
-		do_action('wps_after_bootstrap');
-
-	}
+		}
 
 
-	/*
+		/*
 
-	Stop Cloning
+		Stop Cloning
 
-	*/
-	public function __clone() {
-		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wpshopify' ), '2.1' );
-	}
-
-
-	/*
-
-	Prevent Unserializing class instances
-
-	*/
-	public function __wakeup() {
-		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wpshopify' ), '2.1' );
-	}
+		*/
+		public function __clone() {
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wpshopify' ), '2.1' );
+		}
 
 
-	/*
+		/*
 
-	Get Frontend Class
+		Prevent Unserializing class instances
 
-	*/
-	public function Frontend() {
-		$Frontend = $this->Frontend;
-		return $Frontend::instance();
-	}
-
-
-	/*
-
-	Get Backend Class
-
-	*/
-	public function Backend() {
-		$Backend = $this->Backend;
-		return $Backend::instance();
-	}
+		*/
+		public function __wakeup() {
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wpshopify' ), '2.1' );
+		}
 
 
-	/*
+		/*
 
-	Get Backend Class
+		Get Frontend Class
 
-	*/
-	public function Products() {
-		$Products = $this->Products;
-		return $Products::instance();
-	}
+		*/
+		public function Frontend() {
+			$Frontend = $this->Frontend;
+			return $Frontend::instance();
+		}
 
 
-	/*
+		/*
 
-	Runs everytime the plugin loads ...
+		Get Backend Class
 
-	*/
-	public function Collections() {
-		$Collections = $this->Collections;
-		return $Collections::instance();
+		*/
+		public function Backend() {
+			$Backend = $this->Backend;
+			return $Backend::instance();
+		}
+
+
+		/*
+
+		Get Backend Class
+
+		*/
+		public function Products() {
+			$Products = $this->Products;
+			return $Products::instance();
+		}
+
+
+		/*
+
+		Runs everytime the plugin loads ...
+
+		*/
+		public function Collections() {
+			$Collections = $this->Collections;
+			return $Collections::instance();
+		}
+
+
+		/*
+
+		Init Hooks
+
+		*/
+		public static function init_hooks($Hooks) {
+
+			/*
+
+			Products Pagination
+
+			*/
+			add_filter( 'wps_products_pagination_start', array($Hooks, 'wps_products_pagination_start') );
+			add_filter( 'wps_products_pagination_end', array($Hooks, 'wps_products_pagination_end') );
+			add_filter( 'wps_products_pagination_first_page_text', array($Hooks, 'wps_products_pagination_first_page_text') );
+			add_filter( 'wps_products_pagination_next_link_text', array($Hooks, 'wps_products_pagination_next_link_text') );
+			add_filter( 'wps_products_pagination_prev_link_text', array($Hooks, 'wps_products_pagination_prev_link_text') );
+			add_filter( 'wps_products_pagination_range', array($Hooks, 'wps_products_pagination_range') );
+			add_filter( 'wps_products_pagination_show_as_prev_next', array($Hooks, 'wps_products_pagination_show_as_prev_next') );
+			add_filter( 'wps_products_pagination_prev_page_text', array($Hooks, 'wps_products_pagination_prev_page_text') );
+			add_filter( 'wps_products_pagination_next_page_text', array($Hooks, 'wps_products_pagination_next_page_text') );
+
+			/*
+
+			Products Args (Default + Custom)
+
+			*/
+			add_filter( 'wps_products_args', array($Hooks, 'wps_products_args') );
+			add_filter( 'wps_products_args_posts_per_page', array($Hooks, 'wps_products_args_posts_per_page') );
+			add_filter( 'wps_products_args_orderby', array($Hooks, 'wps_products_args_orderby') );
+			add_filter( 'wps_products_args_paged', array($Hooks, 'wps_products_args_paged') );
+			add_filter( 'wps_products_custom_args', array($Hooks, 'wps_products_custom_args'));
+			add_filter( 'wps_products_custom_args_items_per_row', array($Hooks, 'wps_products_custom_args_items_per_row'));
+
+			/*
+
+			Collections Args (Default + Custom)
+
+			*/
+			add_filter( 'wps_collections_args', array($Hooks, 'wps_collections_args') );
+			add_filter( 'wps_collections_custom_args', array($Hooks, 'wps_collections_custom_args'));
+			add_filter( 'wps_collections_custom_args_items_per_row', array($Hooks, 'wps_collections_custom_args_items_per_row'));
+
+			/*
+
+			Collections Loop
+
+			*/
+			add_action( 'wps_collections_before', array($Hooks, 'wps_collections_before') );
+			add_action( 'wps_collections_loop_start', array($Hooks, 'wps_collections_loop_start') );
+			add_action( 'wps_collections_loop_end', array($Hooks, 'wps_collections_loop_end') );
+			add_action( 'wps_collections_item_start', array($Hooks, 'wps_collections_item_start'), 9, 3 );
+			add_action( 'wps_collections_item_end', array($Hooks, 'wps_collections_item_end') );
+			add_action( 'wps_collections_item', array($Hooks, 'wps_collections_item') );
+			add_action( 'wps_collections_item_before', array($Hooks, 'wps_collections_item_before') );
+			add_action( 'wps_collections_item_after', array($Hooks, 'wps_collections_item_after') );
+			add_action( 'wps_collections_img', array($Hooks, 'wps_collections_img') );
+			add_action( 'wps_collections_title', array($Hooks, 'wps_collections_title') );
+			add_action( 'wps_collections_no_results', array($Hooks, 'wps_collections_no_results') );
+
+			// add_action( 'wps_collections_after', array($Hooks, 'wps_collections_after') );
+			// add_filter( 'wps_collections_heading_class', array($Hooks, 'wps_collections_heading_class') );
+			// add_filter( 'wps_collections_heading', array($Hooks, 'wps_collections_heading') );
+
+			/*
+
+			Collections Single
+
+			*/
+			add_action('wps_collections_single_start', array($Hooks, 'wps_collections_single_start'));
+			add_action('wps_collections_single_header', array($Hooks, 'wps_collections_single_header'));
+			add_action('wps_collections_single_img', array($Hooks, 'wps_collections_single_img'));
+			add_action('wps_collections_single_content', array($Hooks, 'wps_collections_single_content'));
+			add_action('wps_collections_single_products', array($Hooks, 'wps_collections_single_products'),  9, 3 );
+			add_action('wps_collections_single_end', array($Hooks, 'wps_collections_single_end'));
+
+			// add_action('wps_collections_single_heading_before', array($Hooks, 'wps_collections_single_heading_before'));
+			// add_action('wps_collections_single_heading_after', array($Hooks, 'wps_collections_single_heading_after'));
+
+			add_action( 'wps_collections_single_products_before', array($Hooks, 'wps_collections_single_products_before'), 9, 3);
+			add_filter( 'wps_collections_single_products_heading_class', array($Hooks, 'wps_collections_single_products_heading_class'));
+			add_filter( 'wps_collections_single_products_heading', array($Hooks, 'wps_collections_single_products_heading'));
+
+			/*
+
+			Products Loop
+
+			*/
+			add_action( 'wps_products_before', array($Hooks, 'wps_products_before') );
+			add_action( 'wps_products_loop_start', array($Hooks, 'wps_products_loop_start') );
+			add_action( 'wps_products_loop_end', array($Hooks, 'wps_products_loop_end') );
+			add_action( 'wps_products_item_start', array($Hooks, 'wps_products_item_start'), 9, 3 );
+			add_action( 'wps_products_item_end', array($Hooks, 'wps_products_item_end') );
+			add_action( 'wps_products_item', array($Hooks, 'wps_products_item'), 9, 3 );
+			add_action( 'wps_products_item_before', array($Hooks, 'wps_products_item_before'), 9, 2 );
+			add_action( 'wps_products_item_after', array($Hooks, 'wps_products_item_after') );
+			add_action( 'wps_products_img', array($Hooks, 'wps_products_img') );
+			add_action( 'wps_products_title', array($Hooks, 'wps_products_title') );
+			add_action( 'wps_products_price', array($Hooks, 'wps_products_price') );
+			add_action( 'wps_products_pagination', array($Hooks, 'wps_products_pagination') );
+
+			// add_action( 'wps_products_after', array($Hooks, 'wps_products_after') );
+			// add_filter( 'wps_collections_title_class', array($Hooks, 'wps_collections_title_class') );
+			// add_filter( 'wps_products_title_class', array($Hooks, 'wps_products_title_class') );
+			// add_filter( 'wps_collections_img_class', array($Hooks, 'wps_collections_img_class') );
+			// add_filter( 'wps_products_img_class', array($Hooks, 'wps_products_img_class') );
+			// add_filter( 'wps_collections_link_class', array($Hooks, 'wps_collections_link_class') );
+			// add_filter( 'wps_products_link_class', array($Hooks, 'wps_products_link_class') );
+			// add_filter( 'wps_product_class', array($Hooks, 'wps_product_class') );
+			// add_filter( 'wps_products_class', array($Hooks, 'wps_products_class') );
+			// add_filter( 'wps_collections_class', array($Hooks, 'wps_collections_class') );
+			// add_filter( 'wps_collection_class', array($Hooks, 'wps_collection_class') );
+
+			/*
+
+			General
+
+			*/
+			add_action( 'wps_products_display', array($Hooks, 'wps_products_display'), 9, 2 );
+			add_action( 'wps_collections_display', array($Hooks, 'wps_collections_display'), 9, 2 );
+
+			// add_filter( 'posts_join', array($Hooks, 'wps_products_join'), 9, 2 );
+			// add_filter( 'posts_fields', array($Hooks, 'wps_products_select_mod'), 9, 2 );
+
+			add_filter( 'posts_clauses', array($Hooks, 'wps_clauses_mod'), 9, 2 );
+
+			/*
+
+			Products Related
+
+			*/
+			// add_action( 'wps_products_related_before', array($Hooks, 'wps_products_related_before') );
+			// add_action( 'wps_products_related_after', array($Hooks, 'wps_products_related_after') );
+			// add_action( 'wps_products_related_heading_before', array($Hooks, 'wps_products_related_heading_before') );
+			// add_filter( 'wps_products_related_heading', array($Hooks, 'wps_products_related_heading') );
+			// add_action( 'wps_products_related_heading_end_after', array($Hooks, 'wps_products_related_heading_end_after') );
+
+			add_filter( 'wps_products_related_args', array($Hooks, 'wps_products_related_args'), 9, 2);
+			add_filter( 'wps_products_related_args_posts_per_page', array($Hooks, 'wps_products_related_args_posts_per_page') );
+			add_filter( 'wps_products_related_args_orderby', array($Hooks, 'wps_products_related_args_orderby') );
+			add_filter( 'wps_products_related_custom_args', array($Hooks, 'wps_products_related_custom_args'));
+			add_filter( 'wps_products_related_custom_items_per_row', array($Hooks, 'wps_products_related_custom_items_per_row'));
+			add_action( 'wps_products_related_start', array($Hooks, 'wps_products_related_start'));
+			add_action( 'wps_products_related_end', array($Hooks, 'wps_products_related_end'));
+			add_action( 'wps_products_related_heading_start', array($Hooks, 'wps_products_related_heading_start'));
+			add_action( 'wps_products_related_heading_end', array($Hooks, 'wps_products_related_heading_end'));
+
+			/*
+
+			Product Single
+
+			*/
+			add_action('wps_product_single_after', array($Hooks, 'wps_related_products'));
+			add_action('wps_product_single_notice_inline', array($Hooks, 'wps_product_single_notice_inline'));
+			add_action('wps_product_single_button_add_to_cart', array($Hooks, 'wps_product_single_button_add_to_cart'));
+			add_action('wps_product_single_actions_group_start', array($Hooks, 'wps_product_single_actions_group_start'));
+			add_action('wps_product_single_content', array($Hooks, 'wps_product_single_content'));
+			add_action('wps_product_single_header', array($Hooks, 'wps_product_single_header'));
+			add_action('wps_product_single_quantity', array($Hooks, 'wps_product_single_quantity'));
+			add_action('wps_product_single_imgs', array($Hooks, 'wps_product_single_imgs'));
+			add_action('wps_product_single_options', array($Hooks, 'wps_product_single_options'));
+			add_action('wps_product_single_meta_start', array($Hooks, 'wps_product_single_meta_start'));
+			add_action('wps_product_single_meta_end', array($Hooks, 'wps_product_single_meta_end'));
+			add_action('wps_product_single_info_start', array($Hooks, 'wps_product_single_info_start'));
+			add_action('wps_product_single_info_end', array($Hooks, 'wps_product_single_info_end'));
+			add_action('wps_product_single_gallery_start', array($Hooks, 'wps_product_single_gallery_start'));
+			add_action('wps_product_single_gallery_end', array($Hooks, 'wps_product_single_gallery_end'));
+			add_action('wps_product_single_start', array($Hooks, 'wps_product_single_start'));
+			add_action('wps_product_single_end', array($Hooks, 'wps_product_single_end'));
+
+			/*
+
+			Cart
+
+			*/
+			add_action('wps_cart_icon', array($Hooks, 'wps_cart_icon'));
+			add_action('wps_cart_counter', array($Hooks, 'wps_cart_counter'));
+
+			// add_filter( 'wps_cart_btn_class', array($Hooks, 'wps_cart_btn_class'));
+			// add_filter( 'wps_cart_icon_class', array($Hooks, 'wps_cart_icon_class'));
+			// add_filter( 'wps_cart_counter_class', array($Hooks, 'wps_cart_counter_class'));
+			// add_action('wps_cart_before', array($Hooks, 'wps_cart_before'));
+			// add_action('wps_cart_after', array($Hooks, 'wps_cart_after'));
+			// add_filter( 'wps_cart_item_class', array($Hooks, 'wps_cart_item_class'));
+			// add_filter( 'wps_cart_title_text', array($Hooks, 'wps_cart_title_text'));
+			// add_filter( 'wps_cart_total_text', array($Hooks, 'wps_cart_total_text'));
+			// add_filter( 'wps_cart_shipping_text', array($Hooks, 'wps_cart_shipping_text'));
+			// add_filter( 'wps_cart_checkout_text', array($Hooks, 'wps_cart_checkout_text'));
+			// add_filter( 'wps_cart_class', array($Hooks, 'wps_cart_class'));
+			// add_filter( 'wps_cart_close_icon', array($Hooks, 'wps_cart_close_icon'));
+
+		}
+
+
 	}
 
 }
@@ -207,11 +409,11 @@ final class Boot {
 
 /*
 
-Boots the plugin
+"It is done." - Louis C.K.
 
 */
-function Boot() {
-	return Boot::instance();
+function WP_Shopify() {
+	return WP_Shopify::instance();
 }
 
-Boot();
+WP_Shopify();
