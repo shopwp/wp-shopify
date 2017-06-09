@@ -19,18 +19,13 @@ if (is_single()) {
 
   do_action('wps_collections_single_before');
 
-  while (have_posts()) : the_post();
+  do_action('wps_collections_single_start', $collection);
+  do_action('wps_collections_single_header', $collection);
+  do_action('wps_collections_single_img', $collection);
+  do_action('wps_collections_single_content', $collection);
+  do_action('wps_collections_single_products', $collection, $products);
+  do_action('wps_collections_single_end', $collection);
 
-    do_action('wps_collections_single_start', $collection);
-    do_action('wps_collections_single_header', $collection);
-    do_action('wps_collections_single_img', $collection);
-    do_action('wps_collections_single_content', $collection);
-    do_action('wps_collections_single_products', $collection, $products);
-    do_action('wps_collections_single_end', $collection);
-
-  endwhile;
-
-  wp_reset_postdata();
   do_action('wps_collections_single_after');
 
 }
