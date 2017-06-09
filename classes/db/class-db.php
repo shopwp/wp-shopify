@@ -592,7 +592,10 @@ class DB {
 			within insert_custom_collection.
 
 			*/
-			if (empty($this->get($collection->id))) {
+
+			$collectionID = $this->get($collection->id);
+
+			if (empty($collectionID)) {
 
 				// Inserting smart collection
 				if (isset($collection->rules)) {

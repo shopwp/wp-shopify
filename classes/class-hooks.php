@@ -170,8 +170,8 @@ if (!class_exists('Hooks')) {
 		Products Loop - After
 
 		*/
-		public function wps_products_after($args) {
-			echo 'Afffterr';
+		public function wps_products_after($products) {
+
 		}
 
 
@@ -661,9 +661,6 @@ if (!class_exists('Hooks')) {
 
 			$settings = $this->config->wps_get_settings_general();
 
-			// error_log('=-===--=-=-');
-			// error_log(print_r($args, true));
-
 			$args['context'] = 'wps_products_query';
 
 			if (is_single()) {
@@ -694,19 +691,19 @@ if (!class_exists('Hooks')) {
 
 			}
 
-			do_action( 'wps_products_loop_end' );
-			do_action( 'wps_before_products_pagination' );
+			do_action( 'wps_products_loop_end', $products );
+			do_action( 'wps_before_products_pagination', $products );
 
 			if (isset($args['paged']) && $args['paged']) {
 				do_action( 'wps_products_pagination', $products );
 			}
 
-			do_action( 'wps_after_products_pagination' );
+			do_action( 'wps_after_products_pagination', $products );
 
 			// wp_reset_postdata();
 			// wp_reset_query();
 
-			do_action( 'wps_products_after' );
+			do_action( 'wps_products_after', $products );
 
 		}
 

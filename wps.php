@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             0.1.15
+@since             0.1.16
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sync your Shopify store with WordPress. Designed to be extensible, seamless, and lightweight.
-Version:           0.1.15
+Version:           0.1.16
 Author:            Andrew Robbins
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -96,7 +96,6 @@ if ( ! class_exists('WP_Shopify') ) {
 			$this->Deactivator 		= new Deactivator($this->Config);
 			$this->Frontend 			= new Frontend($this->Config);
 			$this->Backend 				= new Backend($this->Config);
-			$this->Hooks 					= Hooks::instance($this->Config);
 			$this->Products 			= new Products_General($this->Config);
 			$this->Collections 		= new Collections($this->Config);
 			$this->Waypoints 			= new Waypoints($this->Config);
@@ -115,6 +114,9 @@ if ( ! class_exists('WP_Shopify') ) {
 			// $this->Hooks->init();
 			$this->I18N->init();
 			$this->CPT->init();
+
+
+			$this->Hooks = Hooks::instance($this->Config);
 
 			$this->init_hooks($this->Hooks);
 
@@ -259,7 +261,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action( 'wps_collections_before', array($Hooks, 'wps_collections_before') );
 			add_action( 'wps_collections_loop_start', array($Hooks, 'wps_collections_loop_start') );
 			add_action( 'wps_collections_loop_end', array($Hooks, 'wps_collections_loop_end') );
-			add_action( 'wps_collections_item_start', array($Hooks, 'wps_collections_item_start'), 9, 3 );
+			add_action( 'wps_collections_item_start', array($Hooks, 'wps_collections_item_start'), 10, 3 );
 			add_action( 'wps_collections_item_end', array($Hooks, 'wps_collections_item_end') );
 			add_action( 'wps_collections_item', array($Hooks, 'wps_collections_item') );
 			add_action( 'wps_collections_item_before', array($Hooks, 'wps_collections_item_before') );
@@ -281,13 +283,13 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action('wps_collections_single_header', array($Hooks, 'wps_collections_single_header'));
 			add_action('wps_collections_single_img', array($Hooks, 'wps_collections_single_img'));
 			add_action('wps_collections_single_content', array($Hooks, 'wps_collections_single_content'));
-			add_action('wps_collections_single_products', array($Hooks, 'wps_collections_single_products'),  9, 3 );
+			add_action('wps_collections_single_products', array($Hooks, 'wps_collections_single_products'),  10, 3 );
 			add_action('wps_collections_single_end', array($Hooks, 'wps_collections_single_end'));
 
 			// add_action('wps_collections_single_heading_before', array($Hooks, 'wps_collections_single_heading_before'));
 			// add_action('wps_collections_single_heading_after', array($Hooks, 'wps_collections_single_heading_after'));
 
-			add_action( 'wps_collections_single_products_before', array($Hooks, 'wps_collections_single_products_before'), 9, 3);
+			add_action( 'wps_collections_single_products_before', array($Hooks, 'wps_collections_single_products_before'), 10, 3);
 			add_filter( 'wps_collections_single_products_heading_class', array($Hooks, 'wps_collections_single_products_heading_class'));
 			add_filter( 'wps_collections_single_products_heading', array($Hooks, 'wps_collections_single_products_heading'));
 
@@ -299,10 +301,10 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action( 'wps_products_before', array($Hooks, 'wps_products_before') );
 			add_action( 'wps_products_loop_start', array($Hooks, 'wps_products_loop_start') );
 			add_action( 'wps_products_loop_end', array($Hooks, 'wps_products_loop_end') );
-			add_action( 'wps_products_item_start', array($Hooks, 'wps_products_item_start'), 9, 3 );
+			add_action( 'wps_products_item_start', array($Hooks, 'wps_products_item_start'), 10, 3 );
 			add_action( 'wps_products_item_end', array($Hooks, 'wps_products_item_end') );
-			add_action( 'wps_products_item', array($Hooks, 'wps_products_item'), 9, 3 );
-			add_action( 'wps_products_item_before', array($Hooks, 'wps_products_item_before'), 9, 2 );
+			add_action( 'wps_products_item', array($Hooks, 'wps_products_item'), 10, 3 );
+			add_action( 'wps_products_item_before', array($Hooks, 'wps_products_item_before'), 10, 2 );
 			add_action( 'wps_products_item_after', array($Hooks, 'wps_products_item_after') );
 			add_action( 'wps_products_img', array($Hooks, 'wps_products_img') );
 			add_action( 'wps_products_title', array($Hooks, 'wps_products_title') );
@@ -326,13 +328,13 @@ if ( ! class_exists('WP_Shopify') ) {
 			General
 
 			*/
-			add_action( 'wps_products_display', array($Hooks, 'wps_products_display'), 9, 2 );
-			add_action( 'wps_collections_display', array($Hooks, 'wps_collections_display'), 9, 2 );
+			add_action( 'wps_products_display', array($Hooks, 'wps_products_display'), 10, 2 );
+			add_action( 'wps_collections_display', array($Hooks, 'wps_collections_display'), 10, 2 );
 
-			// add_filter( 'posts_join', array($Hooks, 'wps_products_join'), 9, 2 );
-			// add_filter( 'posts_fields', array($Hooks, 'wps_products_select_mod'), 9, 2 );
+			// add_filter( 'posts_join', array($Hooks, 'wps_products_join'), 10, 2 );
+			// add_filter( 'posts_fields', array($Hooks, 'wps_products_select_mod'), 10, 2 );
 
-			add_filter( 'posts_clauses', array($Hooks, 'wps_clauses_mod'), 9, 2 );
+			add_filter( 'posts_clauses', array($Hooks, 'wps_clauses_mod'), 10, 2 );
 
 			/*
 
@@ -345,7 +347,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			// add_filter( 'wps_products_related_heading', array($Hooks, 'wps_products_related_heading') );
 			// add_action( 'wps_products_related_heading_end_after', array($Hooks, 'wps_products_related_heading_end_after') );
 
-			add_filter( 'wps_products_related_args', array($Hooks, 'wps_products_related_args'), 9, 2);
+			add_filter( 'wps_products_related_args', array($Hooks, 'wps_products_related_args'), 10, 2);
 			add_filter( 'wps_products_related_args_posts_per_page', array($Hooks, 'wps_products_related_args_posts_per_page') );
 			add_filter( 'wps_products_related_args_orderby', array($Hooks, 'wps_products_related_args_orderby') );
 			add_filter( 'wps_products_related_custom_args', array($Hooks, 'wps_products_related_custom_args'));
