@@ -59,7 +59,8 @@ function onSyncData() {
     console.log('Done syncing ...', data);
 
   });
-}
+
+};
 
 
 /*

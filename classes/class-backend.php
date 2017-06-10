@@ -94,6 +94,8 @@ class Backend {
 
 			// setcookie("wps-progress", 0);
 
+			// Polyfill
+			// wp_enqueue_script('polyfill-io', '//cdn.polyfill.io/v2/polyfill.js', array(), $this->config->plugin_version, true );
 
 			// Media scripts
 			wp_enqueue_media();
