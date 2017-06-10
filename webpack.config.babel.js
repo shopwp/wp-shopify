@@ -27,6 +27,7 @@ module.exports = () => {
     devtool: ifProd('source-map', 'eval'),
     entry: {
       admin: [
+        'babel-polyfill',
         path.resolve('admin/js/app/app.js'),
       ],
       public: [
@@ -93,9 +94,6 @@ module.exports = () => {
           properties: true,
           loops: true
         }
-      }),
-      new HappyPack({
-        loaders: ['babel-loader'],
       })
     ],
     resolve: {
@@ -109,22 +107,18 @@ module.exports = () => {
         ShopifyBuy: "shopify-buy"
       }
     },
+
+
+
     module: {
       rules: [{
         test: /\.js$/,
         exclude: /node_modules/,
         enforce: 'pre',
         use: [
-          {
-            loader: 'happypack/loader',
-            options: {
-              plugins: ['lodash', 'validator'],
-              presets: [
-                [ 'es2015', { modules: false, loose: true } ]
-              ]
-            }
-          }
-        ]
+          'babel-loader?presets[]=es2015&plugins[]=transform-async-to-generator',
+          "eslint-loader",
+        ],
       },
       {
         test: /\.(png|jpe?g|gif|woff|woff2|eot|ttf|svg)$/,

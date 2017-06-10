@@ -10,7 +10,6 @@ import { settingsInit } from './settings/settings';
 import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
 
-
 (function($) {
 	'use strict';
 
