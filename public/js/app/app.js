@@ -5,7 +5,7 @@ import bootstrap from "./utils/utils-bootstrap";
   "use strict";
 
   $(function() {
-    console.log('sdfsd');
+    console.log('public sideee');
     bootstrap();
 
   });
