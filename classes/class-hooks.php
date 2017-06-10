@@ -70,7 +70,7 @@ if (!class_exists('Hooks')) {
     Products Loop - After Products Loop
 
     */
-		public function wps_products_loop_end() {
+		public function wps_products_loop_end($products) {
 			return include($this->config->plugin_path . 'public/partials/products/loop/loop-end.php');
 		}
 
