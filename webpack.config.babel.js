@@ -107,9 +107,6 @@ module.exports = () => {
         ShopifyBuy: "shopify-buy"
       }
     },
-
-
-
     module: {
       rules: [{
         test: /\.js$/,
