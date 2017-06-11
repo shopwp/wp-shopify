@@ -41,6 +41,7 @@ function onLicenseFormSubmit() {
   var $formLicense = jQuery("#wps-license");
 
   $formLicense.submit(function(e) {
+
     e.preventDefault();
 
   }).validate({
@@ -50,17 +51,11 @@ function onLicenseFormSubmit() {
         alphaNumeric: true
       }
     },
-    success: function(label) {
-      jQuery('#wps-errors').addClass('wps-is-hidden');
-      enable($formLicense.find('input[type="submit"]'));
-
-    },
     errorPlacement: function(error) {
       showAdminNotice(error.text(), 'error');
-
     },
     submitHandler: async function(form) {
-
+      console.log('3');
       var $submitButton = jQuery(form).find('input[type="submit"]');
       var $spinner = jQuery(form).find('.spinner');
       var nonce = jQuery("#wps_settings_license_nonce_license_id").val();
@@ -77,6 +72,8 @@ function onLicenseFormSubmit() {
           showAdminNotice('Successfully activated license key. Enjoy :)', 'updated');
 
         } catch (errorMsg) {
+
+          console.log('errorMsg: ', errorMsg);
 
           hideLoader($submitButton);
           showAdminNotice(errorMsg, 'error');
@@ -137,9 +134,7 @@ async function deactivateKey() {
   // Deactivating key at wpshop.io
   //
   try {
-    console.log("savedLicenseKey: ", savedLicenseKey);
     var deactivatedstuff = await deactivateLicenseKey(savedLicenseKey);
-    console.log("deactivatedstuff: ", deactivatedstuff);
 
   } catch(error) {
     enable($submitButton);
@@ -179,19 +174,18 @@ async function deactivateKey() {
 /*
 
 Helper function for checking license key validity
+Checks for error properties from WPS
 
 */
 async function isLicenseKeyValid(key) {
 
   var keyStatusObj = await getLicenseKeyStatus(key);
 
-  console.log("keyStatusObj: ", keyStatusObj);
+  if (keyStatusObj.license === 'invalid') {
+    return rejectedPromise('Error: license key is invalid. Please double check your key and try again.');
+  }
 
   if(keyStatusObj.activations_left <= 0) {
-
-    console.log("0 left!");
-
-    // enable($submitButton);
     return rejectedPromise('Error: license key has reached it\'s activation limit. Please upgrade.');
 
   } else {
@@ -221,7 +215,8 @@ async function activateKey(key) {
   // Checking if we can activate ...
   //
   try {
-    await isLicenseKeyValid(key);
+    var validKey = await isLicenseKeyValid(key);
+    console.log("validKey:: ", validKey);
 
   } catch(error) {
 
@@ -236,11 +231,7 @@ async function activateKey(key) {
   //
   try {
 
-    console.log("1111111sdfsdfsdfsdf: ");
-
     licenseKeyActivatedResp = await activateLicenseKey(key);
-
-    console.log("licenseKeyActivatedResp: ", licenseKeyActivatedResp);
 
     if(!isObject(licenseKeyActivatedResp)) {
       enable($submitButton);
@@ -261,15 +252,10 @@ async function activateKey(key) {
   try {
 
     licenseKeyInfo = await getLicenseKeyStatus(key);
-
-
     licenseKeyInfo.key = key;
     licenseKeyInfo.is_local = licenseKeyActivatedResp.is_local;
 
-    console.log("licenseKeyInfo: ", licenseKeyInfo);
-
     await saveLicenseKey(licenseKeyInfo);
-
 
     $submitButton.data('status', 'deactivate');
     $submitButton.attr('data-status', 'deactivate');
@@ -367,7 +353,6 @@ function onCheckLicenseKeyValidity() {
 
     var key = jQuery('.wps-input-license-key').val();
     var stuff = await getLicenseKeyStatus(key);
-    console.log("getLicenseKeyStatus: ", stuff);
 
   });
 
@@ -388,7 +373,6 @@ function onGetLicenseKeyInfo() {
 
     var key = jQuery('.wps-input-license-key').val();
     var stuff = await getProductInfo(key);
-    console.log("getProductInfo: ", stuff);
 
   });
 

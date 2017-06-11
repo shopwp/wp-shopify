@@ -29,7 +29,7 @@ function onInputBlur() {
   var formInputClass = 'input';
 
   $forms.on('blur', formInputClass, function formInputBlurHandler() {
-
+    
     var $inputs = $forms.find('input[required]');
 
     if(hasVals($inputs)) {

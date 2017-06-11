@@ -51,11 +51,6 @@ function onSettingsFormSubmit() {
         urlRule: true
       }
     },
-    success: function(label) {
-      jQuery('#wps-errors').addClass('wps-is-hidden');
-      enable($formSettings.find('input[type="submit"]'));
-
-    },
     errorPlacement: function(error) {
       showAdminNotice(error.text(), 'error');
 

@@ -11,11 +11,13 @@ function toggleTab() {
     var targetTab = jQuery(this).data('tab');
     var $targetTabElement = findTab(targetTab);
     var $targetTabContentElement = findTabContent(targetTab);
+    var $msgContainer = jQuery('#wps-errors');
 
     removeCurrentActiveTab();
 
     $targetTabElement.addClass('nav-tab-active');
     $targetTabContentElement.addClass('tab-content-active');
+    $msgContainer.addClass('wps-is-hidden');
 
   });
 
