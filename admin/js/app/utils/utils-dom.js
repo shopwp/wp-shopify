@@ -283,7 +283,25 @@ Update Modal Text
 
 */
 function showAdminNotice(message, type) {
-  jQuery('#wps-errors').removeClass('wps-is-hidden').html('<div class="notice ' + type + '"><p><strong>' + message + '</strong></p></div>');
+
+  var $msgContainer = jQuery('#wps-errors');
+
+  $msgContainer.removeClass('wps-is-hidden').html('<div class="notice ' + type + '"><p><strong>' + message + '</strong></p></div>');
+
+  var $msg = $msgContainer.find('.notice');
+
+  if (type === 'updated') {
+
+    setTimeout(function() {
+
+      $msg.slideUp('fast', function() {
+        $msgContainer.addClass('wps-is-hidden');
+      });
+
+    }, 5000);
+
+  }
+
 }
 
 

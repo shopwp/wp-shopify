@@ -2,7 +2,7 @@
 Contributors: Andrew Robbins
 Donate link: https://wpshop.io
 Tags: shopify, ecommerce
-Requires at least: 4.0
+Requires at least: 4.4
 Tested up to: 4.8
 Stable tag: trunk
 License: GPLv2 or later

@@ -23,7 +23,7 @@ Tab Content: Connect
 
   <div class="wps-admin-section">
 
-    <p>To connect your Shopify account, enter your unique buy button API key and Shopify domain below. Once you hit connect WP Shopify will redirect you to Shopify to verify the connection. If you need additional help, please see the <a href="<?php echo $this->config->plugin_env; ?>/docs">video tutorial and documentation</a>.</p>
+    <p>To connect your Shopify account, enter your unique buy button API key and Shopify domain below. Once you hit connect WP Shopify will redirect you to Shopify to verify the connection. If you need additional help, please see the <a href="<?php echo $this->config->plugin_env; ?>/docs" target="_blank">video tutorial and documentation</a>.</p>
 
     <form method="post" name="cleanup_options" action="options.php" id="wps-connect" class="wps-admin-form">
 
@@ -73,9 +73,9 @@ Tab Content: Connect
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
         <?php if($connected) { ?>
-          <?php submit_button(__('Disconnect your Shopify Account', $this->config->settings_connection_option_name), 'primary', 'submitDisconnect', false, array()); ?>
+          <?php submit_button(__('Disconnect your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitDisconnect', false, array()); ?>
         <?php } else { ?>
-          <?php submit_button(__('Connect your Shopify Account', $this->config->settings_connection_option_name), 'primary', 'submitConnect', false, array()); ?>
+          <?php submit_button(__('Connect your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
         <div class="spinner"></div>
       </div>
