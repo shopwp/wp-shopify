@@ -49,6 +49,10 @@ class CPT {
   //
   public function wps_post_type_products() {
 
+    if ( post_type_exists( 'wps_products' ) ) {
+      return;
+    }
+
     $labels = array(
       'name'                => _x('Products', 'Post Type General Name', 'text_domain'),
       'singular_name'       => _x('Product', 'Post Type Singular Name', 'text_domain'),
@@ -94,6 +98,10 @@ class CPT {
   // CPT: Collections
   //
   public function wps_post_type_collections() {
+
+    if ( post_type_exists( 'wps_collections' ) ) {
+      return;
+    }
 
     $labels = array(
       'name'                => _x('Collections', 'Post Type General Name', 'text_domain'),
