@@ -4,15 +4,15 @@
 
 WP Shopify
 
-@link              https://wpshop.io
-@since             0.1.18
+@link              https://staging.wpshop.io
+@since             0.1.19
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
-Plugin URI:        https://wpshop.io
+Plugin URI:        https://staging.wpshop.io
 Description:       Sync your Shopify store with WordPress. Designed to be extensible, seamless, and lightweight.
-Version:           0.1.18
+Version:           0.1.19
 Author:            Andrew Robbins
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
