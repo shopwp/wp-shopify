@@ -224,6 +224,8 @@ function onConnectionFormSubmit() {
 
         var shopifyURL = await getShopifyURL();
 
+        console.log("shopifyURL: ", shopifyURL);
+
         setConnectionStepMessage('Redirecting to Shopify');
         updateModalHeadingText('Redirecting ...');
 
