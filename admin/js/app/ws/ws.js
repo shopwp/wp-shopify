@@ -719,7 +719,7 @@ function getAuthToken() {
 
   var options = {
     method: 'POST',
-    url: 'https://wpshop.io/wp-json/jwt-auth/v1/token',
+    url: 'https://staging.wpshop.io/wp-json/jwt-auth/v1/token',
     dataType: "json",
     data: {
       username: 'wp-shopify-auth-user', // TODO: make dynamic?
@@ -741,7 +741,7 @@ Returns: Promise
 function getAuthUser(token) {
 
   var options = {
-    url: 'https://wpshop.io/wp-json/wp/v2/users/2',
+    url: 'https://staging.wpshop.io/wp-json/wp/v2/users/2',
     method: 'GET',
     headers: {
       'Authorization': 'Bearer ' + token
@@ -805,7 +805,7 @@ function updateAuthUser(authToken, authUserData) {
       console.log("authToken: ", authToken);
 
   var options = {
-    url: 'https://wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic
+    url: 'https://staging.wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic
     method: 'POST',
     headers: {
       'Authorization': 'Bearer ' + authToken
