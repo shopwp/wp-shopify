@@ -51,7 +51,7 @@ class Waypoints {
   */
   public function wps_waypoint_settings() {
 
-    $response = \Requests::get('https://wpshop.io/wp-json/wp-shopify/v1/settings');
+    $response = \Requests::get('https://staging.wpshop.io/wp-json/wp-shopify/v1/settings');
     $responseBody = $response->body;
 
     return $responseBody;
@@ -71,7 +71,6 @@ class Waypoints {
 
     // OLD
     $connection = $this->config->wps_get_settings_connection();
-
 
 		$url = 'https://' . $connection->domain . '/admin/oauth/authorize?client_id=' . $shopifySettings->wps_api_key . '&scope=' . $shopifySettings->wps_scopes . '&redirect_uri=' . $shopifySettings->wps_redirect . '&state=' . $connection->nonce;
 
@@ -93,7 +92,7 @@ class Waypoints {
 			'Authorization' => 'Bearer ' . $token
 		);
 
-		$responseUser = \Requests::get('https://wpshop.io/wp-json/wp/v2/users/2', $headers);
+		$responseUser = \Requests::get('https://staging.wpshop.io/wp-json/wp/v2/users/2', $headers);
 
 		$userFinal = $responseUser->body;
 		$userDesc = json_decode($userFinal);
@@ -117,7 +116,7 @@ class Waypoints {
       'password' => 'xyWlcxyIwkA(#gUl!Exy$ITz'
     );
 
-		$response = \Requests::post('https://wpshop.io/wp-json/jwt-auth/v1/token', array(), $data);
+		$response = \Requests::post('https://staging.wpshop.io/wp-json/jwt-auth/v1/token', array(), $data);
 
 		$token = json_decode($response->body)->token;
 
