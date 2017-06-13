@@ -322,7 +322,15 @@ class License {
   */
 	public function init() {
 
-		include( $this->plugin_path . 'vendor/EDD/EDD_SL_Plugin_Updater.php' );
+		/*
+
+		Important to check this. Otherwise it can conflict with other plugins that also use EDD and
+		result in a fatal error.
+
+		*/
+		if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+			include( $this->plugin_path . 'vendor/EDD/EDD_SL_Plugin_Updater.php' );
+		}
 
 		if (is_admin()) {
 
