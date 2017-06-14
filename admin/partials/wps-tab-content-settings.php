@@ -22,28 +22,65 @@ Tab Content: Settings
 
       ?>
 
-      <!-- URLs -->
-      <div class="wps-form-group">
+      <!-- Products URLs -->
+      <div class="wps-form-group wps-form-group-tight">
 
-        <h4><?php esc_attr_e( 'Products URL', 'wp_admin_style' ); ?></h4>
-        <span><?php echo get_home_url(); ?>/</span> <input required type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_url_products" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_url_products]" value="<?php if(!empty($general->url_products)) echo $general->url_products; ?>" placeholder="products">
+        <table class="form-table">
+          <tbody>
+            <tr valign="top">
+              <th scope="row" class="titledesc">
+                <?php esc_attr_e( 'Products URL', 'wp_admin_style' ); ?>
+              </th>
+              <td class="forminp forminp-text">
+                <code><?php echo get_home_url(); ?>/</code>
+                <input required type="text" class="regular-text code" id="<?php echo $this->config->settings_general_option_name; ?>_url_products" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_url_products]" value="<?php if(!empty($general->url_products)) echo $general->url_products; ?>" placeholder="products">
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        <h4><?php esc_attr_e( 'Collections URL', 'wp_admin_style' ); ?></h4>
-        <span><?php echo get_home_url(); ?>/</span> <input required type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_url_collections" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_url_collections]" value="<?php if(!empty($general->url_collections)) echo $general->url_collections; ?>" placeholder="collections">
+      </div>
+
+      <!-- Collections URLs -->
+      <div class="wps-form-group wps-form-group-tight">
+
+        <table class="form-table">
+          <tbody>
+            <tr valign="top">
+              <th scope="row" class="titledesc">
+                <?php esc_attr_e( 'Collections URL', 'wp_admin_style' ); ?>
+              </th>
+              <td class="forminp forminp-text">
+                <code><?php echo get_home_url(); ?>/</code>
+                <input required type="text" class="regular-text code" id="<?php echo $this->config->settings_general_option_name; ?>_url_collections" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_url_collections]" value="<?php if(!empty($general->url_collections)) echo $general->url_collections; ?>" placeholder="collections">
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
       </div>
 
       <!-- URLs -->
-      <div class="wps-form-group">
+      <div class="wps-form-group wps-form-group-tight">
 
-        <h4><?php esc_attr_e( 'Webhooks callback URL', 'wp_admin_style' ); ?></h4>
-        <small>(Needs to be publicly accesible. Can change to test webhooks during development on localhost.)</small>
-        <input required type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_url_webhooks" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_webhooks_products]" value="<?php if(!empty($general->url_webhooks)) echo $general->url_webhooks; ?>" placeholder="<?php echo get_home_url(); ?>">
+        <table class="form-table">
+          <tbody>
+            <tr valign="top">
+              <th scope="row" class="titledesc">
+                <?php esc_attr_e( 'Webhooks callback URL', 'wp_admin_style' ); ?>
+                <span class="wps-help-tip" title="Needs to be publicly accesible. Can change to test webhooks during development on localhost"></span>
+              </th>
+              <td class="forminp forminp-text">
+                <input required type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_url_webhooks" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_webhooks_products]" value="<?php if(!empty($general->url_webhooks)) echo $general->url_webhooks; ?>" placeholder="<?php echo get_home_url(); ?>">
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
       </div>
 
       <!-- Number of products -->
-      <div class="wps-form-group">
+      <div class="wps-form-group wps-form-group-tight">
 
         <?php
 
@@ -51,11 +88,43 @@ Tab Content: Settings
 
         ?>
 
-        <h4><?php esc_attr_e( 'Products per page', 'wp_admin_style' ); ?></h4>
-        <small>(Defaults to standard WordPress post count set in Settings - Reading - Blog pages show at most)</small>
-        <input type="number" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_num_posts" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_num_posts]" value="<?php echo !empty($general->num_posts) ? $general->num_posts : $default_posts_per_page; ?>" placeholder="">
+        <table class="form-table">
+          <tbody>
+            <tr valign="top">
+              <th scope="row" class="titledesc">
+                <?php esc_attr_e( 'Products per page', 'wp_admin_style' ); ?>
+                <span class="wps-help-tip" title="Defaults to standard WordPress post count set in Settings - Reading"></span>
+              </th>
+              <td class="forminp forminp-text">
+                <input type="number" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_num_posts" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_num_posts]" value="<?php echo !empty($general->num_posts) ? $general->num_posts : $default_posts_per_page; ?>" placeholder="">
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
       </div>
+
+
+      <!-- Hide default styles -->
+      <div class="wps-form-group wps-form-group-tight">
+
+        <table class="form-table">
+          <tbody>
+            <tr valign="top">
+              <th scope="row" class="titledesc">
+                <?php esc_attr_e( 'Remove default styles', 'wp_admin_style' ); ?>
+              </th>
+              <td class="forminp forminp-text">
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles]" id="<?php echo $this->config->settings_general_option_name; ?>_styles" type="checkbox" class="" value="<?php echo !empty($general->styles) ? true : false; ?>" checked="checked"> Remove default styles
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
 
       <!-- Nonce -->
       <input hidden type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_urls_nonce_id" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_nonce]" value="<?php echo wp_create_nonce( uniqid() ); ?>"/>

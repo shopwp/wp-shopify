@@ -27,7 +27,7 @@ Tab Content: Tools
     <p>Mauris sollicitudin fermentum libero. Fusce egestas elit eget lorem. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Praesent congue erat at massa. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna.</p>
 
     <div class="wps-button-group button-group button-group-ajax">
-      <?php submit_button(__('Remove store data', $this->config->settings_general_option_name), 'primary', 'submitURLs', false, array('class' => 'button wps-btn-uninstall')); ?>
+      <?php submit_button(__('Remove store data', $this->config->settings_general_option_name), 'primary', 'wps-btn-uninstall', false, array()); ?>
       <div class="spinner"></div>
     </div>
 

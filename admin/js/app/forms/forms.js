@@ -1,20 +1,23 @@
 import {
   enable,
   disable,
-  hasVals
+  hasVals,
+  showLoader,
+  hideLoader
 } from '../utils/utils';
+
+import {
+  showAdminNotice
+} from '../utils/utils-dom';
 
 import {
   delWebhooks,
   getWebhooks,
   addWebhook,
   getProductVariants,
-  getProducts
+  getProducts,
+  uninstallPlugin
 } from '../ws/ws.js';
-
-import {
-  uninstallPluginData
-} from '../disconnect/disconnect.js';
 
 
 /*
@@ -29,7 +32,7 @@ function onInputBlur() {
   var formInputClass = 'input';
 
   $forms.on('blur', formInputClass, function formInputBlurHandler() {
-    
+
     var $inputs = $forms.find('input[required]');
 
     if(hasVals($inputs)) {
@@ -114,17 +117,24 @@ On plugin uninstall ...
 */
 function onUninstall() {
 
-  jQuery('.wps-btn-uninstall').on('click', async function uninstallHandler(event) {
+  jQuery('#wps-btn-uninstall').on('click', async function uninstallHandler(event) {
 
-    // uninstallPluginData();
-    // console.log("getting variant ... ");
-    // var result = await getProductVariants(7446023813);
-    // console.log("result: ", result);
+    showLoader(jQuery(this));
 
-    console.log("getting variant ... ");
-    // var result = await getProducts();
-    console.log("result: ", result);
+    try {
+      var response = await uninstallPlugin();
 
+    } catch(error) {
+      console.log("Error removing store data: ", error);
+      hideLoader(jQuery(this));
+      showAdminNotice("Error removing store data: " + error, 'error');
+      return;
+
+    }
+
+    hideLoader(jQuery(this));
+    showAdminNotice("Successfully removed store data", 'updated');
+    console.log("Successfully removed store data: ", response);
 
   });
 
