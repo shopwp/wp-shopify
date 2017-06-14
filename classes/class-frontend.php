@@ -4,6 +4,8 @@ namespace WPS;
 
 use WPS\DB\Products as DB_Products;
 use WPS\DB\Variants as DB_Variants;
+use WPS\DB\Settings_General;
+
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -32,6 +34,8 @@ if (!class_exists('Frontend')) {
 		*/
 		public function __construct($Config) {
 			$this->config = $Config;
+			$this->Settings_General = new Settings_General();
+
 		}
 
 
@@ -60,7 +64,22 @@ if (!class_exists('Frontend')) {
 		public function wps_public_styles() {
 
 			if(!is_admin()) {
-				wp_enqueue_style( $this->config->plugin_name . '-styles', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
+
+				$styles = $this->Settings_General->get_column_single('styles');
+
+				if (is_array($styles)) {
+
+					if ($styles[0]->styles) {
+						wp_enqueue_style( $this->config->plugin_name . '-styles', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
+
+					} else {
+
+					}
+
+				} else {
+
+				}
+
 			}
 
 		}

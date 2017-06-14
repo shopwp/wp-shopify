@@ -748,6 +748,10 @@ class WS {
 
     }
 
+    if (isset($_POST['wps_settings_general_styles'])) {
+      $newGeneralSettings['styles'] = (int)$_POST['wps_settings_general_styles'];
+    }
+
     $results = $DB_Settings_General->update_general($newGeneralSettings);
 
     set_transient('wps_settings_updated', $newGeneralSettings);
