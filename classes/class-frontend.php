@@ -129,8 +129,8 @@ if (!class_exists('Frontend')) {
 			 which is the main function that constructs our custom SQL query. This is where
 			 the "custom" property is set that we eventually check for within 'wps_clauses_mod'.
 
-		3. At this point in the exectution we load our template by pulling in our
-			 products-all.php template. This template then calls our custom action 'wps_products_display'
+		3. At this point in the execution we load our template by pulling in our
+			 products-all.php. This template then calls our custom action 'wps_products_display'
 
 		4. 'wps_products_display' then calls 'wps_clauses_mod' when it invokes WP_Query. The
 			 execution order looks like this:
@@ -158,15 +158,16 @@ if (!class_exists('Frontend')) {
 
 			$shortcode_output = '';
 			$shortcodeArgs = Utils::wps_format_products_shortcode_args($atts);
+			$is_shortcode = true;
 
 			ob_start();
 			include($this->config->plugin_path . "public/templates/products-all.php");
 			$products = ob_get_contents();
 			ob_end_clean();
 
-     $shortcode_output .= $products;
+     	$shortcode_output .= $products;
 
-     return $shortcode_output;
+     	return $shortcode_output;
 
 		}
 
@@ -180,7 +181,8 @@ if (!class_exists('Frontend')) {
 
 			$shortcode_output = '';
 			$shortcodeArgs = Utils::wps_format_collections_shortcode_args($atts);
-
+			$is_shortcode = true;
+			
 			ob_start();
 			include($this->config->plugin_path . "public/templates/collections-all.php");
 			$collections = ob_get_contents();
@@ -291,6 +293,7 @@ if (!class_exists('Frontend')) {
 		public function wps_products_template($template) {
 
 			global $wp_query, $post;
+// echo 'hihih';
 
 			if(isset($post) && $post) {
 
@@ -397,7 +400,7 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );
 
 			add_filter( 'single_template', array($this, 'wps_product_single_template') );
-			add_filter( 'archive_template', array($this, 'wps_products_template') );
+			add_filter( 'template_include', array($this, 'wps_products_template') );
 
 			add_shortcode( 'wps_products', array($this, 'wps_products_shortcode') );
 			add_shortcode( 'wps_collections', array($this, 'wps_collections_shortcode') );

@@ -691,6 +691,8 @@ if (!class_exists('Hooks')) {
 
 			}
 
+			wp_reset_postdata();
+
 			do_action( 'wps_products_loop_end', $products );
 			do_action( 'wps_before_products_pagination', $products );
 
@@ -700,8 +702,6 @@ if (!class_exists('Hooks')) {
 
 			do_action( 'wps_after_products_pagination', $products );
 
-			// wp_reset_postdata();
-			// wp_reset_query();
 
 			do_action( 'wps_products_after', $products );
 
@@ -887,7 +887,6 @@ if (!class_exists('Hooks')) {
 
 				do_action( 'wps_after_collections_pagination', $collections );
 
-				wp_reset_postdata();
 
 			} else {
 				do_action( 'wps_collections_no_results', $args );
