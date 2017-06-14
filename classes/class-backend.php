@@ -63,6 +63,9 @@ class Backend {
 		// Only loading styles if we're on the settings page ...
 		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections' || get_current_screen()->id === 'plugins') {
 
+			// Tool tipster
+			wp_enqueue_style('tooltipster-css', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.min.css', array());
+
 			// Color Picker
 			wp_enqueue_style('wp-color-picker');
 
@@ -88,9 +91,9 @@ class Backend {
 	public function wps_config_admin_scripts() {
 
 		// $this->config = new Config();
-
+		error_log(get_current_screen()->id);
 		// Only loading admin script if we're on the settings page ...
-		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products'  || get_current_screen()->id === 'wps_collections') {
+		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
 
 			// setcookie("wps-progress", 0);
 
@@ -99,6 +102,9 @@ class Backend {
 
 			// Media scripts
 			wp_enqueue_media();
+
+
+			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, true );
 
 			// Shopify JS SDK
 			wp_enqueue_script('shopify-js-sdk', '//sdks.shopifycdn.com/js-buy-sdk/latest/shopify-buy.polyfilled.globals.min.js', array(), $this->config->plugin_version, true );
@@ -118,7 +124,7 @@ class Backend {
 			// wp_enqueue_script('wps-admin-vendor', $this->config->plugin_url . 'dist/vendor.min.js', array(), $this->config->plugin_version, false );
 
 			// WP Shopify JS Admin
-			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('shopify-js-sdk', 'validate-js'), $this->config->plugin_version, true );
+			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('shopify-js-sdk', 'validate-js', 'tooltipster-js'), $this->config->plugin_version, true );
 
 			wp_localize_script('wps-admin', 'wps', array(
 					'ajax' => admin_url( 'admin-ajax.php' ),

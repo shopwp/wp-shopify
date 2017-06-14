@@ -2,11 +2,15 @@
 
 namespace WPS\DB;
 
+use WPS\Config;
+
 class Settings_General extends \WPS\DB {
 
   public $table_name;
+  public $primary_key;
 	public $version;
-	public $primary_key;
+	public $webhooks;
+  public $plugin_version;
 
   /*
 
@@ -15,11 +19,14 @@ class Settings_General extends \WPS\DB {
   */
 	public function __construct() {
 
+    $Config = new Config();
+
     global $wpdb;
-    $this->table_name  = $wpdb->prefix . 'wps_settings_general';
-    $this->primary_key = 'id';
-    $this->version     = '1.0';
-    $this->webhooks    = get_home_url();
+    $this->table_name         = $wpdb->prefix . 'wps_settings_general';
+    $this->primary_key        = 'id';
+    $this->version            = '1.0';
+    $this->webhooks           = get_home_url();
+    $this->plugin_version     = $Config->plugin_version;
 
   }
 
@@ -36,6 +43,7 @@ class Settings_General extends \WPS\DB {
       'url_collections'           => '%s',
       'url_webhooks'              => '%s',
       'num_posts'                 => '%d',
+      'styles'                    => '%d',
       'plugin_name'               => '%s',
       'plugin_textdomain'         => '%s',
       'plugin_version'            => '%s',
@@ -56,9 +64,10 @@ class Settings_General extends \WPS\DB {
       'url_collections'           => 'collections',
       'url_webhooks'              => $this->webhooks,
       'num_posts'                 => null,
+      'styles'                    => 1,
       'plugin_name'               => 'WP Shopify',
       'plugin_textdomain'         => 'wps',
-      'plugin_version'            => '0.1.10',
+      'plugin_version'            => $this->plugin_version,
       'plugin_author'             => 'Andrew Robbins'
     );
   }
@@ -79,9 +88,10 @@ class Settings_General extends \WPS\DB {
       'url_collections'   => 'collections',
       'url_webhooks'      => $this->webhooks,
       'num_posts'         => null,
+      'styles'            => 1,
       'plugin_name'       => 'WP Shopify',
       'plugin_textdomain' => 'wps',
-      'plugin_version'    => '0.1.10',
+      'plugin_version'    => $this->plugin_version,
       'plugin_author'     => 'Andrew Robbins'
     );
 
@@ -129,9 +139,10 @@ class Settings_General extends \WPS\DB {
 		  `url_collections` varchar(100) NOT NULL DEFAULT 'collections',
       `url_webhooks` varchar(100) NOT NULL DEFAULT '{$this->webhooks}',
       `num_posts` bigint(100) DEFAULT NULL,
+      `styles` tinyint(1) DEFAULT 1,
       `plugin_name` varchar(100) NOT NULL DEFAULT 'WP Shopify',
       `plugin_textdomain` varchar(100) NOT NULL DEFAULT 'wps',
-      `plugin_version` varchar(100) NOT NULL DEFAULT '0.1.10',
+      `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
       `plugin_author` varchar(100) NOT NULL DEFAULT 'Andrew Robbins',
 		  PRIMARY KEY (`{$this->primary_key}`)
 		) ENGINE=InnoDB DEFAULT CHARSET={$collate};";

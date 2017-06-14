@@ -64,6 +64,7 @@ function onSettingsFormSubmit() {
       var collectionsURL = jQuery(form).find("#wps_settings_general_url_collections").val();
       var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
+      var styles = jQuery(form).find("#wps_settings_general_styles").val();
 
       disable($submitButton);
       toggleActive($spinner);
@@ -84,7 +85,8 @@ function onSettingsFormSubmit() {
         wps_settings_general_products_url: productsURL,
         wps_settings_general_collections_url: collectionsURL,
         wps_settings_general_url_webhooks: webhooksURL,
-        wps_settings_general_num_posts: numPosts
+        wps_settings_general_num_posts: numPosts,
+        wps_settings_general_styles: styles
       }
 
       try {
