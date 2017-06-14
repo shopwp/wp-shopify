@@ -11,6 +11,10 @@ class Settings_General extends \WPS\DB {
 	public $version;
 	public $webhooks;
   public $plugin_version;
+  public $plugin_author;
+  public $plugin_textdomain;
+  public $plugin_name;
+  public $num_posts;
 
   /*
 
@@ -27,6 +31,11 @@ class Settings_General extends \WPS\DB {
     $this->version            = '1.0';
     $this->webhooks           = get_home_url();
     $this->plugin_version     = $Config->plugin_version;
+    $this->plugin_author      = $Config->plugin_author;
+    $this->plugin_textdomain  = $Config->plugin_name;
+    $this->plugin_name        = $Config->plugin_name_full;
+    $this->num_posts          = get_option('posts_per_page');
+    $this->cache_group        = 'wps_db_general';
 
   }
 
@@ -63,12 +72,12 @@ class Settings_General extends \WPS\DB {
       'url_products'              => 'products',
       'url_collections'           => 'collections',
       'url_webhooks'              => $this->webhooks,
-      'num_posts'                 => null,
+      'num_posts'                 => $this->num_posts,
       'styles'                    => 1,
-      'plugin_name'               => 'WP Shopify',
-      'plugin_textdomain'         => 'wps',
+      'plugin_name'               => $this->plugin_name,
+      'plugin_textdomain'         => $this->plugin_textdomain,
       'plugin_version'            => $this->plugin_version,
-      'plugin_author'             => 'Andrew Robbins'
+      'plugin_author'             => $this->plugin_author
     );
   }
 
@@ -83,16 +92,16 @@ class Settings_General extends \WPS\DB {
     $results = array();
 
     $data = array(
-      'id'                => 1,
-      'url_products'      => 'products',
-      'url_collections'   => 'collections',
-      'url_webhooks'      => $this->webhooks,
-      'num_posts'         => null,
-      'styles'            => 1,
-      'plugin_name'       => 'WP Shopify',
-      'plugin_textdomain' => 'wps',
-      'plugin_version'    => $this->plugin_version,
-      'plugin_author'     => 'Andrew Robbins'
+      'id'                        => 1,
+      'url_products'              => 'products',
+      'url_collections'           => 'collections',
+      'url_webhooks'              => $this->webhooks,
+      'num_posts'                 => $this->num_posts,
+      'styles'                    => 1,
+      'plugin_name'               => $this->plugin_name,
+      'plugin_textdomain'         => $this->plugin_textdomain,
+      'plugin_version'            => $this->plugin_version,
+      'plugin_author'             => $this->plugin_author
     );
 
     $row = $this->get_rows('id', 1);
@@ -140,10 +149,10 @@ class Settings_General extends \WPS\DB {
       `url_webhooks` varchar(100) NOT NULL DEFAULT '{$this->webhooks}',
       `num_posts` bigint(100) DEFAULT NULL,
       `styles` tinyint(1) DEFAULT 1,
-      `plugin_name` varchar(100) NOT NULL DEFAULT 'WP Shopify',
-      `plugin_textdomain` varchar(100) NOT NULL DEFAULT 'wps',
+      `plugin_name` varchar(100) NOT NULL DEFAULT '{$this->plugin_name}',
+      `plugin_textdomain` varchar(100) NOT NULL DEFAULT '{$this->plugin_textdomain}',
       `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
-      `plugin_author` varchar(100) NOT NULL DEFAULT 'Andrew Robbins',
+      `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
 		  PRIMARY KEY (`{$this->primary_key}`)
 		) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 

@@ -64,7 +64,7 @@ function onSettingsFormSubmit() {
       var collectionsURL = jQuery(form).find("#wps_settings_general_url_collections").val();
       var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
-      var styles = jQuery(form).find("#wps_settings_general_styles").val();
+      // var styles = jQuery(form).find("#wps_settings_general_styles").val();
 
       disable($submitButton);
       toggleActive($spinner);
@@ -80,6 +80,17 @@ function onSettingsFormSubmit() {
 
       }
 
+      var checkedAttr = jQuery(form).find("#wps_settings_general_styles").attr("checked");
+
+      if (typeof checkedAttr !== typeof undefined && checkedAttr !== false) {
+        var styles = 1;
+
+      } else {
+        var styles = 0;
+
+      }
+
+      console.log("styles: ", styles);
 
       var settings = {
         wps_settings_general_products_url: productsURL,
