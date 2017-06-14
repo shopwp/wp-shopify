@@ -1,8 +1,10 @@
 <?php
 
-get_header();
-
 $args = !empty($shortcodeArgs) ? $shortcodeArgs : array();
+
+if (empty($is_shortcode)) {
+  get_header();
+}
 
 do_action(
   'wps_collections_display',
@@ -10,5 +12,7 @@ do_action(
   apply_filters('wps_collections_custom_args', array())
 );
 
-get_sidebar();
-get_footer();
+if (empty($is_shortcode)) {
+  get_sidebar();
+  get_footer();
+}

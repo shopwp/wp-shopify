@@ -241,7 +241,7 @@ class License {
 		define( 'EDD_SAMPLE_ITEM_ID', 35 );
 
 		if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-		  error_log('EDD_SL_Plugin_Updater - DOESNT exist --- $this->plugin_root_file');
+
 		  // load our custom updater
 		  include( $this->plugin_path . 'vendor/EDD/EDD_SL_Plugin_Updater.php' );
 

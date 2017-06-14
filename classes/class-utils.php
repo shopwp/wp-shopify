@@ -976,6 +976,7 @@ class Utils {
       'paged'             => 1
     );
 
+    // TODO: Why are we resetting the array?
     $shortcode_args = array();
 
     //
@@ -1107,6 +1108,7 @@ class Utils {
       'paged'             => 1
     );
 
+    // TODO: Why are we resetting the array?
     $shortcode_args = array();
 
     //
