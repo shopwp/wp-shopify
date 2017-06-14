@@ -19,9 +19,10 @@ class Variants extends \WPS\DB {
 	public function __construct() {
 
     global $wpdb;
-    $this->table_name  = $wpdb->prefix . 'wps_variants';
-    $this->primary_key = 'id';
-    $this->version     = '1.0';
+    $this->table_name         = $wpdb->prefix . 'wps_variants';
+    $this->primary_key        = 'id';
+    $this->version            = '1.0';
+    $this->cache_group        = 'wps_db_variants';
 
   }
 
