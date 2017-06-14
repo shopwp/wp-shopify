@@ -182,7 +182,7 @@ if (!class_exists('Frontend')) {
 			$shortcode_output = '';
 			$shortcodeArgs = Utils::wps_format_collections_shortcode_args($atts);
 			$is_shortcode = true;
-			
+
 			ob_start();
 			include($this->config->plugin_path . "public/templates/collections-all.php");
 			$collections = ob_get_contents();
@@ -293,7 +293,6 @@ if (!class_exists('Frontend')) {
 		public function wps_products_template($template) {
 
 			global $wp_query, $post;
-// echo 'hihih';
 
 			if(isset($post) && $post) {
 
@@ -400,7 +399,7 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );
 
 			add_filter( 'single_template', array($this, 'wps_product_single_template') );
-			add_filter( 'template_include', array($this, 'wps_products_template') );
+			add_filter( 'archive_template', array($this, 'wps_products_template') );
 
 			add_shortcode( 'wps_products', array($this, 'wps_products_shortcode') );
 			add_shortcode( 'wps_collections', array($this, 'wps_collections_shortcode') );
