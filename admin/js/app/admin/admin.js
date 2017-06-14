@@ -11,6 +11,17 @@ function addAdminNotice() {
 
 }
 
+function initTooltips() {
+  jQuery('.wps-help-tip').tooltipster({
+    animation: 'fade',
+    delay: 0,
+    animationDuration: [100, 100],
+    interactive: true,
+    IEmin: 8,
+    timer: 0
+  });
+}
+
 
 /*
 
@@ -19,6 +30,7 @@ Init Admin
 */
 function initAdmin() {
   addAdminNotice();
+  initTooltips();
 }
 
 export {
