@@ -105,18 +105,18 @@ Tab Content: Settings
       </div>
 
 
-      <!-- Show default styles -->
+      <!-- Load default styles -->
       <div class="wps-form-group wps-form-group-tight">
 
         <table class="form-table">
           <tbody>
             <tr valign="top">
               <th scope="row" class="titledesc">
-                <?php esc_attr_e( 'Show default styles', 'wp_admin_style' ); ?>
+                <?php esc_attr_e( 'Load default styles', 'wp_admin_style' ); ?>
               </th>
               <td class="forminp forminp-text">
                 <label for="<?php echo $this->config->settings_general_option_name; ?>_styles">
-                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles]" id="<?php echo $this->config->settings_general_option_name; ?>_styles" type="checkbox" <?php echo $general->styles ? 'checked' : ''; ?>> Show default styles
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles]" id="<?php echo $this->config->settings_general_option_name; ?>_styles" type="checkbox" <?php echo $general->styles ? 'checked' : ''; ?>> Load default styles
                 </label>
               </td>
             </tr>
