@@ -13,6 +13,8 @@ do_action(
 );
 
 if (empty($is_shortcode)) {
-  get_sidebar();
+
+  do_action('wps_collections_sidebar');
   get_footer();
+  
 }
