@@ -43,5 +43,6 @@ if (is_single()) {
 
 }
 
-get_sidebar();
+do_action('wps_product_single_sidebar');
+
 get_footer();

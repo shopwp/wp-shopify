@@ -29,12 +29,14 @@
 
   echo apply_filters('wps_product_img', $productImg, $product, $i);
 
+  // Fires after the feature image but before the thumbnails
   if($i === 0) {
-    do_action('wps_after_first_product_img', $product);
+    do_action('wps_product_single_thumbs_start', $product);
   }
 
+  // Fires after all the thumbnails
   if($i === $len - 1) {
-    do_action('wps_after_last_product_img', $product);
+    do_action('wps_product_single_thumbs_end', $product);
   }
 
   $i++;

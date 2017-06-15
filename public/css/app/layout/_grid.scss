@@ -17,18 +17,6 @@ $cols-11: 11;
 $cols-12: 12;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //
 // Grid, nice n simple
 //
@@ -40,8 +28,6 @@ $cols-12: 12;
   max-width: $maxWidth;
   margin: -#{$space-l} 0 $space-l -#{$space-l};
 }
-
-
 
 .wps-l-col {
   display: flex;
@@ -315,16 +301,6 @@ E.g., 2 === one half, 3 === one third, 4 === one fourth, etc
     @include rowMachine($cols-1);
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 .wps-l-col-reverse {
