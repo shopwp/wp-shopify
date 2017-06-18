@@ -12,17 +12,18 @@
     background-color: #f3f3f3;
     cursor: pointer;
   }
+
 }
 
 .wps-product-notice {
   margin-top: $space-m;
 }
 
-
 .wps-product-quantity {
   padding: 0.5em 0;
   margin: 0;
   text-align: center;
+  max-width: 70px;
 }
 
 label[for="wps-product-quantity"] {
@@ -129,9 +130,8 @@ label[for="wps-product-quantity"] {
 
 .wps-pricing {
   margin-left: 5px;
-  font-size: 24px;
+  font-size: 1.7em;
   color: color(darkblue);
-  font-weight: bold;
 }
 
 .wps-variant-selectors {
@@ -161,7 +161,7 @@ label[for="wps-product-quantity"] {
     flex: 0 0 100%;
     max-width: 100%;
     order: 1;
-    padding-bottom: 0;
+    padding: 0;
   }
 
   @include respond-to(600, 'max') {
@@ -284,6 +284,7 @@ If only two gallery thumbs exist ...
     padding-top: 0;
     margin-top: 3em;
     height: 100%;
+    padding-left: 0;
   }
 
   @include respond-to(600, 'max') {
@@ -295,7 +296,6 @@ If only two gallery thumbs exist ...
 .wps-btn-dropdown {
   position: relative;
   text-align: center;
-  padding: 0;
   margin: 0;
 
   &[data-selected="true"]:before {
@@ -342,16 +342,16 @@ If only two gallery thumbs exist ...
   display: none;
   position: absolute;
   top: 0;
-  left: 0;
+  left: calc(#{$space-l} / 2);
   z-index: 2;
-  top: 100%;
-  width: 100%;
-  max-width: 100%;
+  top: 48px;
+  width: calc(100% - #{$space-l});
+  max-width: calc(100% - #{$space-l});
 
   @include respond-to(700, 'max') {
     top: 75%;
-    width: 100%;
-    max-width: 100%;
+    width: calc(100% - #{$space-l});
+    max-width: calc(100% - #{$space-l});
   }
 
   &.wps-flipInX {
@@ -445,13 +445,13 @@ WP Shopify namespaced styles go here
 .wps-products {
   padding-left: 0;
   list-style: none;
-  width: 100%;
+  // width: 100%;
 }
 
 .wps-collection-item,
 .wps-product-item {
   text-align: center;
-  margin-bottom: $space-l;
+  // margin-bottom: $space-l;
 }
 
 
@@ -465,7 +465,7 @@ WP Shopify namespaced styles go here
 }
 
 .wps-product-actions-group {
-  margin: $space-l 0 0 0;
+  margin-top: $space-l;
   display: flex;
   flex-direction: row;
   flex-flow: row wrap;
@@ -493,5 +493,11 @@ WP Shopify namespaced styles go here
 
 
 .wps-product-single {
-  width: 100%;
+  // width: 100%;
+}
+
+
+.wps-products-img {
+  width: auto;
+  margin: 0 auto;
 }

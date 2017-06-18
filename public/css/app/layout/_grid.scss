@@ -20,43 +20,48 @@ $cols-12: 12;
 //
 // Grid, nice n simple
 //
-.wps-l-row {
+.wps-row,
+.widget .wps-row {
   display: flex;
   flex-wrap: wrap;
-  padding: 0;
+  box-sizing: border-box;
   list-style: none;
-  max-width: $maxWidth;
-  margin: -#{$space-l} 0 $space-l -#{$space-l};
+  flex: 0 1 auto;
+  // margin: -#{$space-l} 0 $space-l -#{$space-l};
+  margin-top: 0;
+  padding: 0;
+  margin-right: calc(-#{$space-l} / 2);
+  margin-left: calc(-#{$space-l} / 2);
 }
 
-.wps-l-col {
+.wps-col {
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
   flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
   list-style: none;
   width: 100%;
-  max-width: 100%;
-}
-
-
-[class*="wps-col-"] {
   margin: 0;
   max-width: 100%;
   min-width: 0;
   min-height: 1px;
-  // padding: $gutterWidth;
-  padding: $space-l 0 0 $space-l;
+  padding-right: calc(#{$space-l} / 2);
+  padding-left: calc(#{$space-l} / 2);
+  margin-bottom: $space-l;
 
-  @include respond-to(320, 'max') {
-    // padding: 2em;
+  @include respond-to(600, 'max') {
+    margin-bottom: calc(#{$space-l} / 2);
   }
+
 }
 
+.wps-box {
+  // background: #ffcccc;
+  padding: $space-l;
+  height: auto;
+}
 
-.wps-l-contain {
+.wps-contain {
   max-width: $containerWidth;
   margin: 0 auto;
 
@@ -68,7 +73,7 @@ $cols-12: 12;
 
 }
 
-.wps-l-contain-narrow {
+.wps-contain-narrow {
   max-width: $contentWidthNarrow;
   margin: 0 auto;
 
@@ -303,66 +308,66 @@ E.g., 2 === one half, 3 === one third, 4 === one fourth, etc
 }
 
 
-.wps-l-col-reverse {
+.wps-col-reverse {
   flex-direction: column-reverse;
 }
 
-.wps-l-col-center {
+.wps-col-center {
   align-items: center;
 }
 
-.wps-l-col-left {
+.wps-col-left {
   align-self: flex-start;
 }
 
 //
 // Ordering
 //
-.wps-l-order-1 {
+.wps-order-1 {
   order: 1;
 }
 
-.wps-l-order-2 {
+.wps-order-2 {
   order: 2;
 }
 
-.wps-l-order-3 {
+.wps-order-3 {
   order: 3;
 }
 
-.wps-l-order-4 {
+.wps-order-4 {
   order: 4;
 }
 
-.wps-l-order-5 {
+.wps-order-5 {
   order: 5;
 }
 
-.wps-l-order-6 {
+.wps-order-6 {
   order: 6;
 }
 
-.wps-l-order-7 {
+.wps-order-7 {
   order: 7;
 }
 
 //
 // Row aignment
 //
-.wps-l-row-left {
+.wps-row-left {
   justify-content: flex-start;
 }
 
-.wps-l-row-right {
+.wps-row-right {
   justify-content: flex-end;
 }
 
-.wps-l-row-center {
+.wps-row-center {
   justify-content: center;
   margin: 0 auto;
 }
 
-.wps-l-row-justify {
+.wps-row-justify {
   justify-content: space-between;
 
   // &:after {
@@ -371,26 +376,26 @@ E.g., 2 === one half, 3 === one third, 4 === one fourth, etc
   // }
 }
 
-.wps-l-row-spaced {
+.wps-row-spaced {
   justify-content: space-around;
 }
 
-.wps-l-row-reverse {
+.wps-row-reverse {
   flex-direction: row-reverse;
 }
 
 //
 // Spacing
 //
-.wps-l-fit {
+.wps-fit {
   flex-grow: 1;
 }
 
-.wps-l-fill {
+.wps-fill {
   flex: 1;
   min-width: 0;
 }
 
-.wps-l-contained {
+.wps-contained {
   flex: none;
 }

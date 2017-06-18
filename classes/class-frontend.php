@@ -65,14 +65,34 @@ if (!class_exists('Frontend')) {
 
 			if(!is_admin()) {
 
-				$styles = $this->Settings_General->get_column_single('styles');
+				$styles_all = $this->Settings_General->get_column_single('styles_all');
+				$styles_core = $this->Settings_General->get_column_single('styles_core');
+				$styles_grid = $this->Settings_General->get_column_single('styles_grid');
 
-				if (is_array($styles)) {
+				error_log('Styles All');
+				error_log(print_r($styles_all, true));
 
-					if ($styles[0]->styles) {
+				error_log('Styles Core');
+				error_log(print_r($styles_core, true));
+
+				error_log('Styles Grid');
+				error_log(print_r($styles_grid, true));
+
+
+				if (is_array($styles_all)) {
+
+					if ($styles_all[0]->styles_all) {
 						wp_enqueue_style( $this->config->plugin_name . '-styles', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
 
 					} else {
+
+						if ($styles_core[0]->styles_core) {
+							wp_enqueue_style( $this->config->plugin_name . '-styles-core', $this->config->plugin_url . 'css/core.min.css', array(), $this->config->plugin_version, 'all' );
+						}
+
+						if ($styles_grid[0]->styles_grid) {
+							wp_enqueue_style( $this->config->plugin_name . '-styles-grid', $this->config->plugin_url . 'css/grid.min.css', array(), $this->config->plugin_version, 'all' );
+						}
 
 					}
 

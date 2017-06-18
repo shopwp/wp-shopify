@@ -13,6 +13,7 @@ use WPS\DB\Tags;
 use WPS\DB\Variants;
 use Gerardojbaez\Money\Money;
 
+
 /*
 
 Class Utils
@@ -37,8 +38,6 @@ class Utils {
 		return self::$instantiated;
 
 	}
-
-
 
 
   /*
@@ -1487,7 +1486,26 @@ class Utils {
 
 
 
+  public function wps_get_pagenum_link($args, $page) {
 
+    $Config = new Config();
+    $generalSettings = $Config->wps_get_settings_general();
+    $link = '';
+    $homeURL = get_home_url();
+    $post_type = $args['query']->query['post_type'];
+
+    if ($post_type === 'wps_products') {
+      $slug = $generalSettings->url_products;
+    } else {
+      $slug = $generalSettings->url_collections;
+    }
+
+    $link = $homeURL . '/' . $slug . '/page/' . $page;
+    error_log('link');
+    error_log($link);
+    return $link;
+
+  }
 
 
 
@@ -1547,10 +1565,9 @@ class Utils {
     }
 
 
-
-
     // Merge default arguments with user set arguments
     $args = wp_parse_args( $args, $defaults );
+
 
     /*
 
@@ -1664,13 +1681,13 @@ class Utils {
             $page_numbers[] = '<span class="wps-products-page-current">' . $v . '</span>';
 
           } else {
-            $page_numbers[] = '<a href="' . get_pagenum_link( $v ) . '" class="wps-products-page-inactive">' . $v . '</a>';
+            $page_numbers[] = '<a href="' . self::wps_get_pagenum_link( $args, $v ) . '" class="wps-products-page-inactive">' . $v . '</a>';
 
           }
 
         }
 
-
+        error_log(get_pagenum_link($max_pages));
         /*
 
         All the texts are set here and when they should be displayed which will link back to:
@@ -1680,13 +1697,13 @@ class Utils {
          - $last_page Links to the last page
 
         */
-        $previous_page = ( $current_page !== 1 ) ? '<a href="' . get_pagenum_link( $current_page - 1 ) . '" class="wps-products-page-previous">' . $args['previous_page_text'] . '</a>' : '';
+        $previous_page = ( $current_page !== 1 ) ? '<a href="' . self::wps_get_pagenum_link($args, $current_page - 1) . '" class="wps-products-page-previous">' . $args['previous_page_text'] . '</a>' : '';
 
-        $next_page = ( $current_page !== $max_pages ) ? '<a href="' . get_pagenum_link( $current_page + 1 ) . '" class="wps-products-page-next">' . $args['next_page_text'] . '</a>' : '';
+        $next_page = ( $current_page !== $max_pages ) ? '<a href="' . self::wps_get_pagenum_link($args, $current_page + 1) . '" class="wps-products-page-next">' . $args['next_page_text'] . '</a>' : '';
 
-        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a href="' . get_pagenum_link( 1 ) . '" class="wps-products-page-first">' . $args['first_page_text'] . '</a>' : '';
+        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a href="' . self::wps_get_pagenum_link($args, 1) . '" class="wps-products-page-first">' . $args['first_page_text'] . '</a>' : '';
 
-        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a href="' . get_pagenum_link( $max_pages ) . '" class="wps-products-page-last">' . $args['last_page_text'] . '</a>' : '';
+        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last">' . $args['last_page_text'] . '</a>' : '';
 
         /*
 
