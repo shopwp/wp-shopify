@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://staging.wpshop.io
-@since             0.2.4
+@since             0.2.5
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://staging.wpshop.io
 Description:       Sync your Shopify store with WordPress. Designed to be extensible, seamless, and lightweight.
-Version:           0.2.4
+Version:           0.2.5
 Author:            Andrew Robbins
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -134,11 +134,10 @@ if ( ! class_exists('WP_Shopify') ) {
 		public static function instance() {
 
 			if (is_null(self::$instantiated)) {
-				error_log('Creating new WP Shopify instance ...');
 				self::$instantiated = new self();
 
 			} else {
-				error_log('Found an existing WP Shopify instance ...');
+
 			}
 
 			return self::$instantiated;

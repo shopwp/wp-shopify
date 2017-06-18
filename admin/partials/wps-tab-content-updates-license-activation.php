@@ -25,6 +25,7 @@ License Activation
       <div class="wps-form-group">
 
         <h3><?php esc_attr_e( 'License Key', 'wp_admin_style' ); ?></h3>
+        <small>You can find your license key <a href="https://staging.wpshop.io/login" target="_blank">within your account</a> or contained inside your payment confirmation email.</small>
         <input autocomplete="off" required <?php echo $activeLicense ? 'disabled' : ''; ?> type="text" class="regular-text wps-input-license-key <?php echo $activeLicense ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_license_option_name; ?>_license" name="<?php echo $this->config->settings_license_option_name; ?>[key]" value="<?php if(!empty($license->key)) echo $maskedKey; ?>" placeholder=""><div class="wps-form-icon wps-animated"></div>
 
       </div>

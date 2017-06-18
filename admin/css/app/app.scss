@@ -166,6 +166,38 @@ div[class^="wps-postbox-"] {
 }
 
 
+.wps-label-block {
+  display: block;
+  margin-bottom: 10px;
+}
+
+
+.wps-is-disabled {
+  &:hover {
+    cursor: not-allowed;
+
+    input {
+      cursor: not-allowed;
+    }
+
+  }
+
+}
+
+.wps-form-group.wps-form-group-align-top .form-table {
+
+  margin-top: 20px;
+
+  th {
+    vertical-align: top;
+  }
+
+  td {
+    padding-top: 0;
+  }
+
+}
+
 .wps-admin-wrap {
   position: relative;
 }
@@ -235,9 +267,6 @@ div[class^="wps-postbox-"] {
   display: none;
 }
 
-.wps-is-disabled {
-  opacity: 0.15;
-}
 
 .wps-connector-wrapper {
   background-color: rgba(0,0,0,0.5);
