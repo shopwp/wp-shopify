@@ -69,20 +69,10 @@ if (!class_exists('Frontend')) {
 				$styles_core = $this->Settings_General->get_column_single('styles_core');
 				$styles_grid = $this->Settings_General->get_column_single('styles_grid');
 
-				error_log('Styles All');
-				error_log(print_r($styles_all, true));
-
-				error_log('Styles Core');
-				error_log(print_r($styles_core, true));
-
-				error_log('Styles Grid');
-				error_log(print_r($styles_grid, true));
-
-
 				if (is_array($styles_all)) {
 
 					if ($styles_all[0]->styles_all) {
-						wp_enqueue_style( $this->config->plugin_name . '-styles', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
+						wp_enqueue_style( $this->config->plugin_name . '-styles-all', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
 
 					} else {
 

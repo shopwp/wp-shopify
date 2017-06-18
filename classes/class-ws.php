@@ -748,8 +748,16 @@ class WS {
 
     }
 
-    if (isset($_POST['wps_settings_general_styles'])) {
-      $newGeneralSettings['styles'] = (int)$_POST['wps_settings_general_styles'];
+    if (isset($_POST['wps_settings_general_styles_all'])) {
+      $newGeneralSettings['styles_all'] = (int)$_POST['wps_settings_general_styles_all'];
+    }
+
+    if (isset($_POST['wps_settings_general_styles_core'])) {
+      $newGeneralSettings['styles_core'] = (int)$_POST['wps_settings_general_styles_core'];
+    }
+
+    if (isset($_POST['wps_settings_general_styles_grid'])) {
+      $newGeneralSettings['styles_grid'] = (int)$_POST['wps_settings_general_styles_grid'];
     }
 
     $results = $DB_Settings_General->update_general($newGeneralSettings);
