@@ -143,6 +143,36 @@ function onSettingsFormSubmit() {
 }
 
 
+function toggleStylesCheckboxes() {
+
+  jQuery('#wps_settings_general_styles_all').on('click', function() {
+
+    if (typeof jQuery(this).attr("checked") !== typeof undefined && jQuery(this).attr("checked") !== false) {
+        console.log('checked');
+
+        jQuery('#wps_settings_general_styles_core').attr('checked', false);
+        jQuery('#wps_settings_general_styles_grid').attr('checked', false);
+
+        jQuery('#wps_settings_general_styles_core').attr('disabled', true);
+        jQuery('#wps_settings_general_styles_grid').attr('disabled', true);
+
+        jQuery('#wps_settings_general_styles_core').parent().addClass('wps-is-disabled');
+        jQuery('#wps_settings_general_styles_grid').parent().addClass('wps-is-disabled');
+
+    } else {
+      console.log('NOT checked');
+
+      jQuery('#wps_settings_general_styles_core').attr('disabled', false);
+      jQuery('#wps_settings_general_styles_grid').attr('disabled', false);
+
+      jQuery('#wps_settings_general_styles_core').parent().removeClass('wps-is-disabled');
+      jQuery('#wps_settings_general_styles_grid').parent().removeClass('wps-is-disabled');
+
+    }
+
+  });
+}
+
 /*
 
 Form Events Init
@@ -150,6 +180,7 @@ Form Events Init
 */
 function settingsInit() {
   onSettingsFormSubmit();
+  toggleStylesCheckboxes();
 }
 
 export { settingsInit };

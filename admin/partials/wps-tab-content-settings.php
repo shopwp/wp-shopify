@@ -106,27 +106,27 @@ Tab Content: Settings
 
 
       <!-- Load default styles -->
-      <div class="wps-form-group wps-form-group-tight">
+      <div class="wps-form-group wps-form-group-tight wps-form-group-align-top">
 
         <table class="form-table">
           <tbody>
             <tr valign="top">
 
               <th scope="row" class="titledesc">
-                <?php esc_attr_e( 'Load all styles', 'wp_admin_style' ); ?>
+                <?php esc_attr_e( 'Load styles', 'wp_admin_style' ); ?>
               </th>
 
               <td class="forminp forminp-text">
-                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_all">
-                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_all]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_all" type="checkbox" <?php echo $general->styles_all ? 'checked' : ''; ?>> Load all styles
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_all" class="wps-label-block">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_all]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_all" type="checkbox" <?php echo $general->styles_all ? 'checked' : ''; ?>> All styles
                 </label>
 
-                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_core">
-                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_core]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_core" type="checkbox" <?php echo $general->styles_core ? 'checked' : ''; ?>> Load core styles
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_core" class="wps-label-block">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_core]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_core" type="checkbox" <?php echo $general->styles_core ? 'checked' : ''; ?> <?php echo $general->styles_all ? 'disabled' : ''; ?>> Core styles <small>(cart, hide/show classes, etc)</small>
                 </label>
 
-                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_grid">
-                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_grid]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_grid" type="checkbox" <?php echo $general->styles_grid ? 'checked' : ''; ?>> Load grid styles
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_grid" class="wps-label-block">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_grid]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_grid" type="checkbox" <?php echo $general->styles_grid ? 'checked' : ''; ?> <?php echo $general->styles_all ? 'disabled' : ''; ?>> Grid styles
                 </label>
 
               </td>
