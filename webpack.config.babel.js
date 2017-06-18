@@ -32,6 +32,13 @@ module.exports = () => {
       ],
       public: [
         path.resolve('public/js/app/app.js'),
+        path.resolve('public/css/app/app.scss')
+      ],
+      grid: [
+        path.resolve('public/css/app/grid.scss')
+      ],
+      core: [
+        path.resolve('public/css/app/core.scss')
       ]
     },
     watch: true,

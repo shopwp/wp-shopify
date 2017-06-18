@@ -47,10 +47,18 @@ function updateCart(variant, quantity, shopify) {
       quantity: quantity
     };
 
-    var cart = await fetchCart(shopify);
-    // console.log('cart before', cart);
+    try {
+      var cart = await fetchCart(shopify);
+    } catch(error) {
+      reject(error);
+    }
 
-    cart = await cart.createLineItemsFromVariants(options);
+    try {
+      cart = await cart.createLineItemsFromVariants(options);
+    } catch(error) {
+      reject(error);
+    }
+    // console.log('cart before', cart);
     // console.log('cart after', cart);
 
     renderCartItems(shopify);
@@ -74,15 +82,29 @@ async function initCart(shopify) {
   if(hasItemsInLocalStorage()) {
     // var cart = await fetchCart(shopify);
 
-    return await renderCartItems(shopify);
+    try {
+      var cart = await renderCartItems(shopify);
+
+    } catch(error) {
+      return error;
+    }
+
+    return cart;
     // showAllProducts(shopify);
 
   } else {
 
-    var cart = await createCart(shopify);
+    try {
+      var cart = await createCart(shopify);
+
+    } catch(error) {
+      return error;
+    }
+
     setCart(cart);
-    // showAllProducts(shopify);
     return cart;
+
+    // showAllProducts(shopify);
 
   }
 

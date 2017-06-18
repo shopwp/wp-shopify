@@ -1,1 +1,1 @@
-<div class="wps-l-row wps-l-row-justify l-col-center wps-product-actions-group">
+<div class="wps-row wps-row-justify l-col-center wps-product-actions-group">

@@ -20,7 +20,7 @@
 
     <div class="wps-cart-item-container wps-cart-section"></div>
 
-    <div class="wps-cart-bottom wps-l-row">
+    <div class="wps-cart-bottom wps-row">
       <div class="wps-cart-info wps-clearfix wps-cart-section">
 
         <div class="wps-type--caps wps-cart-info__total">
