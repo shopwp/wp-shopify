@@ -157,11 +157,11 @@ if (!class_exists('Hooks')) {
 
 		/*
 
-		Products Loop - Before
+		Products Loop - Header
 
 		*/
-		public function wps_products_before($query) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/before.php');
+		public function wps_products_header($query) {
+			return include($this->config->plugin_path . 'public/partials/products/loop/header.php');
 		}
 
 
@@ -681,6 +681,7 @@ if (!class_exists('Hooks')) {
 			$products = new \WP_Query($args);
 
 			do_action( 'wps_products_before', $products );
+			do_action( 'wps_products_header', $products );
 			do_action( 'wps_products_loop_start', $products );
 
 			foreach($products->posts as $product) {
@@ -813,8 +814,8 @@ if (!class_exists('Hooks')) {
 		Collections Loop - Before
 
 		*/
-		public function wps_collections_before($collections) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/before.php');
+		public function wps_collections_header($collections) {
+			return include($this->config->plugin_path . 'public/partials/collections/loop/header.php');
 		}
 
 
@@ -865,6 +866,7 @@ if (!class_exists('Hooks')) {
 			$collections = array_merge( $collections_smart->posts, $collections_custom->posts );
 
 			do_action( 'wps_collections_before', $collections );
+			do_action( 'wps_collections_header', $collections );
 
 			if (count($collections) > 0) {
 
@@ -929,13 +931,13 @@ if (!class_exists('Hooks')) {
 
 
 
-		public function wps_collections_heading_class($collections) {
-			return 'SEE';
-		}
-
-		public function wps_collections_heading($collections) {
-			return 'Collections';
-		}
+		// public function wps_collections_heading_class($collections) {
+		// 	return 'SEE';
+		// }
+		//
+		// public function wps_collections_heading($collections) {
+		// 	return 'Collections';
+		// }
 
 
 		/*
@@ -1119,6 +1121,9 @@ if (!class_exists('Hooks')) {
 		// }
 
 
+		// public function wps_products_heading_class() {
+		// 	return 'sdfsdf';
+		// }
 
 
 
@@ -1154,6 +1159,16 @@ if (!class_exists('Hooks')) {
 		public function wps_collection_single_products_before($collection, $products) {
 			return include($this->config->plugin_path . "public/partials/collections/single/products-before.php");
 		}
+
+		public function wps_collection_single_product($product) {
+			return include($this->config->plugin_path . "public/partials/collections/single/product.php");
+		}
+
+
+
+
+
+
 
 		public function wps_collection_single_heading_before($collection) {
 			echo 'before';

@@ -86,9 +86,10 @@
     outline: 0;
   }
 
-  // &:hover {
-  //   opacity: $dimOpacity;
-  // }
+  &:hover {
+    background: transparent;
+  }
+
 }
 
 .wps-btn-close {
@@ -96,19 +97,20 @@
   margin-top: 0;
   height: 30px;
   position: absolute;
-  right: 9px;
-  top: 0;
+  right: 10px;
+  top: 17px;
   font-size: $font-xxl;
   color: color(darkblue);
   border: none;
   background: transparent;
   transition: transform 100ms ease;
   cursor: pointer;
-  line-height: 1.4;
   padding: 0;
+  font-weight: normal;
 
   &:hover {
     opacity: $dimOpacity;
+    background: transparent;
   }
 
   span {

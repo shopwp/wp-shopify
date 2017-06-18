@@ -1,1 +1,1 @@
-<section class="wps-related-products">
+<section class="wps-related-products wps-contain">

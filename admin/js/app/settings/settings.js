@@ -80,24 +80,46 @@ function onSettingsFormSubmit() {
 
       }
 
-      var checkedAttr = jQuery(form).find("#wps_settings_general_styles").attr("checked");
+      var stylesAllAttr = jQuery(form).find("#wps_settings_general_styles_all").attr("checked");
+      var stylesCoreAttr = jQuery(form).find("#wps_settings_general_styles_core").attr("checked");
+      var stylesGridAttr = jQuery(form).find("#wps_settings_general_styles_grid").attr("checked");
 
-      if (typeof checkedAttr !== typeof undefined && checkedAttr !== false) {
-        var styles = 1;
+      if (typeof stylesAllAttr !== typeof undefined && stylesAllAttr !== false) {
+        var stylesAll = 1;
 
       } else {
-        var styles = 0;
+        var stylesAll = 0;
 
       }
 
-      console.log("styles: ", styles);
+      if (typeof stylesCoreAttr !== typeof undefined && stylesCoreAttr !== false) {
+        var stylesCore = 1;
+
+      } else {
+        var stylesCore = 0;
+
+      }
+
+      if (typeof stylesGridAttr !== typeof undefined && stylesGridAttr !== false) {
+        var stylesGrid = 1;
+
+      } else {
+        var stylesGrid = 0;
+
+      }
+
+      console.log("stylesAll: ", stylesAll);
+      console.log("stylesCore: ", stylesCore);
+      console.log("stylesGrid: ", stylesGrid);
 
       var settings = {
         wps_settings_general_products_url: productsURL,
         wps_settings_general_collections_url: collectionsURL,
         wps_settings_general_url_webhooks: webhooksURL,
         wps_settings_general_num_posts: numPosts,
-        wps_settings_general_styles: styles
+        wps_settings_general_styles_all: stylesAll,
+        wps_settings_general_styles_core: stylesCore,
+        wps_settings_general_styles_grid: stylesGrid
       }
 
       try {

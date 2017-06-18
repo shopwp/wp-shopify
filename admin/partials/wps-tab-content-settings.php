@@ -111,15 +111,28 @@ Tab Content: Settings
         <table class="form-table">
           <tbody>
             <tr valign="top">
+
               <th scope="row" class="titledesc">
-                <?php esc_attr_e( 'Load default styles', 'wp_admin_style' ); ?>
+                <?php esc_attr_e( 'Load all styles', 'wp_admin_style' ); ?>
               </th>
+
               <td class="forminp forminp-text">
-                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles">
-                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles]" id="<?php echo $this->config->settings_general_option_name; ?>_styles" type="checkbox" <?php echo $general->styles ? 'checked' : ''; ?>> Load default styles
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_all">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_all]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_all" type="checkbox" <?php echo $general->styles_all ? 'checked' : ''; ?>> Load all styles
                 </label>
+
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_core">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_core]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_core" type="checkbox" <?php echo $general->styles_core ? 'checked' : ''; ?>> Load core styles
+                </label>
+
+                <label for="<?php echo $this->config->settings_general_option_name; ?>_styles_grid">
+                  <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_styles_grid]" id="<?php echo $this->config->settings_general_option_name; ?>_styles_grid" type="checkbox" <?php echo $general->styles_grid ? 'checked' : ''; ?>> Load grid styles
+                </label>
+
               </td>
+
             </tr>
+
           </tbody>
         </table>
 

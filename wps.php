@@ -258,7 +258,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			Collections Loop
 
 			*/
-			add_action( 'wps_collections_before', array($Hooks, 'wps_collections_before') );
+			add_action( 'wps_collections_header', array($Hooks, 'wps_collections_header') );
 			add_action( 'wps_collections_loop_start', array($Hooks, 'wps_collections_loop_start') );
 			add_action( 'wps_collections_loop_end', array($Hooks, 'wps_collections_loop_end') );
 			add_action( 'wps_collections_item_start', array($Hooks, 'wps_collections_item_start'), 10, 3 );
@@ -290,6 +290,9 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action('wps_collections_sidebar', array($Hooks, 'wps_collections_sidebar'));
 
 
+			add_action('wps_collection_single_product', array($Hooks, 'wps_collection_single_product'));
+
+
 
 			// add_action('wps_collection_single_heading_before', array($Hooks, 'wps_collection_single_heading_before'));
 			// add_action('wps_collection_single_heading_after', array($Hooks, 'wps_collection_single_heading_after'));
@@ -303,7 +306,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			Products Loop
 
 			*/
-			add_action( 'wps_products_before', array($Hooks, 'wps_products_before') );
+			add_action( 'wps_products_header', array($Hooks, 'wps_products_header') );
 			add_action( 'wps_products_loop_start', array($Hooks, 'wps_products_loop_start') );
 			add_action( 'wps_products_loop_end', array($Hooks, 'wps_products_loop_end') );
 			add_action( 'wps_products_item_start', array($Hooks, 'wps_products_item_start'), 10, 3 );
@@ -317,6 +320,10 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action( 'wps_products_pagination', array($Hooks, 'wps_products_pagination') );
 
 			add_action( 'wps_products_sidebar', array($Hooks, 'wps_products_sidebar') );
+
+
+			// add_filter( 'wps_products_heading_class', array($Hooks, 'wps_products_heading_class') );
+
 
 			// add_action( 'wps_products_after', array($Hooks, 'wps_products_after') );
 			// add_filter( 'wps_collections_title_class', array($Hooks, 'wps_collections_title_class') );

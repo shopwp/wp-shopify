@@ -41,29 +41,68 @@ TODO: Little bit of duplication happening here. Could be done better.
 
 */
 async function bootstrap() {
-console.log('11111111 ');
+
   if (hasExistingCredentials()) {
-    var creds = await getExistingShopifyCreds();
-    var shopify = await shopifyInit(creds);
-    var cart = await initCart(shopify);
-    console.log('shopify', shopify);
-    console.log('cart', cart);
+
+    try {
+      var creds = await getExistingShopifyCreds();
+    } catch(error) {
+      console.log('1 getExistingShopifyCreds error: ', error);
+    }
+
+    console.log('1 creds', creds);
+
+    try {
+      var shopify = await shopifyInit(creds);
+    } catch(error) {
+      console.log('1 shopifyInit error: ', error);
+    }
+
+    console.log('1 shopify', shopify);
+
+    try {
+      var cart = await initCart(shopify);
+    } catch(error) {
+      console.log('1 initCart error: ', error);
+    }
+
+    console.log('1 cart', cart);
+
     bootstrapEvents(shopify);
     bootstrapUI(shopify);
 
   } else {
-    var creds = await getShopifyCreds();
-    console.log('creds: ', creds);
 
-    var savedCreds = await setShopifyCreds(creds);
 
-    console.log('savedCreds: ', savedCreds);
+    try {
+      var creds = await getShopifyCreds();
+    } catch(error) {
+      console.log('2 getShopifyCreds error: ', error);
+    }
 
-    var shopify = await shopifyInit(creds)
+    console.log('2 creds: ', creds);
 
-    console.log('shopify: ', shopify);
+    try {
+      var savedCreds = await setShopifyCreds(creds);
+    } catch(error) {
+      console.log('2 setShopifyCreds error: ', error);
+    }
 
-    var cart = await initCart(shopify);
+    console.log('2 savedCreds: ', savedCreds);
+
+    try {
+      var shopify = await shopifyInit(creds);
+    } catch(error) {
+      console.log('2 shopifyInit error: ', error);
+    }
+
+    console.log('2 shopify: ', shopify);
+
+    try {
+      var cart = await initCart(shopify);
+    } catch(error) {
+      console.log('2 initCart error: ', error);
+    }
 
     bootstrapEvents(shopify);
     bootstrapUI(shopify);
