@@ -48,12 +48,11 @@ class Transients {
 
     if (get_transient('wps_settings_updated') !== false) {
 
-      // error_log('WPS Settings HAVE been updated');
       flush_rewrite_rules();
       delete_transient('wps_settings_updated');
 
     } else {
-      // error_log('WPS Settings havent been updated');
+
     }
 
   }

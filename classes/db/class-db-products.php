@@ -275,8 +275,6 @@ class Products extends \WPS\DB {
       $postIds = array($productData->post_id);
     }
 
-
-
     $results['variants']  = $DB_Variants->delete_rows('product_id', $productID);
     $results['options']   = $DB_Options->delete_rows('product_id', $productID);
     $results['images']    = $DB_Images->delete_rows('product_id', $productID);
@@ -374,7 +372,6 @@ class Products extends \WPS\DB {
 
     $query = "SELECT products.* FROM $products_table_name products INNER JOIN $collects_table_name collects ON products.product_id = collects.product_id WHERE collects.collection_id = %d;";
 
-
     /*
 
     Get the products
@@ -383,7 +380,7 @@ class Products extends \WPS\DB {
     $products = $wpdb->get_results(
       $wpdb->prepare($query, $collection_id)
     );
-
+    
 
     /*
 
@@ -397,9 +394,6 @@ class Products extends \WPS\DB {
     return $products;
 
   }
-
-
-
 
 
   /*

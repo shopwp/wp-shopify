@@ -125,12 +125,6 @@ class Tags extends \WPS\DB {
     */
     $currentTagsArray = $this->get_rows('product_id', $product->id);
 
-    // error_log('$tagsFromShopify');
-    // error_log(print_r($tagsFromShopify, true));
-    //
-    // error_log('$currentTagsArray');
-    // error_log(print_r($currentTagsArray, true));
-
     $currentTagsArray = Utils::wps_convert_object_to_array($currentTagsArray);
 
 
@@ -138,18 +132,8 @@ class Tags extends \WPS\DB {
       $tagsFromShopifyyNew[] = $this->construct_tag_model($newTag);
     }
 
-
     $tagsToAdd = Utils::wps_find_items_to_add($currentTagsArray, $tagsFromShopifyyNew, true, 'tag');
-
-    error_log('$tagsToAdd TAG UPDATE STUFF');
-    error_log(print_r($tagsToAdd, true));
-
-
     $tagsToDelete = Utils::wps_find_items_to_delete($currentTagsArray, $tagsFromShopifyyNew, true, 'tag');
-
-    error_log('$tagsToDelete TAG UPDATE STUFF');
-    error_log(print_r($tagsToDelete, true));
-
 
     /*
 

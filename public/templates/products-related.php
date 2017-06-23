@@ -11,7 +11,6 @@ echo apply_filters('wps_products_related_heading', 'Related Products');
 do_action('wps_products_related_heading_end');
 do_action('wps_products_related_heading_end_after');
 
-
 /*
 
 Here we need to adjust the arguments array based on what the user wants to do. By default,

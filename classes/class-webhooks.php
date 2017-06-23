@@ -179,37 +179,14 @@ class Webhooks {
       $homeURL = get_home_url(); // also default webhook URL
       $adminURL = admin_url();
 
-
-
       if ($homeURL !== $customWebbooksURL) {
 
-        error_log('Webhooks URL is different from Home URL');
         $adminPath = Utils::wps_construct_admin_path_from_urls($homeURL, $adminURL);
-        error_log('Newly constructed');
-        error_log(print_r($adminPath, true));
-
         $callbackURL = $customWebbooksURL . $adminPath . "admin-ajax.php?action=" . $receiver;
-        error_log('Final callback URL');
-        error_log(print_r($callbackURL, true));
 
       } else {
-        error_log('Both URLs are the same');
         $callbackURL = admin_url('admin-ajax.php') . "?action=" . $receiver;
       }
-
-
-      // error_log('::: Custom Webhooks URL :::');
-      // error_log(print_r($customWebbooksURL, true));
-      //
-      // error_log('::: Admin URL for admin AJAX :::');
-      // error_log(print_r(admin_url('admin-ajax.php'), true));
-      //
-      // error_log('::: Home URL :::');
-      // error_log(print_r(admin_url(), true));
-      //
-      // error_log('::: Site URL :::');
-      // error_log(print_r(site_url(), true));
-
 
 
       // Data to send to Shopify in our POST

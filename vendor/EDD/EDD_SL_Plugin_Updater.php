@@ -58,9 +58,6 @@ class EDD_SL_Plugin_Updater {
 	 */
 	public function init() {
 
-		error_log('FROM EDD');
-		error_log($this->name);
-
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugins_api_filter' ), 10, 3 );
 		remove_action( 'after_plugin_row_' . $this->name, 'wp_plugin_update_row', 10 );
@@ -486,6 +483,6 @@ class EDD_SL_Plugin_Updater {
 
 	}
 
-	
+
 
 }

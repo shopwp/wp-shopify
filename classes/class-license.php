@@ -246,7 +246,6 @@ class License {
 		  include( $this->plugin_path . 'vendor/EDD/EDD_SL_Plugin_Updater.php' );
 
 		} else {
-		  error_log('EDD_SL_Plugin_Updater - DOES exist');
 
 		}
 
