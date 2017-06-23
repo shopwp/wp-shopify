@@ -8,6 +8,7 @@ use WPS\DB\Products;
 use WPS\DB\Variants;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Collections_Custom;
+use WPS\DB\Settings_General;
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -172,6 +173,16 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_products_after($products) {
 
+		}
+
+
+		/*
+
+		Products Loop - No Results
+
+		*/
+		public function wps_products_no_results($args) {
+			return include($this->config->plugin_path . 'public/partials/products/loop/no-results.php');
 		}
 
 
@@ -451,11 +462,7 @@ if (!class_exists('Hooks')) {
 	    $table_products = $DB_Products->get_table_name();
 			$table_variants = $DB_Variants->get_table_name();
 
-
 			if ($query->get('context') === 'wps_products_query') {
-
-				// error_log('Products Query');
-				// error_log(print_r($query, true));
 
 				/*
 
@@ -479,23 +486,21 @@ if (!class_exists('Hooks')) {
 
 				}
 
-			} else if ($query->get('context') === 'wps_collections_custom_query') {
+			} else if ($query->get('context') === 'wps_collections_query') {
 
 				$DB_Collections_Custom = new Collections_Custom();
 				$table_collections_custom = $DB_Collections_Custom->get_table_name();
+
+				$DB_Collections_Smart = new Collections_Smart();
+				$table_collections_smart = $DB_Collections_Smart->get_table_name();
 
 				$sql .= " INNER JOIN " . $table_collections_custom . " ON " .
 					 $wpdb->posts . ".ID = " . $table_collections_custom .
 					 ".post_id ";
 
-			} else if ($query->get('context') === 'wps_collections_smart_query') {
-
-				$DB_Collections_Smart = new Collections_Smart();
-				$table_collections_smart = $DB_Collections_Smart->get_table_name();
-
-				$sql .= " INNER JOIN " . $table_collections_smart . " ON " .
-				 $wpdb->posts . ".ID = " . $table_collections_smart .
-				 ".post_id ";
+ 				$sql .= " INNER JOIN " . $table_collections_smart . " ON " .
+ 				 $wpdb->posts . ".ID = " . $table_collections_smart .
+ 				 ".post_id ";
 
 			}
 
@@ -521,6 +526,7 @@ if (!class_exists('Hooks')) {
 				$DB_Products = new Products();
 				$DB_Collections_Smart = new Collections_Smart();
 				$DB_Collections_Custom = new Collections_Custom();
+				$DB = new DB();
 
 				if ($query->get('context') === 'wps_products_query') {
 
@@ -545,29 +551,15 @@ if (!class_exists('Hooks')) {
 
 					}
 
-				} else if ($query->get('context') === 'wps_collections_custom_query') {
+				} else if ($query->get('context') === 'wps_collections_query') {
 
-					// If using Shortcode ...
+					// If Shortcode has attributes passed in ...
 					if ($query->get('custom')) {
-
-						$clauses = Utils::construct_clauses_from_collections_custom_shortcode($query->get('custom'), $query);
+						$clauses = Utils::construct_clauses_from_collections_shortcode($query->get('custom'), $query);
 
 					} else {
 
-						$clauses = $DB_Collections_Custom->get_default_query();
-
-					}
-
-				} else if ($query->get('context') === 'wps_collections_smart_query') {
-
-					// If using Shortcode ...
-					if ($query->get('custom')) {
-
-						$clauses = Utils::construct_clauses_from_collections_smart_shortcode($query->get('custom'), $query);
-
-					} else {
-
-						$clauses = $DB_Collections_Smart->get_default_query();
+						$clauses = $DB->get_default_collections_query($clauses);
 
 					}
 
@@ -575,7 +567,6 @@ if (!class_exists('Hooks')) {
 
 
 				if (empty($clauses['limits'])) {
-					// error_log('LIMIT NOT SET');
 
 					/*
 
@@ -594,60 +585,18 @@ if (!class_exists('Hooks')) {
 
 					$clauses['limits'] = Utils::construct_pagination_limits($query);
 
-					// error_log(print_r($clauses, true));
 
 				} else {
-					// error_log('LIMIT ALREADY SET');
-					// error_log(print_r($clauses, true));
+
 				}
 
-				// error_log('clauses');
-				// error_log(print_r($clauses, true));
+
 
 			}
 
 			return $clauses;
 
 		}
-
-
-		/*
-
-		wps_products_select_mod
-
-		*/
-		public function wps_products_select_mod($sql, $query) {
-
-			global $wpdb;
-
-			$DB_Products = new Products();
-			$DB_Variants = new Variants();
-
-			$DB_Collections_Smart = new Collections_Smart();
-			$DB_Collections_Custom = new Collections_Custom();
-
-	    $table_products = $DB_Products->get_table_name();
-			$table_variants = $DB_Variants->get_table_name();
-
-			$table_collections_smart = $DB_Collections_Smart->get_table_name();
-			$table_collections_custom = $DB_Collections_Custom->get_table_name();
-
-			if ($query->get('context') === 'wps_products_query') {
-				$sql .= ", " . $table_products . ".*";
-				$sql .= ", " . $table_variants . ".price";
-
-			} else if ($query->get('context') === 'wps_collections_custom_query') {
-				$sql .= ", " . $table_collections_custom . ".*";
-
-			} else if ($query->get('context') === 'wps_collections_smart_query') {
-				$sql .= ", " . $table_collections_smart . ".*";
-
-			}
-
-			return $sql;
-
-		}
-
 
 
 		/*
@@ -676,35 +625,115 @@ if (!class_exists('Hooks')) {
 			Products needs to be an array of CPTs sorted by the custom SQL
 			query that we make based on the arguments passed via shortcode.
 
-
 			*/
+
+			// $args['posts_per_page'] = $settings->num_posts;
+			// $args['paged'] = 991;
+
+
 			$products = new \WP_Query($args);
+			$amountOfProducts = count($products->posts);
 
 			do_action( 'wps_products_before', $products );
 			do_action( 'wps_products_header', $products );
-			do_action( 'wps_products_loop_start', $products );
 
-			foreach($products->posts as $product) {
+			if ($amountOfProducts > 0) {
 
-				do_action( 'wps_products_item_start', $product, $args, $customArgs );
-				do_action( 'wps_products_item', $product, $args, $settings );
-				do_action( 'wps_products_item_end', $product );
+				do_action( 'wps_products_loop_start', $products );
+
+				foreach($products->posts as $product) {
+
+					do_action( 'wps_products_item_start', $product, $args, $customArgs );
+					do_action( 'wps_products_item', $product, $args, $settings );
+					do_action( 'wps_products_item_end', $product );
+
+				}
+
+				wp_reset_postdata();
+
+				do_action( 'wps_products_loop_end', $products );
+				do_action( 'wps_before_products_pagination', $products );
+
+				if (isset($args['paged']) && $args['paged']) {
+					do_action( 'wps_products_pagination', $products );
+				}
+
+				do_action( 'wps_after_products_pagination', $products );
+
+			} else {
+
+				do_action( 'wps_products_no_results', $args );
 
 			}
-
-			wp_reset_postdata();
-
-			do_action( 'wps_products_loop_end', $products );
-			do_action( 'wps_before_products_pagination', $products );
-
-			if (isset($args['paged']) && $args['paged']) {
-				do_action( 'wps_products_pagination', $products );
-			}
-
-			do_action( 'wps_after_products_pagination', $products );
-
 
 			do_action( 'wps_products_after', $products );
+
+		}
+
+
+		/*
+
+		Collections Display Wrapper
+		TODO: Combine with wps_products_display?
+
+		Fires the wps_clauses_mod during WP_Query
+
+		*/
+		public function wps_collections_display($args, $customArgs) {
+
+			$collections = array();
+
+			// Fires the wps_clauses_mod function
+			$args['context'] = 'wps_collections_query';
+			$collections = new \WP_Query($args);
+			$collections = $collections->posts;
+
+			if (is_single()) {
+				$args['is_single'] = true;
+
+			} else {
+				$args['is_single'] = false;
+
+			}
+
+
+			/*
+
+			Now that we've queried both collections tables, we can combine them
+			into a single data set to loop through
+
+			*/
+			do_action( 'wps_collections_before', $collections );
+			do_action( 'wps_collections_header', $collections );
+
+			if (count($collections) > 0) {
+
+				do_action( 'wps_collections_loop_start', $collections );
+
+				foreach($collections as $collection) {
+
+					do_action( 'wps_collections_item_start', $collection, $args, $customArgs );
+					do_action( 'wps_collections_item', $collection, $args );
+					do_action( 'wps_collections_item_end', $collection );
+
+				}
+
+				do_action( 'wps_collections_loop_end', $collections );
+				do_action( 'wps_before_collections_pagination', $collections );
+
+				if ( isset($args['paged']) && $args['paged']) {
+					do_action( 'wps_collections_pagination', $collections );
+				}
+
+				do_action( 'wps_after_collections_pagination', $collections );
+
+
+			} else {
+				do_action( 'wps_collections_no_results', $args );
+
+			}
+
+			do_action( 'wps_collections_after', $collections );
 
 		}
 
@@ -831,77 +860,6 @@ if (!class_exists('Hooks')) {
 
 		/*
 
-		Collections Display Wrapper
-		TODO: Combine with wps_products_display?
-
-		Fires the wps_clauses_mod during WP_Query
-
-		*/
-		public function wps_collections_display($args, $customArgs) {
-
-			$collections = array();
-
-			// Fires the wps_clauses_mod function
-			$args['context'] = 'wps_collections_custom_query';
-			$collections_custom = new \WP_Query($args);
-
-			// Fires the wps_clauses_mod function
-			$args['context'] = 'wps_collections_smart_query';
-			$collections_smart = new \WP_Query($args);
-
-			if (is_single()) {
-				$args['is_single'] = true;
-
-			} else {
-				$args['is_single'] = false;
-
-			}
-
-			/*
-
-			Now that we've queried both collections tables, we can combine them
-			into a single data set to loop through
-
-			*/
-			$collections = array_merge( $collections_smart->posts, $collections_custom->posts );
-
-			do_action( 'wps_collections_before', $collections );
-			do_action( 'wps_collections_header', $collections );
-
-			if (count($collections) > 0) {
-
-				do_action( 'wps_collections_loop_start', $collections );
-
-				foreach($collections as $collection) {
-
-					do_action( 'wps_collections_item_start', $collection, $args, $customArgs );
-					do_action( 'wps_collections_item', $collection, $args );
-					do_action( 'wps_collections_item_end', $collection );
-
-				}
-
-				do_action( 'wps_collections_loop_end', $collections );
-				do_action( 'wps_before_collections_pagination', $collections );
-
-				if ( isset($args['paged']) && $args['paged']) {
-					do_action( 'wps_collections_pagination', $collections );
-				}
-
-				do_action( 'wps_after_collections_pagination', $collections );
-
-
-			} else {
-				do_action( 'wps_collections_no_results', $args );
-
-			}
-
-			do_action( 'wps_collections_after', $collections );
-
-		}
-
-
-		/*
-
 		Related Products Config
 
 		*/
@@ -947,19 +905,25 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_collections_args($shortcodeArgs) {
 
+			$DB_Settings_General = new Settings_General();
+			$settingsNumPosts = $DB_Settings_General->num_posts;
+
+			$paged = get_query_var('paged') ? get_query_var('paged') : 1;
+
 			if( !empty($shortcodeArgs) ) {
+				$shortcodeArgs['paged'] = $paged;
 				return $shortcodeArgs;
 
 			} else {
-				$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
 				return array(
 					'post_type' => 'wps_collections',
 					'post_status' => 'publish',
-					'posts_per_page' => apply_filters('wps_products_args_posts_per_page', -1),
-					'orderby'   => apply_filters('wps_products_args_orderby', 'desc'),
-					'paged' => apply_filters('wps_products_args_paged', $paged)
+					'posts_per_page' => apply_filters('wps_collections_args_posts_per_page', $settingsNumPosts),
+					'orderby'   => apply_filters('wps_collections_args_orderby', 'desc'),
+					'paged' => apply_filters('wps_collections_args_paged', $paged)
 				);
+
 			}
 
 		}
@@ -972,19 +936,21 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_products_args($shortcodeArgs) {
 
-			// error_log('$shortcodeArgs');
-			// error_log(print_r($shortcodeArgs));
+			$DB_Settings_General = new Settings_General();
+			$settingsNumPosts = $DB_Settings_General->num_posts;
+
+			$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
 			if( !empty($shortcodeArgs) ) {
+				$shortcodeArgs['paged'] = $paged;
 				return $shortcodeArgs;
 
 			} else {
-				$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
 				return array(
 					'post_type' => 'wps_products',
 					'post_status' => 'publish',
-					'posts_per_page' => apply_filters('wps_products_args_posts_per_page', get_option( 'posts_per_page' )),
+					'posts_per_page' => apply_filters('wps_products_args_posts_per_page', $settingsNumPosts),
 					'orderby'   => apply_filters('wps_products_args_orderby', 'desc'),
 					'paged' => apply_filters('wps_products_args_paged', $paged)
 				);
@@ -994,6 +960,33 @@ if (!class_exists('Hooks')) {
 		}
 
 
+
+
+
+
+		/*
+
+		Need to get pagination to work
+
+		*/
+		public function wps_content_pre_loop($query) {
+
+
+			if (isset($query->query['context'])) {
+
+				if ($query->query['post_type'] === 'wps_products' || $query->query['post_type'] === 'wps_collections') {
+
+					$DB_Settings_General = new Settings_General();
+
+					$query->set('posts_per_page', $DB_Settings_General->num_posts);
+
+				}
+
+			}
+
+			return $query;
+
+		}
 
 
 

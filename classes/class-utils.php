@@ -9,8 +9,10 @@ use WPS\DB\Products;
 use WPS\DB\Collects;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
+use WPS\DB\Settings_General;
 use WPS\DB\Tags;
 use WPS\DB\Variants;
+use WPS\DB\Options;
 use Gerardojbaez\Money\Money;
 
 
@@ -466,7 +468,26 @@ class Utils {
 
     global $wpdb;
 
-    $shortcode_query['where'] .= ' AND ' . $table_name . '.handle IN (' . $slugs . ')';
+    if (is_array($table_name)) {
+
+      $counter = 0;
+
+      foreach ($table_name as $key => $table) {
+
+        if ($counter === 0) {
+          $shortcode_query['where'] .= ' AND ' . $table . '.handle IN (' . $slugs . ')';
+
+        } else {
+          $shortcode_query['where'] .= ' OR ' . $table . '.handle IN (' . $slugs . ')';
+        }
+
+        $counter++;
+
+      }
+
+    } else {
+      $shortcode_query['where'] .= ' AND ' . $table_name . '.handle IN (' . $slugs . ')';
+    }
 
     return $shortcode_query;
 
@@ -479,7 +500,28 @@ class Utils {
 
     global $wpdb;
 
-    $shortcode_query['where'] .= ' AND ' . $table_name . '.title IN (' . $titles . ')';
+    if (is_array($table_name)) {
+
+      $counter = 0;
+
+      foreach ($table_name as $key => $table) {
+
+        if ($counter === 0) {
+          $shortcode_query['where'] .= ' AND ' . $table . '.title IN (' . $titles . ')';
+
+        } else {
+          $shortcode_query['where'] .= ' OR ' . $table . '.title IN (' . $titles . ')';
+        }
+
+        $counter++;
+
+      }
+
+    } else {
+      $shortcode_query['where'] .= ' AND ' . $table_name . '.title IN (' . $titles . ')';
+    }
+
+
 
     return $shortcode_query;
 
@@ -504,6 +546,38 @@ class Utils {
   }
 
 
+
+  public static function construct_variants_clauses($shortcode_query, $variants, $table_name) {
+
+    global $wpdb;
+    $DB_Variants = new Variants();
+
+    $variants_table_name = $DB_Variants->get_table_name();
+
+    $shortcode_query['where'] .= ' AND variantss.title IN (' . $variants . ')';
+    $shortcode_query['join'] .= ' INNER JOIN ' . $variants_table_name . ' variantss ON ' . $table_name . '.product_id = variantss.product_id';
+
+    return $shortcode_query;
+
+  }
+
+
+  public static function construct_options_clauses($shortcode_query, $options, $table_name) {
+
+    global $wpdb;
+    $DB_Options = new Options();
+
+    $options_table_name = $DB_Options->get_table_name();
+
+    $shortcode_query['where'] .= ' AND options.name IN (' . $options . ')';
+    $shortcode_query['join'] .= ' INNER JOIN ' . $options_table_name . ' options ON ' . $table_name . '.product_id = options.product_id';
+
+    return $shortcode_query;
+
+  }
+
+
+
   public static function construct_vendors_clauses($shortcode_query, $vendors, $table_name) {
 
     global $wpdb;
@@ -521,7 +595,11 @@ class Utils {
 
     global $wpdb;
 
+
+
     $shortcode_query['where'] .= ' AND ' . $table_name . '.product_type IN (' . $types . ')';
+
+
 
     return $shortcode_query;
 
@@ -581,6 +659,55 @@ class Utils {
   }
 
 
+
+
+
+  public static function construct_collections_clauses($shortcode_query, $slugs) {
+
+    global $wpdb;
+
+    $DB_Collects = new Collects();
+    $collects_table_name = $DB_Collects->get_table_name();
+
+    $DB_Products = new Products();
+    $products_table_name = $DB_Products->get_table_name();
+
+    $DB_Collections_Smart = new Collections_Smart();
+    $collections_smart_table_name = $DB_Collections_Smart->get_table_name();
+
+    $DB_Collections_Custom = new Collections_Custom();
+    $collections_custom_table_name = $DB_Collections_Custom->get_table_name();
+
+    $shortcode_query['where'] .= ' AND collection_id in (
+    SELECT
+    smart.collection_id
+    FROM ' . $collections_smart_table_name . ' smart
+    WHERE smart.title IN (' . $slugs . ')
+
+    UNION
+
+    SELECT
+    custom.collection_id
+    FROM ' . $collections_custom_table_name  . ' custom
+    WHERE custom.title IN (' . $slugs . ')
+    )';
+
+    $shortcode_query['join'] .= ' INNER JOIN ' . $collects_table_name . ' collects ON collects.product_id = products.product_id';
+
+    $shortcode_query['fields'] .= ', collection_id';
+
+    // error_log('construct_collections_clauses');
+    // error_log(print_r($shortcode_query, true));
+
+    return $shortcode_query;
+
+  }
+
+
+
+
+
+
   public static function construct_limit_clauses($shortcode_query, $limit) {
 
     global $wpdb;
@@ -597,7 +724,12 @@ class Utils {
 
     global $wpdb;
 
-    $shortcode_query['orderby'] .= $order;
+    if (isset($shortcode_query['orderby']) && $shortcode_query['orderby']) {
+      $shortcode_query['orderby'] .= ' ' . $order;
+
+    } else {
+      // TODO: Throw passive error
+    }
 
     return $shortcode_query;
 
@@ -607,9 +739,6 @@ class Utils {
   public static function construct_orderby_clauses($shortcode_query, $orderby, $table_name) {
 
     global $wpdb;
-
-    $DB_Products = new Products();
-    $table_products  = $DB_Products->get_table_name();
 
     $shortcode_query['orderby'] .= $table_name . '.' . $orderby . ' ';
 
@@ -678,28 +807,49 @@ class Utils {
       $shortcode_query = self::construct_collection_slugs_clauses($shortcode_query, $collection_slugs);
     }
 
-    if (array_key_exists('variants', $shortcodeAttrs)) {
+    if (array_key_exists('collections', $shortcodeAttrs)) {
+      $collections = self::construct_in_clause($shortcodeAttrs, 'collections');
+      $shortcode_query = self::construct_collections_clauses($shortcode_query, $collections);
+    }
 
+    if (array_key_exists('variants', $shortcodeAttrs)) {
+      $variants = self::construct_in_clause($shortcodeAttrs, 'variants');
+      $shortcode_query = self::construct_variants_clauses($shortcode_query, $variants, 'products');
     }
 
     if (array_key_exists('options', $shortcodeAttrs)) {
-
+      $options = self::construct_in_clause($shortcodeAttrs, 'options');
+      $shortcode_query = self::construct_options_clauses($shortcode_query, $options, 'products');
     }
 
     if (array_key_exists('orderby', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], 'products');
-    }
 
-    if (array_key_exists('order', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_order_clauses($shortcode_query, $shortcodeAttrs['order']);
+      // Default to products table
+      $table_name_orderby = 'products';
+
+      // Check if price is passed in, use variants table instead
+      if ($shortcodeAttrs['orderby'] === 'price') {
+        $table_name_orderby = 'variants';
+      }
+
+      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], $table_name_orderby);
+
+      // Order depends on order by
+      if (array_key_exists('order', $shortcodeAttrs)) {
+        $shortcode_query = self::construct_order_clauses($shortcode_query, $shortcodeAttrs['order']);
+      }
+
     }
 
     if (array_key_exists('limit', $shortcodeAttrs)) {
       $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
     }
 
+    // error_log('PRODUCTS Shortcode_query');
+    // error_log(print_r($shortcode_query, true));
 
     return $shortcode_query;
+
 
   }
 
@@ -722,35 +872,37 @@ class Utils {
 
 
   */
-  public static function construct_clauses_from_collections_custom_shortcode($shortcodeAttrs, $query) {
+  public static function construct_clauses_from_collections_shortcode($shortcodeAttrs, $query) {
 
     global $wpdb;
     $sql = '';
 
-    $DB_Collections_Custom = new Collections_Custom();
-    $shortcode_query = $DB_Collections_Custom->get_default_query();
+    $DB = new DB();
+
+    $shortcode_query = $DB->get_default_collections_query();
 
 
     if (array_key_exists('slugs', $shortcodeAttrs)) {
       $slugs = self::construct_in_clause($shortcodeAttrs, 'slugs');
-      $shortcode_query = self::construct_slug_clauses($shortcode_query, $slugs, 'custom');
+      $shortcode_query = self::construct_slug_clauses($shortcode_query, $slugs, 'collections');
     }
 
     if (array_key_exists('titles', $shortcodeAttrs)) {
       $titles = self::construct_in_clause($shortcodeAttrs, 'titles');
-      $shortcode_query = self::construct_title_clauses($shortcode_query, $titles, 'custom');
+      $shortcode_query = self::construct_title_clauses($shortcode_query, $titles, 'collections');
     }
 
     if (array_key_exists('desc', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_desc_clauses($shortcode_query, $shortcodeAttrs['desc'], 'custom');
+      $shortcode_query = self::construct_desc_clauses($shortcode_query, $shortcodeAttrs['desc'], 'collections');
     }
 
     if (array_key_exists('orderby', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], 'custom');
-    }
+      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], 'collections');
 
-    if (array_key_exists('order', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_order_clauses($shortcode_query, $shortcodeAttrs['order']);
+      if (array_key_exists('order', $shortcodeAttrs)) {
+        $shortcode_query = self::construct_order_clauses($shortcode_query, $shortcodeAttrs['order']);
+      }
+
     }
 
     if (array_key_exists('limit', $shortcodeAttrs)) {
@@ -760,113 +912,6 @@ class Utils {
     return $shortcode_query;
 
   }
-
-
-
-
-
-  /*
-
-
-  construct_clauses_from_collections_smart_shortcode
-
-
-  */
-  public static function construct_clauses_from_collections_smart_shortcode($shortcodeAttrs, $query) {
-
-    global $wpdb;
-    $sql = '';
-
-    $DB_Collections_Smart = new Collections_Smart();
-    $shortcode_query = $DB_Collections_Smart->get_default_query();
-
-
-    if (array_key_exists('slugs', $shortcodeAttrs)) {
-      $slugs = self::construct_in_clause($shortcodeAttrs, 'slugs');
-      $shortcode_query = self::construct_slug_clauses($shortcode_query, $slugs, 'smart');
-    }
-
-    if (array_key_exists('titles', $shortcodeAttrs)) {
-      $titles = self::construct_in_clause($shortcodeAttrs, 'titles');
-      $shortcode_query = self::construct_title_clauses($shortcode_query, $titles, 'smart');
-    }
-
-    if (array_key_exists('desc', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_desc_clauses($shortcode_query, $shortcodeAttrs['desc'], 'smart');
-    }
-
-    if (array_key_exists('orderby', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], 'smart');
-    }
-
-    if (array_key_exists('order', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_order_clauses($shortcode_query, $shortcodeAttrs['order']);
-    }
-
-    if (array_key_exists('limit', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
-    }
-
-    return $shortcode_query;
-
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -976,7 +1021,10 @@ class Utils {
     );
 
     // TODO: Why are we resetting the array?
-    $shortcode_args = array();
+    // $shortcode_args = array();
+
+    // error_log('wps_map_products_args_to_query');
+    // error_log(print_r($shortcodeArgs, true));
 
     //
     // Order
@@ -990,13 +1038,6 @@ class Utils {
     //
     if (isset($shortcodeArgs['orderby']) && $shortcodeArgs['orderby']) {
       $shortcode_args['custom']['orderby'] = $shortcodeArgs['orderby'];
-    }
-
-    //
-    // Pagination
-    //
-    if (isset($shortcodeArgs['page']) && $shortcodeArgs['page']) {
-      $shortcode_args['paged'] = $shortcodeArgs['page'];
     }
 
     //
@@ -1072,6 +1113,13 @@ class Utils {
     //
     // Collections
     //
+    if (isset($shortcodeArgs['collections']) && $shortcodeArgs['collections']) {
+      $shortcode_args['custom']['collections'] = $shortcodeArgs['collections'];
+    }
+
+    //
+    // Collection Slugs
+    //
     if (isset($shortcodeArgs['collection_slugs']) && $shortcodeArgs['collection_slugs']) {
       $shortcode_args['custom']['collection_slugs'] = $shortcodeArgs['collection_slugs'];
     }
@@ -1081,7 +1129,13 @@ class Utils {
     //
     if (isset($shortcodeArgs['limit']) && $shortcodeArgs['limit']) {
       $shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
-      // $shortcode_args['posts_per_page'] = $shortcodeArgs['limit'][0];
+    }
+
+    //
+    // Pagination
+    //
+    if (isset($shortcodeArgs['page']) && $shortcodeArgs['page']) {
+      $shortcode_args['paged'] = $shortcodeArgs['page'];
     }
 
     return $shortcode_args;
@@ -1107,8 +1161,6 @@ class Utils {
       'paged'             => 1
     );
 
-    // TODO: Why are we resetting the array?
-    $shortcode_args = array();
 
     //
     // Order
@@ -1157,8 +1209,11 @@ class Utils {
     //
     if (isset($shortcodeArgs['limit']) && $shortcodeArgs['limit']) {
       $shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
-      // $shortcode_args['posts_per_page'] = $shortcodeArgs['limit'][0];
     }
+
+
+    // error_log('ABOUT TO RETURN');
+    // error_log(print_r($shortcodeArgs, true));
 
     return $shortcode_args;
 
@@ -1193,6 +1248,9 @@ class Utils {
       }
 
       $productsQuery = Utils::wps_map_products_args_to_query($shortcodeArgs);
+
+      // error_log('$productsQuery');
+      // error_log(print_r($productsQuery, true));
 
       return $productsQuery;
 
@@ -1501,8 +1559,7 @@ class Utils {
     }
 
     $link = $homeURL . '/' . $slug . '/page/' . $page;
-    error_log('link');
-    error_log($link);
+
     return $link;
 
   }
@@ -1538,7 +1595,12 @@ class Utils {
   function wps_get_paginated_numbers( $args = [] ) {
 
     $Config = new Config();
-    $generalSettings = $Config->wps_get_settings_general();
+    $DB_Settings_General = new Settings_General();
+
+    // Exit if not enough posts to show pagination
+    if ($args['query']->found_posts <= $DB_Settings_General->num_posts) {
+      return;
+    }
 
     // Set defaults to use
     $defaults = [
@@ -1554,19 +1616,11 @@ class Utils {
     ];
 
 
-    if(isset($generalSettings->num_posts) && $generalSettings->num_posts) {
-
-      $custom_posts_per_page = $generalSettings->num_posts;
-
-    } else {
-
-      $custom_posts_per_page = get_option('posts_per_page');
-
-    }
-
-
     // Merge default arguments with user set arguments
     $args = wp_parse_args( $args, $defaults );
+
+
+    // if ($amountOfProducts <= $settingsNumProducts) {}
 
 
     /*
@@ -1590,27 +1644,8 @@ class Utils {
       $current_page = 1;
     }
 
-    // $numItems = count($args['query']);
-    // $post_per_page = intval(get_query_var('posts_per_page'));
-    // $max_pages = ceil($numItems / $post_per_page);
 
-
-    // error_log('$max_pages$max_pages$max_pages');
-    // error_log(print_r(, true));
-
-
-    $max_pages = ceil(($args['query']->found_posts / $custom_posts_per_page));
-
-
-    // Get the amount of pages from the query
-    // if (is_object($args['query'])) {
-    //   $max_pages = (int) $args['query']->max_num_pages;
-    //
-    // } else {
-    //   $max_pages = filter_var( $args['query'], FILTER_VALIDATE_INT );
-    //
-    // }
-
+    $max_pages = ceil(($args['query']->found_posts / $DB_Settings_General->num_posts));
 
     /*
 
@@ -1687,7 +1722,6 @@ class Utils {
 
         }
 
-        error_log(get_pagenum_link($max_pages));
         /*
 
         All the texts are set here and when they should be displayed which will link back to:
@@ -1712,6 +1746,7 @@ class Utils {
           - Page X of Y
 
         */
+
         $page_text = '<div class="wps-products-page-counter">' . sprintf( __( 'Page %s of %s' ), $current_page, $max_pages ) . '</div>';
 
         // Turn the array of page numbers into a string
@@ -1755,10 +1790,6 @@ class Utils {
     global $post;
     $wps_related_products = $query->get('wps_related_products');
 
-
-    // error_log('*********************************');
-    // error_log(print_r($wps_related_products, true));
-    // error_log('*********************************');
 
     if (empty($wps_related_products)) {
 

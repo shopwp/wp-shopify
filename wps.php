@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://staging.wpshop.io
-@since             0.2.5
+@since             0.2.6
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://staging.wpshop.io
-Description:       Sync your Shopify store with WordPress. Designed to be extensible, seamless, and lightweight.
-Version:           0.2.5
+Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and easy to use.
+Version:           0.2.6
 Author:            Andrew Robbins
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -317,8 +317,14 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action( 'wps_products_title', array($Hooks, 'wps_products_title') );
 			add_action( 'wps_products_price', array($Hooks, 'wps_products_price') );
 			add_action( 'wps_products_pagination', array($Hooks, 'wps_products_pagination') );
+			add_action( 'wps_products_no_results', array($Hooks, 'wps_products_no_results') );
 
 			add_action( 'wps_products_sidebar', array($Hooks, 'wps_products_sidebar') );
+
+
+
+			add_action( 'pre_get_posts',  array($Hooks, 'wps_content_pre_loop') );
+
 
 
 			// add_filter( 'wps_products_heading_class', array($Hooks, 'wps_products_heading_class') );

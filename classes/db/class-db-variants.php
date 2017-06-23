@@ -130,26 +130,24 @@ class Variants extends \WPS\DB {
     $results = array();
     $variantsFromShopify = $product->variants;
 
+
     /*
 
-    In order to handle image creation / deletions, we need to compare what's
-    currently in the database with what gets sent back via the
+    In order to handle an update being initated by _new_ data (e.g., when a new variant is added),
+    we need to compare what's currently in the database with what gets sent back via the
     product/update webhook.
 
     */
     $currentVariants = $this->get_rows('product_id', $product->id);
     $currentVariantsArray = Utils::wps_convert_object_to_array($currentVariants);
-    $variantsToAdd = Utils::wps_find_items_to_add($currentVariantsArray, $variantsFromShopify);
-    $variantsToDelete = Utils::wps_find_items_to_delete($currentVariantsArray, $variantsFromShopify);
+    $variantsFromShopify = Utils::wps_convert_object_to_array($variantsFromShopify);
+
+    $variantsToAdd = Utils::wps_find_items_to_add($currentVariantsArray, $variantsFromShopify, true);
+    $variantsToDelete = Utils::wps_find_items_to_delete($currentVariantsArray, $variantsFromShopify, true);
 
 
     // error_log('!!!!!!! $variantsToAdd !!!!!!!!');
     // error_log(print_r($variantsToAdd, true));
-    //
-    //
-    // error_log('!!!!!!! $variantsToDelete !!!!!!!!');
-    // error_log(print_r($variantsToDelete, true));
-
 
     if (count($variantsToAdd) > 0) {
       foreach ($variantsToAdd as $key => $newVariant) {
@@ -162,8 +160,13 @@ class Variants extends \WPS\DB {
 
 
     if (count($variantsToDelete) > 0) {
+
       foreach ($variantsToDelete as $key => $oldVariant) {
-        $results['deleted'][] = $this->delete($oldVariant->id);
+
+        if (is_array($oldVariant) && isset($oldVariant['id'])) {
+          $results['deleted'][] = $this->delete($oldVariant['id']);
+        }
+
       }
 
     } else {
@@ -175,8 +178,8 @@ class Variants extends \WPS\DB {
       $results['updated'] = $this->update($variant->id, $variant);
     }
 
-    // error_log('@@@@@@@@@ Final Updated Variants @@@@@@@@@');
-    // error_log(print_r($results, true));
+    error_log('@@@@@@@@@ Final Updated Variants @@@@@@@@@');
+    error_log(print_r($results, true));
     return $results;
 
 

@@ -754,4 +754,59 @@ class DB {
 	}
 
 
+	/*
+
+	Default Collections Query
+
+	*/
+	public function get_default_collections_query($clauses = '') {
+
+		global $wpdb;
+
+		$DB_Collections_Custom = new Collections_Custom();
+		$DB_Collections_Smart = new Collections_Smart();
+
+		$collections_custom_table = $DB_Collections_Custom->get_table_name();
+		$collections_smart_table = $DB_Collections_Smart->get_table_name();
+
+		return array(
+			'where' => '',
+			'groupby' => '',
+			'join' => ' INNER JOIN (
+
+			SELECT
+			smart.collection_id,
+			smart.post_id,
+			smart.title,
+			smart.handle,
+			smart.body_html,
+			smart.image,
+			smart.sort_order,
+			smart.published_at,
+			smart.updated_at
+			FROM 7b3ca31e_wps_collections_smart smart
+
+			UNION ALL
+
+			SELECT
+			custom.collection_id,
+			custom.post_id,
+			custom.title,
+			custom.handle,
+			custom.body_html,
+			custom.image,
+			custom.sort_order,
+			custom.published_at,
+			custom.updated_at
+			FROM 7b3ca31e_wps_collections_custom custom
+
+			) as collections ON 7b3ca31e_posts.ID = collections.post_id',
+			'orderby' => '',
+			'distinct' => '',
+			'fields' => 'collections.*',
+			'limits' => ''
+		);
+
+	}
+
 }
