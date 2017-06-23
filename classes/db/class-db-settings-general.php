@@ -34,8 +34,8 @@ class Settings_General extends \WPS\DB {
     $this->plugin_author      = $Config->plugin_author;
     $this->plugin_textdomain  = $Config->plugin_name;
     $this->plugin_name        = $Config->plugin_name_full;
-    $this->num_posts          = get_option('posts_per_page');
     $this->cache_group        = 'wps_db_general';
+    $this->num_posts          = isset($this->get_num_posts()[0]->num_posts) && $this->get_num_posts()[0]->num_posts ? $this->get_num_posts()[0]->num_posts : get_option('posts_per_page');
 
   }
 
@@ -128,6 +128,16 @@ class Settings_General extends \WPS\DB {
   */
   public function update_general($generalData) {
     return $this->update(1, $generalData);
+  }
+
+
+  /*
+
+  Get num posts value
+
+  */
+  public function get_num_posts() {
+    return $this->get_column_single('num_posts');
   }
 
 

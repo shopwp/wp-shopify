@@ -90,8 +90,6 @@ class Backend {
 	*/
 	public function wps_config_admin_scripts() {
 
-		// $this->config = new Config();
-		error_log(get_current_screen()->id);
 		// Only loading admin script if we're on the settings page ...
 		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
 

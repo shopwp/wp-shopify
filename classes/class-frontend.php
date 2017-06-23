@@ -35,7 +35,6 @@ if (!class_exists('Frontend')) {
 		public function __construct($Config) {
 			$this->config = $Config;
 			$this->Settings_General = new Settings_General();
-
 		}
 
 
@@ -165,12 +164,11 @@ if (!class_exists('Frontend')) {
 			 execution order looks like this:
 
 		5. Because 'wps_clauses_mod' will get fired for both products and collections, we then
-			 need to fork where the execution goes by calling one of three functions depending
+			 need to fork where the execution goes by calling one of two functions depending
 			 on what we're dealing with. They are:
 
 			 construct_clauses_from_products_shortcode
-			 construct_clauses_from_collections_custom_shortcode
-			 construct_clauses_from_collections_smart_shortcode
+			 construct_clauses_from_collections_shortcode
 
 			 ================================================================
 			 wps_products_shortcode ->
@@ -178,12 +176,12 @@ if (!class_exists('Frontend')) {
 			 wps_map_products_args_to_query ->
 			 wps_products_display -> (via WP_Query) -> wps_clauses_mod
 					either a. construct_clauses_from_products_shortcode
-					either b. construct_clauses_from_collections_custom_shortcode
-					either c. construct_clauses_from_collections_smart_shortcode
+					either b. construct_clauses_from_collections_shortcode
 			 ================================================================
 
 		*/
 		public function wps_products_shortcode($atts) {
+
 
 			$shortcode_output = '';
 			$shortcodeArgs = Utils::wps_format_products_shortcode_args($atts);
@@ -224,19 +222,6 @@ if (!class_exists('Frontend')) {
 		}
 
 
-
-
-		public function wps_insert_cart_before_closing_body() {
-
-			ob_start();
-			include_once($this->config->plugin_path . "public/partials/cart/cart.php");
-			$content = ob_get_contents();
-			ob_end_clean();
-			echo $content;
-
-		}
-
-
 		/*
 
 		WP Shopify shortcode
@@ -255,6 +240,22 @@ if (!class_exists('Frontend')) {
 			$shortcode_output .= $cart;
 
 			return $shortcode_output;
+
+		}
+
+
+		/*
+
+		WP Shopify cart
+
+		*/
+		public function wps_insert_cart_before_closing_body() {
+
+			ob_start();
+			include_once($this->config->plugin_path . "public/partials/cart/cart.php");
+			$content = ob_get_contents();
+			ob_end_clean();
+			echo $content;
 
 		}
 
