@@ -25,6 +25,17 @@ class Settings_General extends \WPS\DB {
 
     $Config = new Config();
 
+    // 
+    // $okokok = $this->get_num_posts()[0]->num_posts;
+    //
+    // error_log('NUM POSTS CUSTOM');
+    // error_log(print_r($okokok, true));
+    //
+    // error_log('NUM POSTS DEFAULT');
+    // error_log();
+
+
+
     global $wpdb;
     $this->table_name         = $wpdb->prefix . 'wps_settings_general';
     $this->primary_key        = 'id';
@@ -35,7 +46,7 @@ class Settings_General extends \WPS\DB {
     $this->plugin_textdomain  = $Config->plugin_name;
     $this->plugin_name        = $Config->plugin_name_full;
     $this->cache_group        = 'wps_db_general';
-    $this->num_posts          = isset($this->get_num_posts()[0]->num_posts) && $this->get_num_posts()[0]->num_posts ? $this->get_num_posts()[0]->num_posts : get_option('posts_per_page');
+    $this->num_posts          = get_option('posts_per_page');
 
   }
 
