@@ -104,7 +104,7 @@ $tab = null;
   require_once plugin_dir_path( __FILE__ ) . 'wps-admin-notices.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-connect.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-settings.php';
-  require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-tools.php';
+  // require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-tools.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-updates.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-help.php';
 
