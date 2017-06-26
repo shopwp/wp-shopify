@@ -115,7 +115,7 @@ class Options extends \WPS\DB {
       }
 
     } else {
-      // error_log('------ No new options to create -------');
+
     }
 
 
@@ -125,7 +125,7 @@ class Options extends \WPS\DB {
       }
 
     } else {
-      // error_log('------ No new options to delete -------');
+
     }
 
 
@@ -133,10 +133,7 @@ class Options extends \WPS\DB {
       $results['updated'] = $this->update($option->id, $option);
     }
 
-    // error_log('@@@@@@@@@ Final Updated Options @@@@@@@@@');
-    // error_log(print_r($results, true));
     return $results;
-
 
   }
 

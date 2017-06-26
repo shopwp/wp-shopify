@@ -4,13 +4,13 @@
   </a>
 </p>
 
-> _Note: WP Shopify is currently in beta. The links below are currently directing to the staging server until the official release. All content will port over._
+> _Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful_
 
 
 ## Links
-- Website: https://staging.wpshop.io
-- Documentation: https://staging.wpshop.io/docs
-- Installation: https://staging.wpshop.io/docs/installation
-- Syncing: https://staging.wpshop.io/docs/syncing
-- Configuration: https://staging.wpshop.io/docs/configuration
-- Gotchas: https://staging.wpshop.io/docs/gotchas
+- Website: https://wpshop.io
+- Documentation: https://wpshop.io/docs
+- Installation: https://wpshop.io/docs/installation
+- Syncing: https://wpshop.io/docs/syncing
+- Configuration: https://wpshop.io/docs/configuration
+- Gotchas: https://wpshop.io/docs/gotchas

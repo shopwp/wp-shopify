@@ -238,10 +238,6 @@ class WS {
       die();
 
     } else {
-      //
-      // error_log('================== errrr ====================');
-      // error_log(print_r($data->errors, true));
-      // error_log('=============================================');
 
       echo json_encode($data->errors);
       die();

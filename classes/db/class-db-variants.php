@@ -146,16 +146,13 @@ class Variants extends \WPS\DB {
     $variantsToDelete = Utils::wps_find_items_to_delete($currentVariantsArray, $variantsFromShopify, true);
 
 
-    // error_log('!!!!!!! $variantsToAdd !!!!!!!!');
-    // error_log(print_r($variantsToAdd, true));
-
     if (count($variantsToAdd) > 0) {
       foreach ($variantsToAdd as $key => $newVariant) {
         $results['created'][] = $this->insert($newVariant, 'variant');
       }
 
     } else {
-      // error_log('------ No new variants to create -------');
+
     }
 
 
@@ -170,7 +167,7 @@ class Variants extends \WPS\DB {
       }
 
     } else {
-      // error_log('------ No new variants to delete -------');
+
     }
 
 
@@ -178,10 +175,7 @@ class Variants extends \WPS\DB {
       $results['updated'] = $this->update($variant->id, $variant);
     }
 
-    error_log('@@@@@@@@@ Final Updated Variants @@@@@@@@@');
-    error_log(print_r($results, true));
     return $results;
-
 
   }
 

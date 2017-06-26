@@ -18,9 +18,6 @@ a string that represents where the file is loaded on disk.
 */
 spl_autoload_register(function($filename) {
 
-	// error_log('---------------- $filename -------------------');
-	// error_log($filename);
-
 	// First, separate the components of the incoming file.
 	$file_path = explode( '\\', $filename );
 

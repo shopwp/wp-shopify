@@ -103,10 +103,6 @@ class Collections_Custom extends \WPS\DB {
 
     }
 
-
-    // error_log('---- $results Flattened Custom Collectionssss -----');
-    // error_log(print_r($results, true));
-
     return $results;
 
   }
