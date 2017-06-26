@@ -1563,7 +1563,7 @@ class Utils {
     $DB_Settings_General = new Settings_General();
 
     // Exit if not enough posts to show pagination
-    if ($args['query']->found_posts <= $DB_Settings_General->num_posts) {
+    if ($args['query']->found_posts <= $DB_Settings_General->get_num_posts()) {
       return;
     }
 
@@ -1610,7 +1610,7 @@ class Utils {
     }
 
 
-    $max_pages = ceil(($args['query']->found_posts / $DB_Settings_General->num_posts));
+    $max_pages = ceil(($args['query']->found_posts / $DB_Settings_General->get_num_posts()));
 
     /*
 
@@ -1761,11 +1761,12 @@ class Utils {
 
       $currentPage = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
       $Config = new Config();
+      $DB_Settings_General = new Settings_General();
       $generalSettings = $Config->wps_get_settings_general();
 
-      if(isset($generalSettings->num_posts) && $generalSettings->num_posts) {
+      if($DB_Settings_General->get_num_posts() !== null) {
 
-        $posts_per_page = $generalSettings->num_posts;
+        $posts_per_page = $DB_Settings_General->get_num_posts();
 
         $minNumProducts = ($currentPage - 1) * $posts_per_page;
         $maxNumProducts = $posts_per_page;

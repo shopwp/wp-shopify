@@ -15,6 +15,10 @@ class Settings_General extends \WPS\DB {
   public $plugin_textdomain;
   public $plugin_name;
   public $num_posts;
+  public $cache_group;
+
+  // $this->get_column_single('num_posts');
+  // ;
 
   /*
 
@@ -25,18 +29,8 @@ class Settings_General extends \WPS\DB {
 
     $Config = new Config();
 
-    // 
-    // $okokok = $this->get_num_posts()[0]->num_posts;
-    //
-    // error_log('NUM POSTS CUSTOM');
-    // error_log(print_r($okokok, true));
-    //
-    // error_log('NUM POSTS DEFAULT');
-    // error_log();
-
-
-
     global $wpdb;
+
     $this->table_name         = $wpdb->prefix . 'wps_settings_general';
     $this->primary_key        = 'id';
     $this->version            = '1.0';
@@ -148,7 +142,22 @@ class Settings_General extends \WPS\DB {
 
   */
   public function get_num_posts() {
-    return $this->get_column_single('num_posts');
+
+    global $wpdb;
+
+    $query = "SELECT num_posts FROM " . $wpdb->prefix . "wps_settings_general";
+    $data = $wpdb->get_results($query);
+
+    if (isset($data[0]->num_posts) && $data[0]->num_posts) {
+      return $data[0]->num_posts;
+
+    } else {
+      return get_option('posts_per_page');
+
+    }
+
+    return $data;
+
   }
 
 
