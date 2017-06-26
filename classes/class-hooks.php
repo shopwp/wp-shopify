@@ -631,17 +631,18 @@ if (!class_exists('Hooks')) {
 			// $args['paged'] = 991;
 
 
-			$products = new \WP_Query($args);
-			$amountOfProducts = count($products->posts);
+			$productsQuery = new \WP_Query($args);
+			$amountOfProducts = count($productsQuery->posts);
 
-			do_action( 'wps_products_before', $products );
-			do_action( 'wps_products_header', $products );
+			do_action( 'wps_products_before', $productsQuery );
+
+			do_action( 'wps_products_header', $productsQuery );
 
 			if ($amountOfProducts > 0) {
 
-				do_action( 'wps_products_loop_start', $products );
+				do_action( 'wps_products_loop_start', $productsQuery );
 
-				foreach($products->posts as $product) {
+				foreach($productsQuery->posts as $product) {
 
 					do_action( 'wps_products_item_start', $product, $args, $customArgs );
 					do_action( 'wps_products_item', $product, $args, $settings );
@@ -651,14 +652,14 @@ if (!class_exists('Hooks')) {
 
 				wp_reset_postdata();
 
-				do_action( 'wps_products_loop_end', $products );
-				do_action( 'wps_before_products_pagination', $products );
+				do_action( 'wps_products_loop_end', $productsQuery );
+				do_action( 'wps_before_products_pagination', $productsQuery );
 
 				if (isset($args['paged']) && $args['paged']) {
-					do_action( 'wps_products_pagination', $products );
+					do_action( 'wps_products_pagination', $productsQuery );
 				}
 
-				do_action( 'wps_after_products_pagination', $products );
+				do_action( 'wps_after_products_pagination', $productsQuery );
 
 			} else {
 
@@ -666,7 +667,7 @@ if (!class_exists('Hooks')) {
 
 			}
 
-			do_action( 'wps_products_after', $products );
+			do_action( 'wps_products_after', $productsQuery );
 
 		}
 

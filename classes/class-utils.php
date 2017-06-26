@@ -265,14 +265,6 @@ class Utils {
     $arrayOfIDsFromShopify = self::wps_get_item_ids($newItemsArray, $numDimensions, $keyToCheck);
 
     if ($numDimensions) {
-      // error_log('11111');
-      // error_log(print_r($arrayOfIDsFromCurrent, true));
-      //
-      // error_log('22222');
-      // error_log(print_r($arrayOfIDsFromShopify, true));
-      //
-      // error_log('$currentItemsArray');
-      // error_log(print_r($currentItemsArray, true));
 
     }
 
@@ -317,26 +309,21 @@ class Utils {
     $arr  = json_encode($arr);
     $arr  = json_decode($arr, true);
 
-    // error_log('---------------------------- ARRR -------');
-    // error_log(print_r($arr, true));
-
     $results = array();
 
-
     if ($oneDimension) {
-      // error_log('One Dimensional');
+
       foreach ($arr as $key => $value) {
 
-        // error_log(print_r($value, true));
         if (isset($value[$keyToCheck]) && $value[$keyToCheck]) {
           $results[] = $value[$keyToCheck];
         }
       }
 
     } else {
-      // error_log('Multi Dimensional');
+
       foreach ($arr as $key => $subarray) {
-        // error_log(print_r($subarray, true));
+
         foreach ($subarray as $key => $value) {
           if (isset($value[$keyToCheck]) && $value[$keyToCheck]) {
             $results[] = $value[$keyToCheck];
@@ -648,11 +635,7 @@ class Utils {
     )';
 
     $shortcode_query['join'] .= ' INNER JOIN ' . $collects_table_name . ' collects ON collects.product_id = products.product_id';
-
     $shortcode_query['fields'] .= ', collection_id';
-
-    // error_log('construct_collection_slugs_clauses');
-    // error_log(print_r($shortcode_query, true));
 
     return $shortcode_query;
 
@@ -695,9 +678,6 @@ class Utils {
     $shortcode_query['join'] .= ' INNER JOIN ' . $collects_table_name . ' collects ON collects.product_id = products.product_id';
 
     $shortcode_query['fields'] .= ', collection_id';
-
-    // error_log('construct_collections_clauses');
-    // error_log(print_r($shortcode_query, true));
 
     return $shortcode_query;
 
@@ -845,9 +825,6 @@ class Utils {
       $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
     }
 
-    // error_log('PRODUCTS Shortcode_query');
-    // error_log(print_r($shortcode_query, true));
-
     return $shortcode_query;
 
 
@@ -927,55 +904,55 @@ class Utils {
     */
 
     if (array_key_exists('order', $shortcodeAttrs)) {
-      error_log("['order']");
+
     }
 
     if (array_key_exists('orderby', $shortcodeAttrs)) {
-      error_log("['orderby']");
+
     }
 
     if (array_key_exists('slugs', $shortcodeAttrs)) {
-      error_log("['slugs']");
+
     }
 
     if (array_key_exists('titles', $shortcodeAttrs)) {
-      error_log("['titles']");
+
     }
 
     if (array_key_exists('desc', $shortcodeAttrs)) {
-      error_log("['desc']");
+
     }
 
     if (array_key_exists('tags', $shortcodeAttrs)) {
-      error_log("['tags']");
+
     }
 
     if (array_key_exists('vendors', $shortcodeAttrs)) {
-      error_log("['vendors']");
+
     }
 
     if (array_key_exists('variants', $shortcodeAttrs)) {
-      error_log("['variants']");
+
     }
 
     if (array_key_exists('types', $shortcodeAttrs)) {
-      error_log("['type']");
+
     }
 
     if (array_key_exists('options', $shortcodeAttrs)) {
-      error_log("['options']");
+
     }
 
     if (array_key_exists('available', $shortcodeAttrs)) {
-      error_log("['available']");
+
     }
 
     if (array_key_exists('collections', $shortcodeAttrs)) {
-      error_log("['collections']");
+
     }
 
     if (array_key_exists('limit', $shortcodeAttrs)) {
-      error_log("['limit']");
+
     }
 
     return $sql;
@@ -1020,11 +997,6 @@ class Utils {
       'paged'             => 1
     );
 
-    // TODO: Why are we resetting the array?
-    // $shortcode_args = array();
-
-    // error_log('wps_map_products_args_to_query');
-    // error_log(print_r($shortcodeArgs, true));
 
     //
     // Order
@@ -1211,10 +1183,6 @@ class Utils {
       $shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
     }
 
-
-    // error_log('ABOUT TO RETURN');
-    // error_log(print_r($shortcodeArgs, true));
-
     return $shortcode_args;
 
 
@@ -1248,9 +1216,6 @@ class Utils {
       }
 
       $productsQuery = Utils::wps_map_products_args_to_query($shortcodeArgs);
-
-      // error_log('$productsQuery');
-      // error_log(print_r($productsQuery, true));
 
       return $productsQuery;
 

@@ -4,15 +4,15 @@
 
 WP Shopify
 
-@link              https://staging.wpshop.io
-@since             0.2.6
+@link              https://wpshop.io
+@since             1.0.0
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
-Plugin URI:        https://staging.wpshop.io
-Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and easy to use.
-Version:           0.2.6
+Plugin URI:        https://wpshop.io
+Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
+Version:           1.0.0
 Author:            Andrew Robbins
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+

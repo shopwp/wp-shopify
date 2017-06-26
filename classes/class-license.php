@@ -143,7 +143,7 @@ class License {
 
 	public function wps_get_latest_plugin_version() {
 
-		$api_url = 'https://staging.wpshop.io';
+		$api_url = 'https://wpshop.io';
 
 		$api_params = array(
 			'edd_action' => 'get_version',
@@ -199,7 +199,7 @@ class License {
 
 	*/
 	public function wps_activate_plugin_license() {
-		error_log('Time to activate');
+
 	}
 
 
@@ -209,7 +209,7 @@ class License {
 
 	*/
 	public function wps_deactivate_plugin_license() {
-		error_log('Time to deactivate');
+
 	}
 
 
@@ -266,9 +266,6 @@ class License {
 
 
 	public function wps_invalid_key_notice($plugin_file, $plugin_data, $status) {
-
-		// error_log(print_r($plugin_data, true));
-		// echo '<tr class="active"><td>&nbsp;</td><td colspan="2">HEY</td></tr>';
 
 		$allowed_tags = array(
 			'a' => array(

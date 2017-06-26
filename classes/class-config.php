@@ -50,7 +50,7 @@ class Config {
 		$this->plugin_name_full = 'WP Shopify';
 		$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 		$this->plugin_name = 'wps';
-		$this->plugin_version = '0.2.6';
+		$this->plugin_version = '1.0.0';
 		$this->plugin_author = 'Andrew Robbins';
 
 
@@ -58,7 +58,7 @@ class Config {
 		$this->plugin_file = plugin_basename($this->plugin_root_file);
 
 		$this->plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' );
-		$this->plugin_env = 'https://staging.wpshop.io';
+		$this->plugin_env = 'https://wpshop.io';
 
 		// Settings
 		$this->settings_connection_option_name = $this->plugin_name . '_settings_connection';
