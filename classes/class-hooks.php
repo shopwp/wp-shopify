@@ -627,10 +627,6 @@ if (!class_exists('Hooks')) {
 
 			*/
 
-			// $args['posts_per_page'] = $settings->num_posts;
-			// $args['paged'] = 991;
-
-
 			$productsQuery = new \WP_Query($args);
 			$amountOfProducts = count($productsQuery->posts);
 
@@ -907,7 +903,7 @@ if (!class_exists('Hooks')) {
 		public function wps_collections_args($shortcodeArgs) {
 
 			$DB_Settings_General = new Settings_General();
-			$settingsNumPosts = $DB_Settings_General->num_posts;
+			$settingsNumPosts = $DB_Settings_General->get_num_posts();
 
 			$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
@@ -938,7 +934,7 @@ if (!class_exists('Hooks')) {
 		public function wps_products_args($shortcodeArgs) {
 
 			$DB_Settings_General = new Settings_General();
-			$settingsNumPosts = $DB_Settings_General->num_posts;
+			$settingsNumPosts = $DB_Settings_General->get_num_posts();
 
 			$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
@@ -979,7 +975,7 @@ if (!class_exists('Hooks')) {
 
 					$DB_Settings_General = new Settings_General();
 
-					$query->set('posts_per_page', $DB_Settings_General->num_posts);
+					$query->set('posts_per_page', $DB_Settings_General->get_num_posts());
 
 				}
 

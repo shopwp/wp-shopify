@@ -6,6 +6,7 @@ use WPS\DB\Settings_Connection;
 use WPS\DB\Settings_General;
 use WPS\DB\Settings_License;
 
+
 /*
 
 Main class
@@ -52,7 +53,6 @@ class Config {
 		$this->plugin_name = 'wps';
 		$this->plugin_version = '1.0.0';
 		$this->plugin_author = 'Andrew Robbins';
-
 
 		$this->plugin_root_file = $this->plugin_path . $this->plugin_name . '.php';
 		$this->plugin_file = plugin_basename($this->plugin_root_file);
