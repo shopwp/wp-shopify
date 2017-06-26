@@ -247,25 +247,10 @@ class DB {
 
     $column_formats = array_merge( array_flip($data_keys), $column_formats);
 
-		// if ($type === 'smart_collection') {
-		// 	error_log(print_r($data, true));
-		// }
-		//
-		// error_log(':::::::::: DATA BEING ENTERED ::::::::::');
-		// error_log(print_r($data, true));
-		// error_log('::::::::::::::::::::::::::::::::::::::::::::::::');
-
-    // Perform actual DB insert
-
-		// if (is_array($data) && count($data) > 0) {
-		// 	$wpdb->insert($this->table_name, $data, $column_formats);
-		// }
 
 		$result = $wpdb->insert($this->table_name, $data, $column_formats);
 
-		// if ($type === 'option') {
-		// 	error_log(print_r($wpdb, true));
-		// }
+
 
     do_action('wps_post_insert_' . $type, $result, $data);
 

@@ -14,7 +14,7 @@ BUILD_FOLDER="/Users/arobbins/www/wpstest/assets/_build/wp-shopify"
 
 GREEN='\033[0;32m'
 NC='\033[0m'
-ENV='staging'
+ENV='prod'
 
 #
 # Creating a temp _build folder
@@ -47,7 +47,7 @@ printf "${GREEN}Success: ${NC}Isolated .zip\n"
 # Copy new .zip to server
 #
 scp $BUILD_FOLDER/wp-shopify.zip arobbins@162.243.170.76:~
-ssh -t arobbins@162.243.170.76 "sudo rm /var/www/$ENV/html/beta/latest/wp-shopify.zip && sudo mv wp-shopify.zip /var/www/$ENV/html/beta/latest/"
+ssh -t arobbins@162.243.170.76 "sudo rm /var/www/$ENV/html/live/latest/wp-shopify.zip && sudo mv wp-shopify.zip /var/www/$ENV/html/live/latest/"
 printf "${GREEN}Success: ${NC}Transfered new .zip to server\n"
 
 #

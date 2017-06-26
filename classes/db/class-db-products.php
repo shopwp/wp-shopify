@@ -162,12 +162,6 @@ class Products extends \WPS\DB {
       // If product is visible on the Online Stores channel
       if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
-
-        // error_log(':::::::::: $product :::::::::::');
-        // error_log(print_r($product->tags, true));
-
-
-
         // Inserts CPT
         $customPostTypeID = CPT::wps_insert_new_product($product);
 
@@ -179,8 +173,6 @@ class Products extends \WPS\DB {
 
         // Inserts Product into WPS table
         $results[] = $this->insert($product, 'product');
-
-
 
       }
 
@@ -380,7 +372,7 @@ class Products extends \WPS\DB {
     $products = $wpdb->get_results(
       $wpdb->prepare($query, $collection_id)
     );
-    
+
 
     /*
 

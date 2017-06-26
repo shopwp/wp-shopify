@@ -389,7 +389,7 @@ function getProductInfo(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://staging.wpshop.io/edd-sl?edd_action=get_version&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=get_version&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
   };
 
   return jQuery.ajax(options);
@@ -407,7 +407,7 @@ function getLicenseKeyStatus(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://staging.wpshop.io/edd-sl?edd_action=check_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=check_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
   };
 
   return jQuery.ajax(options);
@@ -425,7 +425,7 @@ function activateLicenseKey(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://staging.wpshop.io/edd-sl?edd_action=activate_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=activate_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
   };
 
   return jQuery.ajax(options);
@@ -443,7 +443,7 @@ function deactivateLicenseKey(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://staging.wpshop.io/edd-sl?edd_action=deactivate_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=deactivate_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
   };
 
   return jQuery.ajax(options);
@@ -719,7 +719,7 @@ function getAuthToken() {
 
   var options = {
     method: 'POST',
-    url: 'https://staging.wpshop.io/wp-json/jwt-auth/v1/token',
+    url: 'https://wpshop.io/wp-json/jwt-auth/v1/token',
     dataType: "json",
     data: {
       username: 'wp-shopify-auth-user', // TODO: make dynamic?
@@ -741,7 +741,7 @@ Returns: Promise
 function getAuthUser(token) {
 
   var options = {
-    url: 'https://staging.wpshop.io/wp-json/wp/v2/users/2',
+    url: 'https://wpshop.io/wp-json/wp/v2/users/2',
     method: 'GET',
     headers: {
       'Authorization': 'Bearer ' + token
@@ -805,7 +805,7 @@ function updateAuthUser(authToken, authUserData) {
       console.log("authToken: ", authToken);
 
   var options = {
-    url: 'https://staging.wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic
+    url: 'https://wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic
     method: 'POST',
     headers: {
       'Authorization': 'Bearer ' + authToken
