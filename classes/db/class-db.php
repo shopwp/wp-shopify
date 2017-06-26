@@ -182,7 +182,7 @@ class DB {
 		if (!$data) {
 
 			$query = "SELECT $column FROM $this->table_name;";
-			// $sss = $wpdb->prepare($query, addslashes($column));
+
 			$data = $wpdb->get_results($query);
 
 			// Cache for 1 hour
@@ -191,7 +191,6 @@ class DB {
 		}
 
 		return $data;
-
 
   }
 
