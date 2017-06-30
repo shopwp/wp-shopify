@@ -126,6 +126,7 @@ async function renderCartItems(shopify) {
 
       var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
       var itemImage = lineItem.image.src;
+      
       $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');
       $lineItemTemplate.find('.wps-cart-item__title').text(lineItem.title);
       $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
@@ -166,7 +167,7 @@ async function renderCartItems(shopify) {
 function updateCartVariant(variant, quantity, shopify) {
 
   return new Promise(async function(resolve, reject) {
-    
+
     var options = {
       variant: variant,
       quantity: quantity

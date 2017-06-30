@@ -55,7 +55,7 @@ function onLicenseFormSubmit() {
       showAdminNotice(error.text(), 'error');
     },
     submitHandler: async function(form) {
-      console.log('3');
+      // console.log('3');
       var $submitButton = jQuery(form).find('input[type="submit"]');
       var $spinner = jQuery(form).find('.spinner');
       var nonce = jQuery("#wps_settings_license_nonce_license_id").val();
@@ -73,7 +73,7 @@ function onLicenseFormSubmit() {
 
         } catch (errorMsg) {
 
-          console.log('errorMsg: ', errorMsg);
+          // console.log('errorMsg: ', errorMsg);
 
           hideLoader($submitButton);
           showAdminNotice(errorMsg, 'error');
@@ -148,7 +148,7 @@ async function deactivateKey() {
   //
   try {
     var deleted = await deleteLicenseKey(savedLicenseKey);
-    console.log("deleted: ", deleted);
+    // console.log("deleted: ", deleted);
 
     $submitButton.data('status', 'activate');
     $submitButton.attr('data-status', 'activate');
@@ -158,7 +158,7 @@ async function deactivateKey() {
     $licenseInput.removeClass('error valid');
     $licensePostbox.animateCss('wps-bounceOutLeft', function() {
       $licensePostbox.addClass('wps-is-hidden');
-      console.log('Animation complete');
+      // console.log('Animation complete');
     });
 
     enable(jQuery('#wps_settings_license_license'));
@@ -246,12 +246,28 @@ async function activateKey(key) {
   }
 
 
+  try {
+    licenseKeyInfo = await getLicenseKeyStatus(key);
+
+  } catch(error) {
+    removeCheckmarks($form);
+    enable($submitButton);
+    console.log("error: ", error);
+
+    return rejectedPromise('Error: unable to get license key. Please try again.');
+
+  }
+
+
   //
   // Saving key locally
   //
   try {
 
-    licenseKeyInfo = await getLicenseKeyStatus(key);
+    if (licenseKeyInfo.expires === "lifetime") {
+      licenseKeyInfo.expires = 0;
+    }
+
     licenseKeyInfo.key = key;
     licenseKeyInfo.is_local = licenseKeyActivatedResp.is_local;
 
@@ -275,7 +291,8 @@ async function activateKey(key) {
 
     removeCheckmarks($form);
     enable($submitButton);
-    console.log("error: ", error);
+    console.log("errorrrrr: ", error);
+
     return rejectedPromise('Error: unable to save license key. Please try again.');
 
   }
@@ -299,6 +316,8 @@ function updateInfoBox(licenseKeyInfo) {
       licenseLimit,
       licenseCount;
 
+    // console.log('UPDAA: ', licenseKeyInfo);
+
 
   if(licenseKeyInfo.license_limit === 0) {
     licenseLimit = 'unlimited';
@@ -309,11 +328,11 @@ function updateInfoBox(licenseKeyInfo) {
   }
 
 
-  if (licenseKeyInfo.site_count > 0) {
-    licenseCount = licenseKeyInfo.site_count - 1;
+  if (licenseKeyInfo.is_local) {
+    licenseCount = licenseKeyInfo.site_count;
 
   } else {
-    licenseCount = licenseKeyInfo.site_count;
+    licenseCount = licenseKeyInfo.site_count + 1;
 
   }
 
