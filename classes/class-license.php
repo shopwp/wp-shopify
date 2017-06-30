@@ -79,11 +79,12 @@ class License {
 
 		$isLocal = isset($_POST['is_local']) && $_POST['is_local'] ? 1 : 0;
 		$success = isset($_POST['success']) && $_POST['success'] ? 1 : 0;
+		$expires = isset($_POST['expires']) && $_POST['expires'] === 'lifetime' ? 0 : $_POST['expires'];
 
 		$newLicenseData = array(
     	'key'                   => $_POST['key'],
     	'is_local'              => $isLocal,
-    	'expires'               => $_POST['expires'],
+    	'expires'               => $expires,
     	'site_count'            => $_POST['site_count'],
     	'checksum'              => $_POST['checksum'],
     	'customer_email'        => $_POST['customer_email'],
@@ -97,8 +98,14 @@ class License {
 
 		$result = $Settings_License->insert_license($newLicenseData);
 
-		echo $result;
-    die();
+		if ($result) {
+			echo true;
+	    die();
+
+		} else {
+			echo false;
+	    die();
+		}
 
   }
 
