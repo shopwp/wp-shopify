@@ -3,7 +3,7 @@
 Tab Content: Settings
 
 -->
-<div class="tab-content <?php echo $tab === 'settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
+<div class="tab-content tab-content-full <?php echo $tab === 'settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
 
   <h2 class="wps-admin-section-heading">
     <span class="dashicons dashicons-admin-generic"></span> <?php esc_attr_e( 'Settings ', 'wp_admin_style' ); ?>
