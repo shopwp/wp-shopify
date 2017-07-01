@@ -10,15 +10,15 @@ Class Transients
 class Transients {
 
   protected static $instantiated = null;
-  private $Config;
+
 
   /*
 
   Initialize the class and set its properties.
 
   */
-  public function __construct($Config) {
-    $this->config = $Config;
+  public function __construct() {
+
   }
 
 
@@ -56,5 +56,66 @@ class Transients {
     }
 
   }
+
+
+  /*
+
+  Check Money Format
+
+  */
+  public static function check_money_format() {
+
+    if (get_transient('wps_money_format_updated') !== false) {
+      delete_transient('wps_money_format_updated');
+    }
+
+  }
+
+
+  /*
+
+  Check Money Format
+
+  */
+  public static function check_money_with_currency_format() {
+
+    if (get_transient('wps_money_with_currency_format_updated') !== false) {
+      delete_transient('wps_money_with_currency_format_updated');
+    }
+
+  }
+
+
+  /*
+
+  Delete price cache
+
+  */
+  public static function delete_cached_prices() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_price\_id\_%'");
+
+    return $results;
+
+  }
+
+
+  /*
+
+  Delete all transients
+
+  */
+  public static function delete_all_cache() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_%'");
+
+    return $results;
+
+  }
+
 
 }

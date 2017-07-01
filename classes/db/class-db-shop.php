@@ -2,6 +2,8 @@
 
 namespace WPS\DB;
 
+use WPS\Transients;
+
 class Shop extends \WPS\DB {
 
 	public $table_name;
@@ -155,13 +157,47 @@ class Shop extends \WPS\DB {
 	}
 
 
+
+
+
+
+	public function get_money_format() {
+
+    $money_format = $this->get_shop('money_format');
+    $money_format = $money_format[0]->money_format;
+
+    return $money_format;
+
+  }
+
+
+	public function get_money_with_currency_format() {
+
+    $money_with_currency_format = $this->get_shop('money_with_currency_format');
+    $money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
+
+    return $money_with_currency_format;
+
+  }
+
+
 	/*
 
   Insert connection data
 
   */
   public function update_shop($shopData) {
+
+		if ($shopData->money_format !== $this->get_money_format()) {
+			Transients::delete_cached_prices();
+		}
+
+		if ($shopData->money_with_currency_format !== $this->get_money_with_currency_format()) {
+			Transients::delete_cached_prices();
+		}
+
     return $this->update($this->get_shop('id')[0]->id, $shopData);
+
   }
 
 

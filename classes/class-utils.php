@@ -1448,12 +1448,14 @@ class Utils {
   */
   public static function wps_extract_amount_format() {
 
+    $DB_Shop = new Shop();
+
     // Need to check what field to use
     if (self::wps_is_using_money_with_currency_format()) {
-      $settingsMoneyFormat = self::wps_get_money_with_currency_format();
+      $settingsMoneyFormat = $DB_Shop->get_money_with_currency_format();
 
     } else {
-      $settingsMoneyFormat = self::wps_get_money_format();
+      $settingsMoneyFormat = $DB_Shop->get_money_format();
     }
 
 
@@ -1493,40 +1495,6 @@ class Utils {
     } else {
       return false;
     }
-
-  }
-
-
-  /*
-
-  Gets the DB string value from 'money_format'
-  Since: 1.0.1
-
-  */
-  public static function wps_get_money_format() {
-
-    $DB_Shop = new Shop();
-    $money_format = $DB_Shop->get_shop('money_format');
-    $money_format = $money_format[0]->money_format;
-
-    return $money_format;
-
-  }
-
-
-  /*
-
-  Gets the DB string value from 'money_with_currency_format'
-  Since: 1.0.1
-
-  */
-  public static function wps_get_money_with_currency_format() {
-
-    $DB_Shop = new Shop();
-    $money_with_currency_format = $DB_Shop->get_shop('money_with_currency_format');
-    $money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
-
-    return $money_with_currency_format;
 
   }
 
@@ -1634,31 +1602,45 @@ class Utils {
   Main Format Money Function
 
   */
-  public static function wps_format_money($price) {
+  public static function wps_format_money($price, $product) {
 
-    $DB_Shop = new Shop();
-    $shop_currency = $DB_Shop->get_shop('currency');
-    $shop_currency = $shop_currency[0]->currency;
+    /*
 
-    if (self::wps_is_using_money_with_currency_format()) {
-      $money_with_currency_format = $DB_Shop->get_shop('money_with_currency_format');
-      $money_format_current = $money_with_currency_format[0]->money_with_currency_format;
+    Need this check because the products within the collection single
+    template returns an array for $product.
+
+    */
+    if (is_array($product)) {
+      $productID = $product['details']['product_id'];
+    } else {
+      $productID = $product->product_id;
+    }
+
+    if (get_transient('wps_product_price_id_' . $productID)) {
+      return get_transient('wps_product_price_id_' . $productID);
 
     } else {
-      $money_format = $DB_Shop->get_shop('money_format');
-      $money_format_current = $money_format[0]->money_format;
+      $DB_Shop = new Shop();
+      $shop_currency = $DB_Shop->get_shop('currency');
+      $shop_currency = $shop_currency[0]->currency;
+
+      if (self::wps_is_using_money_with_currency_format()) {
+        $money_format_current = $DB_Shop->get_money_with_currency_format();
+
+      } else {
+        $money_format_current = $DB_Shop->get_money_format();
+
+      }
+
+      $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
+
+      set_transient('wps_product_price_id_' . $productID, $finalPrice);
+
+      return $finalPrice;
 
     }
 
-    $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
-
-    return $finalPrice;
-
   }
-
-
-
-
 
 
 

@@ -17,7 +17,6 @@ use WPS\DB\Collections_Smart;
 use WPS\DB\Images;
 use WPS\DB\Tags;
 
-
 /*
 
 Class Web Service
@@ -1111,6 +1110,7 @@ NEW STRUCTURE
     $Tags = new Tags();
     $Collects = new Collects();
     $Images = new Images();
+    $Transients = new Transients();
 
     $results['shop'] = $DB_Shop->delete_table();
     $results['settings_general'] = $DB_Settings_General->delete_table();
@@ -1124,9 +1124,9 @@ NEW STRUCTURE
     $results['tags'] = $Tags->delete_table();
     $results['collects'] = $Collects->delete_table();
     $results['images'] = $Images->delete_table();
+    $results['transients'] = $Transients->delete_all_cache();
 
     return $results;
-
 
   }
 
