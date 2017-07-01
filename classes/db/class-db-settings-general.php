@@ -194,7 +194,7 @@ class Settings_General extends \WPS\DB {
       `plugin_textdomain` varchar(100) NOT NULL DEFAULT '{$this->plugin_textdomain}',
       `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
-      `price_with_currency` tinyint(1) DEFAULT 0
+      `price_with_currency` tinyint(1) DEFAULT 0,
 		  PRIMARY KEY (`{$this->primary_key}`)
 		) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
