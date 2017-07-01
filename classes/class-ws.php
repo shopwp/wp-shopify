@@ -756,6 +756,10 @@ class WS {
       $newGeneralSettings['styles_grid'] = (int)$_POST['wps_settings_general_styles_grid'];
     }
 
+    if (isset($_POST['wps_settings_general_price_with_currency'])) {
+      $newGeneralSettings['price_with_currency'] = (int)$_POST['wps_settings_general_price_with_currency'];
+    }
+
     $results = $DB_Settings_General->update_general($newGeneralSettings);
 
     set_transient('wps_settings_updated', $newGeneralSettings);
