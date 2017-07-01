@@ -62,7 +62,7 @@ if (is_object($license)) {
 
         <?php
 
-        if ($expires === '1970-01-01 00:00:00') {
+        if ($expires === '1970-01-01 00:00:00' || $expires === 0 || $expires === false) {
           echo 'Never expires';
 
         } else {
