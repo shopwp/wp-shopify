@@ -83,6 +83,7 @@ function onSettingsFormSubmit() {
       var stylesAllAttr = jQuery(form).find("#wps_settings_general_styles_all").attr("checked");
       var stylesCoreAttr = jQuery(form).find("#wps_settings_general_styles_core").attr("checked");
       var stylesGridAttr = jQuery(form).find("#wps_settings_general_styles_grid").attr("checked");
+      var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
 
       if (typeof stylesAllAttr !== typeof undefined && stylesAllAttr !== false) {
         var stylesAll = 1;
@@ -108,9 +109,15 @@ function onSettingsFormSubmit() {
 
       }
 
-      console.log("stylesAll: ", stylesAll);
-      console.log("stylesCore: ", stylesCore);
-      console.log("stylesGrid: ", stylesGrid);
+      if (typeof priceFormatAttr !== typeof undefined && priceFormatAttr !== false) {
+        var priceFormat = 1;
+
+      } else {
+        var priceFormat = 0;
+
+      }
+
+      console.log("priceFormat: ", priceFormat);
 
       var settings = {
         wps_settings_general_products_url: productsURL,
@@ -119,7 +126,8 @@ function onSettingsFormSubmit() {
         wps_settings_general_num_posts: numPosts,
         wps_settings_general_styles_all: stylesAll,
         wps_settings_general_styles_core: stylesCore,
-        wps_settings_general_styles_grid: stylesGrid
+        wps_settings_general_styles_grid: stylesGrid,
+        wps_settings_general_price_with_currency: priceFormat
       }
 
       try {

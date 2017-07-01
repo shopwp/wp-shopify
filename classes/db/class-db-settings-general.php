@@ -63,7 +63,8 @@ class Settings_General extends \WPS\DB {
       'plugin_name'               => '%s',
       'plugin_textdomain'         => '%s',
       'plugin_version'            => '%s',
-      'plugin_author'             => '%s'
+      'plugin_author'             => '%s',
+      'price_with_currency'       => '%d'
     );
   }
 
@@ -86,7 +87,8 @@ class Settings_General extends \WPS\DB {
       'plugin_name'               => $this->plugin_name,
       'plugin_textdomain'         => $this->plugin_textdomain,
       'plugin_version'            => $this->plugin_version,
-      'plugin_author'             => $this->plugin_author
+      'plugin_author'             => $this->plugin_author,
+      'price_with_currency'       => 0
     );
   }
 
@@ -112,7 +114,8 @@ class Settings_General extends \WPS\DB {
       'plugin_name'               => $this->plugin_name,
       'plugin_textdomain'         => $this->plugin_textdomain,
       'plugin_version'            => $this->plugin_version,
-      'plugin_author'             => $this->plugin_author
+      'plugin_author'             => $this->plugin_author,
+      'price_with_currency'       => 0
     );
 
     $row = $this->get_rows('id', 1);
@@ -191,6 +194,7 @@ class Settings_General extends \WPS\DB {
       `plugin_textdomain` varchar(100) NOT NULL DEFAULT '{$this->plugin_textdomain}',
       `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
+      `price_with_currency` tinyint(1) DEFAULT 0
 		  PRIMARY KEY (`{$this->primary_key}`)
 		) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
