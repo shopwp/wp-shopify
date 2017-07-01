@@ -62,8 +62,8 @@ if (is_object($license)) {
 
         <?php
 
-        if ($expires === '0000-00-00 00:00:00') {
-          echo 'Lifetime';
+        if ($expires === '1970-01-01 00:00:00') {
+          echo 'Never expires';
 
         } else {
           esc_attr_e(date("F j, Y", strtotime($expires)), 'wp_admin_style' );

@@ -268,6 +268,10 @@ async function activateKey(key) {
 
     if (licenseKeyInfo.expires === "lifetime") {
       licenseKeyInfo.expires = new Date('January 1, 1970');
+      licenseKeyInfo.lifetime = true;
+
+    } else {
+      licenseKeyInfo.lifetime = false;
     }
 
     licenseKeyInfo.key = key;
@@ -344,11 +348,22 @@ function updateInfoBox(licenseKeyInfo) {
     $statusCol.removeClass('wps-col-license-status-inactive').addClass('wps-col-license-status-active');
   }
 
-  $limitCol.text(licenseCount + ' / ' + licenseLimit);
+  console.log("licenseKeyInfo.expires: ", licenseKeyInfo.expires);
 
+
+  $limitCol.text(licenseCount + ' / ' + licenseLimit);
   $nameCol.text(licenseKeyInfo.customer_name);
   $emailCol.text(licenseKeyInfo.customer_email);
-  $expireCol.text(formatExpireDate(licenseKeyInfo.expires));
+  
+
+  if (licenseKeyInfo.lifetime) {
+    $expireCol.text('Never expires');
+
+  } else {
+    $expireCol.text(formatExpireDate(licenseKeyInfo.expires));
+  }
+
+
 
 
   if (licenseKeyInfo.is_local) {

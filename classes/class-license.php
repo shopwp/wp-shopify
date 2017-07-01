@@ -89,6 +89,7 @@ class License {
     	'key'                   => $_POST['key'],
     	'is_local'              => $isLocal,
     	'expires'               => $date,
+			'lifetime'							=> $_POST['lifetime'],
     	'site_count'            => $_POST['site_count'],
     	'checksum'              => $_POST['checksum'],
     	'customer_email'        => $_POST['customer_email'],
