@@ -10,10 +10,12 @@ use WPS\DB\Collects;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Settings_General;
+use WPS\DB\Shop;
 use WPS\DB\Tags;
 use WPS\DB\Variants;
 use WPS\DB\Options;
 use Gerardojbaez\Money\Money;
+use Gerardojbaez\Money\Currency;
 
 
 /*
@@ -1407,17 +1409,250 @@ class Utils {
   }
 
 
+
+
+
+
+
+
+
+
+
+
   /*
 
-  Format Money
+  Checks whether we want to show the 'money_with_currency_format' or 'money_format' column val
+  Since: 1.0.1
+
+  */
+  public static function wps_is_using_money_with_currency_format() {
+
+    $DB_Settings_General = new Settings_General();
+    $priceWithCurrency = $DB_Settings_General->get_column_single('price_with_currency');
+
+    if (isset($priceWithCurrency[0]) && $priceWithCurrency[0]->price_with_currency) {
+      return true;
+
+    } else {
+      return false;
+    }
+
+  }
+
+
+  /*
+
+  Extracts amount format
+  Since: 1.0.1
+
+  */
+  public static function wps_extract_amount_format() {
+
+    // Need to check what field to use
+    if (self::wps_is_using_money_with_currency_format()) {
+      $settingsMoneyFormat = self::wps_get_money_with_currency_format();
+
+    } else {
+      $settingsMoneyFormat = self::wps_get_money_format();
+    }
+
+
+    $formatNoFrontDelimiter = explode("{{", $settingsMoneyFormat);
+
+    if (count($formatNoFrontDelimiter) >= 2) {
+
+      $formatNoBackDelimiter = explode("}}", $formatNoFrontDelimiter[1]);
+      $finalFormatNoSpaces = str_replace(' ', '', $formatNoBackDelimiter[0]);
+
+      return $finalFormatNoSpaces;
+
+    } else {
+      return false;
+
+    }
+
+
+  }
+
+
+  /*
+
+  Checks if the amount value exists within Shopify array
+  Since: 1.0.1
+
+  */
+  public static function wps_find_amount_format() {
+
+    $amountFormatCurrent = self::wps_extract_amount_format();
+    $availMoneyFormats = self::wps_get_avail_money_formats();
+    $key = array_search($amountFormatCurrent, $availMoneyFormats);
+
+    if ($key >= 0) {
+      return $availMoneyFormats[$key];
+
+    } else {
+      return false;
+    }
+
+  }
+
+
+  /*
+
+  Gets the DB string value from 'money_format'
+  Since: 1.0.1
+
+  */
+  public static function wps_get_money_format() {
+
+    $DB_Shop = new Shop();
+    $money_format = $DB_Shop->get_shop('money_format');
+    $money_format = $money_format[0]->money_format;
+
+    return $money_format;
+
+  }
+
+
+  /*
+
+  Gets the DB string value from 'money_with_currency_format'
+  Since: 1.0.1
+
+  */
+  public static function wps_get_money_with_currency_format() {
+
+    $DB_Shop = new Shop();
+    $money_with_currency_format = $DB_Shop->get_shop('money_with_currency_format');
+    $money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
+
+    return $money_with_currency_format;
+
+  }
+
+
+  /*
+
+  Array of money formatting options from Shopify.
+  TODO: Can we pull this in dynamically from the API?
+  Since: 1.0.1
+
+  */
+  public static function wps_get_avail_money_formats() {
+
+    return array(
+      'amount',
+      'amount_no_decimals',
+      'amount_with_comma_separator',
+      'amount_no_decimals_with_comma_separator',
+      'amount_with_space_separator',
+      'amount_no_decimals_with_space_separator',
+      'amount_with_apostrophe_separator'
+    );
+
+  }
+
+
+  /*
+
+  Perform the actual formatting depending on the setting at Shopify
+  Since: 1.0.1
+
+  */
+  public static function wps_construct_format_money($shop_currency, $moneyFormat, $price) {
+
+    if ($moneyFormat === 'amount') {
+      $money = new Money($price);
+
+    } else if ($moneyFormat === 'amount_no_decimals') {
+
+      $currency = new Currency($shop_currency);
+      $currency->setPrecision(0);
+      $money = new Money(round($price, 2), $currency);
+
+    } else if ($moneyFormat === 'amount_with_comma_separator') {
+
+      $currency = new Currency($shop_currency);
+      $currency->setDecimalSeparator(',');
+      $money = new Money($price, $currency);
+
+    } else if ($moneyFormat === 'amount_no_decimals_with_comma_separator') {
+
+      $currency = new Currency($shop_currency);
+      $currency->setPrecision(0);
+      $currency->setDecimalSeparator(',');
+      $money = new Money(round($price, 2), $currency);
+
+    } else if ($moneyFormat === 'amount_with_space_separator') {
+      $currency = new Currency($shop_currency);
+      $currency->setThousandSeparator(' ');
+      $money = new Money($price, $currency);
+
+    } else if ($moneyFormat === 'amount_no_decimals_with_space_separator') {
+      $currency = new Currency($shop_currency);
+      $currency->setPrecision(0);
+      $currency->setThousandSeparator(' ');
+      $money = new Money(round($price, 2), $currency);
+
+    } else if ($moneyFormat === 'amount_with_apostrophe_separator') {
+      $currency = new Currency($shop_currency);
+      $currency->setThousandSeparator('\'');
+      $money = new Money($price, $currency);
+
+    } else {
+      $money = new Money($price);
+    }
+
+    return $money;
+
+  }
+
+
+  /*
+
+  Handles replacing delimiters with the correctly formatted money
+  Since: 1.0.1
+
+  */
+  public static function wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price) {
+
+    $moneyFormat = self::wps_find_amount_format();
+    $money = self::wps_construct_format_money($shop_currency, $moneyFormat, $price);
+
+    $priceReplaced = strtr($money_format_current, array ($moneyFormat => $money->amount()));
+    $priceWithoutFrontDelimiter = str_replace('{{', '', $priceReplaced);
+    $priceWithoutBackDelimiter = str_replace('}}', '', $priceWithoutFrontDelimiter);
+
+    return $priceWithoutBackDelimiter;
+
+
+  }
+
+
+  /*
+
+  Main Format Money Function
 
   */
   public static function wps_format_money($price) {
 
-    $money = new Money($price);
-    $money->format();
+    $DB_Shop = new Shop();
+    $shop_currency = $DB_Shop->get_shop('currency');
+    $shop_currency = $shop_currency[0]->currency;
 
-    return $money;
+    if (self::wps_is_using_money_with_currency_format()) {
+      $money_with_currency_format = $DB_Shop->get_shop('money_with_currency_format');
+      $money_format_current = $money_with_currency_format[0]->money_with_currency_format;
+
+    } else {
+      $money_format = $DB_Shop->get_shop('money_format');
+      $money_format_current = $money_format[0]->money_format;
+
+    }
+
+    $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
+
+    return $finalPrice;
 
   }
 
@@ -1425,16 +1660,12 @@ class Utils {
 
 
 
+
+
+
   /*
 
-
-
-
-
   Implement
-
-
-
 
   */
   public function wps_construct_products_args() {
