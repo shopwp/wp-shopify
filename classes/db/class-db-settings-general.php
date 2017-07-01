@@ -3,6 +3,7 @@
 namespace WPS\DB;
 
 use WPS\Config;
+use WPS\Transients;
 
 class Settings_General extends \WPS\DB {
 
@@ -135,6 +136,10 @@ class Settings_General extends \WPS\DB {
 
   */
   public function update_general($generalData) {
+
+    $Transients = new Transients();
+    $Transients->delete_cached_prices();
+
     return $this->update(1, $generalData);
   }
 

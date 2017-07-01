@@ -101,8 +101,6 @@ class License {
     	'success'               => $success
     );
 
-		error_log(print_r($newLicenseData, true));
-
 		$result = $Settings_License->insert_license($newLicenseData);
 
 		if ($result) {
