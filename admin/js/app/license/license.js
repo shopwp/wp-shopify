@@ -264,8 +264,10 @@ async function activateKey(key) {
   //
   try {
 
+    console.log("licenseKeyInfo: ", licenseKeyInfo);
+
     if (licenseKeyInfo.expires === "lifetime") {
-      licenseKeyInfo.expires = 0;
+      licenseKeyInfo.expires = new Date('January 1, 1970');
     }
 
     licenseKeyInfo.key = key;
