@@ -201,8 +201,7 @@ function onConnectionFormSubmit() {
       */
       try {
 
-        var yep = await updateAuthUser(authToken.token, authUserData);
-        console.log("yep: ", yep);
+        var authUserResult = await updateAuthUser(authToken.token, authUserData);
         setConnectionStepMessage('Creating Shopify URL');
 
       } catch (error) {
@@ -223,8 +222,6 @@ function onConnectionFormSubmit() {
       try {
 
         var shopifyURL = await getShopifyURL();
-
-        console.log("shopifyURL: ", shopifyURL);
 
         setConnectionStepMessage('Redirecting to Shopify');
         updateModalHeadingText('Redirecting ...');
@@ -300,8 +297,6 @@ async function onAuthRedirect() {
 
   try {
 
-    console.log('Syncing products and collections ...');
-
     //
     // TODO:
     // Create a real-time progress bar to show syncing progress
@@ -310,8 +305,6 @@ async function onAuthRedirect() {
     await syncPluginData();
 
     // removeProgressLoader();
-
-    console.log('Done!');
 
     // setConnectionStepMessage('Redirecting to Shopify');
 
@@ -328,13 +321,8 @@ async function onAuthRedirect() {
     jQuery(document).unbind();
     closeModal();
 
-    console.log('........................');
-    console.log(error);
-    console.log('........................');
-
     try {
 
-      console.log('Uninstalling ...');
       updateModalHeadingText('Canceling ...');
 
       await uninstallPluginData({
@@ -344,14 +332,9 @@ async function onAuthRedirect() {
         xMark: true
       });
 
-      console.log('Done uninstalling ...');
-
     } catch(err) {
       console.log('Error uninstalling ...', err);
-
     }
-
-    console.log('8 Done cleaning up');
 
   }
 

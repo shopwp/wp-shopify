@@ -800,10 +800,6 @@ function updateAuthUser(authToken, authUserData) {
   var finalData = mergeNewDataIntoCurrent(newAuthData, currentAuthData),
       sendable = convertAuthDataToString(finalData);
 
-      console.log("sendable: ", sendable);
-
-      console.log("authToken: ", authToken);
-
   var options = {
     url: 'https://wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic
     method: 'POST',

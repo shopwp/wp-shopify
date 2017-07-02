@@ -48,7 +48,6 @@ Animate in
 function animateIn(config) {
 
   var classes = 'wps-is-visible wps-animated ' + config.inClass;
-  console.log("config: ", config);
   config.originalClasses = config.element[0].className;
 
   turnAnimationFlagOn();

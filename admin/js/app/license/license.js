@@ -216,7 +216,6 @@ async function activateKey(key) {
   //
   try {
     var validKey = await isLicenseKeyValid(key);
-    console.log("validKey:: ", validKey);
 
   } catch(error) {
 
@@ -252,7 +251,7 @@ async function activateKey(key) {
   } catch(error) {
     removeCheckmarks($form);
     enable($submitButton);
-    console.log("error: ", error);
+    console.log("Error getLicenseKeyStatus: ", error);
 
     return rejectedPromise('Error: unable to get license key. Please try again.');
 
@@ -263,8 +262,6 @@ async function activateKey(key) {
   // Saving key locally
   //
   try {
-
-    console.log("licenseKeyInfo: ", licenseKeyInfo);
 
     if (licenseKeyInfo.expires === "lifetime") {
       licenseKeyInfo.expires = new Date('January 1, 1970');
@@ -287,7 +284,7 @@ async function activateKey(key) {
     $licenseInput.removeClass('error');
 
     $licensePostbox.removeClass('wps-is-hidden').animateCss('wps-bounceInRight', function() {
-      console.log('Animation complete');
+
     });
 
     updateInfoBox(licenseKeyInfo);
@@ -297,7 +294,7 @@ async function activateKey(key) {
 
     removeCheckmarks($form);
     enable($submitButton);
-    console.log("errorrrrr: ", error);
+    console.log("Error saveLicenseKey: ", error);
 
     return rejectedPromise('Error: unable to save license key. Please try again.');
 
@@ -348,13 +345,10 @@ function updateInfoBox(licenseKeyInfo) {
     $statusCol.removeClass('wps-col-license-status-inactive').addClass('wps-col-license-status-active');
   }
 
-  console.log("licenseKeyInfo.expires: ", licenseKeyInfo.expires);
-
-
   $limitCol.text(licenseCount + ' / ' + licenseLimit);
   $nameCol.text(licenseKeyInfo.customer_name);
   $emailCol.text(licenseKeyInfo.customer_email);
-  
+
 
   if (licenseKeyInfo.lifetime) {
     $expireCol.text('Never expires');

@@ -20,32 +20,53 @@ Plugin Info
       <td scope="row">
         <label for="tablecell"><?php esc_attr_e('Latest version', 'wp_admin_style'); ?> </label>
       </td>
-      <td class="wps-col wps-col-plugin-version"><?php esc_attr_e( $plugin_data_latest->new_version, 'wp_admin_style' ); ?></td>
+      <td class="wps-col wps-col-plugin-version">
+        <?php
+
+          if (is_object($plugin_data_latest)) {
+            esc_attr_e( $plugin_data_latest->new_version, 'wp_admin_style' );
+
+          } else {
+            echo $plugin_data_latest;
+          }
+
+        ?>
+      </td>
     </tr>
     <tr valign="top">
       <td scope="row">
         <label for="tablecell"><?php esc_attr_e('Update Available', 'wp_admin_style'); ?></label>
       </td>
 
-      <?php if ($plugin_data_latest->new_version === $plugin_current_version) { ?>
-        <td class="wps-col wps-col-plugin-update-avail"><?php esc_attr_e( 'No', 'wp_admin_style' ); ?></td>
+      <?php
 
-      <?php } else { ?>
-        <td class="wps-col wps-col-plugin-update-avail">
 
-          <span class="wps-col-license-status-notify"><?php esc_attr_e( 'Yes', 'wp_admin_style' ); ?></span>
+      if (is_object($plugin_data_latest)) {
 
-          <?php if ($License->has_valid_key()) { ?>
-            <p class="wps-table-supporting"><a href="<?php echo get_admin_url(); ?>plugins.php">Update now</a></p>
+        if ($plugin_data_latest->new_version === $plugin_current_version) { ?>
 
-          <?php } else { ?>
-            <p class="wps-table-supporting">(Please enter a valid license key to receive updates)</p>
+          <td class="wps-col wps-col-plugin-update-avail"><?php esc_attr_e( 'No', 'wp_admin_style' ); ?></td>
 
-          <?php } ?>
+        <?php } else { ?>
 
-        </td>
+          <td class="wps-col wps-col-plugin-update-avail">
+
+            <span class="wps-col-license-status-notify"><?php esc_attr_e( 'Yes', 'wp_admin_style' ); ?></span>
+
+            <?php if ($License->has_valid_key()) { ?>
+              <p class="wps-table-supporting"><a href="<?php echo get_admin_url(); ?>plugins.php">Update now</a></p>
+
+            <?php } else { ?>
+              <p class="wps-table-supporting">(Please enter a valid license key to receive updates)</p>
+
+            <?php } ?>
+
+          </td>
+
+        <?php } ?>
 
       <?php } ?>
+
 
     </tr>
   </table>
