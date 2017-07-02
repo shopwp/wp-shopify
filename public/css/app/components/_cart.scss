@@ -236,12 +236,12 @@ input[type="number"].wps-cart-item__quantity {
 }
 
 .wps-cart-bottom {
-  border-top: 1px solid #ddd;
   margin-top: 0;
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   width: 100%;
   max-width: 100%;
   margin: 0;
+  border-top: 1px solid #ddd;
 }
 
 .wps-cart-info {
@@ -250,6 +250,7 @@ input[type="number"].wps-cart-item__quantity {
   width: 100%;
   background-color: white;
   margin-bottom: 0;
+  padding-top: 20px;
 }
 
 .wps-cart-info__total {

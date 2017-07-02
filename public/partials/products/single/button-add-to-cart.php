@@ -1,9 +1,13 @@
 <?php
 
-// echo count($product['options']);
-
 if (count($product['options']) === 1) {
-  $col = 2;
+
+  if (count($product['variants']) > 1) {
+    $col = 2;
+
+  } else {
+    $col = 1;
+  }
 
 } else if (count($product['options']) === 2) {
   $col = 1;

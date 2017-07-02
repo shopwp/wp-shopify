@@ -5,6 +5,7 @@ namespace WPS;
 use WPS\DB\Products as DB_Products;
 use WPS\DB\Variants as DB_Variants;
 use WPS\DB\Settings_General;
+use WPS\DB\Shop;
 
 
 // If this file is called directly, abort.
@@ -110,8 +111,8 @@ if (!class_exists('Frontend')) {
 			if(!is_admin()) {
 				// wp_enqueue_script('wps-shopify', 'https://sdks.shopifycdn.com/js-buy-sdk/v0/latest/shopify-buy.umd.polyfilled.min.js', array('jquery'), null, true);
 
-				// WP Shopify JS Vendor
-				// wp_enqueue_script($this->config->plugin_name . '-admin-vendor', $this->config->plugin_url . 'dist/vendor.min.js', array(), $this->config->plugin_version, false );
+				// Accounting JS
+				// wp_enqueue_script($this->config->plugin_name . '-accounting-js', $this->config->plugin_url . 'public/js/app/vendor/accounting.min.js', array('jquery'), $this->config->plugin_version, true );
 
 				// WP Shopify JS Public
 				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery'), $this->config->plugin_version, true);
@@ -420,6 +421,76 @@ if (!class_exists('Frontend')) {
 
 		/*
 
+		Get plugin setting for currency symbol toggle
+
+		*/
+		public function wps_get_currency_format() {
+
+			$result = $this->Settings_General->get_column_single('price_with_currency');
+
+			if (isset($result[0]) && $result[0]->price_with_currency) {
+				echo $result[0]->price_with_currency;
+				die();
+
+			} else {
+				echo false;
+				die();
+				
+			}
+
+		}
+
+
+		/*
+
+		Get plugin setting money_format
+
+		*/
+		public function wps_get_money_format() {
+
+			$DB_Shop = new Shop();
+			$moneyFormat = $DB_Shop->get_shop('money_format');
+
+			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_format) {
+
+				echo (string)$moneyFormat[0]->money_format;
+				die();
+
+			} else {
+				echo false;
+				die();
+
+			}
+
+		}
+
+
+		/*
+
+		Get plugin setting money_format
+
+		*/
+		public function wps_get_money_format_with_currency() {
+
+			$DB_Shop = new Shop();
+			$moneyFormat = $DB_Shop->get_shop('money_with_currency_format');
+
+			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_with_currency_format) {
+
+				echo (string)$moneyFormat[0]->money_with_currency_format;
+				die();
+
+			} else {
+				echo false;
+				die();
+
+			}
+
+		}
+
+
+		/*
+
 		Only hooks not meant for public consumption
 
 		*/
@@ -444,6 +515,15 @@ if (!class_exists('Frontend')) {
 
 			add_action( 'wp_ajax_wps_get_variant_id', array($this, 'wps_get_variant_id') );
 			add_action( 'wp_ajax_nopriv_wps_get_variant_id', array($this, 'wps_get_variant_id') );
+
+			add_action( 'wp_ajax_wps_get_currency_format', array($this, 'wps_get_currency_format') );
+			add_action( 'wp_ajax_nopriv_wps_get_currency_format', array($this, 'wps_get_currency_format') );
+
+			add_action( 'wp_ajax_wps_get_money_format', array($this, 'wps_get_money_format') );
+			add_action( 'wp_ajax_nopriv_wps_get_money_format', array($this, 'wps_get_money_format') );
+
+			add_action( 'wp_ajax_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
+			add_action( 'wp_ajax_nopriv_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 
 			add_action( 'wp_footer', array($this, 'wps_insert_cart_before_closing_body') );
       add_action( 'wp_footer', array($this, 'wps_notice') );
