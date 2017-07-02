@@ -53,7 +53,8 @@ module.exports = () => {
         validator: "validator",
         crypto: "crypto",
         dateFormat: "dateFormat",
-        ShopifyBuy: "shopify-buy"
+        ShopifyBuy: "shopify-buy",
+        currencyFormatter: "currency-formatter"
       }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('development')
@@ -111,7 +112,8 @@ module.exports = () => {
         validator: "validator",
         crypto: "crypto",
         dateFormat: "dateFormat",
-        ShopifyBuy: "shopify-buy"
+        ShopifyBuy: "shopify-buy",
+        currencyFormatter: "currency-formatter"
       }
     },
     module: {

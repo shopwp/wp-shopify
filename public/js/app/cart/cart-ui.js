@@ -9,7 +9,11 @@ Update product variant price
 */
 async function updateTotalCartPricing(shopify) {
   var cart = await fetchCart(shopify);
-  jQuery('.wps-cart .wps-pricing').text( formatAsMoney(cart.subtotal) );
+
+  console.log("cart: ", cart);
+  var formattedPrice = await formatAsMoney(cart.subtotal);
+  jQuery('.wps-cart .wps-pricing').text(formattedPrice);
+
 };
 
 
@@ -119,47 +123,68 @@ async function renderCartItems(shopify) {
 
   } else {
 
-    $cartItemContainer.empty();
+
     var lineItemEmptyTemplate = jQuery('#wps-cart-item-template').html();
 
-    var $cartLineItems = cart.lineItems.map(function (lineItem, index) {
 
-      var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
-      var itemImage = lineItem.image.src;
-      
-      $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');
-      $lineItemTemplate.find('.wps-cart-item__title').text(lineItem.title);
-      $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
-      $lineItemTemplate.find('.wps-cart-item__price').text(formatAsMoney(lineItem.line_price));
-      $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
+    let promises = cart.lineItems.map(async function (lineItem, index) {
 
-      $lineItemTemplate.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);
-      $lineItemTemplate.find('.wps-quantity-increment').attr('data-variant-id', lineItem.variant_id);
+      return new Promise(async function(resolve, reject) {
 
-      $lineItemTemplate.find('.wps-quantity-decrement').attr('data-product-id', lineItem.product_id);
-      $lineItemTemplate.find('.wps-quantity-increment').attr('data-product-id', lineItem.product_id);
+        var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
+        var itemImage = lineItem.image.src;
 
-      if (cartLineItemCount < cart.lineItems.length && (index === cart.lineItems.length - 1)) {
-        $lineItemTemplate.addClass('wps-js-hidden');
-        cartLineItemCount = cart.lineItems.length;
-      }
+        $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');
+        $lineItemTemplate.find('.wps-cart-item__title').text(lineItem.title);
+        $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
 
-      if (cartLineItemCount > cart.lineItems.length) {
-        cartLineItemCount = cart.lineItems.length;
-      }
+        var formatedPrice = await formatAsMoney(lineItem.line_price);
+        console.log("formatedPrice: ", formatedPrice);
 
-      return $lineItemTemplate;
+        $lineItemTemplate.find('.wps-cart-item__price').text(formatedPrice);
+
+        $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
+
+        $lineItemTemplate.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);
+        $lineItemTemplate.find('.wps-quantity-increment').attr('data-variant-id', lineItem.variant_id);
+
+        $lineItemTemplate.find('.wps-quantity-decrement').attr('data-product-id', lineItem.product_id);
+        $lineItemTemplate.find('.wps-quantity-increment').attr('data-product-id', lineItem.product_id);
+
+        if (cartLineItemCount < cart.lineItems.length && (index === cart.lineItems.length - 1)) {
+          $lineItemTemplate.addClass('wps-js-hidden');
+          cartLineItemCount = cart.lineItems.length;
+        }
+
+        if (cartLineItemCount > cart.lineItems.length) {
+          cartLineItemCount = cart.lineItems.length;
+        }
+
+        resolve($lineItemTemplate);
+
+
+
+      });
+
     });
 
+
+    var $cartLineItems = await Promise.all(promises);
+
+    console.log("$cartLineItems: ", $cartLineItems);
+
+    $cartItemContainer.empty();
     $cartItemContainer.append($cartLineItems);
 
     setTimeout(function () {
       $cartItemContainer.find('.wps-js-hidden').removeClass('wps-js-hidden');
 
     }, 0);
+
   }
 
   return cart;
+
 
 }
 
@@ -180,6 +205,8 @@ function updateCartVariant(variant, quantity, shopify) {
     // console.log("cart: ", cart);
 
     await cart.createLineItemsFromVariants(options);
+
+    console.log('updating ...', variant);
 
     renderCartItems(shopify);
     updateTotalCartPricing(shopify);

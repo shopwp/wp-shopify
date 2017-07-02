@@ -1597,6 +1597,21 @@ class Utils {
   }
 
 
+  public static function wps_find_variant_by_price($price, $variants) {
+
+    $foundVariant = array();
+
+    foreach ($variants as $key => $variant) {
+      if ($variant['price'] === $price) {
+        $foundVariant = $variant;
+      }
+    }
+
+    return $foundVariant;
+
+  }
+
+
   /*
 
   Main Format Money Function
@@ -1606,14 +1621,27 @@ class Utils {
 
     /*
 
-    Need this check because the products within the collection single
-    template returns an array for $product.
+    In order to find the correct ID to cache, we need to perform a search
+    if more than one variant exists (more than one price). If only one
+    variant exists we know this product currently only has one price.
+
+    Also need to check if $product is an array or not. The collection single
+    template returns an object for $product.
 
     */
     if (is_array($product)) {
-      $productID = $product['details']['product_id'];
+
+      if (isset($product['variants']) && count($product['variants']) > 1) {
+        $matchedVariant = self::wps_find_variant_by_price($price, $product['variants']);
+        $productID = $matchedVariant['id'];
+
+      } else {
+        $productID = $product['variants'][0]['id'];
+      }
+
     } else {
-      $productID = $product->product_id;
+      $productID = $product->id;
+
     }
 
     if (get_transient('wps_product_price_id_' . $productID)) {
