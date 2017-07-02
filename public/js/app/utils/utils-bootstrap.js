@@ -50,15 +50,11 @@ async function bootstrap() {
       console.log('1 getExistingShopifyCreds error: ', error);
     }
 
-    console.log('1 creds', creds);
-
     try {
       var shopify = await shopifyInit(creds);
     } catch(error) {
       console.log('1 shopifyInit error: ', error);
     }
-
-    console.log('1 shopify', shopify);
 
     try {
       var cart = await initCart(shopify);
@@ -66,13 +62,10 @@ async function bootstrap() {
       console.log('1 initCart error: ', error);
     }
 
-    console.log('1 cart', cart);
-
     bootstrapEvents(shopify);
     bootstrapUI(shopify);
 
   } else {
-
 
     try {
       var creds = await getShopifyCreds();
@@ -80,23 +73,17 @@ async function bootstrap() {
       console.log('2 getShopifyCreds error: ', error);
     }
 
-    console.log('2 creds: ', creds);
-
     try {
       var savedCreds = await setShopifyCreds(creds);
     } catch(error) {
       console.log('2 setShopifyCreds error: ', error);
     }
 
-    console.log('2 savedCreds: ', savedCreds);
-
     try {
       var shopify = await shopifyInit(creds);
     } catch(error) {
       console.log('2 shopifyInit error: ', error);
     }
-
-    console.log('2 shopify: ', shopify);
 
     try {
       var cart = await initCart(shopify);

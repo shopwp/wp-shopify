@@ -117,8 +117,6 @@ function onSettingsFormSubmit() {
 
       }
 
-      console.log("priceFormat: ", priceFormat);
-
       var settings = {
         wps_settings_general_products_url: productsURL,
         wps_settings_general_collections_url: collectionsURL,
@@ -156,7 +154,6 @@ function toggleStylesCheckboxes() {
   jQuery('#wps_settings_general_styles_all').on('click', function() {
 
     if (typeof jQuery(this).attr("checked") !== typeof undefined && jQuery(this).attr("checked") !== false) {
-        console.log('checked');
 
         jQuery('#wps_settings_general_styles_core').attr('checked', false);
         jQuery('#wps_settings_general_styles_grid').attr('checked', false);
@@ -168,7 +165,6 @@ function toggleStylesCheckboxes() {
         jQuery('#wps_settings_general_styles_grid').parent().addClass('wps-is-disabled');
 
     } else {
-      console.log('NOT checked');
 
       jQuery('#wps_settings_general_styles_core').attr('disabled', false);
       jQuery('#wps_settings_general_styles_grid').attr('disabled', false);

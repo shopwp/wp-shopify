@@ -56,11 +56,7 @@ On Sync Data ...
 function onSyncData() {
 
   jQuery('.wps-btn-sync-data').on('click', async function syncDataHandler() {
-
-    console.log('Beginning sync ...');
     var data = await syncPluginData();
-    console.log('Done syncing ...', data);
-
   });
 
 };
@@ -73,10 +69,7 @@ On Webhook Add ...
 */
 function onWebhookAdd() {
   jQuery('.wps-btn-wh-add').on('click', async function webhookAddHandler() {
-
     var resp = await addWebhook();
-    console.log("Webhook get response: ", resp);
-
   });
 }
 
@@ -88,10 +81,7 @@ On Webhook Get ...
 */
 function onWebhookGet() {
   jQuery('.wps-btn-wh-get').on('click', async function webhookGetHandler() {
-
     var resp = await getWebhooks();
-    console.log("Webhook get response: ", resp);
-
   });
 }
 
@@ -104,7 +94,6 @@ On Webhook Del ...
 function onWebhookDelete() {
   jQuery('.wps-btn-wh-del').on('click', async function webhookDeleteHandler() {
     var resp = await delWebhooks();
-    console.log("Webhook delete response: ", resp);
   });
 
 }
@@ -134,7 +123,6 @@ function onUninstall() {
 
     hideLoader(jQuery(this));
     showAdminNotice("Successfully removed store data", 'updated');
-    console.log("Successfully removed store data: ", response);
 
   });
 
@@ -148,13 +136,9 @@ Remove event handlers on connection form ...
 */
 function unbindConnectForm() {
 
-  // console.log('Before: ', $._data(jQuery("#wps-connect").get(0), "events").submit);
-
   jQuery('#wps-connect').off("submit.connect");
   jQuery("#wps-connect").off('submit.validate');
   jQuery('#wps-connect').data('validator', null);
-
-  // console.log('After: ', $._data(jQuery("#wps-connect").get(0), "events").submit);
 
 }
 
