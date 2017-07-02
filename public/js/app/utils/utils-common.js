@@ -1,6 +1,14 @@
+import currencyFormatter from 'currency-formatter';
+
 import {
   animateOut
 } from '../utils/utils-ux';
+
+import {
+  getCurrencyFormat,
+  getMoneyFormat,
+  getMoneyFormatWithCurrency
+} from '../ws/ws-settings';
 
 
 /*
@@ -66,13 +74,192 @@ function throwError(error) {
 };
 
 
+function extractMoneyFormatType(format) {
+
+  var newFormat = format;
+  newFormat = newFormat.split('{{').pop().split('}}').shift();
+
+  return newFormat.replace(/\s+/g, " ").trim();
+
+}
+
+function formatMoneyPerSetting(amount, format, origFormat) {
+
+  if (format === 'amount') {
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: '.',
+      thousand: ',',
+      precision: 2,
+      format: '%v'
+    });
+
+  } else if (format === 'amount_no_decimals') {
+
+    amount = Number(amount);
+    amount = Math.round(amount);
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: '.',
+      thousand: ',',
+      precision: 0,
+      format: '%v'
+    });
+
+  } else if (format === 'amount_with_comma_separator') {
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: ',',
+      thousand: ',',
+      precision: 2,
+      format: '%v'
+    });
+
+  } else if (format === 'amount_no_decimals_with_comma_separator') {
+
+    amount = Number(amount);
+    amount = Math.round(amount);
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: ',',
+      thousand: ',',
+      precision: 0,
+      format: '%v'
+    });
+
+  } else if (format === 'amount_with_space_separator') {
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: ',',
+      thousand: ' ',
+      precision: 2,
+      format: '%v'
+    });
+
+  } else if (format === 'amount_no_decimals_with_space_separator') {
+
+    amount = Number(amount);
+    amount = Math.round(amount);
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: ',',
+      thousand: ' ',
+      precision: 0,
+      format: '%v'
+    });
+
+  } else if (format === 'amount_with_apostrophe_separator') {
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: '.',
+      thousand: '\'',
+      precision: 2,
+      format: '%v'
+    });
+
+  } else {
+
+    var string = currencyFormatter.format(amount, {
+      symbol: '',
+      decimal: '.',
+      thousand: ',',
+      precision: 2,
+      format: '%v'
+    });
+
+  }
+
+  return string;
+
+}
+
+
+
+
+
+function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat) {
+
+  var extractedMoneyFormat = new RegExp(extractedMoneyFormat, "g");
+  var finalPrice = moneyFormat.replace(extractedMoneyFormat, formattedMoney);
+
+  finalPrice = finalPrice.replace(/{{/g, '');
+  finalPrice = finalPrice.replace(/}}/g, '');
+
+  return finalPrice;
+
+}
+
+
 /*
 
-Format number into dollar amount
+Format product price into format from Shopify
+
+1. Check whether we're using price_with_currency setting
+2. Depending on the result of #1, either query the "money_format" or "money_with_currency_format" value
+3. Once we have the value from #2, check what kind of variable we're using "amount, amount without decimal, etc".
+4. Format our money accordingly
+5. Replace the {{amount}} with our newly formatted money
 
 */
-function formatAsMoney(amount) {
-  return '$' + parseFloat(amount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+async function formatAsMoney(amount) {
+
+  return new Promise(async function(resolve, reject) {
+
+    /*
+
+    STEP 1
+
+    */
+    try {
+      var formatWithCurrencySymbol = await getCurrencyFormat();
+
+    } catch (error) {
+      reject(error);
+
+    }
+
+    /*
+
+    STEP 2
+
+    */
+    if (formatWithCurrencySymbol) {
+
+      try {
+        var moneyFormat = await getMoneyFormatWithCurrency();
+
+      } catch (error) {
+        reject(error);
+
+      }
+
+    } else {
+
+      try {
+        var moneyFormat = await getMoneyFormat();
+
+      } catch (error) {
+        reject(error);
+
+      }
+
+    }
+
+    var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
+    var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
+    var finalPrice = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
+
+    resolve(finalPrice);
+
+  });
+
 };
 
 
@@ -126,8 +313,6 @@ Callback: Close Click Callback
 */
 function closeCallbackClick(event) {
 
-  console.log('Closing from click ...');
-
   var config = event.data,
       element = document.querySelector( createSelector(config.element.attr('class')) );
   // console.log(1);
@@ -160,8 +345,6 @@ Callback: Close Esc Callback
 
 */
 function closeCallbackEsc(event) {
-
-  console.log('Closing from ESC ...');
 
   if (localStorage.getItem('wps-animating') === 'false') {
     var config = event.data;

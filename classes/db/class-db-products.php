@@ -11,6 +11,7 @@ use WPS\DB\Tags;
 use WPS\CPT;
 use WPS\Config;
 use WPS\Backend;
+use WPS\Transients;
 
 class Products extends \WPS\DB {
 
@@ -225,6 +226,7 @@ class Products extends \WPS\DB {
       $results['product_cpt'] = CPT::wps_update_existing_product($product);
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
+      Transients::delete_cached_prices();
 
     } else {
       $results['deleted_product'] = $this->delete_product($product, $product->id);

@@ -18,7 +18,6 @@ function syncConnection() {
 
     try {
       var connection = await streamConnection();
-      console.log('connection: ', connection);
       resolve(connection);
 
     } catch(error) {
@@ -66,7 +65,6 @@ function syncProducts() {
 
     try {
       var products = await streamProducts();
-      console.log('products: ', products);
       resolve(products);
 
     } catch(error) {
@@ -95,7 +93,6 @@ function syncCollects() {
 
     try {
       var collects = await streamCollects();
-      console.log('collects: ', collects);
       resolve(collects);
 
     } catch(error) {
@@ -120,7 +117,6 @@ function syncSmartCollections() {
 
     try {
       var smartCollections = await streamSmartCollections();
-      console.log('smartCollections: ', smartCollections);
       resolve(smartCollections);
 
     } catch(error) {
@@ -145,7 +141,6 @@ function syncCustomCollections() {
 
     try {
       var customCollections = await streamCustomCollections();
-      console.log('customCollections: ', customCollections);
       resolve(customCollections);
 
     } catch(error) {
