@@ -253,7 +253,7 @@ function onProductVariantChange() {
       }
 
     } else {
-      console.log('Grr, clicked same val');
+
 
     }
 
@@ -267,15 +267,10 @@ function onProductVariantChange() {
     jQuery(this).closest('.wps-btn-dropdown').data('selected', true);
     jQuery(this).closest('.wps-btn-dropdown').attr('data-selected', true);
 
-    console.log(" allProductVariantsSelected: ", allProductVariantsSelected());
-
     if (allProductVariantsSelected()) {
 
       var productID = $productMetaContainer.data('product-post-id');
       var selectedOptions = $productMetaContainer.data('product-selected-options');
-
-      console.log('selectedOptions', selectedOptions);
-      console.log('productID', productID);
 
       disable(jQuery('.wps-product-meta .wps-btn'));
       showLoader(jQuery(this));
@@ -284,7 +279,6 @@ function onProductVariantChange() {
       try {
 
         var foundVariantID = await getVariantIdFromOptions(productID, selectedOptions);
-        console.log('yep', foundVariantID);
 
         enable(jQuery('.wps-product-meta .wps-btn'));
         hideLoader(jQuery(this));
@@ -295,7 +289,7 @@ function onProductVariantChange() {
         hideProductMetaErrors(jQuery(this));
 
       } catch(error) {
-        console.log('NO', error);
+        console.log('Error getVariantIdFromOptions: ', error);
         showProductMetaError(jQuery(this),  error + '. Code: 7');
 
       }
@@ -322,8 +316,6 @@ function onProductDropdown() {
 
       event.stopPropagation();
       event.preventDefault();
-
-      console.log('clickedd');
 
       if (!jQuery(this).next().hasClass('wps-is-visible')) {
 

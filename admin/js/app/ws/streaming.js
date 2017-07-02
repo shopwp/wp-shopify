@@ -26,7 +26,6 @@ async function streamConnection() {
     //
     try {
       var connectionData = await getConnectionData();
-      console.log('connectionData: ', connectionData);
 
     } catch(error) {
       reject(error);
@@ -38,7 +37,6 @@ async function streamConnection() {
     //
     try {
       var connection = await insertConnectionData(connectionData);
-      console.log('connection: ', connection);
 
     } catch(error) {
       reject(error);
@@ -71,6 +69,10 @@ async function streamShop() {
     try {
       var shopData = await getShopData();
       console.log('shopData: ', shopData);
+
+      if (typeof shopData === 'string') {
+        reject(shopData);
+      }
 
     } catch(error) {
       reject(error);
@@ -119,10 +121,8 @@ async function streamProducts() {
 
       productCount = await getProductsCount();
       productCount = productCount.count;
-      console.log('productCount: ', productCount);
 
     } catch(error) {
-      console.log('HERE 1');
       reject(error);
 
     }
@@ -140,8 +140,6 @@ async function streamProducts() {
       try {
 
         var newProducts = await insertProductsData(currentPage);
-
-        // console.log("newProductssss: ", newProducts);
 
         if (Array.isArray(newProducts)) {
           products = R.concat(products, newProducts);
@@ -186,7 +184,6 @@ async function streamCollects() {
 
       collectsCount = await getCollectsCount();
       collectsCount = collectsCount.count;
-      console.log('collectsCount: ', collectsCount);
 
     } catch(error) {
       reject(error);
@@ -208,7 +205,6 @@ async function streamCollects() {
 
         collects = R.concat(collects, await insertCollects(currentPage));
         currentPage += 1;
-        console.log('collects inserted: ', collects);
 
       }
 
@@ -236,7 +232,6 @@ async function streamSmartCollections() {
 
     try {
       var smartCollections = await insertSmartCollections();
-      console.log("smartCollections inserted: ", smartCollections);
       resolve(smartCollections);
 
     } catch(error) {
@@ -261,7 +256,6 @@ async function streamCustomCollections() {
 
     try {
       var customCollections = await insertCustomCollections();
-      console.log("customCollections inserted: ", customCollections);
       resolve(customCollections);
 
     } catch(error) {

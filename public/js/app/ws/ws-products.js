@@ -5,10 +5,6 @@ Returns: Promise
 
 */
 function getProduct(shopify, productId) {
-
-  console.log("shopify: ", shopify);
-  console.log("productId: ", productId);
-
   return shopify.fetchProduct(productId);
 };
 

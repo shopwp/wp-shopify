@@ -8,7 +8,7 @@ function shopifyInit(creds) {
 
   /*
 
-  TODO: throw an error if creds are empty. Dont set them 
+  TODO: throw an error if creds are empty. Dont set them
   to empty strings like this because it fails silently
 
   */
@@ -19,8 +19,6 @@ function shopifyInit(creds) {
       appId: ''
     }
   }
-
-  console.log('WOW: ', creds);
 
   return ShopifyBuy.buildClient({
     accessToken: creds.js_access_token,

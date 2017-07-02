@@ -205,7 +205,6 @@ function getCollectsForProduct(products) {
   // Returns a promise
   //
   async function throttleMe(product) {
-    console.log('Getting collect for ...', product.productId);
     return await getCollectsFromProductID(product.productId);
   }
 

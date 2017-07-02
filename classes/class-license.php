@@ -166,9 +166,18 @@ class License {
 			'beta'       => false
 		);
 
-		$request = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
+		$response = wp_safe_remote_post( $api_url, array(
+			'timeout' 		=> 60,
+			'sslverify' 	=> true,
+			'body' 				=> $api_params
+		));
 
-		return json_decode($request['body']);
+		if ( is_wp_error( $response ) ) {
+			return $response->get_error_message();
+
+		} else {
+			return json_decode($response['body']);
+		}
 
 	}
 

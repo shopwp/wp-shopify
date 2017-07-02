@@ -21,7 +21,7 @@ function syncConnection() {
       resolve(connection);
 
     } catch(error) {
-      console.log('DIED HERE 1');
+      console.log('You died, try again 1', error);
       reject(error);
 
     }
@@ -44,7 +44,7 @@ function syncShop() {
       resolve(shop);
 
     } catch(error) {
-      console.log('DIED HERE 2');
+      console.log('You died, try again 2', error);
       reject(error);
 
     }
@@ -69,10 +69,7 @@ function syncProducts() {
 
     } catch(error) {
 
-      console.log('DIED HERE 3');
-      console.log(error);
-      console.log(error.resolve());
-
+      console.log('You died, try again 3', error);
       reject(error);
 
     }
@@ -96,7 +93,8 @@ function syncCollects() {
       resolve(collects);
 
     } catch(error) {
-      console.log('DIED HERE 4');
+
+      console.log('You died, try again 4', error);
       reject(error);
 
     }
@@ -120,7 +118,8 @@ function syncSmartCollections() {
       resolve(smartCollections);
 
     } catch(error) {
-      console.log('DIED HERE 5');
+
+      console.log('You died, try again 5', error);
       reject(error);
 
     }
@@ -144,7 +143,8 @@ function syncCustomCollections() {
       resolve(customCollections);
 
     } catch(error) {
-      console.log('DIED HERE 6');
+
+      console.log('You died, try again 6', error);
       reject(error);
 
     }

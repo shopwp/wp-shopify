@@ -8,9 +8,9 @@ Update product variant price
 
 */
 async function updateTotalCartPricing(shopify) {
+
   var cart = await fetchCart(shopify);
 
-  console.log("cart: ", cart);
   var formattedPrice = await formatAsMoney(cart.subtotal);
   jQuery('.wps-cart .wps-pricing').text(formattedPrice);
 
@@ -139,7 +139,7 @@ async function renderCartItems(shopify) {
         $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
 
         var formatedPrice = await formatAsMoney(lineItem.line_price);
-        console.log("formatedPrice: ", formatedPrice);
+        // console.log("formatedPrice: ", formatedPrice);
 
         $lineItemTemplate.find('.wps-cart-item__price').text(formatedPrice);
 
@@ -171,7 +171,7 @@ async function renderCartItems(shopify) {
 
     var $cartLineItems = await Promise.all(promises);
 
-    console.log("$cartLineItems: ", $cartLineItems);
+    // console.log("$cartLineItems: ", $cartLineItems);
 
     $cartItemContainer.empty();
     $cartItemContainer.append($cartLineItems);

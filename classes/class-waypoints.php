@@ -132,18 +132,28 @@ class Waypoints {
   */
   public function wps_waypoint_get_access_token($accessTokenData) {
 
-    $url = 'https://' . $accessTokenData['shop'] . '/admin/oauth/access_token';
+    $api_url = 'https://' . $accessTokenData['shop'] . '/admin/oauth/access_token';
 
-    $data = array(
+    $api_params = array(
       'client_id' => $accessTokenData['client_id'],
       'client_secret' => $accessTokenData['client_secret'],
       'code' => $accessTokenData['code']
     );
 
-    $response = \Requests::post($url, array(), $data);
-    $data = json_decode($response->body);
+    $response = wp_safe_remote_post( $api_url, array(
+      'timeout' 		=> 60,
+      'sslverify' 	=> true,
+      'body' 				=> $api_params
+    ));
 
-    return $data->access_token;
+    if ( is_wp_error( $response ) ) {
+      return $response->get_error_message();
+
+    } else {
+      return json_decode($response['body']);
+
+    }
+
 
   }
 
@@ -157,19 +167,13 @@ class Waypoints {
 
     $DB_Settings_Connection = new Settings_Connection();
 
-    //
-    // OLD
-    //
-    // $pluginOptions = $this->config->wps_get_settings_connection();
-    // $pluginOptionsKey = $this->config->settings_connection_option_name;
-    //
-		// $pluginOptions['access_token'] = $accessToken;
-    //
-		// update_option($pluginOptionsKey, $pluginOptions);
+    if (is_object($accessToken)) {
 
-    $DB_Settings_Connection->update(1, array(
-      'access_token' => $accessToken
-    ));
+      $DB_Settings_Connection->update(1, array(
+        'access_token' => $accessToken->access_token
+      ));
+
+    }
 
 	}
 
