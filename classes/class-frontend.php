@@ -35,7 +35,6 @@ if (!class_exists('Frontend')) {
 		*/
 		public function __construct($Config) {
 			$this->config = $Config;
-			$this->Settings_General = new Settings_General();
 		}
 
 
@@ -63,11 +62,13 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_public_styles() {
 
+			$DB_Settings_General = new Settings_General();
+
 			if(!is_admin()) {
 
-				$styles_all = $this->Settings_General->get_column_single('styles_all');
-				$styles_core = $this->Settings_General->get_column_single('styles_core');
-				$styles_grid = $this->Settings_General->get_column_single('styles_grid');
+				$styles_all = $DB_Settings_General->get_column_single('styles_all');
+				$styles_core = $DB_Settings_General->get_column_single('styles_core');
+				$styles_grid = $DB_Settings_General->get_column_single('styles_grid');
 
 				if (is_array($styles_all)) {
 
@@ -426,7 +427,9 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_currency_format() {
 
-			$result = $this->Settings_General->get_column_single('price_with_currency');
+			$DB_Settings_General = new Settings_General();
+
+			$result = $DB_Settings_General->get_column_single('price_with_currency');
 
 			if (isset($result[0]) && $result[0]->price_with_currency) {
 				echo $result[0]->price_with_currency;
@@ -435,7 +438,7 @@ if (!class_exists('Frontend')) {
 			} else {
 				echo false;
 				die();
-				
+
 			}
 
 		}

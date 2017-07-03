@@ -14,6 +14,7 @@ Sync Connection
 
 */
 function syncConnection() {
+
   return new Promise(async function syncConnectionHandler(resolve, reject) {
 
     try {
@@ -27,6 +28,7 @@ function syncConnection() {
     }
 
   });
+  
 }
 
 
