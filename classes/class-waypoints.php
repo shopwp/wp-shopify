@@ -143,7 +143,11 @@ class Waypoints {
     $response = wp_safe_remote_post( $api_url, array(
       'timeout' 		=> 60,
       'sslverify' 	=> true,
-      'body' 				=> $api_params
+      'body' 				=> $api_params,
+      'httpversion' => '1.1',
+      'headers'     => array(
+        'Accept'    => 'application/json'
+      )
     ));
 
     if ( is_wp_error( $response ) ) {
