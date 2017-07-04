@@ -1,8 +1,10 @@
 <?php
 
 namespace WPS;
+require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\DB\Settings_License;
+use GuzzleHttp\Client;
 
 /*
 
@@ -173,14 +175,32 @@ class License {
 		));
 
 		if ( is_wp_error( $response ) ) {
-			return $response->get_error_message();
+
+			try {
+
+				$client = new Client();
+
+				$guzzelResponse = $client->post($api_url, [
+					'query' => $api_params,
+					'headers' => [
+						'Accept' => 'application/json',
+						'Content-type' => 'application/json'
+					]
+				]);
+
+				return json_decode($guzzelResponse->getBody()->getContents());
+
+			} catch (\Exception $e) {
+				return $e->getMessage();
+			}
 
 		} else {
+
 			return json_decode($response['body']);
+
 		}
 
 	}
-
 
 
 	/*

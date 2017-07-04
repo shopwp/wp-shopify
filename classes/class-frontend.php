@@ -103,17 +103,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_public_scripts() {
 
-			// old
-			// http://sdks.shopifycdn.com/js-buy-sdk/latest/shopify-buy.polyfilled.globals.min.js
-
-			// new
-			// http://sdks.shopifycdn.com/js-buy-sdk/latest/shopify-buy.polyfilled.globals.min.js
-
 			if(!is_admin()) {
-				// wp_enqueue_script('wps-shopify', 'https://sdks.shopifycdn.com/js-buy-sdk/v0/latest/shopify-buy.umd.polyfilled.min.js', array('jquery'), null, true);
-
-				// Accounting JS
-				// wp_enqueue_script($this->config->plugin_name . '-accounting-js', $this->config->plugin_url . 'public/js/app/vendor/accounting.min.js', array('jquery'), $this->config->plugin_version, true );
 
 				// WP Shopify JS Public
 				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery'), $this->config->plugin_version, true);
@@ -127,16 +117,6 @@ if (!class_exists('Frontend')) {
 			}
 
 		}
-
-
-		/*
-
-		Get plugin settings
-
-		*/
-		// public function config->wps_get_settings_connection()  {
-		// 	return get_option($this->config->plugin_name);
-		// }
 
 
 		/*
@@ -444,6 +424,37 @@ if (!class_exists('Frontend')) {
 		}
 
 
+
+		/*
+
+		Get plugin setting for currency symbol toggle
+
+		*/
+		public function wps_has_money_format_changed() {
+
+			$DB_Shop = new Shop();
+
+			$current_money_format = $DB_Shop->get_shop('money_format');
+			$current_money_format = $current_money_format[0]->money_format;
+
+			$money_with_currency_format = $DB_Shop->get_shop('money_with_currency_format');
+			$money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
+
+
+			if ($_POST['format'] === $current_money_format || $_POST['format'] === $money_with_currency_format) {
+				echo json_encode(false);
+				die();
+
+			} else {
+				echo json_encode(true);
+				die();
+
+			}
+
+		}
+
+
+
 		/*
 
 		Get plugin setting money_format
@@ -521,6 +532,9 @@ if (!class_exists('Frontend')) {
 
 			add_action( 'wp_ajax_wps_get_currency_format', array($this, 'wps_get_currency_format') );
 			add_action( 'wp_ajax_nopriv_wps_get_currency_format', array($this, 'wps_get_currency_format') );
+
+			add_action( 'wp_ajax_wps_has_money_format_changed', array($this, 'wps_has_money_format_changed') );
+			add_action( 'wp_ajax_nopriv_wps_has_money_format_changed', array($this, 'wps_has_money_format_changed') );
 
 			add_action( 'wp_ajax_wps_get_money_format', array($this, 'wps_get_money_format') );
 			add_action( 'wp_ajax_nopriv_wps_get_money_format', array($this, 'wps_get_money_format') );

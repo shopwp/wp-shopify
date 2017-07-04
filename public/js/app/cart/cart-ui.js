@@ -7,12 +7,22 @@ import { animate, animateIn, enable, disable } from '../utils/utils-ux';
 Update product variant price
 
 */
-async function updateTotalCartPricing(shopify) {
+async function updateTotalCartPricing(shopify, cart = false) {
 
-  var cart = await fetchCart(shopify);
+  if (!cart) {
+    cart = await fetchCart(shopify);
+  }
 
-  var formattedPrice = await formatAsMoney(cart.subtotal);
-  jQuery('.wps-cart .wps-pricing').text(formattedPrice);
+  try {
+    var formattedSubtotal = await formatAsMoney(cart.subtotal);
+
+  } catch(e) {
+    return e;
+  }
+
+  jQuery('.wps-cart .wps-pricing').text(formattedSubtotal);
+
+  return formattedSubtotal;
 
 };
 
@@ -43,7 +53,7 @@ function removeVariantSelections() {
 Update Cart Icon Amount
 
 */
-function updateCartCounter(shopify) {
+async function updateCartCounter(shopify) {
 
   return new Promise(async function(resolve, reject) {
 
@@ -100,90 +110,222 @@ function updateCartCounter(shopify) {
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function findLineItemByVariantID(cart, lineitem) {
+
+  var lineItemArray = cart.lineItems.filter(function(value, index, ar) {
+    return value.variant_id === lineitem.id;
+  });
+
+  return lineItemArray[0];
+
+}
+
+
+
+function updateSingleProductCartDOM(lineItem, singleProduct) {
+
+  return new Promise(async function(resolve, reject) {
+
+    var $lineItemsContainer = jQuery('.wps-cart-item-container');
+
+    if (typeof lineItem === "undefined") {
+
+      var $foundLineItem = $lineItemsContainer.find('.wps-quantity-decrement[data-variant-id="' + singleProduct.id + '"]').closest('.wps-cart-item');
+
+      $foundLineItem.remove();
+
+      resolve();
+
+    } else {
+
+      var $foundLineItem = $lineItemsContainer.find('.wps-quantity-decrement[data-variant-id="' + lineItem.variant_id + '"]').closest('.wps-cart-item');
+
+      $foundLineItem.find('.wps-cart-item__img').css('background-image', 'url(' + lineItem.image.src + ')');
+      $foundLineItem.find('.wps-cart-item__title').text(lineItem.title);
+      $foundLineItem.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+      $foundLineItem.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
+      $foundLineItem.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);
+      $foundLineItem.find('.wps-quantity-increment').attr('data-variant-id', lineItem.variant_id);
+      $foundLineItem.find('.wps-quantity-decrement').attr('data-product-id', lineItem.product_id);
+      $foundLineItem.find('.wps-quantity-increment').attr('data-product-id', lineItem.product_id);
+
+      try {
+        var formatedPrice = await formatAsMoney(lineItem.line_price);
+
+      } catch(e) {
+        reject(e);
+      }
+
+      $foundLineItem.find('.wps-cart-item__price').text(formatedPrice);
+
+      resolve($foundLineItem);
+
+    }
+
+  });
+
+}
+
+
+
+
 /*
 
 Render Cart Items
 
 */
-async function renderCartItems(shopify) {
+async function renderCartItems(shopify, cart = false, singleProduct = false) {
 
-  // console.log('1', shopify);
-  var cart = await fetchCart(shopify);
-  // console.log('2');
-
-  // var cart;
   var cartLineItemCount;
   var $cartItemContainer = jQuery('.wps-cart-item-container');
   var totalPrice = 0;
 
-  if(cart.lineItemCount === 0) {
+  return new Promise(async function(resolve, reject) {
 
-    $cartItemContainer.empty();
-    $cartItemContainer.append( createEmptyCartNotice() );
+    if(!cart) {
 
-  } else {
+      try {
+        cart = await fetchCart(shopify);
 
+      } catch(error) {
+        cart = await createCart(shopify);
+      }
 
-    var lineItemEmptyTemplate = jQuery('#wps-cart-item-template').html();
+    }
 
+    if(cart.lineItemCount === 0) {
 
-    let promises = cart.lineItems.map(async function (lineItem, index) {
+      $cartItemContainer.empty();
+      $cartItemContainer.append( createEmptyCartNotice() );
 
-      return new Promise(async function(resolve, reject) {
+    } else {
 
-        var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
-        var itemImage = lineItem.image.src;
+      var lineItemEmptyTemplate = jQuery('#wps-cart-item-template').html();
 
-        $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');
-        $lineItemTemplate.find('.wps-cart-item__title').text(lineItem.title);
-        $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+      /*
 
-        var formatedPrice = await formatAsMoney(lineItem.line_price);
-        // console.log("formatedPrice: ", formatedPrice);
+      If updating only one lineItem ...
 
-        $lineItemTemplate.find('.wps-cart-item__price').text(formatedPrice);
+      */
+      if (singleProduct) {
 
-        $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
+        var lineItem = findLineItemByVariantID(cart, singleProduct);
 
-        $lineItemTemplate.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);
-        $lineItemTemplate.find('.wps-quantity-increment').attr('data-variant-id', lineItem.variant_id);
+        try {
+          var lineItemPromises = await updateSingleProductCartDOM(lineItem, singleProduct);
 
-        $lineItemTemplate.find('.wps-quantity-decrement').attr('data-product-id', lineItem.product_id);
-        $lineItemTemplate.find('.wps-quantity-increment').attr('data-product-id', lineItem.product_id);
-
-        if (cartLineItemCount < cart.lineItems.length && (index === cart.lineItems.length - 1)) {
-          $lineItemTemplate.addClass('wps-js-hidden');
-          cartLineItemCount = cart.lineItems.length;
+        } catch(e) {
+          return e;
         }
 
-        if (cartLineItemCount > cart.lineItems.length) {
-          cartLineItemCount = cart.lineItems.length;
+
+      } else {
+
+        var lineItemPromises = cart.lineItems.map(async function (lineItem, index) {
+
+          return new Promise(async function(resolve, reject) {
+
+            var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
+            var itemImage = lineItem.image.src;
+
+            $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');
+            $lineItemTemplate.find('.wps-cart-item__title').text(lineItem.title);
+            $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+
+            var formatedPrice = await formatAsMoney(lineItem.line_price);
+
+            $lineItemTemplate.find('.wps-cart-item__price').text(formatedPrice);
+            $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
+            $lineItemTemplate.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);
+            $lineItemTemplate.find('.wps-quantity-increment').attr('data-variant-id', lineItem.variant_id);
+            $lineItemTemplate.find('.wps-quantity-decrement').attr('data-product-id', lineItem.product_id);
+            $lineItemTemplate.find('.wps-quantity-increment').attr('data-product-id', lineItem.product_id);
+
+            if (cartLineItemCount < cart.lineItems.length && (index === cart.lineItems.length - 1)) {
+              $lineItemTemplate.addClass('wps-js-hidden');
+              cartLineItemCount = cart.lineItems.length;
+            }
+
+            if (cartLineItemCount > cart.lineItems.length) {
+              cartLineItemCount = cart.lineItems.length;
+            }
+
+            resolve($lineItemTemplate);
+
+          });
+
+        });
+
+
+        try {
+          var $cartLineItems = await Promise.all(lineItemPromises);
+
+        } catch(error) {
+          reject(error);
+
         }
 
-        resolve($lineItemTemplate);
+        $cartItemContainer.empty();
+        $cartItemContainer.append($cartLineItems);
+
+      }
 
 
+      //$cartItemContainer.find('.wps-js-hidden').removeClass('wps-js-hidden');
 
-      });
+    }
 
-    });
+    return resolve(cart);
 
-
-    var $cartLineItems = await Promise.all(promises);
-
-    // console.log("$cartLineItems: ", $cartLineItems);
-
-    $cartItemContainer.empty();
-    $cartItemContainer.append($cartLineItems);
-
-    setTimeout(function () {
-      $cartItemContainer.find('.wps-js-hidden').removeClass('wps-js-hidden');
-
-    }, 0);
-
-  }
-
-  return cart;
+  });
 
 
 }
@@ -198,20 +340,36 @@ function updateCartVariant(variant, quantity, shopify) {
       quantity: quantity
     };
 
-    // console.log("options: ", options);
+    try {
+      var cart = await fetchCart(shopify);
 
-    var cart = await fetchCart(shopify);
+    } catch(error) {
+      reject(error);
+    }
 
-    // console.log("cart: ", cart);
 
-    await cart.createLineItemsFromVariants(options);
+    try {
+      await cart.createLineItemsFromVariants(options);
 
-    console.log('updating ...', variant);
+    } catch(error) {
+      reject(error);
+    }
 
-    renderCartItems(shopify);
-    updateTotalCartPricing(shopify);
+    try {
+      await renderCartItems(shopify, cart, variant);
 
-    resolve('Doneeeeeee');
+    } catch(error) {
+      reject(error);
+    }
+
+    try {
+      await updateTotalCartPricing(shopify, cart);
+
+    } catch(error) {
+      reject(error);
+    }
+
+    resolve();
 
   });
 

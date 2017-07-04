@@ -10,6 +10,14 @@ import {
   getMoneyFormatWithCurrency
 } from '../ws/ws-settings';
 
+import {
+  setMoneyFormatCache,
+  getMoneyFormatCache,
+  moneyFormatChanged,
+  getCacheTime,
+  setCacheTime
+} from '../ws/ws-products';
+
 
 /*
 
@@ -197,6 +205,40 @@ function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, 
 }
 
 
+
+/*
+
+Check if our LS cache has expired
+
+*/
+function cacheExpired() {
+
+  var cachedTime = getCacheTime();
+
+  if (!cachedTime) {
+    return true;
+
+  } else {
+
+    var currentTime = new Date().getTime();
+    var timeElapsedInSeconds = Math.floor((currentTime - parseInt(cachedTime)) / 1000);
+
+    // Caching for 10mins
+    if (timeElapsedInSeconds > 600) {
+      return true;
+
+    } else {
+      return false;
+
+    }
+
+  }
+
+}
+
+
+
+
 /*
 
 Format product price into format from Shopify
@@ -212,41 +254,59 @@ async function formatAsMoney(amount) {
 
   return new Promise(async function(resolve, reject) {
 
-    /*
+    if (!cacheExpired() && getMoneyFormatCache()) {
 
-    STEP 1
+      var moneyFormat = getMoneyFormatCache();
 
-    */
-    try {
-      var formatWithCurrencySymbol = await getCurrencyFormat();
-
-    } catch (error) {
-      reject(error);
-
-    }
-
-    /*
-
-    STEP 2
-
-    */
-    if (formatWithCurrencySymbol) {
+    } else {
 
       try {
-        var moneyFormat = await getMoneyFormatWithCurrency();
+        var moneyFormatUpdated = await moneyFormatChanged();
 
       } catch (error) {
         reject(error);
 
       }
 
-    } else {
+      if (!moneyFormatUpdated) {
 
-      try {
-        var moneyFormat = await getMoneyFormat();
+        var moneyFormat = getMoneyFormatCache();
+        setMoneyFormatCache(moneyFormat);
 
-      } catch (error) {
-        reject(error);
+      } else {
+
+        try {
+          var formatWithCurrencySymbol = await getCurrencyFormat();
+
+        } catch (error) {
+          reject(error);
+
+        }
+
+
+        if (formatWithCurrencySymbol) {
+
+          try {
+            var moneyFormat = await getMoneyFormatWithCurrency();
+
+          } catch (error) {
+            reject(error);
+
+          }
+
+        } else {
+
+          try {
+            var moneyFormat = await getMoneyFormat();
+
+          } catch (error) {
+            reject(error);
+
+          }
+
+        }
+
+        setMoneyFormatCache(moneyFormat);
 
       }
 
@@ -269,8 +329,6 @@ Listener: Close
 
 */
 function listenForClose(config) {
-
-  // console.log('Listening for close ...', config);
 
   if(!config.oneWay) {
     // Close when user clicks outside modal ...
@@ -315,27 +373,22 @@ function closeCallbackClick(event) {
 
   var config = event.data,
       element = document.querySelector( createSelector(config.element.attr('class')) );
-  // console.log(1);
+
   if (localStorage.getItem('wps-animating') === 'false') {
-    // console.log(2, jQuery(event.target));
+
     if(jQuery(event.target).hasClass('wps-modal-close-trigger')) {
-      // console.log(3);
+
       animateOut(config);
-      // console.log(4);
+
     } else {
-      // console.log(5);
+
       if (event.target !== config.element && !jQuery.contains(element, event.target)) {
-        // console.log(6);
+
         animateOut(config);
-        // console.log(7);
+
       }
     }
-    // console.log(8);
-
   }
-
-  // console.log(9);
-
 };
 
 

@@ -11,7 +11,7 @@ $DB_Products = new Products();
 $collection = $DB->get_collection();
 $products = $DB_Products->get_products_by_collection_id($collection[0]->collection_id);
 
-get_header();
+get_header('wps');
 
 if (is_single()) {
 
@@ -30,4 +30,4 @@ if (is_single()) {
 
 do_action('wps_collection_single_sidebar');
 
-get_footer();
+get_footer('wps');

@@ -49,40 +49,7 @@ function getShopifyCreds() {
 };
 
 
-/*
-
-Check for cached credentials
-
-*/
-function hasExistingCredentials() {
-  return localStorage.getItem('wps-shopify-api-credentials');
-};
-
-
-/*
-
-Get Shopify credentials from cache
-
-*/
-function getExistingShopifyCreds() {
-  return JSON.parse( localStorage.getItem('wps-shopify-api-credentials') );
-};
-
-
-/*
-
-Set Shopify credentials into cache
-
-*/
-function setShopifyCreds(creds) {
-  return localStorage.setItem('wps-shopify-api-credentials', JSON.stringify(creds));
-};
-
-
 export {
   shopifyInit,
-  hasExistingCredentials,
-  getExistingShopifyCreds,
-  getShopifyCreds,
-  setShopifyCreds
+  getShopifyCreds
 }

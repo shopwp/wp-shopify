@@ -1,9 +1,6 @@
 import {
-  getExistingShopifyCreds,
   shopifyInit,
-  getShopifyCreds,
-  setShopifyCreds,
-  hasExistingCredentials
+  getShopifyCreds
 } from '../ws/ws-auth';
 
 import { initCart } from '../ws/ws-cart';
@@ -42,59 +39,38 @@ TODO: Little bit of duplication happening here. Could be done better.
 */
 async function bootstrap() {
 
-  if (hasExistingCredentials()) {
+  try {
+    var creds = await getShopifyCreds();
+    console.log('getShopifyCreds() done');
 
-    try {
-      var creds = await getExistingShopifyCreds();
-    } catch(error) {
-      console.log('1 getExistingShopifyCreds error: ', error);
-    }
+  } catch(error) {
 
-    try {
-      var shopify = await shopifyInit(creds);
-    } catch(error) {
-      console.log('1 shopifyInit error: ', error);
-    }
-
-    try {
-      var cart = await initCart(shopify);
-    } catch(error) {
-      console.log('1 initCart error: ', error);
-    }
-
-    bootstrapEvents(shopify);
-    bootstrapUI(shopify);
-
-  } else {
-
-    try {
-      var creds = await getShopifyCreds();
-    } catch(error) {
-      console.log('2 getShopifyCreds error: ', error);
-    }
-
-    try {
-      var savedCreds = await setShopifyCreds(creds);
-    } catch(error) {
-      console.log('2 setShopifyCreds error: ', error);
-    }
-
-    try {
-      var shopify = await shopifyInit(creds);
-    } catch(error) {
-      console.log('2 shopifyInit error: ', error);
-    }
-
-    try {
-      var cart = await initCart(shopify);
-    } catch(error) {
-      console.log('2 initCart error: ', error);
-    }
-
-    bootstrapEvents(shopify);
-    bootstrapUI(shopify);
-
+    // TODO: Show front-end error message
+    console.log('2 getShopifyCreds error: ', error);
   }
+
+  try {
+    var shopify = await shopifyInit(creds);
+    console.log('shopifyInit() done');
+
+  } catch(error) {
+
+    // TODO: Show front-end error message
+    console.log('2 shopifyInit error: ', error);
+  }
+
+  try {
+    await initCart(shopify);
+    console.log('initCart() done');
+
+  } catch(error) {
+
+    // TODO: Show front-end error message
+    console.log('2 initCart error: ', error);
+  }
+
+  bootstrapEvents(shopify);
+  bootstrapUI(shopify);
 
 }
 

@@ -7,7 +7,7 @@ global $post;
 $DB_Products = new Products();
 $product = $DB_Products->get_data();
 
-get_header();
+get_header('wps');
 
 if (is_single()) {
 
@@ -45,4 +45,4 @@ if (is_single()) {
 
 do_action('wps_product_single_sidebar');
 
-get_footer();
+get_footer('wps');
