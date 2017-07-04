@@ -1582,7 +1582,7 @@ class Utils {
   Since: 1.0.1
 
   */
-  public static function wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price) {
+  public static function wps_replace_delimiters_with_formatted_money($money_format_current = '${{amount}}', $shop_currency = 'USD', $price) {
 
     $moneyFormat = self::wps_find_amount_format();
     $money = self::wps_construct_format_money($shop_currency, $moneyFormat, $price);
@@ -1592,7 +1592,6 @@ class Utils {
     $priceWithoutBackDelimiter = str_replace('}}', '', $priceWithoutFrontDelimiter);
 
     return $priceWithoutBackDelimiter;
-
 
   }
 
@@ -1640,7 +1639,7 @@ class Utils {
       }
 
     } else {
-      $productID = $product->id;
+      $productID = $product->product_id;
 
     }
 
@@ -1660,7 +1659,9 @@ class Utils {
 
       }
 
+
       $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
+
 
       set_transient('wps_product_price_id_' . $productID, $finalPrice);
 

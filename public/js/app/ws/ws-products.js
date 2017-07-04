@@ -62,9 +62,91 @@ function getVariantIdFromOptions(productID, selectedOptions) {
 
 }
 
+
+/*
+
+Check if any cart items are in local storage
+
+*/
+function hasItemsInLocalStorage() {
+  return localStorage.getItem('wps-last-cart-id');
+};
+
+
+/*
+
+Check if any cart items are in local storage
+
+*/
+function setMoneyFormatCache(moneyFormat) {
+  localStorage.setItem('wps-money-format', moneyFormat);
+  setCacheTime();
+};
+
+
+/*
+
+Check if any cart items are in local storage
+
+*/
+function getMoneyFormatCache() {
+  return localStorage.getItem('wps-money-format');
+};
+
+
+
+/*
+
+Check if any cart items are in local storage
+
+*/
+function setCacheTime() {
+  localStorage.setItem('wps-cache-expiration', new Date().getTime());
+};
+
+
+/*
+
+Check if any cart items are in local storage
+
+*/
+function getCacheTime() {
+  return localStorage.getItem('wps-cache-expiration');
+};
+
+
+
+
+/*
+
+
+
+*/
+function moneyFormatChanged() {
+
+  return jQuery.ajax({
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_has_money_format_changed',
+      format: getMoneyFormatCache()
+    }
+  });
+
+}
+
+
+
+
 export {
   getProduct,
   getProductVariantID,
   hasItemsInLocalStorage,
-  getVariantIdFromOptions
+  getVariantIdFromOptions,
+  setMoneyFormatCache,
+  getMoneyFormatCache,
+  moneyFormatChanged,
+  setCacheTime,
+  getCacheTime
 };

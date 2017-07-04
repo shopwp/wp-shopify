@@ -143,7 +143,7 @@ function enable($element) {
   setTimeout(function() {
     $element.removeClass('wps-is-disabled');
     $element.prop('disabled', false);
-  }, 200);
+  }, 0);
 };
 
 

@@ -3,7 +3,7 @@
 $args = !empty($shortcodeArgs) ? $shortcodeArgs : array();
 
 if (empty($is_shortcode)) {
-  get_header();
+  get_header('wps');
 }
 
 do_action(
@@ -15,6 +15,6 @@ do_action(
 if (empty($is_shortcode)) {
 
   do_action('wps_products_sidebar');
-  get_footer();
+  get_footer('wps');
 
 }

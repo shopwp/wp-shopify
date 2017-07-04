@@ -883,28 +883,29 @@ NEW STRUCTURE
   public function wps_delete_shop() {
 
     $DB_Shop = new Shop();
-    $DB_Settings_Connection = new Settings_Connection();
 
-    // Get the currently active domain
-    $connection = $DB_Settings_Connection->get_column_single('domain');
+    return $DB_Shop->delete();
 
-    if (!empty($connection)) {
-
-      // Get the domain prefix
-      $domainPrefix = Utils::wps_get_domain_prefix($connection[0]->domain);
-
-      // Get the currently active Shop by ID by domain
-      $activeShopID = $DB_Shop->get_column_by('id', 'name', $domainPrefix);
-
-      // Perform the actual deletion
-      $results = $DB_Shop->delete($activeShopID);
-
-    } else {
-      $results = array();
-
-    }
-
-    return $results;
+    // $DB_Settings_Connection = new Settings_Connection();
+    //
+    // // Get the currently active domain
+    // $connection = $DB_Settings_Connection->get_column_single('domain');
+    //
+    // if (!empty($connection)) {
+    //
+    //   // Get the domain prefix
+    //   $domainPrefix = Utils::wps_get_domain_prefix($connection[0]->domain);
+    //
+    //   // Get the currently active Shop by ID by domain
+    //   $activeShopID = $DB_Shop->get_column_by('id', 'name', $domainPrefix);
+    //
+    //   // Perform the actual deletion
+    //   $results = $DB_Shop->delete($activeShopID);
+    //
+    // } else {
+    //   $results = array();
+    //
+    // }
 
   }
 

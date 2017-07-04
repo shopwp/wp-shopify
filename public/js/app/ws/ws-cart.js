@@ -7,8 +7,23 @@ Fetch Cart
 Returns: Promise
 
 */
-function fetchCart(shopify) {
-  return shopify.fetchCart( localStorage.getItem('wps-last-cart-id') );
+async function fetchCart(shopify) {
+
+  if (!shopify) {
+    return false;
+  }
+
+  // Either get the current cart instance or create a new one
+  try {
+    var cart = await shopify.fetchCart(localStorage.getItem('wps-last-cart-id'));
+
+  } catch(e) {
+    var cart = await createCart(shopify);
+
+  }
+
+  return cart ? cart : false;
+
 };
 
 
@@ -18,7 +33,7 @@ Create Cart
 Returns: Promise
 
 */
-function createCart(shopify) {
+async function createCart(shopify) {
   return shopify.createCart();
 }
 
@@ -58,8 +73,6 @@ function updateCart(variant, quantity, shopify) {
     } catch(error) {
       reject(error);
     }
-    // console.log('cart before', cart);
-    // console.log('cart after', cart);
 
     renderCartItems(shopify);
     updateTotalCartPricing(shopify);
@@ -80,6 +93,7 @@ Initialize Cart
 async function initCart(shopify) {
 
   if(hasItemsInLocalStorage()) {
+
     // var cart = await fetchCart(shopify);
 
     try {
@@ -89,7 +103,6 @@ async function initCart(shopify) {
       return error;
     }
 
-    return cart;
     // showAllProducts(shopify);
 
   } else {
@@ -102,11 +115,14 @@ async function initCart(shopify) {
     }
 
     setCart(cart);
-    return cart;
 
     // showAllProducts(shopify);
 
   }
+
+  updateTotalCartPricing(shopify);
+
+  return cart;
 
 }
 

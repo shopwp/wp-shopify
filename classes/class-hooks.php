@@ -1169,11 +1169,11 @@ if (!class_exists('Hooks')) {
 		}
 
 		public function wps_collection_single_sidebar() {
-			get_sidebar();
+			get_sidebar('wps');
 		}
 
 		public function wps_collections_sidebar() {
-			get_sidebar();
+			get_sidebar('wps');
 		}
 
 
@@ -1193,11 +1193,11 @@ if (!class_exists('Hooks')) {
 		}
 
 		public function wps_product_single_sidebar() {
-			get_sidebar();
+			get_sidebar('wps');
 		}
 
 		public function wps_products_sidebar() {
-			get_sidebar();
+			get_sidebar('wps');
 		}
 
 
