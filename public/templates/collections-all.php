@@ -3,7 +3,7 @@
 $args = !empty($shortcodeArgs) ? $shortcodeArgs : array();
 
 if (empty($is_shortcode)) {
-  get_header();
+  get_header('wp-shopify');
 }
 
 do_action(
@@ -15,6 +15,6 @@ do_action(
 if (empty($is_shortcode)) {
 
   do_action('wps_collections_sidebar');
-  get_footer();
-  
+  get_footer('wp-shopify');
+
 }
