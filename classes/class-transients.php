@@ -118,4 +118,20 @@ class Transients {
   }
 
 
+  /*
+
+  Delete all transients
+
+  */
+  public static function delete_cached_variants() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_with\_variants\_%'");
+
+    return $results;
+
+  }
+
+
 }

@@ -68,7 +68,7 @@ turnAnimationFlagOn
 
 */
 function turnAnimationFlagOn() {
-  localStorage.setItem('wps-animating', false);
+  localStorage.setItem('wps-animating', true);
 }
 
 
@@ -330,12 +330,18 @@ Listener: Close
 */
 function listenForClose(config) {
 
-  if(!config.oneWay) {
+  if (!config.element.hasClass('wps-is-visible')) {
+    config.element.addClass('wps-is-visible');
+  }
+
+  if(!config.oneway) {
+
     // Close when user clicks outside modal ...
     jQuery(document).on('click.wps-animated-element', config, closeCallbackClick);
 
     // Close when user hits escape ...
     jQuery(document).on('keyup.wps-animated-element', config, closeCallbackEsc);
+
   }
 
 };
@@ -377,16 +383,14 @@ function closeCallbackClick(event) {
   if (localStorage.getItem('wps-animating') === 'false') {
 
     if(jQuery(event.target).hasClass('wps-modal-close-trigger')) {
-
       animateOut(config);
 
     } else {
 
       if (event.target !== config.element && !jQuery.contains(element, event.target)) {
-
         animateOut(config);
-
       }
+
     }
   }
 };

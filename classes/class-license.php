@@ -276,10 +276,16 @@ class License {
 		you should use your own CONSTANT name, and be sure to replace it throughout this file
 
 		*/
-		define( 'EDD_SL_STORE_URL', $this->plugin_env );
+		if(!defined('EDD_SL_STORE_URL')) {
+  		define( 'EDD_SL_STORE_URL', $this->plugin_env );
+		}
 
-		// the name of your product. This should match the download name in EDD exactly
-		define( 'EDD_SAMPLE_ITEM_ID', 35 );
+
+		// The name of your product. This should match the download name in EDD exactly
+		if(!defined('EDD_SAMPLE_ITEM_ID')) {
+  		define( 'EDD_SAMPLE_ITEM_ID', 35 );
+		}
+
 
 		if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 

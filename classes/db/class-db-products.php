@@ -120,7 +120,7 @@ class Products extends \WPS\DB {
   Without: Images, variants
 
   */
-  public function get_data() {
+  public function get_data($postID = null) {
 
     $Images = new Images();
     $Variants = new Variants();
@@ -131,10 +131,10 @@ class Products extends \WPS\DB {
     // $product_data->variants = $Variants->get_product_variants();
     // $product_data->options = $Options->get_product_options();
 
-    $results['details'] = $this->get_product();
-    $results['images'] = $Images->get_product_images();
-    $results['variants'] = $Variants->get_product_variants();
-    $results['options'] = $Options->get_product_options();
+    $results['details'] = $this->get_product($postID);
+    $results['images'] = $Images->get_product_images($postID);
+    $results['variants'] = $Variants->get_product_variants($postID);
+    $results['options'] = $Options->get_product_options($postID);
 
     // return $results;
 
@@ -227,6 +227,7 @@ class Products extends \WPS\DB {
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
       Transients::delete_cached_prices();
+      Transients::delete_cached_variants();
 
     } else {
       $results['deleted_product'] = $this->delete_product($product, $product->id);

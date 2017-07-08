@@ -64,12 +64,14 @@ function updateCart(variant, quantity, shopify) {
 
     try {
       var cart = await fetchCart(shopify);
+
     } catch(error) {
       reject(error);
     }
 
     try {
-      cart = await cart.createLineItemsFromVariants(options);
+      await cart.createLineItemsFromVariants(options);
+
     } catch(error) {
       reject(error);
     }
