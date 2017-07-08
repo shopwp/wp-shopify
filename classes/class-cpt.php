@@ -250,9 +250,7 @@ class CPT {
 
   */
   function wps_plugin_name_add_rewrite_rules() {
-
     add_rewrite_rule('page/([0-9]+)?$', 'index.php?post_type=wps_products&paged=$matches[1]', 'top');
-
   }
 
 
@@ -273,7 +271,7 @@ class CPT {
 
     add_action( 'init', array($this, 'wps_post_type_products') );
 		add_action( 'init', array($this, 'wps_post_type_collections') );
-    add_filter( 'init', array($this, 'wps_plugin_name_add_rewrite_rules') );
+    // add_filter( 'init', array($this, 'wps_plugin_name_add_rewrite_rules') );
     // add_filter( 'query_vars', array($this, 'wps_custom_query_vars_filter') );
 
   }

@@ -11,6 +11,7 @@ $Collections = new Collections(new Config());
 
 $collection = json_decode( file_get_contents('php://input') );
 
+
 /*
 
 Here we have a couple things to check. First, we need to know what type of Collection

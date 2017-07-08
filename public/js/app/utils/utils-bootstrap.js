@@ -41,32 +41,32 @@ async function bootstrap() {
 
   try {
     var creds = await getShopifyCreds();
-    console.log('getShopifyCreds() done');
+    // console.log('getShopifyCreds() done');
 
   } catch(error) {
 
     // TODO: Show front-end error message
-    console.log('2 getShopifyCreds error: ', error);
+    console.log('getShopifyCreds error: ', error);
   }
 
   try {
     var shopify = await shopifyInit(creds);
-    console.log('shopifyInit() done');
+    // console.log('shopifyInit() done');
 
   } catch(error) {
 
     // TODO: Show front-end error message
-    console.log('2 shopifyInit error: ', error);
+    console.log('shopifyInit error: ', error);
   }
 
   try {
     await initCart(shopify);
-    console.log('initCart() done');
+    // console.log('initCart() done');
 
   } catch(error) {
 
     // TODO: Show front-end error message
-    console.log('2 initCart error: ', error);
+    console.log('initCart error: ', error);
   }
 
   bootstrapEvents(shopify);

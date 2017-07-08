@@ -87,11 +87,13 @@ async function updateCartCounter(shopify) {
       }
 
       if($cartCounter.length) {
+
         animateIn({
           element: $cartCounter,
           inClass: 'wps-bounceInDown',
-          oneWay: true
+          oneway: true
         });
+
       }
 
       resolve('Done updating cart counter');

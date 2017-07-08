@@ -146,6 +146,16 @@ if (!class_exists('Hooks')) {
 		}
 
 
+		/*
+
+		Products Loop - Add to cart
+
+		*/
+		public function wps_products_add_to_cart($productWithVariants) {
+			return include($this->config->plugin_path . 'public/partials/products/loop/item-add-to-cart.php');
+		}
+
+
     /*
 
     Products Loop - Price
@@ -164,6 +174,117 @@ if (!class_exists('Hooks')) {
 		public function wps_products_header($query) {
 			return include($this->config->plugin_path . 'public/partials/products/loop/header.php');
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		/*
+
+		Products Loop - Meta Start
+
+		*/
+		public function wps_products_meta_start($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/meta-start.php');
+		}
+
+
+		/*
+
+		Products Loop - Quantity
+
+		*/
+		public function wps_products_quantity($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/quantity.php');
+		}
+
+
+		/*
+
+		Products Loop - Actions Group Start
+
+		*/
+		public function wps_products_actions_group_start($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/action-groups-start.php');
+		}
+
+
+		/*
+
+		Products Loop - Options
+
+		*/
+		public function wps_products_options($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/options.php');
+		}
+
+
+		/*
+
+		Products Loop - Button add to cart
+
+		*/
+		public function wps_products_button_add_to_cart($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/button-add-to-cart.php');
+		}
+
+
+		/*
+
+		Products Loop - Actions Groups End
+
+		*/
+		public function wps_products_actions_group_end($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/action-groups-end.php');
+		}
+
+
+		/*
+
+		Products Loop - Notice
+
+		*/
+		public function wps_products_notice_inline($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/notice-inline.php');
+		}
+
+
+		/*
+
+		Products Loop - Meta end
+
+		*/
+		public function wps_products_meta_end($product) {
+			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/meta-end.php');
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		/*
@@ -566,31 +687,31 @@ if (!class_exists('Hooks')) {
 				}
 
 
-				if (empty($clauses['limits'])) {
+				// TODO: Revisit, make better
+				if ($query->get('context') === 'wps_products_query' || $query->get('context') === 'wps_collections_query') {
 
-					/*
+					if (empty($clauses['limits'])) {
 
-					This check is needed so as not to override any additional loops on the page.
-					TODO: Do research to ensure more additional loops aren't affected
+						/*
 
-					*/
-					if (isset($post->post_content)) {
-					  $content = $post->post_content;
+						This check is needed so as not to override any additional loops on the page.
+						TODO: Do research to ensure more additional loops aren't affected
 
-					  if( has_shortcode( $content, 'wps_products' ) || has_shortcode( $content, 'wps_collections' ) ) {
-							// $clauses['limits'] = Utils::construct_pagination_limits($query);
-					  }
+						*/
+						if (isset($post->post_content)) {
+						  $content = $post->post_content;
+
+						  if( has_shortcode( $content, 'wps_products' ) || has_shortcode( $content, 'wps_collections' ) ) {
+								// $clauses['limits'] = Utils::construct_pagination_limits($query);
+						  }
+
+						}
+
+						$clauses['limits'] = Utils::construct_pagination_limits($query);
 
 					}
 
-					$clauses['limits'] = Utils::construct_pagination_limits($query);
-
-
-				} else {
-
 				}
-
-
 
 			}
 
@@ -626,12 +747,11 @@ if (!class_exists('Hooks')) {
 			query that we make based on the arguments passed via shortcode.
 
 			*/
-
 			$productsQuery = new \WP_Query($args);
+
 			$amountOfProducts = count($productsQuery->posts);
 
 			do_action( 'wps_products_before', $productsQuery );
-
 			do_action( 'wps_products_header', $productsQuery );
 
 			if ($amountOfProducts > 0) {
@@ -968,8 +1088,7 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_content_pre_loop($query) {
 
-
-			if (isset($query->query['context'])) {
+			if (isset($query->query['context']) && isset($query->query['post_type'])) {
 
 				if ($query->query['post_type'] === 'wps_products' || $query->query['post_type'] === 'wps_collections') {
 
@@ -984,9 +1103,6 @@ if (!class_exists('Hooks')) {
 			return $query;
 
 		}
-
-
-
 
 
 

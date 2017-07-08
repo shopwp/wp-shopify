@@ -115,6 +115,24 @@ function getCacheTime() {
 };
 
 
+/*
+
+Set Product Selection ID
+
+*/
+function setProductSelectionID(id) {
+  return localStorage.setItem('wps-product-selection-id', id);
+};
+
+
+/*
+
+Get Product Selection ID
+
+*/
+function getProductSelectionID() {
+  return localStorage.getItem('wps-product-selection-id');
+};
 
 
 /*
@@ -148,5 +166,7 @@ export {
   getMoneyFormatCache,
   moneyFormatChanged,
   setCacheTime,
-  getCacheTime
+  getCacheTime,
+  getProductSelectionID,
+  setProductSelectionID
 };

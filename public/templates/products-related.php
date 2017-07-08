@@ -18,6 +18,7 @@ we'll select 4 random products to display (excluding the product currently shown
 the developer may override this by passing in their own config.
 
 */
+
 do_action(
   'wps_products_display',
   apply_filters('wps_products_related_args', array(), $post),

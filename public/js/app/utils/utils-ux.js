@@ -33,8 +33,7 @@ async function animate(config) {
     }, config.delay);
 
   } else {
-
-
+    // console.log('YO');
   }
 
 };
@@ -53,16 +52,22 @@ function animateIn(config) {
   turnAnimationFlagOn();
 
   return new Promise(function(resolve, reject) {
+
     config.element
       .addClass(classes)
       .one(animationClasses(), function(e) {
 
-        turnAnimationFlagOff()
+        turnAnimationFlagOff();
+
+        if (!config.oneway) {
+          listenForClose(config);
+        }
+
         config.element.removeClass(config.inClass);
-        listenForClose(config);
         resolve(config.element);
 
       });
+
   });
 
 };
@@ -78,6 +83,7 @@ function animateOut(config) {
   var origClasses = config.element.data("origClasses");
 
   return new Promise(function(resolve, reject) {
+
     config.element
       .addClass(config.outClass)
       .one(animationClasses(), function afterAnimateOut(e) {
@@ -85,6 +91,8 @@ function animateOut(config) {
         turnAnimationFlagOff()
         addOriginalClassesBack(config);
         removeEventHandlers('wps-animated-element');
+
+        config.element.removeClass('wps-fadeOut wps-is-visible');
 
         resolve(config.element);
 
@@ -153,7 +161,6 @@ Show Loader
 
 */
 function showLoader($element) {
-  // console.log('hi');
   $element.addClass('wps-is-loading');
 };
 
@@ -164,19 +171,23 @@ Hide Loader
 
 */
 function hideLoader($element) {
-  // console.log('wee');
   $element.removeClass('wps-is-loading');
 };
 
 
 function shake($element) {
 
-  animate({
+
+
+  // $element.removeClass('wps-modal wps-is-visible wps-animated');
+  // console.log("$element: ", $element);
+
+  animateIn({
     delay: 0,
 		inClass: 'wps-shake',
-		outClass: '',
+    oneway: true,
     element: $element
-	});
+  });
 
 }
 

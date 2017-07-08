@@ -30,7 +30,7 @@ async function onCheckout(shopify) {
         }
 
       } catch(e) {
-        console.log('Error: fetchCart()');
+        console.log('Error: fetchCart()', e);
         return e;
       }
 

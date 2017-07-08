@@ -1997,9 +1997,7 @@ class Utils {
     global $post;
     $wps_related_products = $query->get('wps_related_products');
 
-
     if (empty($wps_related_products)) {
-
 
       $currentPage = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
       $Config = new Config();

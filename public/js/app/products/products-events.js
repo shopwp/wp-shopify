@@ -1,6 +1,17 @@
-import { disable, enable, showLoader, hideLoader, animate, shake } from '../utils/utils-ux';
-import { getProduct, getProductVariantID, getVariantIdFromOptions } from '../ws/ws-products';
-import { updateCart } from '../ws/ws-cart';
+import { disable, enable, showLoader, hideLoader, animate, animateIn, shake } from '../utils/utils-ux';
+
+import {
+  getProduct,
+  getProductVariantID,
+  getVariantIdFromOptions,
+  setProductSelectionID,
+  getProductSelectionID
+} from '../ws/ws-products';
+
+import {
+  updateCart
+} from '../ws/ws-cart';
+
 import { updateCartCounter, toggleCart } from '../cart/cart-ui';
 
 
@@ -17,7 +28,9 @@ function showProductMetaError($element, errorMessage) {
     .html(errorMessage)
     .addClass('wps-is-visible wps-notice-error');
 
-  shake( jQuery('.wps-btn-dropdown[data-selected="false"]') );
+  var $elementToShake = $element.closest('.wps-product-actions-group').find('.wps-btn-dropdown[data-selected="false"]');
+
+  shake($elementToShake);
 
 }
 
@@ -39,36 +52,79 @@ function hideProductMetaErrors($element) {
 
 /*
 
+Remove Inline Notices
+
+*/
+function removeInlineNotices() {
+  jQuery('.wps-notice-inline').removeClass('wps-is-visible wps-notice-error').text('');
+}
+
+
+/*
+
+Used to reset values of a single product's variant selctions.
+Needed after user adds to cart or selects a different product
+
+*/
+function resetSingleProductVariantSelector($addToCartButton) {
+
+  var $group = $addToCartButton.closest('.wps-product-actions-group');
+  var $productMetaWrapper = $addToCartButton.closest('.wps-product-meta');
+  var $productMetaDropdown = $productMetaWrapper.find('.wps-btn-dropdown');
+  var $variantSelectors = $group.find('.wps-modal-trigger');
+
+  // Any errors
+  removeInlineNotices();
+
+  $variantSelectors.each(function(index, value) {
+
+    var variantTitle = jQuery(value).data('option');
+    jQuery(value).text(variantTitle);
+
+    $productMetaWrapper.data('product-selected-options', '');
+    $productMetaWrapper.attr('data-product-selected-options', '');
+    $productMetaDropdown.attr('data-selected', false);
+    $productMetaDropdown.data('selected', false);
+
+  });
+
+}
+
+
+
+/*
+
 Attach and control listeners onto buy button
 TODO: Add try catches below
 
 */
 function onAddProductToCart(shopify) {
 
-  jQuery('.wps-add-to-cart').on('click', async function addToCartHandler(event) {
+  jQuery('.wps-btn-wrapper').on('click', '.wps-add-to-cart', async function addToCartHandler(event) {
 
     event.preventDefault();
 
-    var $container = jQuery(this).closest('.wps-product-meta'),
+    var $addToCartButton = jQuery(this),
+        $container = $addToCartButton.closest('.wps-product-meta'),
         matchingProductVariantID = $container.attr('data-product-selected-variant'),
         productID = $container.attr('data-product-id'),
         productQuantity = $container.attr('data-product-quantity'),
         product,
         productVariant;
 
-    if( allProductVariantsSelected() ) {
+    if( allProductVariantsSelected($container) ) {
 
-      disable(jQuery(this));
-      showLoader(jQuery(this));
+      disable($addToCartButton);
+      showLoader($addToCartButton);
 
       try {
         product = await getProduct(shopify, productID);
         productVariant = getProductVariantID(product, matchingProductVariantID);
 
       } catch(error) {
-        enable(jQuery(this));
-        hideLoader(jQuery(this));
-        showProductMetaError(jQuery(this),  error + '. Code: 3');
+        enable($addToCartButton);
+        hideLoader($addToCartButton);
+        showProductMetaError($addToCartButton,  error + '. Code: 3');
         return;
 
       }
@@ -83,10 +139,11 @@ function onAddProductToCart(shopify) {
         await updateCart(productVariant, productQuantity, shopify);
 
       } catch(error) {
-        enable(jQuery(this));
-        hideLoader(jQuery(this));
-        showProductMetaError(jQuery(this),  error + '. Code: 4');
+        enable($addToCartButton);
+        hideLoader($addToCartButton);
+        showProductMetaError($addToCartButton,  error + '. Code: 4');
         return;
+
       }
 
 
@@ -99,19 +156,20 @@ function onAddProductToCart(shopify) {
         await updateCartCounter(shopify);
 
       } catch(error) {
-        enable(jQuery(this));
-        hideLoader(jQuery(this));
-        showProductMetaError(jQuery(this),  error + '. Code: 5');
+        enable($addToCartButton);
+        hideLoader($addToCartButton);
+        showProductMetaError($addToCartButton,  error + '. Code: 5');
         return;
       }
 
 
-      enable(jQuery(this));
-      hideLoader(jQuery(this));
+      enable($addToCartButton);
+      hideLoader($addToCartButton);
       toggleCart();
+      resetSingleProductVariantSelector($addToCartButton);
 
     } else {
-      showProductMetaError(jQuery(this), 'Please select the required options');
+      showProductMetaError($addToCartButton, 'Please select the required options');
 
     }
 
@@ -181,15 +239,66 @@ function onProductQuantitySelect() {
 }
 
 
+function resetAllVariantIDs() {
+  jQuery('.wps-product-meta').attr('data-product-selected-variant', '');
+}
+
+
+
+
+
+
+
+
+
+function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
+
+  var variantText = $trigger.text();
+
+  if(R.intersection([variantText], previouslySelectedOptions).length === 0) {
+
+    var previouslySee = $trigger.closest('.wps-btn-dropdown').data('selected-val');
+    var index = previouslySelectedOptions.indexOf(previouslySee);
+
+    if (index === -1) {
+
+      var updatedArray = previouslySelectedOptions;
+      updatedArray.push(variantText);
+
+    } else {
+
+      var updatedArray = R.update(index, variantText, previouslySelectedOptions);
+
+    }
+
+    return updatedArray;
+
+  } else {
+    return [];
+
+  }
+
+
+}
+
+
 /*
 
-Product Variant Change
+Update Variant Title Selection
 
 */
-function onProductVariantChange() {
+function updateVariantTitleSelection($container, titles) {
+  $container.data('product-selected-options', titles);
+  $container.attr('data-product-selected-options', titles);
+}
 
-  var $productMetaContainer = jQuery('.wps-product-meta');
-  $productMetaContainer.data('product-selected-options', []);
+
+/*
+
+Adds option titles to meta container
+
+*/
+function addAvailableOptionsToProduct() {
 
   jQuery('.wps-product-meta .wps-btn-dropdown').each(function() {
 
@@ -204,93 +313,113 @@ function onProductVariantChange() {
 
   });
 
-  $productMetaContainer.on('click', '.wps-product-style', async function productStyleHandler(event) {
-
-    var variantID = jQuery(this).data('id'),
-        variantText = jQuery(this).text(),
-        previouslySelectedOptions = $productMetaContainer.data('product-selected-options'),
-        availableOptions = jQuery(this).closest('.wps-btn-dropdown').data('available-options');
-
-    /*
-
-    Checks if user chose an option already selected
-
-    */
-    if(R.intersection([variantText], previouslySelectedOptions).length === 0) {
-      // Compare available options with selected options
-      // console.log("Previously Selected: ", previouslySelectedOptions);
-      // console.log("Currently Selected: ", [variantText]);
-      // console.log("Available Options: ", availableOptions);
+}
 
 
-      var previouslySee = jQuery(this).closest('.wps-btn-dropdown').data('selected-val');
-      // console.log("previouslySee: ", previouslySee);
+/*
 
-      // var fruits = ["Banana", "Orange", "Apple", "Mango"];
-      var iiiinndeexx = previouslySelectedOptions.indexOf(previouslySee);
+Updates values of a single variant after selection
 
-      // console.log("iiiinndeexx: ", iiiinndeexx);
+*/
+function updateSingleVariantValues($variantTrigger) {
 
-      if (iiiinndeexx === -1) {
+  var variantText = $variantTrigger.text();
+  var optionName = $variantTrigger.parent().prev().data('option');
 
-        var updatedArray = previouslySelectedOptions;
-        updatedArray.push(variantText);
+  $variantTrigger.parent().prev().text(optionName + ': ' + variantText);
+  $variantTrigger.closest('.wps-btn-dropdown').data('selected-val', variantText);
+  $variantTrigger.closest('.wps-btn-dropdown').attr('data-selected-val', variantText);
+  $variantTrigger.closest('.wps-btn-dropdown').data('selected', true);
+  $variantTrigger.closest('.wps-btn-dropdown').attr('data-selected', true);
 
-        // console.log('Updated Array: ', updatedArray);
-
-        $productMetaContainer.data('product-selected-options', updatedArray);
-        $productMetaContainer.attr('data-product-selected-options', updatedArray);
-
-      } else {
-
-        var updatedArray = R.update(iiiinndeexx, variantText, previouslySelectedOptions);
-
-        // console.log('Updated Array: ', updatedArray);
-
-        $productMetaContainer.data('product-selected-options', updatedArray);
-        $productMetaContainer.attr('data-product-selected-options', updatedArray);
-
-      }
-
-    } else {
+}
 
 
+
+function checkForLastSelection(previouslySelectedOptions, currentProductID) {
+
+  var prevSelectedProductID = parseInt(getProductSelectionID());
+  var $addToCartButton = jQuery('.wps-product-meta[data-product-id="' + prevSelectedProductID + '"]').find('.wps-add-to-cart');
+
+  if (prevSelectedProductID === currentProductID) {
+
+    if (!previouslySelectedOptions) {
+      previouslySelectedOptions = [];
     }
 
+  } else {
+    previouslySelectedOptions = [];
 
-    // Setting the text value
-    jQuery(this).parent().prev().text(variantText);
+    resetSingleProductVariantSelector($addToCartButton);
+    setProductSelectionID(currentProductID);
 
-    jQuery(this).closest('.wps-btn-dropdown').data('selected-val', variantText);
-    jQuery(this).closest('.wps-btn-dropdown').attr('data-selected-val', variantText);
+  }
 
-    jQuery(this).closest('.wps-btn-dropdown').data('selected', true);
-    jQuery(this).closest('.wps-btn-dropdown').attr('data-selected', true);
+  return previouslySelectedOptions;
 
-    if (allProductVariantsSelected()) {
+}
 
-      var productID = $productMetaContainer.data('product-post-id');
-      var selectedOptions = $productMetaContainer.data('product-selected-options');
 
-      disable(jQuery('.wps-product-meta .wps-btn'));
-      showLoader(jQuery(this));
+
+/*
+
+Product Variant Change
+
+*/
+function onProductVariantChange() {
+
+  var $productMetaContainer = jQuery('.wps-product-meta');
+  $productMetaContainer.data('product-selected-options', []);
+
+  addAvailableOptionsToProduct();
+
+  $productMetaContainer.on('click', '.wps-product-style', async function productStyleHandler(event) {
+
+    var $trigger = jQuery(this),
+        variantID = $trigger.data('id'),
+        variantText = $trigger.text(),
+        $newProductMetaContainer = $trigger.closest('.wps-product-meta'),
+        currentProductID = $newProductMetaContainer.data('product-id'),
+        previouslySelectedOptions = $newProductMetaContainer.data('product-selected-options'),
+        availableOptions = $trigger.closest('.wps-btn-dropdown').data('available-options');
+
+    // Gets options from currently selected, or empty array if newly selected
+    previouslySelectedOptions = checkForLastSelection(previouslySelectedOptions, currentProductID);
+
+    // Reset all Variant IDs
+    resetAllVariantIDs();
+
+    // Checks selected variant titles and removes / adds to array if nessesary
+    updateVariantTitleSelection(
+      $newProductMetaContainer,
+      constructVariantTitleSelections($trigger, previouslySelectedOptions)
+    );
+
+    // Updates values of variant after selection
+    updateSingleVariantValues($trigger);
+
+    if (allProductVariantsSelected($newProductMetaContainer)) {
+
+      var currentProductID = $newProductMetaContainer.data('product-post-id');
+      var selectedOptions = $trigger.closest('.wps-product-meta').data('product-selected-options');
+
+      disable($newProductMetaContainer.find('.wps-btn'));
+      showLoader($trigger);
 
       // All variants selected, find actual variant ID
       try {
+        var foundVariantID = await getVariantIdFromOptions(currentProductID, selectedOptions);
 
-        var foundVariantID = await getVariantIdFromOptions(productID, selectedOptions);
+        enable($newProductMetaContainer.find('.wps-btn'));
+        hideLoader($trigger);
 
-        enable(jQuery('.wps-product-meta .wps-btn'));
-        hideLoader(jQuery(this));
+        $newProductMetaContainer.data('product-selected-variant', foundVariantID);
+        $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);
 
-        $productMetaContainer.data('product-selected-variant', foundVariantID);
-        $productMetaContainer.attr('data-product-selected-variant', foundVariantID);
-
-        hideProductMetaErrors(jQuery(this));
+        hideProductMetaErrors($trigger);
 
       } catch(error) {
-        console.log('Error getVariantIdFromOptions: ', error);
-        showProductMetaError(jQuery(this),  error + '. Code: 7');
+        showProductMetaError($trigger,  error + '. Code: 7');
 
       }
 
@@ -312,22 +441,29 @@ function onProductDropdown() {
   var $productDropdown = $productMetaContainer.find('.wps-modal-trigger');
 
   if (!$productDropdown.hasClass('is-disabled')) {
+
     $productMetaContainer.on('click', '.wps-modal-trigger', function modalTriggerHandler(event) {
 
       event.stopPropagation();
       event.preventDefault();
 
-      if (!jQuery(this).next().hasClass('wps-is-visible')) {
+      jQuery('.wps-modal.wps-is-visible').removeClass('wps-is-visible');
+
+      var $triggeredDropdown = jQuery(this),
+          $triggeredDropdownContainer = $triggeredDropdown.next();
+
+      if (!$triggeredDropdownContainer.hasClass('wps-is-visible')) {
 
         animate({
           inClass: 'wps-flipInX',
           outClass: 'wps-fadeOut',
-          element: jQuery(this).next()
+          element: $triggeredDropdownContainer
         });
 
       }
 
     });
+
   }
 
 }
@@ -338,10 +474,10 @@ function onProductDropdown() {
 allProductVariantsSelected
 
 */
-function allProductVariantsSelected() {
+function allProductVariantsSelected($container = null) {
 
-  var dropdownsAmount = jQuery('.wps-btn-dropdown').length;
-  var dropdownsSelectedAmount = jQuery('.wps-btn-dropdown[data-selected="true"]').length;
+  var dropdownsAmount = $container.find('.wps-btn-dropdown').length;
+  var dropdownsSelectedAmount = $container.find('.wps-btn-dropdown[data-selected="true"]').length;
 
   return dropdownsAmount === dropdownsSelectedAmount ? true : false;
 

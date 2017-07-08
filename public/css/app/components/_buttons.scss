@@ -113,6 +113,11 @@
     background: transparent;
   }
 
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
   span {
     display: inline-block;
     width: 30px;
@@ -133,6 +138,6 @@
 }
 
 .wps-btn-wrapper {
-  margin-top: 0;
+  margin-top: $space-m;
   padding-top: 0;
 }

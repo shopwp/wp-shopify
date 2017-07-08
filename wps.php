@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.5
+@since             1.0.7
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
-Version:           1.0.5
+Version:           1.0.7
 Author:            Simpleblend
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -49,7 +49,6 @@ use WPS\License;
 use WPS\Deactivator;
 use WPS\Activator;
 
-
 /*
 
 Begins execution of the plugin.
@@ -80,7 +79,6 @@ if ( ! class_exists('WP_Shopify') ) {
 		public $License = null;
 		public $I18N = null;
 		public $CPT = null;
-
 
 		/*
 
@@ -318,6 +316,27 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action( 'wps_products_price', array($Hooks, 'wps_products_price') );
 			add_action( 'wps_products_pagination', array($Hooks, 'wps_products_pagination') );
 			add_action( 'wps_products_no_results', array($Hooks, 'wps_products_no_results') );
+
+			/*
+
+			Products Loop Add To Cart
+
+			*/
+			add_action( 'wps_products_add_to_cart', array($Hooks, 'wps_products_add_to_cart') );
+			add_action( 'wps_products_meta_start', array($Hooks, 'wps_products_meta_start') );
+			add_action( 'wps_products_quantity', array($Hooks, 'wps_products_quantity') );
+			add_action( 'wps_products_actions_group_start', array($Hooks, 'wps_products_actions_group_start') );
+			add_action( 'wps_products_options', array($Hooks, 'wps_products_options') );
+			add_action( 'wps_products_button_add_to_cart', array($Hooks, 'wps_products_button_add_to_cart') );
+			add_action( 'wps_products_actions_group_end', array($Hooks, 'wps_products_actions_group_end') );
+			add_action( 'wps_products_notice_inline', array($Hooks, 'wps_products_notice_inline') );
+			add_action( 'wps_products_meta_end', array($Hooks, 'wps_products_meta_end') );
+
+
+
+
+
+
 
 			add_action( 'wps_products_sidebar', array($Hooks, 'wps_products_sidebar') );
 
