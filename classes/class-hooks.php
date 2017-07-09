@@ -1143,6 +1143,28 @@ if (!class_exists('Hooks')) {
 			return include($this->config->plugin_path . "public/partials/products/single/header.php");
 		}
 
+		public function wps_product_single_header_before($product) {
+			return include($this->config->plugin_path . "public/partials/products/single/header-before.php");
+		}
+
+		public function wps_product_single_header_after($product) {
+			return include($this->config->plugin_path . "public/partials/products/single/header-after.php");
+		}
+
+		public function wps_product_single_header_price($product) {
+			return include($this->config->plugin_path . "public/partials/products/single/header-price.php");
+		}
+
+		public function wps_product_single_header_price_before($product) {
+			return include($this->config->plugin_path . "public/partials/products/single/header-price-before.php");
+		}
+
+		public function wps_product_single_header_price_after($product) {
+			return include($this->config->plugin_path . "public/partials/products/single/header-price-after.php");
+		}
+
+
+
 		public function wps_product_single_quantity($product) {
 			return include($this->config->plugin_path . "public/partials/products/single/quantity.php");
 		}
