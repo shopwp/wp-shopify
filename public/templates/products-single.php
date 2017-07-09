@@ -20,7 +20,9 @@ if (is_single()) {
   do_action('wps_product_imgs_after', $product);
   do_action('wps_product_single_gallery_end', $product);
   do_action('wps_product_single_info_start', $product);
+  do_action('wps_product_single_header_before', $product);
   do_action('wps_product_single_header', $product);
+  do_action('wps_product_single_header_after', $product);
   do_action('wps_product_single_content', $product);
   do_action('wps_product_single_meta_start', $product);
   do_action('wps_product_single_quantity', $product);
