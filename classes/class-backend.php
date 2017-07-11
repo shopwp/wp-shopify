@@ -22,7 +22,6 @@ Admin Class
 class Backend {
 
 	protected static $instantiated = null;
-
 	private $Config;
 
 	/*
@@ -102,13 +101,13 @@ class Backend {
 			wp_enqueue_media();
 
 
-			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, true );
+			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, false );
 
 			// Shopify JS SDK
-			wp_enqueue_script('shopify-js-sdk', '//sdks.shopifycdn.com/js-buy-sdk/latest/shopify-buy.polyfilled.globals.min.js', array(), $this->config->plugin_version, true );
+			wp_enqueue_script('shopify-js-sdk', '//sdks.shopifycdn.com/js-buy-sdk/latest/shopify-buy.polyfilled.globals.min.js', array(), $this->config->plugin_version, false );
 
 			// jQuery Validate
-			wp_enqueue_script('validate-js', '//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, true );
+			wp_enqueue_script('validate-js', '//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
 
 
 			// // TEST JS
@@ -122,7 +121,7 @@ class Backend {
 			// wp_enqueue_script('wps-admin-vendor', $this->config->plugin_url . 'dist/vendor.min.js', array(), $this->config->plugin_version, false );
 
 			// WP Shopify JS Admin
-			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('shopify-js-sdk', 'validate-js', 'tooltipster-js'), $this->config->plugin_version, true );
+			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'shopify-js-sdk', 'validate-js', 'tooltipster-js'), $this->config->plugin_version, false );
 
 			wp_localize_script('wps-admin', 'wps', array(
 					'ajax' => admin_url( 'admin-ajax.php' ),
@@ -143,21 +142,57 @@ class Backend {
 	*/
 	public function wps_config_add_plugin_menu() {
 
-		global $submenu;
+		if ( current_user_can('manage_options') ) {
 
-		// Main menu
-		add_menu_page( 'WP Shopify', 'WP Shopify', 'manage_options', $this->config->plugin_name, array($this, 'wps_config_display_setup_page' ), '');
+			global $submenu;
 
-		// Submenu
-		add_submenu_page( $this->config->plugin_name, 'Settings', 'Settings', 'manage_options', $this->config->plugin_name.'-settings', array($this, 'wps_config_display_setup_page') );
+			$icon_svg = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIxLjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTggMTg7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCS5Ecm9wX3gwMDIwX1NoYWRvd3tmaWxsOm5vbmU7fQoJLlJvdW5kX3gwMDIwX0Nvcm5lcnNfeDAwMjBfMl94MDAyMF9wdHtmaWxsOiNGRkZGRkY7c3Ryb2tlOiMyMzFGMjA7c3Ryb2tlLW1pdGVybGltaXQ6MTA7fQoJLkxpdmVfeDAwMjBfUmVmbGVjdF94MDAyMF9Ye2ZpbGw6bm9uZTt9CgkuQmV2ZWxfeDAwMjBfU29mdHtmaWxsOnVybCgjU1ZHSURfMV8pO30KCS5EdXNre2ZpbGw6I0ZGRkZGRjt9CgkuRm9saWFnZV9HU3tmaWxsOiNGRkREMDA7fQoJLlBvbXBhZG91cl9HU3tmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDtmaWxsOiM0NEFERTI7fQo8L3N0eWxlPgo8bGluZWFyR3JhZGllbnQgaWQ9IlNWR0lEXzFfIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAiIHkxPSIwIiB4Mj0iMC43MDcxIiB5Mj0iMC43MDcxIj4KCTxzdG9wICBvZmZzZXQ9IjAiIHN0eWxlPSJzdG9wLWNvbG9yOiNERURGRTMiLz4KCTxzdG9wICBvZmZzZXQ9IjAuMTc4MyIgc3R5bGU9InN0b3AtY29sb3I6I0RBREJERiIvPgoJPHN0b3AgIG9mZnNldD0iMC4zNjExIiBzdHlsZT0ic3RvcC1jb2xvcjojQ0VDRkQzIi8+Cgk8c3RvcCAgb2Zmc2V0PSIwLjU0NiIgc3R5bGU9InN0b3AtY29sb3I6I0I5QkNCRiIvPgoJPHN0b3AgIG9mZnNldD0iMC43MzI0IiBzdHlsZT0ic3RvcC1jb2xvcjojOUNBMEEyIi8+Cgk8c3RvcCAgb2Zmc2V0PSIwLjkxODEiIHN0eWxlPSJzdG9wLWNvbG9yOiM3ODdEN0UiLz4KCTxzdG9wICBvZmZzZXQ9IjEiIHN0eWxlPSJzdG9wLWNvbG9yOiM2NTZCNkMiLz4KPC9saW5lYXJHcmFkaWVudD4KPHBhdGggZD0iTTksMC4yQzQuMSwwLjIsMC4yLDQuMSwwLjIsOXMzLjksOC44LDguOCw4LjhzOC44LTMuOSw4LjgtOC44UzEzLjgsMC4yLDksMC4yeiBNNi4yLDE0LjVjLTAuNCwwLTAuNy0wLjItMC44LTAuNkwzLDUuMgoJYzAtMC4xLDAtMC4xLDAtMC4yYzAtMC4zLDAuMi0wLjQsMC41LTAuNWMwLjEsMCwwLjEsMCwwLjIsMGMwLjIsMCwwLjUsMC4xLDAuNSwwLjRsMS4zLDVsMC4xLDAuNWwwLjYsMi40bDAuNCwxLjcKCUM2LjYsMTQuNSw2LjQsMTQuNSw2LjIsMTQuNXogTTExLjgsMTQuNWMtMC40LDAtMC43LTAuMi0wLjgtMC42YzAsMC0wLjYtMi40LTAuOS00SDguNmwwLjItMC44YzAsMCwwLjEtMC44LDAuNi0wLjgKCWMwLjIsMCwwLjMsMC4xLDAuNCwwLjNDOS42LDguNCw5LjQsOCw5LDhDOC4zLDgsOC4yLDguNyw4LjIsOC43bC0wLjcsMy4yTDYuOSw5LjlsMC4zLTEuMWwwLDAuMWwxLTMuOUM4LjMsNC43LDguNiw0LjUsOSw0LjUKCWMwLjQsMCwwLjcsMC4yLDAuOCwwLjZsMC43LDIuNkwxMC44LDlsMC40LDEuN2wwLjUsMmwwLDAuMWwwLjUsMS42QzEyLjIsMTQuNSwxMiwxNC41LDExLjgsMTQuNXogTTE1LjEsNS4xbC0yLDcuMUwxMi41LDEwbDAuMy0xLjEKCUwxMyw4LjJ2MGwwLjktMy40YzAuMS0wLjMsMC4zLTAuNCwwLjYtMC40YzAuMSwwLDAuMSwwLDAuMiwwYzAuMywwLjEsMC41LDAuMiwwLjUsMC41QzE1LjEsNSwxNS4xLDUuMSwxNS4xLDUuMXoiLz4KPC9zdmc+Cg==';
 
-		// Submenu
-		add_submenu_page( $this->config->plugin_name, 'Products', 'Products', 'manage_options', 'edit.php?post_type=wps_products', null );
+			// Main menu
+			add_menu_page(
+				__('WP Shopify', $this->config->plugin_name),
+				__('WP Shopify', $this->config->plugin_name),
+				'manage_options',
+				'wpshopify',
+				array($this, 'wps_config_display_setup_page'),
+				$icon_svg,
+				null
+			);
 
-		// Submenu
-		add_submenu_page( $this->config->plugin_name, 'Collections', 'Collections', 'manage_options', 'edit.php?post_type=wps_collections', null );
+			// Submenu: Settings
+			add_submenu_page(
+				'wpshopify',
+				__('Settings', $this->config->plugin_name),
+				__('Settings', $this->config->plugin_name),
+				'manage_options',
+				'wps-settings',
+				array($this, 'wps_config_display_setup_page')
+			);
 
-		unset($submenu[$this->config->plugin_name][0]);
+			// Submenu: Products
+			add_submenu_page(
+				'wpshopify',
+				__('Products', $this->config->plugin_name),
+				__('Products', $this->config->plugin_name),
+				'manage_options',
+				'edit.php?post_type=wps_products',
+				null
+			);
+
+			// Submenu: Collections
+			add_submenu_page(
+				'wpshopify',
+				__('Collections', $this->config->plugin_name),
+				__('Collections', $this->config->plugin_name),
+				'manage_options',
+				'edit.php?post_type=wps_collections',
+				null
+			);
+
+			remove_submenu_page('wpshopify','wpshopify');
+
+		}
+
 
 	}
 
@@ -429,8 +464,10 @@ class Backend {
 
 		*/
 
-		// Config
+
+
 		add_action( 'admin_menu', array($this, 'wps_config_add_plugin_menu') );
+
 
 		add_action( 'admin_enqueue_scripts', array($this, 'wps_config_admin_styles') );
 		add_action( 'admin_enqueue_scripts', array($this, 'wps_config_admin_scripts') );

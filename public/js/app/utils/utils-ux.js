@@ -47,16 +47,28 @@ Animate in
 function animateIn(config) {
 
   var classes = 'wps-is-visible wps-animated ' + config.inClass;
-  config.originalClasses = config.element[0].className;
+
+
+  if (config.element[0] !== undefined) {
+    console.log("config.element[0]: ", config.element[0]);
+    config.originalClasses = config.element[0].className;
+  } else {
+    console.log("config.element[0]: ", config.element[0]);
+    config.originalClasses = '';
+  }
+
+  console.log("config.originalClasses: ", config.originalClasses);
+
+
 
   turnAnimationFlagOn();
-
+  console.log('Animation started.');
   return new Promise(function(resolve, reject) {
 
     config.element
       .addClass(classes)
       .one(animationClasses(), function(e) {
-
+        console.log('Animation done.');
         turnAnimationFlagOff();
 
         if (!config.oneway) {

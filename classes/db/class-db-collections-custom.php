@@ -118,9 +118,14 @@ class Collections_Custom extends \WPS\DB {
 
     $WS = new WS(new Config());
     $DB_Collects = new Collects();
-
     $collection = Utils::flatten_collections_image_prop($collection);
-    $newCollects = $WS->wps_ws_get_collects_from_collection($collection->collection_id);
+
+
+    if (property_exists($collection, 'collection_id') && $collection->collection_id !== null) {
+      $newCollects = $WS->wps_ws_get_collects_from_collection($collection->collection_id);
+    } else {
+      $newCollects = $WS->wps_ws_get_collects_from_collection($collection->id);
+    }
 
     $customPostTypeID = CPT::wps_insert_new_collection($collection);
     $collection = $this->assign_foreign_key($collection, $customPostTypeID);

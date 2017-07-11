@@ -1,6 +1,10 @@
 import currencyFormatter from 'currency-formatter';
 
 import {
+  cartIsOpen
+} from '../cart/cart-ui';
+
+import {
   animateOut
 } from '../utils/utils-ux';
 
@@ -369,6 +373,10 @@ function quantityFinder(currentQuantity, quantityUserWants) {
 
 }
 
+function isCart($element) {
+  return $element.hasClass('wps-cart') ? true : false;
+}
+
 
 /*
 
@@ -378,21 +386,40 @@ Callback: Close Click Callback
 function closeCallbackClick(event) {
 
   var config = event.data,
-      element = document.querySelector( createSelector(config.element.attr('class')) );
+      element = document.querySelector( createSelector(config.element.attr('class')) ),
+      triggerAddToCart = jQuery(event.srcElement).hasClass('wps-add-to-cart'),
+      triggerVariantSelect = jQuery(event.srcElement).hasClass('wps-product-style'),
+      cartIsClosing = isCart(jQuery(element));
 
-  if (localStorage.getItem('wps-animating') === 'false') {
+  console.log("cartIsOpen:", cartIsOpen);
+  console.log('Status: ', localStorage.getItem('wps-animating'));
 
-    if(jQuery(event.target).hasClass('wps-modal-close-trigger')) {
-      animateOut(config);
+  if (triggerAddToCart || triggerVariantSelect && cartIsClosing) {
+    console.log('Not closing because triggered by add to cart when cart is open');
 
-    } else {
-
-      if (event.target !== config.element && !jQuery.contains(element, event.target)) {
+  } else {
+console.log('sdfds');
+    if (localStorage.getItem('wps-animating') === 'false') {
+console.log('11');
+      if(jQuery(event.target).hasClass('wps-modal-close-trigger')) {
+        console.log('22');
         animateOut(config);
-      }
 
+      } else {
+console.log('33');
+        if (event.target !== config.element && !jQuery.contains(element, event.target)) {
+          animateOut(config);
+        } else {
+          console.log('44');
+        }
+
+      }
+    } else {
+      console.log('55');
     }
+
   }
+
 };
 
 

@@ -111,17 +111,37 @@ if (!class_exists('Hooks')) {
     Products Loop - Before Product
 
     */
-		public function wps_products_item_before($product, $settings) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-link-start.php');
+		public function wps_products_item_before($product) {
+			// return include($this->config->plugin_path . 'public/partials/products/loop/item-link-start.php');
 		}
 
 
-    /*
+		/*
 
     Products Loop - After Product
 
     */
 		public function wps_products_item_after($product) {
+			// return include($this->config->plugin_path . 'public/partials/products/loop/item-link-end.php');
+		}
+
+
+		/*
+
+    Products Loop - Link Start
+
+    */
+		public function wps_products_item_link_start($product, $settings) {
+			return include($this->config->plugin_path . 'public/partials/products/loop/item-link-start.php');
+		}
+
+
+		/*
+
+		Products Loop - Link End
+
+		*/
+		public function wps_products_item_link_end($product) {
 			return include($this->config->plugin_path . 'public/partials/products/loop/item-link-end.php');
 		}
 

@@ -268,6 +268,7 @@ If only two gallery thumbs exist ...
 }
 
 .wps-product-gallery-img-thumb {
+  max-width: 100%;
 
   &:hover {
     opacity: $dimOpacity;
@@ -300,6 +301,7 @@ If only two gallery thumbs exist ...
   position: relative;
   text-align: center;
   margin: 0;
+  padding: 0;
 
   &[data-selected="true"]:before {
     content: '';
@@ -341,15 +343,15 @@ If only two gallery thumbs exist ...
   margin: 0;
   background-color: #fff;
   box-shadow: 0 14px 40px -3px rgba(0, 0, 0, 0.15);
-  max-width: 360px;
+  // max-width: 360px;
   display: none;
   position: absolute;
   top: 0;
-  left: calc(#{$space-l} / 2);
+  left: 0;
   z-index: 9;
   top: 48px;
-  width: calc(100% - #{$space-l});
-  max-width: calc(100% - #{$space-l});
+  width: 100%;
+  max-width: 100%;
 
   @include respond-to(700, 'max') {
     top: 75%;
@@ -448,12 +450,14 @@ WP Shopify namespaced styles go here
 .wps-products {
   padding-left: 0;
   list-style: none;
+  // justify-content: center;
   // width: 100%;
 }
 
 .wps-collection-item,
 .wps-product-item {
   text-align: center;
+  padding: 0;
   // margin-bottom: $space-l;
 }
 
@@ -474,8 +478,8 @@ WP Shopify namespaced styles go here
     .wps-modal {
       // width: calc(100% - 1.66668em);
       // max-width: calc(100% - 1.66668em);
-      width: calc(100% - 0.83334em);
-      max-width: calc(100% - 0.83334em);
+      // width: calc(100% - 0.83334em);
+      // max-width: calc(100% - 0.83334em);
 
     }
 
@@ -515,10 +519,12 @@ WP Shopify namespaced styles go here
   flex-direction: row;
   flex-flow: row wrap;
   width: 100%;
+  margin-right: 0;
+  margin-left: 0;
 
   .wps-btn-dropdown:first-child {
     + .wps-btn-wrapper {
-      margin-top: 0;
+      // margin-top: 0;
     }
   }
 
@@ -545,6 +551,15 @@ WP Shopify namespaced styles go here
 
 .wps-product-single {
   // width: 100%;
+
+  .wps-btn-wrapper {
+    margin-top: 0;
+  }
+
+  .wps-col-3 + .wps-btn-wrapper {
+    margin-top: $space-l;
+  }
+
 }
 
 

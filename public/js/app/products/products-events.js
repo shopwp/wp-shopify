@@ -12,7 +12,11 @@ import {
   updateCart
 } from '../ws/ws-cart';
 
-import { updateCartCounter, toggleCart } from '../cart/cart-ui';
+import {
+  updateCartCounter,
+  toggleCart,
+  cartIsOpen
+} from '../cart/cart-ui';
 
 
 /*
@@ -166,6 +170,7 @@ function onAddProductToCart(shopify) {
       enable($addToCartButton);
       hideLoader($addToCartButton);
       toggleCart();
+
       resetSingleProductVariantSelector($addToCartButton);
 
     } else {
@@ -240,7 +245,18 @@ function onProductQuantitySelect() {
 
 
 function resetAllVariantIDs() {
-  jQuery('.wps-product-meta').attr('data-product-selected-variant', '');
+
+  var $productContainers = jQuery('.wps-product-meta');
+
+  $productContainers.each(function (index, product) {
+
+    if (jQuery(product).attr('data-product-variants-count') > 1) {
+      jQuery(product).attr('data-product-selected-variant', '');
+    }
+
+  });
+
+
 }
 
 
