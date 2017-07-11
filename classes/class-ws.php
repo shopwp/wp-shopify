@@ -346,6 +346,7 @@ class WS {
 		$response = \Requests::get($url, $headers);
     $data = json_decode($response->body);
 
+
     if (property_exists($data, "smart_collections")) {
       $results = $DB_Collections_Smart->insert_smart_collections( $data->smart_collections );
 

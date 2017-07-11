@@ -189,10 +189,17 @@ function updateSingleProductCartDOM(lineItem, singleProduct) {
     } else {
 
       var $foundLineItem = $lineItemsContainer.find('.wps-quantity-decrement[data-variant-id="' + lineItem.variant_id + '"]').closest('.wps-cart-item');
+      var containsDefaultTitle = lineItem.variant_title.indexOf('Default Title') !== -1;
 
       $foundLineItem.find('.wps-cart-item__img').css('background-image', 'url(' + lineItem.image.src + ')');
       $foundLineItem.find('.wps-cart-item__title').text(lineItem.title);
-      $foundLineItem.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+
+      if (!containsDefaultTitle) {
+        $foundLineItem.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+      } else {
+        
+      }
+
       $foundLineItem.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
       $foundLineItem.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);
       $foundLineItem.find('.wps-quantity-increment').attr('data-variant-id', lineItem.variant_id);
@@ -277,10 +284,19 @@ async function renderCartItems(shopify, cart = false, singleProduct = false) {
 
             var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
             var itemImage = lineItem.image.src;
+            var containsDefaultTitle = lineItem.variant_title.indexOf('Default Title') !== -1;
 
             $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');
             $lineItemTemplate.find('.wps-cart-item__title').text(lineItem.title);
-            $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+
+
+            if (!containsDefaultTitle) {
+              $lineItemTemplate.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
+
+            } else {
+
+            }
+
 
             var formatedPrice = await formatAsMoney(lineItem.line_price);
 
@@ -378,6 +394,19 @@ function updateCartVariant(variant, quantity, shopify) {
 };
 
 
+/*
+
+Checks if the cart is currently open or not.
+
+*/
+function cartIsOpen() {
+
+  var isOpen = jQuery('.wps-cart').hasClass('wps-is-visible');
+  return isOpen ? true : false;
+
+}
+
+
 async function toggleCart() {
 
   await animate({
@@ -397,5 +426,6 @@ export {
   updateCartCounter,
   renderCartItems,
   updateCartVariant,
-  toggleCart
+  toggleCart,
+  cartIsOpen
 }

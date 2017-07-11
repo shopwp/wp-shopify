@@ -44,6 +44,7 @@
     "browserify": "^14.4.0",
     "bs-html-injector": "^3.0.3",
     "buffer": "^5.0.6",
+    "bulma": "^0.4.3",
     "caniuse-db": "^1.0.30000684",
     "cls-bluebird": "^2.0.1",
     "copy-webpack-plugin": "^4.0.1",

@@ -1,5 +1,6 @@
 .wps-btn {
-  padding: $btn-space-top $btn-space-sides;
+  // padding: $btn-space-top $btn-space-sides;
+  padding: $btn-space-top 0;
   background-color: color(lightgreen);
   text-decoration: none;
   text-transform: uppercase;
@@ -111,6 +112,7 @@
   &:hover {
     opacity: $dimOpacity;
     background: transparent;
+    color: color(darkblue);
   }
 
   &:focus {
@@ -139,5 +141,5 @@
 
 .wps-btn-wrapper {
   margin-top: $space-m;
-  padding-top: 0;
+  padding: 0;
 }

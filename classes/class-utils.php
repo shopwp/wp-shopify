@@ -1946,6 +1946,12 @@ class Utils {
 
         $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last">' . $args['last_page_text'] . '</a>' : '';
 
+        // Removes next link on last page of pagination
+        if ( $max_pages == $current_page) {
+          $next_page = '';
+        }
+
+
         /*
 
         Text to display before the page numbers

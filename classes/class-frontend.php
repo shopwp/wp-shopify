@@ -73,6 +73,7 @@ if (!class_exists('Frontend')) {
 				if (is_array($styles_all)) {
 
 					if ($styles_all[0]->styles_all) {
+
 						wp_enqueue_style( $this->config->plugin_name . '-styles-all', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
 
 					} else {
@@ -82,7 +83,9 @@ if (!class_exists('Frontend')) {
 						}
 
 						if ($styles_grid[0]->styles_grid) {
+
 							wp_enqueue_style( $this->config->plugin_name . '-styles-grid', $this->config->plugin_url . 'css/grid.min.css', array(), $this->config->plugin_version, 'all' );
+
 						}
 
 					}
@@ -435,10 +438,20 @@ if (!class_exists('Frontend')) {
 			$DB_Shop = new Shop();
 
 			$current_money_format = $DB_Shop->get_shop('money_format');
-			$current_money_format = $current_money_format[0]->money_format;
+
+			if (isset($current_money_format[0]) && $current_money_format[0]) {
+				$current_money_format = $current_money_format[0]->money_format;
+			} else {
+				$current_money_format = false;
+			}
 
 			$money_with_currency_format = $DB_Shop->get_shop('money_with_currency_format');
-			$money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
+
+			if (isset($money_with_currency_format[0]) && $money_with_currency_format[0]) {
+				$money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
+			} else {
+				$money_with_currency_format = false;
+			}
 
 
 			if ($_POST['format'] === $current_money_format || $_POST['format'] === $money_with_currency_format) {
