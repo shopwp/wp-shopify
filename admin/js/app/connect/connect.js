@@ -301,7 +301,6 @@ async function onAuthRedirect() {
     // TODO:
     // Create a real-time progress bar to show syncing progress
     //
-
     await syncPluginData();
 
     // removeProgressLoader();

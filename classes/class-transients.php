@@ -88,7 +88,7 @@ class Transients {
 
   /*
 
-  Delete price cache
+  Delete cached prices
 
   */
   public static function delete_cached_prices() {
@@ -104,14 +104,14 @@ class Transients {
 
   /*
 
-  Delete all transients
+  Delete entire cache
 
   */
   public static function delete_all_cache() {
 
     global $wpdb;
 
-    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_%'");
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%'");
 
     return $results;
 
@@ -120,7 +120,7 @@ class Transients {
 
   /*
 
-  Delete all transients
+  Delete cached variants
 
   */
   public static function delete_cached_variants() {
@@ -128,6 +128,54 @@ class Transients {
     global $wpdb;
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_with\_variants\_%'");
+
+    return $results;
+
+  }
+
+
+  /*
+
+  Delete cached settings
+
+  */
+  public static function delete_cached_settings() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%'");
+
+    return $results;
+
+  }
+
+
+  /*
+
+  Delete cached product queries
+
+  */
+  public static function delete_cached_product_queries() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_products\_query\_hash\_cache\_%'");
+
+    return $results;
+
+  }
+
+
+  /*
+
+  Delete cached collection queries
+
+  */
+  public static function delete_cached_collection_queries() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collections\_query\_hash\_cache\_%'");
 
     return $results;
 

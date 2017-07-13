@@ -100,16 +100,19 @@ class Products extends \WPS\DB {
       $postID = get_the_ID();
     }
 
-    $query = "SELECT products.* FROM $this->table_name as products WHERE products.post_id = %d";
+    if (get_transient('wps_product_single_' . $postID)) {
+      $results = get_transient('wps_product_single_' . $postID);
 
-    // echo $query;
-    // echo "<br>";
-    // echo $postID;
+    } else {
 
-    return $wpdb->get_row(
-      $wpdb->prepare($query, $postID)
-    );
+      $query = "SELECT products.* FROM $this->table_name as products WHERE products.post_id = %d";
+      $results = $wpdb->get_row( $wpdb->prepare($query, $postID) );
 
+      set_transient('wps_product_single_' . $postID, $results);
+
+    }
+
+    return $results;
 
   }
 
@@ -226,13 +229,15 @@ class Products extends \WPS\DB {
       $results['product_cpt'] = CPT::wps_update_existing_product($product);
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
-      Transients::delete_cached_prices();
-      Transients::delete_cached_variants();
 
     } else {
       $results['deleted_product'] = $this->delete_product($product, $product->id);
 
     }
+
+    Transients::delete_cached_prices();
+    Transients::delete_cached_variants();
+    Transients::delete_cached_product_queries();
 
     return $results;
 
@@ -278,6 +283,11 @@ class Products extends \WPS\DB {
     $results['product']   = $this->delete($productID);
     $results['cpt']       = $Backend->wps_delete_posts('wps_products', $postIds);
 
+    // TODO: Only delete cache of the product that was deleted
+    Transients::delete_cached_prices();
+    Transients::delete_cached_variants();
+    Transients::delete_cached_product_queries();
+
     return $results;
 
   }
@@ -310,6 +320,8 @@ class Products extends \WPS\DB {
     $results['options'] = $DB_Options->insert_options($productWrapped);
     $results['images'] = $DB_Images->insert_images($productWrapped);
     $results['collects']  = $DB_Collects->update_collects($product);
+    
+    Transients::delete_cached_product_queries();
 
     return $results;
 

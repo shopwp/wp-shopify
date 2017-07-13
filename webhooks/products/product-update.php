@@ -1,4 +1,5 @@
 <?php
+
 // TODO: Implement security checks: Shopify HMAC and Domain from headers
 use WPS\DB\Products;
 use WPS\Config;

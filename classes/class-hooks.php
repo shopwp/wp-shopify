@@ -749,8 +749,6 @@ if (!class_exists('Hooks')) {
 
 			global $wpdb;
 
-			$settings = $this->config->wps_get_settings_general();
-
 			$args['context'] = 'wps_products_query';
 
 			if (is_single()) {
@@ -761,15 +759,39 @@ if (!class_exists('Hooks')) {
 
 			}
 
+			$productQueryHash = md5(serialize($args));
+
+
+			/*
+
+			Here we're caching an entire WP_Query response by hashing the
+			argument array. We can safely assume that a given set of args
+			will always produce the same list of products assuming the
+			product data doesn't change. Therefore it's important that we clear
+			this cache whenever a product is updated, created, or deleted.
+
+			*/
+	    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
+				error_log('Product query is cached, returning instead ...');
+	      $productsQuery = get_transient('wps_products_query_hash_cache_' . $productQueryHash);
+
+	    } else {
+				error_log('Product query is NOT cached, getting new ...');
+				$productsQuery = new \WP_Query($args);
+	      set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
+
+	    }
+
+
 			/*
 
 			Products needs to be an array of CPTs sorted by the custom SQL
 			query that we make based on the arguments passed via shortcode.
 
 			*/
-			$productsQuery = new \WP_Query($args);
-
 			$amountOfProducts = count($productsQuery->posts);
+
+			$settings = $this->config->wps_get_settings_general();
 
 			do_action( 'wps_products_before', $productsQuery );
 			do_action( 'wps_products_header', $productsQuery );
@@ -818,13 +840,6 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_collections_display($args, $customArgs) {
 
-			$collections = array();
-
-			// Fires the wps_clauses_mod function
-			$args['context'] = 'wps_collections_query';
-			$collections = new \WP_Query($args);
-			$collections = $collections->posts;
-
 			if (is_single()) {
 				$args['is_single'] = true;
 
@@ -833,6 +848,36 @@ if (!class_exists('Hooks')) {
 
 			}
 
+			$collectionsQueryHash = md5(serialize($args));
+
+			/*
+
+			Here we're caching an entire WP_Query response by hashing the
+			argument array. We can safely assume that a given set of args
+			will always produce the same list of products assuming the
+			product data doesn't change. Therefore it's important that we clear
+			this cache whenever a product is updated, created, or deleted.
+
+			*/
+			if (get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash)) {
+				error_log('Collections query is cached, returning instead ...');
+				$collectionsQuery = get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash);
+
+			} else {
+				error_log('Collections query is NOT cached, getting new ...');
+
+				$collections = array();
+
+				// Fires the wps_clauses_mod function
+				$args['context'] = 'wps_collections_query';
+				$collectionsQuery = new \WP_Query($args);
+
+				set_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash, $collectionsQuery);
+
+			}
+
+
+			$collections = $collectionsQuery->posts;
 
 			/*
 

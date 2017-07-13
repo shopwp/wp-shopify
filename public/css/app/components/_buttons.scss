@@ -99,7 +99,7 @@
   height: 30px;
   position: absolute;
   right: 10px;
-  top: 17px;
+  top: 20px;
   font-size: $font-xxl;
   color: color(darkblue);
   border: none;
@@ -125,7 +125,7 @@
     width: 30px;
     height: 30px;
     position: absolute;
-    top: 0;
+    top: -15px;
     left: 0;
   }
 
@@ -142,4 +142,10 @@
 .wps-btn-wrapper {
   margin-top: $space-m;
   padding: 0;
+
+  @include respond-to(700, 'max') {
+    width: 100%;
+    max-width: 100%;
+  }
+
 }

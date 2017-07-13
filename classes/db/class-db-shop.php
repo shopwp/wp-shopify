@@ -143,13 +143,21 @@ class Shop extends \WPS\DB {
 
 		global $wpdb;
 
-		if ($this->get_by('id', $shopData['shop']['id'])) {
+		if (is_array($shopData)) {
 
-			$rowID = $this->get_by('id', $shopData['shop']['id']);
-			$results = $this->update($rowID, $shopData['shop']);
+			if ($this->get_by('id', $shopData['shop']['id'])) {
+
+				$rowID = $this->get_by('id', $shopData['shop']['id']);
+				$results = $this->update($rowID, $shopData['shop']);
+
+			} else {
+				$results = $this->insert($shopData['shop'], 'shop');
+			}
 
 		} else {
-			$results = $this->insert($shopData['shop'], 'shop');
+
+			$results = false;
+
 		}
 
 		return $results;

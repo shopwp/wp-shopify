@@ -153,18 +153,28 @@ class Settings_General extends \WPS\DB {
 
     global $wpdb;
 
-    $query = "SELECT num_posts FROM " . $wpdb->prefix . "wps_settings_general";
-    $data = $wpdb->get_results($query);
-
-    if (isset($data[0]->num_posts) && $data[0]->num_posts) {
-      return $data[0]->num_posts;
+    if (get_transient('wps_settings_num_posts')) {
+      $results = get_transient('wps_settings_num_posts');
 
     } else {
-      return get_option('posts_per_page');
+
+      $query = "SELECT num_posts FROM " . $wpdb->prefix . "wps_settings_general";
+      $data = $wpdb->get_results($query);
+
+      if (isset($data[0]->num_posts) && $data[0]->num_posts) {
+        $results = $data[0]->num_posts;
+
+      } else {
+        $results = get_option('posts_per_page');
+
+      }
+
+      set_transient('wps_settings_num_posts', $results);
 
     }
 
-    return $data;
+
+    return $results;
 
   }
 

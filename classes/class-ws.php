@@ -159,7 +159,17 @@ class WS {
       'X-Shopify-Access-Token' => $this->connection->access_token
     );
 
+    error_log('$url');
+    error_log(print_r($url, true));
+
+    error_log('$headers');
+    error_log(print_r($headers, true));
+
     $response = \Requests::get($url, $headers);
+
+    error_log('$response');
+    error_log(print_r($response, true));
+
     $data = json_decode($response->body);
 
     if (property_exists($data, 'shop')) {
@@ -630,8 +640,15 @@ class WS {
         'shop' => $matchedWaypointClient->shop
       );
 
+      // Get Shopify Access Token
+      $token = $WPS_Waypoint->wps_waypoint_get_access_token($accessTokenData);
+
+      error_log('Token');
+      error_log(print_r($token, true));
+
+
       // Save Shopify Access Token
-      $WPS_Waypoint->wps_waypoint_save_access_token($WPS_Waypoint->wps_waypoint_get_access_token($accessTokenData));
+      $WPS_Waypoint->wps_waypoint_save_access_token($token);
 
       // Registers all webhooks.
       $WPS_Webhooks->wps_webhooks_register();
@@ -762,7 +779,10 @@ class WS {
 
     $results = $DB_Settings_General->update_general($newGeneralSettings);
 
+
+    Transients::delete_cached_settings();
     set_transient('wps_settings_updated', $newGeneralSettings);
+
 
     echo json_encode($results);
     die();
@@ -826,10 +846,16 @@ NEW STRUCTURE
   */
   public function wps_get_connection() {
 
-    $DB_Settings_Connection = new Settings_Connection();
-    $connectionData = $DB_Settings_Connection->get();
+    if (get_transient('wps_settings_connection')) {
+      $connectionData = get_transient('wps_settings_connection');
 
-    set_transient('wps_settings_updated', $DB_Settings_Connection);
+    } else {
+
+      $DB_Settings_Connection = new Settings_Connection();
+      $connectionData = $DB_Settings_Connection->get();
+      set_transient('wps_settings_connection', $connectionData);
+
+    }
 
     echo json_encode($connectionData);
     die();
@@ -1148,6 +1174,7 @@ NEW STRUCTURE
     1. Delete all the synced products and collections data
     2. Invalidate the main Shopify API connection:
     3. Remove the wps config values from the database
+    4. Delete cache
 
 
     TODO: Since invalidating the main Shopify API connection is
@@ -1157,6 +1184,7 @@ NEW STRUCTURE
     */
 
     $results = array();
+    $Transients = new Transients();
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('domain');
 
@@ -1177,6 +1205,8 @@ NEW STRUCTURE
       $results['smart_collections'] = $this->wps_delete_smart_collections();
 
       $results['images'] = $this->wps_delete_images();
+      $results['transients'] = $Transients->delete_all_cache();
+
       // $results['inventory'] = $this->wps_delete_inventory();
 
     }

@@ -17,8 +17,10 @@
 
 .wps-product-notice {
   margin-top: $space-m;
-  width: calc(100% - 1.66668em);
-  max-width: calc(100% - 1.66668em);
+  // width: calc(100% - 1.66668em);
+  // max-width: calc(100% - 1.66668em);
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -491,10 +493,16 @@ WP Shopify namespaced styles go here
 
   .wps-product-meta {
     .wps-notice-inline {
-      width: calc(100% - 0.83334em);
-      max-width: calc(100% - 0.83334em);
-      margin: 0 auto 0 0.83334em;
+      // width: calc(100% - 0.83334em);
+      // max-width: calc(100% - 0.83334em);
+      // margin: 0 auto 0 0.83334em;
+
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+
     }
+
   }
 
   .wps-product-link {

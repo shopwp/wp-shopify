@@ -48,12 +48,11 @@ function animateIn(config) {
 
   var classes = 'wps-is-visible wps-animated ' + config.inClass;
 
-
   if (config.element[0] !== undefined) {
-    console.log("config.element[0]: ", config.element[0]);
+    console.log("undefined: config.element[0]: ", config.element[0]);
     config.originalClasses = config.element[0].className;
   } else {
-    console.log("config.element[0]: ", config.element[0]);
+    console.log("config ", config);
     config.originalClasses = '';
   }
 
@@ -188,8 +187,6 @@ function hideLoader($element) {
 
 
 function shake($element) {
-
-
 
   // $element.removeClass('wps-modal wps-is-visible wps-animated');
   // console.log("$element: ", $element);

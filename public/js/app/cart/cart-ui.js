@@ -197,7 +197,7 @@ function updateSingleProductCartDOM(lineItem, singleProduct) {
       if (!containsDefaultTitle) {
         $foundLineItem.find('.wps-cart-item__variant-title').text(lineItem.variant_title);
       } else {
-        
+
       }
 
       $foundLineItem.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);

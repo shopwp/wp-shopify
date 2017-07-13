@@ -164,19 +164,28 @@ class Images extends \WPS\DB {
 
     global $wpdb;
 
-    $DB_Products = new Products();
-    $table_images = $this->table_name;
-    $table_products = $DB_Products->get_table_name();
-
     if ($postID === null) {
       $postID = get_the_ID();
     }
 
-    $query = "SELECT images.* FROM $table_products AS products INNER JOIN $table_images AS images ON images.product_id = products.product_id WHERE products.post_id = %d";
+    if (get_transient('wps_product_single_images_' . $postID)) {
+      $results = get_transient('wps_product_single_images_' . $postID);
 
-    return $wpdb->get_results(
-      $wpdb->prepare($query, $postID)
-    );
+    } else {
+
+      $DB_Products = new Products();
+      $table_images = $this->table_name;
+      $table_products = $DB_Products->get_table_name();
+
+      $query = "SELECT images.* FROM $table_products AS products INNER JOIN $table_images AS images ON images.product_id = products.product_id WHERE products.post_id = %d";
+
+      $results = $wpdb->get_results($wpdb->prepare($query, $postID));
+
+      set_transient('wps_product_single_images_' . $postID, $results);
+
+    }
+
+    return $results;
 
   }
 
