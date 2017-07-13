@@ -152,6 +152,7 @@ class Waypoints {
       )
     ));
 
+
     if ( is_wp_error( $response ) ) {
 
       $client = new Client();
@@ -169,7 +170,7 @@ class Waypoints {
         return json_decode($guzzelResponse->getBody()->getContents());
 
       } catch (\Exception $e) {
-        
+
         return $e->getMessage();
 
       }
@@ -195,12 +196,12 @@ class Waypoints {
 
     if (is_object($accessToken)) {
 
-      $DB_Settings_Connection->update(1, array(
+      return $DB_Settings_Connection->update(1, array(
         'access_token' => $accessToken->access_token
       ));
 
     } else {
-      return;
+      return false;
 
     }
 

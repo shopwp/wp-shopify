@@ -10,6 +10,7 @@ use WPS\DB\Collects;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Collections_Custom;
 use WPS\CPT;
+use WPS\Transients;
 use WPS\Config;
 use WPS\Backend;
 
@@ -70,8 +71,20 @@ class DB {
 		if ($this->table_exists($this->table_name)) {
 
 			if( empty($row_id) ) {
-				$query = "SELECT * FROM $this->table_name LIMIT 1;";
-				$results = $wpdb->get_row($query);
+
+
+				if (get_transient('wps_table_single_row_' . $this->table_name)) {
+					$results = get_transient('wps_table_single_row_' . $this->table_name);
+
+				} else {
+
+					$query = "SELECT * FROM $this->table_name LIMIT 1;";
+					$results = $wpdb->get_row($query);
+
+					set_transient('wps_table_single_row_' . $this->table_name, $results);
+
+				}
+
 
 			} else {
 				$query = "SELECT * FROM $this->table_name WHERE $this->primary_key = %s LIMIT 1;";
@@ -461,8 +474,19 @@ class DB {
 
     global $wpdb;
 
-    $table = sanitize_text_field($table);
-    return $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE '%s'", $table)) === $table;
+		if (get_transient('wps_table_exists_' . $table)) {
+			return get_transient('wps_table_exists_' . $table);
+
+		} else {
+
+			$table = sanitize_text_field($table);
+			$tableResponse = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE '%s'", $table)) === $table;
+
+			set_transient('wps_table_exists_' . $table, $tableResponse);
+
+			return $tableResponse;
+
+		}
 
   }
 
@@ -600,6 +624,8 @@ class DB {
 
 		}
 
+		Transients::delete_cached_collection_queries();
+
 		return $results;
 
 	}
@@ -621,6 +647,8 @@ class DB {
 		$results['collects']  	= $DB_Collects->delete_rows('collection_id', $collection->id);
     $results['collection']  = $this->delete_rows('collection_id', $collection->id);
 		$results['cpt']       	= $Backend->wps_delete_posts('wps_collections', $postIds);
+
+		Transients::delete_cached_collection_queries();
 
     return $results;
 

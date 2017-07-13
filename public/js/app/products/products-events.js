@@ -123,7 +123,13 @@ function onAddProductToCart(shopify) {
 
       try {
         product = await getProduct(shopify, productID);
+
+        console.log("product: ", product);
+        console.log("matchingProductVariantID: ", matchingProductVariantID);
+
         productVariant = getProductVariantID(product, matchingProductVariantID);
+
+        console.log("productVariant: ", productVariant);
 
       } catch(error) {
         enable($addToCartButton);
@@ -132,7 +138,6 @@ function onAddProductToCart(shopify) {
         return;
 
       }
-
 
       /*
 
@@ -416,7 +421,7 @@ function onProductVariantChange() {
 
     if (allProductVariantsSelected($newProductMetaContainer)) {
 
-      var currentProductID = $newProductMetaContainer.data('product-post-id');
+      var newCurrentProductID = $newProductMetaContainer.attr('data-product-post-id');
       var selectedOptions = $trigger.closest('.wps-product-meta').data('product-selected-options');
 
       disable($newProductMetaContainer.find('.wps-btn'));
@@ -424,10 +429,12 @@ function onProductVariantChange() {
 
       // All variants selected, find actual variant ID
       try {
-        var foundVariantID = await getVariantIdFromOptions(currentProductID, selectedOptions);
+        var foundVariantID = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
 
         enable($newProductMetaContainer.find('.wps-btn'));
         hideLoader($trigger);
+
+        console.log("foundVariantID: ", foundVariantID);
 
         $newProductMetaContainer.data('product-selected-variant', foundVariantID);
         $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);

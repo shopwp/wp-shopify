@@ -355,7 +355,6 @@ if (!class_exists('Frontend')) {
 			$productData = $DB_Products->get_product($_POST['productID']);
 			$variantData = $DB_Variants->get_product_variants($_POST['productID']);
 
-
 			// $productVariants = maybe_unserialize( unserialize( $productData['variants'] ));
 
 			// TODO: Move to Utils

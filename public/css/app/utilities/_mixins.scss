@@ -23,7 +23,7 @@
 @mixin rowMachine($cols) {
 
   $colWidth:         calc(100% / #{$cols});
-  $gutterWidth:      calc((#{$space-l} / 2) * 2);
+  $gutterWidth:      calc((#{$space-m} / 2) * 2);
   $gutterWidthRemainder: calc(#{$gutterWidth} + (#{$gutterWidth} / (#{$cols} - 1)));
 
 
@@ -31,6 +31,7 @@
     flex: 0 0 auto;
     max-width: 100%;
     width: 100%;
+    margin-right: 0;
 
   } @else {
 
@@ -41,10 +42,33 @@
 
     margin-right: $gutterWidthRemainder;
 
-  }
 
-  &:nth-child(#{$cols}n+#{$cols}) {
-    margin-right: 0;
+    @if($cols == 2) {
+
+      &:nth-child(#{$cols}n+#{$cols}) {
+        margin-right: 0;
+      }
+
+    } @else if($cols == 3) {
+
+    } @else if($cols == 4) {
+
+    } @else if($cols == 5) {
+
+    } @else if($cols == 6) {
+
+    } @else if($cols == 7) {
+
+    } @else if($cols == 8) {
+
+    } @else if($cols == 9) {
+
+    } @else if($cols == 10) {
+
+    } @else if($cols == 11) {
+
+    }
+
   }
 
 }

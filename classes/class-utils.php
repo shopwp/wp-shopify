@@ -814,7 +814,10 @@ class Utils {
         $table_name_orderby = 'variants';
       }
 
-      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], $table_name_orderby);
+      // If manual is set we order elsewhere
+      if ($shortcodeAttrs['orderby'] !== 'manual') {
+        $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], $table_name_orderby);
+      }
 
       // Order depends on order by
       if (array_key_exists('order', $shortcodeAttrs)) {

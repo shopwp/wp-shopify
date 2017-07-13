@@ -189,18 +189,27 @@ class Variants extends \WPS\DB {
 
     global $wpdb;
 
-    $DB_Products = new Products();
-    $table_products = $DB_Products->get_table_name();
-
     if ($postID === null) {
       $postID = get_the_ID();
     }
 
-    $query = "SELECT variants.* FROM $table_products as products INNER JOIN $this->table_name as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
+    if (get_transient('wps_product_single_variants_' . $postID)) {
+      $results = get_transient('wps_product_single_variants_' . $postID);
 
-    return $wpdb->get_results(
-      $wpdb->prepare($query, $postID)
-    );
+    } else {
+
+      $DB_Products = new Products();
+      $table_products = $DB_Products->get_table_name();
+
+      $query = "SELECT variants.* FROM $table_products as products INNER JOIN $this->table_name as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
+
+      $results = $wpdb->get_results( $wpdb->prepare($query, $postID) );
+
+      set_transient('wps_product_single_variants_' . $postID, $results);
+
+    }
+
+    return $results;
 
   }
 
