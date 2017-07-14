@@ -1,7 +1,7 @@
 $margin: 1.5em;
 $gutterWidth: 1em;
-$containerWidth: 94vw;
-$maxWidth: 1800px;
+$containerWidth: 90vw;
+$maxWidth: 1400px;
 $contentWidthNarrow: 800px;
 $cols-1: 1;
 $cols-2: 2;
@@ -55,14 +55,13 @@ $cols-12: 12;
 }
 
 .wps-contain {
-  max-width: $containerWidth;
+
+  max-width: $maxWidth;
   margin: 0 auto;
 
   @include respond-to(1200, 'max') {
     max-width: 94vw;
   }
-
-  @include siteMaxWidth();
 
 }
 

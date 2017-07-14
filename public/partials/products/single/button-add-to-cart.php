@@ -14,6 +14,9 @@ if (count($product['options']) === 1) {
 
 } else if (count($product['options']) === 3) {
   $col = 1;
+
+} else {
+  $col = 1;
 }
 
 ?>

@@ -142,6 +142,7 @@
 .wps-btn-wrapper {
   margin-top: $space-m;
   padding: 0;
+  margin-bottom: 0;
 
   @include respond-to(700, 'max') {
     width: 100%;
