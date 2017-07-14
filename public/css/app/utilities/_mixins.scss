@@ -41,32 +41,25 @@
     width: calc(#{$colWidth} - #{$gutterWidth});
 
     margin-right: $gutterWidthRemainder;
+    margin-bottom: $gutterWidthRemainder;
 
+    &:nth-child(1n+1),
+    &:nth-child(2n+2),
+    &:nth-child(3n+3),
+    &:nth-child(4n+4),
+    &:nth-child(5n+5),
+    &:nth-child(6n+6),
+    &:nth-child(7n+7),
+    &:nth-child(8n+8),
+    &:nth-child(9n+9),
+    &:nth-child(10n+10),
+    &:nth-child(11n+12),
+    &:nth-child(12n+12) {
+      margin-right: $gutterWidthRemainder;
+    }
 
-    @if($cols == 2) {
-
-      &:nth-child(#{$cols}n+#{$cols}) {
-        margin-right: 0;
-      }
-
-    } @else if($cols == 3) {
-
-    } @else if($cols == 4) {
-
-    } @else if($cols == 5) {
-
-    } @else if($cols == 6) {
-
-    } @else if($cols == 7) {
-
-    } @else if($cols == 8) {
-
-    } @else if($cols == 9) {
-
-    } @else if($cols == 10) {
-
-    } @else if($cols == 11) {
-
+    &:nth-child(#{$cols}n+#{$cols}) {
+      margin-right: 0;
     }
 
   }

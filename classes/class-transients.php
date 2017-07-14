@@ -143,7 +143,7 @@ class Transients {
 
     global $wpdb;
 
-    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%'");
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%' OR `option_name` LIKE '%\_transient\_wps\_table\_single\_row\_%'");
 
     return $results;
 
@@ -178,6 +178,27 @@ class Transients {
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collections\_query\_hash\_cache\_%'");
 
     return $results;
+
+  }
+
+
+  /*
+
+  Delete cached connection
+
+  */
+  public static function delete_cached_connection() {
+
+    // global $wpdb;
+    // error_log('deleting cached connection ...');
+    //
+    // $string = '%\_transient\_wps\_table\_single\_row\_' . $wpdb->prefix . 'wps\_settings\_connection\_%';
+    //
+    // $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE $string");
+    //
+    // error_log(print_r($results, true));
+    //
+    // return $results;
 
   }
 

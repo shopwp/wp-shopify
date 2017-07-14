@@ -324,6 +324,20 @@ function resetConnectSubmit() {
 }
 
 
+function setDisconnectSubmit() {
+
+  jQuery('#submitConnect')
+    .val('Disconnect your Shopify Account')
+    .prop('disabled', false)
+    .attr('name', 'submitDisconnect')
+    .attr('id', 'submitDisconnect');
+
+  jQuery('#wps_settings_connection_js_access_token').prop('disabled', true);
+  jQuery('#wps_settings_connection_domain').prop('disabled', true);
+
+}
+
+
 export {
   createX,
   createCheckmark,
@@ -346,5 +360,6 @@ export {
   ejectConnectorModal,
   updateConnectStatusHeading,
   clearConnectInputs,
-  resetConnectSubmit
+  resetConnectSubmit,
+  setDisconnectSubmit
 };

@@ -759,6 +759,7 @@ if (!class_exists('Hooks')) {
 
 			}
 
+
 			$productQueryHash = md5(serialize($args));
 
 
@@ -772,11 +773,10 @@ if (!class_exists('Hooks')) {
 
 			*/
 	    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
-				error_log('Product query is cached, returning instead ...');
 	      $productsQuery = get_transient('wps_products_query_hash_cache_' . $productQueryHash);
 
 	    } else {
-				error_log('Product query is NOT cached, getting new ...');
+
 				$productsQuery = new \WP_Query($args);
 	      set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
 
@@ -789,7 +789,14 @@ if (!class_exists('Hooks')) {
 			query that we make based on the arguments passed via shortcode.
 
 			*/
-			$amountOfProducts = count($productsQuery->posts);
+			if (isset($args['custom']) && $args['custom']['orderby'] === 'manual') {
+				$products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $productsQuery->posts);
+
+			} else {
+				$products = $productsQuery->posts;
+			}
+
+			$amountOfProducts = count($products);
 
 			$settings = $this->config->wps_get_settings_general();
 
@@ -800,7 +807,7 @@ if (!class_exists('Hooks')) {
 
 				do_action( 'wps_products_loop_start', $productsQuery );
 
-				foreach($productsQuery->posts as $product) {
+				foreach($products as $product) {
 
 					do_action( 'wps_products_item_start', $product, $args, $customArgs );
 					do_action( 'wps_products_item', $product, $args, $settings );
@@ -840,6 +847,8 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_collections_display($args, $customArgs) {
 
+			$args['context'] = 'wps_collections_query';
+
 			if (is_single()) {
 				$args['is_single'] = true;
 
@@ -847,6 +856,7 @@ if (!class_exists('Hooks')) {
 				$args['is_single'] = false;
 
 			}
+
 
 			$collectionsQueryHash = md5(serialize($args));
 
@@ -860,24 +870,22 @@ if (!class_exists('Hooks')) {
 
 			*/
 			if (get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash)) {
-				error_log('Collections query is cached, returning instead ...');
 				$collectionsQuery = get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash);
 
 			} else {
-				error_log('Collections query is NOT cached, getting new ...');
 
-				$collections = array();
-
-				// Fires the wps_clauses_mod function
-				$args['context'] = 'wps_collections_query';
 				$collectionsQuery = new \WP_Query($args);
-
 				set_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash, $collectionsQuery);
 
 			}
 
+			if (isset($args['custom']) && $args['custom']['orderby'] === 'manual') {
+				$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
 
-			$collections = $collectionsQuery->posts;
+			} else {
+				$collections = $collectionsQuery->posts;
+			}
+
 
 			/*
 
@@ -1396,11 +1404,23 @@ if (!class_exists('Hooks')) {
 		}
 
 		public function wps_product_single_sidebar() {
-			get_sidebar('wps');
+
+			$sidebar = apply_filters('wps_product_single_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
 		}
 
 		public function wps_products_sidebar() {
-			get_sidebar('wps');
+
+			$sidebar = apply_filters('wps_products_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
 		}
 
 

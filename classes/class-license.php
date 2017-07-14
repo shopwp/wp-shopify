@@ -157,7 +157,7 @@ class License {
 
 	public function wps_get_latest_plugin_version() {
 
-		$api_url = 'https://wpshop.io';
+		$api_url = 'https://wpshop.io'; // TODO: Put in config
 
 		$api_params = array(
 			'edd_action' => 'get_version',
@@ -309,6 +309,8 @@ class License {
 		  )
 		);
 
+		return $edd_updater;
+
 	}
 
 
@@ -379,7 +381,7 @@ class License {
 
 			if ($this->has_valid_key()) {
 
-				$this->wps_check_for_updates();
+				$EDD_Updater = $this->wps_check_for_updates();
 
 			} else {
 

@@ -22,6 +22,12 @@
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
+
+  &.wps-notice-inline-sm {
+    width: calc(100% - 1.6em);
+    max-width: calc(100% - 1.6em);
+  }
+
 }
 
 .wps-product-quantity {
@@ -162,37 +168,32 @@ label[for="wps-product-quantity"] {
 .wps-product-gallery {
   display: block;
 
-  @include respond-to(1100, 'max') {
-    flex: 0 0 100%;
-    max-width: 100%;
-    order: 1;
-    padding: 0;
+  &.wps-col {
+    @include respond-to(1100, 'max') {
+      flex: 0 0 100%;
+      order: 1;
+      padding: 0;
+      max-width: 60%;
+      margin: 0 auto;
+    }
+
+    @include respond-to(800, 'max') {
+      padding-left: 0;
+      padding-right: 0;
+      padding-top: 0;
+      max-width: 100%;
+    }
   }
 
-  @include respond-to(600, 'max') {
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-  }
 }
 
 .wps-product-gallery-imgs {
   line-height: 1;
 
-  img:not(:first-of-type) {
-    // width: 30.93%;
-    // max-width: 800px;
-    // margin-top: 1.5%;
-    // margin-right: 1.5%;
-
-    @include respond-to(1100, 'max') {
-      width: 31.93%;
-    }
+  img {
+    margin: 0;
   }
 
-  img:last-of-type {
-    margin-right: 0;
-  }
 }
 
 .wps-product-gallery-img-feat-wrapper {
@@ -206,6 +207,23 @@ label[for="wps-product-quantity"] {
 
 .wps-product-gallery-img-thumb-wrapper {
   display: inline-block;
+
+  @include respond-to(600, 'max') {
+    max-width: calc(25.9% - #{$space-m});
+    margin: 0 $space-m $space-m 0;
+
+    &:nth-child(1n+1) {
+      margin: 0 $space-m $space-m 0;
+    }
+
+    &:nth-child(4n+4) {
+      margin: 0;
+    }
+
+  }
+
+
+
 }
 
 
@@ -254,14 +272,12 @@ If only two gallery thumbs exist ...
 
 
 .wps-product-thumbs {
+  margin-top: $space-m;
 
-  .wps-product-gallery-img-thumb {
-    margin-top: 1.3em;
-
-    @include respond-to(600, 'max') {
-      margin-top: 1em;
-    }
+  @include respond-to(600, 'max') {
+    margin-top: $space-m;
   }
+
 }
 
 .wps-product-gallery-img-feat {
@@ -296,6 +312,7 @@ If only two gallery thumbs exist ...
   @include respond-to(600, 'max') {
     padding-left: 0;
     padding-right: 0;
+    margin-top: $space-l;
   }
 }
 
@@ -497,8 +514,8 @@ WP Shopify namespaced styles go here
       // max-width: calc(100% - 0.83334em);
       // margin: 0 auto 0 0.83334em;
 
-      width: 100%;
-      max-width: 100%;
+      width: calc(100% - 1.6em);
+      max-width: calc(100% - 1.6em);
       margin: 0 auto;
 
     }
@@ -529,6 +546,13 @@ WP Shopify namespaced styles go here
   width: 100%;
   margin-right: 0;
   margin-left: 0;
+
+  > .wps-btn-wrapper {
+    width: auto;
+    min-width: 300px;
+    margin: 0 auto;
+  }
+
 
   .wps-btn-dropdown:first-child {
     + .wps-btn-wrapper {
