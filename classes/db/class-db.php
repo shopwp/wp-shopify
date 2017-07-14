@@ -72,18 +72,20 @@ class DB {
 
 			if( empty($row_id) ) {
 
+				// if (get_transient('wps_table_single_row_' . $this->table_name)) {
+				// 	$results = get_transient('wps_table_single_row_' . $this->table_name);
+				//
+				// } else {
+				//
+				// 	$query = "SELECT * FROM $this->table_name LIMIT 1;";
+				// 	$results = $wpdb->get_row($query);
+				//
+				// 	set_transient('wps_table_single_row_' . $this->table_name, $results);
+				//
+				// }
 
-				if (get_transient('wps_table_single_row_' . $this->table_name)) {
-					$results = get_transient('wps_table_single_row_' . $this->table_name);
-
-				} else {
-
-					$query = "SELECT * FROM $this->table_name LIMIT 1;";
-					$results = $wpdb->get_row($query);
-
-					set_transient('wps_table_single_row_' . $this->table_name, $results);
-
-				}
+				$query = "SELECT * FROM $this->table_name LIMIT 1;";
+				$results = $wpdb->get_row($query);
 
 
 			} else {
@@ -313,6 +315,11 @@ class DB {
 	    array($where => $row_id),
 	    $column_formats
 	  );
+
+
+		if (isset($data['access_token'])) {
+			Transients::delete_cached_settings();
+		}
 
 	  if ($results === false) {
 	    return false;

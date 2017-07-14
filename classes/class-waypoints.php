@@ -196,7 +196,7 @@ class Waypoints {
 
     if (is_object($accessToken)) {
 
-      return $DB_Settings_Connection->update(1, array(
+      $DB_Settings_Connection->update(1, array(
         'access_token' => $accessToken->access_token
       ));
 

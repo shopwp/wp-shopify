@@ -41,7 +41,8 @@ import {
   insertXMark,
   closeModal,
   insertCheckmark,
-  setConnectionMessage
+  setConnectionMessage,
+  setDisconnectSubmit
 } from '../utils/utils-dom';
 
 import {
@@ -313,6 +314,7 @@ async function onAuthRedirect() {
     updateModalHeadingText('Connected');
     setConnectionProgress("false");
     updateModalButtonText("Ok, let's go!");
+    setDisconnectSubmit();
     disconnectInit();
 
   } catch (error) {

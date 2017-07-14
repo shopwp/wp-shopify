@@ -93,8 +93,8 @@
   -webkit-overflow-scrolling: touch;
   perspective: 400px;
   perspective-origin: 50% 0px;
-  width: 100%;
-  max-width: 100%;
+  width: calc(100% - 40px);
+  max-width: calc(100% - 40px);
 }
 
 .wps-cart-item {
@@ -298,16 +298,18 @@ input[type="number"].wps-cart-item__quantity {
   top: -12px;
   right: 0px;
   background-color: #6ae06a;
-  padding: 1px 8px 8px;
+  // padding: 1px 8px 8px;
   border-radius: 50%;
   display: inline-block;
   text-align: center;
-  width: 25px;
-  height: 25px;
   color: white;
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 2;
   z-index: 3;
+  width: 25px;
+  height: 25px;
+  max-width: 25px;
+  max-height: 25px;
 
   @include respond-to(1200, 'max') {
     top: -12px;
@@ -334,8 +336,10 @@ input[type="number"].wps-cart-item__quantity {
 
 .wps-cart-counter-lg {
   padding: 0;
-  line-height: 1.9;
+  line-height: 2;
   width: 30px;
   height: 30px;
+  max-width: 30px;
+  max-height: 30px;
   font-size: 16px;
 }

@@ -429,6 +429,8 @@ Shake
 
 .wps-notice-inline-sm {
   padding: 0.8em;
+  width: calc(100% - 1.6em);
+  max-width: calc(100% - 1.6em);
 }
 
 .wps-notice-success {

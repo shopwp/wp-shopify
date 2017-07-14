@@ -159,16 +159,7 @@ class WS {
       'X-Shopify-Access-Token' => $this->connection->access_token
     );
 
-    error_log('$url');
-    error_log(print_r($url, true));
-
-    error_log('$headers');
-    error_log(print_r($headers, true));
-
     $response = \Requests::get($url, $headers);
-
-    error_log('$response');
-    error_log(print_r($response, true));
 
     $data = json_decode($response->body);
 
@@ -642,10 +633,6 @@ class WS {
 
       // Get Shopify Access Token
       $token = $WPS_Waypoint->wps_waypoint_get_access_token($accessTokenData);
-
-      error_log('Token');
-      error_log(print_r($token, true));
-
 
       // Save Shopify Access Token
       $WPS_Waypoint->wps_waypoint_save_access_token($token);

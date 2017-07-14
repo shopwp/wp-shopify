@@ -49,6 +49,32 @@ class Utils {
   Construct proper path to wp-admin folder
 
   */
+  public static function wps_manually_sort_posts_by_title($sortedArray, $unsortedArray) {
+
+    $finalArray = array();
+
+    foreach ($sortedArray as $key => $needle) {
+
+      foreach ($unsortedArray as $key => $post) {
+
+        if ($post->title === $needle) {
+          $finalArray[] = $post;
+        }
+
+      }
+
+    }
+
+    return $finalArray;
+
+  }
+
+
+  /*
+
+  Construct proper path to wp-admin folder
+
+  */
   public static function wps_construct_admin_path_from_urls($homeURL, $adminURL) {
 
     $explodedHome = explode('/', $homeURL);
@@ -66,8 +92,6 @@ class Utils {
     return $newPath;
 
   }
-
-
 
 
   /*
@@ -859,8 +883,8 @@ class Utils {
     global $wpdb;
     $sql = '';
 
-    $DB = new DB();
 
+    $DB = new DB();
     $shortcode_query = $DB->get_default_collections_query();
 
 
@@ -879,13 +903,29 @@ class Utils {
     }
 
     if (array_key_exists('orderby', $shortcodeAttrs)) {
-      $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], 'collections');
+
+      if ($shortcodeAttrs['orderby'] !== 'manual') {
+        $shortcode_query = self::construct_orderby_clauses($shortcode_query, $shortcodeAttrs['orderby'], 'collections');
+      }
 
       if (array_key_exists('order', $shortcodeAttrs)) {
         $shortcode_query = self::construct_order_clauses($shortcode_query, $shortcodeAttrs['order']);
       }
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     if (array_key_exists('limit', $shortcodeAttrs)) {
       $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
@@ -1138,7 +1178,6 @@ class Utils {
       'paged'             => 1
     );
 
-
     //
     // Order
     //
@@ -1257,7 +1296,6 @@ class Utils {
       }
 
       $collectionsQuery = Utils::wps_map_collections_args_to_query($shortcodeArgs);
-
       return $collectionsQuery;
 
     } else {

@@ -18,7 +18,9 @@
 
   <div class="wps-cart-form">
 
-    <div class="wps-cart-item-container wps-cart-section"></div>
+    <div class="wps-cart-item-container wps-cart-section">
+      <aside class="wps-cart-empty-notice"><h2>Your cart is empty</h2></aside>
+    </div>
 
     <div class="wps-cart-bottom wps-row">
       <div class="wps-cart-info wps-clearfix wps-cart-section">
