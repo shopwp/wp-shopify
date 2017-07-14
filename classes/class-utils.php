@@ -44,6 +44,26 @@ class Utils {
 	}
 
 
+
+
+
+public static function wps_is_manually_sorted($shortcodeArgs) {
+
+  if (isset($shortcodeArgs['custom']) && isset($shortcodeArgs['custom']['titles']) && isset($shortcodeArgs['custom']['orderby']) && is_array($shortcodeArgs['custom']['titles']) && $shortcodeArgs['custom']['orderby'] === 'manual') {
+    return true;
+
+  } else {
+    return false;
+  }
+
+
+}
+
+
+
+
+
+
   /*
 
   Construct proper path to wp-admin folder

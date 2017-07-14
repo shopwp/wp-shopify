@@ -747,94 +747,101 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_products_display($args, $customArgs) {
 
-			global $wpdb;
+			if (!is_admin()) {
 
-			$args['context'] = 'wps_products_query';
+				global $wpdb;
 
-			if (is_single()) {
-				$args['is_single'] = true;
+				$args['context'] = 'wps_products_query';
 
-			} else {
-				$args['is_single'] = false;
+				if (is_single()) {
+					$args['is_single'] = true;
 
-			}
-
-
-			$productQueryHash = md5(serialize($args));
-
-
-			/*
-
-			Here we're caching an entire WP_Query response by hashing the
-			argument array. We can safely assume that a given set of args
-			will always produce the same list of products assuming the
-			product data doesn't change. Therefore it's important that we clear
-			this cache whenever a product is updated, created, or deleted.
-
-			*/
-	    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
-	      $productsQuery = get_transient('wps_products_query_hash_cache_' . $productQueryHash);
-
-	    } else {
-
-				$productsQuery = new \WP_Query($args);
-	      set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
-
-	    }
-
-
-			/*
-
-			Products needs to be an array of CPTs sorted by the custom SQL
-			query that we make based on the arguments passed via shortcode.
-
-			*/
-			if (isset($args['custom']) && $args['custom']['orderby'] === 'manual') {
-				$products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $productsQuery->posts);
-
-			} else {
-				$products = $productsQuery->posts;
-			}
-
-			$amountOfProducts = count($products);
-
-			$settings = $this->config->wps_get_settings_general();
-
-			do_action( 'wps_products_before', $productsQuery );
-			do_action( 'wps_products_header', $productsQuery );
-
-			if ($amountOfProducts > 0) {
-
-				do_action( 'wps_products_loop_start', $productsQuery );
-
-				foreach($products as $product) {
-
-					do_action( 'wps_products_item_start', $product, $args, $customArgs );
-					do_action( 'wps_products_item', $product, $args, $settings );
-					do_action( 'wps_products_item_end', $product );
+				} else {
+					$args['is_single'] = false;
 
 				}
 
-				wp_reset_postdata();
 
-				do_action( 'wps_products_loop_end', $productsQuery );
-				do_action( 'wps_before_products_pagination', $productsQuery );
+				$productQueryHash = md5(serialize($args));
 
-				if (isset($args['paged']) && $args['paged']) {
-					do_action( 'wps_products_pagination', $productsQuery );
+
+				/*
+
+				Here we're caching an entire WP_Query response by hashing the
+				argument array. We can safely assume that a given set of args
+				will always produce the same list of products assuming the
+				product data doesn't change. Therefore it's important that we clear
+				this cache whenever a product is updated, created, or deleted.
+
+				*/
+		    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
+		      $productsQuery = get_transient('wps_products_query_hash_cache_' . $productQueryHash);
+
+		    } else {
+
+					$productsQuery = new \WP_Query($args);
+		      set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
+
+		    }
+
+
+				if (Utils::wps_is_manually_sorted($args)) {
+
+					$wps_products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $productsQuery->posts);
+
+				} else {
+
+					$wps_products = $productsQuery->posts;
+
 				}
 
-				do_action( 'wps_after_products_pagination', $productsQuery );
 
-			} else {
 
-				do_action( 'wps_products_no_results', $args );
+				$amountOfProducts = count($wps_products);
+
+				$settings = $this->config->wps_get_settings_general();
+
+				do_action( 'wps_products_before', $productsQuery );
+				do_action( 'wps_products_header', $productsQuery );
+
+
+				if ($amountOfProducts > 0) {
+
+					do_action( 'wps_products_loop_start', $productsQuery );
+
+					foreach($wps_products as $wps_product) {
+
+						do_action( 'wps_products_item_start', $wps_product, $args, $customArgs );
+						do_action( 'wps_products_item', $wps_product, $args, $settings );
+						do_action( 'wps_products_item_end', $wps_product );
+
+					}
+
+					wp_reset_postdata();
+
+					do_action( 'wps_products_loop_end', $productsQuery );
+					do_action( 'wps_before_products_pagination', $productsQuery );
+
+					if (isset($args['paged']) && $args['paged']) {
+						do_action( 'wps_products_pagination', $productsQuery );
+					}
+
+					do_action( 'wps_after_products_pagination', $productsQuery );
+
+				} else {
+
+					do_action( 'wps_products_no_results', $args );
+
+				}
+
+				do_action( 'wps_products_after', $productsQuery );
 
 			}
-
-			do_action( 'wps_products_after', $productsQuery );
 
 		}
+
+
+
 
 
 		/*
@@ -847,83 +854,87 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_collections_display($args, $customArgs) {
 
-			$args['context'] = 'wps_collections_query';
+			if (!is_admin()) {
 
-			if (is_single()) {
-				$args['is_single'] = true;
+				$args['context'] = 'wps_collections_query';
 
-			} else {
-				$args['is_single'] = false;
+				if (is_single()) {
+					$args['is_single'] = true;
 
-			}
-
-
-			$collectionsQueryHash = md5(serialize($args));
-
-			/*
-
-			Here we're caching an entire WP_Query response by hashing the
-			argument array. We can safely assume that a given set of args
-			will always produce the same list of products assuming the
-			product data doesn't change. Therefore it's important that we clear
-			this cache whenever a product is updated, created, or deleted.
-
-			*/
-			if (get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash)) {
-				$collectionsQuery = get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash);
-
-			} else {
-
-				$collectionsQuery = new \WP_Query($args);
-				set_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash, $collectionsQuery);
-
-			}
-
-			if (isset($args['custom']) && $args['custom']['orderby'] === 'manual') {
-				$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
-
-			} else {
-				$collections = $collectionsQuery->posts;
-			}
-
-
-			/*
-
-			Now that we've queried both collections tables, we can combine them
-			into a single data set to loop through
-
-			*/
-			do_action( 'wps_collections_before', $collections );
-			do_action( 'wps_collections_header', $collections );
-
-			if (count($collections) > 0) {
-
-				do_action( 'wps_collections_loop_start', $collections );
-
-				foreach($collections as $collection) {
-
-					do_action( 'wps_collections_item_start', $collection, $args, $customArgs );
-					do_action( 'wps_collections_item', $collection, $args );
-					do_action( 'wps_collections_item_end', $collection );
+				} else {
+					$args['is_single'] = false;
 
 				}
 
-				do_action( 'wps_collections_loop_end', $collections );
-				do_action( 'wps_before_collections_pagination', $collections );
 
-				if ( isset($args['paged']) && $args['paged']) {
-					do_action( 'wps_collections_pagination', $collections );
+				$collectionsQueryHash = md5(serialize($args));
+
+				/*
+
+				Here we're caching an entire WP_Query response by hashing the
+				argument array. We can safely assume that a given set of args
+				will always produce the same list of products assuming the
+				product data doesn't change. Therefore it's important that we clear
+				this cache whenever a product is updated, created, or deleted.
+
+				*/
+				if (get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash)) {
+					$collectionsQuery = get_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash);
+
+				} else {
+
+					$collectionsQuery = new \WP_Query($args);
+					set_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash, $collectionsQuery);
+
 				}
 
-				do_action( 'wps_after_collections_pagination', $collections );
+				if (Utils::wps_is_manually_sorted($args)) {
+					$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
+
+				} else {
+					$collections = $collectionsQuery->posts;
+				}
 
 
-			} else {
-				do_action( 'wps_collections_no_results', $args );
+				/*
+
+				Now that we've queried both collections tables, we can combine them
+				into a single data set to loop through
+
+				*/
+				do_action( 'wps_collections_before', $collections );
+				do_action( 'wps_collections_header', $collections );
+
+				if (count($collections) > 0) {
+
+					do_action( 'wps_collections_loop_start', $collections );
+
+					foreach($collections as $collection) {
+
+						do_action( 'wps_collections_item_start', $collection, $args, $customArgs );
+						do_action( 'wps_collections_item', $collection, $args );
+						do_action( 'wps_collections_item_end', $collection );
+
+					}
+
+					do_action( 'wps_collections_loop_end', $collections );
+					do_action( 'wps_before_collections_pagination', $collections );
+
+					if ( isset($args['paged']) && $args['paged']) {
+						do_action( 'wps_collections_pagination', $collections );
+					}
+
+					do_action( 'wps_after_collections_pagination', $collections );
+
+
+				} else {
+					do_action( 'wps_collections_no_results', $args );
+
+				}
+
+				do_action( 'wps_collections_after', $collections );
 
 			}
-
-			do_action( 'wps_collections_after', $collections );
 
 		}
 

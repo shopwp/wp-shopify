@@ -88,13 +88,14 @@
   margin-top: 0;
   height: 75%;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: hidden; 
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   perspective: 400px;
   perspective-origin: 50% 0px;
-  width: calc(100% - 40px);
-  max-width: calc(100% - 40px);
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .wps-cart-item {
@@ -135,12 +136,14 @@
   background-repeat: no-repeat;
   background-position: center center;
   background-color: #e5e5e5;
-  position: absolute; }
+  position: absolute;
+}
 
 .wps-cart-item__content {
   margin-top: 0;
   width: 100%;
-  padding-left: 75px; }
+  padding-left: 75px;
+}
 
 .wps-cart-item__content-row {
   margin-bottom: 0.5em;

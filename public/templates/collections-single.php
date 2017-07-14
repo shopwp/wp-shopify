@@ -5,11 +5,11 @@ use WPS\DB\Products;
 
 global $post;
 
-$DB = new DB();
-$DB_Products = new Products();
+$WPS_DB = new DB();
+$WPS_DB_Products = new Products();
 
-$collection = $DB->get_collection();
-$products = $DB_Products->get_products_by_collection_id($collection[0]->collection_id);
+$wps_collection = $WPS_DB->get_collection();
+$wps_products = $WPS_DB_Products->get_products_by_collection_id($wps_collection[0]->collection_id);
 
 get_header('wps');
 
@@ -17,12 +17,12 @@ if (is_single()) {
 
   do_action('wps_collection_single_before');
 
-  do_action('wps_collection_single_start', $collection);
-  do_action('wps_collection_single_header', $collection);
+  do_action('wps_collection_single_start', $wps_collection);
+  do_action('wps_collection_single_header', $wps_collection);
 
-  do_action('wps_collection_single_content', $collection);
-  do_action('wps_collection_single_products', $collection, $products);
-  do_action('wps_collection_single_end', $collection);
+  do_action('wps_collection_single_content', $wps_collection);
+  do_action('wps_collection_single_products', $wps_collection, $wps_products);
+  do_action('wps_collection_single_end', $wps_collection);
 
   do_action('wps_collection_single_after');
 

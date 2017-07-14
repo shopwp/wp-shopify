@@ -41,6 +41,7 @@ use WPS\DB\Variants;
       }
 
     } else {
+
       echo WPS\Utils::wps_format_money($variants[0]['price'], $product);
 
     }
