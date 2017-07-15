@@ -95,8 +95,9 @@
 
 .wps-btn-close {
   width: 30px;
-  margin-top: 0;
   height: 30px;
+  margin-top: 0;
+  line-height: 1;
   position: absolute;
   right: 10px;
   top: 20px;
@@ -108,7 +109,9 @@
   cursor: pointer;
   padding: 0;
   font-weight: normal;
-
+  font-size: 36px;
+  text-align: center;
+  
   &:hover {
     opacity: $dimOpacity;
     background: transparent;
@@ -125,8 +128,10 @@
     width: 30px;
     height: 30px;
     position: absolute;
-    top: -15px;
+    top: 0;
     left: 0;
+    line-height: 1;
+    font-size: 36px;
   }
 
 }

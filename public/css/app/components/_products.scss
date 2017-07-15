@@ -3,7 +3,8 @@
   padding: $btn-space-top $btn-space-sides;
   border-bottom: 1px solid #eee;
   line-height: 1;
-
+  text-align: center;
+  
   &:last-child {
     border-bottom: none;
   }
@@ -617,4 +618,9 @@ WP Shopify namespaced styles go here
 .wps-products-img {
   width: auto;
   margin: 0 auto;
+}
+
+
+.wps-product-heading {
+  text-align: center;
 }
