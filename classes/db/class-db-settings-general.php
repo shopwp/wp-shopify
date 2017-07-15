@@ -197,7 +197,7 @@ class Settings_General extends \WPS\DB {
 		}
 
     $query = "CREATE TABLE `{$this->table_name}` (
-      `id` bigint(100) NOT NULL DEFAULT 1,
+      `id` bigint(100) NOT NULL DEFAULT 1 AUTO_INCREMENT,
 		  `url_products` varchar(100) NOT NULL DEFAULT 'products',
 		  `url_collections` varchar(100) NOT NULL DEFAULT 'collections',
       `url_webhooks` varchar(100) NOT NULL DEFAULT '{$this->webhooks}',
@@ -210,7 +210,7 @@ class Settings_General extends \WPS\DB {
       `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
       `price_with_currency` tinyint(1) DEFAULT 0,
-		  PRIMARY KEY (`{$this->primary_key}`)
+		  PRIMARY KEY  (`{$this->primary_key}`)
 		) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

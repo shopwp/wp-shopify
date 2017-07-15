@@ -130,7 +130,7 @@ class Settings_License extends \WPS\DB {
 		}
 
     $query = "CREATE TABLE `{$this->table_name}` (
-      `key` varchar(100) NOT NULL DEFAULT '',
+      `key` varchar(100) NOT NULL DEFAULT '' AUTO_INCREMENT,
       `is_local` tinyint(1) unsigned NOT NULL,
       `expires` datetime,
       `site_count` int(20) unsigned DEFAULT NULL,
@@ -145,7 +145,7 @@ class Settings_License extends \WPS\DB {
       `nonce` varchar(100) DEFAULT NULL,
       `activations_left` varchar(100) DEFAULT NULL,
       `price_id` varchar(100) DEFAULT NULL,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

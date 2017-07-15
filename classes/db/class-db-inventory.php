@@ -111,7 +111,7 @@ class Inventory extends \WPS\DB {
       `requires_shipping` tinyint(1) DEFAULT NULL,
       `fulfillment_service` varchar(100) DEFAULT NULL,
       `barcode` varchar(100) DEFAULT NULL,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

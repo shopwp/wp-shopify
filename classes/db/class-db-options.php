@@ -218,12 +218,12 @@ class Options extends \WPS\DB {
 		}
 
     $query = "CREATE TABLE `{$this->table_name}` (
-      `id` bigint(100) unsigned NOT NULL,
+      `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
       `product_id` bigint(100) DEFAULT NULL,
       `name` varchar(100) DEFAULT NULL,
       `position` int(20) DEFAULT NULL,
       `values` longtext DEFAULT NULL,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

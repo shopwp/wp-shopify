@@ -109,7 +109,7 @@ class Settings_Connection extends \WPS\DB {
       `app_id` int(20) unsigned DEFAULT NULL,
       `webhook_id` varchar(100) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

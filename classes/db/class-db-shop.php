@@ -252,7 +252,7 @@ class Shop extends \WPS\DB {
     `timezone` varchar(200) DEFAULT NULL,
 		`created_at` datetime,
     `updated_at` datetime,
-    PRIMARY KEY (`{$this->primary_key}`)
+    PRIMARY KEY  (`{$this->primary_key}`)
   ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
 		//

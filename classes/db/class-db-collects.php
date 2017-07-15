@@ -201,7 +201,7 @@ class Collects extends \WPS\DB {
       `sort_value` int(20) DEFAULT NULL,
       `created_at` datetime,
       `updated_at` datetime,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

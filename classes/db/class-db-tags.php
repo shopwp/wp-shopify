@@ -224,7 +224,7 @@ class Tags extends \WPS\DB {
       `product_id` bigint(100) DEFAULT NULL,
       `post_id` bigint(100) DEFAULT NULL,
       `tag` varchar(255) DEFAULT NULL,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //

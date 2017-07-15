@@ -227,7 +227,7 @@ class Collections_Smart extends \WPS\DB {
 		}
 
     $query = "CREATE TABLE `{$this->table_name}` (
-      `collection_id` bigint(100) unsigned NOT NULL,
+      `collection_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
       `post_id` bigint(100) unsigned DEFAULT NULL,
       `title` varchar(255) DEFAULT NULL,
       `handle` varchar(255) DEFAULT NULL,
@@ -238,7 +238,7 @@ class Collections_Smart extends \WPS\DB {
       `sort_order` varchar(100) DEFAULT NULL,
       `published_at` datetime,
       `updated_at` datetime,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
     //
