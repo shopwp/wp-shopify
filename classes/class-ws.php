@@ -313,6 +313,8 @@ class WS {
     if (property_exists($data, "custom_collections")) {
       $results = $DB_Collections_Custom->insert_custom_collections( $data->custom_collections );
 
+      // Allows for /products and /collections to work
+      // TODO: modularize
       set_transient('wps_settings_updated', true);
       Transients::check_rewrite_rules();
 

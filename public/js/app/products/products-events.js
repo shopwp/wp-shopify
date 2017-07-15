@@ -123,13 +123,7 @@ function onAddProductToCart(shopify) {
 
       try {
         product = await getProduct(shopify, productID);
-
-        console.log("product: ", product);
-        console.log("matchingProductVariantID: ", matchingProductVariantID);
-
         productVariant = getProductVariantID(product, matchingProductVariantID);
-
-        console.log("productVariant: ", productVariant);
 
       } catch(error) {
         enable($addToCartButton);
@@ -433,8 +427,6 @@ function onProductVariantChange() {
 
         enable($newProductMetaContainer.find('.wps-btn'));
         hideLoader($trigger);
-
-        console.log("foundVariantID: ", foundVariantID);
 
         $newProductMetaContainer.data('product-selected-variant', foundVariantID);
         $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);

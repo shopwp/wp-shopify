@@ -391,31 +391,28 @@ function closeCallbackClick(event) {
       triggerVariantSelect = jQuery(event.srcElement).hasClass('wps-product-style'),
       cartIsClosing = isCart(jQuery(element));
 
-  console.log("cartIsOpen:", cartIsOpen);
-  console.log('Status: ', localStorage.getItem('wps-animating'));
-
   if (triggerAddToCart || triggerVariantSelect && cartIsClosing) {
-    console.log('Not closing because triggered by add to cart when cart is open');
+
 
   } else {
-console.log('sdfds');
+
     if (localStorage.getItem('wps-animating') === 'false') {
-console.log('11');
+
       if(jQuery(event.target).hasClass('wps-modal-close-trigger')) {
-        console.log('22');
+
         animateOut(config);
 
       } else {
-console.log('33');
+
         if (event.target !== config.element && !jQuery.contains(element, event.target)) {
           animateOut(config);
         } else {
-          console.log('44');
+
         }
 
       }
     } else {
-      console.log('55');
+      
     }
 
   }
