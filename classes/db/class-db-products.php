@@ -320,7 +320,7 @@ class Products extends \WPS\DB {
     $results['options'] = $DB_Options->insert_options($productWrapped);
     $results['images'] = $DB_Images->insert_images($productWrapped);
     $results['collects']  = $DB_Collects->update_collects($product);
-    
+
     Transients::delete_cached_product_queries();
 
     return $results;
@@ -450,7 +450,7 @@ class Products extends \WPS\DB {
 		}
 
     $query = "CREATE TABLE `{$this->table_name}` (
-      `product_id` bigint(100) unsigned NOT NULL,
+      `product_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
       `post_id` bigint(100) unsigned DEFAULT NULL,
       `title` varchar(255) DEFAULT NULL,
       `body_html` longtext,
@@ -462,7 +462,7 @@ class Products extends \WPS\DB {
       `published_at` datetime,
       `updated_at` datetime,
       `created_at` datetime,
-      PRIMARY KEY (`{$this->primary_key}`)
+      PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
 
 

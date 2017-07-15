@@ -265,7 +265,6 @@ class DB {
 		$result = $wpdb->insert($this->table_name, $data, $column_formats);
 
 
-
     do_action('wps_post_insert_' . $type, $result, $data);
 
     return $result;
