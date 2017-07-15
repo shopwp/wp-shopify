@@ -51,8 +51,6 @@ class Transients {
       flush_rewrite_rules();
       delete_transient('wps_settings_updated');
 
-    } else {
-
     }
 
   }
