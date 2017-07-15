@@ -130,7 +130,7 @@ class Settings_License extends \WPS\DB {
 		}
 
     $query = "CREATE TABLE `{$this->table_name}` (
-      `key` varchar(100) NOT NULL DEFAULT '' AUTO_INCREMENT,
+      `key` varchar(100) NOT NULL DEFAULT '',
       `is_local` tinyint(1) unsigned NOT NULL,
       `expires` datetime,
       `site_count` int(20) unsigned DEFAULT NULL,
