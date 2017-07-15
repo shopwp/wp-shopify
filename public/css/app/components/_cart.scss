@@ -88,13 +88,13 @@
   margin-top: 0;
   height: 75%;
   position: relative;
-  overflow-x: hidden; 
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   perspective: 400px;
   perspective-origin: 50% 0px;
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: auto;
   margin: 0 auto;
 }
 
@@ -141,8 +141,8 @@
 
 .wps-cart-item__content {
   margin-top: 0;
-  width: 100%;
   padding-left: 75px;
+  width: auto;
 }
 
 .wps-cart-item__content-row {
