@@ -793,7 +793,7 @@ class DB {
 			smart.sort_order,
 			smart.published_at,
 			smart.updated_at
-			FROM 7b3ca31e_wps_collections_smart smart
+			FROM ' . $wpdb->prefix . 'wps_collections_smart smart
 
 			UNION ALL
 
@@ -807,9 +807,9 @@ class DB {
 			custom.sort_order,
 			custom.published_at,
 			custom.updated_at
-			FROM 7b3ca31e_wps_collections_custom custom
+			FROM ' . $wpdb->prefix . 'wps_collections_custom custom
 
-			) as collections ON 7b3ca31e_posts.ID = collections.post_id',
+		) as collections ON ' . $wpdb->prefix . 'posts.ID = collections.post_id',
 			'orderby' => '',
 			'distinct' => '',
 			'fields' => 'collections.*',

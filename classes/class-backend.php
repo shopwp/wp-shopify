@@ -104,7 +104,7 @@ class Backend {
 			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, false );
 
 			// Shopify JS SDK
-			wp_enqueue_script('shopify-js-sdk', '//sdks.shopifycdn.com/js-buy-sdk/latest/shopify-buy.polyfilled.globals.min.js', array(), $this->config->plugin_version, false );
+			wp_enqueue_script('shopify-js-sdk', $this->config->plugin_path . 'js/app/vendor/shopify-buy-button-0.2.3.min.js', array(), $this->config->plugin_version, false );
 
 			// jQuery Validate
 			wp_enqueue_script('validate-js', '//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );

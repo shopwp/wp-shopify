@@ -313,10 +313,19 @@ class WS {
     if (property_exists($data, "custom_collections")) {
       $results = $DB_Collections_Custom->insert_custom_collections( $data->custom_collections );
 
+
+
+      /*
+
+      Once this point is reached, all the data has been synced.
+      TODO: Make this more clear from within JS side
+
+      */
       // Allows for /products and /collections to work
       // TODO: modularize
       set_transient('wps_settings_updated', true);
       Transients::check_rewrite_rules();
+      Transients::delete_cached_connections();
 
       echo json_encode($results);
   		die();

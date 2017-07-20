@@ -19,7 +19,7 @@ function syncConnection() {
 
     try {
       var connection = await streamConnection();
-      console.log("connection: ", connection);
+
       resolve(connection);
 
     } catch(error) {

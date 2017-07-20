@@ -128,7 +128,7 @@ function onAddProductToCart(shopify) {
       } catch(error) {
         enable($addToCartButton);
         hideLoader($addToCartButton);
-        showProductMetaError($addToCartButton,  error + '. Code: 3');
+        showProductMetaError($addToCartButton,  'Sorry, it looks like this product isn\'t available to purchase');
         return;
 
       }

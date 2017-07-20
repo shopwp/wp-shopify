@@ -84,6 +84,27 @@ class Settings_Connection extends \WPS\DB {
   }
 
 
+
+
+
+
+  public function check_connection() {
+
+    $accessToken = $this->get_column_single('access_token');
+
+    if (is_array($accessToken) && !empty($accessToken)) {
+      return true;
+
+    } else {
+      return false;
+    }
+
+  }
+
+
+
+
+
   /*
 
   Creates database table

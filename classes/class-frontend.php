@@ -5,6 +5,7 @@ namespace WPS;
 use WPS\DB\Products as DB_Products;
 use WPS\DB\Variants as DB_Variants;
 use WPS\DB\Settings_General;
+use WPS\DB\Settings_Connection;
 use WPS\DB\Shop;
 
 
@@ -106,6 +107,17 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_public_scripts() {
 
+			if (get_transient('wps_connection_connected')) {
+	      $connected = get_transient('wps_connection_connected');
+
+	    } else {
+				$DB_Settings_Connection = new Settings_Connection();
+	      set_transient('wps_connection_connected', $DB_Settings_Connection->check_connection());
+
+				$connected = get_transient('wps_connection_connected');
+
+	    }
+
 			if(!is_admin()) {
 
 				// WP Shopify JS Public
@@ -113,7 +125,8 @@ if (!class_exists('Frontend')) {
 
 				wp_localize_script($this->config->plugin_name . '-public', $this->config->plugin_name, array(
 						'ajax' => admin_url( 'admin-ajax.php' ),
-						'pluginsPath' => plugins_url()
+						'pluginsPath' => plugins_url(),
+						'is_connected' => $connected
 					)
 				);
 
@@ -515,6 +528,8 @@ if (!class_exists('Frontend')) {
 		}
 
 
+
+
 		/*
 
 		Only hooks not meant for public consumption
@@ -556,6 +571,7 @@ if (!class_exists('Frontend')) {
 
 			add_action( 'wp_footer', array($this, 'wps_insert_cart_before_closing_body') );
       add_action( 'wp_footer', array($this, 'wps_notice') );
+
 
 		}
 

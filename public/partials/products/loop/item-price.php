@@ -1,6 +1,7 @@
 <?php
 
 use WPS\DB\Variants;
+use WPS\Utils;
 
 ?>
 
@@ -8,7 +9,7 @@ use WPS\DB\Variants;
 
   <?php
 
-    // echo WPS\Utils::wps_format_money($product->price, $product);
+    // echo Utils::wps_format_money($product->price, $product);
 
     $DB_Variants = new Variants();
 
@@ -33,16 +34,25 @@ use WPS\DB\Variants;
       $firstVariantPrice = $variants[0]['price'];
 
       if ($lastVariantPrice === $firstVariantPrice) {
-        echo WPS\Utils::wps_format_money($firstVariantPrice, $product);
+        
+        $defaultPrice = Utils::wps_format_money($firstVariantPrice, $product);
+        echo apply_filters('wps_products_price_one', $defaultPrice, $product);
 
       } else {
-        echo '<small class="wps-product-from-price">From: </small>' . WPS\Utils::wps_format_money($firstVariantPrice, $productNew) . ' <span class="wps-product-from-price-separator">-</span> ' . WPS\Utils::wps_format_money($lastVariantPrice, $productNew);
+
+        $priceFirst = Utils::wps_format_money($firstVariantPrice, $product);
+        $priceLast = Utils::wps_format_money($lastVariantPrice, $product);
+
+        $defaultPrice = apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">From: </small>') . apply_filters('wps_products_price_multi_first', $priceFirst) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $priceLast);
+
+        echo apply_filters('wps_products_price_multi', $defaultPrice, $priceFirst, $priceLast, $product);
 
       }
 
     } else {
 
-      echo WPS\Utils::wps_format_money($variants[0]['price'], $product);
+      $defaultPrice = Utils::wps_format_money($variants[0]['price'], $product);
+      echo apply_filters('wps_products_price_one', $defaultPrice, $product);
 
     }
 

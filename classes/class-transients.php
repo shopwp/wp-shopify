@@ -166,6 +166,23 @@ class Transients {
 
   /*
 
+  Delete cached single product options / variants
+
+  */
+  public static function delete_cached_product_single() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_single\_%'");
+
+    return $results;
+
+  }
+
+
+
+  /*
+
   Delete cached collection queries
 
   */
@@ -196,6 +213,23 @@ class Transients {
     // return $results;
 
   }
+
+
+  /*
+
+  Delete cached settings
+
+  */
+  public static function delete_cached_connections() {
+
+    global $wpdb;
+
+    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_connection\_%'");
+
+    return $results;
+
+  }
+
 
 
 }

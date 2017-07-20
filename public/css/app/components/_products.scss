@@ -4,7 +4,7 @@
   border-bottom: 1px solid #eee;
   line-height: 1;
   text-align: center;
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -25,9 +25,9 @@
   margin-top: $space-m;
 
   &.wps-notice-inline-sm {
-    width: calc(100%);
-    max-width: calc(100%);
     margin-top: $space-m;
+    width: calc(100% - 1.6em);
+    max-width: calc(100% - 1.6em);
   }
 
 }
@@ -504,10 +504,10 @@ WP Shopify namespaced styles go here
 
     .wps-btn-wrapper,
     .wps-btn-dropdown {
-      flex: 0 0 100%;
       max-width: 100%;
       width: 100%;
       padding-right: 0;
+      flex: 1;
     }
 
     .wps-modal {
@@ -525,6 +525,7 @@ WP Shopify namespaced styles go here
   }
 
   .wps-product-meta {
+    
     .wps-notice-inline {
       // width: calc(100% - 0.83334em);
       // max-width: calc(100% - 0.83334em);
@@ -536,6 +537,11 @@ WP Shopify namespaced styles go here
       max-width: calc(100%);
       margin: $space-m auto 0 auto;
 
+    }
+
+    .wps-notice-inline-sm {
+      width: calc(100% - 1.6em);
+      max-width: calc(100% - 1.6em);
     }
 
   }
@@ -607,6 +613,7 @@ WP Shopify namespaced styles go here
     margin-top: 0;
   }
 
+  .wps-col-2 + .wps-btn-wrapper.wps-col-1,
   .wps-col-3 + .wps-btn-wrapper {
     margin-top: $space-m;
     width: 100%;

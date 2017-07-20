@@ -9,6 +9,7 @@ import { cartEvents } from '../cart/cart-events';
 import { updateCartCounter, updateTotalCartPricing } from '../cart/cart-ui';
 
 
+
 /*
 
 bootstrapEvents

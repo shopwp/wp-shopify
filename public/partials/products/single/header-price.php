@@ -17,14 +17,27 @@
     $firstVariantPrice = $product['variants'][0]['price'];
 
     if ($lastVariantPrice === $firstVariantPrice) {
-      echo Utils::wps_format_money($firstVariantPrice, $product);
+
+      $price = Utils::wps_format_money($firstVariantPrice, $product);
+
+      echo apply_filters('wps_product_single_price', $price, $price, $price, $product);
 
     } else {
-      echo '<small class="wps-product-from-price">From: </small>' . Utils::wps_format_money($firstVariantPrice, $product) . ' <span class="wps-product-from-price-separator">-</span> ' . Utils::wps_format_money($lastVariantPrice, $product);
+
+      $defaultPrice = '<small class="wps-product-from-price">From: </small>' . Utils::wps_format_money($firstVariantPrice, $product) . ' <span class="wps-product-from-price-separator">-</span> ' . Utils::wps_format_money($lastVariantPrice, $product);
+
+      $firstVariantPrice = Utils::wps_format_money($firstVariantPrice, $product);
+      $lastVariantPrice = Utils::wps_format_money($lastVariantPrice, $product);
+
+      echo apply_filters('wps_product_single_price', $defaultPrice, $firstVariantPrice, $lastVariantPrice, $product);
+
     }
 
   } else {
-    echo Utils::wps_format_money($product['variants'][0]['price'], $product);
+
+    $price = Utils::wps_format_money($product['variants'][0]['price'], $product);
+
+    echo apply_filters('wps_product_single_price', $price, $price, $price, $product);
 
   }
 

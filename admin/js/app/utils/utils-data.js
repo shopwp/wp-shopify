@@ -391,7 +391,6 @@ function addProductsToCollection(collectionsAssignedProducts, collections) {
   var newCollections = collections;
 
   R.forEach(function(collectionWithProducts) {
-    console.log("collectionWithProducts: ", collectionWithProducts);
 
     // Loop through each collectionWithProducts ...
     R.forEach(function collectionWithProductsHandlder(product) {
