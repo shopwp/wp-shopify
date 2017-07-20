@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.11
+@since             1.0.12
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
-Version:           1.0.11
+Version:           1.0.12
 Author:            Simpleblend
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -318,6 +318,10 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action( 'wps_products_img', array($Hooks, 'wps_products_img') );
 			add_action( 'wps_products_title', array($Hooks, 'wps_products_title') );
 			add_action( 'wps_products_price', array($Hooks, 'wps_products_price') );
+
+			add_filter( 'wps_products_price_multi', array($Hooks, 'wps_products_price_multi'), 10, 4 );
+			add_filter( 'wps_products_price_one', array($Hooks, 'wps_products_price_one'), 10, 2 );
+
 			add_action( 'wps_products_pagination', array($Hooks, 'wps_products_pagination') );
 			add_action( 'wps_products_no_results', array($Hooks, 'wps_products_no_results') );
 
@@ -434,6 +438,12 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_filter('wps_product_single_thumbs_class', array($Hooks, 'wps_product_single_thumbs_class'), 10, 2 );
 
 			add_action('wps_product_single_sidebar', array($Hooks, 'wps_product_single_sidebar'));
+
+			add_filter('wps_product_single_price', array($Hooks, 'wps_product_single_price'), 10, 4 );
+
+			add_filter('wps_product_single_price_multi', array($Hooks, 'wps_product_single_price_multi'), 10, 4 );
+
+			add_filter('wps_product_single_price_one', array($Hooks, 'wps_product_single_price_one'), 10, 3 );
 
 
 			/*

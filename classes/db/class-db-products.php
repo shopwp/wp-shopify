@@ -237,6 +237,7 @@ class Products extends \WPS\DB {
 
     Transients::delete_cached_prices();
     Transients::delete_cached_variants();
+    Transients::delete_cached_product_single();
     Transients::delete_cached_product_queries();
 
     return $results;
@@ -286,6 +287,7 @@ class Products extends \WPS\DB {
     // TODO: Only delete cache of the product that was deleted
     Transients::delete_cached_prices();
     Transients::delete_cached_variants();
+    Transients::delete_cached_product_single();
     Transients::delete_cached_product_queries();
 
     return $results;
@@ -322,7 +324,8 @@ class Products extends \WPS\DB {
     $results['collects']  = $DB_Collects->update_collects($product);
 
     Transients::delete_cached_product_queries();
-
+    Transients::delete_cached_product_single();
+    
     return $results;
 
   }

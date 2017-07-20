@@ -68,7 +68,6 @@ async function streamShop() {
     //
     try {
       var shopData = await getShopData();
-      console.log('shopData: ', shopData);
 
       if (typeof shopData === 'string') {
         reject(shopData);

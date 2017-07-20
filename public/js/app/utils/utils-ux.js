@@ -33,7 +33,7 @@ async function animate(config) {
     }, config.delay);
 
   } else {
-    // console.log('YO');
+
   }
 
 };
@@ -182,9 +182,6 @@ function hideLoader($element) {
 
 
 function shake($element) {
-
-  // $element.removeClass('wps-modal wps-is-visible wps-animated');
-  // console.log("$element: ", $element);
 
   animateIn({
     delay: 0,

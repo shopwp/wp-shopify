@@ -1,3 +1,4 @@
+import { needsCacheFlush, flushCache } from '../utils/utils-cart';
 import { hasItemsInLocalStorage } from './ws-products';
 import { renderCartItems, updateTotalCartPricing } from '../cart/cart-ui';
 
@@ -87,6 +88,18 @@ function updateCart(variant, quantity, shopify) {
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 Initialize Cart
@@ -94,7 +107,7 @@ Initialize Cart
 */
 async function initCart(shopify) {
 
-  if(hasItemsInLocalStorage()) {
+  if(hasItemsInLocalStorage() && !needsCacheFlush()) {
 
     // var cart = await fetchCart(shopify);
 
@@ -118,6 +131,7 @@ async function initCart(shopify) {
 
     setCart(cart);
 
+    flushCache();
     // showAllProducts(shopify);
 
   }

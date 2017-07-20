@@ -206,14 +206,6 @@ if (!class_exists('Hooks')) {
 
 
 
-
-
-
-
-
-
-
-
 		/*
 
 		Products Loop - Meta Start
@@ -852,7 +844,7 @@ if (!class_exists('Hooks')) {
 		Fires the wps_clauses_mod during WP_Query
 
 		*/
-		public function wps_collections_display($args, $customArgs) {
+			public function wps_collections_display($args, $customArgs) {
 
 			if (!is_admin()) {
 
@@ -1391,11 +1383,23 @@ if (!class_exists('Hooks')) {
 		}
 
 		public function wps_collection_single_sidebar() {
-			get_sidebar('wps');
+
+			$sidebar = apply_filters('wps_collection_single_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
 		}
 
 		public function wps_collections_sidebar() {
-			get_sidebar('wps');
+
+			$sidebar = apply_filters('wps_collections_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
 		}
 
 
@@ -1424,6 +1428,56 @@ if (!class_exists('Hooks')) {
 
 		}
 
+
+
+
+		public function wps_product_single_price($default, $priceFirst, $priceLast, $product) {
+
+			$finalPrice = '';
+
+			if ($priceFirst !== $priceLast) {
+				$defaultPrice = apply_filters('wps_product_single_price_multi_from', '<small class="wps-product-from-price">From: </small>') . apply_filters('wps_product_single_price_multi_first', $priceFirst) . apply_filters('wps_product_single_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_product_single_price_multi_last', $priceLast);
+
+				$finalPrice = apply_filters('wps_product_single_price_multi', $defaultPrice, $priceFirst, $priceLast, $product);
+
+			} else {
+
+				$finalPrice = apply_filters('wps_product_single_price_one', $priceFirst, $priceFirst, $product);
+
+			}
+
+			return $finalPrice;
+
+		}
+
+
+
+
+		/*
+
+		Product pricing fitlers. Need to return defaults.
+
+		*/
+		public function wps_products_price_multi($defaultPrice, $priceFirst, $priceLast, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_products_price_one($defaultPrice, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_product_single_price_multi($defaultPrice, $priceFirst, $priceLast, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_product_single_price_one($defaultPrice, $finalPrice, $product) {
+			return $defaultPrice;
+		}
+
+
+
+
+
 		public function wps_products_sidebar() {
 
 			$sidebar = apply_filters('wps_products_show_sidebar', false);
@@ -1433,6 +1487,7 @@ if (!class_exists('Hooks')) {
 			}
 
 		}
+
 
 
 
