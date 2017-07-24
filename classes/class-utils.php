@@ -47,21 +47,61 @@ class Utils {
 
 
 
-public static function wps_is_manually_sorted($shortcodeArgs) {
 
-  if (isset($shortcodeArgs['custom']) && isset($shortcodeArgs['custom']['titles']) && isset($shortcodeArgs['custom']['orderby']) && is_array($shortcodeArgs['custom']['titles']) && $shortcodeArgs['custom']['orderby'] === 'manual') {
-    return true;
 
-  } else {
-    return false;
+
+
+
+
+  /*
+
+  Is Manually Sorted
+
+  */
+  public static function wps_construct_access_token_data($matchedWaypointClient, $waypointSettings) {
+
+    if (is_object($matchedWaypointClient) && property_exists($matchedWaypointClient, 'code') && property_exists($matchedWaypointClient, 'shop') && is_object($waypointSettings) && property_exists($waypointSettings, 'wps_api_key') && property_exists($waypointSettings, 'wps_shared_secret')) {
+
+      return array(
+        'client_id' => $waypointSettings->wps_api_key,
+        'client_secret' => $waypointSettings->wps_shared_secret,
+        'code' => $matchedWaypointClient->code,
+        'shop' => $matchedWaypointClient->shop
+      );
+
+    } else {
+
+      return array(
+        'client_id' => null,
+        'client_secret' => null,
+        'code' => null,
+        'shop' => null
+      );
+
+    }
+
   }
 
 
-}
 
 
 
+  /*
 
+  Is Manually Sorted
+
+  */
+  public static function wps_is_manually_sorted($shortcodeArgs) {
+
+    if (isset($shortcodeArgs['custom']) && isset($shortcodeArgs['custom']['titles']) && isset($shortcodeArgs['custom']['orderby']) && is_array($shortcodeArgs['custom']['titles']) && $shortcodeArgs['custom']['orderby'] === 'manual') {
+      return true;
+
+    } else {
+      return false;
+    }
+
+
+  }
 
 
   /*

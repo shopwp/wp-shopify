@@ -17,13 +17,6 @@ if ( !current_user_can('activate_plugins') ) {
 	return;
 }
 
-
-/*
-
-TODO:
-1. Delete 'code' from WP Shopify server
-
-*/
 $Config = new Config();
 $WS = new WS($Config);
 $WS->wps_uninstall_consumer(false);

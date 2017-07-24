@@ -549,7 +549,7 @@ div[class^="wps-postbox-"] {
 
 .wps-connector-logo {
   width: 31px;
-  max-width: 37px;  
+  max-width: 37px;
   margin-left: 6px;
   margin-right: 3px;
   position: relative;
@@ -838,6 +838,21 @@ Extending WP Core styles
   label.error {
     margin-left: 10px;
     color: red;
+  }
+
+}
+
+
+.wps-progress-notice {
+
+  .notice {
+    font-size: 12px;
+    margin-left: 0;
+
+    &:first-of-type {
+      margin-top: 1em;
+    }
+
   }
 
 }

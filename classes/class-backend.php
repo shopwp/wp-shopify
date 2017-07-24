@@ -104,7 +104,7 @@ class Backend {
 			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, false );
 
 			// Shopify JS SDK
-			wp_enqueue_script('shopify-js-sdk', $this->config->plugin_path . 'js/app/vendor/shopify-buy-button-0.2.3.min.js', array(), $this->config->plugin_version, false );
+			wp_enqueue_script('shopify-js-sdk', $this->config->plugin_url . 'admin/js/app/vendor/shopify-buy-button-0.2.3.min.js', array(), $this->config->plugin_version, false );
 
 			// jQuery Validate
 			wp_enqueue_script('validate-js', '//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
@@ -383,8 +383,6 @@ class Backend {
 	*/
 	public function wps_delete_posts($type, $ids = null) {
 
-		$result = array();
-
 		$args = array(
 			'numberposts' => -1,
 			'post_type' => $type
@@ -399,8 +397,25 @@ class Backend {
 		if (is_array($posts)) {
 
 			foreach ($posts as $post) {
-				$result = wp_delete_post( $post->ID, true);
+
+				if (!wp_delete_post( $post->ID, true)) {
+					$result = false;
+					break;
+
+				} else {
+					$result = true;
+				}
+
 			}
+
+			if (!isset($var)) {
+				$result = false;
+			}
+
+			return $result;
+
+		} else {
+			return false;
 
 		}
 

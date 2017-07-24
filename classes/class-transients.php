@@ -95,7 +95,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_price\_id\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached product prices.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -111,7 +116,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cache.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -127,7 +137,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_with\_variants\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached variants.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -143,7 +158,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%' OR `option_name` LIKE '%\_transient\_wps\_table\_single\_row\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached settings.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -159,7 +179,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_products\_query\_hash\_cache\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached product queries.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -175,7 +200,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_single\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached single product.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -192,7 +222,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collections\_query\_hash\_cache\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached collection queries.');
+
+    } else {
+      return true;
+    }
 
   }
 
@@ -226,7 +261,12 @@ class Transients {
 
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_connection\_%'");
 
-    return $results;
+    if ($results === false) {
+      return new \WP_Error('error', 'Warning: Unable to delete cached connection.');
+
+    } else {
+      return true;
+    }
 
   }
 

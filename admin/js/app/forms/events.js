@@ -13,10 +13,6 @@ import {
   resetProgressIndicators
 } from '../utils/utils';
 
-import {
-  uninstallPlugin
-} from '../ws/ws';
-
 
 /*
 

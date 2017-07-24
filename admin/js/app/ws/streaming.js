@@ -11,6 +11,10 @@ import {
   insertSmartCollections
 } from '../ws/ws';
 
+import {
+  isError
+} from '../utils/utils';
+
 /*
 
 Stream Connection
@@ -26,7 +30,7 @@ async function streamConnection() {
     //
     try {
       var connectionData = await getConnectionData();
-
+      console.log("connectionData: ", connectionData);
     } catch(error) {
       reject(error);
 
@@ -37,7 +41,7 @@ async function streamConnection() {
     //
     try {
       var connection = await insertConnectionData(connectionData);
-
+      console.log("connection: ", connection);
     } catch(error) {
       reject(error);
 
@@ -67,11 +71,21 @@ async function streamShop() {
     // ensure this is clear. Phase 2.
     //
     try {
+      
       var shopData = await getShopData();
 
       if (typeof shopData === 'string') {
         reject(shopData);
       }
+
+      if (isError(shopData)) {
+        throw shopData;
+
+      } else {
+        console.log("shopData: ", shopData.data);
+        shopData = shopData.data;
+      }
+
 
     } catch(error) {
       reject(error);
@@ -119,12 +133,20 @@ async function streamProducts() {
     try {
 
       productCount = await getProductsCount();
-      productCount = productCount.count;
+      console.log("productCount: ", productCount);
+
+      if (isError(productCount)) {
+        throw productCount;
+
+      } else {
+        productCount = productCount.data.count;
+      }
 
     } catch(error) {
       reject(error);
 
     }
+
 
     //
     // 2. Get all products
@@ -182,7 +204,15 @@ async function streamCollects() {
     try {
 
       collectsCount = await getCollectsCount();
-      collectsCount = collectsCount.count;
+      console.log("collectsCount: ", collectsCount);
+
+      if (isError(collectsCount)) {
+        throw collectsCount;
+
+      } else {
+        collectsCount = collectsCount.data.count;
+      }
+
 
     } catch(error) {
       reject(error);

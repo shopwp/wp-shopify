@@ -10,7 +10,8 @@ import {
 import {
   disable,
   setNonce,
-  showSpinner
+  showSpinner,
+  removeTrueAndTransformToArray
 } from '../utils/utils';
 
 import {
@@ -48,7 +49,7 @@ import {
 On connection uninstall ...
 
 */
-async function uninstallPluginData(options = false) {
+async function uninstallPluginData(options = false, reconnect = true) {
 
   if(options === false) {
     options = {
@@ -60,18 +61,32 @@ async function uninstallPluginData(options = false) {
   }
 
   try {
-    var uninstallData = await uninstallPlugin();
 
-    updateDomAfterDisconnect(options);
+    console.log('1111111');
+    var uninstallData = await uninstallPlugin();
+    console.log("uninstallData: ", uninstallData);
+
+    var errorList = removeTrueAndTransformToArray(uninstallData);
+
+    console.log("options: ", options);
+
+    updateDomAfterDisconnect(options, errorList);
 
     // Safe to reconnect again
-    connectInit();
+    if (reconnect) {
+      console.log('Initializing reconnect ...');
+      connectInit();
+    } else {
+      console.log('NOT initializing reconnect ...');
+    }
+
     // unbindDisconnectForm();
 
 
   } catch (error) {
-
+    console.log('hi: ', error);
     updateDomAfterDisconnect(options);
+    return;
 
   }
 
@@ -89,9 +104,9 @@ function onDisconnectionFormSubmit() {
   var $submitButton = $formConnect.find('input[type="submit"]');
 
   unbindConnectForm();
-
+console.log('2');
   $formConnect.on('submit.disconnect', async function(e) {
-
+console.log('1');
     e.preventDefault();
 
     // Remove previous connector modal if exists
@@ -123,7 +138,7 @@ function onDisconnectionFormSubmit() {
 
     */
     try {
-
+console.log('3');
       await uninstallPluginData({
         headingText: 'Disconnected',
         stepText: 'Disconnected Shopify store',
@@ -133,7 +148,7 @@ function onDisconnectionFormSubmit() {
       return true;
 
     } catch (error) {
-
+console.log('4');
       // Something happened, user needs to try
       // disconnecting again
       console.log('... Error disconnecting ...', error);
@@ -151,12 +166,13 @@ function onDisconnectionFormSubmit() {
 updateDomAfterDisconnect
 
 */
-function updateDomAfterDisconnect(options) {
+function updateDomAfterDisconnect(options, errorList = []) {
 
   updateModalHeadingText(options.headingText);
   updateModalButtonText(options.buttonText);
   updateCurrentConnectionStepText(options.stepText);
   updateConnectStatusHeading('is-disconnected');
+
   clearConnectInputs();
   setConnectionProgress("false");
 
@@ -169,6 +185,19 @@ function updateDomAfterDisconnect(options) {
   } else {
     insertCheckmark();
   }
+
+
+  // TODO: Modular this, can put in Utils
+  if (errorList.length > 0) {
+
+    errorList.forEach(function(entry) {
+      jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + entry + '</div>');
+    });
+
+  } else {
+    jQuery('.wps-connector-heading').after('<div class="notice notice-success">Successfully disconnected from Shopify.</div>');
+  }
+
 
   resetConnectSubmit();
   closeModal();

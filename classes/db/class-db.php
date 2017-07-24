@@ -380,11 +380,12 @@ class DB {
 			$results = $wpdb->query( $wpdb->prepare( "DELETE FROM $this->table_name WHERE $this->primary_key = %d", $row_id ));
 		}
 
-    if ($results) {
-      return true;
+		// Need to strictly check for FALSE since query can return 0 for no change
+    if ($results === false) {
+      return false;
 
     } else {
-			return false;
+			return true;
 
 		}
 

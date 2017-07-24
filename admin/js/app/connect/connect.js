@@ -1,4 +1,8 @@
 import {
+  isError
+} from 'lodash';
+
+import {
   syncPluginData
 } from '../ws/middleware';
 
@@ -140,6 +144,7 @@ function onConnectionFormSubmit() {
 
 
       try {
+
         await insertConnectionData(formData);
         setConnectionStepMessage('Getting plugin settings');
 
@@ -167,7 +172,12 @@ function onConnectionFormSubmit() {
 
         updateModalHeadingText('Canceling ...');
 
-        await uninstallPluginData();
+        await uninstallPluginData({
+          headingText: 'Canceled',
+          stepText: 'Failed getting auth token from WP Shopify',
+          buttonText: 'Exit Connection',
+          xMark: true
+        });
 
         return;
 
@@ -302,12 +312,18 @@ async function onAuthRedirect() {
     // TODO:
     // Create a real-time progress bar to show syncing progress
     //
-    await syncPluginData();
-
     // removeProgressLoader();
+    var syncPluginDataResp = await syncPluginData();
+
+
+    if (isError(syncPluginDataResp)) {
+      throw new Error(syncPluginDataResp.message);
+
+    } else {
+      console.log("syncPluginDataResp: ", syncPluginDataResp);
+    }
 
     // setConnectionStepMessage('Redirecting to Shopify');
-
     closeModal();
     insertCheckmark();
     setConnectionMessage('Success! You\'re now connected and syncing with Shopify.', 'success');
@@ -317,7 +333,7 @@ async function onAuthRedirect() {
     setDisconnectSubmit();
     disconnectInit();
 
-  } catch (error) {
+  } catch (syncPluginDataError) {
 
     jQuery(document).unbind();
     closeModal();
@@ -328,13 +344,13 @@ async function onAuthRedirect() {
 
       await uninstallPluginData({
         headingText: 'Canceled',
-        stepText: error,
+        stepText: syncPluginDataError,
         buttonText: 'Exit Connection',
         xMark: true
       });
 
-    } catch(err) {
-      console.log('Error uninstalling ...', err);
+    } catch(uninstallPluginDataError) {
+      console.log('Error uninstalling ...', uninstallPluginDataError);
     }
 
   }

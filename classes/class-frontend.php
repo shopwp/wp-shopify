@@ -360,45 +360,54 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_variant_id() {
 
-			$DB_Products = new DB_Products();
-			$DB_Variants = new DB_Variants();
-			$selectedOptions = $_POST['selectedOptions'];
+			if (isset($_POST['selectedOptions']) && is_array($_POST['selectedOptions'])) {
 
-			// TODO: combine below two lines with wps_get_product_variants
-			$productData = $DB_Products->get_product($_POST['productID']);
-			$variantData = $DB_Variants->get_product_variants($_POST['productID']);
+				$DB_Products = new DB_Products();
+				$DB_Variants = new DB_Variants();
+				$selectedOptions = $_POST['selectedOptions'];
 
-			// $productVariants = maybe_unserialize( unserialize( $productData['variants'] ));
+				// TODO: combine below two lines with wps_get_product_variants
+				$productData = $DB_Products->get_product($_POST['productID']);
+				$variantData = $DB_Variants->get_product_variants($_POST['productID']);
 
-			// TODO: Move to Utils
-			function array_filter_key($ar, $callback = 'empty') {
-				$ar = (array)$ar;
-				return array_intersect_key($ar, array_flip(array_filter(array_keys($ar), $callback)));
-			}
+				// $productVariants = maybe_unserialize( unserialize( $productData['variants'] ));
 
-			$refinedVariants = array();
-			$refinedVariantsOptions = array();
+				// TODO: Move to Utils
+				function array_filter_key($ar, $callback = 'empty') {
+					$ar = (array)$ar;
+					return array_intersect_key($ar, array_flip(array_filter(array_keys($ar), $callback)));
+				}
 
-			foreach ($variantData as $key => $variant) {
+				$refinedVariants = array();
+				$refinedVariantsOptions = array();
 
-				$refinedVariantsOptions = array_filter_key($variant, function($key) {
-					return strpos($key, 'option') === 0;
-				});
+				foreach ($variantData as $key => $variant) {
 
-				$refinedVariants[] = array(
-					'id' => $variant->id,
-					'options' => $refinedVariantsOptions
-				);
+					$refinedVariantsOptions = array_filter_key($variant, function($key) {
+						return strpos($key, 'option') === 0;
+					});
 
-			}
-
-			foreach ($refinedVariants as $key => $variant) {
-
-				if(count(array_intersect($variant['options'], $selectedOptions)) == count($selectedOptions)) {
-					echo $variant['id'];
-					die();
+					$refinedVariants[] = array(
+						'id' => $variant->id,
+						'options' => $refinedVariantsOptions
+					);
 
 				}
+
+				foreach ($refinedVariants as $key => $variant) {
+
+					if(count(array_intersect($variant['options'], $selectedOptions)) == count($selectedOptions)) {
+						echo $variant['id'];
+						die();
+
+					}
+
+				}
+
+			} else {
+
+				echo 'Selected option not found. Please try again.';
+				die();
 
 			}
 
