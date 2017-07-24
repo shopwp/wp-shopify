@@ -25,6 +25,7 @@ function controlPromise(options) {
     });
 
   } else {
+
     return jQuery.ajax(options);
 
   }

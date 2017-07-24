@@ -8,6 +8,15 @@ import {
   getProductSelectionID
 } from '../ws/ws-products';
 
+
+import {
+  resetVariantSelectors,
+} from './products-meta';
+
+
+
+
+
 import {
   updateCart
 } from '../ws/ws-cart';
@@ -26,6 +35,9 @@ showProductMetaError
 */
 function showProductMetaError($element, errorMessage) {
 
+  // Hides all other error messages
+  hideAllProductMetaErrors();
+
   $element
     .closest('.wps-product-meta')
     .find('.wps-product-notice')
@@ -35,6 +47,20 @@ function showProductMetaError($element, errorMessage) {
   var $elementToShake = $element.closest('.wps-product-actions-group').find('.wps-btn-dropdown[data-selected="false"]');
 
   shake($elementToShake);
+
+}
+
+
+/*
+
+hideProductMetaErrors
+
+*/
+function hideAllProductMetaErrors() {
+
+  jQuery('.wps-product-notice')
+    .html('')
+    .removeClass('wps-is-visible wps-notice-error');
 
 }
 
@@ -116,7 +142,7 @@ function onAddProductToCart(shopify) {
         product,
         productVariant;
 
-    if( allProductVariantsSelected($container) ) {
+    if (allProductVariantsSelected($container)) {
 
       disable($addToCartButton);
       showLoader($addToCartButton);
@@ -434,7 +460,14 @@ function onProductVariantChange() {
         hideProductMetaErrors($trigger);
 
       } catch(error) {
-        showProductMetaError($trigger,  error + '. Code: 7');
+
+        showProductMetaError($trigger,  error.responseText);
+        enable($newProductMetaContainer.find('.wps-btn'));
+        shake($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
+
+        resetVariantSelectors($newProductMetaContainer);
+
+        hideLoader($trigger);
 
       }
 

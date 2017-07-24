@@ -7,6 +7,72 @@ import {
 
 /*
 
+Check if object has a property
+
+*/
+function hasProp(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+
+/*
+
+Check if an object
+
+*/
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+
+function isError(response) {
+
+  if (isObject(response) && hasProp(response, 'success')) {
+
+    if (response.success) {
+      return false;
+
+    } else {
+      return true;
+
+    }
+
+  } else {
+    return false;
+
+  }
+
+}
+
+
+/*
+
+Remove true and transform to array
+
+*/
+function removeTrueAndTransformToArray(myObj) {
+
+  var myArray = [];
+
+  for (var key in myObj) {
+
+    if (myObj[key] === true) {
+      delete myObj[key];
+
+    } else {
+      myArray.push(myObj[key]);
+    }
+
+  }
+
+  return myArray;
+
+}
+
+
+/*
+
 Check if value contains https:// or http://
 
 */
@@ -408,16 +474,6 @@ function formatExpireDate(dateString) {
 }
 
 
-/*
-
-Checks if variable is a true object
-
-*/
-function isObject(arg) {
-  return arg !== null && typeof arg === 'object';
-}
-
-
 export {
   getUrlParams,
   showSpinner,
@@ -437,11 +493,14 @@ export {
   containsURL,
   createMask,
   formatExpireDate,
-  isObject,
   showLoader,
   hideLoader,
   cleanDomainURL,
   containsPathAfterShopifyDomain,
   containsTrailingForwardSlash,
-  removeTrailingForwardSlash
+  removeTrailingForwardSlash,
+  removeTrueAndTransformToArray,
+  isError,
+  hasProp,
+  isObject
 };

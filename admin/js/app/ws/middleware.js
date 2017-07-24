@@ -7,6 +7,18 @@ import {
   syncCustomCollections
 } from './syncing';
 
+import {
+  setConnectionStepMessage
+} from '../connect/connect';
+
+import {
+  uninstallPluginData
+} from '../disconnect/disconnect';
+
+import {
+  updateModalHeadingText
+} from '../utils/utils-dom';
+
 
 /*
 
@@ -22,7 +34,10 @@ function syncPluginData() {
     syncCollects(),
     syncSmartCollections(),
     syncCustomCollections()
-  ]);
+  ])
+  .catch(async function(error) {
+    return new Error(error);
+  });
 
 }
 

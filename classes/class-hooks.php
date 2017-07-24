@@ -858,7 +858,6 @@ if (!class_exists('Hooks')) {
 
 				}
 
-
 				$collectionsQueryHash = md5(serialize($args));
 
 				/*
@@ -883,8 +882,10 @@ if (!class_exists('Hooks')) {
 				if (Utils::wps_is_manually_sorted($args)) {
 					$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
 
+
 				} else {
 					$collections = $collectionsQuery->posts;
+
 				}
 
 

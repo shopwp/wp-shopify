@@ -4,7 +4,7 @@ namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\DB\Settings_Connection;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as Guzzle;
 
 // require_once plugin_dir_path( __FILE__ ) . '../admin/class-admin.php';
 
@@ -53,10 +53,57 @@ class Waypoints {
   */
   public function wps_waypoint_settings() {
 
-    $response = \Requests::get('https://wpshop.io/wp-json/wp-shopify/v1/settings');
-    $responseBody = $response->body;
+    $url = 'https://wpshop.io/wp-json/wp-shopify/v1/settings';
 
-    return $responseBody;
+    // try {
+    //
+    //   $Guzzle = new Guzzle();
+    //   $guzzelResponse = $Guzzle->get($url);
+    //
+    //   return $guzzelResponse->getBody()->getContents();
+    //
+    //
+    // } catch (\Exception $e) {
+    //
+    //   return $e->getMessage();
+    //
+    // }
+
+
+    try {
+
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url);
+
+      $shopDataResponse = $guzzelResponse->getBody()->getContents();
+
+      return $shopDataResponse;
+      // wp_send_json_success($shopDataResponse);
+
+      // if (is_object($shopDataResponse) && property_exists($shopDataResponse, 'shop')) {
+      //   wp_send_json_success($shopDataResponse);
+      //
+      // } else {
+      //   wp_send_json_error($shopDataResponse);
+      //
+      // }
+
+
+    } catch (RequestException $error) {
+
+      $responseDecoded = $error->getResponse()->getBody()->getContents();
+
+      return $responseDecoded;
+      // wp_send_json_error($responseDecoded->errors);
+
+    }
+
+
+
+
+
+
+
 
   }
 
@@ -74,6 +121,10 @@ class Waypoints {
     // OLD
     $connection = $this->config->wps_get_settings_connection();
 
+    error_log('------- $shopifySettings -------');
+    error_log(print_r($shopifySettings, true));
+    error_log('--------------------------');
+
 		$url = 'https://' . $connection->domain . '/admin/oauth/authorize?client_id=' . $shopifySettings->wps_api_key . '&scope=' . $shopifySettings->wps_scopes . '&redirect_uri=' . $shopifySettings->wps_redirect . '&state=' . $connection->nonce;
 
     echo $url;
@@ -89,18 +140,35 @@ class Waypoints {
 	*/
 	function wps_waypoint_clients($token) {
 
+    $url = 'https://wpshop.io/wp-json/wp/v2/users/2';
+
 		$headers = array(
 			'Content-Type' => 'application/json',
 			'Authorization' => 'Bearer ' . $token
 		);
 
-		$responseUser = \Requests::get('https://wpshop.io/wp-json/wp/v2/users/2', $headers);
 
-		$userFinal = $responseUser->body;
-		$userDesc = json_decode($userFinal);
-		$wpShopifyClients = json_decode($userDesc->description);
+    try {
 
-		return $wpShopifyClients;
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers
+      ));
+
+      $data = $guzzelResponse->getBody()->getContents();
+      $userDesc = json_decode($data);
+
+      $wpShopifyClients = json_decode($userDesc->description);
+
+  		return $wpShopifyClients;
+
+
+    } catch (\Exception $e) {
+
+      return $e->getMessage();
+
+    }
+
 
 	}
 
@@ -113,16 +181,28 @@ class Waypoints {
 	*/
 	public function wps_waypoint_auth() {
 
+    $url = 'https://wpshop.io/wp-json/jwt-auth/v1/token';
+
 		$data = array(
       'username' => 'wp-shopify-auth-user',
       'password' => 'xyWlcxyIwkA(#gUl!Exy$ITz'
     );
 
-		$response = \Requests::post('https://wpshop.io/wp-json/jwt-auth/v1/token', array(), $data);
+    $Guzzle = new Guzzle();
 
-		$token = json_decode($response->body)->token;
+    try {
 
-		return $token;
+      $guzzelResponse = $Guzzle->post($url, [
+        'query' => $data
+      ]);
+
+      return json_decode($guzzelResponse->getBody()->getContents())->token;
+
+    } catch (\Exception $e) {
+
+      return $e->getMessage();
+
+    }
 
 	}
 
@@ -136,48 +216,31 @@ class Waypoints {
 
     $api_url = 'https://' . $accessTokenData['shop'] . '/admin/oauth/access_token';
 
-    $api_params = array(
+    $api_body = array(
       'client_id' => $accessTokenData['client_id'],
       'client_secret' => $accessTokenData['client_secret'],
       'code' => $accessTokenData['code']
     );
 
-    $response = wp_safe_remote_post( $api_url, array(
-      'timeout' 		=> 60,
-      'sslverify' 	=> true,
-      'body' 				=> $api_params,
-      'httpversion' => '1.1',
-      'headers'     => array(
-        'Accept'    => 'application/json'
-      )
-    ));
+    $Guzzle = new Guzzle();
 
+    $headers = array(
+      'Accept' => 'application/json',
+      'Content-type' => 'application/json'
+    );
 
-    if ( is_wp_error( $response ) ) {
+    try {
 
-      $client = new Client();
+      $guzzelResponse = $Guzzle->post($api_url, [
+        'query' => $api_body,
+        'headers' => $headers
+      ]);
 
-      try {
+      return json_decode($guzzelResponse->getBody()->getContents());
 
-        $guzzelResponse = $client->post($api_url, [
-          'query' => $api_params,
-          'headers' => [
-            'Accept' => 'application/json',
-            'Content-type' => 'application/json'
-          ]
-        ]);
+    } catch (\Exception $e) {
 
-        return json_decode($guzzelResponse->getBody()->getContents());
-
-      } catch (\Exception $e) {
-
-        return $e->getMessage();
-
-      }
-
-    } else {
-
-      return json_decode($response['body']);
+      return $e->getMessage();
 
     }
 
@@ -217,24 +280,29 @@ class Waypoints {
 
     $connection = $this->config->wps_get_settings_connection();
 
-    $storedDomain = $connection->domain;
+    if (is_object($connection) && property_exists($connection, 'domain')) {
 
-    foreach ($clients as $client) {
+      $storedDomain = $connection->domain;
 
-      if($client->shop === $storedDomain) {
+      foreach ($clients as $client) {
 
-        if($client->nonce === $connection->nonce) {
-          return $client;
+        if($client->shop === $storedDomain) {
+
+          if($client->nonce === $connection->nonce) {
+            return $client;
+          }
+
+        } else {
+          return null;
+
         }
-
-      } else {
-        return null;
 
       }
 
+    } else {
+      return null;
     }
 
   }
-
 
 }

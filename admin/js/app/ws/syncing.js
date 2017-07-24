@@ -47,8 +47,7 @@ function syncShop() {
       resolve(shop);
 
     } catch(error) {
-      console.log('You died, try again 2', error);
-      reject(error);
+      reject(error.data + ' (syncShop)');
 
     }
 
@@ -72,8 +71,7 @@ function syncProducts() {
 
     } catch(error) {
 
-      console.log('You died, try again 3', error);
-      reject(error);
+      reject(error.data + ' (syncProducts)');
 
     }
 
@@ -97,8 +95,7 @@ function syncCollects() {
 
     } catch(error) {
 
-      console.log('You died, try again 4', error);
-      reject(error);
+      reject(error.data + ' (syncCollects)');
 
     }
 

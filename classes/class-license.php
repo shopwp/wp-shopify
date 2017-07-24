@@ -4,7 +4,7 @@ namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\DB\Settings_License;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as Guzzle;
 
 /*
 
@@ -157,9 +157,9 @@ class License {
 
 	public function wps_get_latest_plugin_version() {
 
-		$api_url = 'https://wpshop.io'; // TODO: Put in config
+		$url = 'https://wpshop.io'; // TODO: Put in config
 
-		$api_params = array(
+		$body = array(
 			'edd_action' => 'get_version',
 			'item_name'  => isset( $this->config->plugin_name ) ? $this->config->plugin_name : false,
 			'item_id'    => 35, // TODO: remove hardcode
@@ -168,37 +168,28 @@ class License {
 			'beta'       => false
 		);
 
-		$response = wp_safe_remote_post( $api_url, array(
-			'timeout' 		=> 60,
-			'sslverify' 	=> true,
-			'body' 				=> $api_params
-		));
+		$headers = array(
+			'Accept' => 'application/json',
+			'Content-type' => 'application/json'
+		);
 
-		if ( is_wp_error( $response ) ) {
 
-			try {
+		try {
 
-				$client = new Client();
+			$Guzzle = new Guzzle();
 
-				$guzzelResponse = $client->post($api_url, [
-					'query' => $api_params,
-					'headers' => [
-						'Accept' => 'application/json',
-						'Content-type' => 'application/json'
-					]
-				]);
+			$guzzelResponse = $Guzzle->post($url, [
+				'query' => $body,
+				'headers' => $headers
+			]);
 
-				return json_decode($guzzelResponse->getBody()->getContents());
+			return json_decode($guzzelResponse->getBody()->getContents());
 
-			} catch (\Exception $e) {
-				return $e->getMessage();
-			}
-
-		} else {
-
-			return json_decode($response['body']);
+		} catch (\Exception $e) {
+			return $e->getMessage();
 
 		}
+
 
 	}
 
@@ -215,21 +206,32 @@ class License {
 		$license = $Settings_License->get();
 		$key = $license->key;
 
-		$url = $this->plugin_env . '/edd-sl?edd_action=check_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
+		$api_url = $this->plugin_env . '/edd-sl?edd_action=check_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
 
-		$response = \Requests::get($url);
 
-    $data = json_decode($response->body);
+		try {
 
-		if ($data->license === 'valid') {
-			$this->wps_activate_plugin_license($license);
+			$Guzzle = new Guzzle();
+			$guzzelResponse = $Guzzle->get($api_url);
+			$data = json_decode($guzzelResponse->getBody()->getContents());
 
-		} else {
-			$this->wps_deactivate_plugin_license($license);
+			if ($data->license === 'valid') {
+				$this->wps_activate_plugin_license($license);
+
+			} else {
+				$this->wps_deactivate_plugin_license($license);
+
+			}
+
+			return $data->license;
+
+
+		} catch (\Exception $e) {
+
+			return $e->getMessage();
 
 		}
 
-		return $data->license;
 
   }
 

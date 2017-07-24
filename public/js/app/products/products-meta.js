@@ -74,8 +74,30 @@ function attachOnVariantSelectListeners(product, element) {
 }
 
 
+
+
+
+function resetVariantSelectors($parent) {
+
+  jQuery('.wps-btn-dropdown[data-selected=true]').each(function (index, element) {
+
+    var $dropdown = jQuery(element);
+    var $dropdownLink = $dropdown.find('.wps-modal-trigger');
+
+    $dropdown.attr('data-selected', false);
+    $dropdown.data('selected', false);
+    $dropdownLink.html($dropdownLink.attr("data-option"));
+
+  });
+
+}
+
+
+
+
+
 export {
-  productMetaEvents,
+  resetVariantSelectors,
   updateProductTitle,
   updateVariantImage,
   updateVariantTitle,
