@@ -1,3 +1,5 @@
+import 'whatwg-fetch';
+
 /*
 
 Getting all collections, returns promise

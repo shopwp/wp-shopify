@@ -25,6 +25,52 @@ import {
 
 /*
 
+Check if object has a property
+
+*/
+function hasProp(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+
+/*
+
+Check if an object
+
+*/
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+
+/*
+
+Checks whether data is a WordPress error
+
+*/
+function isError(response) {
+
+  if (isObject(response) && hasProp(response, 'success')) {
+
+    if (response.success) {
+      return false;
+
+    } else {
+      return true;
+
+    }
+
+  } else {
+    return false;
+
+  }
+
+}
+
+
+/*
+
 Creates a queryable selector from a space
 seperated list of class names.
 
@@ -282,6 +328,13 @@ async function formatAsMoney(amount) {
         try {
           var formatWithCurrencySymbol = await getCurrencyFormat();
 
+          if (isError(formatWithCurrencySymbol)) {
+            throw formatWithCurrencySymbol.data;
+
+          } else {
+            formatWithCurrencySymbol = formatWithCurrencySymbol.data;
+          }
+
         } catch (error) {
           reject(error);
 
@@ -293,6 +346,13 @@ async function formatAsMoney(amount) {
           try {
             var moneyFormat = await getMoneyFormatWithCurrency();
 
+            if (isError(moneyFormat)) {
+              throw moneyFormat.data;
+
+            } else {
+              moneyFormat = moneyFormat.data;
+            }
+
           } catch (error) {
             reject(error);
 
@@ -301,7 +361,15 @@ async function formatAsMoney(amount) {
         } else {
 
           try {
+
             var moneyFormat = await getMoneyFormat();
+
+            if (isError(moneyFormat)) {
+              throw moneyFormat.data;
+
+            } else {
+              moneyFormat = moneyFormat.data;
+            }
 
           } catch (error) {
             reject(error);
@@ -316,9 +384,12 @@ async function formatAsMoney(amount) {
 
     }
 
+
+
     var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
     var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
     var finalPrice = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
+
 
     resolve(finalPrice);
 
@@ -412,7 +483,7 @@ function closeCallbackClick(event) {
 
       }
     } else {
-      
+
     }
 
   }
@@ -448,5 +519,8 @@ export {
   addOriginalClassesBack,
   turnAnimationFlagOff,
   turnAnimationFlagOn,
-  quantityFinder
+  quantityFinder,
+  isError,
+  isObject,
+  hasProp
 };

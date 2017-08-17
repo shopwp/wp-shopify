@@ -121,14 +121,9 @@ class Waypoints {
     // OLD
     $connection = $this->config->wps_get_settings_connection();
 
-    error_log('------- $shopifySettings -------');
-    error_log(print_r($shopifySettings, true));
-    error_log('--------------------------');
-
 		$url = 'https://' . $connection->domain . '/admin/oauth/authorize?client_id=' . $shopifySettings->wps_api_key . '&scope=' . $shopifySettings->wps_scopes . '&redirect_uri=' . $shopifySettings->wps_redirect . '&state=' . $connection->nonce;
 
-    echo $url;
-		die();
+    wp_send_json_success($url);
 
 	}
 

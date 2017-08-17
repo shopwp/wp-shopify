@@ -44,11 +44,63 @@ class Utils {
 	}
 
 
+  public static function print_elog($seperator = ':', $object = null) {
+
+    error_log(str_repeat($seperator, 10));
+    error_log(print_r($object, true));
+    error_log(str_repeat($seperator, 10));
+
+  }
+
+
+  public static function var_elog($seperator = '-', $object = null) {
+
+    ob_start();
+    var_dump( $object );
+    $contents = ob_get_contents();
+    ob_end_clean();
+
+    error_log(str_repeat($seperator, 10));
+    error_log($contents);
+    error_log(str_repeat($seperator, 10));
+
+  }
 
 
 
 
 
+  public static function emptyConnection($connection) {
+
+    if (!is_object($connection)) {
+      return true;
+
+    } else {
+
+      if(property_exists($connection, 'access_token') && $connection->access_token) {
+        return false;
+
+      } else {
+        return true;
+
+      }
+
+    }
+
+  }
+
+
+
+  public static function backFromShopify() {
+
+    if(isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
+      return true;
+
+    } else {
+      return false;
+    }
+
+  }
 
 
 
@@ -1744,6 +1796,11 @@ class Utils {
 
     }
 
+    error_log('------------+-------------');
+    error_log(print_r($product, true));
+    error_log('------------+-------------');
+
+
     if (get_transient('wps_product_price_id_' . $productID)) {
       return get_transient('wps_product_price_id_' . $productID);
 
@@ -1759,6 +1816,11 @@ class Utils {
         $money_format_current = $DB_Shop->get_money_format();
 
       }
+
+
+      error_log('------------+-------------');
+      error_log(print_r($price, true));
+      error_log('------------+-------------');
 
 
       $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);

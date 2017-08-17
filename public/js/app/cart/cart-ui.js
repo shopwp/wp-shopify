@@ -1,4 +1,4 @@
-import { formatAsMoney } from '../utils/utils-common';
+import { formatAsMoney, isError } from '../utils/utils-common';
 import { fetchCart } from '../ws/ws-cart';
 import { animate, animateIn, enable, disable } from '../utils/utils-ux';
 
@@ -66,6 +66,7 @@ async function updateCartCounter(shopify) {
       reject(error);
 
     }
+
 
     if (cart.lineItemCount > 0) {
 
@@ -298,7 +299,14 @@ async function renderCartItems(shopify, cart = false, singleProduct = false) {
             }
 
 
-            var formatedPrice = await formatAsMoney(lineItem.line_price);
+            try {
+
+              var formatedPrice = await formatAsMoney(lineItem.line_price);
+
+            } catch(error) {
+              reject(error);
+            }
+
 
             $lineItemTemplate.find('.wps-cart-item__price').text(formatedPrice);
             $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);

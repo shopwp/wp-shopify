@@ -1,3 +1,4 @@
+import 'whatwg-fetch';
 import { needsCacheFlush, flushCache } from '../utils/utils-cart';
 import { hasItemsInLocalStorage } from './ws-products';
 import { renderCartItems, updateTotalCartPricing } from '../cart/cart-ui';

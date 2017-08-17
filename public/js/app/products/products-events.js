@@ -1,3 +1,4 @@
+import { isError } from '../utils/utils-common';
 import { disable, enable, showLoader, hideLoader, animate, animateIn, shake } from '../utils/utils-ux';
 
 import {
@@ -12,10 +13,6 @@ import {
 import {
   resetVariantSelectors,
 } from './products-meta';
-
-
-
-
 
 import {
   updateCart
@@ -148,10 +145,12 @@ function onAddProductToCart(shopify) {
       showLoader($addToCartButton);
 
       try {
+
         product = await getProduct(shopify, productID);
         productVariant = getProductVariantID(product, matchingProductVariantID);
 
       } catch(error) {
+
         enable($addToCartButton);
         hideLoader($addToCartButton);
         showProductMetaError($addToCartButton,  'Sorry, it looks like this product isn\'t available to purchase');
@@ -159,15 +158,18 @@ function onAddProductToCart(shopify) {
 
       }
 
+
       /*
 
       Update Cart Instance
 
       */
       try {
+
         await updateCart(productVariant, productQuantity, shopify);
 
       } catch(error) {
+
         enable($addToCartButton);
         hideLoader($addToCartButton);
         showProductMetaError($addToCartButton,  error + '. Code: 4');
@@ -401,7 +403,6 @@ function checkForLastSelection(previouslySelectedOptions, currentProductID) {
 }
 
 
-
 /*
 
 Product Variant Change
@@ -449,19 +450,28 @@ function onProductVariantChange() {
 
       // All variants selected, find actual variant ID
       try {
-        var foundVariantID = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
+        var foundVariantIDResponse = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
+
+        if (isError(foundVariantIDResponse)) {
+          throw foundVariantIDResponse.data;
+
+        } else {
+
+          var foundVariantID = foundVariantIDResponse.data;
+
+          $newProductMetaContainer.data('product-selected-variant', foundVariantID);
+          $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);
+
+        }
 
         enable($newProductMetaContainer.find('.wps-btn'));
         hideLoader($trigger);
-
-        $newProductMetaContainer.data('product-selected-variant', foundVariantID);
-        $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);
-
         hideProductMetaErrors($trigger);
+
 
       } catch(error) {
 
-        showProductMetaError($trigger,  error.responseText);
+        showProductMetaError($trigger,  error);
         enable($newProductMetaContainer.find('.wps-btn'));
         shake($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
 

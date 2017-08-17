@@ -47,7 +47,14 @@ function syncShop() {
       resolve(shop);
 
     } catch(error) {
-      reject(error.data + ' (syncShop)');
+
+      if (error.hasOwnProperty('data')) {
+        reject(error.data + ' (syncShop)');
+
+      } else {
+        reject(error + ' (syncShop)');
+
+      }
 
     }
 
@@ -71,7 +78,15 @@ function syncProducts() {
 
     } catch(error) {
 
-      reject(error.data + ' (syncProducts)');
+      console.log('errorerror: ', error);
+
+      if (error.hasOwnProperty('data')) {
+        reject(error.data + ' (syncProducts)');
+
+      } else {
+        reject(error + ' (syncProducts)');
+
+      }
 
     }
 
@@ -95,7 +110,15 @@ function syncCollects() {
 
     } catch(error) {
 
-      reject(error.data + ' (syncCollects)');
+      if (error.hasOwnProperty('data')) {
+        console.log("errorrrrr: ", error);
+        reject(error.data + ' ((syncCollects)');
+
+      } else {
+        console.log("errorrzzzz: ", error);
+        reject(error + ' (syncCollects)');
+
+      }
 
     }
 
@@ -119,8 +142,14 @@ function syncSmartCollections() {
 
     } catch(error) {
 
-      console.log('You died, try again 5', error);
-      reject(error);
+      if (error.hasOwnProperty('data')) {
+        reject(error.data + ' (syncSmartCollections)');
+
+      } else {
+        reject(error + ' (syncSmartCollections)');
+
+      }
+
 
     }
 
@@ -140,6 +169,9 @@ function syncCustomCollections() {
 
     try {
       var customCollections = await streamCustomCollections();
+
+      console.log('OKOKOKOK: ', customCollections);
+
       resolve(customCollections);
 
     } catch(error) {

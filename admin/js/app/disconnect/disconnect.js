@@ -62,13 +62,15 @@ async function uninstallPluginData(options = false, reconnect = true) {
 
   try {
 
-    console.log('1111111');
     var uninstallData = await uninstallPlugin();
-    console.log("uninstallData: ", uninstallData);
 
-    var errorList = removeTrueAndTransformToArray(uninstallData);
+    if (uninstallData.hasOwnProperty('data')) {
+      var errorList = removeTrueAndTransformToArray(uninstallData.data);
 
-    console.log("options: ", options);
+    } else {
+      var errorList = removeTrueAndTransformToArray(uninstallData[0]);
+
+    }
 
     updateDomAfterDisconnect(options, errorList);
 
@@ -76,12 +78,10 @@ async function uninstallPluginData(options = false, reconnect = true) {
     if (reconnect) {
       console.log('Initializing reconnect ...');
       connectInit();
+
     } else {
       console.log('NOT initializing reconnect ...');
     }
-
-    // unbindDisconnectForm();
-
 
   } catch (error) {
     console.log('hi: ', error);
@@ -104,9 +104,9 @@ function onDisconnectionFormSubmit() {
   var $submitButton = $formConnect.find('input[type="submit"]');
 
   unbindConnectForm();
-console.log('2');
+
   $formConnect.on('submit.disconnect', async function(e) {
-console.log('1');
+
     e.preventDefault();
 
     // Remove previous connector modal if exists
@@ -138,17 +138,19 @@ console.log('1');
 
     */
     try {
-console.log('3');
-      await uninstallPluginData({
+
+      var uninstallResponse = await uninstallPluginData({
         headingText: 'Disconnected',
         stepText: 'Disconnected Shopify store',
         buttonText: 'Exit Connection'
       });
 
+      console.log("uninstallResponse: ", uninstallResponse);
+
       return true;
 
     } catch (error) {
-console.log('4');
+
       // Something happened, user needs to try
       // disconnecting again
       console.log('... Error disconnecting ...', error);

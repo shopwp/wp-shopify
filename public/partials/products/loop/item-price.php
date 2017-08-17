@@ -34,7 +34,7 @@ use WPS\Utils;
       $firstVariantPrice = $variants[0]['price'];
 
       if ($lastVariantPrice === $firstVariantPrice) {
-        
+
         $defaultPrice = Utils::wps_format_money($firstVariantPrice, $product);
         echo apply_filters('wps_products_price_one', $defaultPrice, $product);
 

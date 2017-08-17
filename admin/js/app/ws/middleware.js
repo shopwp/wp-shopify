@@ -19,7 +19,6 @@ import {
   updateModalHeadingText
 } from '../utils/utils-dom';
 
-
 /*
 
 Syncing Shopify data with WordPress CPT
@@ -36,7 +35,17 @@ function syncPluginData() {
     syncCustomCollections()
   ])
   .catch(async function(error) {
-    return new Error(error);
+
+    console.log('99999999999: ', error);
+
+    if (error.hasOwnProperty('data')) {
+      return new Error(error.data);
+
+    } else {
+      return new Error(error);
+
+    }
+    
   });
 
 }

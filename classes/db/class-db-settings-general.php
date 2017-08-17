@@ -18,9 +18,6 @@ class Settings_General extends \WPS\DB {
   public $num_posts;
   public $cache_group;
 
-  // $this->get_column_single('num_posts');
-  // ;
-
   /*
 
   Construct
@@ -211,7 +208,7 @@ class Settings_General extends \WPS\DB {
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
       `price_with_currency` tinyint(1) DEFAULT 0,
 		  PRIMARY KEY  (`{$this->primary_key}`)
-		) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
+		) ENGINE=InnoDB $collate";
 
     //
     // Create the table if it doesnt exist. Where the magic happens.

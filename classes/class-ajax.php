@@ -48,8 +48,7 @@ class AJAX {
 	*/
 	public function wps_get_options() {
 
-		echo json_encode( 'from class-ajax' );
-		die();
+    wp_send_json_success('from class-ajax');
 
 	}
 

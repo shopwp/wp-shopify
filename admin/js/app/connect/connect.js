@@ -87,7 +87,7 @@ function onConnectionFormSubmit() {
   unbindDisconnectForm();
 
   $formConnect.on('submit.connect', function(e) {
-      e.preventDefault();
+    e.preventDefault();
 
   }).validate({
 
@@ -232,7 +232,8 @@ function onConnectionFormSubmit() {
       */
       try {
 
-        var shopifyURL = await getShopifyURL();
+        var shopifyURLResponse = await getShopifyURL();
+        var shopifyURL = shopifyURLResponse.data;
 
         setConnectionStepMessage('Redirecting to Shopify');
         updateModalHeadingText('Redirecting ...');
