@@ -1,3 +1,5 @@
+import 'whatwg-fetch';
+
 /*
 
 Get Single Product by ID
@@ -48,6 +50,9 @@ TODO: Move to WS
 
 */
 function getVariantIdFromOptions(productID, selectedOptions) {
+
+  console.log("productID: ", productID);
+  console.log("selectedOptions: ", selectedOptions);
 
   return jQuery.ajax({
     method: 'POST',

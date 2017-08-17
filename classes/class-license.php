@@ -106,12 +106,11 @@ class License {
 		$result = $Settings_License->insert_license($newLicenseData);
 
 		if ($result) {
-			echo true;
-	    die();
+			wp_send_json_success(true);
 
 		} else {
-			echo false;
-	    die();
+			wp_send_json_success(false);
+
 		}
 
   }
@@ -127,8 +126,7 @@ class License {
 		$Settings_License = new Settings_License();
 		$result = $Settings_License->delete_license($_POST['key']);
 
-    echo json_encode($result);
-    die();
+		wp_send_json_success($result);
 
   }
 
@@ -144,8 +142,7 @@ class License {
 		$license = $Settings_License->get();
 
 		if ($ajax) {
-			echo $license->key;
-	    die();
+			wp_send_json_success($license->key);
 
 		} else {
 			return $license;

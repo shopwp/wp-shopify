@@ -7,7 +7,7 @@ import { initCart } from '../ws/ws-cart';
 import { productEvents } from '../products/products-events';
 import { cartEvents } from '../cart/cart-events';
 import { updateCartCounter, updateTotalCartPricing } from '../cart/cart-ui';
-
+import { isError } from './utils-common';
 
 
 /*
@@ -42,7 +42,11 @@ async function bootstrap() {
 
   try {
     var creds = await getShopifyCreds();
-    // console.log('getShopifyCreds() done');
+
+    if (isError(creds)) {
+      throw connectionData.data;
+    }
+
 
   } catch(error) {
 
@@ -51,7 +55,7 @@ async function bootstrap() {
   }
 
   try {
-    var shopify = await shopifyInit(creds);
+    var shopify = await shopifyInit(creds.data);
     // console.log('shopifyInit() done');
 
   } catch(error) {
@@ -62,13 +66,15 @@ async function bootstrap() {
 
   try {
     await initCart(shopify);
-    // console.log('initCart() done');
+
 
   } catch(error) {
 
     // TODO: Show front-end error message
     console.log('initCart error: ', error);
   }
+
+  console.log("shopify initial: ", shopify);
 
   bootstrapEvents(shopify);
   bootstrapUI(shopify);

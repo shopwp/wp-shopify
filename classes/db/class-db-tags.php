@@ -225,7 +225,7 @@ class Tags extends \WPS\DB {
       `post_id` bigint(100) DEFAULT NULL,
       `tag` varchar(255) DEFAULT NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
-    ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
+    ) ENGINE=InnoDB $collate";
 
     //
     // Create the table if it doesnt exist. Where the magic happens.

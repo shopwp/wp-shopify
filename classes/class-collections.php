@@ -192,8 +192,7 @@ class Collections {
 
     }
 
-    echo json_encode($results);
-    die();
+    wp_send_json_success($results);
 
   }
 

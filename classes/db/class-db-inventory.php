@@ -112,7 +112,7 @@ class Inventory extends \WPS\DB {
       `fulfillment_service` varchar(100) DEFAULT NULL,
       `barcode` varchar(100) DEFAULT NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
-    ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
+    ) ENGINE=InnoDB $collate";
 
     //
     // Create the table if it doesnt exist. Where the magic happens.

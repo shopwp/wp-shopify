@@ -24,7 +24,7 @@ function getMoneyFormat() {
   return jQuery.ajax({
     method: 'GET',
     url: wps.ajax,
-    dataType: 'html',
+    dataType: 'json',
     data: {
       action: 'wps_get_money_format'
     }
@@ -38,7 +38,7 @@ function getMoneyFormatWithCurrency() {
   return jQuery.ajax({
     method: 'GET',
     url: wps.ajax,
-    dataType: 'html',
+    dataType: 'json',
     data: {
       action: 'wps_get_money_format_with_currency'
     }

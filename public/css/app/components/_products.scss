@@ -26,8 +26,8 @@
 
   &.wps-notice-inline-sm {
     margin-top: $space-m;
-    width: calc(100% - 1.6em);
-    max-width: calc(100% - 1.6em);
+    // width: calc(100% - 1.6em);
+    // max-width: calc(100% - 1.6em);
   }
 
 }
@@ -499,7 +499,8 @@ WP Shopify namespaced styles go here
 .wps-product-item {
 
   .wps-product-actions-group {
-    flex-direction: column;
+    // flex-direction: column;
+    display: block;
     margin: 0;
 
     .wps-btn-wrapper,
@@ -540,8 +541,8 @@ WP Shopify namespaced styles go here
     }
 
     .wps-notice-inline-sm {
-      width: calc(100% - 1.6em);
-      max-width: calc(100% - 1.6em);
+      // width: calc(100% - 1.6em);
+      // max-width: calc(100% - 1.6em);
     }
 
   }

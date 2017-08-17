@@ -6,6 +6,27 @@ import {
   controlPromise
 } from '../utils/utils-data';
 
+/*
+
+Get all products from Shopify
+Returns: Promise
+
+*/
+function uninstallProductData() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_uninstall_product_data'
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
 
 /*
 
@@ -527,7 +548,6 @@ function getShopifyURL() {
   var options = {
     method: 'POST',
     url: wps.ajax,
-    dataType: 'html',
     data: {
       action: 'wps_waypoint_get_shopify_url'
     }
@@ -944,10 +964,6 @@ function getProductVariants(productID) {
 };
 
 
-
-
-
-
 export {
   getProductsFromCollection,
   insertCustomCollections,
@@ -984,5 +1000,6 @@ export {
   insertShopData,
   insertConnectionData,
   getConnectionData,
-  getProductVariants
+  getProductVariants,
+  uninstallProductData
 };

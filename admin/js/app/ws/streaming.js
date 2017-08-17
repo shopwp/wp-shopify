@@ -8,7 +8,8 @@ import {
   insertProductsData,
   insertCollects,
   insertCustomCollections,
-  insertSmartCollections
+  insertSmartCollections,
+  uninstallProductData
 } from '../ws/ws';
 
 import {
@@ -30,7 +31,11 @@ async function streamConnection() {
     //
     try {
       var connectionData = await getConnectionData();
-      console.log("connectionData: ", connectionData);
+
+      if (isError(connectionData)) {
+        reject(connectionData.data);
+      }
+
     } catch(error) {
       reject(error);
 
@@ -41,7 +46,7 @@ async function streamConnection() {
     //
     try {
       var connection = await insertConnectionData(connectionData);
-      console.log("connection: ", connection);
+
     } catch(error) {
       reject(error);
 
@@ -71,7 +76,7 @@ async function streamShop() {
     // ensure this is clear. Phase 2.
     //
     try {
-      
+
       var shopData = await getShopData();
 
       if (typeof shopData === 'string') {
@@ -79,10 +84,9 @@ async function streamShop() {
       }
 
       if (isError(shopData)) {
-        throw shopData;
+        reject(shopData.data);
 
       } else {
-        console.log("shopData: ", shopData.data);
         shopData = shopData.data;
       }
 
@@ -97,6 +101,10 @@ async function streamShop() {
     //
     try {
       var shop = await insertShopData(shopData);
+
+      if (isError(shop)) {
+        reject(shop.data);
+      }
 
     } catch(error) {
       reject(error);
@@ -123,9 +131,30 @@ async function streamProducts() {
       productsCPT,
       pageSize = 250,
       currentPage = 1,
-      pages;
+      pages,
+      productData;
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
+
+    //
+    // 0. Clean out data before syncing
+    //
+    try {
+
+      productData = await uninstallProductData();
+
+      if (isError(productData)) {
+        reject(productData.data);
+
+      }
+
+    } catch(error) {
+
+      console.log("===== productData error: ", error);
+      reject(error);
+
+    }
+
 
     //
     // 1. Get products count
@@ -133,10 +162,9 @@ async function streamProducts() {
     try {
 
       productCount = await getProductsCount();
-      console.log("productCount: ", productCount);
 
       if (isError(productCount)) {
-        throw productCount;
+        reject(productCount.data);
 
       } else {
         productCount = productCount.data.count;
@@ -162,12 +190,20 @@ async function streamProducts() {
 
         var newProducts = await insertProductsData(currentPage);
 
-        if (Array.isArray(newProducts)) {
-          products = R.concat(products, newProducts);
-          currentPage += 1;
+        if (isError(newProducts)) {
+          reject(newProducts.data);
 
         } else {
-          reject(newProducts);
+
+          if (Array.isArray(newProducts.data.products)) {
+            products = R.concat(products, newProducts.data.products);
+            currentPage += 1;
+
+          } else {
+            reject(newProducts.data.products);
+
+          }
+
         }
 
       } catch(error) {
@@ -204,15 +240,13 @@ async function streamCollects() {
     try {
 
       collectsCount = await getCollectsCount();
-      console.log("collectsCount: ", collectsCount);
 
       if (isError(collectsCount)) {
-        throw collectsCount;
+        reject(collectsCount.data);
 
       } else {
         collectsCount = collectsCount.data.count;
       }
-
 
     } catch(error) {
       reject(error);
@@ -232,7 +266,18 @@ async function streamCollects() {
       // Runs for each page of collects until all done
       while(currentPage <= pages) {
 
-        collects = R.concat(collects, await insertCollects(currentPage));
+        try {
+          var collectsNew = await insertCollects(currentPage);
+
+          if (isError(collectsNew)) {
+            reject(collectsNew);
+          }
+
+        } catch(errorCollects) {
+          reject(errorCollects);
+        }
+
+        collects = R.concat(collects, collectsNew.data);
         currentPage += 1;
 
       }
@@ -261,7 +306,13 @@ async function streamSmartCollections() {
 
     try {
       var smartCollections = await insertSmartCollections();
-      resolve(smartCollections);
+
+      if (isError(smartCollections)) {
+        reject(smartCollections.data);
+
+      } else {
+        resolve(smartCollections);
+      }
 
     } catch(error) {
       reject(error);
@@ -285,9 +336,16 @@ async function streamCustomCollections() {
 
     try {
       var customCollections = await insertCustomCollections();
-      resolve(customCollections);
+
+      if (isError(customCollections)) {
+        reject(customCollections.data);
+
+      } else {
+        resolve(customCollections);
+      }
 
     } catch(error) {
+;
       reject(error);
 
     }

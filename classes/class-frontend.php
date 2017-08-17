@@ -264,10 +264,7 @@ if (!class_exists('Frontend')) {
 
 		*/
 		public function wps_get_credentials() {
-
-			echo json_encode( $this->config->wps_get_settings_connection() );
-			die();
-
+			wp_send_json_success($this->config->wps_get_settings_connection());
 		}
 
 
@@ -394,20 +391,27 @@ if (!class_exists('Frontend')) {
 
 				}
 
+				$found = false;
+
 				foreach ($refinedVariants as $key => $variant) {
 
 					if(count(array_intersect($variant['options'], $selectedOptions)) == count($selectedOptions)) {
-						echo $variant['id'];
-						die();
+
+						$found = true;
+						wp_send_json_success($variant['id']);
 
 					}
 
 				}
 
+				if (!$found) {
+					wp_send_json_error('Selected option not found. Please select something else.');
+				}
+
+
 			} else {
 
-				echo 'Selected option not found. Please try again.';
-				die();
+				wp_send_json_error('Selected option not found. Please select something else.');
 
 			}
 
@@ -436,12 +440,11 @@ if (!class_exists('Frontend')) {
 			$result = $DB_Settings_General->get_column_single('price_with_currency');
 
 			if (isset($result[0]) && $result[0]->price_with_currency) {
-				echo $result[0]->price_with_currency;
-				die();
+
+				wp_send_json_success($result[0]->price_with_currency);
 
 			} else {
-				echo false;
-				die();
+				wp_send_json_error('Currency format not found. Please try again.');
 
 			}
 
@@ -476,12 +479,10 @@ if (!class_exists('Frontend')) {
 
 
 			if ($_POST['format'] === $current_money_format || $_POST['format'] === $money_with_currency_format) {
-				echo json_encode(false);
-				die();
+				wp_send_json_success(false);
 
 			} else {
-				echo json_encode(true);
-				die();
+				wp_send_json_success(true);
 
 			}
 
@@ -501,12 +502,11 @@ if (!class_exists('Frontend')) {
 
 			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_format) {
 
-				echo (string)$moneyFormat[0]->money_format;
-				die();
+				$moneyFormat = (string)$moneyFormat[0]->money_format;
+				wp_send_json_success($moneyFormat);
 
 			} else {
-				echo false;
-				die();
+				wp_send_json_success(false);
 
 			}
 
@@ -525,12 +525,11 @@ if (!class_exists('Frontend')) {
 
 			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_with_currency_format) {
 
-				echo (string)$moneyFormat[0]->money_with_currency_format;
-				die();
+				$moneyFormat = (string)$moneyFormat[0]->money_with_currency_format;
+				wp_send_json_success($moneyFormat);
 
 			} else {
-				echo false;
-				die();
+				wp_send_json_success(false);
 
 			}
 

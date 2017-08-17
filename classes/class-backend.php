@@ -344,8 +344,7 @@ class Backend {
 		$shopifyCreds['app_id'] = $connection['app_id'];
 		$shopifyCreds['domain'] = $connection['domain'];
 
-		echo json_encode($shopifyCreds);
-		die();
+		wp_send_json_success($shopifyCreds);
 
 	}
 
@@ -383,8 +382,10 @@ class Backend {
 	*/
 	public function wps_delete_posts($type, $ids = null) {
 
+		$deletions = array();
+
 		$args = array(
-			'numberposts' => -1,
+			'posts_per_page' => -1,
 			'post_type' => $type
 		);
 
@@ -394,11 +395,14 @@ class Backend {
 
 		$posts = get_posts($args);
 
-		if (is_array($posts)) {
+		if (!empty($posts) && is_array($posts)) {
 
 			foreach ($posts as $post) {
 
-				if (!wp_delete_post( $post->ID, true)) {
+				$deletion = wp_delete_post( $post->ID, true);
+				$deletions[] = $deletion;
+
+				if (!$deletion) {
 					$result = false;
 					break;
 
@@ -408,14 +412,8 @@ class Backend {
 
 			}
 
-			if (!isset($var)) {
-				$result = false;
-			}
-
-			return $result;
-
 		} else {
-			return false;
+			return true;
 
 		}
 
@@ -515,6 +513,9 @@ class Backend {
 		// WS
 		add_action( 'wp_ajax_wps_uninstall_consumer', array($WS, 'wps_uninstall_consumer'));
 		add_action( 'wp_ajax_nopriv_wps_uninstall_consumer', array($WS, 'wps_uninstall_consumer'));
+
+		add_action( 'wp_ajax_wps_uninstall_product_data', array($WS, 'wps_uninstall_product_data'));
+		add_action( 'wp_ajax_nopriv_wps_uninstall_product_data', array($WS, 'wps_uninstall_product_data'));
 
 		add_action( 'wp_ajax_wps_get_progress_count', array($WS, 'wps_get_progress_count'));
 		add_action( 'wp_ajax_nopriv_wps_get_progress_count', array($WS, 'wps_get_progress_count'));

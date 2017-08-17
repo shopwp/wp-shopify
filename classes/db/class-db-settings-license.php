@@ -146,7 +146,7 @@ class Settings_License extends \WPS\DB {
       `activations_left` varchar(100) DEFAULT NULL,
       `price_id` varchar(100) DEFAULT NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
-    ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
+    ) ENGINE=InnoDB $collate";
 
     //
     // Create the table if it doesnt exist. Where the magic happens.

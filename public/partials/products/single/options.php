@@ -14,7 +14,7 @@ if (count($product['options']) === 1) {
        data-selected="false"
        data-selected-val="">
 
-    <a href="#" class="wps-btn wps-icon wps-icon-dropdown wps-modal-trigger" data-option="<?php echo $option['name']; ?>"><?php echo $option['name']; ?></a>
+    <a href="#!" class="wps-btn wps-icon wps-icon-dropdown wps-modal-trigger" data-option="<?php echo $option['name']; ?>"><?php echo $option['name']; ?></a>
 
     <ul class="wps-modal">
       <?php foreach (unserialize($option['values']) as $key => $variant) { ?>

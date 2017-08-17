@@ -256,7 +256,7 @@ class Variants extends \WPS\DB {
       `created_at` datetime,
       `updated_at` datetime,
       PRIMARY KEY  (`{$this->primary_key}`)
-    ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
+    ) ENGINE=InnoDB $collate";
 
     //
     // Create the table if it doesnt exist. Where the magic happens.

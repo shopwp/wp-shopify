@@ -69,14 +69,20 @@ class Settings_Connection extends \WPS\DB {
 
     global $wpdb;
 
-    if ($this->get_by('domain', $connectionData['domain'])) {
+    if (isset($connectionData['domain']) && $connectionData['domain']) {
 
-      $rowID = $this->get_column_by('id', 'domain', $connectionData['domain']);
-      $results = $this->update($rowID, $connectionData);
+      if ($this->get_by('domain', $connectionData['domain'])) {
+
+        $rowID = $this->get_column_by('id', 'domain', $connectionData['domain']);
+        $results = $this->update($rowID, $connectionData);
+
+      } else {
+        $results = $this->insert($connectionData, 'connection');
+
+      }
 
     } else {
-      $results = $this->insert($connectionData, 'connection');
-
+      $results = false;
     }
 
     return $results;
@@ -131,7 +137,7 @@ class Settings_Connection extends \WPS\DB {
       `webhook_id` varchar(100) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
-    ) ENGINE=InnoDB DEFAULT CHARSET={$collate};";
+    ) ENGINE=InnoDB $collate";
 
     //
     // Create the table if it doesnt exist. Where the magic happens.
