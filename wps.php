@@ -192,7 +192,7 @@ if ( ! class_exists('WP_Shopify') ) {
 		*/
 		public function Products() {
 			$Products = $this->Products;
-			return $Products::instance();
+			return $Products::instance($this->Config);
 		}
 
 
