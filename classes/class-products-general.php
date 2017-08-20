@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\DB\Variants;
+
 /*
 
 Class Products
@@ -28,10 +30,10 @@ class Products_General {
   Ensures only one instance is used.
 
   */
-  public static function instance() {
+  public static function instance($config) {
 
     if (is_null(self::$instantiated)) {
-      self::$instantiated = new self();
+      self::$instantiated = new self($config);
     }
 
     return self::$instantiated;
@@ -247,6 +249,26 @@ class Products_General {
   	// $productData = get_post_meta($collectionId);
 
   }
+
+
+
+
+
+  /*
+
+
+  WPS API Method: Get Variants
+
+
+  */
+  public function get_variants($product_id) {
+
+    $DB_Variants = new Variants();
+    return $DB_Variants->get_product_variants($product_id);
+
+  }
+
+
 
 
   /*
