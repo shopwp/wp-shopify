@@ -36,7 +36,7 @@ function syncPluginData() {
   ])
   .catch(async function(error) {
 
-    console.log('99999999999: ', error);
+    console.log('Error syncing plugin data: ', error);
 
     if (error.hasOwnProperty('data')) {
       return new Error(error.data);
@@ -45,7 +45,7 @@ function syncPluginData() {
       return new Error(error);
 
     }
-    
+
   });
 
 }

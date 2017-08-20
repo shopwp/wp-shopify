@@ -40,42 +40,43 @@ TODO: Little bit of duplication happening here. Could be done better.
 */
 async function bootstrap() {
 
+
+  // Get Shopify Credentials
   try {
+
     var creds = await getShopifyCreds();
 
     if (isError(creds)) {
       throw connectionData.data;
     }
 
-
   } catch(error) {
-
-    // TODO: Show front-end error message
     console.log('getShopifyCreds error: ', error);
+    return error;
   }
 
+
+  // Shopify Init
   try {
     var shopify = await shopifyInit(creds.data);
-    // console.log('shopifyInit() done');
 
   } catch(error) {
-
-    // TODO: Show front-end error message
     console.log('shopifyInit error: ', error);
+    return error;
   }
 
+
+  // Init Cart
   try {
     await initCart(shopify);
 
-
   } catch(error) {
-
-    // TODO: Show front-end error message
     console.log('initCart error: ', error);
+    return error;
   }
 
-  console.log("shopify initial: ", shopify);
 
+  // Bootstrap
   bootstrapEvents(shopify);
   bootstrapUI(shopify);
 

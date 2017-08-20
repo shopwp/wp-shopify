@@ -134,10 +134,15 @@ function throwError(error) {
 
 function extractMoneyFormatType(format) {
 
-  var newFormat = format;
-  newFormat = newFormat.split('{{').pop().split('}}').shift();
+  if (format) {
+    var newFormat = format;
+    newFormat = newFormat.split('{{').pop().split('}}').shift();
 
-  return newFormat.replace(/\s+/g, " ").trim();
+    return newFormat.replace(/\s+/g, " ").trim();
+
+  } else {
+    return false;
+  }
 
 }
 
@@ -242,15 +247,19 @@ function formatMoneyPerSetting(amount, format, origFormat) {
 
 
 
-function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat) {
+function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat = '') {
 
-  var extractedMoneyFormat = new RegExp(extractedMoneyFormat, "g");
-  var finalPrice = moneyFormat.replace(extractedMoneyFormat, formattedMoney);
+  if (moneyFormat) {
 
-  finalPrice = finalPrice.replace(/{{/g, '');
-  finalPrice = finalPrice.replace(/}}/g, '');
+    var extractedMoneyFormat = new RegExp(extractedMoneyFormat, "g");
+    var finalPrice = moneyFormat.replace(extractedMoneyFormat, formattedMoney);
 
-  return finalPrice;
+    finalPrice = finalPrice.replace(/{{/g, '');
+    finalPrice = finalPrice.replace(/}}/g, '');
+
+    return finalPrice;
+
+  }
 
 }
 
@@ -384,9 +393,8 @@ async function formatAsMoney(amount) {
 
     }
 
-
-
     var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
+    console.log("extractedMoneyFormat: ", moneyFormat);
     var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
     var finalPrice = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
 

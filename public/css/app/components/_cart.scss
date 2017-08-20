@@ -84,12 +84,16 @@
   height: calc(100vh - 85px);
 }
 
+
 .wps-cart-item-container {
   margin-top: 0;
   height: 75%;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
+
+  // overflow-x: hidden;
+  // overflow-y: auto;
+  overflow: auto;
+
   -webkit-overflow-scrolling: touch;
   perspective: 400px;
   perspective-origin: 50% 0px;

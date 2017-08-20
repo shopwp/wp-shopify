@@ -1,6 +1,12 @@
 function needsCacheFlush() {
 
-  if (!window.wps.is_connected && localStorage.getItem('wps-last-cart-id')) {
+  /*
+
+  If recently connected, or if not connected but something exists in cart ...
+
+  */
+  if (!window.wps.is_connected && localStorage.getItem('wps-last-cart-id') || window.wps.is_recently_connected) {
+    console.log('Flushing LS ...');
     return true;
 
   } else {

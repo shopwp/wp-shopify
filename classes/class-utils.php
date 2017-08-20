@@ -1796,10 +1796,6 @@ class Utils {
 
     }
 
-    error_log('------------+-------------');
-    error_log(print_r($product, true));
-    error_log('------------+-------------');
-
 
     if (get_transient('wps_product_price_id_' . $productID)) {
       return get_transient('wps_product_price_id_' . $productID);
@@ -1818,13 +1814,7 @@ class Utils {
       }
 
 
-      error_log('------------+-------------');
-      error_log(print_r($price, true));
-      error_log('------------+-------------');
-
-
       $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
-
 
       set_transient('wps_product_price_id_' . $productID, $finalPrice);
 

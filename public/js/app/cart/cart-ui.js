@@ -307,7 +307,8 @@ async function renderCartItems(shopify, cart = false, singleProduct = false) {
               reject(error);
             }
 
-
+            console.log("formatedPrice: ", formatedPrice);
+            
             $lineItemTemplate.find('.wps-cart-item__price').text(formatedPrice);
             $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
             $lineItemTemplate.find('.wps-quantity-decrement').attr('data-variant-id', lineItem.variant_id);

@@ -125,7 +125,8 @@ class Backend {
 
 			wp_localize_script('wps-admin', 'wps', array(
 					'ajax' => admin_url( 'admin-ajax.php' ),
-					'pluginsPath' => plugins_url()
+					'pluginsPath' => plugins_url(),
+					'pluginsDirURL' => plugin_dir_url(dirname(__FILE__))
 				)
 			);
 
@@ -398,19 +399,16 @@ class Backend {
 		if (!empty($posts) && is_array($posts)) {
 
 			foreach ($posts as $post) {
-
-				$deletion = wp_delete_post( $post->ID, true);
-				$deletions[] = $deletion;
-
-				if (!$deletion) {
-					$result = false;
-					break;
-
-				} else {
-					$result = true;
-				}
-
+				$deletions[] = wp_delete_post( $post->ID, true);
 			}
+
+			if (in_array(false, $deletions, true) ) {
+				return false;
+
+			} else {
+				return true;
+			}
+
 
 		} else {
 			return true;

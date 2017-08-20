@@ -82,7 +82,8 @@
   margin: 0;
   padding: 0 1em;
   position: relative;
-
+  max-width: 30px;
+  
   &:focus {
     outline: 0;
   }
@@ -111,7 +112,7 @@
   font-weight: normal;
   font-size: 36px;
   text-align: center;
-  
+
   &:hover {
     opacity: $dimOpacity;
     background: transparent;

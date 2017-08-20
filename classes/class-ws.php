@@ -433,6 +433,8 @@ class WS {
 
           */
           set_transient('wps_settings_updated', true);
+          set_transient('wps_recently_connected', true);
+
           Transients::check_rewrite_rules();
           Transients::delete_cached_connections();
 
@@ -844,17 +846,13 @@ class WS {
           "Content-Type" => "application/json",
           "Accept" => "application/json",
           "Content-Length" => "0",
-          "X-Shopify-Access-Tokennnn" => $this->connection->access_token
+          "X-Shopify-Access-Token" => $this->connection->access_token
         );
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->delete($url, array(
           'headers' => $headers
         ));
-
-        error_log('dddd');
-        error_log(print_r($guzzelResponse, true));
-        error_log('dddd');
 
         return true;
 
@@ -1165,7 +1163,12 @@ NEW STRUCTURE
 
     $results = $DB_Settings_Connection->insert_connection($connectionData);
 
-    wp_send_json_success($results);
+    if ($results === false) {
+      wp_send_json_error('Unable to save Shopify connection details. Please try again.');
+
+    } else {
+      wp_send_json_success($results);
+    }
 
   }
 
@@ -1240,11 +1243,11 @@ NEW STRUCTURE
     $Backend = new Backend($this->config);
 
     if (!$Backend->wps_delete_posts('wps_products')) {
-      $result = new \WP_Error('error', 'Warning: Unable to delete products custom post types.');
+      $result = new \WP_Error('error', 'Warning: Some products could not be deleted. Please try again.');
     }
 
     if (!$Backend->wps_delete_posts('wps_collections')) {
-      $result = new \WP_Error('error', 'Warning: Unable to delete collections custom post types.');
+      $result = new \WP_Error('error', 'Warning: Some collections could not be deleted. Please try again.');
     }
 
     return $result;

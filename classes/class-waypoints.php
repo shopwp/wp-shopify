@@ -98,13 +98,6 @@ class Waypoints {
 
     }
 
-
-
-
-
-
-
-
   }
 
 
@@ -121,9 +114,15 @@ class Waypoints {
     // OLD
     $connection = $this->config->wps_get_settings_connection();
 
-		$url = 'https://' . $connection->domain . '/admin/oauth/authorize?client_id=' . $shopifySettings->wps_api_key . '&scope=' . $shopifySettings->wps_scopes . '&redirect_uri=' . $shopifySettings->wps_redirect . '&state=' . $connection->nonce;
+    if (is_object($connection) && $connection) {
+      $url = 'https://' . $connection->domain . '/admin/oauth/authorize?client_id=' . $shopifySettings->wps_api_key . '&scope=' . $shopifySettings->wps_scopes . '&redirect_uri=' . $shopifySettings->wps_redirect . '&state=' . $connection->nonce;
 
-    wp_send_json_success($url);
+      wp_send_json_success($url);
+
+    } else {
+      wp_send_json_error('Unable to find Shopify settings. Please try again.');
+
+    }
 
 	}
 

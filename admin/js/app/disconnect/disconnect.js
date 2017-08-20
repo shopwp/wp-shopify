@@ -84,7 +84,7 @@ async function uninstallPluginData(options = false, reconnect = true) {
     }
 
   } catch (error) {
-    console.log('hi: ', error);
+
     updateDomAfterDisconnect(options);
     return;
 
@@ -189,7 +189,7 @@ function updateDomAfterDisconnect(options, errorList = []) {
   }
 
 
-  // TODO: Modular this, can put in Utils
+  // TODO: Modularize this, can put in Utils
   if (errorList.length > 0) {
 
     errorList.forEach(function(entry) {
@@ -198,6 +198,7 @@ function updateDomAfterDisconnect(options, errorList = []) {
 
   } else {
     jQuery('.wps-connector-heading').after('<div class="notice notice-success">Successfully disconnected from Shopify.</div>');
+
   }
 
 

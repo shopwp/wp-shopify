@@ -108,7 +108,7 @@ Initialize Cart
 */
 async function initCart(shopify) {
 
-  if(hasItemsInLocalStorage() && !needsCacheFlush()) {
+  if (hasItemsInLocalStorage() && !needsCacheFlush()) {
 
     // var cart = await fetchCart(shopify);
 
@@ -131,7 +131,6 @@ async function initCart(shopify) {
     }
 
     setCart(cart);
-
     flushCache();
     // showAllProducts(shopify);
 
