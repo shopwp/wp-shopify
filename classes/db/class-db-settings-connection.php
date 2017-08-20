@@ -90,10 +90,11 @@ class Settings_Connection extends \WPS\DB {
   }
 
 
+  /*
 
+  check_connection
 
-
-
+  */
   public function check_connection() {
 
     $accessToken = $this->get_column_single('access_token');

@@ -261,7 +261,6 @@ class DB {
 
     $column_formats = array_merge( array_flip($data_keys), $column_formats);
 
-
 		$result = $wpdb->insert($this->table_name, $data, $column_formats);
 
 

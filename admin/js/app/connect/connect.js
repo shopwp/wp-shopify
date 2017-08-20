@@ -142,16 +142,30 @@ function onConnectionFormSubmit() {
       setNonce( $formInputNonce.val() );
       setConnectionStepMessage('Saving settings');
 
-
       try {
 
-        await insertConnectionData(formData);
+        var connectionDataResp = await insertConnectionData(formData);
+
+        if (!connectionDataResp.success) {
+          throw new Error(connectionDataResp.data);
+        }
+
         setConnectionStepMessage('Getting plugin settings');
 
       } catch (error) {
 
         updateModalHeadingText('Canceling ...');
-        await uninstallPluginData();
+
+        if (isError(error)) {
+
+          var uninstallResponse = await uninstallPluginData({
+            headingText: 'Canceled',
+            stepText: error,
+            buttonText: 'Exit Connection',
+            xMark: true
+          });
+
+        }
 
         return;
 
@@ -233,15 +247,31 @@ function onConnectionFormSubmit() {
       try {
 
         var shopifyURLResponse = await getShopifyURL();
-        var shopifyURL = shopifyURLResponse.data;
 
-        setConnectionStepMessage('Redirecting to Shopify');
-        updateModalHeadingText('Redirecting ...');
+        if (!shopifyURLResponse.success) {
+          throw new Error(shopifyURLResponse.data);
+
+        } else {
+
+          var shopifyURL = shopifyURLResponse.data;
+
+          setConnectionStepMessage('Redirecting to Shopify');
+          updateModalHeadingText('Redirecting ...');
+
+        }
 
       } catch (error) {
 
         updateModalHeadingText('Canceling ...');
-        await uninstallPluginData();
+
+        if (isError(error)) {
+          await uninstallPluginData({
+            headingText: 'Canceled',
+            stepText: error,
+            buttonText: 'Exit Connection',
+            xMark: true
+          });
+        }
 
         return;
 
@@ -320,8 +350,6 @@ async function onAuthRedirect() {
     if (isError(syncPluginDataResp)) {
       throw new Error(syncPluginDataResp.message);
 
-    } else {
-      console.log("syncPluginDataResp: ", syncPluginDataResp);
     }
 
     // setConnectionStepMessage('Redirecting to Shopify');

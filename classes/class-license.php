@@ -81,16 +81,11 @@ class License {
 
 		$isLocal = isset($_POST['is_local']) && $_POST['is_local'] ? 1 : 0;
 		$success = isset($_POST['success']) && $_POST['success'] ? 1 : 0;
-		// $expires = isset($_POST['expires']) && $_POST['expires'] === 'lifetime' ? 0 : $_POST['expires'];
-
-
-		$date = date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $_POST['expires'])));
-
 
 		$newLicenseData = array(
     	'key'                   => $_POST['key'],
     	'is_local'              => $isLocal,
-    	'expires'               => $date,
+    	'expires'               => date('Y-m-d H:i:s', strtotime($_POST['expires'])),
 			'lifetime'							=> $_POST['lifetime'],
     	'site_count'            => $_POST['site_count'],
     	'checksum'              => $_POST['checksum'],

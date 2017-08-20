@@ -467,9 +467,18 @@ Creates a masked version of a particular string
 */
 function formatExpireDate(dateString) {
 
-  var date = new Date(dateString);
+  // var date = new Date(dateString);
+  //
+  // return dateFormat(date, "mmmm d, yyyy");
+  //
 
-  return dateFormat(date, "mmmm d, yyyy");
+  var timestamp = Date.parse(dateString);
+
+  if (isNaN(timestamp) == false) {
+    var date = new Date(timestamp);
+    return dateFormat(date, "mmmm d, yyyy");
+  }
+
 
 }
 

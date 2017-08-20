@@ -170,8 +170,6 @@ function syncCustomCollections() {
     try {
       var customCollections = await streamCustomCollections();
 
-      console.log('OKOKOKOK: ', customCollections);
-
       resolve(customCollections);
 
     } catch(error) {

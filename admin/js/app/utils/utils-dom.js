@@ -96,6 +96,7 @@ function showConnectorModal($connectorModal) {
 };
 
 
+
 /*
 
 Creates a new connector modal if one doesn't already exist
@@ -106,7 +107,8 @@ TODO: Needs dynamic image paths
 function createConnectorModal() {
 
   if(getModalCache() === null) {
-    return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><h1 class="wps-connector-heading"><span>Connecting ...</span> <img class="wps-connector-logo" src="/wp-content/plugins/wp-shopify/admin/imgs/logo-wp.svg" /> to <img class="wps-connector-logo" src="/wp-content/plugins/wp-shopify/admin/imgs/shopify.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">Cancel connection</button></div><div class="wps-connector-content"></div></ div></div>');
+
+    return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><h1 class="wps-connector-heading"><span>Connecting ...</span> <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/logo-wp.svg" /> to <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/shopify.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">Cancel connection</button></div><div class="wps-connector-content"></div></ div></div>');
 
   } else {
     return getModalCache();

@@ -79,11 +79,35 @@ function onManualQuantityChange(shopify) {
     disable($cartForm);
     disable(jQuery(this));
 
-    var product = await getProduct(shopify, productId);
+    try {
+      var product = await getProduct(shopify, productId);
+
+    } catch(error) {
+      console.log('Error: getProduct() onManualQuantityChange() ', error);
+
+    }
+
     var variant = getProductVariantID(product, variantId);
-    var cart = await fetchCart(shopify);
+
+    try {
+      var cart = await fetchCart(shopify);
+
+    } catch (error) {
+      console.log('Error: fetchCart() onManualQuantityChange()', error);
+
+    }
+
     var difference = quantityFinder(cart.lineItems[0].quantity, quantity);
-    var ok = await updateCart(variant, difference, shopify);
+
+
+    try {
+      await updateCart(variant, difference, shopify);
+
+    } catch (error) {
+      console.log('Error: updateCart() onManualQuantityChange()', error);
+
+    }
+    
 
     // Updates cart icon counter
     updateCartCounter(shopify);

@@ -118,6 +118,7 @@ if (!class_exists('Frontend')) {
 
 	    }
 
+
 			if(!is_admin()) {
 
 				// WP Shopify JS Public
@@ -126,11 +127,18 @@ if (!class_exists('Frontend')) {
 				wp_localize_script($this->config->plugin_name . '-public', $this->config->plugin_name, array(
 						'ajax' => admin_url( 'admin-ajax.php' ),
 						'pluginsPath' => plugins_url(),
-						'is_connected' => $connected
+						'is_connected' => $connected,
+						'is_recently_connected' => get_transient('wps_recently_connected')
 					)
 				);
 
 			}
+
+			// Sets recently connected to false by default
+			if (get_transient('wps_recently_connected')) {
+				set_transient('wps_recently_connected', false);
+			}
+
 
 		}
 
