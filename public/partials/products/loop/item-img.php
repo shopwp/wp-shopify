@@ -1,1 +1,1 @@
-<img src="<?php echo $product->image; ?>" class="wps-products-img <?php echo apply_filters( 'wps_products_img_class', '' ); ?>">
+<img src="<?php echo $product->image; ?>" class="wps-products-img <?php echo apply_filters( 'wps_products_img_class', '' ); ?>" alt="<?php echo $product->title . ' ' . $product->product_id . ' ' . $product->product_type; ?>">

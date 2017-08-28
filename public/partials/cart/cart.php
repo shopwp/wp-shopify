@@ -8,7 +8,7 @@
       <?php echo apply_filters( 'wps_cart_title_text', 'Shopping cart' ); ?>
     </h2>
 
-    <button class="wps-btn-close wps-modal-close-trigger">
+    <button class="wps-btn-close wps-modal-close-trigger" title="Open Cart">
       <span aria-role="hidden" class="wps-modal-close-trigger">
         <?php echo apply_filters( 'wps_cart_close_icon', '&times;' ); ?>
       </span>
@@ -40,7 +40,7 @@
           <?php echo apply_filters( 'wps_cart_shipping_text', 'Shipping and discount codes are added at checkout.' ); ?>
         </div>
 
-        <a href="#!" class="wps-btn wps-btn-checkout" target="_self">
+        <a href="#!" class="wps-btn wps-btn-checkout" target="_self" title="Checkout">
           <?php echo apply_filters( 'wps_cart_checkout_text', 'Checkout' ); ?>
         </a>
 
