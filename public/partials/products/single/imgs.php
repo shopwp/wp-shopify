@@ -9,7 +9,7 @@
     if ($i === 0) {
       $typeClass = 'wps-product-gallery-img-feat';
 
-      $productImg = '<div class="' . $typeClass . '-wrapper"><img src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '"></div>';
+      $productImg = '<div class="' . $typeClass . '-wrapper"><img src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . ' ' . $product['details']['product_id'] . ' ' . $product['details']['product_type'] . '"></div>';
 
     } else {
 
@@ -19,7 +19,7 @@
 
       $typeClass = 'wps-product-gallery-img-thumb';
 
-      $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '"></div>';
+      $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . ' ' . $product['details']['product_type'] . '"></div>';
 
     }
 
