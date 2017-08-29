@@ -27,6 +27,7 @@ class Utils {
 
   protected static $instantiated = null;
 
+
   /*
 
 	Creates a new class if one hasn't already been created.
@@ -42,6 +43,24 @@ class Utils {
 		return self::$instantiated;
 
 	}
+
+
+
+
+  public function sort_product_images($a, $b) {
+
+    $a = (int) $a['position'];
+    $b = (int) $b['position'];
+
+    if ($a == $b) {
+      return 0;
+    }
+
+    return ($a < $b) ? -1 : 1;
+
+  }
+
+
 
 
   public static function print_elog($seperator = ':', $object = null) {
@@ -1771,6 +1790,8 @@ class Utils {
   */
   public static function wps_format_money($price, $product) {
 
+    $DB_Variants = new Variants();
+
     /*
 
     In order to find the correct ID to cache, we need to perform a search
@@ -1781,6 +1802,7 @@ class Utils {
     template returns an object for $product.
 
     */
+
     if (is_array($product)) {
 
       if (isset($product['variants']) && count($product['variants']) > 1) {
@@ -1792,7 +1814,18 @@ class Utils {
       }
 
     } else {
-      $productID = $product->product_id;
+
+      $variants = $DB_Variants->get_product_variants($product->post_id);
+
+      if (count($variants) > 1) {
+
+        $variants = self::wps_convert_object_to_array($variants);
+        $matchedVariant = self::wps_find_variant_by_price($price, $variants);
+        $productID = $matchedVariant['id'];
+
+      } else {
+        $productID = $product->product_id;
+      }
 
     }
 
@@ -1801,6 +1834,7 @@ class Utils {
       return get_transient('wps_product_price_id_' . $productID);
 
     } else {
+
       $DB_Shop = new Shop();
       $shop_currency = $DB_Shop->get_shop('currency');
       $shop_currency = $shop_currency[0]->currency;

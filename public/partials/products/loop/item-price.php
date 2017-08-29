@@ -33,6 +33,7 @@ use WPS\Utils;
       $lastVariantPrice = $variants[$lastVariantIndex]['price'];
       $firstVariantPrice = $variants[0]['price'];
 
+
       if ($lastVariantPrice === $firstVariantPrice) {
 
         $defaultPrice = Utils::wps_format_money($firstVariantPrice, $product);
@@ -42,6 +43,9 @@ use WPS\Utils;
 
         $priceFirst = Utils::wps_format_money($firstVariantPrice, $product);
         $priceLast = Utils::wps_format_money($lastVariantPrice, $product);
+
+        // echo 'First: ' . $priceFirst;
+        // echo 'Last: ' . $priceLast;
 
         $defaultPrice = apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">From: </small>') . apply_filters('wps_products_price_multi_first', $priceFirst) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $priceLast);
 
