@@ -20,24 +20,27 @@ async function onCheckout(shopify) {
     }
 
     jQuery('.wps-btn-checkout').on('click', async function checkoutHandler(event) {
+
       event.preventDefault();
 
       try {
+
         var newCart = await fetchCart(shopify);
+        // var newCheckoutURL = newCart.checkoutUrl + '&shopify=awesome';
 
         if(!jQuery('.wps-btn-checkout').hasClass('wps-is-disabled')) {
           window.open(newCart.checkoutUrl, '_self');
         }
 
       } catch(e) {
-        console.log('Error: fetchCart()', e);
+        console.log('Error: fetchCart() 1: ', e);
         return e;
       }
 
     });
 
   } catch(e) {
-    console.log('Error: fetchCart(): ', e);
+    console.log('Error: fetchCart() 2:  ', e);
     return e;
 
   }
@@ -107,7 +110,7 @@ function onManualQuantityChange(shopify) {
       console.log('Error: updateCart() onManualQuantityChange()', error);
 
     }
-    
+
 
     // Updates cart icon counter
     updateCartCounter(shopify);
