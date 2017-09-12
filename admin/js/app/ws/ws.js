@@ -684,6 +684,8 @@ function getShopifyCreds() {
     }
   };
 
+  console.log("-- getShopifyCreds: ");
+
   return controlPromise(options);
 
 };
