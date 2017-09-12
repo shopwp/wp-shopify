@@ -121,6 +121,9 @@ if (!class_exists('Frontend')) {
 
 			if(!is_admin()) {
 
+				// Promise polyfill
+				wp_enqueue_script($this->config->plugin_name . '-promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
+
 				// WP Shopify JS Public
 				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery'), $this->config->plugin_version, true);
 

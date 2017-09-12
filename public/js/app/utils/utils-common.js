@@ -394,7 +394,6 @@ async function formatAsMoney(amount) {
     }
 
     var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
-    console.log("extractedMoneyFormat: ", moneyFormat);
     var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
     var finalPrice = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
 

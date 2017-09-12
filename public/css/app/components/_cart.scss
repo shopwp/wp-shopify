@@ -250,7 +250,7 @@ input[type="number"].wps-cart-item__quantity {
   padding: 0 20px;
   margin: 0;
   border-top: 1px solid #ddd;
-  position: fixed;
+  position: absolute; // Needs to stay as 'absolute' vs 'fixed' for IE11
   bottom: 0;
 }
 
