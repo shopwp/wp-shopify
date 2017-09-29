@@ -282,6 +282,8 @@ Sending collections to server
 */
 function insertConnectionData(connectionData) {
 
+  console.log("Sending this ..." , connectionData);
+  
   var options = {
     method: 'POST',
     url: wps.ajax,

@@ -15,7 +15,8 @@ import {
 } from './products-meta';
 
 import {
-  updateCart
+  updateCart,
+  fetchCart
 } from '../ws/ws-cart';
 
 import {
@@ -194,11 +195,25 @@ function onAddProductToCart(shopify) {
       }
 
 
+      var newCart = await fetchCart(shopify);
+
+      console.log("newCart: ", newCart.checkoutUrl);
+
+
       enable($addToCartButton);
       hideLoader($addToCartButton);
       toggleCart();
 
       resetSingleProductVariantSelector($addToCartButton);
+
+
+
+
+
+
+
+
+
 
     } else {
       showProductMetaError($addToCartButton, 'Please select the required options');

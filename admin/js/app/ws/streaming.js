@@ -31,6 +31,8 @@ async function streamConnection() {
     //
     try {
       var connectionData = await getConnectionData();
+      console.log("connectionData: ", connectionData);
+      
 
       if (isError(connectionData)) {
         reject(connectionData.data);
@@ -46,6 +48,7 @@ async function streamConnection() {
     //
     try {
       var connection = await insertConnectionData(connectionData);
+      console.log("connection: ", connection);
 
     } catch(error) {
       reject(error);

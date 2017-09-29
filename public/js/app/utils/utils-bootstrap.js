@@ -44,7 +44,7 @@ async function bootstrap() {
   // Get Shopify Credentials
   try {
 
-    await getShopifyCreds();
+    var creds = await getShopifyCreds();
 
     if (isError(creds)) {
       throw connectionData.data;
