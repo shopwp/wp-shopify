@@ -19,17 +19,31 @@ async function onCheckout(shopify) {
       disable(jQuery('.wps-btn-checkout'));
     }
 
+    // Checks to see if Google Analytics is installed
+    if (window.ga === undefined) {
+      var hasGA = false;
+
+    } else {
+      var hasGA = true;
+    }
+
     jQuery('.wps-btn-checkout').on('click', async function checkoutHandler(event) {
 
       event.preventDefault();
 
+      // Add the linker plugin to the anchor is GA is installed
+      if (hasGA) {
+        ga('linker:decorate', document.getElementById('wps-btn-checkout'));
+      }
+
       try {
 
         var newCart = await fetchCart(shopify);
-        // var newCheckoutURL = newCart.checkoutUrl + '&shopify=awesome';
 
         if(!jQuery('.wps-btn-checkout').hasClass('wps-is-disabled')) {
+
           window.open(newCart.checkoutUrl, '_self');
+
         }
 
       } catch(e) {
