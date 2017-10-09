@@ -188,16 +188,24 @@ function updateDomAfterDisconnect(options, errorList = []) {
     insertCheckmark();
   }
 
+  if(!options.noticeText) {
+    var noticeText = 'Successfully disconnected from Shopify.';
+
+  } else {
+    var noticeText = options.noticeText;
+
+  }
+
 
   // TODO: Modularize this, can put in Utils
-  if (errorList.length > 0) {
+  if (Array.isArray(errorList) && errorList.length > 0) {
 
     errorList.forEach(function(entry) {
       jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + entry + '</div>');
     });
 
   } else {
-    jQuery('.wps-connector-heading').after('<div class="notice notice-success">Successfully disconnected from Shopify.</div>');
+    jQuery('.wps-connector-heading').after('<div class="notice notice-success">' + noticeText + '</div>');
 
   }
 
@@ -223,5 +231,6 @@ function disconnectInit() {
 
 export {
   disconnectInit,
-  uninstallPluginData
+  uninstallPluginData,
+  updateDomAfterDisconnect
 };

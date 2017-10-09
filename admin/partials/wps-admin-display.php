@@ -96,7 +96,7 @@ $tab = null;
 
 <div class="wrap wps-admin-wrap">
 
-  <h2>WP Shopify <?php echo esc_html(get_admin_page_title()); ?></h2>
+  <h2>WP Shopify <sup class="wps-version-pill wps-version-pill-sm"><?php echo $plugin_current_version; ?></sup></h2>
 
   <?php
 
@@ -104,7 +104,7 @@ $tab = null;
   require_once plugin_dir_path( __FILE__ ) . 'wps-admin-notices.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-connect.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-settings.php';
-  // require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-tools.php';
+  require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-tools.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-updates.php';
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-help.php';
 

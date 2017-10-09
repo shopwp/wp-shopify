@@ -9,26 +9,32 @@ Tab Content: Tools
 
   <div class="wps-admin-section">
 
-    <h3><?php esc_attr_e( 'Manual Sync ', 'wp_admin_style' ); ?></h3>
+    <h3><?php esc_attr_e( 'Manual Sync ', 'wp_admin_style' ); ?> <span class="wps-help-tip wps-help-tip-inline" title="Note: To fix syncing issues you may want to ensure that the 'Webhooks callback URL' located on the Settings tab is set to a publicly accsible URL."></span></h3>
+    <p>If you're having trouble keeping WordPress in sync with Shopify you can manually resync here.</p>
 
-    <p>Mauris sollicitudin fermentum libero. Fusce egestas elit eget lorem. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Praesent congue erat at massa. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna.</p>
+    <div class="wps-button-group button-group button-group-ajax <?php echo $connected ? 'wps-is-active' : 'wps-is-not-active'; ?>">
 
-    <div class="wps-button-group button-group button-group-ajax">
-      <?php submit_button(__('Sync store data', $this->config->settings_general_option_name), 'primary', 'submitURLs', false, array('class' => 'button wps-btn-sync-products')); ?>
+      <?php
+
+      if($connected) {
+
+        $props = array(
+          'id'        => 'wps-button-sync'
+        );
+
+      } else {
+
+        $props = array(
+          'disabled'  => 'disabled',
+          'id'        => 'wps-button-sync'
+        );
+
+      }
+
+      submit_button(__('Sync Shopify', $this->config->settings_general_option_name), 'primary', 'submitURLs', false, $props); ?>
+
       <div class="spinner"></div>
-    </div>
 
-  </div>
-
-  <div class="wps-admin-section">
-
-    <h3><?php esc_attr_e( 'Remove Store Data', 'wp_admin_style' ); ?></h3>
-
-    <p>Mauris sollicitudin fermentum libero. Fusce egestas elit eget lorem. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Praesent congue erat at massa. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna.</p>
-
-    <div class="wps-button-group button-group button-group-ajax">
-      <?php submit_button(__('Remove store data', $this->config->settings_general_option_name), 'primary', 'wps-btn-uninstall', false, array()); ?>
-      <div class="spinner"></div>
     </div>
 
   </div>

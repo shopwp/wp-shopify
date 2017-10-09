@@ -58,7 +58,8 @@ import {
   updateAuthUser,
   uninstallPlugin,
   insertConnectionData,
-  getConnectionData
+  getConnectionData,
+  setSyncingIndicator
 } from '../ws/ws.js';
 
 import {
@@ -284,7 +285,8 @@ function onConnectionFormSubmit() {
 
       */
       setTimeout(async function() {
-        if( connectionInProgress() === 'true') {
+
+        if (connectionInProgress() === 'true') {
 
           /*
 
@@ -305,6 +307,7 @@ function onConnectionFormSubmit() {
           return;
 
         }
+
       }, 2000);
 
     }
@@ -337,6 +340,33 @@ async function onAuthRedirect() {
   setConnectionStepMessage('Syncing Shopify data', '(Please wait. This may take up to 60 seconds depending on how many products you have.)');
 
 
+  /*
+
+  Step 0. Setting Syncing Indicator
+
+  */
+  try {
+
+    var updatingSyncingIndicator = await setSyncingIndicator(1);
+
+  } catch(error) {
+
+    updateModalHeadingText('Canceling ...');
+
+    updateDomAfterDisconnect({
+      noticeText: 'Syncing stopped and existing data cleared',
+      headingText: 'Canceled',
+      stepText: error,
+      buttonText: 'Exit Sync',
+      xMark: true
+    }, 'Stopped syncing');
+
+    enable($resyncButton);
+    return;
+
+  }
+
+
   try {
 
     //
@@ -351,6 +381,29 @@ async function onAuthRedirect() {
       throw new Error(syncPluginDataResp.message);
 
     }
+
+
+    try {
+
+      var updatingSyncingIndicator = await setSyncingIndicator(0);
+
+    } catch(error) {
+
+      updateModalHeadingText('Canceling ...');
+
+      updateDomAfterDisconnect({
+        noticeText: 'Syncing stopped and existing data cleared',
+        headingText: 'Canceled',
+        stepText: error,
+        buttonText: 'Exit Sync',
+        xMark: true
+      }, 'Stopped syncing');
+
+      enable($resyncButton);
+      return;
+
+    }
+
 
     // setConnectionStepMessage('Redirecting to Shopify');
     closeModal();
@@ -379,10 +432,11 @@ async function onAuthRedirect() {
       });
 
     } catch(uninstallPluginDataError) {
-      console.log('Error uninstalling ...', uninstallPluginDataError);
+      console.error('Error uninstalling ...', uninstallPluginDataError);
     }
 
   }
+
 
 }
 
@@ -394,7 +448,6 @@ Connect Init
 */
 function connectInit() {
   onConnectionFormSubmit();
-  // onAuthRedirect();
 }
 
 export { connectInit, onAuthRedirect };

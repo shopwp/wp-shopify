@@ -2,8 +2,11 @@
 
 namespace WPS\DB;
 
+use WPS\Config;
+use WPS\WS;
 use WPS\Utils;
 use WPS\DB\Products;
+
 
 class Images extends \WPS\DB {
 
@@ -38,6 +41,7 @@ class Images extends \WPS\DB {
       'product_id'           => '%d',
       'variant_ids'          => '%s',
       'src'                  => '%s',
+      'alt'                  => '%s',
       'position'             => '%d',
       'created_at'           => '%s',
       'updated_at'           => '%s'
@@ -56,11 +60,13 @@ class Images extends \WPS\DB {
       'product_id'           => '',
       'variant_ids'          => '',
       'src'                  => '',
+      'alt'                  => '',
       'position'             => '',
       'created_at'           => date( 'Y-m-d H:i:s' ),
       'updated_at'           => date( 'Y-m-d H:i:s' )
     );
   }
+
 
 
   /*
@@ -70,14 +76,30 @@ class Images extends \WPS\DB {
   */
 	public function insert_images($products) {
 
+    $DB_Settings_Connection = new Settings_Connection();
+    $WS = new WS(new Config());
     $results = array();
 
     foreach ($products as $key => $product) {
 
       if (isset($product->images) && $product->images) {
+
         foreach ($product->images as $key => $image) {
-          $results[] = $this->insert($image, 'image');
+
+          if ($DB_Settings_Connection->is_syncing()) {
+
+            $image->alt = $WS->wps_ws_get_image_alt($image);
+            $results[] = $this->insert($image, 'image');
+
+          } else {
+
+            $results = false;
+            break 2;
+
+          }
+
         }
+
       }
 
     }
@@ -94,6 +116,7 @@ class Images extends \WPS\DB {
   */
 	public function update_image($product) {
 
+    $WS = new WS(new Config());
     $results = array();
     $imagesFromShopify = $product->images;
 
@@ -120,7 +143,10 @@ class Images extends \WPS\DB {
     if (count($imagesToAdd) > 0) {
 
       foreach ($imagesToAdd as $key => $newImage) {
+
+        $newImage->alt = $WS->wps_ws_get_image_alt($newImage);
         $results['created'] = $this->insert($newImage, 'image');
+
       }
 
     }
@@ -146,7 +172,10 @@ class Images extends \WPS\DB {
 
     */
     foreach ($imagesFromShopify as $key => $image) {
+
+      $image->alt = $WS->wps_ws_get_image_alt($image);
       $results['updated'] = $this->update($image->id, $image);
+
     }
 
     return $results;
@@ -212,6 +241,7 @@ class Images extends \WPS\DB {
       `product_id` bigint(100) DEFAULT NULL,
       `variant_ids` mediumtext,
       `src` longtext DEFAULT NULL,
+      `alt` longtext DEFAULT NULL,
       `position` int(20) DEFAULT NULL,
       `created_at` datetime,
       `updated_at` datetime,

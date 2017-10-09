@@ -4,6 +4,7 @@ namespace WPS\DB;
 
 use WPS\Utils;
 use WPS\DB\Products;
+use WPS\DB\Settings_Connection;
 
 class Options extends \WPS\DB {
 
@@ -66,14 +67,28 @@ class Options extends \WPS\DB {
   */
 	public function insert_options($products) {
 
+    $DB_Settings_Connection = new Settings_Connection();
     $results = array();
 
     foreach ($products as $key => $product) {
 
       if (isset($product->options) && $product->options) {
+
         foreach ($product->options as $key => $option) {
-          $results[] = $this->insert($option, 'option');
+
+          if ($DB_Settings_Connection->is_syncing()) {
+
+            $results[] = $this->insert($option, 'option');
+
+          } else {
+
+            $results = false;
+            break 2;
+
+          }
+
         }
+
       }
 
     }

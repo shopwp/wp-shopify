@@ -4,6 +4,7 @@ namespace WPS\DB;
 
 use WPS\Utils;
 use WPS\DB\Products;
+use WPS\DB\Settings_Connection;
 
 class Variants extends \WPS\DB {
 
@@ -102,6 +103,8 @@ class Variants extends \WPS\DB {
   */
 	public function insert_variants($products) {
 
+    $DB_Settings_Connection = new Settings_Connection();
+
     $results = array();
 
     foreach ($products as $key => $product) {
@@ -109,8 +112,20 @@ class Variants extends \WPS\DB {
       if (isset($product->variants) && $product->variants) {
 
         foreach ($product->variants as $key => $variant) {
-          $results[] = $this->insert($variant, 'variant');
+
+          if ($DB_Settings_Connection->is_syncing()) {
+
+            $results[] = $this->insert($variant, 'variant');
+
+          } else {
+
+            $results = false;
+            break 2;
+
+          }
+
         }
+
       }
 
     }

@@ -1,6 +1,10 @@
 <?php use WPS\Utils; ?>
 
-<p class="wps-product-price">
+<p
+  itemprop="offers"
+  itemscope
+  itemtype="https://schema.org/Offer"
+  class="wps-product-price">
 
   <?php
 

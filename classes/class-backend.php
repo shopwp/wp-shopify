@@ -509,6 +509,9 @@ class Backend {
 
 
 		// WS
+		add_action( 'wp_ajax_wps_ws_set_syncing_indicator', array($WS, 'wps_ws_set_syncing_indicator'));
+		add_action( 'wp_ajax_nopriv_wps_ws_set_syncing_indicator', array($WS, 'wps_ws_set_syncing_indicator'));
+
 		add_action( 'wp_ajax_wps_uninstall_consumer', array($WS, 'wps_uninstall_consumer'));
 		add_action( 'wp_ajax_nopriv_wps_uninstall_consumer', array($WS, 'wps_uninstall_consumer'));
 

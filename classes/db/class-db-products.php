@@ -12,6 +12,7 @@ use WPS\CPT;
 use WPS\Config;
 use WPS\Backend;
 use WPS\Transients;
+use WPS\DB\Settings_Connection;
 
 class Products extends \WPS\DB {
 
@@ -129,17 +130,10 @@ class Products extends \WPS\DB {
     $Variants = new Variants();
     $Options = new Options();
 
-    // $product_data->details = $this->get_product();
-    // $product_data->images = $Images->get_product_images();
-    // $product_data->variants = $Variants->get_product_variants();
-    // $product_data->options = $Options->get_product_options();
-
     $results['details'] = $this->get_product($postID);
     $results['images'] = $Images->get_product_images($postID);
     $results['variants'] = $Variants->get_product_variants($postID);
     $results['options'] = $Options->get_product_options($postID);
-
-    // return $results;
 
     return json_decode(json_encode($results), true);
 
@@ -153,30 +147,40 @@ class Products extends \WPS\DB {
   */
 	public function insert_products($products) {
 
+    $DB_Settings_Connection = new Settings_Connection();
     $DB_Tags = new Tags();
     $results = array();
 
     foreach ($products as $key => $product) {
 
-      // If product has an image
-      if (property_exists($product, 'image') && is_object($product->image)) {
-        $product->image = $product->image->src;
-      }
+      if ($DB_Settings_Connection->is_syncing()) {
 
-      // If product is visible on the Online Stores channel
-      if (property_exists($product, 'published_at') && $product->published_at !== null) {
+        // If product has an image
+        if (property_exists($product, 'image') && is_object($product->image)) {
+          $product->image = $product->image->src;
+        }
 
-        // Inserts CPT
-        $customPostTypeID = CPT::wps_insert_new_product($product);
+        // If product is visible on the Online Stores channel
+        if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
-        // Modify's the products model with CPT foreign key
-        $product = $this->assign_foreign_key($product, $customPostTypeID);
-        $product = $this->rename_primary_key($product);
+          // Inserts CPT
+          $customPostTypeID = CPT::wps_insert_new_product($product);
 
-        $DB_Tags->insert_tags($product, $customPostTypeID);
+          // Modify's the products model with CPT foreign key
+          $product = $this->assign_foreign_key($product, $customPostTypeID);
+          $product = $this->rename_primary_key($product);
 
-        // Inserts Product into WPS table
-        $results[] = $this->insert($product, 'product');
+          $DB_Tags->insert_tags($product, $customPostTypeID);
+
+          // Inserts Product into WPS table
+          $results[] = $this->insert($product, 'product');
+
+        }
+
+      } else {
+
+        $results = false;
+        break;
 
       }
 
@@ -376,6 +380,7 @@ class Products extends \WPS\DB {
 
     $DB_Collects = new Collects();
     $DB_Variants = new Variants();
+    $Utils = new Utils();
 
     $collects_table_name = $DB_Collects->get_table_name();
     $products_table_name = $this->get_table_name();
@@ -394,11 +399,12 @@ class Products extends \WPS\DB {
 
     /*
 
-    Get the variants and add them to the products
+    Get the variants / feat image and add them to the products
 
     */
     foreach ($products as $key => $product) {
       $product->variants = $DB_Variants->get_product_variants($product->post_id);
+      $product->feat_image = $Utils->get_feat_image_by_id($product->post_id);
     }
 
     return $products;

@@ -1,6 +1,10 @@
 <header class="wps-product-header">
 
-  <h1 class="entry-title wps-product-heading"><?php echo $product['details']['title']; ?></h1>
+  <h1
+    itemprop="name"
+    class="entry-title wps-product-heading">
+      <?php echo $product['details']['title']; ?>
+  </h1>
 
   <?php
 

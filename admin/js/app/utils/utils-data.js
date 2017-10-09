@@ -418,6 +418,17 @@ function addProductsToCollection(collectionsAssignedProducts, collections) {
 }
 
 
+function sanitizeErrorResponse(error) {
+
+  if (error.hasOwnProperty('data')) {
+    return error.data;
+
+  } else {
+    return error;
+
+  }
+
+}
 
 
 
@@ -439,5 +450,6 @@ export {
   controlPromise,
   rejectedPromise,
   mapCollectsToProducts,
-  mapCollectsToCollections
+  mapCollectsToCollections,
+  sanitizeErrorResponse
 };

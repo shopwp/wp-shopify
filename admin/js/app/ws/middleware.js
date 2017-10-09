@@ -35,7 +35,7 @@ function syncPluginData() {
     syncCustomCollections()
   ])
   .catch(async function(error) {
-
+    
     console.log('Error syncing plugin data: ', error);
 
     if (error.hasOwnProperty('data')) {

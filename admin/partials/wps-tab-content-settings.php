@@ -68,7 +68,7 @@ Tab Content: Settings
             <tr valign="top">
               <th scope="row" class="titledesc">
                 <?php esc_attr_e( 'Webhooks callback URL', 'wp_admin_style' ); ?>
-                <span class="wps-help-tip" title="Needs to be publicly accesible. Can change to test webhooks during development on localhost"></span>
+                <span class="wps-help-tip" title="Needs to be publicly accesible. Change to a proxy URL during local development using something like ngrok"></span>
               </th>
               <td class="forminp forminp-text">
                 <input required type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_url_webhooks" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_webhooks_products]" value="<?php if(!empty($general->url_webhooks)) echo $general->url_webhooks; ?>" placeholder="<?php echo get_home_url(); ?>">

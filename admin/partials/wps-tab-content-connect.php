@@ -35,10 +35,6 @@ Tab Content: Connect
         // Grab all connection settings
         $connection = $this->config->wps_get_settings_connection();
 
-        // echo "<pre>";
-        // print_r($connection);
-        // echo "</pre>";
-
       ?>
 
       <!-- JS Access Token -->
@@ -73,11 +69,12 @@ Tab Content: Connect
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
         <?php if($connected) { ?>
-          <?php submit_button(__('Disconnect your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitDisconnect', false, array()); ?>
+          <?php submit_button(__('Disconnect Your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitDisconnect', false, array()); ?>
         <?php } else { ?>
-          <?php submit_button(__('Connect your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitConnect', false, array()); ?>
+          <?php submit_button(__('Connect Your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
         <div class="spinner"></div>
+
       </div>
 
     </form>

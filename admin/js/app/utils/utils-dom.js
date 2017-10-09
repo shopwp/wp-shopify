@@ -86,7 +86,6 @@ function showConnectorModal($connectorModal) {
 
     } else {
       $connectorModal.find('.wps-connector-progress').show();
-
     }
 
   } else {
@@ -104,11 +103,11 @@ Returns: $element
 TODO: Needs dynamic image paths
 
 */
-function createConnectorModal() {
+function createConnectorModal(heading = 'Connecting ...', cancelText = 'Cancel connection') {
 
   if(getModalCache() === null) {
 
-    return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><h1 class="wps-connector-heading"><span>Connecting ...</span> <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/logo-wp.svg" /> to <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/shopify.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">Cancel connection</button></div><div class="wps-connector-content"></div></ div></div>');
+    return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><h1 class="wps-connector-heading"><span>' + heading + '</span> <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/shopify.svg" /> to <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/logo-wp.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">' + cancelText + '</button></div><div class="wps-connector-content"></div></ div></div>');
 
   } else {
     return getModalCache();
@@ -208,10 +207,10 @@ function closeModal() {
 
   clearLocalstorageCache();
 
-  jQuery('.wps-btn-cancel').on('click', function() {
+  jQuery('.wps-btn-cancel').unbind().on('click', function() {
 
     jQuery('.wps-connector-wrapper').remove();
-    jQuery('.wps-btn-cancel').unbind();
+    jQuery(document).unbind();
 
   });
 

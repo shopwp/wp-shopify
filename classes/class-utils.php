@@ -7,6 +7,7 @@ use WPS\DB;
 use WPS\Config;
 use WPS\DB\Products;
 use WPS\DB\Collects;
+use WPS\DB\Images;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Settings_General;
@@ -44,6 +45,30 @@ class Utils {
 
 	}
 
+
+
+  public function get_featured_image_by_position($image) {
+
+    /*
+
+    Position is a string so we need a more relaxed
+    equality check
+
+    */
+    return $image->position == 1;
+  }
+
+
+
+  public function get_feat_image_by_id($productID) {
+
+    $Images = new Images();
+
+    $feat_image = array_filter($Images->get_product_images($productID), array($this, "get_featured_image_by_position"));
+
+    return array_values($feat_image);
+
+  }
 
 
 
@@ -1815,7 +1840,12 @@ class Utils {
 
     } else {
 
-      $variants = $DB_Variants->get_product_variants($product->post_id);
+      if (!isset($product->post_id) && isset($product->option1)) {
+        $variants = array($product);
+
+      } else {
+        $variants = $DB_Variants->get_product_variants($product->post_id);
+      }
 
       if (count($variants) > 1) {
 
@@ -1847,12 +1877,16 @@ class Utils {
 
       }
 
-
       $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
+      $currencySymbol = explode('{{amount}}', $money_format_current);
+      $priceFormatted = explode($currencySymbol[0], $finalPrice);
 
-      set_transient('wps_product_price_id_' . $productID, $finalPrice);
+      $priceey = '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $currencySymbol[0] . '</span>' . '<span itemprop="price" class="wps-product-individual-price">' . $priceFormatted[1] .'</span>';
 
-      return $finalPrice;
+
+      set_transient('wps_product_price_id_' . $productID, $priceey);
+
+      return $priceey;
 
     }
 
@@ -2107,10 +2141,10 @@ class Utils {
         foreach ($range_numbers as $v) {
 
           if ($v == $current_page) {
-            $page_numbers[] = '<span class="wps-products-page-current">' . $v . '</span>';
+            $page_numbers[] = '<span itemprop="identifier" class="wps-products-page-current">' . $v . '</span>';
 
           } else {
-            $page_numbers[] = '<a href="' . self::wps_get_pagenum_link( $args, $v ) . '" class="wps-products-page-inactive">' . $v . '</a>';
+            $page_numbers[] = '<a itemprop="url" href="' . self::wps_get_pagenum_link( $args, $v ) . '" class="wps-products-page-inactive">' . $v . '</a>';
 
           }
 
@@ -2125,13 +2159,13 @@ class Utils {
          - $last_page Links to the last page
 
         */
-        $previous_page = ( $current_page !== 1 ) ? '<a href="' . self::wps_get_pagenum_link($args, $current_page - 1) . '" class="wps-products-page-previous">' . $args['previous_page_text'] . '</a>' : '';
+        $previous_page = ( $current_page !== 1 ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page - 1) . '" class="wps-products-page-previous">' . $args['previous_page_text'] . '</a>' : '';
 
-        $next_page = ( $current_page !== $max_pages ) ? '<a href="' . self::wps_get_pagenum_link($args, $current_page + 1) . '" class="wps-products-page-next">' . $args['next_page_text'] . '</a>' : '';
+        $next_page = ( $current_page !== $max_pages ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page + 1) . '" class="wps-products-page-next">' . $args['next_page_text'] . '</a>' : '';
 
-        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a href="' . self::wps_get_pagenum_link($args, 1) . '" class="wps-products-page-first">' . $args['first_page_text'] . '</a>' : '';
+        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, 1) . '" class="wps-products-page-first">' . $args['first_page_text'] . '</a>' : '';
 
-        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last">' . $args['last_page_text'] . '</a>' : '';
+        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last">' . $args['last_page_text'] . '</a>' : '';
 
         // Removes next link on last page of pagination
         if ( $max_pages == $current_page) {
@@ -2147,7 +2181,7 @@ class Utils {
 
         */
 
-        $page_text = '<div class="wps-products-page-counter">' . sprintf( __( 'Page %s of %s' ), $current_page, $max_pages ) . '</div>';
+        $page_text = '<div itemprop="description" class="wps-products-page-counter">' . sprintf( __( 'Page %s of %s' ), $current_page, $max_pages ) . '</div>';
 
         // Turn the array of page numbers into a string
         $numbers_string = implode( ' ', $page_numbers );
@@ -2166,7 +2200,11 @@ class Utils {
       The $max_pages parameter is already set by the function to accommodate custom queries
 
       */
-      $paginated_text = apply_filters('wps_products_pagination_start', '<div class="wps-products-pagination">');
+
+
+
+
+      $paginated_text = apply_filters('wps_products_pagination_start', '<div itemscope itemtype="https://schema.org/SiteNavigationElement" class="wps-products-pagination">');
       $paginated_text .= previous_posts_link( '<div class="wps-pagination-products-prev-link">' . $args['previous_link_text'] . '</div>' );
       $paginated_text .= next_posts_link( '<div class="wps-pagination-products-next-link">' . $args['next_link_text'] . '</div>', $max_pages );
       $paginated_text .= apply_filters('wps_products_pagination_end', '</div>');

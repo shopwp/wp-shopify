@@ -37,7 +37,8 @@ class Settings_Connection extends \WPS\DB {
       'access_token'              => '%s',
       'app_id'                    => '%s',
       'webhook_id'                => '%s',
-      'nonce'                     => '%s'
+      'nonce'                     => '%s',
+      'is_syncing'                => '%d'
     );
   }
 
@@ -55,7 +56,8 @@ class Settings_Connection extends \WPS\DB {
       'access_token'              => '',
       'app_id'                    => '',
       'webhook_id'                => '',
-      'nonce'                     => ''
+      'nonce'                     => '',
+      'is_syncing'                => 0
     );
   }
 
@@ -109,7 +111,24 @@ class Settings_Connection extends \WPS\DB {
   }
 
 
+  /*
 
+  is_syncing
+
+  */
+  public function is_syncing() {
+
+    $connectionData = $this->get();
+
+    if ($connectionData->is_syncing == 0) {
+      return false;
+
+    } else {
+      return true;
+
+    }
+
+  }
 
 
   /*
@@ -137,6 +156,7 @@ class Settings_Connection extends \WPS\DB {
       `app_id` int(20) unsigned DEFAULT NULL,
       `webhook_id` varchar(100) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
+      `is_syncing` tinyint(1) DEFAULT 0,
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 

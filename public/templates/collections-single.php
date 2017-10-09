@@ -1,6 +1,7 @@
 <?php
 
 use WPS\DB;
+use WPS\Utils;
 use WPS\DB\Products;
 
 global $post;

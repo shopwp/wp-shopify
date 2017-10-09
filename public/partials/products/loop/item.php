@@ -15,7 +15,6 @@ do_action('wps_products_price_before', $product);
 do_action('wps_products_price', $product);
 do_action('wps_products_price_after', $product);
 
-
 if (is_single()) {
 
   if (apply_filters('wps_products_related_show_add_to_cart', false)) {
