@@ -4,9 +4,11 @@
 
   <ul class="wps-row wps-row-left wps-collections-products">
 
-    <?php foreach ($products as $key => $product) { ?>
-      <?php do_action('wps_collection_single_product', $product); ?>
-    <?php } ?>
+    <?php foreach ($products as $key => $product) {
+
+      do_action('wps_collection_single_product', $product);
+
+    } ?>
 
   </ul>
 

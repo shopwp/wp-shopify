@@ -433,7 +433,4 @@ class Products_General {
 	}
 
 
-  public function wps_tester() {}
-
-
 }

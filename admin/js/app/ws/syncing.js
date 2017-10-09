@@ -7,6 +7,9 @@ import {
   streamCustomCollections
 } from './streaming';
 
+import {
+  sanitizeErrorResponse
+} from '../utils/utils-data';
 
 /*
 
@@ -19,12 +22,11 @@ function syncConnection() {
 
     try {
       var connection = await streamConnection();
-
       resolve(connection);
 
     } catch(error) {
-      console.log('You died, try again 1', error);
-      reject(error);
+
+      reject( sanitizeErrorResponse(error) );
 
     }
 
@@ -48,13 +50,7 @@ function syncShop() {
 
     } catch(error) {
 
-      if (error.hasOwnProperty('data')) {
-        reject(error.data + ' (syncShop)');
-
-      } else {
-        reject(error + ' (syncShop)');
-
-      }
+      reject( sanitizeErrorResponse(error) );
 
     }
 
@@ -78,15 +74,7 @@ function syncProducts() {
 
     } catch(error) {
 
-      console.log('errorerror: ', error);
-
-      if (error.hasOwnProperty('data')) {
-        reject(error.data + ' (syncProducts)');
-
-      } else {
-        reject(error + ' (syncProducts)');
-
-      }
+      reject( sanitizeErrorResponse(error) );
 
     }
 
@@ -110,15 +98,7 @@ function syncCollects() {
 
     } catch(error) {
 
-      if (error.hasOwnProperty('data')) {
-        console.log("errorrrrr: ", error);
-        reject(error.data + ' ((syncCollects)');
-
-      } else {
-        console.log("errorrzzzz: ", error);
-        reject(error + ' (syncCollects)');
-
-      }
+      reject( sanitizeErrorResponse(error) );
 
     }
 
@@ -142,14 +122,7 @@ function syncSmartCollections() {
 
     } catch(error) {
 
-      if (error.hasOwnProperty('data')) {
-        reject(error.data + ' (syncSmartCollections)');
-
-      } else {
-        reject(error + ' (syncSmartCollections)');
-
-      }
-
+      reject( sanitizeErrorResponse(error) );
 
     }
 
@@ -174,8 +147,7 @@ function syncCustomCollections() {
 
     } catch(error) {
 
-      console.log('You died, try again 6', error);
-      reject(error);
+      reject( sanitizeErrorResponse(error) );
 
     }
 

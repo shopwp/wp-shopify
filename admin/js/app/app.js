@@ -9,6 +9,7 @@ import { disconnectInit } from './disconnect/disconnect';
 import { settingsInit } from './settings/settings';
 import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
+import { toolsInit } from './tools/resync';
 
 (function($) {
 	'use strict';
@@ -26,6 +27,7 @@ import { initAdmin } from './admin/admin';
 		formEventsInit();
 		licenseInit();
 		settingsInit();
+		toolsInit();
 
 		if(params.auth && params.shop) {
 			onAuthRedirect();

@@ -282,8 +282,6 @@ Sending collections to server
 */
 function insertConnectionData(connectionData) {
 
-  console.log("Sending this ..." , connectionData);
-  
   var options = {
     method: 'POST',
     url: wps.ajax,
@@ -569,8 +567,6 @@ TODO: Not used?
 */
 function deleteAccessToken() {
 
-  // console.log('Deleting the access token');
-
   var options = {
     method: 'POST',
     url: wps.ajax,
@@ -599,6 +595,28 @@ function uninstallPlugin() {
     dataType: 'json',
     data: {
       action: 'wps_uninstall_consumer'
+    }
+  };
+
+  return jQuery.ajax(options);
+
+};
+
+
+/*
+
+Send uninstall request to Shopify
+Returns Promise
+
+*/
+function removePluginData() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_uninstall_product_data'
     }
   };
 
@@ -685,8 +703,6 @@ function getShopifyCreds() {
       action: 'wps_get_credentials'
     }
   };
-
-  console.log("-- getShopifyCreds: ");
 
   return controlPromise(options);
 
@@ -968,6 +984,27 @@ function getProductVariants(productID) {
 };
 
 
+/*
+
+Set Syncing Indicator
+
+*/
+function setSyncingIndicator(syncing) {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'wps_ws_set_syncing_indicator',
+      syncing: syncing
+    }
+  };
+
+  return jQuery.ajax(options);
+
+};
+
+
 export {
   getProductsFromCollection,
   insertCustomCollections,
@@ -1005,5 +1042,7 @@ export {
   insertConnectionData,
   getConnectionData,
   getProductVariants,
-  uninstallProductData
+  uninstallProductData,
+  removePluginData,
+  setSyncingIndicator
 };

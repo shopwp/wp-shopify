@@ -743,6 +743,8 @@ if (!class_exists('Hooks')) {
 
 				global $wpdb;
 
+				$Utils = new Utils();
+
 				$args['context'] = 'wps_products_query';
 
 				if (is_single()) {
@@ -787,6 +789,11 @@ if (!class_exists('Hooks')) {
 
 				}
 
+
+				// Adding feature imaged to object
+				foreach ($wps_products as $wps_product) {
+		      $wps_product->feat_image = $Utils->get_feat_image_by_id($wps_product->post_id);
+		    }
 
 
 				$amountOfProducts = count($wps_products);
@@ -848,6 +855,8 @@ if (!class_exists('Hooks')) {
 
 			if (!is_admin()) {
 
+				$Utils = new Utils();
+
 				$args['context'] = 'wps_collections_query';
 
 				if (is_single()) {
@@ -886,6 +895,12 @@ if (!class_exists('Hooks')) {
 				} else {
 					$collections = $collectionsQuery->posts;
 
+				}
+
+
+				// Adding feature imaged to object
+				foreach ($collections as $collection) {
+					$collection->feat_image = $Utils->get_feat_image_by_id($collection->post_id);
 				}
 
 

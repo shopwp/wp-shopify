@@ -74,6 +74,133 @@ class WS {
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  Get Variants
+  TODO: Not currently used
+
+  */
+  public function wps_ws_get_image_alt($image) {
+
+    if (Utils::emptyConnection($this->connection)) {
+      wp_send_json_error('No connection details found. Please reconnect.');
+
+    } else {
+
+      if (empty($image)) {
+        return false;
+
+      } else {
+
+        try {
+
+          $url = "https://" . $this->connection->domain . "/admin/metafields.json?metafield[owner_id]=" . $image->id . "&metafield[owner_resource]=product_image";
+
+          $headers = array(
+            'X-Shopify-Access-Token' => $this->connection->access_token
+          );
+
+          $Guzzle = new Guzzle();
+          $guzzelResponse = $Guzzle->request('GET', $url, array(
+            'headers' => $headers
+          ));
+
+          $data = json_decode($guzzelResponse->getBody()->getContents());
+
+          if (property_exists($data, 'metafields')) {
+            return $data->metafields[0]->value;
+
+          } else {
+            return $data->errors;
+
+          }
+
+        } catch (RequestException $error) {
+
+          $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+          return $responseDecoded->errors;
+
+        }
+
+      }
+
+    }
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /*
 
   Get Products Count
@@ -297,9 +424,32 @@ class WS {
 
           */
           $resultProducts = $DB_Products->insert_products( $data->products );
+
+          if (empty($resultProducts)) {
+            wp_send_json_error('Syncing stopped at insert_products');
+          }
+
+
           $resultVariants = $DB_Variants->insert_variants( $data->products );
+
+          if (empty($resultVariants)) {
+            wp_send_json_error('Syncing stopped at insert_variants');
+          }
+
+
           $resultOptions = $DB_Options->insert_options( $data->products );
+
+          if (empty($resultOptions)) {
+            wp_send_json_error('Syncing stopped at insert_options');
+          }
+
+
           $resultImages = $DB_Images->insert_images( $data->products );
+
+          if (empty($resultImages)) {
+            wp_send_json_error('Syncing stopped at insert_images');
+          }
+
 
           $insertionResults['products'] = $resultProducts;
           $insertionResults['variants'] = $resultVariants;
@@ -396,6 +546,8 @@ class WS {
   */
   public function wps_insert_custom_collections_data() {
 
+    $DB_Images = new Images();
+
     if (Utils::emptyConnection($this->connection)) {
       wp_send_json_error('No connection details found. Please reconnect.');
 
@@ -489,6 +641,8 @@ class WS {
   */
   public function wps_insert_smart_collections_data() {
 
+    $DB_Images = new Images();
+
     if (Utils::emptyConnection($this->connection)) {
       wp_send_json_error('No connection details found. Please reconnect.');
 
@@ -514,6 +668,7 @@ class WS {
         if (property_exists($data, "smart_collections")) {
 
           $results = $DB_Collections_Smart->insert_smart_collections($data->smart_collections);
+
           wp_send_json_success($results);
 
         } else {
@@ -1529,21 +1684,6 @@ NEW STRUCTURE
 
       /*
 
-      Remove Shop
-
-      */
-      $response_shop = $this->wps_delete_shop();
-
-      if (is_wp_error($response_shop)) {
-        $results['shop'] = $response_shop->get_error_message();
-
-      } else {
-        $results['shop'] = $response_shop;
-      }
-
-
-      /*
-
       Remove Connection Settings
 
       */
@@ -1592,6 +1732,22 @@ NEW STRUCTURE
     $Transients = new Transients();
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('domain');
+
+
+    /*
+
+    Remove Shop
+
+    */
+    $response_shop = $this->wps_delete_shop();
+
+    if (is_wp_error($response_shop)) {
+      $results['shop'] = $response_shop->get_error_message();
+
+    } else {
+      $results['shop'] = $response_shop;
+    }
+
 
     /*
 
@@ -1749,6 +1905,65 @@ NEW STRUCTURE
 
     } else {
 
+      return $results;
+
+    }
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  Set syncing indicator
+
+  */
+  public function wps_ws_set_syncing_indicator($ajax = true) {
+
+    $DB_Settings_Connection = new Settings_Connection();
+    $connectionData = $DB_Settings_Connection->get();
+
+    if ($_POST['action'] === 'wps_ws_set_syncing_indicator') {
+      $ajax = true;
+
+    } else {
+      $ajax = false;
+    }
+
+    $connectionData->is_syncing = $_POST['syncing'];
+    $connectionData = (array) $connectionData;
+    $response = $DB_Settings_Connection->insert_connection($connectionData);
+
+    if (is_wp_error($response)) {
+      $results['syncing_indicator'] = $response->get_error_message();
+
+    } else {
+      $results['syncing_indicator'] = $response;
+    }
+
+
+    if ($ajax) {
+      wp_send_json_success($results);
+
+    } else {
       return $results;
 
     }

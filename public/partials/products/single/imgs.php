@@ -13,10 +13,18 @@
 
   foreach ($product['images'] as $key => $image) {
 
+    if (empty($image['alt'])) {
+      $altText = $product['details']['title'];
+
+    } else {
+      $altText = $image['alt'];
+    }
+
+
     if ($i === 0) {
       $typeClass = 'wps-product-gallery-img-feat';
 
-      $productImg = '<div class="' . $typeClass . '-wrapper"><img src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . ' ' . $product['details']['product_id'] . ' Featured ' . $product['details']['product_type'] . '"></div>';
+      $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '"></div>';
 
     } else {
 
@@ -26,7 +34,7 @@
 
       $typeClass = 'wps-product-gallery-img-thumb';
 
-      $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . ' Thumbnail ' . $product['details']['product_type'] . '"></div>';
+      $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img itemprop="image" src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '"></div>';
 
     }
 

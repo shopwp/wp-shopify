@@ -223,7 +223,7 @@ div[class^="wps-postbox-"] {
 .wps-connector {
   width: 500px;
   max-width: 500px;
-  background-color: white;
+  background-color: #f3f3f3;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   margin-top: 20vh;
   padding: 1em;
@@ -302,7 +302,7 @@ div[class^="wps-postbox-"] {
 
 
 .wps-connector-content {
-  background-color: white;
+  // background-color: white;
   // height: 100%;
   padding: 20px;
   position: relative;
@@ -552,12 +552,12 @@ div[class^="wps-postbox-"] {
   width: 31px;
   max-width: 37px;
   margin-left: 6px;
-  margin-right: 3px;
+  margin-right: 6px;
   position: relative;
   top: 8px;
 
   &:first-of-type {
-    width: 37px;
+    width: 28px;
   }
 }
 
@@ -1018,6 +1018,10 @@ TODO: Remove for Phase 2
   }
 }
 
+.wps-help-tip-inline {
+  float: none;
+  top: -4px;
+}
 
 .wps-form-group .form-table th {
   position: relative;
@@ -1043,4 +1047,16 @@ TODO: Remove for Phase 2
 
 input.code {
   width: 20em;
+}
+
+
+.wps-version-pill {
+  font-size: 50%;
+  position: relative;
+  top: 5px;
+  left: 5px;
+  padding: 5px 10px;
+  background: #0085ba;
+  color: white;
+  border-radius: 5px;
 }

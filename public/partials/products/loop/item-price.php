@@ -5,7 +5,11 @@ use WPS\Utils;
 
 ?>
 
-<h3 class="wps-products-price <?php echo apply_filters( 'wps_products_price_class', '' ); ?>">
+<h3
+  itemprop="offers"
+  itemscope
+  itemtype="https://schema.org/Offer"
+  class="wps-products-price <?php echo apply_filters( 'wps_products_price_class', '' ); ?>">
 
   <?php
 

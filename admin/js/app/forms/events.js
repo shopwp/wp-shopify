@@ -13,6 +13,9 @@ import {
   resetProgressIndicators
 } from '../utils/utils';
 
+import {
+  setSyncingIndicator
+} from '../ws/ws';
 
 /*
 
@@ -23,18 +26,20 @@ Returns: undefined
 function onModalClose() {
 
   // Cancel request when user clicks cancel button
-  jQuery('.wps-btn-cancel').on('click', async function(e) {
+  jQuery('.wps-btn-cancel').unbind().on('click', async function(e) {
 
     jQuery(this).prop("disabled", true);
     resetProgressIndicators();
     setConnectionProgress('false');
     updateModalHeadingText('Canceling ...');
     updateCurrentConnectionStepText('Cleaning up ...');
+    setSyncingIndicator(0);
 
   });
 
   // Cancel request when user clicks outside modal ...
   jQuery(document).on('click', function(event) {
+
 
     // if (!jQuery(event.target).closest('.wps-connector-progress').length) {
     //   closeModal();
@@ -54,6 +59,7 @@ function onModalClose() {
       setConnectionProgress('false');
       updateModalHeadingText('Canceling ...');
       updateCurrentConnectionStepText('Cleaning up ...');
+      setSyncingIndicator(0);
 
     }
 
