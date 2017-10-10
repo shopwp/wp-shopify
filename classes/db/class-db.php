@@ -6,9 +6,17 @@ use WPS\Utils;
 use WPS\WS;
 use WPS\DB\Products;
 use WPS\DB\Variants;
+use WPS\DB\Tags;
+use WPS\DB\Shop;
+use WPS\DB\Options;
+use WPS\DB\Inventory;
+use WPS\DB\Images;
 use WPS\DB\Collects;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Collections_Custom;
+use WPS\DB\Settings_General;
+use WPS\DB\Settings_License;
+use WPS\DB\Settings_Connection;
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Config;
@@ -30,11 +38,45 @@ class DB {
 
   /*
 
-  Get Columns
+  Get Current Columns
 
   */
-	public function get_columns() {
-    return array();
+	public function get_columns_current() {
+
+		global $wpdb;
+		return $wpdb->get_col("DESC {$this->table_name}", 0);
+
+  }
+
+
+	/*
+
+  Get Column Meta
+
+  */
+	public function get_column_meta() {
+
+		global $wpdb;
+		return $wpdb->get_results("SHOW FULL COLUMNS FROM $this->table_name");
+
+  }
+
+
+	/*
+
+  Add Column
+
+  */
+	public function add_column($col_name, $col_meta) {
+
+		global $wpdb;
+
+		$query = "ALTER TABLE $this->table_name ADD %s %s";
+
+		$results = $wpdb->query( $wpdb->prepare($query, $col_name, $col_meta) );
+
+		return $results;
+
   }
 
 
@@ -338,7 +380,7 @@ class DB {
   Update a new row
 
   */
-	public function update_column_single($where, $data = '') {
+	public function update_column_single($data = '', $where, $formats = false) {
 
     global $wpdb;
 
@@ -346,12 +388,21 @@ class DB {
       $where = $this->primary_key;
     }
 
-    // Initialize column format array
-    $column_formats = $this->get_columns();
+		if ($formats) {
 
-    if ($wpdb->update( $this->table_name, $data, $where, $column_formats ) === false) {
-      return false;
-    }
+	    $column_formats = $this->get_columns();
+
+			if ($wpdb->update( $this->table_name, $data, $where, $column_formats ) === false) {
+	      return false;
+	    }
+
+		} else {
+
+			if ($wpdb->update( $this->table_name, $data, $where ) === false) {
+				return false;
+			}
+
+		}
 
     return true;
 
@@ -415,10 +466,54 @@ class DB {
 	}
 
 
+	/*
+
+	Find the difference between tables in the database
+	and tables in the database scheme. Used during plugin updates
+	to dynamically update the database.
+
+	*/
+	public function get_table_delta() {
+
+		$tables = array();
+		$finalDelta = array();
+
+		$tables[] = new Products();
+		$tables[] = new Variants();
+		$tables[] = new Tags();
+		$tables[] = new Shop();
+		$tables[] = new Options();
+		$tables[] = new Images();
+		$tables[] = new Collects();
+		$tables[] = new Collections_Smart();
+		$tables[] = new Collections_Custom();
+		$tables[] = new Settings_License();
+		$tables[] = new Settings_Connection();
 
 
+		foreach($tables as $key => $table) {
 
+			$columnsNew = $table->get_columns();
+			$columnsCurrent = $table->get_columns_current();
+			$tableName = $table->get_table_name();
 
+			if ($tableName === '7b3ca31e_wps_settings_connection') {
+
+				$columnsNew['idd'] = 'sdf';
+				// $columnsNew['domain'] = '2';
+			}
+
+			$delta = array_diff_key($columnsNew, array_flip($columnsCurrent));
+
+			if (!empty($delta)) {
+				$finalDelta[$tableName] = $table;
+			}
+
+		}
+
+		return array_filter($finalDelta);
+
+	}
 
 
 	/*
@@ -584,8 +679,8 @@ class DB {
 
 			if (!isset($collection->image)) {
 				$results['collection_image'] = $this->update_column_single(
-					array('collection_id' => $collection->id),
-					array('image' => null)
+					array('image' => null),
+					array('collection_id' => $collection->id)
 				);
 			}
 

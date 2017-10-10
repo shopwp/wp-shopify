@@ -51,7 +51,7 @@ class Config {
 		$this->plugin_name_full = 'WP Shopify';
 		$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 		$this->plugin_name = 'wps';
-		$this->plugin_version = '1.0.18';
+		$this->plugin_version = '1.0.19';
 		$this->plugin_author = 'Andrew Robbins';
 
 		$this->plugin_root_file = $this->plugin_path . $this->plugin_name . '.php';

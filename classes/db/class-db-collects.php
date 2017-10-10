@@ -174,25 +174,22 @@ class Collects extends \WPS\DB {
   public function delete_collects_by_collection_id($collection_id) {}
 
 
-
   /*
 
-  Creates database table
+  Creates a table query string
 
   */
-	public function create_table() {
+  public function create_table_query() {
 
     global $wpdb;
 
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    $collate = '';
 
-		$collate = '';
+    if ( $wpdb->has_cap('collation') ) {
+      $collate = $wpdb->get_charset_collate();
+    }
 
-		if ( $wpdb->has_cap('collation') ) {
-			$collate = $wpdb->get_charset_collate();
-		}
-
-    $query = "CREATE TABLE `{$this->table_name}` (
+    return "CREATE TABLE `{$this->table_name}` (
       `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
       `product_id` bigint(100) DEFAULT NULL,
       `collection_id` bigint(100) DEFAULT NULL,
@@ -204,11 +201,20 @@ class Collects extends \WPS\DB {
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 
-    //
-    // Create the table if it doesnt exist. Where the magic happens.
-    //
+  }
+
+
+  /*
+
+  Creates database table
+
+  */
+	public function create_table() {
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
     if (!$this->table_exists($this->table_name)) {
-      dbDelta($query);
+      dbDelta( $this->create_table_query() );
     }
 
   }

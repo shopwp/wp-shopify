@@ -178,22 +178,20 @@ class Settings_General extends \WPS\DB {
 
   /*
 
-  Creates database table
+  Creates a table query string
 
   */
-	public function create_table() {
+  public function create_table_query() {
 
     global $wpdb;
 
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
 		$collate = '';
 
-		if ( $wpdb->has_cap('collation') ) {
+		if ($wpdb->has_cap('collation')) {
 			$collate = $wpdb->get_charset_collate();
 		}
 
-    $query = "CREATE TABLE `{$this->table_name}` (
+    return "CREATE TABLE `{$this->table_name}` (
       `id` bigint(100) NOT NULL AUTO_INCREMENT,
 		  `url_products` varchar(100) NOT NULL DEFAULT 'products',
 		  `url_collections` varchar(100) NOT NULL DEFAULT 'collections',
@@ -210,11 +208,20 @@ class Settings_General extends \WPS\DB {
 		  PRIMARY KEY  (`{$this->primary_key}`)
 		) ENGINE=InnoDB $collate";
 
-    //
-    // Create the table if it doesnt exist. Where the magic happens.
-    //
+  }
+
+
+  /*
+
+  Creates database table
+
+  */
+	public function create_table() {
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
     if (!$this->table_exists($this->table_name)) {
-      dbDelta($query);
+      dbDelta( $this->create_table_query() );
     }
 
   }
