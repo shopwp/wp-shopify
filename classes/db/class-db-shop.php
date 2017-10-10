@@ -209,16 +209,14 @@ class Shop extends \WPS\DB {
   }
 
 
-  /*
+	/*
 
-  Creates database table
+  Creates a table query string
 
   */
-	public function create_table() {
+  public function create_table_query() {
 
-    global $wpdb;
-
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		global $wpdb;
 
 		$collate = '';
 
@@ -226,40 +224,49 @@ class Shop extends \WPS\DB {
 			$collate = $wpdb->get_charset_collate();
 		}
 
-    $query = "CREATE TABLE {$this->table_name} (
-    `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-    `name` varchar(255) DEFAULT NULL,
-		`myshopify_domain` varchar(255) DEFAULT NULL,
-    `shop_owner` varchar(100) DEFAULT NULL,
-    `phone` varchar(100) DEFAULT NULL,
-    `email` varchar(100) DEFAULT NULL,
-    `address1` varchar(100) DEFAULT NULL,
-    `address2` varchar(100) DEFAULT NULL,
-    `city` varchar(50) DEFAULT NULL,
-    `zip` varchar(50) DEFAULT NULL,
-    `country` varchar(50) DEFAULT NULL,
-    `country_code` varchar(50) DEFAULT NULL,
-    `country_name` varchar(50) DEFAULT NULL,
-    `currency` varchar(50) DEFAULT NULL,
-    `latitude` smallint(20) DEFAULT NULL,
-    `longitude` smallint(20) DEFAULT NULL,
-    `money_format` varchar(200) DEFAULT NULL,
-    `money_with_currency_format` varchar(200) DEFAULT NULL,
-    `weight_unit` varchar(20) DEFAULT NULL,
-    `primary_locale` varchar(20) DEFAULT NULL,
-    `province` varchar(20) DEFAULT NULL,
-    `province_code` varchar(20) DEFAULT NULL,
-    `timezone` varchar(200) DEFAULT NULL,
-		`created_at` datetime,
-    `updated_at` datetime,
-    PRIMARY KEY  (`{$this->primary_key}`)
-  ) ENGINE=InnoDB $collate";
+		$query = "CREATE TABLE {$this->table_name} (
+			`id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+			`name` varchar(255) DEFAULT NULL,
+			`myshopify_domain` varchar(255) DEFAULT NULL,
+			`shop_owner` varchar(100) DEFAULT NULL,
+			`phone` varchar(100) DEFAULT NULL,
+			`email` varchar(100) DEFAULT NULL,
+			`address1` varchar(100) DEFAULT NULL,
+			`address2` varchar(100) DEFAULT NULL,
+			`city` varchar(50) DEFAULT NULL,
+			`zip` varchar(50) DEFAULT NULL,
+			`country` varchar(50) DEFAULT NULL,
+			`country_code` varchar(50) DEFAULT NULL,
+			`country_name` varchar(50) DEFAULT NULL,
+			`currency` varchar(50) DEFAULT NULL,
+			`latitude` smallint(20) DEFAULT NULL,
+			`longitude` smallint(20) DEFAULT NULL,
+			`money_format` varchar(200) DEFAULT NULL,
+			`money_with_currency_format` varchar(200) DEFAULT NULL,
+			`weight_unit` varchar(20) DEFAULT NULL,
+			`primary_locale` varchar(20) DEFAULT NULL,
+			`province` varchar(20) DEFAULT NULL,
+			`province_code` varchar(20) DEFAULT NULL,
+			`timezone` varchar(200) DEFAULT NULL,
+			`created_at` datetime,
+			`updated_at` datetime,
+			PRIMARY KEY  (`{$this->primary_key}`)
+		) ENGINE=InnoDB $collate";
 
-		//
-		// Create the table if it doesnt exist. Where the magic happens.
-		//
-		if (!$this->table_exists($this->table_name)) {
-			dbDelta($query);
+	}
+
+
+  /*
+
+  Creates database table
+
+  */
+	public function create_table() {
+
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+		if ( !$this->table_exists($this->table_name) ) {
+			dbDelta( $this->create_table_query() );
 		}
 
   }

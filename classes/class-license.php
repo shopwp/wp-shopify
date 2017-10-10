@@ -263,7 +263,6 @@ class License {
 		  return;
 		}
 
-
 		/*
 
 		This is the URL our updater / license checker pings. This should be the URL of the site with EDD installed
@@ -274,19 +273,15 @@ class License {
   		define( 'EDD_SL_STORE_URL', $this->plugin_env );
 		}
 
-
 		// The name of your product. This should match the download name in EDD exactly
 		if(!defined('EDD_SAMPLE_ITEM_ID')) {
   		define( 'EDD_SAMPLE_ITEM_ID', 35 );
 		}
 
-
+		// load our custom updater
 		if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 
-		  // load our custom updater
 		  include( $this->plugin_path . 'vendor/EDD/EDD_SL_Plugin_Updater.php' );
-
-		} else {
 
 		}
 

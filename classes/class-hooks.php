@@ -1576,18 +1576,58 @@ if (!class_exists('Hooks')) {
 		}
 
 
-
-
-
     /*
 
     Initialization
 
     */
-		public function init() {
+		public function init() {}
 
 
 
+
+
+
+		public function wps_on_update() {
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+			$DB_Settings_General = new Settings_General();
+			$pluginVersion = $this->config->plugin_version;
+			$databaseVersion = $DB_Settings_General->get_column_single('plugin_version')[0]->plugin_version;
+
+			/*
+
+			This will run once the plugin updates. It will only run once since we're
+			updating the plugin verison after everything gets executed.
+
+			If current (databaseVersion) is behind new (pluginVersion)
+
+			*/
+			if (version_compare($databaseVersion, $pluginVersion, '<')) {
+
+				global $wpdb;
+
+				$DB = new DB();
+				$tables = $DB->get_table_delta();
+
+
+				if (is_array($tables) && !empty($tables)) {
+
+					foreach($tables as $table) {
+						\dbDelta( $table->create_table_query() );
+					}
+
+				}
+
+				$sdfosdof = $DB_Settings_General->update_column_single(
+					array('plugin_version' => $pluginVersion),
+					array('id' => $DB_Settings_General->get_column_single('id')[0]->id)
+				);
+
+				error_log(print_r($sdfosdof, true));
+
+			}
 
 		}
 

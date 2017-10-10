@@ -57,7 +57,8 @@ class Settings_Connection extends \WPS\DB {
       'app_id'                    => '',
       'webhook_id'                => '',
       'nonce'                     => '',
-      'is_syncing'                => 0
+      'is_syncing'                => 0,
+      'idd'                       => ''
     );
   }
 
@@ -133,22 +134,20 @@ class Settings_Connection extends \WPS\DB {
 
   /*
 
-  Creates database table
+  Creates a table query string
 
   */
-	public function create_table() {
+  public function create_table_query() {
 
     global $wpdb;
 
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    $collate = '';
 
-		$collate = '';
+    if ( $wpdb->has_cap('collation') ) {
+      $collate = $wpdb->get_charset_collate();
+    }
 
-		if ( $wpdb->has_cap('collation') ) {
-			$collate = $wpdb->get_charset_collate();
-		}
-
-    $query = "CREATE TABLE `{$this->table_name}` (
+    return "CREATE TABLE `{$this->table_name}` (
       `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
       `domain` varchar(100) NOT NULL DEFAULT '',
       `js_access_token` varchar(100) NOT NULL DEFAULT '',
@@ -160,11 +159,20 @@ class Settings_Connection extends \WPS\DB {
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 
-    //
-    // Create the table if it doesnt exist. Where the magic happens.
-    //
+  }
+
+
+  /*
+
+  Creates database table
+
+  */
+	public function create_table() {
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
     if (!$this->table_exists($this->table_name)) {
-      dbDelta($query);
+      dbDelta( $this->create_table_query() );
     }
 
   }

@@ -114,22 +114,20 @@ class Settings_License extends \WPS\DB {
 
   /*
 
-  Creates database table
+  Creates a table query string
 
   */
-	public function create_table() {
+  public function create_table_query() {
 
     global $wpdb;
 
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    $collate = '';
 
-		$collate = '';
+    if ( $wpdb->has_cap('collation') ) {
+      $collate = $wpdb->get_charset_collate();
+    }
 
-		if ( $wpdb->has_cap('collation') ) {
-			$collate = $wpdb->get_charset_collate();
-		}
-
-    $query = "CREATE TABLE `{$this->table_name}` (
+    return "CREATE TABLE `{$this->table_name}` (
       `key` varchar(100) NOT NULL DEFAULT '',
       `is_local` tinyint(1) unsigned NOT NULL,
       `expires` datetime,
@@ -148,11 +146,20 @@ class Settings_License extends \WPS\DB {
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 
-    //
-    // Create the table if it doesnt exist. Where the magic happens.
-    //
-    if (!$this->table_exists($this->table_name)) {
-      dbDelta($query);
+  }
+
+
+  /*
+
+  Creates database table
+
+  */
+	public function create_table() {
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    if ( !$this->table_exists($this->table_name) ) {
+      dbDelta( $this->create_table_query() );
     }
 
   }
