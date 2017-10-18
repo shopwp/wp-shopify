@@ -224,7 +224,7 @@ class Shop extends \WPS\DB {
 			$collate = $wpdb->get_charset_collate();
 		}
 
-		$query = "CREATE TABLE {$this->table_name} (
+		return "CREATE TABLE {$this->table_name} (
 			`id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
 			`name` varchar(255) DEFAULT NULL,
 			`myshopify_domain` varchar(255) DEFAULT NULL,
