@@ -59,7 +59,8 @@ import {
   uninstallPlugin,
   insertConnectionData,
   getConnectionData,
-  setSyncingIndicator
+  setSyncingIndicator,
+  removePluginData
 } from '../ws/ws.js';
 
 import {
@@ -326,6 +327,7 @@ async function onAuthRedirect() {
 
   jQuery('body').addClass('wps-is-back-from-shopify');
 
+
   /*
 
   At this point we can start syncing the products / collections
@@ -342,7 +344,7 @@ async function onAuthRedirect() {
 
   /*
 
-  Step 0. Setting Syncing Indicator
+  Step 1. Turn on syncing flag
 
   */
   try {
@@ -367,6 +369,47 @@ async function onAuthRedirect() {
   }
 
 
+  /*
+
+  Step 2. Remove any existing data
+
+  */
+  try {
+    var removePluginDataResp = await removePluginData();
+
+    if (isError(removePluginDataResp)) {
+      throw new Error(removePluginDataResp.message);
+    }
+
+  } catch(removePluginDataError) {
+    console.error('Error syncing smart collections data: ', removePluginDataError);
+
+    jQuery(document).unbind();
+    closeModal();
+
+    try {
+
+      updateModalHeadingText('Canceling ...');
+
+      await uninstallPluginData({
+        headingText: 'Canceled',
+        stepText: removePluginDataError,
+        buttonText: 'Exit Connection',
+        xMark: true
+      });
+
+    } catch(removePluginUninstallDataError) {
+      console.error('Error uninstalling ...', removePluginUninstallDataError);
+    }
+
+  }
+
+
+  /*
+
+  Step 3. Sync data
+
+  */
   try {
 
     //
@@ -376,44 +419,9 @@ async function onAuthRedirect() {
     // removeProgressLoader();
     var syncPluginDataResp = await syncPluginData();
 
-
     if (isError(syncPluginDataResp)) {
       throw new Error(syncPluginDataResp.message);
-
     }
-
-
-    try {
-
-      var updatingSyncingIndicator = await setSyncingIndicator(0);
-
-    } catch(error) {
-
-      updateModalHeadingText('Canceling ...');
-
-      updateDomAfterDisconnect({
-        noticeText: 'Syncing stopped and existing data cleared',
-        headingText: 'Canceled',
-        stepText: error,
-        buttonText: 'Exit Sync',
-        xMark: true
-      }, 'Stopped syncing');
-
-      enable($resyncButton);
-      return;
-
-    }
-
-
-    // setConnectionStepMessage('Redirecting to Shopify');
-    closeModal();
-    insertCheckmark();
-    setConnectionMessage('Success! You\'re now connected and syncing with Shopify.', 'success');
-    updateModalHeadingText('Connected');
-    setConnectionProgress("false");
-    updateModalButtonText("Ok, let's go!");
-    setDisconnectSubmit();
-    disconnectInit();
 
   } catch (syncPluginDataError) {
 
@@ -436,6 +444,44 @@ async function onAuthRedirect() {
     }
 
   }
+
+
+  /*
+
+  Step 4. Turn off syncing flag
+
+  */
+  try {
+
+    var updatingSyncingIndicator = await setSyncingIndicator(0);
+
+  } catch(error) {
+
+    updateModalHeadingText('Canceling ...');
+
+    updateDomAfterDisconnect({
+      noticeText: 'Syncing stopped and existing data cleared',
+      headingText: 'Canceled',
+      stepText: error,
+      buttonText: 'Exit Sync',
+      xMark: true
+    }, 'Stopped syncing');
+
+    enable($resyncButton);
+    return;
+
+  }
+
+
+  // setConnectionStepMessage('Redirecting to Shopify');
+  closeModal();
+  insertCheckmark();
+  setConnectionMessage('Success! You\'re now connected and syncing with Shopify.', 'success');
+  updateModalHeadingText('Connected');
+  setConnectionProgress("false");
+  updateModalButtonText("Ok, let's go!");
+  setDisconnectSubmit();
+  disconnectInit();
 
 
 }

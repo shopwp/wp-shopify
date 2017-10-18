@@ -117,7 +117,7 @@ class Transients {
     $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%'");
 
     if ($results === false) {
-      return new \WP_Error('error', 'Warning: Unable to delete cache.');
+      return new \WP_Error('error', 'Warning: Unable to delete cache, please try again.');
 
     } else {
       return true;

@@ -150,6 +150,7 @@ class Products extends \WPS\DB {
     $DB_Settings_Connection = new Settings_Connection();
     $DB_Tags = new Tags();
     $results = array();
+    $index = 1;
 
     foreach ($products as $key => $product) {
 
@@ -164,7 +165,7 @@ class Products extends \WPS\DB {
         if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
           // Inserts CPT
-          $customPostTypeID = CPT::wps_insert_new_product($product);
+          $customPostTypeID = CPT::wps_insert_new_product($product, $index);
 
           // Modify's the products model with CPT foreign key
           $product = $this->assign_foreign_key($product, $customPostTypeID);
@@ -183,6 +184,8 @@ class Products extends \WPS\DB {
         break;
 
       }
+
+      $index++;
 
     }
 
@@ -429,7 +432,7 @@ class Products extends \WPS\DB {
       'groupby' => '',
       'join' => ' INNER JOIN ' . $this->get_table_name() . ' products ON ' .
          $wpdb->posts . '.ID = products.post_id INNER JOIN ' . $table_variants . ' variants ON products.product_id = variants.product_id AND variants.position = 1',
-      'orderby' => '',
+      'orderby' => $wpdb->posts . '.menu_order',
       'distinct' => '',
       'fields' => 'products.*, variants.price',
       'limits' => ''
@@ -480,7 +483,7 @@ class Products extends \WPS\DB {
 	public function create_table() {
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    
+
     // Create the table if it doesnt exist. Where the magic happens.
     if (!$this->table_exists($this->table_name)) {
       dbDelta( $this->create_table_query() );

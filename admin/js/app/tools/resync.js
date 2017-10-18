@@ -75,13 +75,13 @@ function onResyncSubmit() {
     setConnectionProgress(true);
 
 
+
     /*
 
-    Step 0. Setting Syncing Indicator
+    Step 1. Turn on syncing flag
 
     */
     try {
-
       var updatingSyncingIndicator = await setSyncingIndicator(1);
 
     } catch(error) {
@@ -104,13 +104,17 @@ function onResyncSubmit() {
 
     /*
 
-    Step 1. Clearing current data
+    Step 2. Clearing current data
 
     */
     try {
 
       setConnectionStepMessage('Clearing existing data');
       var removedResponse = await removePluginData();
+
+      if (isError(removedResponse)) {
+        throw new Error(removedResponse.message);
+      }
 
     } catch(error) {
 
@@ -138,7 +142,6 @@ function onResyncSubmit() {
     try {
 
       setConnectionStepMessage('Syncing new data');
-
       var syncPluginDataResp = await syncPluginData();
 
       if (isError(syncPluginDataResp)) {
@@ -165,8 +168,6 @@ function onResyncSubmit() {
 
       } catch(errorDataRemoval) {
 
-        console.log('errorDataRemoval: ', errorDataRemoval);
-
         updateDomAfterDisconnect({
           noticeText: 'Syncing stopped and existing data cleared',
           headingText: 'Canceled',
@@ -189,8 +190,7 @@ function onResyncSubmit() {
 
     */
     try {
-
-      var updatingSyncingIndicator = await setSyncingIndicator(0);
+      await setSyncingIndicator(0);
 
     } catch(error) {
 
@@ -209,7 +209,6 @@ function onResyncSubmit() {
 
     }
 
-
     closeModal();
     insertCheckmark();
     setConnectionMessage('Success! You\'re now syncing with Shopify.', 'success');
@@ -222,15 +221,6 @@ function onResyncSubmit() {
 }
 
 
-/*
-
-Form Events Init
-
-*/
-function toolsInit() {
-  onResyncSubmit();
-}
-
 export {
-  toolsInit
+  onResyncSubmit
 };

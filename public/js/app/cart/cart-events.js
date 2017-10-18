@@ -47,14 +47,14 @@ async function onCheckout(shopify) {
         }
 
       } catch(e) {
-        console.log('Error: fetchCart() 1: ', e);
+        console.error('Error: fetchCart() 1: ', e);
         return e;
       }
 
     });
 
   } catch(e) {
-    console.log('Error: fetchCart() 2:  ', e);
+    console.error('Error: fetchCart() 2:  ', e);
     return e;
 
   }
@@ -100,7 +100,7 @@ function onManualQuantityChange(shopify) {
       var product = await getProduct(shopify, productId);
 
     } catch(error) {
-      console.log('Error: getProduct() onManualQuantityChange() ', error);
+      console.error('Error: getProduct() onManualQuantityChange() ', error);
 
     }
 
@@ -110,7 +110,7 @@ function onManualQuantityChange(shopify) {
       var cart = await fetchCart(shopify);
 
     } catch (error) {
-      console.log('Error: fetchCart() onManualQuantityChange()', error);
+      console.error('Error: fetchCart() onManualQuantityChange()', error);
 
     }
 
@@ -121,7 +121,7 @@ function onManualQuantityChange(shopify) {
       await updateCart(variant, difference, shopify);
 
     } catch (error) {
-      console.log('Error: updateCart() onManualQuantityChange()', error);
+      console.error('Error: updateCart() onManualQuantityChange()', error);
 
     }
 
@@ -168,7 +168,7 @@ function onQuantityChange(shopify) {
       var variant = getProductVariantID(product, variantId);
 
     } catch(error) {
-      console.log('EROR getProduct(): ', error);
+      console.error('EROR getProduct(): ', error);
       return error;
     }
 
@@ -181,7 +181,7 @@ function onQuantityChange(shopify) {
       updateCartCounter(shopify);
 
     } catch(error) {
-      console.log('EROR updateCartVariant(): ', error);
+      console.error('EROR updateCartVariant(): ', error);
       return error;
     }
 

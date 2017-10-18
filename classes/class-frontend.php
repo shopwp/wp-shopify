@@ -402,6 +402,8 @@ if (!class_exists('Frontend')) {
 
 				}
 
+
+				// TODO -- Breakout into own function
 				$found = false;
 
 				foreach ($refinedVariants as $key => $variant) {
@@ -421,7 +423,6 @@ if (!class_exists('Frontend')) {
 
 
 			} else {
-
 				wp_send_json_error('Selected option not found. Please select something else.');
 
 			}

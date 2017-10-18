@@ -250,9 +250,6 @@ function sendCollectionsToServer(collections) {
 };
 
 
-
-
-
 /*
 
 Inserting Shop data
@@ -318,44 +315,6 @@ function getConnectionData() {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 
 Insert Products Data
@@ -376,8 +335,6 @@ function insertProductsData(currentPage = false) {
   return controlPromise(options);
 
 };
-
-
 
 
 /*
@@ -815,17 +772,6 @@ function getPluginSettings() {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
 /*
 
 Sending new auth data to WP Shopify server
@@ -940,10 +886,6 @@ function updateSettings(options) {
 };
 
 
-
-
-
-
 /*
 
 Get plugin settings from consumer
@@ -1005,6 +947,26 @@ function setSyncingIndicator(syncing) {
 };
 
 
+/*
+
+Clear Cache
+
+*/
+function clearCache() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'wps_clear_cache'
+    }
+  };
+
+  return controlPromise(options);
+
+}
+
+
 export {
   getProductsFromCollection,
   insertCustomCollections,
@@ -1044,5 +1006,6 @@ export {
   getProductVariants,
   uninstallProductData,
   removePluginData,
-  setSyncingIndicator
+  setSyncingIndicator,
+  clearCache
 };

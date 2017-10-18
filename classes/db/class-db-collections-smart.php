@@ -89,6 +89,7 @@ class Collections_Smart extends \WPS\DB {
 
     $results = array();
     $smart_collections = Utils::flatten_collections_image_prop($smart_collections);
+    $index = CPT::wps_find_latest_menu_order('collections');
 
     foreach ($smart_collections as $key => $smart_collection) {
 
@@ -96,15 +97,17 @@ class Collections_Smart extends \WPS\DB {
 
         if (property_exists($smart_collection, 'published_at') && $smart_collection->published_at !== null) {
 
-          $customPostTypeID = CPT::wps_insert_new_collection($smart_collection);
+          $customPostTypeID = CPT::wps_insert_new_collection($smart_collection, $index);
           $smart_collection = $this->assign_foreign_key($smart_collection, $customPostTypeID);
           $smart_collection = $this->rename_primary_key($smart_collection);
 
-          $results[] = $this->insert($smart_collection, 'smart_collection');
+          $results[$customPostTypeID] = $this->insert($smart_collection, 'smart_collection');
 
         }
 
       }
+
+      $index++;
 
     }
 

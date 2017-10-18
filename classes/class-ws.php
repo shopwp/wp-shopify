@@ -1914,23 +1914,6 @@ NEW STRUCTURE
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /*
 
   Set syncing indicator
@@ -1968,6 +1951,30 @@ NEW STRUCTURE
 
     }
 
+
+  }
+
+
+
+
+
+
+  /*
+
+  Clear Cache
+
+  */
+  public function wps_clear_cache() {
+
+    $Transients = new Transients();
+    $results = $Transients->delete_all_cache();
+
+    if (is_wp_error($results)) {
+      wp_send_json_error($results->get_error_message());
+
+    } else {
+      wp_send_json_success($results);
+    }
 
   }
 

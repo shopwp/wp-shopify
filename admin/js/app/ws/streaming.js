@@ -34,7 +34,7 @@ async function streamConnection() {
     // 1. Get Shop Data
     //
     try {
-      console.log("getConnectionData()");
+
       var connectionData = await getConnectionData();
 
       if (isError(connectionData)) {
@@ -42,7 +42,6 @@ async function streamConnection() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at getConnectionData: ", connectionInProgress());
         reject('Syncing stopped during streamConnection');
       }
 
@@ -56,11 +55,10 @@ async function streamConnection() {
     // 2. Send to server
     //
     try {
-      console.log("insertConnectionData()");
+
       var connection = await insertConnectionData(connectionData);
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamConnection: ", connectionInProgress());
         reject('Syncing stopped during streamConnection');
       }
 
@@ -93,7 +91,7 @@ async function streamShop() {
     // ensure this is clear. Phase 2.
     //
     try {
-      console.log("getShopData()");
+
       var shopData = await getShopData();
 
       if (typeof shopData === 'string') {
@@ -108,7 +106,6 @@ async function streamShop() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamShop: ", connectionInProgress());
         reject('Syncing stopped during streamShop');
       }
 
@@ -121,7 +118,7 @@ async function streamShop() {
     // 2. Send to server
     //
     try {
-      console.log("insertShopData()");
+
       var shop = await insertShopData(shopData);
 
       if (isError(shop)) {
@@ -129,7 +126,6 @@ async function streamShop() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamShop: ", connectionInProgress());
         reject('Syncing stopped during streamShop');
       }
 
@@ -163,34 +159,35 @@ async function streamProducts() {
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
+
     //
     // 0. Clean out data before syncing
     //
-    try {
-      console.log("uninstallProductData()");
-      productData = await uninstallProductData();
-
-      if (isError(productData)) {
-        reject(productData.data);
-      }
-
-      if (!connectionInProgress()) {
-        console.log("stopped at streamProducts: ", connectionInProgress());
-        reject('Syncing stopped during streamProducts');
-      }
-
-    } catch(error) {
-
-      reject(error);
-
-    }
+    // try {
+    //   console.log("uninstallProductData()");
+    //   productData = await uninstallProductData();
+    //
+    //   if (isError(productData)) {
+    //     reject(productData.data);
+    //   }
+    //
+    //   if (!connectionInProgress()) {
+    //     console.log("stopped at streamProducts: ", connectionInProgress());
+    //     reject('Syncing stopped during streamProducts');
+    //   }
+    //
+    // } catch(error) {
+    //
+    //   reject(error);
+    //
+    // }
 
 
     //
     // 1. Get products count
     //
     try {
-      console.log("getProductsCount()");
+
       productCount = await getProductsCount();
 
       if (isError(productCount)) {
@@ -201,7 +198,6 @@ async function streamProducts() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamProducts: ", connectionInProgress());
         reject('Syncing stopped during streamProducts');
       }
 
@@ -221,16 +217,14 @@ async function streamProducts() {
     while(currentPage <= pages) {
 
       try {
-        console.log("insertProductsData()");
+
         var newProducts = await insertProductsData(currentPage);
 
         if (!connectionInProgress()) {
-          console.log("stopped at streamProducts: ", connectionInProgress());
           reject('Syncing stopped during streamProducts');
         }
 
         if (isError(newProducts)) {
-          console.log("stoppeddfsdfsdf: ", newProducts);
           reject(newProducts.data);
 
         } else {
@@ -247,7 +241,7 @@ async function streamProducts() {
         }
 
       } catch(error) {
-        console.log("ouch: ", error);
+        console.error("Error insertProductsData: ", error);
 
         currentPage = pages+1;
         return reject(error);
@@ -280,7 +274,6 @@ async function streamCollects() {
     //
     try {
 
-      console.log("getCollectsCount()");
       collectsCount = await getCollectsCount();
 
       if (isError(collectsCount)) {
@@ -291,7 +284,6 @@ async function streamCollects() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamCollects: ", connectionInProgress());
         reject('Syncing stopped during streamCollects');
       }
 
@@ -316,11 +308,9 @@ async function streamCollects() {
 
         try {
 
-          console.log("insertCollects()");
           var collectsNew = await insertCollects(currentPage);
 
           if (!connectionInProgress()) {
-            console.log("stopped at insertCollects: ", connectionInProgress());
             reject('Syncing stopped during streamCollects');
           }
 
@@ -362,7 +352,6 @@ async function streamSmartCollections() {
 
     try {
 
-      console.log("insertSmartCollections()");
       var smartCollections = await insertSmartCollections();
 
       if (isError(smartCollections)) {
@@ -373,7 +362,6 @@ async function streamSmartCollections() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamSmartCollections: ", connectionInProgress());
         reject('Syncing stopped during streamSmartCollections');
       }
 
@@ -399,7 +387,6 @@ async function streamCustomCollections() {
 
     try {
 
-      console.log("insertCustomCollections()");
       var customCollections = await insertCustomCollections();
 
       if (isError(customCollections)) {
@@ -410,7 +397,6 @@ async function streamCustomCollections() {
       }
 
       if (!connectionInProgress()) {
-        console.log("stopped at streamCustomCollections: ", connectionInProgress());
         reject('Syncing stopped during streamCustomCollections');
       }
 

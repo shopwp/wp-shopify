@@ -51,7 +51,7 @@ async function bootstrap() {
     }
 
   } catch(error) {
-    console.log('getShopifyCreds error: ', error);
+    console.error('getShopifyCreds error: ', error);
     return error;
   }
 
@@ -61,7 +61,7 @@ async function bootstrap() {
     var shopify = await shopifyInit(creds.data);
 
   } catch(error) {
-    console.log('shopifyInit error: ', error);
+    console.error('shopifyInit error: ', error);
     return error;
   }
 
@@ -71,7 +71,7 @@ async function bootstrap() {
     await initCart(shopify);
 
   } catch(error) {
-    console.log('initCart error: ', error);
+    console.error('initCart error: ', error);
     return error;
   }
 

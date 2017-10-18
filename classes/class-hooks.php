@@ -4,6 +4,7 @@ namespace WPS;
 
 use WPS\Utils;
 use WPS\DB;
+use WPS\Transients;
 use WPS\DB\Products;
 use WPS\DB\Variants;
 use WPS\DB\Collections_Smart;
@@ -778,6 +779,8 @@ if (!class_exists('Hooks')) {
 
 		    }
 
+				// $productsQuery = new \WP_Query($args);
+
 
 				if (Utils::wps_is_manually_sorted($args)) {
 
@@ -887,6 +890,8 @@ if (!class_exists('Hooks')) {
 					set_transient('wps_collections_query_hash_cache_' . $collectionsQueryHash, $collectionsQuery);
 
 				}
+
+				// $collectionsQuery = new \WP_Query($args);
 
 				if (Utils::wps_is_manually_sorted($args)) {
 					$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
@@ -1625,11 +1630,10 @@ if (!class_exists('Hooks')) {
 					array('id' => $DB_Settings_General->get_column_single('id')[0]->id)
 				);
 
-				error_log(print_r($sdfosdof, true));
-
 			}
 
 		}
+
 
 	}
 

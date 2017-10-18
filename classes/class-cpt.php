@@ -68,7 +68,7 @@ class CPT {
       'label'               => __('Products', 'text_domain'),
       'description'         => __('Custom Post Type for Products', 'text_domain'),
       'labels'              => $labels,
-      'supports'            => array('title'),
+      'supports'            => array('title', 'page-attributes'),
       'hierarchical'        => false,
       'public'              => true,
       'show_ui'             => true,
@@ -118,7 +118,7 @@ class CPT {
       'label'               => __('Collections', 'text_domain'),
       'description'         => __('Custom Post Type for Collections', 'text_domain'),
       'labels'              => $labels,
-      'supports'            => array('title'),
+      'supports'            => array('title', 'page-attributes'),
       'hierarchical'        => false,
       'public'              => true,
       'show_ui'             => true,
@@ -150,14 +150,15 @@ class CPT {
   Insert New CPT Product
 
   */
-  public static function wps_insert_new_product($product) {
+  public static function wps_insert_new_product($product, $index) {
 
     $newProductModel = array(
       'post_title'    => property_exists($product, 'title') ? $product->title : '',
       'post_content'  => '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_products',
-      'post_name'			=> property_exists($product, 'handle') ? $product->handle : ''
+      'post_name'			=> property_exists($product, 'handle') ? $product->handle : '',
+      'menu_order'    => $index
     );
 
     // Insert post and return the ID or error object if fail
@@ -194,12 +195,35 @@ class CPT {
   }
 
 
+
+  public static function wps_find_latest_menu_order($type) {
+
+    global $post;
+
+    $args = array(
+      'post_type'       => 'wps_' . $type,
+      'posts_per_page'  => 1,
+    );
+
+    $loop = get_posts($args);
+
+    if (is_array($loop) && empty($loop)) {
+      return 1;
+
+    } else {
+      return $loop[0]->menu_order + 1;
+    }
+
+  }
+
+
+
   /*
 
   Insert New Collections
 
   */
-  public static function wps_insert_new_collection($collection) {
+  public static function wps_insert_new_collection($collection, $index = false) {
 
     $newCollectionModel = array(
       'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
@@ -208,6 +232,22 @@ class CPT {
       'post_type'     => 'wps_collections',
       'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : ''
     );
+
+
+    /*
+
+    We have access to an $index variable if this function is called
+    by a full sync. Otherwise this function is called via a webhook like
+    update or add. In this case we need to find the
+
+    */
+    if ($index) {
+      $newCollectionModel['menu_order'] = $index;
+
+    } else {
+      $newCollectionModel['menu_order'] = self::wps_find_latest_menu_order('collections');
+
+    }
 
     // Insert post and return the ID or error object if fail
     return wp_insert_post($newCollectionModel, true);
