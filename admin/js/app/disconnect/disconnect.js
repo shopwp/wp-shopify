@@ -76,11 +76,10 @@ async function uninstallPluginData(options = false, reconnect = true) {
 
     // Safe to reconnect again
     if (reconnect) {
-      console.log('Initializing reconnect ...');
       connectInit();
 
     } else {
-      console.log('NOT initializing reconnect ...');
+      console.error('NOT initializing reconnect ...');
     }
 
   } catch (error) {
@@ -145,15 +144,13 @@ function onDisconnectionFormSubmit() {
         buttonText: 'Exit Connection'
       });
 
-      console.log("uninstallResponse: ", uninstallResponse);
-
       return true;
 
     } catch (error) {
 
       // Something happened, user needs to try
       // disconnecting again
-      console.log('... Error disconnecting ...', error);
+      console.error('... Error disconnecting ...', error);
       return error;
 
     }

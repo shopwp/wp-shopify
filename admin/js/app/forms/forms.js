@@ -114,7 +114,7 @@ function onUninstall() {
       var response = await uninstallPlugin();
 
     } catch(error) {
-      console.log("Error removing store data: ", error);
+      console.error("Error removing store data: ", error);
       hideLoader(jQuery(this));
       showAdminNotice("Error removing store data: " + error, 'error');
       return;

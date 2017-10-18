@@ -316,13 +316,9 @@ function addCollectionsToProduct(products, collects) {
 
   return products.map(function(product) {
 
-    // console.log('collec to product prd: ', product);
-
     var finalCollectionsArray = [];
 
     collects.forEach(function(collect) {
-
-      // console.log('collec to product collect: ', collect);
 
       // If product ID matches collect ID
       if (product.productId === collect.product_id) {

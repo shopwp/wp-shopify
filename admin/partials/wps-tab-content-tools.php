@@ -39,4 +39,27 @@ Tab Content: Tools
 
   </div>
 
+
+  <div class="wps-admin-section">
+
+    <h3><?php esc_attr_e( 'Clear Cache', 'wp_admin_style' ); ?></h3>
+    <p>If you're noticing various changes not appearing, try clearing the transient cache here.</p>
+
+    <div class="wps-button-group button-group button-group-ajax wps-is-active">
+
+      <?php
+
+      $props = array(
+        'id' => 'wps-button-clear-cache'
+      );
+
+      submit_button(__('Clear Cache', $this->config->settings_general_option_name), 'primary', 'submitURLs', false, $props); ?>
+
+      <div class="spinner"></div>
+
+    </div>
+
+  </div>
+
+
 </div>

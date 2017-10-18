@@ -87,13 +87,14 @@ class Collections_Custom extends \WPS\DB {
 
     $results = array();
     $custom_collections = Utils::flatten_collections_image_prop($custom_collections);
+    $index = CPT::wps_find_latest_menu_order('collections');
 
 
     foreach ($custom_collections as $key => $custom_collection) {
 
       // If product is visible on the Online Stores channel
       if (property_exists($custom_collection, 'published_at') && $custom_collection->published_at !== null) {
-        $customPostTypeID = CPT::wps_insert_new_collection($custom_collection);
+        $customPostTypeID = CPT::wps_insert_new_collection($custom_collection, $index);
         $custom_collection = $this->assign_foreign_key($custom_collection, $customPostTypeID);
         $custom_collection = $this->rename_primary_key($custom_collection);
 
@@ -101,7 +102,10 @@ class Collections_Custom extends \WPS\DB {
 
       }
 
+      $index++;
+
     }
+
 
     return $results;
 
@@ -119,7 +123,6 @@ class Collections_Custom extends \WPS\DB {
     $WS = new WS(new Config());
     $DB_Collects = new Collects();
     $collection = Utils::flatten_collections_image_prop($collection);
-
 
     if (property_exists($collection, 'collection_id') && $collection->collection_id !== null) {
       $newCollects = $WS->wps_ws_get_collects_from_collection($collection->collection_id);

@@ -930,6 +930,18 @@ class Utils {
 
     /*
 
+    Removes the default "menu_order" value if the user
+    passes one via shortcode
+
+    */
+    if (array_key_exists('custom', $query->query) && !empty($query->query['custom']['orderby'])) {
+      $shortcode_query['orderby'] = '';
+
+    }
+
+
+    /*
+
     Here we have to loop through all the shortcode attributes that
     were passed in and check if they exist
 
@@ -1879,7 +1891,14 @@ class Utils {
 
       $finalPrice = self::wps_replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
       $currencySymbol = explode('{{amount}}', $money_format_current);
-      $priceFormatted = explode($currencySymbol[0], $finalPrice);
+
+      if (empty($currencySymbol[0])) {
+        $symbol = '$';
+      } else {
+        $symbol = $currencySymbol[0];
+      }
+
+      $priceFormatted = explode($symbol, $finalPrice);
 
       $priceey = '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $currencySymbol[0] . '</span>' . '<span itemprop="price" class="wps-product-individual-price">' . $priceFormatted[1] .'</span>';
 

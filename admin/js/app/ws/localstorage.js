@@ -30,6 +30,16 @@ function removeConnectionNonce() {
 
 /*
 
+Remove Cache Expiration
+
+*/
+function removeCacheExpiration() {
+  localStorage.removeItem('wps-cache-expiration');
+}
+
+
+/*
+
 Remove Modal Cache
 
 */
@@ -70,6 +80,47 @@ function removeModalCache() {
 
 /*
 
+Remove Animating
+
+*/
+function removeAnimating() {
+  localStorage.removeItem('wps-animating');
+}
+
+
+/*
+
+Remove Last Cart ID
+
+*/
+function removeLastCartID() {
+  localStorage.removeItem('wps-last-cart-id');
+}
+
+
+/*
+
+Remove Product Selection
+
+*/
+function removeProductSelection() {
+  localStorage.removeItem('wps-product-selection-id');
+}
+
+
+/*
+
+Remove Money Format
+
+*/
+function removeMoneyFormat() {
+  localStorage.removeItem('wps-money-format');
+}
+
+
+
+/*
+
 Remove Modal Cache
 
 */
@@ -77,7 +128,15 @@ function clearLocalstorageCache() {
   removeModalCache();
   removeConnectionProgress();
   removeConnectionNonce();
+  removeCacheExpiration();
+  removeAnimating();
+  removeLastCartID();
+  removeProductSelection();
+  removeMoneyFormat();
 }
+
+
+
 
 
 export {

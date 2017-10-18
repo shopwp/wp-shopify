@@ -905,7 +905,7 @@ class DB {
 			FROM ' . $wpdb->prefix . 'wps_collections_custom custom
 
 		) as collections ON ' . $wpdb->prefix . 'posts.ID = collections.post_id',
-			'orderby' => '',
+			'orderby' => $wpdb->posts . '.menu_order',
 			'distinct' => '',
 			'fields' => 'collections.*',
 			'limits' => ''

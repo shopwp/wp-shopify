@@ -9,7 +9,8 @@ import { disconnectInit } from './disconnect/disconnect';
 import { settingsInit } from './settings/settings';
 import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
-import { toolsInit } from './tools/resync';
+import { toolsInit } from './tools/tools';
+
 
 (function($) {
 	'use strict';

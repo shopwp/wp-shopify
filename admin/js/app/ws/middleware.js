@@ -19,34 +19,83 @@ import {
   updateModalHeadingText
 } from '../utils/utils-dom';
 
+import {
+  removePluginData
+} from '../ws/ws';
+
+
 /*
 
 Syncing Shopify data with WordPress CPT
 
 */
-function syncPluginData() {
+async function syncPluginData() {
 
-  return Promise.all([
-    syncConnection(),
-    syncShop(),
-    syncProducts(),
-    syncCollects(),
-    syncSmartCollections(),
-    syncCustomCollections()
-  ])
-  .catch(async function(error) {
-    
-    console.log('Error syncing plugin data: ', error);
 
-    if (error.hasOwnProperty('data')) {
-      return new Error(error.data);
+  // 1. Smart Collections
+  try {
+    await syncSmartCollections();
+
+  } catch(syncSmartCollectionsError) {
+
+    console.error('Error syncing smart collections data: ', syncSmartCollectionsError);
+
+    if (syncSmartCollectionsError.hasOwnProperty('data')) {
+      return new Error(syncSmartCollectionsError.data);
 
     } else {
-      return new Error(error);
+      return new Error(syncSmartCollectionsError);
 
     }
 
-  });
+  }
+
+
+  // 2. Smart Collections
+  try {
+    await syncCustomCollections();
+
+  } catch(syncCustomCollectionsError) {
+
+    console.error('Error syncing custom collections data: ', syncCustomCollectionsError);
+
+    if (syncCustomCollectionsError.hasOwnProperty('data')) {
+      return new Error(syncCustomCollectionsError.data);
+
+    } else {
+      return new Error(syncCustomCollectionsError);
+
+    }
+
+  }
+
+
+  // 3. Remaining data
+  try {
+
+    var remainingResp = await Promise.all([
+      syncConnection(),
+      syncShop(),
+      syncProducts(),
+      syncCollects()
+    ]);
+
+  } catch(remainingError) {
+
+    console.error('Error syncing plugin data: ', remainingError);
+
+    if (remainingError.hasOwnProperty('data')) {
+      return new Error(remainingError.data);
+
+    } else {
+      return new Error(remainingError);
+
+    }
+
+  }
+
+  return remainingResp;
+
 
 }
 

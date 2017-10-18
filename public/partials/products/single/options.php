@@ -12,9 +12,7 @@ if (count($product['options']) === 1) {
 <?php foreach ($product['options'] as $key => $option) { ?>
 
   <div
-    class="wps-btn-dropdown wps-col wps-col-<?php echo $col; ?>"
-    data-selected="false"
-    data-selected-val="">
+    class="wps-btn-dropdown wps-col wps-col-<?php echo $col; ?>" data-selected="false" data-selected-val="">
 
     <a
       href="#!"

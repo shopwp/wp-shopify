@@ -197,8 +197,6 @@ function onAddProductToCart(shopify) {
 
       var newCart = await fetchCart(shopify);
 
-      console.log("newCart: ", newCart.checkoutUrl);
-
 
       enable($addToCartButton);
       hideLoader($addToCartButton);
@@ -311,7 +309,7 @@ function resetAllVariantIDs() {
 
 function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
 
-  var variantText = $trigger.text();
+  var variantText = $trigger.text().trim();
 
   if(R.intersection([variantText], previouslySelectedOptions).length === 0) {
 
@@ -363,7 +361,7 @@ function addAvailableOptionsToProduct() {
     var availableOptions = [];
 
     jQuery(this).find('.wps-product-style').each(function() {
-      availableOptions.push( jQuery(this).text() );
+      availableOptions.push( jQuery(this).text().trim() );
     });
 
     jQuery(this).data('available-options', availableOptions);
@@ -381,7 +379,7 @@ Updates values of a single variant after selection
 */
 function updateSingleVariantValues($variantTrigger) {
 
-  var variantText = $variantTrigger.text();
+  var variantText = $variantTrigger.text().trim();
   var optionName = $variantTrigger.parent().prev().data('option');
 
   $variantTrigger.parent().prev().text(optionName + ': ' + variantText);
@@ -434,7 +432,7 @@ function onProductVariantChange() {
 
     var $trigger = jQuery(this),
         variantID = $trigger.data('id'),
-        variantText = $trigger.text(),
+        variantText = $trigger.text().trim(),
         $newProductMetaContainer = $trigger.closest('.wps-product-meta'),
         currentProductID = $newProductMetaContainer.data('product-id'),
         previouslySelectedOptions = $newProductMetaContainer.data('product-selected-options'),
