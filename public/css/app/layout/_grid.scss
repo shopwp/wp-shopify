@@ -322,6 +322,42 @@ E.g., 2 === one half, 3 === one third, 4 === one fourth, etc
 }
 
 
+.wps-col-13,
+.wps-col-14,
+.wps-col-15,
+.wps-col-16,
+.wps-col-17,
+.wps-col-18,
+.wps-col-19,
+.wps-col-20 {
+  @include rowMachine($cols-8);
+
+  @include respond-to(1400, 'max') {
+    @include rowMachine($cols-6);
+  }
+
+  @include respond-to(1100, 'max') {
+    @include rowMachine($cols-5);
+  }
+
+  @include respond-to(900, 'max') {
+    @include rowMachine($cols-4);
+  }
+
+  @include respond-to(700, 'max') {
+    @include rowMachine($cols-3);
+  }
+
+  @include respond-to(600, 'max') {
+    @include rowMachine($cols-2);
+  }
+
+  @include respond-to(500, 'max') {
+    @include rowMachine($cols-1);
+  }
+}
+
+
 .wps-col-reverse {
   flex-direction: column-reverse;
 }
