@@ -214,7 +214,7 @@ class Settings_General extends \WPS\DB {
       `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
       `price_with_currency` tinyint(1) DEFAULT 0,
-      `cart_loaded` tinyint(1) DEFAULT 0,
+      `cart_loaded` tinyint(1) DEFAULT '{$this->cart_loaded}',
 		  PRIMARY KEY  (`{$this->primary_key}`)
 		) ENGINE=InnoDB $collate";
 

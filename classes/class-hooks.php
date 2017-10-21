@@ -1613,9 +1613,13 @@ if (!class_exists('Hooks')) {
 
 				global $wpdb;
 
+				// First delete all existing cache
+				$DB_Transients = new Transients();
+				$DB_Transients->delete_all_cache();
+
+				// Next get all tables
 				$DB = new DB();
 				$tables = $DB->get_table_delta();
-
 
 				if (is_array($tables) && !empty($tables)) {
 
@@ -1625,7 +1629,9 @@ if (!class_exists('Hooks')) {
 
 				}
 
-				$sdfosdof = $DB_Settings_General->update_column_single(
+
+				// Now update plugin version to latest
+				$DB_Settings_General->update_column_single(
 					array('plugin_version' => $pluginVersion),
 					array('id' => $DB_Settings_General->get_column_single('id')[0]->id)
 				);
