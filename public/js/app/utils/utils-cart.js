@@ -1,4 +1,30 @@
-function needsCacheFlush() {
+import {
+  getCacheFlushStatus,
+  updateCacheFlushStatus
+} from '../ws/ws-settings';
+
+
+async function needsCacheFlush() {
+
+
+  try {
+
+    var cacheFlushStatus = await getCacheFlushStatus();
+
+    if (cacheFlushStatus.data == 1) {
+
+      await updateCacheFlushStatus(0);
+
+      return true;
+
+    }
+
+  } catch(errors) {
+    console.error(errors);
+    return true;
+
+  }
+
 
   /*
 

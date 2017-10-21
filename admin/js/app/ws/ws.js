@@ -6,6 +6,7 @@ import {
   controlPromise
 } from '../utils/utils-data';
 
+
 /*
 
 Get all products from Shopify
@@ -827,14 +828,10 @@ function getProgressCount() {
   //
   //   source.addEventListener('message', function(e) {
   //
-  //     console.log("Session", JSON.parse(e.data));
-  //
   //     // var session = await getProgressCookie();
   //     //
-  //     // console.log("session: ", session);
   //
   //     // if (e.origin != window.location.origin) {
-  //     //   console.log('Origin was not right');
   //     //   return;
   //     // }
   //
@@ -842,13 +839,11 @@ function getProgressCount() {
   //
   //   source.addEventListener('open', function(e) {
   //     // Connection was opened.
-  //     // console.log('Connection opened', e);
   //
   //   }, false);
   //
   //   source.addEventListener('error', function(e) {
   //     if (e.readyState == EventSource.CLOSED) {
-  //       // console.log('!! Connection closed', e);
   //     }
   //   }, false);
   //
@@ -967,6 +962,26 @@ function clearCache() {
 }
 
 
+/*
+
+Sync custom table data with CPT tables
+
+*/
+function syncWithCPT() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'wps_sync_with_cpt'
+    }
+  };
+
+  return controlPromise(options);
+
+}
+
+
 export {
   getProductsFromCollection,
   insertCustomCollections,
@@ -1007,5 +1022,6 @@ export {
   uninstallProductData,
   removePluginData,
   setSyncingIndicator,
-  clearCache
+  clearCache,
+  syncWithCPT
 };

@@ -1,5 +1,5 @@
 import {
-  closeModal,
+  initCloseModalEvents,
   updateModalHeadingText,
   updateCurrentConnectionStepText
 } from '../utils/utils-dom';
@@ -42,7 +42,7 @@ function onModalClose() {
 
 
     // if (!jQuery(event.target).closest('.wps-connector-progress').length) {
-    //   closeModal();
+    //   initCloseModalEvents();
     //   resetProgressIndicators();
     //   setConnectionProgress('false');
     // }

@@ -26,7 +26,7 @@ function isObject(value) {
 }
 
 
-function isError(response) {
+function isWordPressError(response) {
 
   if (isObject(response) && hasProp(response, 'success')) {
 
@@ -509,7 +509,7 @@ export {
   containsTrailingForwardSlash,
   removeTrailingForwardSlash,
   removeTrueAndTransformToArray,
-  isError,
+  isWordPressError,
   hasProp,
   isObject
 };

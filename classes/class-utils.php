@@ -29,6 +29,24 @@ class Utils {
   protected static $instantiated = null;
 
 
+
+
+  public function filter_errors($item) {
+
+    return is_wp_error($item);
+
+  }
+
+  public function filter_errors_with_messages($title, $error) {
+
+    return $error->get_error_message();
+
+  }
+
+
+
+
+
   /*
 
 	Creates a new class if one hasn't already been created.
@@ -47,14 +65,23 @@ class Utils {
 
 
 
+  /*
+
+  Generate and return hash
+
+  */
+  public function wps_hash($content) {
+    return wp_hash($content);
+  }
+
+
+  /*
+
+  Position is a string so we need a more relaxed
+  equality check
+
+  */
   public function get_featured_image_by_position($image) {
-
-    /*
-
-    Position is a string so we need a more relaxed
-    equality check
-
-    */
     return $image->position == 1;
   }
 
@@ -1900,7 +1927,7 @@ class Utils {
 
       $priceFormatted = explode($symbol, $finalPrice);
 
-      $priceey = '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $currencySymbol[0] . '</span>' . '<span itemprop="price" class="wps-product-individual-price">' . $priceFormatted[1] .'</span>';
+      $priceey = '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $currencySymbol[0] . '</span>' . '<span itemprop="price" class="wps-product-individual-price">' . $price .'</span>' . '<span itemprop="priceCurrency" class="wps-product-individual-price-format">' . trim($currencySymbol[1]) .'</span>';
 
 
       set_transient('wps_product_price_id_' . $productID, $priceey);

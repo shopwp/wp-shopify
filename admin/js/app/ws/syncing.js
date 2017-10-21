@@ -11,6 +11,10 @@ import {
   sanitizeErrorResponse
 } from '../utils/utils-data';
 
+import {
+  isWordPressError
+} from '../utils/utils';
+
 /*
 
 Sync Connection
@@ -70,11 +74,17 @@ function syncProducts() {
 
     try {
       var products = await streamProducts();
-      resolve(products);
+
+      if (isWordPressError(products)) {
+        throw products.data;
+
+      } else {
+        resolve(products);
+      }
 
     } catch(error) {
 
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 

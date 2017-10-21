@@ -21,6 +21,7 @@ class Products extends \WPS\DB {
 	public $primary_key;
   public $product_data;
 
+
   /*
 
   Construct
@@ -120,6 +121,16 @@ class Products extends \WPS\DB {
 
   /*
 
+  Get Products
+
+  */
+  public function get_products() {
+    return $this->get_all_rows();
+  }
+
+
+  /*
+
   Get Single Product
   Without: Images, variants
 
@@ -154,7 +165,7 @@ class Products extends \WPS\DB {
 
     foreach ($products as $key => $product) {
 
-      if ($DB_Settings_Connection->is_syncing()) {
+      if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
 
         // If product has an image
         if (property_exists($product, 'image') && is_object($product->image)) {
@@ -224,7 +235,7 @@ class Products extends \WPS\DB {
       images table_name
 
       */
-      if (property_exists($product, 'image')) {
+      if (property_exists($product, 'image') && !empty($product->image)) {
         $product->image = $product->image->src;
       }
 
@@ -233,7 +244,10 @@ class Products extends \WPS\DB {
       $results['product']     = $this->update($product->id, $product);
       $results['image']       = $DB_Images->update_image($product);
       $results['collects']    = $DB_Collects->update_collects($product);
+
+      // This takes care of syncing the custom post type content
       $results['product_cpt'] = CPT::wps_update_existing_product($product);
+
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
 
@@ -281,6 +295,9 @@ class Products extends \WPS\DB {
 
     if (!empty($productData)) {
       $postIds = array($productData->post_id);
+
+    } else {
+      $postIds = array();
     }
 
     $results['variants']  = $DB_Variants->delete_rows('product_id', $productID);
@@ -304,7 +321,9 @@ class Products extends \WPS\DB {
 
   /*
 
-  Fired when product is deleted at Shopify
+  Fired when product is created at Shopify. No need to manually
+  created the WP custom post here as this is handled already within
+  the insert_products call.
 
   */
   public function create_product($product) {
@@ -330,12 +349,119 @@ class Products extends \WPS\DB {
     $results['images'] = $DB_Images->insert_images($productWrapped);
     $results['collects']  = $DB_Collects->update_collects($product);
 
+
     Transients::delete_cached_product_queries();
     Transients::delete_cached_product_single();
 
     return $results;
 
   }
+
+
+
+
+  /*
+
+  $product current represents the data coming from Shopify or
+  the $product object from the products table. Since this could
+  vary, we need to check if post_id is available.
+
+  CURRENTLY NOT USED
+
+  */
+
+  public function update_post_content_if_changed($product) {
+
+    if ($this->post_content_has_changed($product)) {
+      return $this->update_post_content($product);
+    }
+
+  }
+
+
+
+
+  public function update_post_content($product) {
+
+    $postID = $this->get_post_id_from_object($product);
+
+    $response = wp_update_post(array(
+      'ID'           => $postID,
+      'post_content' => $product->body_html
+    ));
+
+    if ($response === 0) {
+      return new \WP_Error('error', __('Warning: Unable to update product: "' . $product->title . '"'));
+
+    } else {
+      return $response;
+    }
+
+    return $response;
+
+  }
+
+
+
+
+  public function post_content_has_changed($product) {
+
+    $productsContent = $this->get_content_hash($product, 'body_html');
+    $cptContent = $this->get_content_hash($product, 'post_content', true);
+
+    return $productsContent !== $cptContent;
+
+  }
+
+
+
+  public function get_post_id_from_object($post) {
+
+    if (isset($post->post_id)) {
+      return $post->post_id;
+
+    } else {
+
+      // get post ID by looking up value manually
+      if (isset($post->handle)) {
+
+
+        return $post->id;
+
+      }
+
+    }
+
+  }
+
+
+
+  /*
+
+  Param 1: The product variable (coming from wps_products table)
+  Param 2: The column to look up
+  Param 3: Whether we should look for a custom post type or not
+
+  */
+  public function get_content_hash($product, $content, $cpt = false) {
+
+    $Utils = new Utils();
+
+    if ($cpt) {
+
+      $post = get_post( $this->get_post_id_from_object($product) );
+      return $Utils->wps_hash($post->{$content});
+
+    } else {
+      return $Utils->wps_hash($product->{$content});
+    }
+
+  }
+
+
+
+
+
 
 
   /*

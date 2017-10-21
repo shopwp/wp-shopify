@@ -68,7 +68,7 @@ class CPT {
       'label'               => __('Products', 'text_domain'),
       'description'         => __('Custom Post Type for Products', 'text_domain'),
       'labels'              => $labels,
-      'supports'            => array('title', 'page-attributes'),
+      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
       'hierarchical'        => false,
       'public'              => true,
       'show_ui'             => true,
@@ -118,7 +118,7 @@ class CPT {
       'label'               => __('Collections', 'text_domain'),
       'description'         => __('Custom Post Type for Collections', 'text_domain'),
       'labels'              => $labels,
-      'supports'            => array('title', 'page-attributes'),
+      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
       'hierarchical'        => false,
       'public'              => true,
       'show_ui'             => true,
@@ -154,11 +154,14 @@ class CPT {
 
     $newProductModel = array(
       'post_title'    => property_exists($product, 'title') ? $product->title : '',
-      'post_content'  => '',
+      'post_content'  => property_exists($product, 'body_html') ? $product->body_html : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_products',
       'post_name'			=> property_exists($product, 'handle') ? $product->handle : '',
-      'menu_order'    => $index
+      'menu_order'    => $index,
+      'meta_input' => array(
+        'product_id' => property_exists($product, 'id') ? $product->id : ''
+      )
     );
 
     // Insert post and return the ID or error object if fail
@@ -179,10 +182,13 @@ class CPT {
     $product_args = array(
       'ID'            => !empty($found_post_id) ? $found_post_id : null,
       'post_title'    => property_exists($product, 'title') ? $product->title : '',
-      'post_content'  => '',
+      'post_content'  => property_exists($product, 'body_html') ? $product->body_html : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_products',
-      'post_name'			=> property_exists($product, 'handle') ? $product->handle : ''
+      'post_name'			=> property_exists($product, 'handle') ? $product->handle : '',
+      'meta_input' => array(
+        'product_id' => property_exists($product, 'id') ? $product->id : ''
+      )
     );
 
     // Needed to ensure working pages
@@ -227,12 +233,14 @@ class CPT {
 
     $newCollectionModel = array(
       'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
-      'post_content'  => '',
+      'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_collections',
-      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : ''
+      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
+      'meta_input' => array(
+        'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
+      )
     );
-
 
     /*
 
@@ -250,7 +258,9 @@ class CPT {
     }
 
     // Insert post and return the ID or error object if fail
-    return wp_insert_post($newCollectionModel, true);
+    $sodkfosdkf = wp_insert_post($newCollectionModel, true);
+
+    return $sodkfosdkf;
 
   }
 
@@ -267,10 +277,14 @@ class CPT {
     $collection_args = array(
       'ID'            => !empty($found_post_id) ? $found_post_id : null,
       'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
-      'post_content'  => '',
+      'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_collections',
-      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : ''
+      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
+      'meta_input' => array(
+        'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
+      )
+      
     );
 
     // Needed to ensure working pages

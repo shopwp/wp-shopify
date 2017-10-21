@@ -130,9 +130,18 @@ class WS {
 
       } else {
 
+        // TODO: Should we type check or type cast?
+        if (is_object($image)) {
+          $imageID = $image->id;
+
+        } else if (is_array($image)) {
+          $imageID = $image['id'];
+        }
+
+
         try {
 
-          $url = "https://" . $this->connection->domain . "/admin/metafields.json?metafield[owner_id]=" . $image->id . "&metafield[owner_resource]=product_image";
+          $url = "https://" . $this->connection->domain . "/admin/metafields.json?metafield[owner_id]=" . $imageID . "&metafield[owner_resource]=product_image";
 
           $headers = array(
             'X-Shopify-Access-Token' => $this->connection->access_token
@@ -146,7 +155,13 @@ class WS {
           $data = json_decode($guzzelResponse->getBody()->getContents());
 
           if (property_exists($data, 'metafields')) {
-            return $data->metafields[0]->value;
+
+            if (is_array($data->metafields) && !empty($data->metafields)) {
+              return $data->metafields[0]->value;
+
+            } else {
+              return 'Shop Product'; // Default alt text if none exists
+            }
 
           } else {
             return $data->errors;
@@ -1223,6 +1238,10 @@ class WS {
       $newGeneralSettings['price_with_currency'] = (int)$_POST['wps_settings_general_price_with_currency'];
     }
 
+    if (isset($_POST['wps_settings_general_cart_loaded'])) {
+      $newGeneralSettings['cart_loaded'] = (int)$_POST['wps_settings_general_cart_loaded'];
+    }
+
     $results = $DB_Settings_General->update_general($newGeneralSettings);
 
 
@@ -1944,6 +1963,7 @@ NEW STRUCTURE
 
 
     if ($ajax) {
+
       wp_send_json_success($results);
 
     } else {
@@ -1953,10 +1973,6 @@ NEW STRUCTURE
 
 
   }
-
-
-
-
 
 
   /*
@@ -1977,6 +1993,97 @@ NEW STRUCTURE
     }
 
   }
+
+
+  public function syncSingleProductWithCPT() {
+
+  }
+
+
+  public function syncSingleCollectionWithCPT() {
+
+  }
+
+
+
+
+
+
+
+  public function getPostContentHash($product) {
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  Sync with CPT
+
+  CURRENTLY NOT USED
+
+  */
+  public function wps_sync_with_cpt() {
+
+    $Utils = new Utils();
+
+    if (Utils::emptyConnection($this->connection)) {
+      wp_send_json_error('No connection details found. Please reconnect.');
+
+    } else {
+
+      $DB_Products = new Products();
+      $products = $DB_Products->get_products();
+      $results = array();
+
+
+      foreach($products as $product) {
+        $results[] = $DB_Products->update_post_content_if_changed($product);
+      }
+
+
+      $filteredResults = array_filter($results, array($Utils, 'filter_errors'));
+
+      if (!empty($filteredResults)) {
+
+        $filteredResults = array_map(
+          array($Utils, 'filter_errors_with_messages'),
+          array_keys($filteredResults),
+          $filteredResults
+        );
+
+        wp_send_json_error($filteredResults);
+
+      } else {
+        wp_send_json_success();
+
+      }
+
+
+    }
+
+
+  }
+
+
 
 
 }

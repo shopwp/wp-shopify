@@ -17,7 +17,7 @@ import {
 } from '../ws/localstorage';
 
 import {
-  isError
+  isWordPressError
 } from '../utils/utils';
 
 /*
@@ -37,7 +37,7 @@ async function streamConnection() {
 
       var connectionData = await getConnectionData();
 
-      if (isError(connectionData)) {
+      if (isWordPressError(connectionData)) {
         reject(connectionData.data);
       }
 
@@ -98,7 +98,7 @@ async function streamShop() {
         reject(shopData);
       }
 
-      if (isError(shopData)) {
+      if (isWordPressError(shopData)) {
         reject(shopData.data);
 
       } else {
@@ -121,7 +121,7 @@ async function streamShop() {
 
       var shop = await insertShopData(shopData);
 
-      if (isError(shop)) {
+      if (isWordPressError(shop)) {
         reject(shop.data);
       }
 
@@ -161,36 +161,13 @@ async function streamProducts() {
 
 
     //
-    // 0. Clean out data before syncing
-    //
-    // try {
-    //   console.log("uninstallProductData()");
-    //   productData = await uninstallProductData();
-    //
-    //   if (isError(productData)) {
-    //     reject(productData.data);
-    //   }
-    //
-    //   if (!connectionInProgress()) {
-    //     console.log("stopped at streamProducts: ", connectionInProgress());
-    //     reject('Syncing stopped during streamProducts');
-    //   }
-    //
-    // } catch(error) {
-    //
-    //   reject(error);
-    //
-    // }
-
-
-    //
     // 1. Get products count
     //
     try {
 
       productCount = await getProductsCount();
 
-      if (isError(productCount)) {
+      if (isWordPressError(productCount)) {
         reject(productCount.data);
 
       } else {
@@ -224,7 +201,7 @@ async function streamProducts() {
           reject('Syncing stopped during streamProducts');
         }
 
-        if (isError(newProducts)) {
+        if (isWordPressError(newProducts)) {
           reject(newProducts.data);
 
         } else {
@@ -276,7 +253,7 @@ async function streamCollects() {
 
       collectsCount = await getCollectsCount();
 
-      if (isError(collectsCount)) {
+      if (isWordPressError(collectsCount)) {
         reject(collectsCount.data);
 
       } else {
@@ -314,7 +291,7 @@ async function streamCollects() {
             reject('Syncing stopped during streamCollects');
           }
 
-          if (isError(collectsNew)) {
+          if (isWordPressError(collectsNew)) {
             reject(collectsNew);
           }
 
@@ -354,7 +331,7 @@ async function streamSmartCollections() {
 
       var smartCollections = await insertSmartCollections();
 
-      if (isError(smartCollections)) {
+      if (isWordPressError(smartCollections)) {
         reject(smartCollections.data);
 
       } else {
@@ -389,7 +366,7 @@ async function streamCustomCollections() {
 
       var customCollections = await insertCustomCollections();
 
-      if (isError(customCollections)) {
+      if (isWordPressError(customCollections)) {
         reject(customCollections.data);
 
       } else {
