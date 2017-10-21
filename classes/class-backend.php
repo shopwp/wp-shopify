@@ -509,6 +509,9 @@ class Backend {
 
 
 		// WS
+		add_action( 'wp_ajax_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
+		add_action( 'wp_ajax_nopriv_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
+
 		add_action( 'wp_ajax_wps_clear_cache', array($WS, 'wps_clear_cache'));
 		add_action( 'wp_ajax_nopriv_wps_clear_cache', array($WS, 'wps_clear_cache'));
 

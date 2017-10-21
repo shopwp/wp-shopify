@@ -38,7 +38,8 @@ class Settings_Connection extends \WPS\DB {
       'app_id'                    => '%s',
       'webhook_id'                => '%s',
       'nonce'                     => '%s',
-      'is_syncing'                => '%d'
+      'is_syncing'                => '%d',
+      'needs_cache_flush'         => '%d'
     );
   }
 
@@ -58,7 +59,7 @@ class Settings_Connection extends \WPS\DB {
       'webhook_id'                => '',
       'nonce'                     => '',
       'is_syncing'                => 0,
-      'idd'                       => ''
+      'needs_cache_flush'         => 0
     );
   }
 
@@ -119,13 +120,50 @@ class Settings_Connection extends \WPS\DB {
   */
   public function is_syncing() {
 
-    $connectionData = $this->get();
+    $connection = $this->get();
 
-    if ($connectionData->is_syncing == 0) {
+    if (is_object($connection) && $connection->is_syncing == 0) {
       return false;
 
     } else {
       return true;
+
+    }
+
+  }
+
+
+  /*
+
+  Set needs cache flush on
+
+  */
+  public function turn_on_need_cache_flush() {
+
+    $connection = $this->get();
+
+    $results = $this->update_column_single(
+      array('needs_cache_flush' => '1'),
+      array('id' => $connection->id)
+    );
+
+  }
+
+
+  /*
+
+  Set needs cache flush on
+
+  */
+  public function is_webhooking() {
+
+    $connection = $this->get();
+
+    if (is_object($connection) && $connection->needs_cache_flush === '1') {
+      return true;
+
+    } else {
+      return false;
 
     }
 
@@ -156,6 +194,7 @@ class Settings_Connection extends \WPS\DB {
       `webhook_id` varchar(100) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
       `is_syncing` tinyint(1) DEFAULT 0,
+      `needs_cache_flush` tinyint(1) DEFAULT 0,
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 

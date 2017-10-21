@@ -12,16 +12,16 @@ import {
 } from '../connect/connect';
 
 import {
-  uninstallPluginData
-} from '../disconnect/disconnect';
-
-import {
   updateModalHeadingText
 } from '../utils/utils-dom';
 
 import {
   removePluginData
 } from '../ws/ws';
+
+import {
+  uninstallPluginData
+} from '../disconnect/disconnect';
 
 
 /*
@@ -36,17 +36,14 @@ async function syncPluginData() {
   try {
     await syncSmartCollections();
 
-  } catch(syncSmartCollectionsError) {
+  } catch(errors) {
 
-    console.error('Error syncing smart collections data: ', syncSmartCollectionsError);
+    // uninstallPluginData({
+    //   errorList: errors,
+    //   xMark: true
+    // });
 
-    if (syncSmartCollectionsError.hasOwnProperty('data')) {
-      return new Error(syncSmartCollectionsError.data);
-
-    } else {
-      return new Error(syncSmartCollectionsError);
-
-    }
+    return new Error(errors);
 
   }
 
@@ -55,17 +52,14 @@ async function syncPluginData() {
   try {
     await syncCustomCollections();
 
-  } catch(syncCustomCollectionsError) {
+  } catch(errors) {
 
-    console.error('Error syncing custom collections data: ', syncCustomCollectionsError);
+    // uninstallPluginData({
+    //   errorList: errors,
+    //   xMark: true
+    // });
 
-    if (syncCustomCollectionsError.hasOwnProperty('data')) {
-      return new Error(syncCustomCollectionsError.data);
-
-    } else {
-      return new Error(syncCustomCollectionsError);
-
-    }
+    return new Error(errors);
 
   }
 
@@ -80,17 +74,14 @@ async function syncPluginData() {
       syncCollects()
     ]);
 
-  } catch(remainingError) {
+  } catch(errors) {
 
-    console.error('Error syncing plugin data: ', remainingError);
+    // uninstallPluginData({
+    //   errorList: errors,
+    //   xMark: true
+    // });
 
-    if (remainingError.hasOwnProperty('data')) {
-      return new Error(remainingError.data);
-
-    } else {
-      return new Error(remainingError);
-
-    }
+    return new Error(errors);
 
   }
 

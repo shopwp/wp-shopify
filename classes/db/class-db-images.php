@@ -86,7 +86,7 @@ class Images extends \WPS\DB {
 
         foreach ($product->images as $key => $image) {
 
-          if ($DB_Settings_Connection->is_syncing()) {
+          if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
 
             $image->alt = $WS->wps_ws_get_image_alt($image);
             $results[] = $this->insert($image, 'image');
@@ -144,7 +144,16 @@ class Images extends \WPS\DB {
 
       foreach ($imagesToAdd as $key => $newImage) {
 
-        $newImage->alt = $WS->wps_ws_get_image_alt($newImage);
+
+        // TODO: Should we type check or type cast?
+        if (is_object($newImage)) {
+          $newImage->alt = $WS->wps_ws_get_image_alt($newImage);
+
+        } else if (is_array($newImage)) {
+          $newImage['alt'] = $WS->wps_ws_get_image_alt($newImage);
+        }
+
+
         $results['created'] = $this->insert($newImage, 'image');
 
       }

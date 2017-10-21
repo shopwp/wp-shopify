@@ -1,8 +1,4 @@
 import {
-  isError
-} from 'lodash';
-
-import {
   showAdminNotice,
   toggleActive,
 } from '../utils/utils-dom';
@@ -24,7 +20,8 @@ import {
   showSpinner,
   hideSpinner,
   showLoader,
-  hideLoader
+  hideLoader,
+  isWordPressError
 } from '../utils/utils';
 
 
@@ -46,6 +43,33 @@ function onCacheClear() {
     toggleActive($spinner);
     showLoader($button);
 
+    try {
+
+      var clearAllCacheResponse = await clearAllCache();
+
+      if (isWordPressError(clearAllCacheResponse)) {
+        throw new Error(clearAllCacheResponse.data);
+
+      } else {
+        showAdminNotice('Successfully cleared cache', 'updated');
+      }
+
+    } catch(errors) {
+      showAdminNotice(errors, 'error');
+    }
+
+    hideLoader($button);
+    enable($button);
+
+  });
+
+
+}
+
+
+function clearAllCache() {
+
+  return new Promise(async function(resolve, reject) {
 
     /*
 
@@ -55,13 +79,12 @@ function onCacheClear() {
     try {
       var clearLocalstorageResponse = await clearLocalstorageCache();
 
+      if (isWordPressError(clearLocalstorageResponse)) {
+        reject(clearLocalstorageResponse.data);
+      }
+
     } catch(clearLocalstorageCacheError) {
-
-      hideLoader($button);
-      showAdminNotice(clearLocalstorageCacheError, 'error');
-      enable($button);
-      return;
-
+      reject(clearLocalstorageCacheError);
     }
 
 
@@ -73,30 +96,24 @@ function onCacheClear() {
     try {
       var clearCacheResponse = await clearCache();
 
-      if (!clearCacheResponse.success) {
-        throw new Error(clearCacheResponse.data);
+      if (isWordPressError(clearCacheResponse)) {
+        reject(clearCacheResponse.data);
       }
 
-      showAdminNotice('Successfully cleared cache', 'updated');
-
     } catch(clearCacheError) {
-
-      hideLoader($button);
-      showAdminNotice(clearCacheError, 'error');
-      enable($button);
-      return;
+      reject(clearCacheError);
 
     }
 
-    hideLoader($button);
-    enable($button);
-
+    resolve();
 
   });
 
-
 }
 
+
+
 export {
-  onCacheClear
+  onCacheClear,
+  clearAllCache
 }

@@ -29,7 +29,7 @@ Init Admin
 
 */
 function initAdmin() {
-  addAdminNotice();
+  // addAdminNotice();
   initTooltips();
 }
 

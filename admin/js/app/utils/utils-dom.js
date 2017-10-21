@@ -203,9 +203,7 @@ Close the connector modal
 Returns: undefined
 
 */
-function closeModal() {
-
-  clearLocalstorageCache();
+function initCloseModalEvents() {
 
   jQuery('.wps-btn-cancel').unbind().on('click', function() {
 
@@ -346,7 +344,7 @@ export {
   showConnectorModal,
   createConnectorModal,
   addConnectorNotice,
-  closeModal,
+  initCloseModalEvents,
   stopSpinner,
   insertCheckmark,
   insertXMark,

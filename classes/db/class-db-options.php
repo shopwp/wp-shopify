@@ -76,7 +76,7 @@ class Options extends \WPS\DB {
 
         foreach ($product->options as $key => $option) {
 
-          if ($DB_Settings_Connection->is_syncing()) {
+          if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
 
             $results[] = $this->insert($option, 'option');
 

@@ -78,9 +78,11 @@ class Collects extends \WPS\DB {
     $results = array();
 
     if (isset($collects) && $collects) {
+
       foreach ($collects as $key => $collect) {
         $results[] = $this->insert($collect, 'collect');
       }
+      
     }
 
     return $results;

@@ -933,9 +933,9 @@ TODO: Remove for Phase 2
 .post-type-wps_collections,
 .post-type-wps_products {
 
-  #post-body {
-    opacity: 0.2;
-  }
+  // #post-body {
+  //   opacity: 0.2;
+  // }
 
   .wps-admin-heading {
     text-align: center;
@@ -1059,4 +1059,12 @@ input.code {
   background: #0085ba;
   color: white;
   border-radius: 5px;
+}
+
+
+
+
+
+#wpbody-content #post-body-content .postarea.wp-editor-expand {
+  display: none;
 }

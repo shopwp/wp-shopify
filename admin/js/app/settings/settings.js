@@ -1,6 +1,12 @@
+import isError from 'lodash/isError';
+
 import {
   updateSettings
 } from '../ws/ws.js';
+
+import {
+  clearAllCache
+} from '../tools/cache.js';
 
 import {
   enable,
@@ -10,7 +16,8 @@ import {
   showLoader,
   hideLoader,
   containsTrailingForwardSlash,
-  removeTrailingForwardSlash
+  removeTrailingForwardSlash,
+  isWordPressError
 } from '../utils/utils.js';
 
 import {
@@ -64,6 +71,7 @@ function onSettingsFormSubmit() {
       var collectionsURL = jQuery(form).find("#wps_settings_general_url_collections").val();
       var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
+    
       // var styles = jQuery(form).find("#wps_settings_general_styles").val();
 
       disable($submitButton);
@@ -84,6 +92,17 @@ function onSettingsFormSubmit() {
       var stylesCoreAttr = jQuery(form).find("#wps_settings_general_styles_core").attr("checked");
       var stylesGridAttr = jQuery(form).find("#wps_settings_general_styles_grid").attr("checked");
       var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
+      var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
+
+
+      if (typeof cartLoaddedAttr !== typeof undefined && cartLoaddedAttr !== false) {
+        var cartLoaded = 1;
+
+      } else {
+        var cartLoaded = 0;
+
+      }
+
 
       if (typeof stylesAllAttr !== typeof undefined && stylesAllAttr !== false) {
         var stylesAll = 1;
@@ -93,6 +112,7 @@ function onSettingsFormSubmit() {
 
       }
 
+
       if (typeof stylesCoreAttr !== typeof undefined && stylesCoreAttr !== false) {
         var stylesCore = 1;
 
@@ -100,6 +120,7 @@ function onSettingsFormSubmit() {
         var stylesCore = 0;
 
       }
+
 
       if (typeof stylesGridAttr !== typeof undefined && stylesGridAttr !== false) {
         var stylesGrid = 1;
@@ -109,6 +130,7 @@ function onSettingsFormSubmit() {
 
       }
 
+
       if (typeof priceFormatAttr !== typeof undefined && priceFormatAttr !== false) {
         var priceFormat = 1;
 
@@ -116,6 +138,8 @@ function onSettingsFormSubmit() {
         var priceFormat = 0;
 
       }
+
+
 
       var settings = {
         wps_settings_general_products_url: productsURL,
@@ -125,14 +149,18 @@ function onSettingsFormSubmit() {
         wps_settings_general_styles_all: stylesAll,
         wps_settings_general_styles_core: stylesCore,
         wps_settings_general_styles_grid: stylesGrid,
-        wps_settings_general_price_with_currency: priceFormat
+        wps_settings_general_price_with_currency: priceFormat,
+        wps_settings_general_cart_loaded: cartLoaded
       }
 
+
+      /*
+
+      Step 1. Update settings
+
+      */
       try {
         var settingsResponse = await updateSettings(settings);
-        showAdminNotice('Successfully updated settings', 'updated');
-        toggleActive($spinner);
-        enable($submitButton);
 
       } catch (errorMsg) {
 
@@ -141,6 +169,39 @@ function onSettingsFormSubmit() {
         toggleActive($spinner);
 
       }
+
+
+      /*
+
+      Step 2. Clear all plugin cache
+
+      */
+      try {
+
+        var clearAllCacheResponse = await clearAllCache();
+
+        if (isWordPressError(clearAllCacheResponse)) {
+          throw clearAllCacheResponse.data;
+
+        } else if (isError(clearAllCacheResponse)) {
+          throw clearAllCacheResponse;
+
+        } else {
+          showAdminNotice('Successfully updated settings', 'updated');
+          toggleActive($spinner);
+          enable($submitButton);
+
+        }
+
+      } catch(errorMsg) {
+
+        showAdminNotice(errorMsg, 'error');
+        enable($submitButton);
+        toggleActive($spinner);
+
+      }
+
+
 
     }
 

@@ -113,7 +113,7 @@ class Variants extends \WPS\DB {
 
         foreach ($product->variants as $key => $variant) {
 
-          if ($DB_Settings_Connection->is_syncing()) {
+          if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
 
             $results[] = $this->insert($variant, 'variant');
 

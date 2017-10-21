@@ -552,10 +552,76 @@ if (!class_exists('Frontend')) {
 
 		/*
 
+		Get plugin setting money_format
+
+		*/
+		public function wps_get_cache_flush_status() {
+
+			$DB_Settings_Connection = new Settings_Connection();
+			$needsCacheFlush = $DB_Settings_Connection->get_column_single('needs_cache_flush');
+
+
+			if (is_null($needsCacheFlush) || !empty($needsCacheFlush->last_error)) {
+				wp_send_json_error($needsCacheFlush);
+
+			} else {
+
+				if (is_array($needsCacheFlush) && isset($needsCacheFlush[0]) ) {
+
+					if ($needsCacheFlush[0]->needs_cache_flush === 0) {
+						wp_send_json_success($needsCacheFlush[0]->needs_cache_flush);
+
+					} else {
+						wp_send_json_success($needsCacheFlush[0]->needs_cache_flush);
+
+					}
+
+				} else {
+					wp_send_json_error($needsCacheFlush);
+
+				}
+
+			}
+
+		}
+
+
+		/*
+
+		Get plugin setting money_format
+
+		*/
+		public function wps_update_cache_flush_status() {
+
+			$DB_Settings_Connection = new Settings_Connection();
+			$connectionData = $DB_Settings_Connection->get();
+
+			$connectionData->needs_cache_flush = $_POST['status'];
+			$connectionData = (array) $connectionData;
+			$response = $DB_Settings_Connection->insert_connection($connectionData);
+
+			if (is_wp_error($response)) {
+				wp_send_json_error($response->get_error_message());
+
+			} else {
+				wp_send_json_success($response);
+			}
+
+
+		}
+
+
+
+		/*
+
 		Only hooks not meant for public consumption
 
 		*/
 		public function wps_frontend_hooks() {
+
+			$DB_Settings_General = new Settings_General();
+
+
 
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_styles') );
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );
@@ -571,6 +637,12 @@ if (!class_exists('Frontend')) {
 			add_shortcode('wps_cart', array($this, 'wps_cart_shortcode'));
 
 			// AJAX
+			add_action( 'wp_ajax_wps_update_cache_flush_status', array($this, 'wps_update_cache_flush_status') );
+			add_action( 'wp_ajax_nopriv_wps_update_cache_flush_status', array($this, 'wps_update_cache_flush_status') );
+
+			add_action( 'wp_ajax_wps_get_cache_flush_status', array($this, 'wps_get_cache_flush_status') );
+			add_action( 'wp_ajax_nopriv_wps_get_cache_flush_status', array($this, 'wps_get_cache_flush_status') );
+
 			add_action( 'wp_ajax_wps_get_credentials', array($this, 'wps_get_credentials') );
 			add_action( 'wp_ajax_nopriv_wps_get_credentials', array($this, 'wps_get_credentials') );
 
@@ -589,8 +661,17 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_ajax_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 			add_action( 'wp_ajax_nopriv_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 
-			add_action( 'wp_footer', array($this, 'wps_insert_cart_before_closing_body') );
-      add_action( 'wp_footer', array($this, 'wps_notice') );
+
+			/*
+
+			Only load cart HTML if enabled within settings
+
+			*/
+
+			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
+				add_action( 'wp_footer', array($this, 'wps_insert_cart_before_closing_body') );
+				add_action( 'wp_footer', array($this, 'wps_notice') );
+			}
 
 
 		}

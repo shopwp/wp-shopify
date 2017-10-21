@@ -1,6 +1,4 @@
-import {
-  isError
-} from 'lodash';
+import isError from 'lodash/isError';
 
 import {
   syncPluginData
@@ -16,7 +14,7 @@ import {
   updateModalHeadingText,
   updateCurrentConnectionStepText,
   insertXMark,
-  closeModal,
+  initCloseModalEvents,
   insertCheckmark,
   setConnectionMessage
 } from '../utils/utils-dom';
@@ -30,7 +28,8 @@ import {
 
 import {
   setSyncingIndicator,
-  removePluginData
+  removePluginData,
+  syncWithCPT
 } from '../ws/ws.js';
 
 import {
@@ -40,18 +39,28 @@ import {
 import {
   enable,
   disable,
-  showSpinner
+  showSpinner,
+  isWordPressError
 } from '../utils/utils';
 
 import {
-  uninstallPluginData,
+  clearAllCache
+} from '../tools/cache';
+
+import {
   updateDomAfterDisconnect
 } from '../disconnect/disconnect.js';
 
 
+
+
+
 /*
 
-When License key form is submitted ...
+When Resync form is submitted ...
+
+TODO: We could potentially enhance performance considerably if we do
+checksum comparisons. Look into this.
 
 */
 function onResyncSubmit() {
@@ -63,17 +72,12 @@ function onResyncSubmit() {
     var $resyncButton = jQuery(this);
 
     clearLocalstorageCache();
-
     disable($resyncButton);
-    // R.forEach(showSpinner, $resyncButton);
-
     injectConnectorModal( createConnectorModal('Resyncing ...', 'Cancel sync') );
 
     // Sets up close listenters
     onModalClose();
-
     setConnectionProgress(true);
-
 
 
     /*
@@ -84,17 +88,27 @@ function onResyncSubmit() {
     try {
       var updatingSyncingIndicator = await setSyncingIndicator(1);
 
-    } catch(error) {
+      if (isWordPressError(updatingSyncingIndicator)) {
+        throw updatingSyncingIndicator.data;
+
+      } else if (isError(updatingSyncingIndicator)) {
+        throw updatingSyncingIndicator;
+
+      } else {
+        setConnectionStepMessage('Preparing for sync ...');
+
+      }
+
+    } catch(errors) {
 
       updateModalHeadingText('Canceling ...');
 
       updateDomAfterDisconnect({
-        noticeText: 'Syncing stopped and existing data cleared',
         headingText: 'Canceled',
-        stepText: error,
         buttonText: 'Exit Sync',
-        xMark: true
-      }, 'Stopped syncing');
+        xMark: true,
+        errorList: errors
+      });
 
       enable($resyncButton);
       return;
@@ -109,24 +123,29 @@ function onResyncSubmit() {
     */
     try {
 
-      setConnectionStepMessage('Clearing existing data');
       var removedResponse = await removePluginData();
 
-      if (isError(removedResponse)) {
-        throw new Error(removedResponse.message);
+      if (isWordPressError(removedResponse)) {
+        throw removedResponse.data;
+
+      } else if (isError(removedResponse)) {
+        throw removedResponse;
+
+      } else {
+        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on the amount of products.)');
+
       }
 
-    } catch(error) {
+    } catch(errors) {
 
       updateModalHeadingText('Canceling ...');
 
       updateDomAfterDisconnect({
-        noticeText: 'Syncing stopped and existing data cleared',
         headingText: 'Canceled',
-        stepText: error,
         buttonText: 'Exit Sync',
-        xMark: true
-      }, 'Stopped syncing');
+        xMark: true,
+        errorList: errors
+      });
 
       enable($resyncButton);
       return;
@@ -141,75 +160,136 @@ function onResyncSubmit() {
     */
     try {
 
-      setConnectionStepMessage('Syncing new data');
       var syncPluginDataResp = await syncPluginData();
 
-      if (isError(syncPluginDataResp)) {
-        throw new Error(syncPluginDataResp.message);
-      }
+      if (isWordPressError(syncPluginDataResp)) {
+        throw syncPluginDataResp.data;
 
-    } catch(error) {
+      } else if (isError(syncPluginDataResp)) {
+        throw syncPluginDataResp;
 
-      updateModalHeadingText('Canceling ...');
-
-      try {
-
-        var uninstallResponse = await removePluginData();
-
-        updateDomAfterDisconnect({
-          headingText: 'Canceled',
-          stepText: error,
-          buttonText: 'Exit Sync',
-          xMark: true
-        });
-
-        enable($resyncButton);
-        return uninstallResponse;
-
-      } catch(errorDataRemoval) {
-
-        updateDomAfterDisconnect({
-          noticeText: 'Syncing stopped and existing data cleared',
-          headingText: 'Canceled',
-          stepText: errorDataRemoval,
-          buttonText: 'Exit Sync',
-          xMark: true
-        });
-
-        enable($resyncButton);
-        return uninstallResponse;
+      } else {
+        setConnectionStepMessage('Finishing ...');
 
       }
 
-    }
-
-
-    /*
-
-    Step 3. Setting Syncing Indicator
-
-    */
-    try {
-      await setSyncingIndicator(0);
-
-    } catch(error) {
+    } catch(errors) {
 
       updateModalHeadingText('Canceling ...');
 
       updateDomAfterDisconnect({
-        noticeText: 'Syncing stopped and existing data cleared',
         headingText: 'Canceled',
-        stepText: error,
+        errorList: errors,
         buttonText: 'Exit Sync',
         xMark: true
-      }, 'Stopped syncing');
+      });
 
       enable($resyncButton);
       return;
 
     }
 
-    closeModal();
+
+    /*
+
+    Step 4. Sync new data with CPT
+
+    */
+    // try {
+    //   var syncWithCPTResponse = await syncWithCPT();
+    //
+    //   if (isWordPressError(syncWithCPTResponse)) {
+    //     throw syncWithCPTResponse.data;
+    //
+    //   } else if (isError(syncWithCPTResponse)) {
+    //     throw syncWithCPTResponse;
+    //
+    //   } else {
+    //     setConnectionStepMessage('Finishing ...');
+    //   }
+    //
+    // } catch(errors) {
+    //
+    //   updateDomAfterDisconnect({
+    //     stepText: 'Failed syncing custom post types',
+    //     headingText: 'Canceled',
+    //     errorList: errors,
+    //     buttonText: 'Exit Sync',
+    //     xMark: true
+    //   });
+    //
+    //   enable($resyncButton);
+    //
+    //   return;
+    //
+    // }
+
+
+    /*
+
+    Step 5. Clear all plugin cache
+
+    */
+    try {
+
+      var clearAllCacheResponse = await clearAllCache();
+
+      if (isWordPressError(clearAllCacheResponse)) {
+        throw clearAllCacheResponse.data;
+
+      } else if (isError(clearAllCacheResponse)) {
+        throw clearAllCacheResponse;
+
+      }
+
+    } catch(errors) {
+
+      updateDomAfterDisconnect({
+        xMark: true,
+        headingText: 'Canceled',
+        buttonText: 'Exit Sync',
+        errorList: errors
+      });
+
+      enable($resyncButton);
+
+      return;
+
+    }
+
+
+    /*
+
+    Step 6. Setting Syncing Indicator
+
+    */
+    try {
+
+      var updatingSyncingIndicatorResponse = await setSyncingIndicator(0);
+
+      if (isWordPressError(updatingSyncingIndicatorResponse)) {
+        throw updatingSyncingIndicatorResponse.data;
+
+      } else if (isError(updatingSyncingIndicatorResponse)) {
+        throw updatingSyncingIndicatorResponse;
+      }
+
+    } catch(errors) {
+
+      updateDomAfterDisconnect({
+        xMark: true,
+        headingText: 'Canceled',
+        buttonText: 'Exit Sync',
+        errorList: errors
+      });
+
+      enable($resyncButton);
+
+      return;
+
+    }
+
+    initCloseModalEvents();
     insertCheckmark();
     setConnectionMessage('Success! You\'re now syncing with Shopify.', 'success');
     updateModalHeadingText('Sync Complete');

@@ -29,16 +29,22 @@ class Settings_General extends \WPS\DB {
 
     global $wpdb;
 
-    $this->table_name         = $wpdb->prefix . 'wps_settings_general';
-    $this->primary_key        = 'id';
-    $this->version            = '1.0';
-    $this->webhooks           = get_home_url();
-    $this->plugin_version     = $Config->plugin_version;
-    $this->plugin_author      = $Config->plugin_author;
-    $this->plugin_textdomain  = $Config->plugin_name;
-    $this->plugin_name        = $Config->plugin_name_full;
-    $this->cache_group        = 'wps_db_general';
-    $this->num_posts          = get_option('posts_per_page');
+    $this->table_name             = $wpdb->prefix . 'wps_settings_general';
+    $this->primary_key            = 'id';
+    $this->version                = '1.0';
+    $this->webhooks               = get_home_url();
+    $this->plugin_version         = $Config->plugin_version;
+    $this->plugin_author          = $Config->plugin_author;
+    $this->plugin_textdomain      = $Config->plugin_name;
+    $this->plugin_name            = $Config->plugin_name_full;
+    $this->cache_group            = 'wps_db_general';
+    $this->num_posts              = get_option('posts_per_page');
+    $this->cart_loaded            = 1;
+    $this->price_with_currency    = 0;
+
+    $this->styles_all             = 1;
+    $this->styles_core            = 0;
+    $this->styles_grid            = 0;
 
   }
 
@@ -62,7 +68,8 @@ class Settings_General extends \WPS\DB {
       'plugin_textdomain'         => '%s',
       'plugin_version'            => '%s',
       'plugin_author'             => '%s',
-      'price_with_currency'       => '%d'
+      'price_with_currency'       => '%d',
+      'cart_loaded'               => '%d'
     );
   }
 
@@ -79,14 +86,15 @@ class Settings_General extends \WPS\DB {
       'url_collections'           => 'collections',
       'url_webhooks'              => $this->webhooks,
       'num_posts'                 => $this->num_posts,
-      'styles_all'                => 1,
-      'styles_core'               => 0,
-      'styles_grid'               => 0,
+      'styles_all'                => $this->styles_all,
+      'styles_core'               => $this->styles_core,
+      'styles_grid'               => $this->styles_grid,
       'plugin_name'               => $this->plugin_name,
       'plugin_textdomain'         => $this->plugin_textdomain,
       'plugin_version'            => $this->plugin_version,
       'plugin_author'             => $this->plugin_author,
-      'price_with_currency'       => 0
+      'price_with_currency'       => $this->price_with_currency,
+      'cart_loaded'               => $this->cart_loaded
     );
   }
 
@@ -106,14 +114,15 @@ class Settings_General extends \WPS\DB {
       'url_collections'           => 'collections',
       'url_webhooks'              => $this->webhooks,
       'num_posts'                 => $this->num_posts,
-      'styles_all'                => 1,
-      'styles_core'               => 0,
-      'styles_grid'               => 0,
+      'styles_all'                => $this->styles_all,
+      'styles_core'               => $this->styles_core,
+      'styles_grid'               => $this->styles_grid,
       'plugin_name'               => $this->plugin_name,
       'plugin_textdomain'         => $this->plugin_textdomain,
       'plugin_version'            => $this->plugin_version,
       'plugin_author'             => $this->plugin_author,
-      'price_with_currency'       => 0
+      'price_with_currency'       => $this->price_with_currency,
+      'cart_loaded'               => $this->cart_loaded
     );
 
     $row = $this->get_rows('id', 1);
@@ -205,6 +214,7 @@ class Settings_General extends \WPS\DB {
       `plugin_version` varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
       `price_with_currency` tinyint(1) DEFAULT 0,
+      `cart_loaded` tinyint(1) DEFAULT 0,
 		  PRIMARY KEY  (`{$this->primary_key}`)
 		) ENGINE=InnoDB $collate";
 

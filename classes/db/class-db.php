@@ -306,6 +306,24 @@ class DB {
 		$result = $wpdb->insert($this->table_name, $data, $column_formats);
 
 
+
+		/*
+
+		TODO: We should probably check whether the item we're inserting into the DB
+		already exists to avoid errors. We can do this by first running $wpdb->get_results
+		and then cheking the num rows like below:
+
+		$firstKey = current(array_keys($data));
+
+		$existingResults = $wpdb->get_results("SELECT * FROM " . $this->table_name . " WHERE " . $this->primary_key . " =" . $data[$firstKey]);
+
+
+		if($wpdb->num_rows > 0) {
+		
+		}
+
+		*/
+
     do_action('wps_post_insert_' . $type, $result, $data);
 
     return $result;
@@ -697,7 +715,11 @@ class DB {
 
 			if (empty($collectionID)) {
 
-				// Inserting smart collection
+				/*
+
+				Inserting collections. Takes care of adding content into custom post type.
+
+				*/
 				if (isset($collection->rules)) {
 					$results['collection'] = $DB_Collections_Smart->insert_smart_collection($collection);
 

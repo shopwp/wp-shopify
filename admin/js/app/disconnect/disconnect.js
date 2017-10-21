@@ -11,7 +11,8 @@ import {
   disable,
   setNonce,
   showSpinner,
-  removeTrueAndTransformToArray
+  removeTrueAndTransformToArray,
+  isWordPressError
 } from '../utils/utils';
 
 import {
@@ -24,7 +25,7 @@ import {
   updateModalHeadingText,
   updateCurrentConnectionStepText,
   insertXMark,
-  closeModal,
+  initCloseModalEvents,
   insertCheckmark,
   updateConnectStatusHeading,
   clearConnectInputs,
@@ -36,12 +37,38 @@ import {
 } from '../ws/ws.js';
 
 import {
-  setConnectionProgress
+  setConnectionProgress,
+  clearLocalstorageCache
 } from '../ws/localstorage.js';
 
 import {
   connectInit
 } from '../connect/connect.js';
+
+import {
+  clearAllCache
+} from '../tools/cache.js';
+
+
+
+
+
+function constructErrorList(errors, currentErrorList) {
+
+  var newErrorList = currentErrorList;
+
+  if (Array.isArray(options.errorList)) {
+    newErrorList.push(removeTrueAndTransformToArray(errors));
+
+  } else {
+    newErrorList = removeTrueAndTransformToArray(errors);
+
+  }
+
+  return newErrorList;
+
+}
+
 
 
 /*
@@ -51,43 +78,95 @@ On connection uninstall ...
 */
 async function uninstallPluginData(options = false, reconnect = true) {
 
+
+  /*
+
+  Setting Default options
+
+  */
   if(options === false) {
+
     options = {
       headingText: 'Canceled',
-      stepText: 'Canceled connection',
-      buttonText: 'Exit Connection',
-      xMark: true
+      stepText: 'Unable to finish operation',
+      buttonText: 'Exit Sync',
+      xMark: true,
+      errorList: 'Failed to finish operation at unknown step'
     }
+
   }
 
+  // if (!options.headingText) {
+  //   options.headingText = 'Canceled';
+  // }
+  //
+  // if (!options.stepText) {
+  //   options.stepText = 'Unable to finish operation';
+  // }
+  //
+  // if (!options.buttonText) {
+  //   options.buttonText = 'Exit Sync';
+  // }
+  //
+  // if (!options.errorList) {
+  //
+  //   if (options.xMark) {
+  //     options.errorList = 'Failed to finish operation at unknown step';
+  //
+  //   } else {
+  //     options.errorList = false;
+  //   }
+  //
+  // }
+
+
+  /*
+
+  Step 1. Uninstall current plugin data
+
+  */
   try {
 
     var uninstallData = await uninstallPlugin();
 
-    if (uninstallData.hasOwnProperty('data')) {
-      var errorList = removeTrueAndTransformToArray(uninstallData.data);
-
-    } else {
-      var errorList = removeTrueAndTransformToArray(uninstallData[0]);
-
-    }
-
-    updateDomAfterDisconnect(options, errorList);
-
-    // Safe to reconnect again
-    if (reconnect) {
-      connectInit();
-
-    } else {
-      console.error('NOT initializing reconnect ...');
+    if (isWordPressError(uninstallData)) {
+      options.errorList = constructErrorList(uninstallData.data, options.errorList);
     }
 
   } catch (error) {
-
-    updateDomAfterDisconnect(options);
-    return;
+    options.errorList = constructErrorList(error, options.errorList);
 
   }
+
+
+  /*
+
+  Step 2. Clear all plugin cache
+
+  */
+  try {
+
+    var clearAllCacheResponse = await clearAllCache();
+
+    if (isWordPressError(uninstallData)) {
+      options.errorList = constructErrorList(uninstallData.data, options.errorList);
+    }
+
+  } catch(errors) {
+    options.errorList = constructErrorList(error, options.errorList);
+
+  }
+
+
+
+  updateDomAfterDisconnect(options);
+
+  // Safe to reconnect again
+  if (reconnect) {
+    connectInit();
+  }
+
+
 
 }
 
@@ -129,7 +208,7 @@ function onDisconnectionFormSubmit() {
     updateModalButtonText('Stop disconnecting');
     showConnectorModal($connectorModal);
     setNonce( $formInputNonce.val() );
-    setConnectionStepMessage('Disconnecting', '(Please wait. This may take up to 60 seconds depending on how many products you have.)');
+    setConnectionStepMessage('Disconnecting ...', '(Please wait. This may take up to 60 seconds depending on the amount of products.)');
 
     /*
 
@@ -138,13 +217,12 @@ function onDisconnectionFormSubmit() {
     */
     try {
 
-      var uninstallResponse = await uninstallPluginData({
+      await uninstallPluginData({
         headingText: 'Disconnected',
         stepText: 'Disconnected Shopify store',
-        buttonText: 'Exit Connection'
+        buttonText: 'Exit Connection',
+        xMark: false
       });
-
-      return true;
 
     } catch (error) {
 
@@ -165,7 +243,7 @@ function onDisconnectionFormSubmit() {
 updateDomAfterDisconnect
 
 */
-function updateDomAfterDisconnect(options, errorList = []) {
+function updateDomAfterDisconnect(options) {
 
   updateModalHeadingText(options.headingText);
   updateModalButtonText(options.buttonText);
@@ -179,40 +257,42 @@ function updateDomAfterDisconnect(options, errorList = []) {
     document.querySelector('.wps-btn-cancel').disabled = false;
   }
 
+
   if(options.xMark) {
     insertXMark();
+
   } else {
     insertCheckmark();
   }
 
-  if(!options.noticeText) {
-    var noticeText = 'Successfully disconnected from Shopify.';
-
-  } else {
-    var noticeText = options.noticeText;
-
-  }
-
+  // options.errorList = JSON.parse(options.errorList);
 
   // TODO: Modularize this, can put in Utils
-  if (Array.isArray(errorList) && errorList.length > 0) {
 
-    errorList.forEach(function(entry) {
-      jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + entry + '</div>');
-    });
+  if (options.xMark) {
+
+    // Showing error message
+    if (Array.isArray(options.errorList) && options.errorList.length > 0) {
+
+      options.errorList.forEach(function(entry) {
+        jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + entry + '</div>');
+      });
+
+    } else {
+      jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + options.errorList + '</div>');
+
+    }
 
   } else {
-    jQuery('.wps-connector-heading').after('<div class="notice notice-success">' + noticeText + '</div>');
+    jQuery('.wps-connector-heading').after('<div class="notice notice-success">Successfully disconnected</div>');
 
   }
 
 
+  clearLocalstorageCache();
   resetConnectSubmit();
-  closeModal();
-  // unbindDisconnectForm();
+  initCloseModalEvents();
 
-  // var redirectURL = window.location.origin + window.location.pathname + '?page=wps-settings';
-  // window.location.href = redirectURL;
 
 }
 

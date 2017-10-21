@@ -8,7 +8,7 @@ Tab Content: Connect
   <div class="wps-admin-section-heading-group wps-l-row wps-l-space-between">
 
     <h2 class="wps-admin-section-heading wps-l-box-2">
-      <span class="dashicons dashicons-download"></span> <?php esc_attr_e( 'Connect and Sync ', 'wp_admin_style' ); ?>
+      <span class="dashicons dashicons-update"></span> <?php esc_attr_e( 'Connect and Sync ', 'wp_admin_style' ); ?>
     </h2>
 
     <h3 class="wps-status-heading wps-admin-section-heading wps-l-box-2">Status:
@@ -69,9 +69,9 @@ Tab Content: Connect
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
         <?php if($connected) { ?>
-          <?php submit_button(__('Disconnect Your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitDisconnect', false, array()); ?>
+          <?php submit_button(__('Disconnect Your Shopify Store', $this->config->settings_connection_option_name), 'primary large', 'submitDisconnect', false, array()); ?>
         <?php } else { ?>
-          <?php submit_button(__('Connect Your Shopify Account', $this->config->settings_connection_option_name), 'primary large', 'submitConnect', false, array()); ?>
+          <?php submit_button(__('Connect Your Shopify Store', $this->config->settings_connection_option_name), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
         <div class="spinner"></div>
 
