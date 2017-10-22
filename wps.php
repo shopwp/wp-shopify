@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.24
+@since             1.0.25
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
-Version:           1.0.24
+Version:           1.0.25
 Author:            Simpleblend
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -107,7 +107,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			$this->License->init();
 			$this->Activator->init();
 			$this->Deactivator->init();
-			$this->Frontend->wps_frontend_hooks();
+
 			$this->Backend->wps_backend_hooks();
 			// $this->Hooks->init();
 			$this->I18N->init();
@@ -117,6 +117,12 @@ if ( ! class_exists('WP_Shopify') ) {
 			$this->Hooks = Hooks::instance($this->Config);
 
 			$this->init_hooks($this->Hooks);
+
+			// Frontend hooks depends on wps_on_update
+			$this->Hooks->wps_on_update();
+
+			$this->Frontend->wps_frontend_hooks();
+
 
 			do_action('wps_after_bootstrap');
 
@@ -468,7 +474,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			// add_filter( 'wps_cart_close_icon', array($Hooks, 'wps_cart_close_icon'));
 
 
-			add_action( 'init',  array($Hooks, 'wps_on_update') );
+			//add_action( 'init',  array($Hooks, 'wps_on_update') );
 
 
 		}
