@@ -319,7 +319,7 @@ class DB {
 
 
 		if($wpdb->num_rows > 0) {
-		
+
 		}
 
 		*/
@@ -507,6 +507,7 @@ class DB {
 		$tables[] = new Collections_Custom();
 		$tables[] = new Settings_License();
 		$tables[] = new Settings_Connection();
+		$tables[] = new Settings_General();
 
 
 		foreach($tables as $key => $table) {
@@ -514,12 +515,6 @@ class DB {
 			$columnsNew = $table->get_columns();
 			$columnsCurrent = $table->get_columns_current();
 			$tableName = $table->get_table_name();
-
-			if ($tableName === '7b3ca31e_wps_settings_connection') {
-
-				$columnsNew['idd'] = 'sdf';
-				// $columnsNew['domain'] = '2';
-			}
 
 			$delta = array_diff_key($columnsNew, array_flip($columnsCurrent));
 

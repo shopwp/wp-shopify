@@ -621,8 +621,6 @@ if (!class_exists('Frontend')) {
 
 			$DB_Settings_General = new Settings_General();
 
-
-
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_styles') );
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );
 

@@ -1609,6 +1609,7 @@ if (!class_exists('Hooks')) {
 			If current (databaseVersion) is behind new (pluginVersion)
 
 			*/
+
 			if (version_compare($databaseVersion, $pluginVersion, '<')) {
 
 				global $wpdb;
