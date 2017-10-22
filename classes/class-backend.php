@@ -341,9 +341,9 @@ class Backend {
 		$shopifyCreds = array();
 		$connection = $this->config->wps_get_settings_connection();
 
-		$shopifyCreds['js_access_token'] = $connection['js_access_token'];
-		$shopifyCreds['app_id'] = $connection['app_id'];
-		$shopifyCreds['domain'] = $connection['domain'];
+		$shopifyCreds['js_access_token'] = $connection->js_access_token;
+		$shopifyCreds['app_id'] = $connection->app_id;
+		$shopifyCreds['domain'] = $connection->domain;
 
 		wp_send_json_success($shopifyCreds);
 
