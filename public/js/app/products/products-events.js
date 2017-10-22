@@ -223,6 +223,9 @@ function onAddProductToCart(shopify) {
 };
 
 
+
+
+
 /*
 
 Toggle product gallery image
@@ -418,6 +421,41 @@ function checkForLastSelection(previouslySelectedOptions, currentProductID) {
 
 /*
 
+Find Matching Variant Image
+
+*/
+function findMatchingVariantImageByID(variantID) {
+
+  var $images =jQuery('.wps-product-gallery-imgs .wps-product-gallery-img[data-wps-image-variants*="' + variantID + '" ]');
+
+  if ($images.length > 0) {
+    return $images;
+
+  } else {
+    return false;
+  }
+
+}
+
+
+/*
+
+Show Variant Image
+
+*/
+function showVariantImage(variantID) {
+
+  var $images = findMatchingVariantImageByID(variantID)
+
+  if ($images) {
+    $images.click();
+  }
+
+}
+
+
+/*
+
 Product Variant Change
 
 */
@@ -429,6 +467,7 @@ function onProductVariantChange() {
   addAvailableOptionsToProduct();
 
   $productMetaContainer.on('click', '.wps-product-style', async function productStyleHandler(event) {
+
 
     var $trigger = jQuery(this),
         variantID = $trigger.data('id'),
@@ -461,8 +500,11 @@ function onProductVariantChange() {
       disable($newProductMetaContainer.find('.wps-btn'));
       showLoader($trigger);
 
+
+
       // All variants selected, find actual variant ID
       try {
+
         var foundVariantIDResponse = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
 
         if (isError(foundVariantIDResponse)) {
@@ -475,7 +517,11 @@ function onProductVariantChange() {
           $newProductMetaContainer.data('product-selected-variant', foundVariantID);
           $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);
 
+          showVariantImage(foundVariantID);
+
         }
+
+
 
         enable($newProductMetaContainer.find('.wps-btn'));
         hideLoader($trigger);

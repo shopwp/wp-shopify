@@ -31,6 +31,19 @@
 
     foreach ($product['images'] as $key => $image) {
 
+
+
+      $variantIDs = maybe_unserialize($image['variant_ids']);
+
+      if (!empty($variantIDs)) {
+        $variantIDs = implode(', ', $variantIDs);
+
+      } else {
+        $variantIDs = '';
+      }
+
+
+
       if (empty($image['alt'])) {
         $altText = $product['details']['title'];
 
@@ -52,7 +65,7 @@
       if ($i === 0) {
         $typeClass = 'wps-product-gallery-img-feat';
 
-        $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $src . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '"></div>';
+        $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $src . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '" data-wps-image-variants="' . $variantIDs . '"></div>';
 
       } else {
 
@@ -66,7 +79,7 @@
 
         $typeClass = 'wps-product-gallery-img-thumb';
 
-        $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img itemprop="image" src="' . $src . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '"></div>';
+        $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img itemprop="image" src="' . $src . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '" data-wps-image-variants="' . $variantIDs . '"></div>';
 
       }
 
