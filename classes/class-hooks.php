@@ -1609,6 +1609,7 @@ if (!class_exists('Hooks')) {
 			If current (databaseVersion) is behind new (pluginVersion)
 
 			*/
+			$databaseVersion = '1.0.26';
 
 			if (version_compare($databaseVersion, $pluginVersion, '<')) {
 
@@ -1638,6 +1639,16 @@ if (!class_exists('Hooks')) {
 				);
 
 			}
+
+		}
+
+
+
+		public function wps_checkout_before_init() {
+
+
+			error_log('>>>>>>>>> wps_checkout_before <<<<<<<<<<');
+
 
 		}
 

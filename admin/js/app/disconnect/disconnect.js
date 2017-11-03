@@ -52,7 +52,6 @@ import {
 
 
 
-
 function constructErrorList(errors, currentErrorList) {
 
   var newErrorList = currentErrorList;
@@ -208,7 +207,7 @@ function onDisconnectionFormSubmit() {
     updateModalButtonText('Stop disconnecting');
     showConnectorModal($connectorModal);
     setNonce( $formInputNonce.val() );
-    setConnectionStepMessage('Disconnecting ...', '(Please wait. This may take up to 60 seconds depending on the amount of products.)');
+    setConnectionStepMessage('Disconnecting ...', '(Please wait. This may take up to 60 seconds depending on how large your store is.)');
 
     /*
 

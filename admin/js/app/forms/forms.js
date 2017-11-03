@@ -68,9 +68,11 @@ On Webhook Add ...
 
 */
 function onWebhookAdd() {
+
   jQuery('.wps-btn-wh-add').on('click', async function webhookAddHandler() {
     var resp = await addWebhook();
   });
+
 }
 
 
@@ -80,9 +82,21 @@ On Webhook Get ...
 
 */
 function onWebhookGet() {
+
   jQuery('.wps-btn-wh-get').on('click', async function webhookGetHandler() {
-    var resp = await getWebhooks();
+
+    try {
+
+      var resp = await getWebhooks();
+
+
+    } catch(error) {
+
+
+    }
+
   });
+
 }
 
 
@@ -92,6 +106,7 @@ On Webhook Del ...
 
 */
 function onWebhookDelete() {
+
   jQuery('.wps-btn-wh-del').on('click', async function webhookDeleteHandler() {
     var resp = await delWebhooks();
   });

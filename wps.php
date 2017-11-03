@@ -46,6 +46,7 @@ use WPS\CPT;
 use WPS\I18N;
 use WPS\Webhooks;
 use WPS\License;
+use WPS\Checkouts;
 use WPS\Deactivator;
 use WPS\Activator;
 
@@ -79,6 +80,7 @@ if ( ! class_exists('WP_Shopify') ) {
 		public $License = null;
 		public $I18N = null;
 		public $CPT = null;
+		public $Checkouts = null;
 
 		/*
 
@@ -103,10 +105,12 @@ if ( ! class_exists('WP_Shopify') ) {
 			$this->License 				= new License($this->Config);
 			$this->I18N 					= new I18N($this->Config);
 			$this->CPT 						= new CPT($this->Config);
+			$this->Checkouts 			= new Checkouts($this->Config);
 
 			$this->License->init();
 			$this->Activator->init();
 			$this->Deactivator->init();
+			// $this->Checkouts->init();
 
 			$this->Backend->wps_backend_hooks();
 			// $this->Hooks->init();
@@ -459,6 +463,14 @@ if ( ! class_exists('WP_Shopify') ) {
 			*/
 			add_action('wps_cart_icon', array($Hooks, 'wps_cart_icon'));
 			add_action('wps_cart_counter', array($Hooks, 'wps_cart_counter'));
+
+
+			/*
+
+			Checkouts
+
+			*/
+			// add_action('wps_checkout_before', array($Hooks, 'wps_checkout_before_init'));
 
 			// add_filter( 'wps_cart_btn_class', array($Hooks, 'wps_cart_btn_class'));
 			// add_filter( 'wps_cart_icon_class', array($Hooks, 'wps_cart_icon_class'));

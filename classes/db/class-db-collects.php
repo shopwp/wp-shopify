@@ -82,7 +82,7 @@ class Collects extends \WPS\DB {
       foreach ($collects as $key => $collect) {
         $results[] = $this->insert($collect, 'collect');
       }
-      
+
     }
 
     return $results;
@@ -97,20 +97,11 @@ class Collects extends \WPS\DB {
   */
 	public function update_collects($product) {
 
-    $productID = null;
-
-    if (isset($product->id)) {
-      $productID = $product->id;
-
-    } else {
-      $productID = $product->product_id;
-
-    }
-
-
     $WS = new WS(new Config());
     $results = array();
-    $collectsFromShopify = $WS->wps_ws_get_collects_from_product($productID);
+
+    $newProductID = Utils::wps_find_product_id($product);
+    $collectsFromShopify = $WS->wps_ws_get_collects_from_product($newProductID);
 
     /*
 
@@ -119,7 +110,7 @@ class Collects extends \WPS\DB {
     product/update webhook.
 
     */
-    $currentCollectsForProduct = $this->get_rows('product_id', $productID);
+    $currentCollectsForProduct = $this->get_rows('product_id', $newProductID);
     $currentCollectsForProductArray = Utils::wps_convert_object_to_array($currentCollectsForProduct);
     $collectsFromShopify = Utils::wps_convert_object_to_array($collectsFromShopify->collects);
 

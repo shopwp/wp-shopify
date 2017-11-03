@@ -17,6 +17,8 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Settings_General;
 use WPS\DB\Settings_License;
 use WPS\DB\Settings_Connection;
+use WPS\DB\Orders;
+use WPS\DB\Customers;
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Config;
@@ -272,6 +274,18 @@ class DB {
   }
 
 
+	public function has_existing_record($data) {
+
+		global $wpdb;
+
+		$firstKey = current(array_keys($data));
+		$existingResults = $wpdb->get_results("SELECT * FROM " . $this->table_name . " WHERE " . $this->primary_key . " =" . $data[$firstKey]);
+
+		return $wpdb->num_rows > 0;
+
+	}
+
+
   /*
 
   Insert a new row
@@ -303,9 +317,6 @@ class DB {
 
     $column_formats = array_merge( array_flip($data_keys), $column_formats);
 
-		$result = $wpdb->insert($this->table_name, $data, $column_formats);
-
-
 
 		/*
 
@@ -313,18 +324,17 @@ class DB {
 		already exists to avoid errors. We can do this by first running $wpdb->get_results
 		and then cheking the num rows like below:
 
-		$firstKey = current(array_keys($data));
-
-		$existingResults = $wpdb->get_results("SELECT * FROM " . $this->table_name . " WHERE " . $this->primary_key . " =" . $data[$firstKey]);
-
-
-		if($wpdb->num_rows > 0) {
-
-		}
-
 		*/
 
-    do_action('wps_post_insert_' . $type, $result, $data);
+		if (!$this->has_existing_record($data)) {
+
+			$result = $wpdb->insert($this->table_name, $data, $column_formats);
+	    do_action('wps_post_insert_' . $type, $result, $data);
+
+		} else {
+			$result = false;
+
+		}
 
     return $result;
 
@@ -487,7 +497,7 @@ class DB {
 	/*
 
 	Find the difference between tables in the database
-	and tables in the database scheme. Used during plugin updates
+	and tables in the database schemea. Used during plugin updates
 	to dynamically update the database.
 
 	*/
@@ -508,19 +518,31 @@ class DB {
 		$tables[] = new Settings_License();
 		$tables[] = new Settings_Connection();
 		$tables[] = new Settings_General();
+		$tables[] = new Orders();
+		$tables[] = new Customers();
 
 
 		foreach($tables as $key => $table) {
 
-			$columnsNew = $table->get_columns();
-			$columnsCurrent = $table->get_columns_current();
-			$tableName = $table->get_table_name();
+			if ( $table->table_exists($table->get_table_name()) ) {
 
-			$delta = array_diff_key($columnsNew, array_flip($columnsCurrent));
+				$columnsNew = $table->get_columns();
+				$columnsCurrent = $table->get_columns_current();
+				$tableName = $table->get_table_name();
 
-			if (!empty($delta)) {
-				$finalDelta[$tableName] = $table;
+				$delta = array_diff_key($columnsNew, array_flip($columnsCurrent));
+
+				if (!empty($delta)) {
+					$finalDelta[$tableName] = $table;
+				}
+
+			} else {
+
+				// Create table since it doesn't exist
+				$result = $table->create_table();
+
 			}
+
 
 		}
 
@@ -655,8 +677,10 @@ class DB {
 		$DB_Collections_Custom = new Collections_Custom();
 		$DB_Collections_Smart = new Collections_Smart();
 
+		$newCollectionID = Utils::wps_find_collection_id($collection);
+
 		// Collects from Plugin
-		$pluginCollects = $DB_Collects->get_rows('collection_id', $collection->id);
+		$pluginCollects = $DB_Collects->get_rows('collection_id', $newCollectionID);
 
 		$results = array();
 
@@ -672,28 +696,34 @@ class DB {
 			$collection = Utils::flatten_collections_image_prop($collection);
 
 			// Collects from Shopify
-			$shopifyCollects = $WS->wps_ws_get_collects_from_collection($collection->id);
-
-			$collectsToAdd = Utils::wps_find_items_to_add($pluginCollects, $shopifyCollects->collects, true);
-			$collectsToDelete = Utils::wps_find_items_to_delete($pluginCollects, $shopifyCollects->collects, true);
+			$shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
 
 
-			if (count($collectsToAdd) > 0) {
-				foreach ($collectsToAdd as $key => $newCollect) {
-					$results['collects_created'][] = $DB_Collects->insert($newCollect, 'collect');
+
+			if (property_exists($shopifyCollects, 'collects') && $collection->collects !== null) {
+
+				$collectsToAdd = Utils::wps_find_items_to_add($pluginCollects, $shopifyCollects->collects, true);
+				$collectsToDelete = Utils::wps_find_items_to_delete($pluginCollects, $shopifyCollects->collects, true);
+
+				if (count($collectsToAdd) > 0) {
+					foreach ($collectsToAdd as $key => $newCollect) {
+						$results['collects_created'][] = $DB_Collects->insert($newCollect, 'collect');
+					}
 				}
+
+				if (count($collectsToDelete) > 0) {
+					foreach ($collectsToDelete as $key => $oldCollect) {
+						$results['collects_deleted'][] = $DB_Collects->delete($oldCollect->id);
+					}
+				}
+
 			}
 
-			if (count($collectsToDelete) > 0) {
-				foreach ($collectsToDelete as $key => $oldCollect) {
-					$results['collects_deleted'][] = $DB_Collects->delete($oldCollect->id);
-				}
-			}
 
 			if (!isset($collection->image)) {
 				$results['collection_image'] = $this->update_column_single(
 					array('image' => null),
-					array('collection_id' => $collection->id)
+					array('collection_id' => $newCollectionID)
 				);
 			}
 
@@ -706,7 +736,7 @@ class DB {
 
 			*/
 
-			$collectionID = $this->get($collection->id);
+			$collectionID = $this->get($newCollectionID);
 
 			if (empty($collectionID)) {
 
@@ -725,7 +755,7 @@ class DB {
 			} else {
 
 				$results['collection_cpt'] = $CPT->wps_update_existing_collection($collection);
-				$results['collection'] = $this->update($collection->id, $collection);
+				$results['collection'] = $this->update($newCollectionID, $collection);
 
 			}
 
@@ -738,7 +768,7 @@ class DB {
 
 			*/
 			$results['deleted_collects'] = $DB_Collects->delete_collects_by_ids($pluginCollects);
-			$results['deleted_collection'] = $this->delete_collection($collection, $collection->id);
+			$results['deleted_collection'] = $this->delete_collection($collection, $newCollectionID);
 
 		}
 
@@ -756,17 +786,26 @@ class DB {
   */
   public function delete_collection($collection) {
 
-    $DB_Collects = new Collects();
-		$Backend = new Backend(new Config());
-
 		$collectionData = $this->get($collection->id);
-		$postIds = array($collectionData->post_id);
 
-		$results['collects']  	= $DB_Collects->delete_rows('collection_id', $collection->id);
-    $results['collection']  = $this->delete_rows('collection_id', $collection->id);
-		$results['cpt']       	= $Backend->wps_delete_posts('wps_collections', $postIds);
+		if (!empty($collectionData)) {
 
-		Transients::delete_cached_collection_queries();
+			$DB_Collects = new Collects();
+			$Backend = new Backend(new Config());
+			$postIds = array($collectionData->post_id);
+
+			$results['collects']  	= $DB_Collects->delete_rows('collection_id', $collection->id);
+	    $results['collection']  = $this->delete_rows('collection_id', $collection->id);
+
+			if (!empty($postIds)) {
+				$results['cpt'] = $Backend->wps_delete_posts('wps_collections', $postIds);
+			}
+
+			Transients::delete_cached_collection_queries();
+
+		} else {
+			$results = array();
+		}
 
     return $results;
 

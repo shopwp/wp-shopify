@@ -18,6 +18,8 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Images;
 use WPS\DB\Tags;
+use WPS\DB\Orders;
+use WPS\DB\Customers;
 
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\RequestException;
@@ -329,6 +331,112 @@ class WS {
     }
 
   }
+
+
+  /*
+
+  Get Orders Count
+  TODO: Combine with other count functions to be more generalized
+
+  */
+  public function wps_ws_get_orders_count() {
+
+    if (Utils::emptyConnection($this->connection)) {
+      wp_send_json_error('No connection details found. Please reconnect.');
+
+    } else {
+
+      $url = "https://" . $this->connection->domain . "/admin/orders/count.json";
+
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
+
+      try {
+
+        $Guzzle = new Guzzle();
+        $guzzelResponse = $Guzzle->request('GET', $url, array(
+          'headers' => $headers
+        ));
+
+        $countResponse = json_decode($guzzelResponse->getBody()->getContents());
+
+        if (is_object($countResponse) && property_exists($countResponse, 'count')) {
+          wp_send_json_success($countResponse);
+
+        } else {
+          wp_send_json_error($countResponse);
+
+        }
+
+      } catch (RequestException $error) {
+
+        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+
+        wp_send_json_error($responseDecoded->errors);
+
+      }
+
+    }
+
+  }
+
+
+
+
+
+
+  /*
+
+  Get Customers Count
+  TODO: Combine with other count functions to be more generalized
+
+  */
+  public function wps_ws_get_customers_count() {
+
+    if (Utils::emptyConnection($this->connection)) {
+      wp_send_json_error('No connection details found. Please reconnect.');
+
+    } else {
+
+      $url = "https://" . $this->connection->domain . "/admin/customers/count.json";
+
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
+
+      try {
+
+        $Guzzle = new Guzzle();
+        $guzzelResponse = $Guzzle->request('GET', $url, array(
+          'headers' => $headers
+        ));
+
+        $countResponse = json_decode($guzzelResponse->getBody()->getContents());
+
+        if (is_object($countResponse) && property_exists($countResponse, 'count')) {
+          wp_send_json_success($countResponse);
+
+        } else {
+          wp_send_json_error($countResponse);
+
+        }
+
+      } catch (RequestException $error) {
+
+        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+
+        wp_send_json_error($responseDecoded->errors);
+
+      }
+
+    }
+
+  }
+
+
+
+
 
 
   /*
@@ -921,24 +1029,32 @@ class WS {
         $data = json_decode($guzzelResponse->getBody()->getContents());
 
         if (property_exists($data, 'collects')) {
-
-          if ($ajax) {
-            wp_send_json_success($data);
-
-          } else {
-            return $data;
-
-          }
+          $response = $data->collects;
 
         } else {
-          wp_send_json_error($data->errors);
+          $response = $data->errors;
 
         }
 
       } catch (RequestException $error) {
 
         $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        $response = $responseDecoded->errors;
+
+      }
+
+
+      if ($ajax) {
+
+        if (property_exists($response, 'errors')) {
+          wp_send_json_success($response);
+
+        } else {
+          wp_send_json_error($response);
+        }
+
+      } else {
+        return $response;
 
       }
 
@@ -1117,12 +1233,18 @@ class WS {
         ));
 
         $data = $guzzelResponse->getBody()->getContents();
+
+        error_log('-------');
+        error_log(print_r(json_decode($data), true));
+        error_log('-------');
+
         wp_send_json_success($data);
 
 
       } catch (RequestException $error) {
 
         $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+
         wp_send_json_error($responseDecoded->errors);
 
       }
@@ -1334,6 +1456,7 @@ NEW STRUCTURE
 
     $DB_Settings_Connection = new Settings_Connection();
     $connectionData = $_POST['connectionData'];
+    $connectionData = (array) $connectionData;
 
     $results = $DB_Settings_Connection->insert_connection($connectionData);
 
@@ -1451,7 +1574,7 @@ NEW STRUCTURE
 
   /*
 
-  wps_delete_images
+  wps_delete_inventory
 
   */
   public function wps_delete_inventory() {
@@ -1604,6 +1727,44 @@ NEW STRUCTURE
 
   /*
 
+  wps_delete_orders
+
+  */
+  public function wps_delete_orders() {
+
+    $Orders = new Orders();
+
+    if (!$Orders->delete()) {
+      return new \WP_Error('error', 'Warning: Unable to delete orders.');
+
+    } else {
+      return true;
+    }
+
+  }
+
+
+  /*
+
+  wps_delete_customers
+
+  */
+  public function wps_delete_customers() {
+
+    $Customers = new Customers();
+
+    if (!$Customers->delete()) {
+      return new \WP_Error('error', 'Warning: Unable to delete customers.');
+
+    } else {
+      return true;
+    }
+
+  }
+
+
+  /*
+
 
   Drop databases used during uninstall
 
@@ -1624,6 +1785,8 @@ NEW STRUCTURE
     $Collects = new Collects();
     $Images = new Images();
     $Transients = new Transients();
+    $Orders = new Orders();
+    $Customers = new Customers();
 
     $results['shop'] = $DB_Shop->delete_table();
     $results['settings_general'] = $DB_Settings_General->delete_table();
@@ -1637,6 +1800,9 @@ NEW STRUCTURE
     $results['tags'] = $Tags->delete_table();
     $results['collects'] = $Collects->delete_table();
     $results['images'] = $Images->delete_table();
+    $results['orders'] = $Orders->delete_table();
+    $results['customers'] = $Customers->delete_table();
+
     $results['transients'] = $Transients->delete_all_cache();
 
     return $results;
@@ -1682,9 +1848,11 @@ NEW STRUCTURE
     $Transients = new Transients();
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('domain');
+
     $results = $this->wps_uninstall_product_data();
 
     if (!empty($connection)) {
+
 
       /*
 
@@ -1905,6 +2073,36 @@ NEW STRUCTURE
 
     /*
 
+    Remove Orders
+
+    */
+    $response_orders = $this->wps_delete_orders();
+
+    if (is_wp_error($response_orders)) {
+      $results['orders'] = $response_orders->get_error_message();
+
+    } else {
+      $results['orders'] = $response_orders;
+    }
+
+
+    /*
+
+    Remove Customers
+
+    */
+    $response_customers = $this->wps_delete_customers();
+
+    if (is_wp_error($response_customers)) {
+      $results['customers'] = $response_customers->get_error_message();
+
+    } else {
+      $results['customers'] = $response_customers;
+    }
+
+
+    /*
+
     Remove Transients
 
     */
@@ -1952,6 +2150,7 @@ NEW STRUCTURE
 
     $connectionData->is_syncing = $_POST['syncing'];
     $connectionData = (array) $connectionData;
+
     $response = $DB_Settings_Connection->insert_connection($connectionData);
 
     if (is_wp_error($response)) {
@@ -2082,6 +2281,181 @@ NEW STRUCTURE
 
 
   }
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  Insert Orders
+
+  */
+  public function wps_insert_orders() {
+
+    $Utils = new Utils();
+    $DB_Orders = new Orders();
+
+    if (Utils::emptyConnection($this->connection)) {
+      wp_send_json_error('No connection details found. Please reconnect.');
+
+    } else {
+
+      if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+        $currentPage = 1;
+
+      } else {
+        $currentPage = $_POST['currentPage'];
+      }
+
+      $url = "https://" . $this->connection->domain . "/admin/orders.json?status=any&page=" . $currentPage;
+
+      /*
+
+      If Access Token is expired or wrong the follow error will result:
+      "[API] Invalid API key or access token (unrecognized login or wrong password)"
+
+      */
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
+
+
+      try {
+
+        $Guzzle = new Guzzle();
+        $guzzelResponse = $Guzzle->request('GET', $url, array(
+          'headers' => $headers
+        ));
+
+        $data = json_decode($guzzelResponse->getBody()->getContents());
+
+        if (is_object($data) && property_exists($data, 'orders')) {
+
+          /*
+
+          This is where the bulk of product data is inserted into the database. The
+          "insert_products" method inserts both the CPT's and custom WPS table data.
+
+          */
+          $resultOrders = $DB_Orders->insert_orders( $data->orders );
+
+          if (empty($resultOrders)) {
+            wp_send_json_error('Syncing stopped at insert_orders');
+          }
+
+          $insertionResults['orders'] = $resultOrders;
+
+          wp_send_json_success($insertionResults);
+
+        } else {
+          wp_send_json_error($data->errors);
+
+        }
+
+
+      } catch (RequestException $error) {
+        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+        wp_send_json_error($responseDecoded->errors);
+
+      }
+
+
+    }
+
+
+  }
+
+
+
+  /*
+
+  Insert Customers
+
+  */
+  public function wps_insert_customers() {
+
+    $Utils = new Utils();
+    $DB_Customers = new Customers();
+
+    if (Utils::emptyConnection($this->connection)) {
+      wp_send_json_error('No connection details found. Please reconnect.');
+
+    } else {
+
+      if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+        $currentPage = 1;
+
+      } else {
+        $currentPage = $_POST['currentPage'];
+      }
+
+
+      $url = "https://" . $this->connection->domain . "/admin/customers.json?page=" . $currentPage;
+
+
+      /*
+
+      If Access Token is expired or wrong the follow error will result:
+      "[API] Invalid API key or access token (unrecognized login or wrong password)"
+
+      */
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
+
+
+      try {
+
+        $Guzzle = new Guzzle();
+        $guzzelResponse = $Guzzle->request('GET', $url, array(
+          'headers' => $headers
+        ));
+
+        $data = json_decode($guzzelResponse->getBody()->getContents());
+
+        if (is_object($data) && property_exists($data, 'customers')) {
+
+          /*
+
+          This is where the bulk of product data is inserted into the database. The
+          "insert_products" method inserts both the CPT's and custom WPS table data.
+
+          */
+          $results = $DB_Customers->insert_customers( $data->customers );
+
+          if (empty($results)) {
+            wp_send_json_error('Syncing stopped at insert_customers');
+          }
+
+          $insertionResults['customers'] = $results;
+
+          wp_send_json_success($insertionResults);
+
+        } else {
+          wp_send_json_error($data->errors);
+
+        }
+
+
+      } catch (RequestException $error) {
+        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+        wp_send_json_error($responseDecoded->errors);
+
+      }
+
+
+    }
+
+
+  }
+
 
 
 

@@ -116,6 +116,8 @@ class Tags extends \WPS\DB {
     $tagsFromShopifyyNew = array();
     $tagsFromShopify = Utils::wps_comma_list_to_array($product->tags);
 
+    $newProductID = Utils::wps_find_product_id($product);
+
     /*
 
     In order to handle image creation / deletions, we need to compare what's
@@ -123,7 +125,7 @@ class Tags extends \WPS\DB {
     product/update webhook.
 
     */
-    $currentTagsArray = $this->get_rows('product_id', $product->id);
+    $currentTagsArray = $this->get_rows('product_id', $newProductID);
 
     $currentTagsArray = Utils::wps_convert_object_to_array($currentTagsArray);
 

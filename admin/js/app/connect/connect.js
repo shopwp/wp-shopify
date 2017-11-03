@@ -134,6 +134,16 @@ function onConnectionFormSubmit() {
       // var formData = jQuery(form).serialize();
       var formData = formatConnectorFormData(jQuery(form).serializeArray());
 
+      // access_token: "9e61a0d20490ab3049265e075e780f21"
+      // app_id: "6"
+      // domain: "wpslitetest10.myshopify.com"
+      // id: "1"
+      // is_syncing: "1"
+      // js_access_token: "9596a847f3f4669fa8f4335a13386bd0"
+      // needs_cache_flush: "0"
+      // nonce: "c1ad515c1c"
+      // webhook_id: ""
+
 
       setConnectionProgress("true");
 
@@ -401,7 +411,7 @@ async function onAuthRedirect() {
   insertCheckmark();
   updateModalHeadingText('Syncing ...');
   updateModalButtonText('Cancel syncing process');
-  setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on the amount of products.)');
+  setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on how large your store is.)');
 
 
   /*

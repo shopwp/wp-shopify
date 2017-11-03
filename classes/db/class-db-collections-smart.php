@@ -126,17 +126,10 @@ class Collections_Smart extends \WPS\DB {
     $WS = new WS(new Config());
     $DB_Collects = new Collects();
 
-
-    if (isset($collection->collection_id)) {
-      $collection_id = $collection->collection_id;
-
-    } else {
-      $collection_id = $collection->id;
-    }
-
+    $newCollectionID = Utils::wps_find_collection_id($collection);
 
     $collection = Utils::flatten_collections_image_prop($collection);
-    $newCollects = $WS->wps_ws_get_collects_from_collection($collection_id);
+    $newCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
 
 
     $customPostTypeID = CPT::wps_insert_new_collection($collection);
@@ -144,7 +137,11 @@ class Collections_Smart extends \WPS\DB {
     $collection = $this->rename_primary_key($collection);
 
 
-    $results['smart_collects'] = $DB_Collects->insert_collects($newCollects->collects);
+    if (property_exists($newCollects, 'collects') && $newCollects->collects !== null) {
+      $results['smart_collects'] = $DB_Collects->insert_collects($newCollects->collects);
+    }
+
+
     $results['smart_collection'] = $this->insert($collection, 'smart_collection');
 
     return $results;

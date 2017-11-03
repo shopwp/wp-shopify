@@ -107,48 +107,63 @@ class Options extends \WPS\DB {
 
 
     $results = array();
+    $Products = new Products();
     $optionsFromShopify = $product->options;
 
-    /*
+    $newProductID = Utils::wps_find_product_id($product);
 
-    In order to handle image creation / deletions, we need to compare what's
-    currently in the database with what gets sent back via the
-    product/update webhook.
-
-    */
-    $currentOptions = $this->get_rows('product_id', $product->id);
-    // $currentOptionsArray = Utils::wps_convert_object_to_array($currentOptions);
-    // $optionsFromShopify = Utils::wps_convert_object_to_array($optionsFromShopify);
-
-    $optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
-    $optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
+    $currentOptions = $this->get_rows('product_id', $newProductID);
 
 
-    if (count($optionsToAdd) > 0) {
-      foreach ($optionsToAdd as $key => $newOption) {
-        $results['created'][] = $this->insert($newOption, 'option');
-      }
+    // If the product doesn't exist, insert it instead
+    if (is_array($currentOptions) && empty($currentOptions)) {
+
+      $results = $Products->create_product($product);
 
     } else {
 
-    }
+      // $currentOptionsArray = Utils::wps_convert_object_to_array($currentOptions);
+      // $optionsFromShopify = Utils::wps_convert_object_to_array($optionsFromShopify);
+
+      $optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
+      $optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
 
 
-    if (count($optionsToDelete) > 0) {
-      foreach ($optionsToDelete as $key => $oldOption) {
-        $results['deleted'][] = $this->delete($oldOption->id);
+      if (count($optionsToAdd) > 0) {
+
+        error_log('$optionsToAdd');
+
+        foreach ($optionsToAdd as $key => $newOption) {
+          $results['created'][] = $this->insert($newOption, 'option');
+        }
+
+      } else {
+
       }
 
-    } else {
 
-    }
+      if (count($optionsToDelete) > 0) {
+
+        error_log('$optionsToDelete');
+
+        foreach ($optionsToDelete as $key => $oldOption) {
+          $results['deleted'][] = $this->delete($oldOption->id);
+        }
+
+      } else {
+
+      }
 
 
-    foreach ($product->options as $key => $option) {
-      $results['updated'] = $this->update($option->id, $option);
+      foreach ($product->options as $key => $option) {
+        error_log('UDPATING');
+        $results['updated'] = $this->update($option->id, $option);
+      }
+
     }
 
     return $results;
+
 
   }
 

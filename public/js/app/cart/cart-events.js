@@ -1,9 +1,10 @@
-import { fetchCart } from '../ws/ws-cart';
 import { getProduct, getProductVariantID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
-import { updateCart } from '../ws/ws-cart';
+import { fetchCart, updateCart } from '../ws/ws-cart';
+import { beforeCheckoutHook } from '../ws/ws-checkout';
 import { quantityFinder } from '../utils/utils-common';
 import { updateCartCounter, updateCartVariant, toggleCart } from './cart-ui';
+
 
 /*
 
@@ -13,6 +14,7 @@ Checkout listener
 async function onCheckout(shopify) {
 
   try {
+
     var initialCart = await fetchCart(shopify);
 
     if(initialCart.lineItemCount === 0) {
@@ -26,6 +28,7 @@ async function onCheckout(shopify) {
     } else {
       var hasGA = true;
     }
+
 
     jQuery('.wps-btn-checkout').on('click', async function checkoutHandler(event) {
 
@@ -42,14 +45,39 @@ async function onCheckout(shopify) {
 
         if(!jQuery('.wps-btn-checkout').hasClass('wps-is-disabled')) {
 
-          window.open(newCart.checkoutUrl, '_self');
-
         }
 
       } catch(e) {
         console.error('Error: fetchCart() 1: ', e);
         return e;
       }
+
+
+      var cartData = {
+        id: newCart.id,
+        domain: newCart.config.domain,
+        checkoutUrl: newCart.checkoutUrl
+      };
+
+      window.open(finalURL, '_self');
+
+      // try {
+      //   await beforeCheckoutHook(cartData);
+      //
+      //   var finalURL = newCart.checkoutUrl + '&attributes[keyy]=valuee';
+      //
+      //   console.log("finalURL: ", finalURL);
+      //
+      //   window.open(finalURL, '_self');
+      //
+      // } catch(e) {
+      //   console.error('Error: beforeCheckoutHook() 1: ', e);
+      //   return e;
+      // }
+
+
+
+
 
     });
 
@@ -192,6 +220,14 @@ function onQuantityChange(shopify) {
 };
 
 
+
+
+
+
+
+
+
+
 /*
 
 Initialize Cart Events
@@ -204,4 +240,6 @@ function cartEvents(shopify) {
   onManualQuantityChange(shopify);
 }
 
-export { cartEvents };
+export {
+  cartEvents
+};

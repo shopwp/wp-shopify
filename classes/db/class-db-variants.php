@@ -144,7 +144,7 @@ class Variants extends \WPS\DB {
 
     $results = array();
     $variantsFromShopify = $product->variants;
-
+    $newProductID = Utils::wps_find_product_id($product);
 
     /*
 
@@ -153,7 +153,7 @@ class Variants extends \WPS\DB {
     product/update webhook.
 
     */
-    $currentVariants = $this->get_rows('product_id', $product->id);
+    $currentVariants = $this->get_rows('product_id', $newProductID);
     $currentVariantsArray = Utils::wps_convert_object_to_array($currentVariants);
     $variantsFromShopify = Utils::wps_convert_object_to_array($variantsFromShopify);
 

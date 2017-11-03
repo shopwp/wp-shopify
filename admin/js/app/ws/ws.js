@@ -75,6 +75,50 @@ function getCollectsCount() {
 
 /*
 
+Get Order Count
+Returns: Promise
+
+*/
+function getOrdersCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_get_orders_count'
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
+Get Customers Count
+Returns: Promise
+
+*/
+function getCustomersCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_get_customers_count'
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
 Get all products from Shopify
 Returns: Promise
 
@@ -353,7 +397,7 @@ function getWebhooks() {
     }
   };
 
-  return controlPromise(options);
+  return jQuery.ajax(options);
 
 };
 
@@ -982,6 +1026,51 @@ function syncWithCPT() {
 }
 
 
+/*
+
+Insert Orders
+
+*/
+function insertOrders(currentPage = false) {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_insert_orders',
+      currentPage: currentPage
+    }
+  };
+
+  return controlPromise(options);
+
+}
+
+
+/*
+
+Insert Customers
+
+*/
+function insertCustomers(currentPage = false) {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_insert_customers',
+      currentPage: currentPage
+    }
+  };
+
+  return controlPromise(options);
+
+}
+
+
+
 export {
   getProductsFromCollection,
   insertCustomCollections,
@@ -1023,5 +1112,9 @@ export {
   removePluginData,
   setSyncingIndicator,
   clearCache,
-  syncWithCPT
+  syncWithCPT,
+  insertOrders,
+  getOrdersCount,
+  insertCustomers,
+  getCustomersCount
 };

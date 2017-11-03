@@ -4,7 +4,9 @@ import {
   syncProducts,
   syncCollects,
   syncSmartCollections,
-  syncCustomCollections
+  syncCustomCollections,
+  syncOrders,
+  syncCustomers
 } from './syncing';
 
 import {
@@ -71,7 +73,9 @@ async function syncPluginData() {
       syncConnection(),
       syncShop(),
       syncProducts(),
-      syncCollects()
+      syncCollects(),
+      syncOrders(),
+      syncCustomers()
     ]);
 
   } catch(errors) {

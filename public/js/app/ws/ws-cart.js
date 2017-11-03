@@ -89,18 +89,6 @@ function updateCart(variant, quantity, shopify) {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 
 Initialize Cart
@@ -108,8 +96,7 @@ Initialize Cart
 */
 async function initCart(shopify) {
 
-  if (hasItemsInLocalStorage() && !needsCacheFlush()) {
-
+  if (hasItemsInLocalStorage()) {
     // var cart = await fetchCart(shopify);
 
     try {
@@ -131,8 +118,18 @@ async function initCart(shopify) {
     }
 
     setCart(cart);
-    flushCache();
     // showAllProducts(shopify);
+
+  }
+
+  try {
+
+    if (await needsCacheFlush()) {
+      await flushCache(cart);
+    }
+
+  } catch(error) {
+    return error;
 
   }
 
@@ -141,5 +138,6 @@ async function initCart(shopify) {
   return cart;
 
 }
+
 
 export { fetchCart, createCart, setCart, updateCart, initCart };
