@@ -85,10 +85,16 @@ class Collections_Custom extends \WPS\DB {
   */
 	public function insert_custom_collections($custom_collections) {
 
+    error_log('1');
     $results = array();
+    error_log('2');
     $custom_collections = Utils::flatten_collections_image_prop($custom_collections);
+    error_log('3');
     $index = CPT::wps_find_latest_menu_order('collections');
 
+    error_log('>>>>>>>>>>');
+    error_log(print_r($custom_collections, true));
+    error_log('>>>>>>>>>>');
 
     foreach ($custom_collections as $key => $custom_collection) {
 
@@ -124,17 +130,19 @@ class Collections_Custom extends \WPS\DB {
     $DB_Collects = new Collects();
     $collection = Utils::flatten_collections_image_prop($collection);
 
-    if (property_exists($collection, 'collection_id') && $collection->collection_id !== null) {
-      $newCollects = $WS->wps_ws_get_collects_from_collection($collection->collection_id);
-    } else {
-      $newCollects = $WS->wps_ws_get_collects_from_collection($collection->id);
-    }
+    $newCollectionID = Utils::wps_find_collection_id($collection);
+
+    $newCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
 
     $customPostTypeID = CPT::wps_insert_new_collection($collection);
+
     $collection = $this->assign_foreign_key($collection, $customPostTypeID);
     $collection = $this->rename_primary_key($collection);
 
-    $results['custom_collects'] = $DB_Collects->insert_collects($newCollects->collects);
+    if (property_exists($newCollects, 'collects') && $newCollects->collects !== null) {
+      $results['custom_collects'] = $DB_Collects->insert_collects($newCollects->collects);
+    }
+
     $results['custom_collection'] = $this->insert($collection, 'custom_collection');
 
     return $results;

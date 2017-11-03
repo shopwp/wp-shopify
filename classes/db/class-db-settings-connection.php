@@ -87,6 +87,7 @@ class Settings_Connection extends \WPS\DB {
 
     } else {
       $results = false;
+
     }
 
     return $results;
@@ -142,10 +143,14 @@ class Settings_Connection extends \WPS\DB {
 
     $connection = $this->get();
 
-    $results = $this->update_column_single(
-      array('needs_cache_flush' => '1'),
-      array('id' => $connection->id)
-    );
+    if (is_object($connection)) {
+
+      $this->update_column_single(
+        array('needs_cache_flush' => '1'),
+        array('id' => $connection->id)
+      );
+
+    }
 
   }
 

@@ -4,6 +4,8 @@ use WPS\DB\Products;
 use WPS\DB\Settings_Connection;
 use WPS\Config;
 
+error_log('===== product create =====');
+
 $DB_Products = new Products(new Config());
 $Connection = new Settings_Connection();
 

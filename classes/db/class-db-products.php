@@ -212,6 +212,8 @@ class Products extends \WPS\DB {
   */
   public function update_product($product) {
 
+    $newProductID = Utils::wps_find_product_id($product);
+
     /*
 
     If published_at is null, we know the user turned off the Online Store sales channel.
@@ -239,20 +241,20 @@ class Products extends \WPS\DB {
         $product->image = $product->image->src;
       }
 
+
       $results['variants']    = $DB_Variants->update_variant($product);
       $results['options']     = $DB_Options->update_option($product);
-      $results['product']     = $this->update($product->id, $product);
+      $results['product']     = $this->update($newProductID, $product);
       $results['image']       = $DB_Images->update_image($product);
       $results['collects']    = $DB_Collects->update_collects($product);
 
       // This takes care of syncing the custom post type content
       $results['product_cpt'] = CPT::wps_update_existing_product($product);
-
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
 
     } else {
-      $results['deleted_product'] = $this->delete_product($product, $product->id);
+      $results['deleted_product'] = $this->delete_product($product, $newProductID);
 
     }
 

@@ -4,7 +4,9 @@ import {
   streamProducts,
   streamCollects,
   streamSmartCollections,
-  streamCustomCollections
+  streamCustomCollections,
+  streamOrders,
+  streamCustomers
 } from './streaming';
 
 import {
@@ -165,11 +167,65 @@ function syncCustomCollections() {
 
 }
 
+
+/*
+
+Syncing Orders
+TODO: Can we combine all of these syncing functions into a more generalized function?
+
+*/
+function syncOrders() {
+
+  return new Promise(async function syncOrdersHandler(resolve, reject) {
+
+    try {
+      var orders = await streamOrders();
+
+      resolve(orders);
+
+    } catch(error) {
+
+      reject( sanitizeErrorResponse(error) );
+
+    }
+
+  });
+
+}
+
+
+/*
+
+Syncing Customers
+TODO: Can we combine all of these syncing functions into a more generalized function?
+
+*/
+function syncCustomers() {
+
+  return new Promise(async function syncCustomersHandler(resolve, reject) {
+
+    try {
+      var customers = await streamCustomers();
+
+      resolve(customers);
+
+    } catch(error) {
+
+      reject( sanitizeErrorResponse(error) );
+
+    }
+
+  });
+
+}
+
 export {
   syncConnection,
   syncShop,
   syncProducts,
   syncCollects,
   syncSmartCollections,
-  syncCustomCollections
+  syncCustomCollections,
+  syncOrders,
+  syncCustomers
 }

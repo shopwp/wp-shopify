@@ -277,6 +277,43 @@ class Utils {
   }
 
 
+
+
+
+
+
+  public static function wps_find_product_id($product) {
+
+    if (isset($product->id)) {
+      return $product->id;
+
+    } else if ($product->product_id) {
+      return $product->product_id;
+
+    } else {
+      return 0;
+    }
+
+  }
+
+
+  public static function wps_find_collection_id($collection) {
+
+    if (isset($collection->id)) {
+      return $collection->id;
+
+    } else if ($collection->collection_id) {
+      return $collection->collection_id;
+
+    } else {
+      return 0;
+    }
+
+  }
+
+
+
+
   /*
 
   wps_find_post_id_from_new_product
@@ -293,6 +330,8 @@ class Utils {
     $existingProducts = $DB_Products->get_all_rows();
     $found_post_id = null;
 
+    $newProductID = self::wps_find_product_id($product);
+
     foreach ($existingProducts as $key => $existingProduct) {
 
       /*
@@ -303,10 +342,11 @@ class Utils {
       want to revist how the ID's are stored. Force all to ints.
 
       */
-      if ($existingProduct->product_id == $product->id) {
+      if ($existingProduct->product_id == $newProductID) {
         $found_post_id = $existingProduct->post_id;
         break;
       }
+
     }
 
     return $found_post_id;
@@ -563,6 +603,7 @@ class Utils {
     return $array;
 
   }
+
 
 
   /*

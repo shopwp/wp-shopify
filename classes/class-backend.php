@@ -536,6 +536,12 @@ class Backend {
 		add_action( 'wp_ajax_wps_ws_get_products_count', array($WS, 'wps_ws_get_products_count'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_products_count', array($WS, 'wps_ws_get_products_count'));
 
+		add_action( 'wp_ajax_wps_ws_get_orders_count', array($WS, 'wps_ws_get_orders_count'));
+		add_action( 'wp_ajax_nopriv_wps_ws_get_orders_count', array($WS, 'wps_ws_get_orders_count'));
+
+		add_action( 'wp_ajax_wps_ws_get_customers_count', array($WS, 'wps_ws_get_customers_count'));
+		add_action( 'wp_ajax_nopriv_wps_ws_get_customers_count', array($WS, 'wps_ws_get_customers_count'));
+
 		add_action( 'wp_ajax_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
 		add_action( 'wp_ajax_nopriv_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
 
@@ -574,11 +580,13 @@ class Backend {
 		add_action( 'wp_ajax_wps_insert_collections', array($Collections, 'wps_insert_collections'));
 		add_action( 'wp_ajax_nopriv_wps_insert_collections', array($Collections, 'wps_insert_collections'));
 
+		// Orders
+		add_action( 'wp_ajax_wps_insert_orders', array($WS, 'wps_insert_orders'));
+		add_action( 'wp_ajax_nopriv_wps_insert_orders', array($WS, 'wps_insert_orders'));
 
-
-
-
-
+		// Customers
+		add_action( 'wp_ajax_wps_insert_customers', array($WS, 'wps_insert_customers'));
+		add_action( 'wp_ajax_nopriv_wps_insert_customers', array($WS, 'wps_insert_customers'));
 
 
 
@@ -607,27 +615,6 @@ class Backend {
 		add_action( 'wp_ajax_nopriv_wps_ws_get_variants', array($WS, 'wps_ws_get_variants'));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		// Waypoint
 		add_action( 'wp_ajax_wps_waypoint_get_shopify_url', array($Waypoints, 'wps_waypoint_get_shopify_url'));
 		add_action( 'wp_ajax_nopriv_wps_waypoint_get_shopify_url', array($Waypoints, 'wps_waypoint_get_shopify_url'));
@@ -636,39 +623,167 @@ class Backend {
 
 
 
-		// Webhook create product callback
+
+
+
+
+		/*
+
+		Webhook: Products
+
+		*/
+
+		// products/create
 		add_action( 'wp_ajax_wps_webhooks_product_create', array($Webhooks, 'wps_webhooks_product_create'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_product_create', array($Webhooks, 'wps_webhooks_product_create'));
 
-		// Webhook update product callback
+		// products/update
 		add_action( 'wp_ajax_wps_webhooks_product_update', array($Webhooks, 'wps_webhooks_product_update'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_product_update', array($Webhooks, 'wps_webhooks_product_update'));
 
-		// Webhook delete product callback
+		// products/delete
 		add_action( 'wp_ajax_wps_webhooks_product_delete', array($Webhooks, 'wps_webhooks_product_delete'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_product_delete', array($Webhooks, 'wps_webhooks_product_delete'));
 
 
-		// Webhook create collection callback
+		/*
+
+		Webhook: Collections
+
+		*/
+
+		// collections/create
 		add_action( 'wp_ajax_wps_webhooks_collections_create', array($Webhooks, 'wps_webhooks_collections_create'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_collections_create', array($Webhooks, 'wps_webhooks_collections_create'));
 
-		// Webhook create collection callback
+		// collections/update
 		add_action( 'wp_ajax_wps_webhooks_collections_update', array($Webhooks, 'wps_webhooks_collections_update'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_collections_update', array($Webhooks, 'wps_webhooks_collections_update'));
 
-		// Webhook create collection callback
+		// collections/delete
 		add_action( 'wp_ajax_wps_webhooks_collections_delete', array($Webhooks, 'wps_webhooks_collections_delete'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_collections_delete', array($Webhooks, 'wps_webhooks_collections_delete'));
 
 
-		// Webhook: shop/update
+		/*
+
+		Wbhook: Shop
+
+		*/
+
+		// shop/update
 		add_action( 'wp_ajax_wps_webhooks_shop_update', array($Webhooks, 'wps_webhooks_shop_update'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_shop_update', array($Webhooks, 'wps_webhooks_shop_update'));
 
-		// Webhook: app/uninstalled
+
+		/*
+
+		Wbhook: App
+
+		*/
+
+		// app/uninstalled
 		add_action( 'wp_ajax_wps_webhooks_shop_app_uninstalled', array($Webhooks, 'wps_webhooks_shop_app_uninstalled'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_shop_app_uninstalled', array($Webhooks, 'wps_webhooks_shop_app_uninstalled'));
+
+
+		/*
+
+		Webhook: Orders
+
+		*/
+
+		// orders/create (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_create', array($Webhooks, 'wps_webhooks_orders_create'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_create', array($Webhooks, 'wps_webhooks_orders_create'));
+
+		// orders/paid
+		add_action( 'wp_ajax_wps_webhooks_orders_paid', array($Webhooks, 'wps_webhooks_orders_paid'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_paid', array($Webhooks, 'wps_webhooks_orders_paid'));
+
+		// orders/cancelled (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_cancelled', array($Webhooks, 'wps_webhooks_orders_cancelled'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_cancelled', array($Webhooks, 'wps_webhooks_orders_cancelled'));
+
+		// orders/delete (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_delete', array($Webhooks, 'wps_webhooks_orders_delete'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_delete', array($Webhooks, 'wps_webhooks_orders_delete'));
+
+		// orders/fulfilled (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_fulfilled', array($Webhooks, 'wps_webhooks_orders_fulfilled'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_fulfilled', array($Webhooks, 'wps_webhooks_orders_fulfilled'));
+
+		// orders/partially_fulfilled
+		add_action( 'wp_ajax_wps_webhooks_orders_partially_fulfilled', array($Webhooks, 'wps_webhooks_orders_partially_fulfilled'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_partially_fulfilled', array($Webhooks, 'wps_webhooks_orders_partially_fulfilled'));
+
+		// orders/updated (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_updated', array($Webhooks, 'wps_webhooks_orders_updated'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_updated', array($Webhooks, 'wps_webhooks_orders_updated'));
+
+		// draft_orders/create (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_draft_create', array($Webhooks, 'wps_webhooks_orders_draft_create'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_draft_create', array($Webhooks, 'wps_webhooks_orders_draft_create'));
+
+		// draft_orders/delete (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_draft_delete', array($Webhooks, 'wps_webhooks_orders_draft_delete'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_draft_delete', array($Webhooks, 'wps_webhooks_orders_draft_delete'));
+
+		// draft_orders/update (working)
+		add_action( 'wp_ajax_wps_webhooks_orders_draft_update', array($Webhooks, 'wps_webhooks_orders_draft_update'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_orders_draft_update', array($Webhooks, 'wps_webhooks_orders_draft_update'));
+
+
+
+		/*
+
+		Webhook: Checkouts
+
+		*/
+
+		// checkouts/create
+		add_action( 'wp_ajax_wps_webhooks_checkouts_create', array($Webhooks, 'wps_webhooks_checkouts_create'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_checkouts_create', array($Webhooks, 'wps_webhooks_checkouts_create'));
+
+		// checkouts/delete
+		add_action( 'wp_ajax_wps_webhooks_checkouts_delete', array($Webhooks, 'wps_webhooks_checkouts_delete'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_checkouts_delete', array($Webhooks, 'wps_webhooks_checkouts_delete'));
+
+		// checkouts/update
+		add_action( 'wp_ajax_wps_webhooks_checkouts_update', array($Webhooks, 'wps_webhooks_checkouts_update'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_checkouts_update', array($Webhooks, 'wps_webhooks_checkouts_update'));
+
+
+		/*
+
+		Webhook: Customers
+
+		*/
+
+		// customers/create
+		add_action( 'wp_ajax_wps_webhooks_customers_create', array($Webhooks, 'wps_webhooks_customers_create'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_create', array($Webhooks, 'wps_webhooks_customers_create'));
+
+		// customers/delete
+		add_action( 'wp_ajax_wps_webhooks_customers_delete', array($Webhooks, 'wps_webhooks_customers_delete'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_delete', array($Webhooks, 'wps_webhooks_customers_delete'));
+
+		// customers/disable
+		add_action( 'wp_ajax_wps_webhooks_customers_disable', array($Webhooks, 'wps_webhooks_customers_disable'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_disable', array($Webhooks, 'wps_webhooks_customers_disable'));
+
+		// customers/enable
+		add_action( 'wp_ajax_wps_webhooks_customers_enable', array($Webhooks, 'wps_webhooks_customers_enable'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_enable', array($Webhooks, 'wps_webhooks_customers_enable'));
+
+		// customers/update
+		add_action( 'wp_ajax_wps_webhooks_customers_update', array($Webhooks, 'wps_webhooks_customers_update'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_update', array($Webhooks, 'wps_webhooks_customers_update'));
+
+
+
+
+
 
 
 

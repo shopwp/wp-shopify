@@ -132,7 +132,7 @@ function onResyncSubmit() {
         throw removedResponse;
 
       } else {
-        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on the amount of products.)');
+        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on how large your store is.)');
 
       }
 

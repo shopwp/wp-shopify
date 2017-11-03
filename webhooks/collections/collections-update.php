@@ -15,6 +15,9 @@ $collection = json_decode( file_get_contents('php://input') );
 
 $Connection->turn_on_need_cache_flush();
 
+error_log('===== collections update =====');
+error_log(print_r($collection, true));
+
 /*
 
 Here we have a couple things to check. First, we need to know what type of Collection

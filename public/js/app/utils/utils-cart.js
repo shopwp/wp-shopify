@@ -6,16 +6,15 @@ import {
 
 async function needsCacheFlush() {
 
-
   try {
 
     var cacheFlushStatus = await getCacheFlushStatus();
 
     if (cacheFlushStatus.data == 1) {
-
-      await updateCacheFlushStatus(0);
-
       return true;
+
+    } else {
+      return false;
 
     }
 
@@ -41,11 +40,30 @@ async function needsCacheFlush() {
 }
 
 
-function flushCache() {
+async function flushCache(cart) {
+
   localStorage.removeItem('wps-cache-expiration');
   localStorage.removeItem('wps-animating');
   localStorage.removeItem('wps-connection-in-progress');
   localStorage.removeItem('wps-product-selection-id');
+
+
+  try {
+    await cart.clearLineItems();
+
+  } catch(error) {
+    console.error("clearLineItems error: ", error);
+  }
+
+
+  // Updating cache status
+  try {
+    await updateCacheFlushStatus(0);
+  } catch(error) {
+    console.error("updateCacheStatus error: ", error);
+
+  }
+
 }
 
 

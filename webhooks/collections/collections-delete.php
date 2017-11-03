@@ -15,6 +15,9 @@ $collection = json_decode( file_get_contents('php://input') );
 
 $Connection->turn_on_need_cache_flush();
 
+error_log('===== collections delete =====');
+error_log(print_r($collection, true));
+
 if ($Collections->wps_is_smart_collection($collection) ) {
   $DB_Collections_Smart->delete_smart_collection($collection);
 

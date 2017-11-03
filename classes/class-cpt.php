@@ -231,6 +231,8 @@ class CPT {
   */
   public static function wps_insert_new_collection($collection, $index = false) {
 
+    $newCollectionID = Utils::wps_find_collection_id($collection);
+
     $newCollectionModel = array(
       'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
       'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
@@ -238,7 +240,7 @@ class CPT {
       'post_type'     => 'wps_collections',
       'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
       'meta_input' => array(
-        'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
+        'collection_id' => $newCollectionID
       )
     );
 
@@ -284,7 +286,7 @@ class CPT {
       'meta_input' => array(
         'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
       )
-      
+
     );
 
     // Needed to ensure working pages

@@ -6,6 +6,8 @@ use WPS\DB\Settings_Connection;
 //
 // $DB_Shop = new DB_Shop();
 
+error_log('===== app uninstalled =====');
+
 $app = json_decode( file_get_contents('php://input') );
 
 // $DB_Products->create_product($app);

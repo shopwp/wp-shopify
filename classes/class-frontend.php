@@ -119,7 +119,9 @@ if (!class_exists('Frontend')) {
 	    }
 
 
-			if(!is_admin()) {
+			if (!is_admin()) {
+
+				global $post;
 
 				// Promise polyfill
 				wp_enqueue_script($this->config->plugin_name . '-promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
@@ -131,7 +133,8 @@ if (!class_exists('Frontend')) {
 						'ajax' => admin_url( 'admin-ajax.php' ),
 						'pluginsPath' => plugins_url(),
 						'is_connected' => $connected,
-						'is_recently_connected' => get_transient('wps_recently_connected')
+						'is_recently_connected' => get_transient('wps_recently_connected'),
+						'post_id' => $post->ID
 					)
 				);
 
@@ -560,7 +563,6 @@ if (!class_exists('Frontend')) {
 			$DB_Settings_Connection = new Settings_Connection();
 			$needsCacheFlush = $DB_Settings_Connection->get_column_single('needs_cache_flush');
 
-
 			if (is_null($needsCacheFlush) || !empty($needsCacheFlush->last_error)) {
 				wp_send_json_error($needsCacheFlush);
 
@@ -568,13 +570,7 @@ if (!class_exists('Frontend')) {
 
 				if (is_array($needsCacheFlush) && isset($needsCacheFlush[0]) ) {
 
-					if ($needsCacheFlush[0]->needs_cache_flush === 0) {
-						wp_send_json_success($needsCacheFlush[0]->needs_cache_flush);
-
-					} else {
-						wp_send_json_success($needsCacheFlush[0]->needs_cache_flush);
-
-					}
+					wp_send_json_success($needsCacheFlush[0]->needs_cache_flush);
 
 				} else {
 					wp_send_json_error($needsCacheFlush);
@@ -598,6 +594,7 @@ if (!class_exists('Frontend')) {
 
 			$connectionData->needs_cache_flush = $_POST['status'];
 			$connectionData = (array) $connectionData;
+
 			$response = $DB_Settings_Connection->insert_connection($connectionData);
 
 			if (is_wp_error($response)) {
@@ -609,6 +606,28 @@ if (!class_exists('Frontend')) {
 
 
 		}
+
+
+
+
+		/*
+
+		Before Checkout Hook
+
+		*/
+		public function wps_add_checkout_before_hook() {
+
+			$cart = $_POST['cart'];
+			$exploded = explode($cart['domain'], $cart['checkoutUrl']);
+			$landing_site = $exploded[1];
+
+			$landing_site_hash = Utils::wps_hash($landing_site);
+
+			wp_send_json_success();
+
+		}
+
+
 
 
 
@@ -670,6 +689,16 @@ if (!class_exists('Frontend')) {
 				add_action( 'wp_footer', array($this, 'wps_insert_cart_before_closing_body') );
 				add_action( 'wp_footer', array($this, 'wps_notice') );
 			}
+
+
+			/*
+
+			Checkout Hook
+
+			*/
+			add_action( 'wp_ajax_wps_add_checkout_before_hook', array($this, 'wps_add_checkout_before_hook') );
+			add_action( 'wp_ajax_nopriv_wps_add_checkout_before_hook', array($this, 'wps_add_checkout_before_hook') );
+
 
 
 		}

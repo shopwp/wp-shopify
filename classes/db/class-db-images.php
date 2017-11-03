@@ -127,7 +127,9 @@ class Images extends \WPS\DB {
     product/update webhook.
 
     */
-    $currentImagesArray = $this->get_rows('product_id', $product->id);
+
+    $newProductID = Utils::wps_find_product_id($product);
+    $currentImagesArray = $this->get_rows('product_id', $newProductID);
 
     $imagesToAdd = Utils::wps_find_items_to_add($currentImagesArray, $imagesFromShopify, true);
     $imagesToDelete = Utils::wps_find_items_to_delete($currentImagesArray, $imagesFromShopify, true);

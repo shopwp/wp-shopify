@@ -192,7 +192,14 @@ function updateSingleProductCartDOM(lineItem, singleProduct) {
       var $foundLineItem = $lineItemsContainer.find('.wps-quantity-decrement[data-variant-id="' + lineItem.variant_id + '"]').closest('.wps-cart-item');
       var containsDefaultTitle = lineItem.variant_title.indexOf('Default Title') !== -1;
 
-      $foundLineItem.find('.wps-cart-item__img').css('background-image', 'url(' + lineItem.image.src + ')');
+      if (!lineItem.image) {
+        $foundLineItem.find('.wps-cart-item__img').css('background-image', 'url(' + wps.pluginsPath + '/wp-shopify/public/imgs/placeholder.png\')');
+
+      } else {
+        $foundLineItem.find('.wps-cart-item__img').css('background-image', 'url(' + lineItem.image.src + ')');
+      }
+
+
       $foundLineItem.find('.wps-cart-item__title').text(lineItem.title);
 
       if (!containsDefaultTitle) {
@@ -284,7 +291,15 @@ async function renderCartItems(shopify, cart = false, singleProduct = false) {
           return new Promise(async function(resolve, reject) {
 
             var $lineItemTemplate = jQuery(lineItemEmptyTemplate);
-            var itemImage = lineItem.image.src;
+
+            if (!lineItem.image) {
+              var itemImage = wps.pluginsPath + '/wp-shopify/public/imgs/placeholder.png';
+
+            } else {
+              var itemImage = lineItem.image.src;
+            }
+
+
             var containsDefaultTitle = lineItem.variant_title.indexOf('Default Title') !== -1;
 
             $lineItemTemplate.find('.wps-cart-item__img').css('background-image', 'url(' + itemImage + ')');

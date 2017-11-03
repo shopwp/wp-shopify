@@ -1,15 +1,19 @@
 import {
+  uninstallProductData,
   getConnectionData,
   getShopData,
   getProductsCount,
   getCollectsCount,
+  getOrdersCount,
+  getCustomersCount,
   insertConnectionData,
   insertShopData,
   insertProductsData,
   insertCollects,
   insertCustomCollections,
   insertSmartCollections,
-  uninstallProductData
+  insertOrders,
+  insertCustomers
 } from '../ws/ws';
 
 import {
@@ -154,8 +158,7 @@ async function streamProducts() {
       productsCPT,
       pageSize = 250,
       currentPage = 1,
-      pages,
-      productData;
+      pages;
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
@@ -388,11 +391,203 @@ async function streamCustomCollections() {
 }
 
 
+/*
+
+Stream Orders
+Returns Orders
+
+TODO: Combine with streamOrders into a more generalized function
+
+*/
+async function streamOrders() {
+
+  var orderCount,
+      orders = [],
+      pageSize = 250,
+      currentPage = 1,
+      pages,
+      orderData;
+
+  return new Promise(async function streamOrdersHandler(resolve, reject) {
+
+    /*
+
+    Step 1. Get Orders count
+
+    */
+    try {
+
+      orderCount = await getOrdersCount();
+
+      if (isWordPressError(orderCount)) {
+        reject(orderCount.data);
+
+      } else {
+        orderCount = orderCount.data.count;
+      }
+
+      if (!connectionInProgress()) {
+        reject('Syncing stopped during streamOrders');
+      }
+
+    } catch(error) {
+      reject(error);
+
+    }
+
+
+    pages = Math.ceil(orderCount / pageSize);
+
+
+    /*
+
+    Step 2. Insert Orders
+
+    */
+    while(currentPage <= pages) {
+
+      try {
+
+        var newOrders = await insertOrders();
+
+        if (isWordPressError(newOrders)) {
+          reject(newOrders.data);
+
+        } else {
+
+          if (Array.isArray(newOrders.data.orders)) {
+            orders = R.concat(orders, newOrders.data.orders);
+            currentPage += 1;
+
+          } else {
+            reject(newOrders.data.orders);
+
+          }
+
+        }
+
+        if (!connectionInProgress()) {
+          reject('Syncing stopped during streamOrders');
+        }
+
+      } catch(error) {
+
+        currentPage = pages+1;
+        return reject(error);
+
+      }
+
+    }
+
+    resolve(orders);
+
+  });
+
+}
+
+
+
+/*
+
+Stream Customers
+Returns Customers
+
+TODO: Combine with streamCustomers into a more generalized function
+
+*/
+async function streamCustomers() {
+
+  var customerCount,
+      customers = [],
+      pageSize = 250,
+      currentPage = 1,
+      pages,
+      customerData;
+
+  return new Promise(async function streamCustomersHandler(resolve, reject) {
+
+    /*
+
+    Step 1. Get Customers count
+
+    */
+    try {
+
+      customerCount = await getCustomersCount();
+
+      if (isWordPressError(customerCount)) {
+        reject(customerCount.data);
+
+      } else {
+        customerCount = customerCount.data.count;
+      }
+
+      if (!connectionInProgress()) {
+        reject('Syncing stopped during streamCustomers');
+      }
+
+    } catch(error) {
+      reject(error);
+
+    }
+
+    pages = Math.ceil(customerCount / pageSize);
+
+
+    /*
+
+    Step 2. Insert Customers
+
+    */
+    while(currentPage <= pages) {
+
+      try {
+
+        var newCustomers = await insertCustomers();
+
+        if (isWordPressError(newCustomers)) {
+          reject(newCustomers.data);
+
+        } else {
+
+          if (Array.isArray(newCustomers.data.customers)) {
+            customers = R.concat(customers, newCustomers.data.customers);
+            currentPage += 1;
+
+          } else {
+            reject(newCustomers.data.customers);
+
+          }
+
+        }
+
+        if (!connectionInProgress()) {
+          reject('Syncing stopped during streamCustomers');
+        }
+
+      } catch(error) {
+
+        currentPage = pages+1;
+        return reject(error);
+
+      }
+
+    }
+
+    resolve(customers);
+
+  });
+
+}
+
+
 export {
   streamConnection,
   streamShop,
   streamProducts,
   streamCollects,
   streamSmartCollections,
-  streamCustomCollections
+  streamCustomCollections,
+  streamOrders,
+  streamCustomers
 }

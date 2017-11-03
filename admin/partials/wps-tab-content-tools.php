@@ -9,6 +9,8 @@ Tab Content: Tools
 
   <div class="wps-admin-section">
 
+    <a href="#" class="wps-btn-wh-get">sdsfdsf</a>
+
     <h3><?php esc_attr_e( 'Manual Sync ', 'wp_admin_style' ); ?> <span class="wps-help-tip wps-help-tip-inline" title="Note: To fix syncing issues you may want to ensure that the 'Webhooks callback URL' located on the Settings tab is set to a publicly accsible URL."></span></h3>
     <p>If you're having trouble keeping WordPress in sync with Shopify you can manually resync here.</p>
 
