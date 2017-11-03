@@ -760,7 +760,7 @@ class Backend {
 
 		*/
 
-		// customers/create
+		// customers/create 
 		add_action( 'wp_ajax_wps_webhooks_customers_create', array($Webhooks, 'wps_webhooks_customers_create'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_create', array($Webhooks, 'wps_webhooks_customers_create'));
 

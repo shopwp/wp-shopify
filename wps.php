@@ -5,7 +5,7 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.27
+@since             1.0.28
 @package           WPS
 
 @wordpress-plugin
