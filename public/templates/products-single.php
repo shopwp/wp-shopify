@@ -9,8 +9,6 @@ $wps_product = $DB_Products->get_data();
 
 get_header('wps');
 
-
-
 if (is_single()) {
 
   do_action('wps_product_single_before', $wps_product);
