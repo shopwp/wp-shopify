@@ -59,7 +59,7 @@ async function onCheckout(shopify) {
         checkoutUrl: newCart.checkoutUrl
       };
 
-      window.open(finalURL, '_self');
+      window.open(newCart.checkoutUrl, '_self');
 
       // try {
       //   await beforeCheckoutHook(cartData);
