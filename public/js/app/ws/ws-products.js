@@ -81,8 +81,10 @@ Check if any cart items are in local storage
 
 */
 function setMoneyFormatCache(moneyFormat) {
+
   localStorage.setItem('wps-money-format', moneyFormat);
   setCacheTime();
+
 };
 
 

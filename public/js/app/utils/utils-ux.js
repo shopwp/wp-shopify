@@ -150,6 +150,16 @@ function disable($element) {
 
 /*
 
+Disable No Loader
+
+*/
+function disableNoLoader($element) {
+  $element.prop('disabled', true);
+};
+
+
+/*
+
 Enable
 
 */
@@ -158,6 +168,16 @@ function enable($element) {
     $element.removeClass('wps-is-disabled');
     $element.prop('disabled', false);
   }, 0);
+};
+
+
+/*
+
+Enable No Loader
+
+*/
+function enableNoLoader($element) {
+  $element.prop('disabled', false);
 };
 
 
@@ -200,7 +220,9 @@ export {
   animateOut,
   toggleNotice,
   disable,
+  disableNoLoader,
   enable,
+  enableNoLoader,
   showLoader,
   hideLoader,
   shake

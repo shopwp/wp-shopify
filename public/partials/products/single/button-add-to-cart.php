@@ -24,7 +24,7 @@ if (count($product['options']) === 1) {
 <div
   class="wps-btn-wrapper wps-col wps-col-<?php echo $col; ?>">
 
-  <a
+  <button
     itemprop="potentialAction"
     itemscope
     itemtype="https://schema.org/BuyAction"
@@ -32,6 +32,6 @@ if (count($product['options']) === 1) {
     class="wps-btn wps-col-1 wps-btn-secondary wps-add-to-cart"
     title="Add to cart">
     Add to cart
-  </a>
+  </button>
 
 </div>

@@ -18,5 +18,5 @@ if (count($product['options']) === 1) {
 
 ?>
 <div class="wps-btn-wrapper wps-col wps-col-<?php echo $col; ?>">
-  <a href="#!" class="wps-btn wps-col-1 wps-btn-secondary wps-add-to-cart" title="Add to cart">Add to cart</a>
+  <button href="#!" class="wps-btn wps-col-1 wps-btn-secondary wps-add-to-cart" title="Add to cart">Add to cart</button>
 </div>

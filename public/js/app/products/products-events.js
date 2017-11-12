@@ -1,5 +1,15 @@
 import { isError } from '../utils/utils-common';
-import { disable, enable, showLoader, hideLoader, animate, animateIn, shake } from '../utils/utils-ux';
+import {
+  disable,
+  enable,
+  enableNoLoader,
+  disableNoLoader,
+  showLoader,
+  hideLoader,
+  animate,
+  animateIn,
+  shake
+} from '../utils/utils-ux';
 
 import {
   getProduct,
@@ -496,9 +506,13 @@ function onProductVariantChange() {
 
       var newCurrentProductID = $newProductMetaContainer.attr('data-product-post-id');
       var selectedOptions = $trigger.closest('.wps-product-meta').data('product-selected-options');
+      var $optionButtons = $newProductMetaContainer.find('.wps-btn-dropdown .wps-btn');
+      var $addToCartButton = $newProductMetaContainer.find('.wps-add-to-cart');
 
-      disable($newProductMetaContainer.find('.wps-btn'));
-      showLoader($trigger);
+      disable($optionButtons);
+      disableNoLoader($addToCartButton);
+
+
 
 
 
@@ -506,6 +520,7 @@ function onProductVariantChange() {
       try {
 
         var foundVariantIDResponse = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
+
 
         if (isError(foundVariantIDResponse)) {
           throw foundVariantIDResponse.data;
@@ -523,8 +538,11 @@ function onProductVariantChange() {
 
 
 
-        enable($newProductMetaContainer.find('.wps-btn'));
-        hideLoader($trigger);
+        enable($optionButtons);
+        enableNoLoader($addToCartButton);
+
+
+
         hideProductMetaErrors($trigger);
 
 
@@ -536,7 +554,7 @@ function onProductVariantChange() {
 
         resetVariantSelectors($newProductMetaContainer);
 
-        hideLoader($trigger);
+        // hideLoader($trigger);
 
       }
 

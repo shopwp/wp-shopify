@@ -9,7 +9,6 @@ import {
 
 import {
   setSyncingIndicator,
-  removePluginData,
   clearCache
 } from '../ws/ws.js';
 
