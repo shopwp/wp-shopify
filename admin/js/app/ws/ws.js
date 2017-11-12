@@ -12,6 +12,8 @@ import {
 Get all products from Shopify
 Returns: Promise
 
+NOT CURRENTLY USED
+
 */
 function uninstallProductData() {
 

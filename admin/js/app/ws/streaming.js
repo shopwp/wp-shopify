@@ -1,5 +1,4 @@
 import {
-  uninstallProductData,
   getConnectionData,
   getShopData,
   getProductsCount,

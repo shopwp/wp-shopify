@@ -122,16 +122,28 @@ async function initCart(shopify) {
 
   }
 
+
   try {
 
     if (await needsCacheFlush()) {
+
       await flushCache(cart);
+
+      try {
+        var newCart = await renderCartItems(shopify);
+
+      } catch(error) {
+        return error;
+
+      }
+
     }
 
   } catch(error) {
     return error;
 
   }
+
 
   updateTotalCartPricing(shopify);
 

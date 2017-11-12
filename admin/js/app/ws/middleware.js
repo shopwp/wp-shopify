@@ -18,10 +18,6 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  removePluginData
-} from '../ws/ws';
-
-import {
   uninstallPluginData
 } from '../disconnect/disconnect';
 

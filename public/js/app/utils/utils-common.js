@@ -313,9 +313,11 @@ async function formatAsMoney(amount) {
 
   return new Promise(async function(resolve, reject) {
 
-    if (!cacheExpired() && getMoneyFormatCache()) {
+    var cachedMoneyFormat = getMoneyFormatCache();
 
-      var moneyFormat = getMoneyFormatCache();
+    if (!cacheExpired() && cachedMoneyFormat !== 'undefined') {
+
+      var moneyFormat = cachedMoneyFormat;
 
     } else {
 
@@ -396,7 +398,6 @@ async function formatAsMoney(amount) {
     var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
     var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
     var finalPrice = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
-
 
     resolve(finalPrice);
 
