@@ -120,8 +120,7 @@ if ( ! class_exists('WP_Shopify') ) {
 
 			$this->init_hooks($this->Hooks);
 
-			// Frontend hooks depends on wps_on_update
-			$this->Hooks->wps_on_update();
+
 
 			$this->Frontend->wps_frontend_hooks();
 
@@ -229,6 +228,9 @@ if ( ! class_exists('WP_Shopify') ) {
 			// Register CPTs upon every consecutive init
 			add_action( 'init', array($this->CPT, 'wps_post_type_products') );
 			add_action( 'init', array($this->CPT, 'wps_post_type_collections') );
+
+			// On plugin update ...
+			add_action( 'plugins_loaded', array($Hooks, 'wps_on_update') );
 
 
 			/*

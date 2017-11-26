@@ -1605,6 +1605,8 @@ if (!class_exists('Hooks')) {
 
 			$pluginVersionCurrent = $DB_Settings_General->get_column_single('plugin_version');
 
+
+
 			if (isset($pluginVersionCurrent) && $pluginVersionCurrent) {
 				$databaseVersion = $pluginVersionCurrent[0]->plugin_version;
 
