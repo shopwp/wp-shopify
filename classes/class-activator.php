@@ -14,6 +14,9 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Images;
 use WPS\DB\Tags;
+use WPS\DB\Customers;
+use WPS\DB\Orders;
+
 use WPS\CPT;
 // use WPS\DB\Inventory as Inventory;
 
@@ -87,9 +90,10 @@ class Activator {
 		$DB_Options = new Options();
 		$DB_Collections_Custom = new Collections_Custom();
 		$DB_Collections_Smart = new Collections_Smart();
-
 		$DB_Images = new Images();
 		$DB_Tags = new Tags();
+		$DB_Customers = new Customers();
+		$DB_Orders = new Orders();
 
 
 		/*
@@ -109,6 +113,9 @@ class Activator {
 		$DB_Collections_Smart->create_table();
 		$DB_Images->create_table();
 		$DB_Tags->create_table();
+		$DB_Customers->create_table();
+		$DB_Orders->create_table();
+
 
 		/*
 

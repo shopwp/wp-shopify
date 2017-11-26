@@ -281,6 +281,8 @@ class Images extends \WPS\DB {
   */
   public static function get_image_details_from_image($image) {
 
+    $Config = new Config();
+
     if (empty($image['alt'])) {
       $alt = $product['details']['title'];
 
@@ -289,7 +291,7 @@ class Images extends \WPS\DB {
     }
 
     if (empty($image['src'])) {
-      $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
+      $src = $Config->plugin_url . 'public/imgs/placeholder.png';
 
     } else {
       $src = $image['src'];
@@ -311,13 +313,15 @@ class Images extends \WPS\DB {
   */
   public static function get_image_details_from_product($product) {
 
+    $Config = new Config();
+
     // If an object is passed ...
     if (is_object($product)) {
 
       if (empty($product->feat_image)) {
 
         $alt = $product->title;
-        $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
+        $src = $Config->plugin_url . 'public/imgs/placeholder.png';
 
       } else {
         $src = $product->feat_image[0]->src;
@@ -358,8 +362,10 @@ class Images extends \WPS\DB {
   */
   public static function get_image_details_from_collection($collection) {
 
+    $Config = new Config();
+
     if (empty($collection->image)) {
-      $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
+      $src = $Config->plugin_url . 'public/imgs/placeholder.png';
 
     } else {
       $src = $collection->image;

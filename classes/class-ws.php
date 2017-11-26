@@ -2398,9 +2398,7 @@ NEW STRUCTURE
         $currentPage = $_POST['currentPage'];
       }
 
-
       $url = "https://" . $this->connection->domain . "/admin/customers.json?page=" . $currentPage;
-
 
       /*
 

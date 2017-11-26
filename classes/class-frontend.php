@@ -268,11 +268,15 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_insert_cart_before_closing_body() {
 
-			ob_start();
-			include_once($this->config->plugin_path . "public/partials/cart/cart.php");
-			$content = ob_get_contents();
-			ob_end_clean();
-			echo $content;
+			$DB_Settings_General = new Settings_General();
+
+			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
+				ob_start();
+				include_once($this->config->plugin_path . "public/partials/cart/cart.php");
+				$content = ob_get_contents();
+				ob_end_clean();
+				echo $content;
+			}
 
 		}
 
@@ -458,7 +462,13 @@ if (!class_exists('Frontend')) {
 
     */
     public function wps_notice() {
-      return include_once($this->config->plugin_path . "public/partials/notices/notice.php");
+
+			$DB_Settings_General = new Settings_General();
+
+			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
+				return include_once($this->config->plugin_path . "public/partials/notices/notice.php");
+ 			}
+
     }
 
 
@@ -657,8 +667,6 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_frontend_hooks() {
 
-			$DB_Settings_General = new Settings_General();
-
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_styles') );
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );
 
@@ -697,19 +705,6 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_ajax_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 			add_action( 'wp_ajax_nopriv_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 
-
-			/*
-
-			Only load cart HTML if enabled within settings
-
-			*/
-
-			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
-				add_action( 'wp_footer', array($this, 'wps_insert_cart_before_closing_body') );
-				add_action( 'wp_footer', array($this, 'wps_notice') );
-			}
-
-
 			/*
 
 			Checkout Hook
@@ -717,8 +712,6 @@ if (!class_exists('Frontend')) {
 			*/
 			add_action( 'wp_ajax_wps_add_checkout_before_hook', array($this, 'wps_add_checkout_before_hook') );
 			add_action( 'wp_ajax_nopriv_wps_add_checkout_before_hook', array($this, 'wps_add_checkout_before_hook') );
-
-
 
 		}
 

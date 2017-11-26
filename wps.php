@@ -12,7 +12,7 @@ WP Shopify
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
-Version:           1.0.31
+Version:           1.0.32
 Author:            Simpleblend
 Author URI:        https://blog.simpleblend.net
 License:           GPL-2.0+
@@ -107,24 +107,9 @@ if ( ! class_exists('WP_Shopify') ) {
 			$this->I18N 					= new I18N($this->Config);
 			$this->CPT 						= new CPT($this->Config);
 			$this->Checkouts 			= new Checkouts($this->Config);
-
-			$this->License->init();
-
-			// $this->Checkouts->init();
-			$this->Backend->wps_backend_hooks();
-			// $this->Hooks->init();
-			$this->I18N->init();
-
-
-			$this->Hooks = Hooks::instance($this->Config);
+			$this->Hooks 					= Hooks::instance($this->Config);
 
 			$this->init_hooks($this->Hooks);
-
-
-
-			$this->Frontend->wps_frontend_hooks();
-
-			// $this->Deactivator->init();
 
 			do_action('wps_after_bootstrap');
 
@@ -224,6 +209,10 @@ if ( ! class_exists('WP_Shopify') ) {
 
 
 			$this->Activator->init();
+			$this->License->init();
+			$this->Backend->wps_backend_hooks();
+			$this->Frontend->wps_frontend_hooks();
+			$this->I18N->init();
 
 			// Register CPTs upon every consecutive init
 			add_action( 'init', array($this->CPT, 'wps_post_type_products') );
@@ -231,6 +220,10 @@ if ( ! class_exists('WP_Shopify') ) {
 
 			// On plugin update ...
 			add_action( 'plugins_loaded', array($Hooks, 'wps_on_update') );
+
+
+			add_action( 'wp_footer', array($this->Frontend, 'wps_insert_cart_before_closing_body') );
+			add_action( 'wp_footer', array($this->Frontend, 'wps_notice') );
 
 
 			/*
