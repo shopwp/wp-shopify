@@ -4,6 +4,7 @@ Fade in
 
 */
 @keyframes wpShopFadeIn {
+
   from {
     opacity: 0;
   }
@@ -11,6 +12,7 @@ Fade in
   to {
     opacity: 1;
   }
+
 }
 
 
@@ -20,6 +22,7 @@ Fade out
 
 */
 @keyframes wpShopFadeOut {
+
   from {
     opacity: 1;
   }
@@ -27,6 +30,7 @@ Fade out
   to {
     opacity: 0;
   }
+  
 }
 
 
@@ -300,7 +304,8 @@ Shake
 
 
 // General
-.wps-animated {
+.wps-animated,
+.wps-modal {
   animation-delay: 0s;
   animation-duration: 0.2s;
   animation-fill-mode: both;
@@ -318,11 +323,13 @@ Shake
 
 
 // Fades
-.wps-fadeIn {
+.wps-fadeIn,
+.wps-btn-dropdown[data-open="true"] .wps-modal {
   animation-name: wpShopFadeIn;
 }
 
-.wps-fadeOut {
+.wps-fadeOut,
+.wps-btn-dropdown[data-open="false"] .wps-modal {
   animation-name: wpShopFadeOut;
 }
 

@@ -3,6 +3,7 @@
 namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
+use WPS\WS;
 use WPS\DB\Settings_Connection;
 use GuzzleHttp\Client as Guzzle;
 
@@ -17,6 +18,7 @@ class Waypoints {
 
   protected static $instantiated = null;
   private $Config;
+  private $WS;
 
 	/*
 
@@ -25,6 +27,7 @@ class Waypoints {
 	*/
 	public function __construct($Config) {
 		$this->config = $Config;
+    $this->WS = new WS($this->config);
 	}
 
 
@@ -55,21 +58,6 @@ class Waypoints {
 
     $url = 'https://wpshop.io/wp-json/wp-shopify/v1/settings';
 
-    // try {
-    //
-    //   $Guzzle = new Guzzle();
-    //   $guzzelResponse = $Guzzle->get($url);
-    //
-    //   return $guzzelResponse->getBody()->getContents();
-    //
-    //
-    // } catch (\Exception $e) {
-    //
-    //   return $e->getMessage();
-    //
-    // }
-
-
     try {
 
       $Guzzle = new Guzzle();
@@ -78,23 +66,10 @@ class Waypoints {
       $shopDataResponse = $guzzelResponse->getBody()->getContents();
 
       return $shopDataResponse;
-      // wp_send_json_success($shopDataResponse);
-
-      // if (is_object($shopDataResponse) && property_exists($shopDataResponse, 'shop')) {
-      //   wp_send_json_success($shopDataResponse);
-      //
-      // } else {
-      //   wp_send_json_error($shopDataResponse);
-      //
-      // }
-
 
     } catch (RequestException $error) {
 
-      $responseDecoded = $error->getResponse()->getBody()->getContents();
-
-      return $responseDecoded;
-      // wp_send_json_error($responseDecoded->errors);
+      return $this->WS->wps_get_error_message($error);
 
     }
 
@@ -157,9 +132,9 @@ class Waypoints {
   		return $wpShopifyClients;
 
 
-    } catch (\Exception $e) {
+    } catch (\Exception $error) {
 
-      return $e->getMessage();
+      return $this->WS->wps_get_error_message($error);
 
     }
 
@@ -192,9 +167,9 @@ class Waypoints {
 
       return json_decode($guzzelResponse->getBody()->getContents())->token;
 
-    } catch (\Exception $e) {
+    } catch (\Exception $error) {
 
-      return $e->getMessage();
+      return $this->WS->wps_get_error_message($error);
 
     }
 
@@ -232,9 +207,9 @@ class Waypoints {
 
       return json_decode($guzzelResponse->getBody()->getContents());
 
-    } catch (\Exception $e) {
+    } catch (\Exception $error) {
 
-      return $e->getMessage();
+      return $this->WS->wps_get_error_message($error);
 
     }
 

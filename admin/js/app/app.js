@@ -1,5 +1,4 @@
 import '../../css/app/app.scss';
-import uuid from 'node-uuid';
 import { formEventsInit } from './forms/forms';
 import { vendorInit } from './vendor/vendor';
 import { tabsInit } from './utils/utils-tabs';

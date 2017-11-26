@@ -1,7 +1,7 @@
-import 'whatwg-fetch';
 import { needsCacheFlush, flushCache } from '../utils/utils-cart';
-import { hasItemsInLocalStorage } from './ws-products';
-import { renderCartItems, updateTotalCartPricing } from '../cart/cart-ui';
+import { getCartID } from './ws-products';
+import { renderCartItems, renderSingleCartItem, updateTotalCartPricing } from '../cart/cart-ui';
+
 
 /*
 
@@ -17,9 +17,17 @@ async function fetchCart(shopify) {
 
   // Either get the current cart instance or create a new one
   try {
-    var cart = await shopify.fetchCart(localStorage.getItem('wps-last-cart-id'));
+
+    var cartID = getCartID();
+
+    if (!cartID) {
+      throw new Error('Cart is null');
+    }
+
+    var cart = await shopify.fetchCart( getCartID() );
 
   } catch(e) {
+
     var cart = await createCart(shopify);
 
   }
@@ -45,24 +53,19 @@ async function createCart(shopify) {
 Set cart items
 
 */
-function setCart(cart) {
+function saveCartID(cart) {
   localStorage.setItem('wps-last-cart-id', cart.id);
 }
 
 
 /*
 
-Add 'quantity' amount of product 'variant' to cart
+Create Line Items From Variants
 
 */
-function updateCart(variant, quantity, shopify) {
+function createLineItemsFromVariants(options, shopify) {
 
   return new Promise(async function(resolve, reject) {
-
-    var options = {
-      variant: variant,
-      quantity: quantity
-    };
 
     try {
       var cart = await fetchCart(shopify);
@@ -72,17 +75,49 @@ function updateCart(variant, quantity, shopify) {
     }
 
     try {
-      await cart.createLineItemsFromVariants(options);
+      var newCart = await cart.createLineItemsFromVariants(options);
+      resolve(newCart);
 
     } catch(error) {
       reject(error);
     }
 
-    renderCartItems(shopify);
-    updateTotalCartPricing(shopify);
-    // updateCartTabButton(shopify);
+  });
 
-    resolve('Done updating cart UI');
+}
+
+
+/*
+
+Add 'quantity' amount of product 'variant' to cart
+Returns a promise that resolves to an updated Cart instance
+
+*/
+function updateCart(variant, quantity, shopify) {
+
+  return new Promise(async function(resolve, reject) {
+
+    try {
+      var cart = await fetchCart(shopify);
+
+    } catch(error) {
+      reject(error);
+    }
+
+    try {
+
+      var newCart = await createLineItemsFromVariants({
+        variant: variant,
+        quantity: quantity
+      }, shopify);
+
+    } catch(error) {
+      reject(error);
+    }
+
+    renderSingleCartItem(shopify, newCart, variant);
+    updateTotalCartPricing(shopify, newCart);
+    resolve(newCart);
 
   });
 
@@ -92,59 +127,60 @@ function updateCart(variant, quantity, shopify) {
 /*
 
 Initialize Cart
+Returns a cart instance
 
 */
 async function initCart(shopify) {
 
-  if (hasItemsInLocalStorage()) {
-    // var cart = await fetchCart(shopify);
+  var cacheFlushNeeded;
+  var cart;
+
+  /*
+
+  Check cache flush status ..
+
+  */
+  try {
+    cacheFlushNeeded = await needsCacheFlush();
+
+  } catch (error) {
+    console.error("needsCacheFlush", error);
+  }
+
+
+  /*
+
+  Flush cache if needed ...
+
+  */
+  if (cacheFlushNeeded) {
 
     try {
-      var cart = await renderCartItems(shopify);
+      await flushCache(shopify);
 
-    } catch(error) {
-      return error;
+    } catch (error) {
+      console.error("flushCache: ", error);
+
     }
-
-    // showAllProducts(shopify);
-
-  } else {
-
-    try {
-      var cart = await createCart(shopify);
-
-    } catch(error) {
-      return error;
-    }
-
-    setCart(cart);
-    // showAllProducts(shopify);
 
   }
 
 
+  /*
+
+  Render the actual cart items (if any)
+
+  */
   try {
-
-    if (await needsCacheFlush()) {
-
-      await flushCache(cart);
-
-      try {
-        var newCart = await renderCartItems(shopify);
-
-      } catch(error) {
-        return error;
-
-      }
-
-    }
+    cart = await renderCartItems(shopify);
 
   } catch(error) {
+    console.error("renderCartItems: ", error)
     return error;
 
   }
 
-
+  saveCartID(cart);
   updateTotalCartPricing(shopify);
 
   return cart;
@@ -152,4 +188,11 @@ async function initCart(shopify) {
 }
 
 
-export { fetchCart, createCart, setCart, updateCart, initCart };
+export {
+  fetchCart,
+  createCart,
+  saveCartID,
+  updateCart,
+  initCart,
+  createLineItemsFromVariants
+};

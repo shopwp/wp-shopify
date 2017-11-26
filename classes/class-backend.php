@@ -92,15 +92,13 @@ class Backend {
 		// Only loading admin script if we're on the settings page ...
 		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
 
-			// setcookie("wps-progress", 0);
-
-			// Polyfill
-			// wp_enqueue_script('polyfill-io', '//cdn.polyfill.io/v2/polyfill.js', array(), $this->config->plugin_version, true );
-
 			// Media scripts
 			wp_enqueue_media();
 
+			// Promise polyfill
+			wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 
+			// Tooltipster
 			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, false );
 
 			// Shopify JS SDK
@@ -109,19 +107,8 @@ class Backend {
 			// jQuery Validate
 			wp_enqueue_script('validate-js', '//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
 
-
-			// // TEST JS
-			// wp_enqueue_script( 'test-js', $this->config->plugin_path . 'js/app/vendor/test.js', array(), $this->config->plugin_version, false );
-
-			//
-			// // PACE JS
-			// wp_enqueue_script( 'pace-js', $this->config->plugin_path . 'js/app/vendor/pace.min.js', array(), $this->config->plugin_version, false );
-
-			// WP Shopify JS Vendor
-			// wp_enqueue_script('wps-admin-vendor', $this->config->plugin_url . 'dist/vendor.min.js', array(), $this->config->plugin_version, false );
-
 			// WP Shopify JS Admin
-			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'shopify-js-sdk', 'validate-js', 'tooltipster-js'), $this->config->plugin_version, false );
+			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'shopify-js-sdk', 'validate-js', 'tooltipster-js', 'promise-polyfill'), $this->config->plugin_version, false );
 
 			wp_localize_script('wps-admin', 'wps', array(
 					'ajax' => admin_url( 'admin-ajax.php' ),
@@ -572,10 +559,6 @@ class Backend {
 		add_action( 'wp_ajax_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
 		add_action( 'wp_ajax_nopriv_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
 
-		// Products
-		add_action( 'wp_ajax_wps_insert_products', array($Products_General, 'wps_insert_products'));
-		add_action( 'wp_ajax_nopriv_wps_insert_products', array($Products_General, 'wps_insert_products'));
-
 		// Collections
 		add_action( 'wp_ajax_wps_insert_collections', array($Collections, 'wps_insert_collections'));
 		add_action( 'wp_ajax_nopriv_wps_insert_collections', array($Collections, 'wps_insert_collections'));
@@ -760,7 +743,7 @@ class Backend {
 
 		*/
 
-		// customers/create 
+		// customers/create
 		add_action( 'wp_ajax_wps_webhooks_customers_create', array($Webhooks, 'wps_webhooks_customers_create'));
 		add_action( 'wp_ajax_nopriv_wps_webhooks_customers_create', array($Webhooks, 'wps_webhooks_customers_create'));
 

@@ -8,6 +8,7 @@ import { productEvents } from '../products/products-events';
 import { cartEvents } from '../cart/cart-events';
 import { updateCartCounter, updateTotalCartPricing } from '../cart/cart-ui';
 import { isError } from './utils-common';
+import { removeProductOptionIds } from '../ws/ws-products';
 
 
 /*
@@ -16,8 +17,10 @@ bootstrapEvents
 
 */
 function bootstrapEvents(shopify) {
+
   productEvents(shopify);
   cartEvents(shopify);
+
 }
 
 
@@ -26,9 +29,12 @@ function bootstrapEvents(shopify) {
 bootstrapUI
 
 */
-function bootstrapUI(shopify) {
-  updateCartCounter(shopify);
-  updateTotalCartPricing(shopify);
+function bootstrapUI(shopify, cart) {
+
+  updateCartCounter(shopify, cart);
+  updateTotalCartPricing(shopify, cart);
+  removeProductOptionIds();
+
 }
 
 
@@ -68,7 +74,7 @@ async function bootstrap() {
 
   // Init Cart
   try {
-    await initCart(shopify);
+    var cart = await initCart(shopify);
 
   } catch(error) {
     console.error('initCart error: ', error);
@@ -78,7 +84,7 @@ async function bootstrap() {
 
   // Bootstrap
   bootstrapEvents(shopify);
-  bootstrapUI(shopify);
+  bootstrapUI(shopify, cart);
 
 }
 

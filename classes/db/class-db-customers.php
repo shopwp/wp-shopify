@@ -112,67 +112,6 @@ class Customers extends \WPS\DB {
 
   /*
 
-  Fired when product is update at Shopify
-
-  */
-  public function update_customer($customer) {
-
-    /*
-
-    If published_at is null, we know the user turned off the Online Store sales channel.
-    TODO: Shopify may implement better sales channel checking in the future API. We should
-    then check for Buy Button visibility as-well.
-
-    */
-    if (property_exists($customer, 'published_at') && $customer->published_at !== null) {
-
-      $DB_Variants = new Variants();
-      $DB_Options = new Options();
-      $DB_Images = new Images();
-      $DB_Collects = new Collects();
-      $DB_Tags = new Tags();
-
-      /*
-
-      TODO: Move to a Util
-      Needed to update 'image' col in products table. Object is returned
-      Shopify so need to only save image URL. Rest of images live in
-      images table_name
-
-      */
-      if (property_exists($customer, 'image') && !empty($customer->image)) {
-        $customer->image = $customer->image->src;
-      }
-
-      $results['variants']    = $DB_Variants->update_variant($customer);
-      $results['options']     = $DB_Options->update_option($customer);
-      $results['product']     = $this->update($customer->id, $customer);
-      $results['image']       = $DB_Images->update_image($customer);
-      $results['collects']    = $DB_Collects->update_collects($customer);
-
-      // This takes care of syncing the custom post type content
-      $results['product_cpt'] = CPT::wps_update_existing_product($customer);
-
-      $results['tags']        = $DB_Tags->update_tags($customer, $results['product_cpt']);
-
-
-    } else {
-      $results['deleted_product'] = $this->delete_product($customer, $customer->id);
-
-    }
-
-    Transients::delete_cached_prices();
-    Transients::delete_cached_variants();
-    Transients::delete_cached_product_single();
-    Transients::delete_cached_product_queries();
-
-    return $results;
-
-  }
-
-
-  /*
-
   Fired when customer is deleted at Shopify
 
   */

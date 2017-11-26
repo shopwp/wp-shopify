@@ -145,6 +145,7 @@ async function deactivateKey() {
   // Deleting key locally
   //
   try {
+    
     var deleted = await deleteLicenseKey(savedLicenseKey);
 
     $submitButton.data('status', 'activate');
@@ -280,8 +281,8 @@ async function activateKey(key) {
     $licenseInput.val( createMask(key, '•', 4) );
     $licenseInput.removeClass('error');
 
-    $licensePostbox.removeClass('wps-is-hidden').animateCss('wps-bounceInRight', function() {
-
+    $licensePostbox.removeClass('wps-is-hidden').animateCss('wps-fadeInRight', function() {
+      $licensePostbox.removeClass('wps-fadeInRight');
     });
 
     updateInfoBox(licenseKeyInfo);

@@ -28,19 +28,9 @@ function getProductVariantID(product, productVariantID) {
 Check if any cart items are in local storage
 
 */
-function hasItemsInLocalStorage() {
+function getCartID() {
   return localStorage.getItem('wps-last-cart-id');
 };
-
-
-/*
-
-Getting all products, returns promise
-
-*/
-function getAllProducts(shopify) {
-  return shopify.fetchAllProducts();
-}
 
 
 /*
@@ -63,16 +53,6 @@ function getVariantIdFromOptions(productID, selectedOptions) {
   });
 
 }
-
-
-/*
-
-Check if any cart items are in local storage
-
-*/
-function hasItemsInLocalStorage() {
-  return localStorage.getItem('wps-last-cart-id');
-};
 
 
 /*
@@ -139,9 +119,23 @@ function getProductSelectionID() {
 };
 
 
+function getProductOptionIds() {
+  return localStorage.getItem('wps-option-ids');
+};
+
+
+function setProductOptionIds(optionIds) {
+  localStorage.setItem('wps-option-ids', optionIds);
+};
+
+function removeProductOptionIds() {
+  localStorage.removeItem('wps-option-ids');
+};
+
+
 /*
 
-
+moneyFormatChanged
 
 */
 function moneyFormatChanged() {
@@ -164,7 +158,7 @@ function moneyFormatChanged() {
 export {
   getProduct,
   getProductVariantID,
-  hasItemsInLocalStorage,
+  getCartID,
   getVariantIdFromOptions,
   setMoneyFormatCache,
   getMoneyFormatCache,
@@ -172,5 +166,8 @@ export {
   setCacheTime,
   getCacheTime,
   getProductSelectionID,
-  setProductSelectionID
+  setProductSelectionID,
+  getProductOptionIds,
+  setProductOptionIds,
+  removeProductOptionIds
 };

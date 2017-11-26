@@ -88,7 +88,7 @@ label[for="wps-product-quantity"] {
 
 .wps-add-to-cart,
 .wps-modal-trigger {
-  
+
   &.wps-is-disabled {
 
     &:after {
@@ -403,6 +403,7 @@ If only two gallery thumbs exist ...
   top: 48px;
   width: 100%;
   max-width: 100%;
+  animation-duration: 0.5s;
 
   @include respond-to(700, 'max') {
     top: 75%;
@@ -410,9 +411,15 @@ If only two gallery thumbs exist ...
     max-width: calc(100%);
   }
 
-  &.wps-flipInX {
+  &.wps-fadeIn {
     animation-duration: 0.5s;
   }
+
+}
+
+.wps-btn-dropdown[data-open="true"] .wps-modal {
+  display: block;
+  opacity: 0;
 }
 
 .wps-product-content {
@@ -433,12 +440,6 @@ If only two gallery thumbs exist ...
   text-align: center;
   margin-top: 0;
 }
-
-
-
-
-
-
 
 
 

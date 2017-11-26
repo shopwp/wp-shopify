@@ -279,7 +279,7 @@ class DB {
 		global $wpdb;
 
 		$firstKey = current(array_keys($data));
-		$existingResults = $wpdb->get_results("SELECT * FROM " . $this->table_name . " WHERE " . $this->primary_key . " =" . $data[$firstKey]);
+		$existingResults = $wpdb->get_results("SELECT * FROM " . $this->table_name . " WHERE " . $this->table_name . "." . $this->primary_key . " = " . "'" . $data[$firstKey] . "'");
 
 		return $wpdb->num_rows > 0;
 
@@ -329,6 +329,7 @@ class DB {
 		if (!$this->has_existing_record($data)) {
 
 			$result = $wpdb->insert($this->table_name, $data, $column_formats);
+
 	    do_action('wps_post_insert_' . $type, $result, $data);
 
 		} else {
@@ -676,7 +677,7 @@ class DB {
 		$DB_Collects = new Collects();
 		$DB_Collections_Custom = new Collections_Custom();
 		$DB_Collections_Smart = new Collections_Smart();
-
+		$existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
 		$newCollectionID = Utils::wps_find_collection_id($collection);
 
 		// Collects from Plugin
@@ -698,12 +699,10 @@ class DB {
 			// Collects from Shopify
 			$shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
 
+			if (is_array($shopifyCollects) && $shopifyCollects) {
 
-
-			if (property_exists($shopifyCollects, 'collects') && $collection->collects !== null) {
-
-				$collectsToAdd = Utils::wps_find_items_to_add($pluginCollects, $shopifyCollects->collects, true);
-				$collectsToDelete = Utils::wps_find_items_to_delete($pluginCollects, $shopifyCollects->collects, true);
+				$collectsToAdd = Utils::wps_find_items_to_add($pluginCollects, $shopifyCollects, true);
+				$collectsToDelete = Utils::wps_find_items_to_delete($pluginCollects, $shopifyCollects, true);
 
 				if (count($collectsToAdd) > 0) {
 					foreach ($collectsToAdd as $key => $newCollect) {
@@ -754,7 +753,7 @@ class DB {
 
 			} else {
 
-				$results['collection_cpt'] = $CPT->wps_update_existing_collection($collection);
+				$results['collection_cpt'] = $CPT->wps_insert_or_update_collection($collection, $existingCollections);
 				$results['collection'] = $this->update($newCollectionID, $collection);
 
 			}
@@ -821,6 +820,7 @@ class DB {
 	public function get_collection($postID = null) {
 
     global $wpdb;
+		global $post;
 
 		$DB_Collections_Custom = new Collections_Custom();
 		$DB_Collections_Smart = new Collections_Smart();
@@ -828,8 +828,8 @@ class DB {
 		$collections_custom_table = $DB_Collections_Custom->get_table_name();
 		$collections_smart_table = $DB_Collections_Smart->get_table_name();
 
-    if ($postID === null) {
-      $postID = get_the_ID();
+    if ($postID === null && is_object($post)) {
+      $postID = $post->ID;
     }
 
     $query = "SELECT

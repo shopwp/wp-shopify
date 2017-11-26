@@ -25,12 +25,12 @@ use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+use Psr\Http\Message\ResponseInterface;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
-
 
 
 /*
@@ -50,12 +50,14 @@ class WS {
 
 	*/
 	public function __construct($Config) {
+
 		$this->config = $Config;
     $this->connection = $this->config->wps_get_settings_connection();
     $this->connection_option_name = $this->config->settings_connection_option_name;
 
     $this->general = $this->config->wps_get_settings_general();
     $this->general_option_name = $this->config->settings_general_option_name;
+
 	}
 
 
@@ -76,6 +78,33 @@ class WS {
 	}
 
 
+  /*
+
+  Grab the total call amount from the header response
+
+  */
+  public function wps_ws_get_shopify_api_call_amount($response) {
+
+    $headerValue = $response->getHeader('HTTP_X_SHOPIFY_SHOP_API_CALL_LIMIT');
+
+    if (is_array($headerValue) && !empty($headerValue)) {
+      return $response->getHeader('HTTP_X_SHOPIFY_SHOP_API_CALL_LIMIT')[0];
+
+    } else {
+      return false;
+    }
+
+  }
+
+
+  /*
+
+  Used exclusively for throttling API requests
+
+  */
+  public function wps_ws_throttle_requests() {
+    sleep(10);
+  }
 
 
 
@@ -88,6 +117,28 @@ class WS {
 
 
 
+public function wps_get_error_message($error) {
+
+  if (method_exists($error, 'getResponse') && method_exists($error->getResponse(), 'getBody') && method_exists($error->getResponse()->getBody(), 'getContents')) {
+
+    $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+
+    if (is_object($responseDecoded) && isset($responseDecoded->errors)) {
+      $errorMessage = $responseDecoded->errors;
+
+    } else {
+      $errorMessage = $error->getMessage();
+    }
+
+    return $errorMessage;
+
+  } else {
+
+    return $error->getMessage();
+
+  }
+
+}
 
 
 
@@ -98,20 +149,18 @@ class WS {
 
 
 
+  /*
 
+  Callback to the on_headers Guzzle function
 
+  */
+  public function wps_ws_check_rate_limit($response) {
 
+    if ($this->wps_ws_get_shopify_api_call_amount($response) === '39/40') {
+      $this->wps_ws_throttle_requests();
+    }
 
-
-
-
-
-
-
-
-
-
-
+  }
 
 
   /*
@@ -143,7 +192,7 @@ class WS {
 
         try {
 
-          $url = "https://" . $this->connection->domain . "/admin/metafields.json?metafield[owner_id]=" . $imageID . "&metafield[owner_resource]=product_image";
+          $url = "https://" . $this->connection->domain . "/admin/metafields.json?metafield[owner_id]=" . $imageID . "&metafield[owner_resource]=product_image&limit=250";
 
           $headers = array(
             'X-Shopify-Access-Token' => $this->connection->access_token
@@ -151,8 +200,15 @@ class WS {
 
           $Guzzle = new Guzzle();
           $guzzelResponse = $Guzzle->request('GET', $url, array(
-            'headers' => $headers
+            'headers' => $headers,
+            'on_headers' => function(ResponseInterface $response) {
+                $this->wps_ws_check_rate_limit($response);
+              }
           ));
+
+          if (!is_object($guzzelResponse)) {
+            return;
+          }
 
           $data = json_decode($guzzelResponse->getBody()->getContents());
 
@@ -166,14 +222,14 @@ class WS {
             }
 
           } else {
-            return $data->errors;
+            return new \WP_Error('error', $data->errors);
 
           }
 
         } catch (RequestException $error) {
 
-          $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-          return $responseDecoded->errors;
+          // return new \WP_Error('error', $this->wps_get_error_message($error));
+          return 'Shop Product';
 
         }
 
@@ -182,40 +238,6 @@ class WS {
     }
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   /*
@@ -243,7 +265,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $productsCountResponse = json_decode($guzzelResponse->getBody()->getContents());
@@ -257,26 +282,20 @@ class WS {
 
       } catch (\InvalidArgumentException $error) {
 
-        wp_send_json_error($error->getMessage());
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       } catch (ClientException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       // Server errors 5xx
       } catch (ServerException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -307,7 +326,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $collectionsCountResponse = json_decode($guzzelResponse->getBody()->getContents());
@@ -322,9 +344,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -356,7 +376,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $countResponse = json_decode($guzzelResponse->getBody()->getContents());
@@ -371,9 +394,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -409,7 +430,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $countResponse = json_decode($guzzelResponse->getBody()->getContents());
@@ -424,9 +448,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -461,7 +483,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $shopDataResponse = json_decode($guzzelResponse->getBody()->getContents());
@@ -476,9 +501,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -531,9 +554,21 @@ class WS {
 
       try {
 
+
+        /*
+
+        For testing server timeout error, add these to guzzle settings ...
+
+        'timeout' => 0.5,
+        'connect_timeout' => 0.5,
+
+        */
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -552,13 +587,11 @@ class WS {
             wp_send_json_error('Syncing stopped at insert_products');
           }
 
-
           $resultVariants = $DB_Variants->insert_variants( $data->products );
 
           if (empty($resultVariants)) {
             wp_send_json_error('Syncing stopped at insert_variants');
           }
-
 
           $resultOptions = $DB_Options->insert_options( $data->products );
 
@@ -567,10 +600,15 @@ class WS {
           }
 
 
+          /*
+
+          Gets Alt text from Shopify. Will stop immediately if error occurs.
+
+          */
           $resultImages = $DB_Images->insert_images( $data->products );
 
-          if (empty($resultImages)) {
-            wp_send_json_error('Syncing stopped at insert_images');
+          if (is_wp_error($resultImages)) {
+            wp_send_json_error($resultImages->get_error_message());
           }
 
 
@@ -588,8 +626,8 @@ class WS {
 
 
       } catch (RequestException $error) {
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -650,8 +688,7 @@ class WS {
 
         } catch (RequestException $error) {
 
-          $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-          wp_send_json_error($responseDecoded->errors);
+          wp_send_json_error( $this->wps_get_error_message($error) );
 
         }
 
@@ -689,7 +726,10 @@ class WS {
         $Guzzle = new Guzzle();
 
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -723,8 +763,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -733,31 +772,9 @@ class WS {
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /*
 
-
-
-
-
-
-  NEED TESTING BELOW THIS FUNCTION
-
-
-
+  TODO: NEED TESTING BELOW THIS FUNCTION
 
   Get Collections
 
@@ -783,7 +800,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -801,8 +821,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -835,7 +854,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $productsResponse = json_decode($guzzelResponse->getBody()->getContents());
@@ -850,8 +872,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -891,7 +912,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -910,8 +934,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -958,7 +981,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -981,8 +1007,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
 
       }
@@ -1023,7 +1048,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -1038,8 +1066,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        $response = $responseDecoded->errors;
+        $response = $this->wps_get_error_message($error);
 
       }
 
@@ -1087,7 +1114,10 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -1102,8 +1132,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -1137,16 +1166,17 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->delete($url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         return true;
 
       } catch (RequestException $error) {
 
-        $errorResp = json_decode($error->getResponse()->getBody()->getContents())->errors;
-
-        return new \WP_Error('error', $errorResp);
+        return new \WP_Error('error', $this->wps_get_error_message($error));
 
       }
 
@@ -1229,23 +1259,20 @@ class WS {
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = $guzzelResponse->getBody()->getContents();
-
-        error_log('-------');
-        error_log(print_r(json_decode($data), true));
-        error_log('-------');
 
         wp_send_json_success($data);
 
 
       } catch (RequestException $error) {
 
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-        wp_send_json_error($responseDecoded->errors);
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -1288,15 +1315,13 @@ class WS {
 
         } catch (RequestException $error) {
 
-          $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-          wp_send_json_error($responseDecoded->errors);
+          wp_send_json_error( $this->wps_get_error_message($error) );
 
         }
 
       } else {
 
-        $error = new \WP_Error('error', 'No Webhook ID set');
-        wp_send_json_error($error);
+        return new \WP_Error('error', 'No webhook ID set');
 
       }
 
@@ -1941,14 +1966,14 @@ NEW STRUCTURE
     Remove CPTs
 
     */
-    $response_cpt = $this->wps_delete_synced_data();
-
-    if (is_wp_error($response_cpt)) {
-      $results['cpt'] = $response_cpt->get_error_message();
-
-    } else {
-      $results['cpt'] = $response_cpt;
-    }
+    // $response_cpt = $this->wps_delete_synced_data();
+    //
+    // if (is_wp_error($response_cpt)) {
+    //   $results['cpt'] = $response_cpt->get_error_message();
+    //
+    // } else {
+    //   $results['cpt'] = $response_cpt;
+    // }
 
 
     /*
@@ -2198,39 +2223,13 @@ NEW STRUCTURE
 
   }
 
-
   public function syncSingleCollectionWithCPT() {
 
   }
 
-
-
-
-
-
-
   public function getPostContentHash($product) {
 
-
-
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   /*
@@ -2331,7 +2330,10 @@ NEW STRUCTURE
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -2361,8 +2363,8 @@ NEW STRUCTURE
 
 
       } catch (RequestException $error) {
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -2415,7 +2417,10 @@ NEW STRUCTURE
 
         $Guzzle = new Guzzle();
         $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers
+          'headers' => $headers,
+          'on_headers' => function(ResponseInterface $response) {
+            $this->wps_ws_check_rate_limit($response);
+          }
         ));
 
         $data = json_decode($guzzelResponse->getBody()->getContents());
@@ -2445,8 +2450,8 @@ NEW STRUCTURE
 
 
       } catch (RequestException $error) {
-        $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-        wp_send_json_error($responseDecoded->errors);
+
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 

@@ -9,7 +9,8 @@ global $post;
 $WPS_DB = new DB();
 $WPS_DB_Products = new Products();
 
-$wps_collection = $WPS_DB->get_collection();
+$wps_collection = $WPS_DB->get_collection($post->ID);
+
 $wps_products = $WPS_DB_Products->get_products_by_collection_id($wps_collection[0]->collection_id);
 
 get_header('wps');

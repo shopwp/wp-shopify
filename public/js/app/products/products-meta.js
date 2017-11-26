@@ -1,3 +1,7 @@
+import { removeEventHandlers } from '../utils/utils-common';
+import filter from 'lodash/filter';
+
+
 /*
 
 Updates product title (product is the actual DOM element)
@@ -40,43 +44,19 @@ function updateVariantPrice(productVariantPrice, variant) {
 
 /*
 
-When product variants change ...
+Show Hidden Product Variants
 
 */
-function attachOnVariantSelectListeners(product, element) {
-
-  var productTitleDOM = '.wps-product-' + product.id + ' .wps-product-title';
-  var productImageDOM = '.wps-product-' + product.id + ' .wps-variant-image';
-  var productVariantTitleDOM = '.wps-product-' + product.id + ' .wps-variant-title';
-  var productVariantPriceDOM = '.wps-product-' + product.id + ' .wps-variant-price';
-  var variantSelectors = '.wps-product-' + product.id + ' .wps-variant-selectors';
-
-  jQuery(variantSelectors).on('change', 'select', function variantSelectorsHandler(event) {
-
-    var $element = jQuery(event.target);
-    var name = $element.attr('name');
-    var value = $element.val();
-
-    product.options.filter(function productOptionsFilter(option) {
-      return option.name === name;
-    })[0].selected = value;
-
-    var selectedVariant = product.selectedVariant;
-    var selectedVariantImage = product.selectedVariantImage;
-
-    updateProductTitle(productTitleDOM, product.title);
-    updateVariantImage(productImageDOM, selectedVariantImage);
-    updateVariantTitle(productVariantTitleDOM, selectedVariant);
-    updateVariantPrice(productVariantPriceDOM, selectedVariant);
-
-  });
-
+function showHiddenProductVariants() {
+  jQuery('.wps-modal .wps-product-style').removeClass('wps-is-hidden');
 }
 
 
+/*
 
+Resets the variant selection based on a parent element
 
-
+*/
 function resetVariantSelectors($parent) {
 
   jQuery('.wps-btn-dropdown[data-selected=true]').each(function (index, element) {
@@ -90,10 +70,82 @@ function resetVariantSelectors($parent) {
 
   });
 
+  showHiddenProductVariants();
+
 }
 
 
+/*
 
+Gets the amount of dropdowns currently selected
+Returns: Int
+
+*/
+function getCurrentlySelectedOptions() {
+
+  var options = [];
+  var $options = jQuery('.wps-btn-dropdown[data-selected="true"]');
+
+  $options.each((index, value) => {
+    options.push( jQuery(value).data('selected-val') );
+  });
+
+  return options;
+
+}
+
+
+/*
+
+Gets the amount of dropdowns currently selected
+Returns: Int
+
+*/
+function getCurrentlySelectedOptionsAmount() {
+  return jQuery('.wps-btn-dropdown[data-selected="true"]').length;
+}
+
+
+/*
+
+Reset Options Selection
+
+*/
+function resetOptionsSelection() {
+
+  jQuery('.wps-product-meta').data('product-selected-options', '');
+  jQuery('.wps-product-meta').attr('data-product-selected-options', '');
+
+}
+
+
+/*
+
+Close Options Modal
+
+*/
+function closeOptionsModal() {
+
+  jQuery('.wps-btn-dropdown').data('open', false);
+  jQuery('.wps-btn-dropdown').attr('data-open', false);
+
+  removeEventHandlers('wps-close-animation');
+
+}
+
+
+/*
+
+Get Deselected Dropdowns
+
+*/
+function getDeselectedDropdowns() {
+
+  return filter(jQuery('.wps-btn-dropdown'), function($option) {
+    return jQuery($option).data('selected') === false;
+  });
+
+}
 
 
 export {
@@ -101,5 +153,11 @@ export {
   updateProductTitle,
   updateVariantImage,
   updateVariantTitle,
-  updateVariantPrice
+  updateVariantPrice,
+  resetOptionsSelection,
+  closeOptionsModal,
+  showHiddenProductVariants,
+  getDeselectedDropdowns,
+  getCurrentlySelectedOptionsAmount,
+  getCurrentlySelectedOptions
 };

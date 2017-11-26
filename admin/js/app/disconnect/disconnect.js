@@ -1,3 +1,5 @@
+import forEachRamda from 'ramda/es/forEach';
+
 import {
   onModalClose
 } from '../forms/events';
@@ -50,13 +52,16 @@ import {
 } from '../tools/cache.js';
 
 
+/*
 
+Construct Error List
 
+*/
 function constructErrorList(errors, currentErrorList) {
 
   var newErrorList = currentErrorList;
 
-  if (Array.isArray(options.errorList)) {
+  if (Array.isArray(newErrorList)) {
     newErrorList.push(removeTrueAndTransformToArray(errors));
 
   } else {
@@ -83,7 +88,7 @@ async function uninstallPluginData(options = false, reconnect = true) {
   Setting Default options
 
   */
-  if(options === false) {
+  if (options === false) {
 
     options = {
       headingText: 'Canceled',
@@ -196,7 +201,7 @@ function onDisconnectionFormSubmit() {
 
     disable($submitButton);
 
-    R.forEach(showSpinner, $submitButton);
+    forEachRamda(showSpinner, $submitButton);
 
     injectConnectorModal($connectorModal);
 
@@ -207,7 +212,7 @@ function onDisconnectionFormSubmit() {
     updateModalButtonText('Stop disconnecting');
     showConnectorModal($connectorModal);
     setNonce( $formInputNonce.val() );
-    setConnectionStepMessage('Disconnecting ...', '(Please wait. This may take up to 60 seconds depending on how large your store is.)');
+    setConnectionStepMessage('Disconnecting ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
 
     /*
 

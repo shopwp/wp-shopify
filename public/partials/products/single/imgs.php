@@ -1,6 +1,7 @@
 <?php
 
   use WPS\Utils;
+  use WPS\DB\Images;
 
   $Utils = new Utils();
 
@@ -9,7 +10,6 @@
   $i = 0;
   $len = count($product['images']);
   $amountOfThumbs = $len-1;
-
 
   /*
 
@@ -26,46 +26,14 @@
 
   } else {
 
-
-
-
     foreach ($product['images'] as $key => $image) {
 
-
-
-      $variantIDs = maybe_unserialize($image['variant_ids']);
-
-      if (!empty($variantIDs)) {
-        $variantIDs = implode(', ', $variantIDs);
-
-      } else {
-        $variantIDs = '';
-      }
-
-
-
-      if (empty($image['alt'])) {
-        $altText = $product['details']['title'];
-
-      } else {
-        $altText = $image['alt'];
-      }
-
-
-
-      if (empty($image['src'])) {
-        $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
-
-      } else {
-        $src = $image['src'];
-      }
-
-
+      $image = Images::get_image_details_from_image($image);
+      $variantIDs = Images::get_variants_from_image($image);
 
       if ($i === 0) {
         $typeClass = 'wps-product-gallery-img-feat';
-
-        $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $src . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '" data-wps-image-variants="' . $variantIDs . '"></div>';
+        $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $image['alt'] . '" data-wps-image-variants="' . $variantIDs . '"></div>';
 
       } else {
 
@@ -78,8 +46,7 @@
         }
 
         $typeClass = 'wps-product-gallery-img-thumb';
-
-        $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img itemprop="image" src="' . $src . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $altText . '" data-wps-image-variants="' . $variantIDs . '"></div>';
+        $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img itemprop="image" src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $image['alt'] . '" data-wps-image-variants="' . $variantIDs . '"></div>';
 
       }
 

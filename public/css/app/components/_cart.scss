@@ -357,3 +357,13 @@ input[type="number"].wps-cart-item__quantity {
   width: 100%;
   margin: 1em 0 0.5em;
 }
+
+.wps-cart-item__title {
+  color: color(darkblue);
+  text-decoration: none;
+  
+  &:hover {
+    color: color(darkblue);
+  }
+
+}

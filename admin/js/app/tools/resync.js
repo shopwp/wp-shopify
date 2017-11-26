@@ -73,7 +73,7 @@ function onResyncSubmit() {
 
     clearLocalstorageCache();
     disable($resyncButton);
-    injectConnectorModal( createConnectorModal('Resyncing ...', 'Cancel sync') );
+    injectConnectorModal( createConnectorModal('Re-syncing ...', 'Cancel sync') );
 
     // Sets up close listenters
     onModalClose();
@@ -132,7 +132,7 @@ function onResyncSubmit() {
         throw removedResponse;
 
       } else {
-        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on how large your store is.)');
+        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
 
       }
 

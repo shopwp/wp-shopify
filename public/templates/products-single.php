@@ -1,6 +1,7 @@
 <?php
 
 use WPS\DB\Products;
+use WPS\Utils;
 
 // global $post;
 
@@ -9,7 +10,7 @@ $wps_product = $DB_Products->get_data();
 
 get_header('wps');
 
-if (is_single()) {
+if ( is_single() ) {
 
   do_action('wps_product_single_before', $wps_product);
 
@@ -32,14 +33,19 @@ if (is_single()) {
     do_action('wps_product_single_options', $wps_product);
   }
 
-  do_action('wps_product_single_button_add_to_cart', $wps_product);
+  if ( !empty(Utils::product_inventory($wps_product)) ) {
+    do_action('wps_product_single_button_add_to_cart', $wps_product);
+
+  } else {
+    do_action('wps_product_notice_out_of_stock', $wps_product);
+  }
+
   do_action('wps_product_cart_buttons_after', $wps_product);
   do_action('wps_product_single_actions_group_end', $wps_product);
   do_action('wps_product_single_notice_inline', $wps_product);
   do_action('wps_product_single_meta_end', $wps_product);
   do_action('wps_product_single_info_end', $wps_product);
   do_action('wps_product_single_end', $wps_product);
-
 
   do_action('wps_product_single_after', $wps_product);
 

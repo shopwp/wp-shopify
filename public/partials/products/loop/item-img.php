@@ -1,26 +1,12 @@
 <?php
 
-if (empty($product->feat_image)) {
-
-  $altText = $product->title;
-  $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
-
-} else {
-  $src = $product->feat_image[0]->src;
-
-  if (empty($product->feat_image[0]->alt)) {
-    $altText = $product->title;
-
-  } else {
-    $altText = $product->feat_image[0]->alt;
-  }
-
-}
+use WPS\DB\Images;
+$image = Images::get_image_details_from_product($product);
 
 ?>
 
 <img
   itemprop="image"
-  src="<?php echo $src; ?>"
-  class="wps-products-img <?php echo apply_filters( 'wps_products_img_class', '' ); ?>"
-  alt="<?php echo $altText; ?>">
+  src="<?php echo $image['src']; ?>"
+  alt="<?php echo $image['alt']; ?>"
+  class="wps-products-img <?php echo apply_filters( 'wps_products_img_class', '' ); ?>">

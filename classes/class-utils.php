@@ -297,6 +297,8 @@ class Utils {
   }
 
 
+
+
   public static function wps_find_collection_id($collection) {
 
     if (isset($collection->id)) {
@@ -316,40 +318,36 @@ class Utils {
 
   /*
 
-  wps_find_post_id_from_new_product
+  wps_find_post_id_from_new_product_or_collection
 
   */
-  public static function wps_find_post_id_from_new_product($product) {
+  public static function wps_find_post_id_from_new_product_or_collection($product, $existingProducts, $type = '') {
 
     /*
 
     Find the WP Post ID of the product being updated
 
     */
-    $DB_Products = new Products();
-    $existingProducts = $DB_Products->get_all_rows();
     $found_post_id = null;
-
     $newProductID = self::wps_find_product_id($product);
+    $typeKey = '';
+    $typeKey = $type . '_id';
 
-    foreach ($existingProducts as $key => $existingProduct) {
+    $founddder = array_filter($existingProducts, function($existingProduct) use ($newProductID, $typeKey) {
+      return $existingProduct['post_meta'][$typeKey][0] == $newProductID;
+    });
 
-      /*
 
-      Loose equality check to ensure correct ID is found.
+    if (is_array($founddder) && !empty($founddder)) {
 
-      TODO: might
-      want to revist how the ID's are stored. Force all to ints.
+      reset($founddder);
+      $founddder = current($founddder);
 
-      */
-      if ($existingProduct->product_id == $newProductID) {
-        $found_post_id = $existingProduct->post_id;
-        break;
-      }
+      return $founddder['ID'];
 
+    } else {
+      return false;
     }
-
-    return $found_post_id;
 
   }
 
@@ -2352,6 +2350,83 @@ class Utils {
     return $limit;
 
   }
+
+
+
+  public static function product_inventory($product) {
+
+    return array_filter($product['variants'], function($productVariant) {
+      return $productVariant['inventory_quantity'];
+    });
+
+  }
+
+
+
+
+  public static function construct_option_selections($selectedOptions) {
+
+    $newSelectedOptions = $selectedOptions;
+    $indexx = 1;
+
+    foreach($newSelectedOptions as $key => $optionVal) {
+
+      $newSelectedOptions['option' . $indexx] = $optionVal;
+
+
+      $indexx++;
+
+      unset($newSelectedOptions[$key]);
+
+    }
+
+    return $newSelectedOptions;
+
+  }
+
+
+
+
+  public static function filter_variants_to_options_values($variants) {
+
+    return array_map(function($variant) {
+
+      return array_filter($variant, function($k, $v) {
+
+        return strpos($v, 'option') !== false;
+
+      }, ARRAY_FILTER_USE_BOTH );
+
+    }, $variants);
+
+  }
+
+
+
+
+  /*
+
+  Generic function to sort by a specific key / value
+
+  */
+  public static function wps_sort_by($array, $key) {
+
+    usort($array, function($a, $b) use (&$key) {
+
+      $a = $a[$key];
+      $b = $b[$key];
+
+      if ($a == $b) return 0;
+      return ($a < $b) ? -1 : 1;
+
+    });
+
+    return $array;
+
+  }
+
+
+
 
 
 }

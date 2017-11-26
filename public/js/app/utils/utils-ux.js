@@ -3,7 +3,8 @@ import {
   removeEventHandlers,
   turnAnimationFlagOff,
   turnAnimationFlagOn,
-  addOriginalClassesBack
+  addOriginalClassesBack,
+  isAnimating
 } from './utils-common';
 
 
@@ -24,15 +25,15 @@ Animate wrapper
 */
 async function animate(config) {
 
+  // turnAnimationFlagOn();
+
   var $element = await animateIn(config);
 
-  if(config.delay) {
+  if (config.delay) {
 
     return setTimeout(function() {
       return animateOut($element, config.outClass);
     }, config.delay);
-
-  } else {
 
   }
 
@@ -54,8 +55,6 @@ function animateIn(config) {
   } else {
     config.originalClasses = '';
   }
-
-  turnAnimationFlagOn();
 
   return new Promise(function(resolve, reject) {
 
@@ -86,8 +85,6 @@ Animate out
 */
 function animateOut(config) {
 
-  var origClasses = config.element.data("origClasses");
-
   return new Promise(function(resolve, reject) {
 
     config.element
@@ -96,7 +93,7 @@ function animateOut(config) {
 
         turnAnimationFlagOff()
         addOriginalClassesBack(config);
-        removeEventHandlers('wps-animated-element');
+        removeEventHandlers('wps-close-animation');
 
         config.element.removeClass('wps-fadeOut wps-is-visible');
 
@@ -127,22 +124,10 @@ function toggleNotice() {
 
 /*
 
-Show Notice
-
-*/
-// function showNotice(text, type) {
-//   jQuery('.wps-notice').html(text).addClass( ('wps-notice-' + type) );
-//   jQuery('html').animate({ scrollTop : 0 }, 200, toggleNotice);
-// };
-
-
-/*
-
 Disable
 
 */
 function disable($element) {
-  // $element.prepend('<span class="spinner"></span>');
   $element.addClass('wps-is-disabled');
   $element.prop('disabled', true);
 };
@@ -164,10 +149,8 @@ Enable
 
 */
 function enable($element) {
-  setTimeout(function() {
-    $element.removeClass('wps-is-disabled');
-    $element.prop('disabled', false);
-  }, 0);
+  $element.removeClass('wps-is-disabled');
+  $element.prop('disabled', false);
 };
 
 
@@ -201,6 +184,11 @@ function hideLoader($element) {
 };
 
 
+/*
+
+Shake
+
+*/
 function shake($element) {
 
   animateIn({
@@ -211,7 +199,6 @@ function shake($element) {
   });
 
 }
-
 
 export {
   animationClasses,

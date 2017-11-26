@@ -14,7 +14,8 @@ import {
 } from '../connect/connect';
 
 import {
-  updateModalHeadingText
+  updateModalHeadingText,
+  updateCurrentConnectionStepText
 } from '../utils/utils-dom';
 
 import {
@@ -36,11 +37,7 @@ async function syncPluginData() {
 
   } catch(errors) {
 
-    // uninstallPluginData({
-    //   errorList: errors,
-    //   xMark: true
-    // });
-
+    updateCurrentConnectionStepText('Unable to finish syncing');
     return new Error(errors);
 
   }
@@ -52,11 +49,7 @@ async function syncPluginData() {
 
   } catch(errors) {
 
-    // uninstallPluginData({
-    //   errorList: errors,
-    //   xMark: true
-    // });
-
+    updateCurrentConnectionStepText('Unable to finish syncing');
     return new Error(errors);
 
   }
@@ -76,11 +69,7 @@ async function syncPluginData() {
 
   } catch(errors) {
 
-    // uninstallPluginData({
-    //   errorList: errors,
-    //   xMark: true
-    // });
-
+    updateCurrentConnectionStepText('Unable to finish syncing');
     return new Error(errors);
 
   }

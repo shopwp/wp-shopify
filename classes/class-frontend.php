@@ -122,19 +122,24 @@ if (!class_exists('Frontend')) {
 			if (!is_admin()) {
 
 				global $post;
+				$DB_Settings_General = new Settings_General();
+
+				// Shopify JS SDK
+				wp_enqueue_script('shopify-js-sdk', '//sdks.shopifycdn.com/js-buy-sdk/v0/latest/shopify-buy.umd.polyfilled.min.js', array(), $this->config->plugin_version, false );
 
 				// Promise polyfill
 				wp_enqueue_script($this->config->plugin_name . '-promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 
 				// WP Shopify JS Public
-				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery'), $this->config->plugin_version, true);
+				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery', 'shopify-js-sdk'), $this->config->plugin_version, true);
 
 				wp_localize_script($this->config->plugin_name . '-public', $this->config->plugin_name, array(
 						'ajax' => admin_url( 'admin-ajax.php' ),
 						'pluginsPath' => plugins_url(),
+						'productsSlug' => $DB_Settings_General->products_slug()[0]->url_products,
 						'is_connected' => $connected,
 						'is_recently_connected' => get_transient('wps_recently_connected'),
-						'post_id' => $post->ID
+						'post_id' => is_object($post) ? $post->ID : false
 					)
 				);
 
@@ -371,6 +376,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_variant_id() {
 
+
 			if (isset($_POST['selectedOptions']) && is_array($_POST['selectedOptions'])) {
 
 				$DB_Products = new DB_Products();
@@ -392,6 +398,7 @@ if (!class_exists('Frontend')) {
 				$refinedVariants = array();
 				$refinedVariantsOptions = array();
 
+
 				foreach ($variantData as $key => $variant) {
 
 					$refinedVariantsOptions = array_filter_key($variant, function($key) {
@@ -405,28 +412,40 @@ if (!class_exists('Frontend')) {
 
 				}
 
+				$constructedOptions = Utils::construct_option_selections($selectedOptions);
 
 				// TODO -- Breakout into own function
 				$found = false;
 
 				foreach ($refinedVariants as $key => $variant) {
 
-					if(count(array_intersect($variant['options'], $selectedOptions)) == count($selectedOptions)) {
+					$cleanVariants = array_filter($variant['options']);
 
-						$found = true;
-						wp_send_json_success($variant['id']);
+					if ( $cleanVariants === $constructedOptions ) {
+
+						$variantObj = $DB_Variants->get_by('id', $variant['id']);
+
+						if ($variantObj->inventory_quantity > 0) {
+							$found = true;
+							wp_send_json_success($variant['id']);
+
+						} else {
+							wp_send_json_error('Out of stock');
+
+						}
 
 					}
 
 				}
 
+
 				if (!$found) {
-					wp_send_json_error('Selected option not found. Please select something else.');
+					wp_send_json_error('Selected option(s) aren\'t available. Please select a different combination.');
 				}
 
 
 			} else {
-				wp_send_json_error('Selected option not found. Please select something else.');
+				wp_send_json_error('Unable to find selected options. Please try again.');
 
 			}
 

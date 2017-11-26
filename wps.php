@@ -5,7 +5,7 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.31
+@since             1.0.32
 @package           WPS
 
 @wordpress-plugin
@@ -49,6 +49,7 @@ use WPS\License;
 use WPS\Checkouts;
 use WPS\Deactivator;
 use WPS\Activator;
+
 
 /*
 
@@ -108,14 +109,11 @@ if ( ! class_exists('WP_Shopify') ) {
 			$this->Checkouts 			= new Checkouts($this->Config);
 
 			$this->License->init();
-			$this->Activator->init();
-			$this->Deactivator->init();
-			// $this->Checkouts->init();
 
+			// $this->Checkouts->init();
 			$this->Backend->wps_backend_hooks();
 			// $this->Hooks->init();
 			$this->I18N->init();
-			$this->CPT->init();
 
 
 			$this->Hooks = Hooks::instance($this->Config);
@@ -127,6 +125,7 @@ if ( ! class_exists('WP_Shopify') ) {
 
 			$this->Frontend->wps_frontend_hooks();
 
+			// $this->Deactivator->init();
 
 			do_action('wps_after_bootstrap');
 
@@ -222,7 +221,15 @@ if ( ! class_exists('WP_Shopify') ) {
 		Init Hooks
 
 		*/
-		public static function init_hooks($Hooks) {
+		public function init_hooks($Hooks) {
+
+
+			$this->Activator->init();
+
+			// Register CPTs upon every consecutive init
+			add_action( 'init', array($this->CPT, 'wps_post_type_products') );
+			add_action( 'init', array($this->CPT, 'wps_post_type_collections') );
+
 
 			/*
 
@@ -456,6 +463,9 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_filter('wps_product_single_price_one', array($Hooks, 'wps_product_single_price_one'), 10, 3 );
 
 
+			add_action('wps_product_notice_out_of_stock', array($Hooks, 'wps_product_notice_out_of_stock'));
+
+
 			/*
 
 			Cart
@@ -499,7 +509,7 @@ if ( ! class_exists('WP_Shopify') ) {
 
 /*
 
-"It is done." - Louis C.K.
+Let's go!
 
 */
 function WP_Shopify() {

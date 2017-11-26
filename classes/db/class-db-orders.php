@@ -151,7 +151,7 @@ class Orders extends \WPS\DB {
       $results['collects']    = $DB_Collects->update_collects($product);
 
       // This takes care of syncing the custom post type content
-      $results['product_cpt'] = CPT::wps_update_existing_product($product);
+      $results['product_cpt'] = CPT::wps_insert_or_update_product($product);
 
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 

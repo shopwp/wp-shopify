@@ -1,3 +1,5 @@
+import concat from 'ramda/es/concat';
+
 import {
   getConnectionData,
   getShopData,
@@ -205,14 +207,17 @@ async function streamProducts() {
 
         if (isWordPressError(newProducts)) {
           reject(newProducts.data);
+          break;
 
         } else {
 
           if (Array.isArray(newProducts.data.products)) {
-            products = R.concat(products, newProducts.data.products);
+
+            products = concat(products, newProducts.data.products);
             currentPage += 1;
 
           } else {
+
             reject(newProducts.data.products);
 
           }
@@ -221,9 +226,10 @@ async function streamProducts() {
 
       } catch(error) {
         console.error("Error insertProductsData: ", error);
-
-        currentPage = pages+1;
-        return reject(error);
+        reject(error);
+        break;
+        // currentPage = pages+1;
+        // return reject(error);
 
       }
 
@@ -301,7 +307,7 @@ async function streamCollects() {
           reject(errorCollects);
         }
 
-        collects = R.concat(collects, collectsNew.data);
+        collects = concat(collects, collectsNew.data);
         currentPage += 1;
 
       }
@@ -455,7 +461,7 @@ async function streamOrders() {
         } else {
 
           if (Array.isArray(newOrders.data.orders)) {
-            orders = R.concat(orders, newOrders.data.orders);
+            orders = concat(orders, newOrders.data.orders);
             currentPage += 1;
 
           } else {
@@ -550,7 +556,7 @@ async function streamCustomers() {
         } else {
 
           if (Array.isArray(newCustomers.data.customers)) {
-            customers = R.concat(customers, newCustomers.data.customers);
+            customers = concat(customers, newCustomers.data.customers);
             currentPage += 1;
 
           } else {

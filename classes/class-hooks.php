@@ -1306,6 +1306,9 @@ if (!class_exists('Hooks')) {
 			return include($this->config->plugin_path . "public/partials/products/single/end.php");
 		}
 
+		public function wps_product_notice_out_of_stock($product) {
+			return include($this->config->plugin_path . "public/partials/notices/out-of-stock.php");
+		}
 
 		// public function wps_products_title_class() {
 		// 	return 'hey';
@@ -1645,10 +1648,6 @@ if (!class_exists('Hooks')) {
 
 
 		public function wps_checkout_before_init() {
-
-
-			error_log('>>>>>>>>> wps_checkout_before <<<<<<<<<<');
-
 
 		}
 

@@ -128,10 +128,7 @@ class Options extends \WPS\DB {
       $optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
       $optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
 
-
       if (count($optionsToAdd) > 0) {
-
-        error_log('$optionsToAdd');
 
         foreach ($optionsToAdd as $key => $newOption) {
           $results['created'][] = $this->insert($newOption, 'option');
@@ -144,8 +141,6 @@ class Options extends \WPS\DB {
 
       if (count($optionsToDelete) > 0) {
 
-        error_log('$optionsToDelete');
-
         foreach ($optionsToDelete as $key => $oldOption) {
           $results['deleted'][] = $this->delete($oldOption->id);
         }
@@ -156,7 +151,6 @@ class Options extends \WPS\DB {
 
 
       foreach ($product->options as $key => $option) {
-        error_log('UDPATING');
         $results['updated'] = $this->update($option->id, $option);
       }
 

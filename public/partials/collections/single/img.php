@@ -1,17 +1,12 @@
 <?php
 
-if (empty($collection->image)) {
-  $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
-
-} else {
-  $src = $collection->image;
-
-}
+use WPS\DB\Images;
+$image = Images::get_image_details_from_collection($collection);
 
 ?>
 
 <img
   itemprop="image"
-  src="<?php echo $src; ?>"
-  alt="<?php echo $collection->title . ' collection '; ?>"
+  src="<?php echo $image['src']; ?>"
+  alt="<?php echo $image['alt']; ?>"
   class="wps-collection-img <?php echo apply_filters('wps_collections_single_img_class', ''); ?>">
