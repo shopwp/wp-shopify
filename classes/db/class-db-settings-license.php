@@ -46,8 +46,7 @@ class Settings_License extends \WPS\DB {
       'payment_id'            => '%d',
       'success'               => '%d',
       'nonce'                 => '%s',
-      'activations_left'      => '%s',
-      'price_id'              => '%d'
+      'activations_left'      => '%s'
     );
   }
 
@@ -72,8 +71,7 @@ class Settings_License extends \WPS\DB {
       'payment_id'            => '',
       'success'               => '',
       'nonce'                 => '',
-      'activations_left'      => '',
-      'price_id'              => ''
+      'activations_left'      => ''
     );
   }
 
@@ -141,8 +139,7 @@ class Settings_License extends \WPS\DB {
       `payment_id` int(20) DEFAULT NULL,
       `success` tinyint(1) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
-      `activations_left` varchar(100) DEFAULT NULL,
-      `price_id` varchar(100) DEFAULT NULL,
+      `activations_left` varchar(100) DEFAULT NULL
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 

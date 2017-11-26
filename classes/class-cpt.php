@@ -44,9 +44,35 @@ class CPT {
   }
 
 
-  //
-  // CPT: Products
-  //
+  public static function wps_add_meta_to_cpt($posts) {
+
+    $postsNew = Utils::wps_convert_object_to_array($posts);
+
+    return array_map(function($post) {
+      $post['post_meta'] = get_post_meta($post['ID']);
+      return $post;
+    }, $postsNew);
+
+  }
+
+
+  public static function wps_get_all_cpt_by_type($type) {
+
+    $posts = get_posts(array(
+			'posts_per_page' => -1,
+			'post_type' => $type
+		));
+
+    return self::wps_add_meta_to_cpt($posts);
+
+  }
+
+
+  /*
+
+  CPT: Products
+
+  */
   public function wps_post_type_products() {
 
     if ( post_type_exists( 'wps_products' ) ) {
@@ -87,16 +113,18 @@ class CPT {
       )
     );
 
-    Transients::check_rewrite_rules();
+    // Transients::check_rewrite_rules();
 
     register_post_type('wps_products', $args);
 
   }
 
 
-  //
-  // CPT: Collections
-  //
+  /*
+
+  CPT: Collections
+
+  */
   public function wps_post_type_collections() {
 
     if ( post_type_exists( 'wps_collections' ) ) {
@@ -138,49 +166,21 @@ class CPT {
 
     );
 
-    Transients::check_rewrite_rules();
-
+    // Transients::check_rewrite_rules();
     register_post_type('wps_collections', $args);
 
   }
 
 
-  /*
-
-  Insert New CPT Product
-
-  */
-  public static function wps_insert_new_product($product, $index) {
-
-    $newProductModel = array(
-      'post_title'    => property_exists($product, 'title') ? $product->title : '',
-      'post_content'  => property_exists($product, 'body_html') ? $product->body_html : '',
-      'post_status'   => 'publish',
-      'post_type'     => 'wps_products',
-      'post_name'			=> property_exists($product, 'handle') ? $product->handle : '',
-      'menu_order'    => $index,
-      'meta_input' => array(
-        'product_id' => property_exists($product, 'id') ? $product->id : ''
-      )
-    );
-
-    // Insert post and return the ID or error object if fail
-    return wp_insert_post($newProductModel, true);
-
-  }
-
 
   /*
 
-  Update an existing CPT product
+  Returns a model used to either add or update a product CPT
 
   */
-  public static function wps_update_existing_product($product) {
+  public static function wps_get_product_cpt_model($product) {
 
-    $found_post_id = Utils::wps_find_post_id_from_new_product($product);
-
-    $product_args = array(
-      'ID'            => !empty($found_post_id) ? $found_post_id : null,
+    return $productModel = array(
       'post_title'    => property_exists($product, 'title') ? $product->title : '',
       'post_content'  => property_exists($product, 'body_html') ? $product->body_html : '',
       'post_status'   => 'publish',
@@ -191,17 +191,37 @@ class CPT {
       )
     );
 
-    // Needed to ensure working pages
-    // flush_rewrite_rules();
+  }
 
-    // Insert post and return the ID or error object if fail
-    return wp_insert_post($product_args, true);
 
+  /*
+
+  Returns a model used to either add or update a collection CPT
+
+  */
+  public static function wps_get_collection_cpt_model($collection, $newCollectionID) {
+
+    return array(
+      'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
+      'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
+      'post_status'   => 'publish',
+      'post_type'     => 'wps_collections',
+      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
+      'meta_input' => array(
+        'collection_id' => $newCollectionID
+      )
+    );
 
   }
 
 
 
+
+  /*
+
+  Find Latest Menu Order
+
+  */
   public static function wps_find_latest_menu_order($type) {
 
     global $post;
@@ -223,46 +243,81 @@ class CPT {
   }
 
 
+  /*
+
+  Adds New CPT Product into DB
+  Don't put expensive operations inside as this function gets called within loops.
+
+  Called in class-db-products.php
+
+  */
+  public static function wps_insert_or_update_product($product, $existingProducts, $index = false) {
+
+    $productModel = self::wps_get_product_cpt_model($product);
+    $existing_post_id = Utils::wps_find_post_id_from_new_product_or_collection($product, $existingProducts, 'product');
+
+
+    // If existing CPT found ...
+    if (!empty($existing_post_id) && $existing_post_id) {
+
+      $productCPT = get_post($existing_post_id);
+
+      $productModel['ID'] = $existing_post_id;
+      $productModel['menu_order'] = $productCPT->menu_order;
+
+    } else {
+
+      if (!empty($index) && $index) {
+        $productModel['menu_order'] = $index;
+      }
+
+    }
+
+    // Insert post and return the ID or error object if fail
+    return wp_insert_post($productModel, true);
+
+  }
+
+
 
   /*
 
   Insert New Collections
+  $product, $existingProducts, $index = false
 
   */
-  public static function wps_insert_new_collection($collection, $index = false) {
+  public static function wps_insert_or_update_collection($collection, $existingCollections, $index = false) {
 
+    // Sets the collection ID within the meta value
     $newCollectionID = Utils::wps_find_collection_id($collection);
+    $newCollectionModel = self::wps_get_collection_cpt_model($collection, $newCollectionID);
 
-    $newCollectionModel = array(
-      'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
-      'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
-      'post_status'   => 'publish',
-      'post_type'     => 'wps_collections',
-      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
-      'meta_input' => array(
-        'collection_id' => $newCollectionID
-      )
-    );
+    $existing_post_id = Utils::wps_find_post_id_from_new_product_or_collection($collection, $existingCollections,  'collection');
+
+    if (!empty($existing_post_id) && $existing_post_id) {
+      $newCollectionModel['ID'] = $existing_post_id;
+    }
 
     /*
 
     We have access to an $index variable if this function is called
     by a full sync. Otherwise this function is called via a webhook like
-    update or add. In this case we need to find the
+    update or add. In this case we need to find the highest index
 
     */
-    if ($index) {
+    if (!empty($index) && $index) {
       $newCollectionModel['menu_order'] = $index;
 
     } else {
-      $newCollectionModel['menu_order'] = self::wps_find_latest_menu_order('collections');
+
+      // Use the current menu order number instead
+      $collectionCPT = get_post($existing_post_id);
+      $newCollectionModel['menu_order'] = $collectionCPT->menu_order;
 
     }
 
     // Insert post and return the ID or error object if fail
-    $sodkfosdkf = wp_insert_post($newCollectionModel, true);
-
-    return $sodkfosdkf;
+    return wp_insert_post($newCollectionModel, true);
 
   }
 
@@ -325,10 +380,8 @@ class CPT {
   */
   public function init() {
 
-    add_action( 'init', array($this, 'wps_post_type_products') );
-		add_action( 'init', array($this, 'wps_post_type_collections') );
-    // add_filter( 'init', array($this, 'wps_plugin_name_add_rewrite_rules') );
-    // add_filter( 'query_vars', array($this, 'wps_custom_query_vars_filter') );
+    $this->wps_post_type_products();
+    $this->wps_post_type_collections();
 
   }
 

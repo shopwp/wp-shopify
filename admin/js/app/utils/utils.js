@@ -1,3 +1,4 @@
+import forEachRamda from 'ramda/es/forEach';
 import isURL from 'validator/lib/isURL';
 
 import {
@@ -401,8 +402,8 @@ Returns: undefined
 */
 function resetProgressIndicators() {
 
-  R.forEach(stopSpinner, jQuery('.wps-admin-wrap .wps-spinner'));
-  R.forEach(enableButton, jQuery('.wps-admin-wrap .wps-btn'));
+  forEachRamda(stopSpinner, jQuery('.wps-admin-wrap .wps-spinner'));
+  forEachRamda(enableButton, jQuery('.wps-admin-wrap .wps-btn'));
 
 };
 
@@ -466,11 +467,6 @@ Creates a masked version of a particular string
 
 */
 function formatExpireDate(dateString) {
-
-  // var date = new Date(dateString);
-  //
-  // return dateFormat(date, "mmmm d, yyyy");
-  //
 
   var timestamp = Date.parse(dateString);
 

@@ -68,10 +68,10 @@ class Images extends \WPS\DB {
   }
 
 
-
   /*
 
   Get single shop info value
+  TODO: Create a map function for insert_product instead of nested loops
 
   */
 	public function insert_images($products) {
@@ -79,6 +79,9 @@ class Images extends \WPS\DB {
     $DB_Settings_Connection = new Settings_Connection();
     $WS = new WS(new Config());
     $results = array();
+    $count = 1;
+
+
 
     foreach ($products as $key => $product) {
 
@@ -86,10 +89,29 @@ class Images extends \WPS\DB {
 
         foreach ($product->images as $key => $image) {
 
+          /*
+
+          Need to check this within the loop since the user can potentially
+          cancel the connection at anytime.
+
+          */
           if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
 
-            $image->alt = $WS->wps_ws_get_image_alt($image);
-            $results[] = $this->insert($image, 'image');
+            // Gets Alt from Shopify
+            $imageAltResponse = $WS->wps_ws_get_image_alt($image);
+
+            if (is_wp_error($imageAltResponse)) {
+
+              $results = $imageAltResponse;
+              break 2;
+
+            } else {
+
+              $image->alt = $imageAltResponse;
+              $results[] = $this->insert($image, 'image');
+              $count++;
+
+            }
 
           } else {
 
@@ -146,7 +168,6 @@ class Images extends \WPS\DB {
 
       foreach ($imagesToAdd as $key => $newImage) {
 
-
         // TODO: Should we type check or type cast?
         if (is_object($newImage)) {
           $newImage->alt = $WS->wps_ws_get_image_alt($newImage);
@@ -154,7 +175,6 @@ class Images extends \WPS\DB {
         } else if (is_array($newImage)) {
           $newImage['alt'] = $WS->wps_ws_get_image_alt($newImage);
         }
-
 
         $results['created'] = $this->insert($newImage, 'image');
 
@@ -226,6 +246,132 @@ class Images extends \WPS\DB {
     }
 
     return $results;
+
+  }
+
+
+
+  public static function get_variants_from_image($image) {
+
+    if (is_array($image) && isset($image['variant_ids'])) {
+
+      $variantIDs = maybe_unserialize($image['variant_ids']);
+
+      if (!empty($variantIDs)) {
+        $variantIDs = implode(', ', $variantIDs);
+
+      } else {
+        $variantIDs = '';
+      }
+
+    } else {
+      $variantIDs = '';
+    }
+
+    return $variantIDs;
+
+  }
+
+
+  /*
+
+  TODO: Rethink ... redundant
+  Currently used within imgs.partials/products/single/imgs.php
+
+  */
+  public static function get_image_details_from_image($image) {
+
+    if (empty($image['alt'])) {
+      $alt = $product['details']['title'];
+
+    } else {
+      $alt = $image['alt'];
+    }
+
+    if (empty($image['src'])) {
+      $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
+
+    } else {
+      $src = $image['src'];
+    }
+
+    return array(
+      'src' => $src,
+      'alt' => $alt
+    );
+
+  }
+
+
+  /*
+
+  Gets Image details (alt and src) by product object
+  Param: $product Object
+
+  */
+  public static function get_image_details_from_product($product) {
+
+    // If an object is passed ...
+    if (is_object($product)) {
+
+      if (empty($product->feat_image)) {
+
+        $alt = $product->title;
+        $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
+
+      } else {
+        $src = $product->feat_image[0]->src;
+
+        if (empty($product->feat_image[0]->alt)) {
+          $alt = $product->title;
+
+        } else {
+          $alt = $product->feat_image[0]->alt;
+        }
+
+      }
+
+      return array(
+        'src' => $src,
+        'alt' => $alt
+      );
+
+    } else {
+
+      return array(
+        'src' => '',
+        'alt' => ''
+      );
+
+    }
+
+  }
+
+
+
+
+  /*
+
+  Gets Image details (alt and src) by product object
+  Param: $product Object
+
+  */
+  public static function get_image_details_from_collection($collection) {
+
+    if (empty($collection->image)) {
+      $src = WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png';
+
+    } else {
+      $src = $collection->image;
+
+    }
+
+    $alt = $collection->title;
+
+    return array(
+      'src' => $src,
+      'alt' => $alt
+    );
 
   }
 

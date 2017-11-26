@@ -53,12 +53,16 @@
   <script id="wps-cart-item-template" type="text/template">
 
     <div class="wps-cart-item <?php echo apply_filters( 'wps_cart_item_class', '' ); ?>">
-      <div class="wps-cart-item__img"></div>
+
+      <a href="#" class="wps-cart-item-img-link">
+        <div class="wps-cart-item__img"></div>
+      </a>
+
       <div class="wps-cart-item__content">
 
         <div class="wps-cart-item__content-row">
           <div class="wps-cart-item__variant-title"></div>
-          <span class="wps-cart-item__title"></span>
+          <a href="#" class="wps-cart-item__title"></a>
         </div>
 
         <div class="wps-cart-item__content-row">

@@ -237,4 +237,14 @@ class Settings_General extends \WPS\DB {
   }
 
 
+  /*
+
+  Get the current products slug
+
+  */
+	public function products_slug() {
+    return $this->get_column_single('url_products');
+  }
+
+
 }

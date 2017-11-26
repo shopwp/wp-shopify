@@ -22,6 +22,10 @@ import {
   setCacheTime
 } from '../ws/ws-products';
 
+import {
+  closeOptionsModal
+} from '../products/products-meta';
+
 
 /*
 
@@ -119,6 +123,16 @@ turnAnimationFlagOn
 */
 function turnAnimationFlagOn() {
   localStorage.setItem('wps-animating', true);
+}
+
+
+/*
+
+Is Animation On?
+
+*/
+function isAnimating() {
+  return localStorage.getItem('wps-animating');
 }
 
 
@@ -411,19 +425,28 @@ async function formatAsMoney(amount) {
 Listener: Close
 
 */
-function listenForClose(config) {
+function listenForClose(config = false) {
 
-  if (!config.element.hasClass('wps-is-visible')) {
-    config.element.addClass('wps-is-visible');
-  }
+  if (!config) {
 
-  if(!config.oneway) {
+    jQuery(document).on('click.wps-close-animation', closeCallbackClick);
+    jQuery(document).on('keyup.wps-close-animation', closeCallbackEsc);
 
-    // Close when user clicks outside modal ...
-    jQuery(document).on('click.wps-animated-element', config, closeCallbackClick);
+  } else {
 
-    // Close when user hits escape ...
-    jQuery(document).on('keyup.wps-animated-element', config, closeCallbackEsc);
+    // if (!config.element.hasClass('wps-is-visible')) {
+    //   config.element.addClass('wps-is-visible');
+    // }
+
+    if (!config.oneway) {
+
+      // Close when user clicks outside modal ...
+      jQuery(document).on('click.wps-close-animation', config, closeCallbackClick);
+
+      // Close when user hits escape ...
+      jQuery(document).on('keyup.wps-close-animation', config, closeCallbackEsc);
+
+    }
 
   }
 
@@ -464,37 +487,43 @@ Callback: Close Click Callback
 */
 function closeCallbackClick(event) {
 
-  var config = event.data,
-      element = document.querySelector( createSelector(config.element.attr('class')) ),
-      triggerAddToCart = jQuery(event.srcElement).hasClass('wps-add-to-cart'),
-      triggerVariantSelect = jQuery(event.srcElement).hasClass('wps-product-style'),
-      cartIsClosing = isCart(jQuery(element));
+  var config = event.data;
 
-  if (triggerAddToCart || triggerVariantSelect && cartIsClosing) {
-
+  if (!config) {
+    closeOptionsModal();
 
   } else {
 
-    if (localStorage.getItem('wps-animating') === 'false') {
+    var element = document.querySelector( createSelector(config.element.attr('class')) ),
+        triggerAddToCart = jQuery(event.srcElement).hasClass('wps-add-to-cart'),
+        triggerVariantSelect = jQuery(event.srcElement).hasClass('wps-product-style'),
+        cartIsClosing = isCart(jQuery(element));
 
-      if(jQuery(event.target).hasClass('wps-modal-close-trigger')) {
+    if (triggerAddToCart || triggerVariantSelect && cartIsClosing) {
 
-        animateOut(config);
+    } else {
 
-      } else {
+      if (localStorage.getItem('wps-animating') === 'false') {
 
-        if (event.target !== config.element && !jQuery.contains(element, event.target)) {
+        if (jQuery(event.target).hasClass('wps-modal-close-trigger') ) {
           animateOut(config);
+
         } else {
+
+          if (event.target !== config.element && !jQuery.contains(element, event.target)) {
+            animateOut(config);
+          }
 
         }
 
+      } else {
+        animateOut(config);
       }
-    } else {
 
     }
 
   }
+
 
 };
 
@@ -503,14 +532,28 @@ function closeCallbackClick(event) {
 
 Callback: Close Esc Callback
 
+TODO: The assumption here is that if we don't pass in any data to the callback
+the originating event is for the variant dropdowns. We should decouple this.
+
 */
 function closeCallbackEsc(event) {
 
-  if (localStorage.getItem('wps-animating') === 'false') {
-    var config = event.data;
+  if (!event.data) {
 
     if (event.keyCode && event.keyCode == 27) {
-      animateOut(config);
+      closeOptionsModal();
+    }
+
+  } else {
+
+    if (localStorage.getItem('wps-animating') === 'false') {
+
+      var config = event.data;
+
+      if (event.keyCode && event.keyCode == 27) {
+        animateOut(config);
+      }
+
     }
 
   }
@@ -530,5 +573,6 @@ export {
   quantityFinder,
   isError,
   isObject,
-  hasProp
+  hasProp,
+  isAnimating
 };

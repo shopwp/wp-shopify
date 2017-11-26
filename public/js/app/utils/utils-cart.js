@@ -3,6 +3,10 @@ import {
   updateCacheFlushStatus
 } from '../ws/ws-settings';
 
+import {
+  fetchCart
+} from '../ws/ws-cart';
+
 
 async function needsCacheFlush() {
 
@@ -11,65 +15,60 @@ async function needsCacheFlush() {
     var cacheFlushStatus = await getCacheFlushStatus();
 
     if (cacheFlushStatus.data == 1) {
-      // console.info('NEEDs cache flush');
       return true;
 
     } else {
-      // console.info('DOESNT need cache flush');
       return false;
 
     }
 
   } catch(errors) {
-    // console.log('Cache flush error');
     console.error(errors);
     return true;
 
   }
 
-
-  /*
-
-  If recently connected, or if not connected but something exists in cart ...
-
-  */
-  // if ( !window.wps.is_connected && localStorage.getItem('wps-last-cart-id') || window.wps.is_recently_connected) {
-  //   return true;
-  //
-  // } else {
-  //   return false;
-  // }
-
 }
 
 
-async function flushCache(cart) {
+/*
+
+Flush cache
+
+*/
+async function flushCache(shopify) {
+
+  // Get the current cart
+  try {
+    var cart = await fetchCart(shopify);
+
+  } catch(error) {
+    console.error("flushCache fetchCart ", error);
+    return;
+  }
 
   localStorage.removeItem('wps-cache-expiration');
   localStorage.removeItem('wps-animating');
   localStorage.removeItem('wps-connection-in-progress');
   localStorage.removeItem('wps-product-selection-id');
 
-
+  // Clearing the cart
   try {
-    var okok = await cart.clearLineItems();
-    // console.log("okok: ", okok);
+    await cart.clearLineItems();
 
   } catch(error) {
-    console.error("clearLineItems error: ", error);
-
+    console.error("flushCache clearLineItems ", error);
+    return;
   }
-
 
   // Updating cache status
   try {
     await updateCacheFlushStatus(0);
 
   } catch(error) {
-    console.error("updateCacheStatus error: ", error);
-
+    console.error("flushCache updateCacheStatus ", error);
+    return;
   }
-
 
 }
 

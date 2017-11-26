@@ -75,6 +75,7 @@ function syncProducts() {
   return new Promise(async function syncProductsHandler(resolve, reject) {
 
     try {
+
       var products = await streamProducts();
 
       if (isWordPressError(products)) {
@@ -85,7 +86,6 @@ function syncProducts() {
       }
 
     } catch(error) {
-
       reject(error);
 
     }

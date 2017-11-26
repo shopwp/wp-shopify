@@ -158,6 +158,8 @@ class Products extends \WPS\DB {
   */
 	public function insert_products($products) {
 
+    $DB_Products = new Products();
+    $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
     $DB_Settings_Connection = new Settings_Connection();
     $DB_Tags = new Tags();
     $results = array();
@@ -176,7 +178,7 @@ class Products extends \WPS\DB {
         if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
           // Inserts CPT
-          $customPostTypeID = CPT::wps_insert_new_product($product, $index);
+          $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
 
           // Modify's the products model with CPT foreign key
           $product = $this->assign_foreign_key($product, $customPostTypeID);
@@ -213,6 +215,7 @@ class Products extends \WPS\DB {
   public function update_product($product) {
 
     $newProductID = Utils::wps_find_product_id($product);
+    $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
 
     /*
 
@@ -241,20 +244,17 @@ class Products extends \WPS\DB {
         $product->image = $product->image->src;
       }
 
-
       $results['variants']    = $DB_Variants->update_variant($product);
       $results['options']     = $DB_Options->update_option($product);
       $results['product']     = $this->update($newProductID, $product);
       $results['image']       = $DB_Images->update_image($product);
       $results['collects']    = $DB_Collects->update_collects($product);
-
-      // This takes care of syncing the custom post type content
-      $results['product_cpt'] = CPT::wps_update_existing_product($product);
+      $results['product_cpt'] = CPT::wps_insert_or_update_product($product, $existingProducts);
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
 
     } else {
-      $results['deleted_product'] = $this->delete_product($product, $newProductID);
+      // $results['deleted_product'] = $this->delete_product($product, $newProductID);
 
     }
 
@@ -350,7 +350,6 @@ class Products extends \WPS\DB {
     $results['options'] = $DB_Options->insert_options($productWrapped);
     $results['images'] = $DB_Images->insert_images($productWrapped);
     $results['collects']  = $DB_Collects->update_collects($product);
-
 
     Transients::delete_cached_product_queries();
     Transients::delete_cached_product_single();

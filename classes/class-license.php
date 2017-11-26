@@ -79,23 +79,21 @@ class License {
 
 		$Settings_License = new Settings_License();
 
-		$isLocal = isset($_POST['is_local']) && $_POST['is_local'] ? 1 : 0;
-		$success = isset($_POST['success']) && $_POST['success'] ? 1 : 0;
-
 		$newLicenseData = array(
-    	'key'                   => $_POST['key'],
-    	'is_local'              => $isLocal,
-    	'expires'               => date('Y-m-d H:i:s', strtotime($_POST['expires'])),
-			'lifetime'							=> $_POST['lifetime'],
-    	'site_count'            => $_POST['site_count'],
-    	'checksum'              => $_POST['checksum'],
-    	'customer_email'        => $_POST['customer_email'],
-    	'customer_name'         => $_POST['customer_name'],
-    	'item_name'             => $_POST['item_name'],
-    	'license'               => $_POST['license'],
-    	'license_limit'         => $_POST['license_limit'],
-    	'payment_id'            => $_POST['payment_id'],
-    	'success'               => $success
+    	'key'                   => isset($_POST['key']) ? $_POST['key'] : '',
+    	'is_local'              => isset($_POST['is_local']) && $_POST['is_local'] ? 1 : 0,
+    	'expires'               => isset($_POST['expires']) ? date('Y-m-d H:i:s', strtotime($_POST['expires'])) : '',
+			'lifetime'							=> isset($_POST['lifetime']) ? $_POST['lifetime'] : '',
+    	'site_count'            => isset($_POST['site_count']) ? $_POST['site_count'] : '',
+    	'checksum'              => isset($_POST['checksum']) ? $_POST['checksum'] : '',
+    	'customer_email'        => isset($_POST['customer_email']) ? $_POST['customer_email'] : '',
+    	'customer_name'         => isset($_POST['customer_name']) ? $_POST['customer_name'] : '',
+    	'item_name'             => isset($_POST['item_name']) ? $_POST['item_name'] : '',
+    	'license'               => isset($_POST['license']) ? $_POST['license'] : '',
+    	'license_limit'         => isset($_POST['license_limit']) ? $_POST['license_limit'] : '',
+    	'payment_id'            => isset($_POST['payment_id']) ? $_POST['payment_id'] : '',
+			'activations_left'      => isset($_POST['activations_left']) ? $_POST['activations_left'] : '',
+    	'success'               => isset($_POST['success']) && $_POST['success'] ? 1 : 0
     );
 
 		$result = $Settings_License->insert_license($newLicenseData);

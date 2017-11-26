@@ -85,22 +85,17 @@ class Collections_Custom extends \WPS\DB {
   */
 	public function insert_custom_collections($custom_collections) {
 
-    error_log('1');
     $results = array();
-    error_log('2');
     $custom_collections = Utils::flatten_collections_image_prop($custom_collections);
-    error_log('3');
     $index = CPT::wps_find_latest_menu_order('collections');
-
-    error_log('>>>>>>>>>>');
-    error_log(print_r($custom_collections, true));
-    error_log('>>>>>>>>>>');
+    $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
 
     foreach ($custom_collections as $key => $custom_collection) {
 
       // If product is visible on the Online Stores channel
       if (property_exists($custom_collection, 'published_at') && $custom_collection->published_at !== null) {
-        $customPostTypeID = CPT::wps_insert_new_collection($custom_collection, $index);
+
+        $customPostTypeID = CPT::wps_insert_or_update_collection($custom_collection, $existingCollections, $index);
         $custom_collection = $this->assign_foreign_key($custom_collection, $customPostTypeID);
         $custom_collection = $this->rename_primary_key($custom_collection);
 
@@ -129,18 +124,18 @@ class Collections_Custom extends \WPS\DB {
     $WS = new WS(new Config());
     $DB_Collects = new Collects();
     $collection = Utils::flatten_collections_image_prop($collection);
-
+    $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
     $newCollectionID = Utils::wps_find_collection_id($collection);
 
-    $newCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
+    $shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
 
-    $customPostTypeID = CPT::wps_insert_new_collection($collection);
+    $customPostTypeID = CPT::wps_insert_or_update_collection($collection, $existingCollections);
 
     $collection = $this->assign_foreign_key($collection, $customPostTypeID);
     $collection = $this->rename_primary_key($collection);
 
-    if (property_exists($newCollects, 'collects') && $newCollects->collects !== null) {
-      $results['custom_collects'] = $DB_Collects->insert_collects($newCollects->collects);
+    if (is_array($shopifyCollects) && $shopifyCollects) {
+      $results['custom_collects'] = $DB_Collects->insert_collects($shopifyCollects);
     }
 
     $results['custom_collection'] = $this->insert($collection, 'custom_collection');

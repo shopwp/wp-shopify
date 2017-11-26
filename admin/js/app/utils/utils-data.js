@@ -1,3 +1,8 @@
+import unionWith from 'ramda/es/unionWith';
+import eqProps from 'ramda/es/eqProps';
+import concat from 'ramda/es/concat';
+import map from 'ramda/es/map';
+
 import {
   getNonce
 } from './utils';
@@ -43,7 +48,6 @@ function rejectedPromise(reason) {
     reject(reason);
   });
 }
-
 
 
 /*
@@ -191,51 +195,6 @@ function mapCollectionsModel(collection) {
 
 /*
 
-Create Products Model
-
-Currently hitting the Shopify API for every product to get the collects
-assosicated with them. TODO: Maybe we can get the collects another way
-without needing to make this expensive operation.
-
-*/
-function getCollectsForProduct(products) {
-
-  var limiter = new Bottleneck(2, 500);
-
-  //
-  // Returns a promise
-  //
-  async function throttleMe(product) {
-    return await getCollectsFromProductID(product.productId);
-  }
-
-  function hello(product) {
-    return limiter.schedule(throttleMe, product);
-  }
-
-  //
-  // Taking each product within 'products' and mapping
-  // it to a promise
-  //
-  return Promise.all(
-    R.map(hello, products)
-  );
-
-};
-
-
-/*
-
-Create Products Model
-
-*/
-function createCollectionsModel(collections) {
-  return R.map(mapCollectionsModel, collections);
-};
-
-
-/*
-
 Set Collections Image
 Returns: image src
 
@@ -292,7 +251,7 @@ Returns: Array
 
 */
 function mergeNewDataIntoCurrent(newAuthData, currentAuthData) {
-  return R.unionWith(R.eqProps('domain'), newAuthData, currentAuthData);
+  return unionWith(eqProps('domain'), newAuthData, currentAuthData);
 }
 
 
@@ -322,7 +281,7 @@ function addCollectionsToProduct(products, collects) {
 
       // If product ID matches collect ID
       if (product.productId === collect.product_id) {
-        finalCollectionsArray = R.concat(product.productCollection, collect.productCollection);
+        finalCollectionsArray = concat(product.productCollection, collect.productCollection);
       }
 
     });
@@ -332,84 +291,6 @@ function addCollectionsToProduct(products, collects) {
     return product;
 
   });
-
-}
-
-
-/*
-
-Creates the intermediary collect model used to combine
-products and collections into a single data structure.
-
-*/
-function createCollectModel(collects) {
-
-  var collectModel = [];
-
-  collects.forEach(function(product, index) {
-
-    var id;
-
-    if(product.collects !== undefined && product.collects.length) {
-      id = product.collects[0].product_id;
-
-    } else {
-      id = null;
-
-    }
-
-    if (id) {
-
-      collectModel.push({
-        'product_id': id,
-        'productCollection': R.map(function(collect) {
-
-          return collect.collection_id;
-
-        }, product.collects)
-      });
-
-    }
-
-  });
-
-  return collectModel;
-
-}
-
-
-/*
-
-Adds matching products to collection object
-
-*/
-function addProductsToCollection(collectionsAssignedProducts, collections) {
-
-  var newCollections = collections;
-
-  R.forEach(function(collectionWithProducts) {
-
-    // Loop through each collectionWithProducts ...
-    R.forEach(function collectionWithProductsHandlder(product) {
-
-      // Loop through each product ...
-      R.forEach(function addCollectionToProductHandlder(collection) {
-
-        // If product has same ID as the collection ..
-        if(collect.product_id === product.productId) {
-
-          // Add collection to product ..
-          product.productCollection.push(collect);
-
-        }
-
-      }, newCollections);
-
-    }, product);
-
-  }, collectionsAssignedProducts);
-
-  return newCollections;
 
 }
 
@@ -432,16 +313,12 @@ export {
   getProductImages,
   mapProductsModel,
   mapCollectionsModel,
-  getCollectsForProduct,
   setCollectionImage,
   createNewAuthData,
   convertAuthDataToJSON,
   mergeNewDataIntoCurrent,
   convertAuthDataToString,
-  createCollectionsModel,
   addCollectionsToProduct,
-  addProductsToCollection,
-  createCollectModel,
   createProductsModel,
   controlPromise,
   rejectedPromise,

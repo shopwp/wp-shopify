@@ -7,6 +7,8 @@ use WPS\DB\Variants;
 /*
 
 Class Products
+TODO: Move the methods in this class somewhere more contextual. "Products_General" becomes
+confusing when we also have the main "Products" DB class.
 
 */
 class Products_General {
@@ -37,63 +39,6 @@ class Products_General {
     }
 
     return self::$instantiated;
-
-  }
-
-
-  /*
-
-  This function gets called during the initial sync process upon
-  installation.
-
-  Because we can't store an array of collection IDs associated with
-  a given product due to serialization, we need to add meta values
-  with the same meta_key.
-
-  We need two values for this to happen: The product's post ID, and
-  the array of collections to be added.
-
-  This function is sent as an array of products with their corrosponding
-  colleciton IDs but NOT the WordPress post ID. The post ID gets created
-  when we call wp_insert_post above.
-
-  */
-  public function wps_insert_products() {
-
-    $Utils = new Utils();
-
-    $results = [];
-    $results['added'] = [];
-    $results['updated'] = [];
-
-
-    $newProducts = json_decode(stripslashes($_POST['products']));
-    $existingProducts = $Utils->wps_find_existing_products();
-
-    if (is_array($newProducts)) {
-
-      foreach($newProducts as $key => $product) {
-
-        // If it's a new product ...
-        // if(!in_array($product->id, $existingProducts)) {
-        //   $results['added'][] = $Utils->wps_insert_new_product($product);
-        //
-        // // If it's an existing product ...
-        // } else {
-        //
-        //   // TODO: Do something here to notify user of duplicates
-        //   // TODO: Only update post if content has changed
-        //   $results['updated'][] = $Utils->wps_update_existing_product($product, $existingProducts);
-        //
-        // }
-
-      }
-
-    } else {
-
-    }
-
-    wp_send_json_success($results);
 
   }
 

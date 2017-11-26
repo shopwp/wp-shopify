@@ -13,6 +13,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HappyPack = require('happypack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const Visualizer = require('webpack-visualizer-plugin');
 
 module.exports = () => {
 
@@ -24,7 +26,7 @@ module.exports = () => {
     eval === faster bundle time
 
     */
-    devtool: ifProd('source-map', 'eval'),
+    devtool: ifProd(false, false),
     entry: {
       admin: [
         'babel-polyfill',
@@ -47,34 +49,33 @@ module.exports = () => {
       filename: '[name].min.js'
     },
     plugins: [
+      new webpack.optimize.ModuleConcatenationPlugin(),
+      new Visualizer(),
+      new UglifyJsPlugin({
+        test: /\.js($|\?)/i,
+        exclude: /(node_modules|bower_components)/,
+        cache: true,
+        parallel: true,
+        uglifyOptions: {
+          ie8: false,
+          ecma: 8,
+          warnings: false,
+        }
+      }),
       new webpack.ProvidePlugin({
-        R: "ramda",
         Bottleneck: "Bottleneck",
         validator: "validator",
         crypto: "crypto",
         dateFormat: "dateFormat",
-        ShopifyBuy: "shopify-buy",
         currencyFormatter: "currency-formatter"
       }),
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('development')
+        'process.env.NODE_ENV': JSON.stringify('production')
       }),
       new webpack.optimize.OccurrenceOrderPlugin(),
       new webpack.NoEmitOnErrorsPlugin(),
       new ProgressBarPlugin(),
       new WriteFilePlugin(),
-      // new CopyWebpackPlugin([{
-      //   from: path.resolve('assets/imgs'),
-      //   to: path.resolve('assets/prod/imgs')
-      // }], {
-      //   ignore: [
-      //     ifProd('', '**/*')
-      //   ]
-      // }),
-      // new ImageminPlugin({
-      //   disable: ifNotProd(),
-      //   test: /\.(jpe?g|png|gif|svg)$/i
-      // }),
       new ExtractTextPlugin({
         filename: '../css/[name].min.css'
       }),
@@ -87,32 +88,15 @@ module.exports = () => {
           zindex: false
         },
         canPrint: true
-      }),
-      new webpack.optimize.UglifyJsPlugin({
-        comments: false,
-        compress: {
-          screw_ie8: true,
-          unused: true,
-          dead_code: true,
-          drop_debugger: true,
-          conditionals: true,
-          evaluate: true,
-          sequences: true,
-          booleans: true,
-          properties: true,
-          loops: true
-        }
       })
     ],
     resolve: {
       extensions: ['.js'],
       alias: {
-        ramda: "ramda",
         bottleneck: "bottleneck",
         validator: "validator",
         crypto: "crypto",
         dateFormat: "dateFormat",
-        ShopifyBuy: "shopify-buy",
         currencyFormatter: "currency-formatter"
       }
     },

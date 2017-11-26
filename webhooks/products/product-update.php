@@ -5,8 +5,6 @@ use WPS\DB\Settings_Connection;
 use WPS\DB\Products;
 use WPS\Config;
 
-error_log('===== product update =====');
-
 $Products = new Products(new Config());
 $Connection = new Settings_Connection();
 

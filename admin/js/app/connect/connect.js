@@ -1,3 +1,4 @@
+import forEachRamda from 'ramda/es/forEach';
 import isError from 'lodash/isError';
 
 import {
@@ -125,30 +126,17 @@ function onConnectionFormSubmit() {
       var $connectorModal = createConnectorModal();
       var domain = jQuery('#wps_settings_connection_domain').val();
 
-
       // Clear protocol from input field if user mistakenly enters ...
       if (containsProtocol(domain) || containsPathAfterShopifyDomain(domain)) {
         jQuery('#wps_settings_connection_domain').val(cleanDomainURL(domain));
       }
 
-      // var formData = jQuery(form).serialize();
       var formData = formatConnectorFormData(jQuery(form).serializeArray());
-
-      // access_token: "9e61a0d20490ab3049265e075e780f21"
-      // app_id: "6"
-      // domain: "wpslitetest10.myshopify.com"
-      // id: "1"
-      // is_syncing: "1"
-      // js_access_token: "9596a847f3f4669fa8f4335a13386bd0"
-      // needs_cache_flush: "0"
-      // nonce: "c1ad515c1c"
-      // webhook_id: ""
-
 
       setConnectionProgress("true");
 
       disable($submitButton);
-      R.forEach(showSpinner, $submitButton);
+      forEachRamda(showSpinner, $submitButton);
 
       injectConnectorModal($connectorModal);
 
@@ -158,7 +146,6 @@ function onConnectionFormSubmit() {
       showConnectorModal($connectorModal);
       setNonce( $formInputNonce.val() );
       setConnectionStepMessage('Saving connection ...');
-
 
 
       /*
@@ -194,7 +181,6 @@ function onConnectionFormSubmit() {
         return;
 
       }
-
 
 
       /*
@@ -411,7 +397,7 @@ async function onAuthRedirect() {
   insertCheckmark();
   updateModalHeadingText('Syncing ...');
   updateModalButtonText('Cancel syncing process');
-  setConnectionStepMessage('Syncing Shopify data ...', '(Please wait. This may take up to 60 seconds depending on how large your store is.)');
+  setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
 
 
   /*

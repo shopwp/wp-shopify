@@ -1,17 +1,14 @@
 <?php
 
-if (empty($product->feat_image[0]->alt)) {
-  $altText = $product->title;
+use WPS\DB\Images;
 
-} else {
-  $altText = $product->feat_image[0]->alt;
-}
+$image = Images::get_image_details_from_product($product);
 
 ?>
 
 <li
   itemscope
-  itemtype="https://schema.org/Offer" 
+  itemtype="https://schema.org/Offer"
   class="wps-col wps-col-3 wps-collection-single-product">
 
   <a
@@ -21,7 +18,7 @@ if (empty($product->feat_image[0]->alt)) {
 
     <img
       itemprop="image"
-      src="<?php echo $product->feat_image[0]->src; ?>" alt="<?php echo $altText; ?>" class="wps-products-img" />
+      src="<?php echo $image['src']; ?>" alt="<?php echo $image['alt']; ?>" class="wps-products-img" />
 
     <h2
       itemprop="name"

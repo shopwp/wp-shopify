@@ -1,4 +1,13 @@
-import { isError } from '../utils/utils-common';
+import update from 'ramda/es/update';
+import intersection from 'ramda/es/intersection';
+import filter from 'lodash/filter';
+import matches from 'lodash/matches';
+
+import {
+  isError,
+  listenForClose
+} from '../utils/utils-common';
+
 import {
   disable,
   enable,
@@ -6,8 +15,6 @@ import {
   disableNoLoader,
   showLoader,
   hideLoader,
-  animate,
-  animateIn,
   shake
 } from '../utils/utils-ux';
 
@@ -16,12 +23,20 @@ import {
   getProductVariantID,
   getVariantIdFromOptions,
   setProductSelectionID,
-  getProductSelectionID
+  getProductSelectionID,
+  getProductOptionIds,
+  setProductOptionIds,
+  removeProductOptionIds
 } from '../ws/ws-products';
-
 
 import {
   resetVariantSelectors,
+  resetOptionsSelection,
+  closeOptionsModal,
+  getDeselectedDropdowns,
+  getCurrentlySelectedOptionsAmount,
+  getCurrentlySelectedOptions,
+  showHiddenProductVariants
 } from './products-meta';
 
 import {
@@ -32,8 +47,10 @@ import {
 import {
   updateCartCounter,
   toggleCart,
-  cartIsOpen
+  cartIsOpen,
+  closeCart
 } from '../cart/cart-ui';
+
 
 
 /*
@@ -129,7 +146,6 @@ function resetSingleProductVariantSelector($addToCartButton) {
 }
 
 
-
 /*
 
 Attach and control listeners onto buy button
@@ -154,6 +170,7 @@ function onAddProductToCart(shopify) {
 
       disable($addToCartButton);
       showLoader($addToCartButton);
+      showHiddenProductVariants();
 
       try {
 
@@ -173,11 +190,11 @@ function onAddProductToCart(shopify) {
       /*
 
       Update Cart Instance
+      newCart === new cart instance after adding / removing
 
       */
       try {
-
-        await updateCart(productVariant, productQuantity, shopify);
+        var newCart = await updateCart(productVariant, productQuantity, shopify);
 
       } catch(error) {
 
@@ -195,7 +212,7 @@ function onAddProductToCart(shopify) {
 
       */
       try {
-        await updateCartCounter(shopify);
+        await updateCartCounter(shopify, newCart);
 
       } catch(error) {
         enable($addToCartButton);
@@ -205,23 +222,14 @@ function onAddProductToCart(shopify) {
       }
 
 
-      var newCart = await fetchCart(shopify);
-
-
       enable($addToCartButton);
       hideLoader($addToCartButton);
-      toggleCart();
+
+      if (!cartIsOpen()) {
+        toggleCart();
+      }
 
       resetSingleProductVariantSelector($addToCartButton);
-
-
-
-
-
-
-
-
-
 
     } else {
       showProductMetaError($addToCartButton, 'Please select the required options');
@@ -279,7 +287,7 @@ function onProductQuantityChange() {
 
   $productMetaContainer.on('blur', '.wps-product-quantity', function productQuantityHandler(event) {
     var quantity = jQuery(this).val();
-    $productMetaContainer.attr('data-product-quantity', quantity);
+    jQuery(this).closest('.wps-product-meta').attr('data-product-quantity', quantity);
   });
 
 }
@@ -295,6 +303,10 @@ function onProductQuantitySelect() {
     jQuery(this).select();
   });
 }
+
+
+
+
 
 
 function resetAllVariantIDs() {
@@ -314,17 +326,16 @@ function resetAllVariantIDs() {
 
 
 
+/*
 
+TODO: Found Bug when user selects two different options with the same variant text
 
-
-
-
-
+*/
 function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
 
   var variantText = $trigger.text().trim();
 
-  if(R.intersection([variantText], previouslySelectedOptions).length === 0) {
+  if (intersection([variantText], previouslySelectedOptions).length === 0) {
 
     var previouslySee = $trigger.closest('.wps-btn-dropdown').data('selected-val');
     var index = previouslySelectedOptions.indexOf(previouslySee);
@@ -336,13 +347,14 @@ function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
 
     } else {
 
-      var updatedArray = R.update(index, variantText, previouslySelectedOptions);
+      var updatedArray = update(index, variantText, previouslySelectedOptions);
 
     }
 
     return updatedArray;
 
   } else {
+
     return [];
 
   }
@@ -354,11 +366,16 @@ function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
 /*
 
 Update Variant Title Selection
+TODO: titles param currently not used
 
 */
 function updateVariantTitleSelection($container, titles) {
-  $container.data('product-selected-options', titles);
-  $container.attr('data-product-selected-options', titles);
+
+  var newTitles = getCurrentlySelectedOptions();
+
+  $container.data('product-selected-options', newTitles);
+  $container.attr('data-product-selected-options', newTitles);
+
 }
 
 
@@ -464,6 +481,120 @@ function showVariantImage(variantID) {
 }
 
 
+
+
+
+
+/*
+
+Looks through the canonical array of available variants for a match
+based on an object from user selection:
+
+{ option1: "Extra Small" }
+
+[
+  { option1: "Extra Small", option2: "Large", option3: "Black" },
+  { option1: "Medium", option2: "Gold", option3: "Black" },
+  { option1: "Large", option2: "Extra Small", option3: "Black" },
+]
+
+*/
+function findVariantFromTitle(availableVariants, selectedVariant) {
+  return filter(availableVariants, matches(selectedVariant));
+}
+
+
+
+
+function constructVariantSelectorFromMatch($dropdown, availableMatch) {
+
+  var availableMatchKey = 'option' + jQuery($dropdown).data('option');
+  var variantTitle = availableMatch[availableMatchKey];
+
+  return '.wps-product-style:not([data-variant-title="' + variantTitle + '"])';
+
+}
+
+
+
+
+/*
+
+Handles showing / hiding the appropriate varints depending on what
+the user currently has seleected.
+
+Param   => selectedVariant    => Object             => { option1: "Extra Small" }
+Param   => availableVariants  => Array of Objects   => [{ option1: "Extra Small", option2: "Large", option3: "Black" }]
+
+*/
+function toggleAvailableVariantSelections(selectedVariant, availableVariants) {
+
+  /*
+
+  Represents an array of variants that are available to select based on a previous selection
+
+  */
+  var selectableVariants = findVariantFromTitle(availableVariants, selectedVariant);
+
+
+  /*
+
+  Dropdowns that are currently deselected
+  Represents the options so we can have up to three
+
+  */
+  var $deselectedDropdowns = getDeselectedDropdowns();
+
+
+  /*
+
+  Look through each deselected dropdown
+
+  */
+  jQuery.each($deselectedDropdowns, (index, $dropdown) => {
+
+    var finalSelector = '';
+
+    /*
+
+    For each available variant ...
+
+    */
+    jQuery.each(selectableVariants, (index, availableMatch) => {
+
+      var selectionSelector = constructVariantSelectorFromMatch($dropdown, availableMatch);
+
+      if (finalSelector !== selectionSelector) {
+        finalSelector += selectionSelector;
+      }
+
+    });
+
+    var individualSelection = jQuery($dropdown).find(finalSelector);
+    individualSelection.addClass('wps-is-hidden');
+
+  });
+
+}
+
+
+/*
+
+Construct Selected Variant Options
+
+*/
+function constructSelectedVariantOptions($trigger) {
+
+  var newlySelected = {};
+  var key = 'option' + $trigger.data('option-position');
+
+  newlySelected[key] = $trigger.data('variant-title');
+
+  return newlySelected;
+
+}
+
+
 /*
 
 Product Variant Change
@@ -472,36 +603,89 @@ Product Variant Change
 function onProductVariantChange() {
 
   var $productMetaContainer = jQuery('.wps-product-meta');
+
+  // Resets selected options on load
   $productMetaContainer.data('product-selected-options', []);
 
+  // Adds data-available-options to the dropdown elements
   addAvailableOptionsToProduct();
 
+  // Click handler for individual variant selections
   $productMetaContainer.on('click', '.wps-product-style', async function productStyleHandler(event) {
 
-
     var $trigger = jQuery(this),
-        variantID = $trigger.data('id'),
+        optionID = $trigger.data('option-id'),
         variantText = $trigger.text().trim(),
         $newProductMetaContainer = $trigger.closest('.wps-product-meta'),
         currentProductID = $newProductMetaContainer.data('product-id'),
         previouslySelectedOptions = $newProductMetaContainer.data('product-selected-options'),
-        availableOptions = $trigger.closest('.wps-btn-dropdown').data('available-options');
+        availableOptions = $trigger.closest('.wps-btn-dropdown').data('available-options'),
+        dropdownAlreadySelected = $trigger.closest('.wps-btn-dropdown').data('selected'),
+        availableVariants = $newProductMetaContainer.data('product-available-variants');
 
-    // Gets options from currently selected, or empty array if newly selected
+    /*
+
+    Resets the selection process if the user picks a variant from an
+    option that's already selected. We need to do this because our
+    calculated "available selections" is dependent on what the user
+    has already a selected. Therefore we need to keep this green.
+
+    */
+    if (dropdownAlreadySelected) {
+      resetVariantSelectors($newProductMetaContainer);
+      resetOptionsSelection();
+    }
+
+
+    /*
+
+    Gets options from currently selected, or empty array if newly selected
+    Contains an array of titles: ['Extra Small', 'Black']
+
+    */
     previouslySelectedOptions = checkForLastSelection(previouslySelectedOptions, currentProductID);
 
-    // Reset all Variant IDs
+
+    /*
+
+    Reset all Variant IDs
+
+    */
     resetAllVariantIDs();
 
-    // Checks selected variant titles and removes / adds to array if nessesary
+
+    /*
+
+    Updates values of variant after selection
+
+    */
+    updateSingleVariantValues($trigger);
+
+
+    /*
+
+    Checks selected variant titles and removes / adds to array if nessesary
+    Modifies the [data-product-selected-options] on '.wps-product-meta'
+
+    */
     updateVariantTitleSelection(
       $newProductMetaContainer,
       constructVariantTitleSelections($trigger, previouslySelectedOptions)
     );
 
-    // Updates values of variant after selection
-    updateSingleVariantValues($trigger);
 
+    toggleAvailableVariantSelections(
+      constructSelectedVariantOptions($trigger),
+      availableVariants
+    );
+
+    closeOptionsModal();
+
+    /*
+
+    If all variants are selected ...
+
+    */
     if (allProductVariantsSelected($newProductMetaContainer)) {
 
       var newCurrentProductID = $newProductMetaContainer.attr('data-product-post-id');
@@ -512,15 +696,12 @@ function onProductVariantChange() {
       disable($optionButtons);
       disableNoLoader($addToCartButton);
 
-
-
-
+      resetOptionsSelection();
 
       // All variants selected, find actual variant ID
       try {
 
         var foundVariantIDResponse = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
-
 
         if (isError(foundVariantIDResponse)) {
           throw foundVariantIDResponse.data;
@@ -536,15 +717,10 @@ function onProductVariantChange() {
 
         }
 
-
-
         enable($optionButtons);
         enableNoLoader($addToCartButton);
 
-
-
         hideProductMetaErrors($trigger);
-
 
       } catch(error) {
 
@@ -553,8 +729,8 @@ function onProductVariantChange() {
         shake($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
 
         resetVariantSelectors($newProductMetaContainer);
-
-        // hideLoader($trigger);
+        removeProductOptionIds();
+        resetOptionsSelection();
 
       }
 
@@ -577,24 +753,33 @@ function onProductDropdown() {
 
   if (!$productDropdown.hasClass('is-disabled')) {
 
-    $productMetaContainer.on('click', '.wps-modal-trigger', function modalTriggerHandler(event) {
+    $productMetaContainer.on('click', '.wps-modal-trigger', function modalTriggerHandler(e) {
 
-      event.stopPropagation();
-      event.preventDefault();
+      e.stopPropagation();
+      e.preventDefault();
 
-      jQuery('.wps-modal.wps-is-visible').removeClass('wps-is-visible');
+      closeCart();
 
-      var $triggeredDropdown = jQuery(this),
-          $triggeredDropdownContainer = $triggeredDropdown.next();
+      var $trigger = jQuery(this),
+          $dropdownModal = $trigger.next(),
+          $dropdown = $trigger.parent();
 
-      if (!$triggeredDropdownContainer.hasClass('wps-is-visible')) {
+      /*
 
-        animate({
-          inClass: 'wps-flipInX',
-          outClass: 'wps-fadeOut',
-          element: $triggeredDropdownContainer
-        });
+      Hide any visible dropdowns before we show the selected one
 
+      */
+      if ($dropdown.data('open')) {
+        $dropdown.data('open', false);
+        $dropdown.attr('data-open', false);
+
+      } else {
+
+        closeOptionsModal();
+        $dropdown.data('open', true);
+        $dropdown.attr('data-open', true);
+
+        listenForClose();
       }
 
     });

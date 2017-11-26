@@ -14,7 +14,7 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Images;
 use WPS\DB\Tags;
-
+use WPS\CPT;
 // use WPS\DB\Inventory as Inventory;
 
 
@@ -28,6 +28,7 @@ class Activator {
 	protected static $instantiated = null;
 	private $Config;
 	public $plugin_basename;
+	public $config;
 
 	/*
 
@@ -36,6 +37,7 @@ class Activator {
 	*/
 	public function __construct($Config) {
 		$this->plugin_basename = $Config->plugin_basename;
+		$this->config = $Config;
 	}
 
 
@@ -125,6 +127,8 @@ class Activator {
 	*/
 	public function activate() {
 
+		$CPT = new CPT($this->config);
+
 		if (!current_user_can('activate_plugins')) {
 			return;
 
@@ -134,6 +138,10 @@ class Activator {
 		}
 
 		delete_option('_site_transient_update_plugins');
+
+		// Register CPTs upon plugin activation
+		$CPT->init();
+
 		flush_rewrite_rules();
 
 	}
@@ -147,6 +155,7 @@ class Activator {
 	public function init() {
 		register_activation_hook($this->plugin_basename, [$this, 'activate']);
 	}
+
 
 
 }

@@ -731,30 +731,6 @@ function getAllProducts(shopify) {
 
 /*
 
-Sending products to server
-
-*/
-function sendProductsToServer(products) {
-
-  var stringProds = JSON.stringify(products);
-
-  var options = {
-    method: 'POST',
-    url: wps.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_products',
-      products: stringProds
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
 Get auth token from WP Shopify server:
 Returns: Promise
 
@@ -1087,7 +1063,6 @@ export {
   setPluginSettings,
   addWebhook,
   delWebhooks,
-  sendProductsToServer,
   getAuthToken,
   getAuthUser,
   getPluginSettings,

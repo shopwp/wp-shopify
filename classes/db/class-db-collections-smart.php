@@ -90,6 +90,8 @@ class Collections_Smart extends \WPS\DB {
     $results = array();
     $smart_collections = Utils::flatten_collections_image_prop($smart_collections);
     $index = CPT::wps_find_latest_menu_order('collections');
+    $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
+
 
     foreach ($smart_collections as $key => $smart_collection) {
 
@@ -97,7 +99,8 @@ class Collections_Smart extends \WPS\DB {
 
         if (property_exists($smart_collection, 'published_at') && $smart_collection->published_at !== null) {
 
-          $customPostTypeID = CPT::wps_insert_new_collection($smart_collection, $index);
+          $customPostTypeID = CPT::wps_insert_or_update_collection($smart_collection, $existingCollections, $index);
+
           $smart_collection = $this->assign_foreign_key($smart_collection, $customPostTypeID);
           $smart_collection = $this->rename_primary_key($smart_collection);
 
@@ -125,22 +128,19 @@ class Collections_Smart extends \WPS\DB {
 
     $WS = new WS(new Config());
     $DB_Collects = new Collects();
-
+    $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
     $newCollectionID = Utils::wps_find_collection_id($collection);
 
     $collection = Utils::flatten_collections_image_prop($collection);
     $newCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
 
-
-    $customPostTypeID = CPT::wps_insert_new_collection($collection);
+    $customPostTypeID = CPT::wps_insert_or_update_collection($collection, $existingCollections);
     $collection = $this->assign_foreign_key($collection, $customPostTypeID);
     $collection = $this->rename_primary_key($collection);
 
-
-    if (property_exists($newCollects, 'collects') && $newCollects->collects !== null) {
-      $results['smart_collects'] = $DB_Collects->insert_collects($newCollects->collects);
+    if (is_array($newCollects) && $newCollects) {
+      $results['smart_collects'] = $DB_Collects->insert_collects($newCollects);
     }
-
 
     $results['smart_collection'] = $this->insert($collection, 'smart_collection');
 
