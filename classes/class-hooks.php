@@ -1602,7 +1602,17 @@ if (!class_exists('Hooks')) {
 
 			$DB_Settings_General = new Settings_General();
 			$pluginVersion = $this->config->plugin_version;
-			$databaseVersion = $DB_Settings_General->get_column_single('plugin_version')[0]->plugin_version;
+
+			$pluginVersionCurrent = $DB_Settings_General->get_column_single('plugin_version');
+
+			if (isset($pluginVersionCurrent) && $pluginVersionCurrent) {
+				$databaseVersion = $pluginVersionCurrent[0]->plugin_version;
+
+			} else {
+				$databaseVersion = '0.0.0';
+			}
+
+
 
 			/*
 
@@ -1612,7 +1622,6 @@ if (!class_exists('Hooks')) {
 			If current (databaseVersion) is behind new (pluginVersion)
 
 			*/
-			$databaseVersion = '1.0.26';
 
 			if (version_compare($databaseVersion, $pluginVersion, '<')) {
 

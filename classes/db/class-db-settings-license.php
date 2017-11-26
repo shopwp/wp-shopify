@@ -139,7 +139,7 @@ class Settings_License extends \WPS\DB {
       `payment_id` int(20) DEFAULT NULL,
       `success` tinyint(1) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
-      `activations_left` varchar(100) DEFAULT NULL
+      `activations_left` varchar(100) DEFAULT 1
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 
