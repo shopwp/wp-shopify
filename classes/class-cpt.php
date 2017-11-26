@@ -79,6 +79,16 @@ class CPT {
       return;
     }
 
+
+    // If falsey or not an object ...
+    if (empty($this->general) || !is_object($this->general)) {
+      $permalink = 'products';
+
+    } else {
+      $permalink = $this->general->url_products;
+    }
+
+
     $labels = array(
       'name'                => _x('Products', 'Post Type General Name', 'text_domain'),
       'singular_name'       => _x('Product', 'Post Type Singular Name', 'text_domain'),
@@ -109,7 +119,7 @@ class CPT {
       'publicly_queryable'  => true,
       'capability_type'     => 'post',
       'rewrite'             => array(
-        'slug' => $this->general->url_products
+        'slug' => $permalink
       )
     );
 
@@ -130,6 +140,15 @@ class CPT {
     if ( post_type_exists( 'wps_collections' ) ) {
       return;
     }
+
+    // If falsey or not an object ...
+    if (empty($this->general) || !is_object($this->general)) {
+      $permalink = 'collections';
+
+    } else {
+      $permalink = $this->general->url_collections;
+    }
+    
 
     $labels = array(
       'name'                => _x('Collections', 'Post Type General Name', 'text_domain'),
@@ -161,7 +180,7 @@ class CPT {
       'publicly_queryable'  => true,
       'capability_type'     => 'post',
       'rewrite'             => array(
-        'slug' => $this->general->url_collections
+        'slug' => $permalink
       )
 
     );

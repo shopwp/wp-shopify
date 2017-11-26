@@ -345,7 +345,7 @@ class Backend {
 	public function wps_insert_auth_modal() {
 
 		if(isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
-			echo '<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="/content/plugins/wp-shopify/admin/imgs/logo-wp.svg" /> to <img class="wps-connector-logo" src="/content/plugins/wp-shopify/admin/imgs/shopify.svg" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>';
+			echo '<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="' . $this->config->plugin_url . 'admin/imgs/logo-wp.svg" /> to <img class="wps-connector-logo" src="' . $this->config->plugin_url . 'admin/imgs/shopify.svg" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>';
 		}
 
 	}

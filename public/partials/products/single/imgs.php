@@ -1,8 +1,10 @@
 <?php
 
   use WPS\Utils;
+  use WPS\Config;
   use WPS\DB\Images;
 
+  $Config = new Config();
   $Utils = new Utils();
 
   usort($product['images'], array($Utils, "sort_product_images"));
@@ -20,7 +22,7 @@
 
     $typeClass = 'wps-product-gallery-img-feat';
 
-    $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . WP_PLUGIN_URL . '/wp-shopify/public/imgs/placeholder.png' . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . '"></div>';
+    $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $Config->plugin_url . 'public/imgs/placeholder.png' . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . '"></div>';
 
     echo apply_filters('wps_product_img', $productImg, $product, 0);
 

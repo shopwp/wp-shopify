@@ -295,42 +295,48 @@ class DB {
 
     global $wpdb;
 
-    // Set default values
-    $data = wp_parse_args($data, $this->get_column_defaults());
+		// Only perform an insertion if the table exists ...
+		if ($this->table_exists($this->table_name)) {
 
-    do_action('wps_pre_insert_' . $type, $data);
+			// Set default values
+	    $data = wp_parse_args($data, $this->get_column_defaults());
 
-		// Sanitizing nested arrays
-		$data = Utils::wps_serialize_data_for_db($data);
+	    do_action('wps_pre_insert_' . $type, $data);
 
-    // Initialise column format array
-    $column_formats = $this->get_columns();
+			// Sanitizing nested arrays
+			$data = Utils::wps_serialize_data_for_db($data);
 
-    // Force fields to lower case
-    $data = array_change_key_case($data);
+	    // Initialise column format array
+	    $column_formats = $this->get_columns();
 
-    // White list columns
-    $data = array_intersect_key($data, $column_formats);
+	    // Force fields to lower case
+	    $data = array_change_key_case($data);
 
-    // Reorder $column_formats to match the order of columns given in $data
-    $data_keys = array_keys($data);
+	    // White list columns
+	    $data = array_intersect_key($data, $column_formats);
 
-    $column_formats = array_merge( array_flip($data_keys), $column_formats);
+	    // Reorder $column_formats to match the order of columns given in $data
+	    $data_keys = array_keys($data);
 
+	    $column_formats = array_merge( array_flip($data_keys), $column_formats);
 
-		/*
+			/*
 
-		TODO: We should probably check whether the item we're inserting into the DB
-		already exists to avoid errors. We can do this by first running $wpdb->get_results
-		and then cheking the num rows like below:
+			TODO: We should probably check whether the item we're inserting into the DB
+			already exists to avoid errors. We can do this by first running $wpdb->get_results
+			and then cheking the num rows like below:
 
-		*/
+			*/
+			if (!$this->has_existing_record($data)) {
 
-		if (!$this->has_existing_record($data)) {
+				$result = $wpdb->insert($this->table_name, $data, $column_formats);
 
-			$result = $wpdb->insert($this->table_name, $data, $column_formats);
+		    do_action('wps_post_insert_' . $type, $result, $data);
 
-	    do_action('wps_post_insert_' . $type, $result, $data);
+			} else {
+				$result = false;
+
+			}
 
 		} else {
 			$result = false;
@@ -448,23 +454,30 @@ class DB {
 
     global $wpdb;
 
-    // Row ID must be positive integer
-    $row_id = absint($row_id);
+		if ($this->table_exists($this->table_name)) {
 
-		// If no primary key is passed, delete the entire table
-    if (empty($row_id)) {
-			$results = $wpdb->query("TRUNCATE TABLE $this->table_name");
+			// Row ID must be positive integer
+			$row_id = absint($row_id);
 
-    } else {
-			$results = $wpdb->query( $wpdb->prepare( "DELETE FROM $this->table_name WHERE $this->primary_key = %d", $row_id ));
-		}
+			// If no primary key is passed, delete the entire table
+			if (empty($row_id)) {
+				$results = $wpdb->query("TRUNCATE TABLE $this->table_name");
 
-		// Need to strictly check for FALSE since query can return 0 for no change
-    if ($results === false) {
-      return false;
+			} else {
+				$results = $wpdb->query( $wpdb->prepare( "DELETE FROM $this->table_name WHERE $this->primary_key = %d", $row_id ));
+			}
 
-    } else {
-			return true;
+			// Need to strictly check for FALSE since query can return 0 for no change
+			if ($results === false) {
+				return false;
+
+			} else {
+				return true;
+
+			}
+
+		} else {
+			$results = false;
 
 		}
 
