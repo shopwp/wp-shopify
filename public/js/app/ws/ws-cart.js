@@ -2,7 +2,6 @@ import { needsCacheFlush, flushCache } from '../utils/utils-cart';
 import { getCartID } from './ws-products';
 import { renderCartItems, renderSingleCartItem, updateTotalCartPricing } from '../cart/cart-ui';
 
-
 /*
 
 Fetch Cart
@@ -153,17 +152,17 @@ async function initCart(shopify) {
   Flush cache if needed ...
 
   */
-  if (cacheFlushNeeded) {
-
-    try {
-      await flushCache(shopify);
-
-    } catch (error) {
-      console.error("flushCache: ", error);
-
-    }
-
-  }
+  // if (cacheFlushNeeded) {
+  //
+  //   try {
+  //     await flushCache(shopify);
+  //
+  //   } catch (error) {
+  //     console.error("flushCache: ", error);
+  //
+  //   }
+  //
+  // }
 
 
   /*
