@@ -429,7 +429,7 @@ if (!class_exists('Frontend')) {
 
 						$variantObj = $DB_Variants->get_by('id', $variant['id']);
 
-						if ($variantObj->inventory_quantity > 0) {
+						if ($variantObj->inventory_quantity > 0 || $variantObj->inventory_policy === 'deny') {
 							$found = true;
 							wp_send_json_success($variant['id']);
 
