@@ -13,8 +13,8 @@ Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
 Version:           1.0.32
-Author:            Simpleblend
-Author URI:        https://blog.simpleblend.net
+Author:            WP Shopify
+Author URI:        https://wpshop.io
 License:           GPL-2.0+
 License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
 Text Domain:       wps
