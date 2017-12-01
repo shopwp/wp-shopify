@@ -1,21 +1,15 @@
 <?php
 
-use WPS\Utils;
-use WPS\Config;
-use WPS\License;
-use WPS\DB\Settings_Connection;
-
 /*
 
 This file is used to markup the admin-facing aspects of WP Shopify
 
-@link       https://blog.simpleblend.net
-@since      1.0.0
-
-@package    WPS
-@subpackage WPS/admin/partials
-
 */
+
+use WPS\Utils;
+use WPS\Config;
+use WPS\License;
+use WPS\DB\Settings_Connection;
 
 $connection = $this->config->wps_get_settings_connection();
 $license = $this->config->wps_get_settings_license();
@@ -25,7 +19,7 @@ $plugin_current_version = $Config->plugin_version;
 $plugin_data_latest = $License->wps_get_latest_plugin_version();
 
 
-if(!empty($connection)) {
+if (!empty($connection)) {
 
   if ($connection->access_token) {
     $connected = true;
@@ -96,7 +90,7 @@ $tab = null;
 
 <div class="wrap wps-admin-wrap">
 
-  <h2>WP Shopify <sup class="wps-version-pill wps-version-pill-sm"><?php echo $plugin_current_version; ?></sup></h2>
+  <h2><?php esc_attr_e('WP Shopify', 'wp-shopify' ); ?> <sup class="wps-version-pill wps-version-pill-sm"><?php echo $plugin_current_version; ?></sup></h2>
 
   <?php
 

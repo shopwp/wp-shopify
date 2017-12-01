@@ -1,1 +1,1 @@
-<a href="/collections/<?php echo $collection->handle; ?>" class="wps-collection-link <?php echo apply_filters( 'wps_collections_link_class', '' ); ?>" title="<?php echo $collection->title; ?>">
+<a href="<?php esc_url( home_url() . '/collections/' . $collection->handle); ?>" class="wps-collection-link <?php echo apply_filters( 'wps_collections_link_class', '' ); ?>" title="<?php esc_attr_e($collection->title, 'wp-shopify' ); ?>">

@@ -25,10 +25,13 @@ class Config {
 	public $plugin_env;
 	public $plugin_file;
 	public $plugin_author;
+	public $plugin_text_domain;
 
 	public $settings_connection_option_name;
 	public $settings_general_option_name;
 	public $settings_license_option_name;
+
+	public $cart_cache_expiration;
 
 	protected static $instantiated = null;
 
@@ -51,6 +54,7 @@ class Config {
 		$this->plugin_name_full = 'WP Shopify';
 		$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 		$this->plugin_name = 'wps';
+		$this->plugin_text_domain = 'wp-shopify';
 		$this->plugin_version = '1.0.34';
 		$this->plugin_author = 'Andrew Robbins';
 
@@ -59,6 +63,9 @@ class Config {
 
 		$this->plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' );
 		$this->plugin_env = 'https://wpshop.io';
+
+		// Don't clear cart cache for three days 259200
+		$this->cart_cache_expiration = 259200;
 
 		// Settings
 		$this->settings_connection_option_name = $this->plugin_name . '_settings_connection';

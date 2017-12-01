@@ -8,6 +8,6 @@ $image = Images::get_image_details_from_collection($collection);
 
 <img
   itemprop="image"
-  src="<?php echo $image['src']; ?>"
-  alt="<?php echo $image['alt']; ?>"
+  src="<?php echo esc_url($image['src']); ?>"
+  alt="<?php esc_attr_e($image['alt']); ?>"
   class="<?php echo apply_filters( 'wps_collections_img_class', '' ); ?>" />

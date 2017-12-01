@@ -3,7 +3,7 @@
   <h1
     itemprop="name"
     class="entry-title wps-product-heading">
-      <?php echo $product['details']['title']; ?>
+      <?php esc_html_e($product['details']['title'], 'wp-shopify'); ?>
   </h1>
 
   <?php

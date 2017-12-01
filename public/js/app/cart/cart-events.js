@@ -1,4 +1,4 @@
-import { getProduct, getProductVariantID } from '../ws/ws-products';
+import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
 import { fetchCart, updateCart } from '../ws/ws-cart';
 import { beforeCheckoutHook } from '../ws/ws-checkout';
@@ -50,13 +50,8 @@ async function onCheckout(shopify) {
         return e;
       }
 
-      var cartData = {
-        id: newCart.id,
-        domain: newCart.config.domain,
-        checkoutUrl: newCart.checkoutUrl
-      };
-
-      window.open(newCart.checkoutUrl, '_self');
+      console.log("cartID: ", getCartID());
+      window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + '&attributes[testing]=wasup', '_self');
 
     });
 

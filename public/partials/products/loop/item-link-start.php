@@ -1,1 +1,1 @@
-<a href="/<?php echo $settings->url_products; ?>/<?php echo $product->handle; ?>" class="wps-product-link <?php echo apply_filters( 'wps_products_link_class', '' ); ?>" title="<?php echo $product->title; ?>">
+<a href="<?php echo esc_url( home_url() . '/' . $settings->url_products . '/' . $product->handle); ?>" class="wps-product-link <?php echo apply_filters( 'wps_products_link_class', '' ); ?>" title="<?php esc_attr_e($product->title, 'wp-shopify'); ?>">

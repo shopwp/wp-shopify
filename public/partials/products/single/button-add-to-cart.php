@@ -30,8 +30,8 @@ if (count($product['options']) === 1) {
     itemtype="https://schema.org/BuyAction"
     href="#!"
     class="wps-btn wps-col-1 wps-btn-secondary wps-add-to-cart"
-    title="Add to cart">
-    Add to cart
+    title="<?php esc_attr_e('Add to cart', 'wp-shopify'); ?>">
+    <?php esc_html_e('Add to cart', 'wp-shopify'); ?>
   </button>
 
 </div>

@@ -8,23 +8,27 @@ Tab Content: Help / Debug
 
   <div class="wps-admin-section">
 
-    <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-sos"></span> Help</h3>
+    <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-sos"></span> <?php esc_html_e('Help', 'wp-shopify'); ?></h3>
 
-    <p>If you're running into problems don't hesitate to jump into our public Slack to <a href="https://join.slack.com/wpshopify/shared_invite/MTg5OTQxODEwOTM1LTE0OTU5ODY2MTktN2Y1ODk0YzBlNg" target="_blank">ask a question</a>. If Slack isn't your thing feel free to send us an email outlining your problem to <a href="mailto:hello@wpshop.io">hello@wpshop.io</a></p>
-
-    <p>Also make sure to review the documentation found here: <a href="<?php echo $this->config->plugin_env; ?>/docs" target="_blank"><?php echo $this->config->plugin_env; ?>/docs</a></p>
+    <p><?php printf(__('If you\'re running into problems don\'t hesitate to jump into our public Slack to <a href="%1$s" target="_blank">ask a question</a>. If Slack isn\'t your thing, feel free to send us an email outlining your problem to <a href="%2$s">hello@wpshop.io</a>', 'wp-shopify'), esc_url("https://join.slack.com/wpshopify/shared_invite/MTg5OTQxODEwOTM1LTE0OTU5ODY2MTktN2Y1ODk0YzBlNg"), esc_url("mailto:hello@wpshop.io")); ?></p>
+    <p><?php printf(__('Also make sure to review the documentation found here: <a href="%1$s" target="_blank">%2$s</a>', 'wp-shopify'), esc_url($this->config->plugin_env . "/docs"), esc_url($this->config->plugin_env . "/docs")); ?></p>
 
     <textarea name="name" rows="30" cols="95" readonly>
 
-
 <?php
 
+
+// TODO: Clean this up and restructure
+// We currently don't _need_ to translate the below content since they'll be sending it to me for debug purposes
+
 function open_ssl_enabled() {
+
   if ( defined( 'OPENSSL_VERSION_TEXT' ) ) {
     return true;
   } else {
     return false;
   }
+
 }
 
 

@@ -27,9 +27,9 @@ $options = Utils::wps_sort_by($product['options'], 'position');
     <a
       href="#!"
       class="wps-btn wps-icon wps-icon-dropdown wps-modal-trigger"
-      data-option="<?php echo $option['name']; ?>"
+      data-option="<?php esc_attr_e($option['name'], 'wp-shopify'); ?>"
       data-option-id="<?php echo $option['id']; ?>">
-        <?php echo $option['name']; ?>
+        <?php esc_html_e($option['name'], 'wp-shopify'); ?>
     </a>
 
     <ul class="wps-modal">
@@ -40,9 +40,9 @@ $options = Utils::wps_sort_by($product['options'], 'position');
           itemprop="category"
           class="wps-product-style wps-modal-close-trigger"
           data-option-id="<?php echo $uid; ?>"
-          data-variant-title="<?php echo $variant; ?>"
+          data-variant-title="<?php esc_attr_e($variant, 'wp-shopify'); ?>"
           data-option-position="<?php echo $option['position']; ?>">
-            <?php echo $variant; ?>
+            <?php esc_html_e($variant, 'wp-shopify'); ?>
         </li>
 
         <?php $uid++; ?>

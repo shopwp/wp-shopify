@@ -22,15 +22,14 @@ use WPS\DB\Orders;
 use WPS\DB\Customers;
 
 use GuzzleHttp\Client as Guzzle;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Http\Message\ResponseInterface;
-
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
 
 
 /*
@@ -107,46 +106,34 @@ class WS {
   }
 
 
+  /*
 
+  Get Error Message
+  TODO: Move to Utils
 
+  */
+  public function wps_get_error_message($error) {
 
+    if (method_exists($error, 'getResponse') && method_exists($error->getResponse(), 'getBody') && method_exists($error->getResponse()->getBody(), 'getContents')) {
 
+      $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
 
+      if (is_object($responseDecoded) && isset($responseDecoded->errors)) {
+        $errorMessage = $responseDecoded->errors;
 
+      } else {
+        $errorMessage = $error->getMessage();
+      }
 
-
-
-
-public function wps_get_error_message($error) {
-
-  if (method_exists($error, 'getResponse') && method_exists($error->getResponse(), 'getBody') && method_exists($error->getResponse()->getBody(), 'getContents')) {
-
-    $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
-
-    if (is_object($responseDecoded) && isset($responseDecoded->errors)) {
-      $errorMessage = $responseDecoded->errors;
+      return esc_html__($errorMessage, 'wp-shopify');
 
     } else {
-      $errorMessage = $error->getMessage();
+
+      return esc_html__($error->getMessage(), 'wp-shopify');
+
     }
 
-    return $errorMessage;
-
-  } else {
-
-    return $error->getMessage();
-
   }
-
-}
-
-
-
-
-
-
-
-
 
 
   /*
@@ -172,7 +159,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_image_alt($image) {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -218,7 +205,7 @@ public function wps_get_error_message($error) {
               return $data->metafields[0]->value;
 
             } else {
-              return 'Shop Product'; // Default alt text if none exists
+              return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
             }
 
           } else {
@@ -229,7 +216,7 @@ public function wps_get_error_message($error) {
         } catch (RequestException $error) {
 
           // return new \WP_Error('error', $this->wps_get_error_message($error));
-          return 'Shop Product';
+          return esc_html__('Shop Product', 'wp-shopify');
 
         }
 
@@ -248,7 +235,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_products_count() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -307,12 +294,13 @@ public function wps_get_error_message($error) {
   /*
 
   Get Collections Count
+  TODO: Move the "No connection details ..." msg into a constant for reusability
 
   */
   public function wps_ws_get_collects_count() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -362,7 +350,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_orders_count() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -403,10 +391,6 @@ public function wps_get_error_message($error) {
   }
 
 
-
-
-
-
   /*
 
   Get Customers Count
@@ -416,7 +400,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_customers_count() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.'));
 
     } else {
 
@@ -457,10 +441,6 @@ public function wps_get_error_message($error) {
   }
 
 
-
-
-
-
   /*
 
   Get Shop Data
@@ -469,7 +449,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_shop_data() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -510,7 +490,6 @@ public function wps_get_error_message($error) {
   }
 
 
-
   /*
 
   Get Products + Variants
@@ -521,7 +500,7 @@ public function wps_get_error_message($error) {
   public function wps_insert_products_data() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -554,7 +533,6 @@ public function wps_get_error_message($error) {
 
       try {
 
-
         /*
 
         For testing server timeout error, add these to guzzle settings ...
@@ -584,19 +562,19 @@ public function wps_get_error_message($error) {
           $resultProducts = $DB_Products->insert_products( $data->products );
 
           if (empty($resultProducts)) {
-            wp_send_json_error('Syncing stopped at insert_products');
+            wp_send_json_error(esc_html__('Syncing stopped at insert_products', 'wp-shopify'));
           }
 
           $resultVariants = $DB_Variants->insert_variants( $data->products );
 
           if (empty($resultVariants)) {
-            wp_send_json_error('Syncing stopped at insert_variants');
+            wp_send_json_error(esc_html__('Syncing stopped at insert_variants', 'wp-shopify'));
           }
 
           $resultOptions = $DB_Options->insert_options( $data->products );
 
           if (empty($resultOptions)) {
-            wp_send_json_error('Syncing stopped at insert_options');
+            wp_send_json_error(esc_html__('Syncing stopped at insert_options', 'wp-shopify'));
           }
 
 
@@ -608,7 +586,7 @@ public function wps_get_error_message($error) {
           $resultImages = $DB_Images->insert_images( $data->products );
 
           if (is_wp_error($resultImages)) {
-            wp_send_json_error($resultImages->get_error_message());
+            wp_send_json_error(esc_html__($resultImages->get_error_message(), 'wp-shopify'));
           }
 
 
@@ -645,7 +623,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_variants() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -709,7 +687,7 @@ public function wps_get_error_message($error) {
     $DB_Images = new Images();
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -760,7 +738,6 @@ public function wps_get_error_message($error) {
 
         }
 
-
       } catch (RequestException $error) {
 
         wp_send_json_error( $this->wps_get_error_message($error) );
@@ -784,7 +761,7 @@ public function wps_get_error_message($error) {
     $DB_Images = new Images();
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -838,7 +815,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_products_from_collection() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -889,7 +866,7 @@ public function wps_get_error_message($error) {
   public function wps_insert_collects() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -962,7 +939,7 @@ public function wps_get_error_message($error) {
     if (Utils::emptyConnection($this->connection)) {
 
       if ($ajax) {
-        wp_send_json_error('No connection details found. Please reconnect.');
+        wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
       } else {
         return false;
@@ -1004,11 +981,9 @@ public function wps_get_error_message($error) {
 
         }
 
-
       } catch (RequestException $error) {
 
         wp_send_json_error( $this->wps_get_error_message($error) );
-
 
       }
 
@@ -1034,7 +1009,7 @@ public function wps_get_error_message($error) {
     }
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -1085,6 +1060,7 @@ public function wps_get_error_message($error) {
 
       }
 
+
     }
 
   }
@@ -1098,7 +1074,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_get_single_collection() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -1149,7 +1125,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_end_api_connection() {
 
     if (Utils::emptyConnection($this->connection)) {
-      return new \WP_Error('error', 'Unable to disconnect Shopify store. Missing or invalid access token');
+      return new \WP_Error('error', esc_html__('Unable to disconnect Shopify store. Missing or invalid access token', 'wp-shopify'));
 
     } else {
 
@@ -1245,7 +1221,7 @@ public function wps_get_error_message($error) {
 	public function wps_ws_get_webhooks() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -1278,7 +1254,6 @@ public function wps_get_error_message($error) {
 
 		}
 
-
 	}
 
 
@@ -1291,7 +1266,7 @@ public function wps_get_error_message($error) {
   public function wps_ws_delete_webhook() {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -1321,7 +1296,7 @@ public function wps_get_error_message($error) {
 
       } else {
 
-        return new \WP_Error('error', 'No webhook ID set');
+        return new \WP_Error('error', esc_html__('No webhook ID set', 'wp-shopify'));
 
       }
 
@@ -1330,13 +1305,21 @@ public function wps_get_error_message($error) {
   }
 
 
+  /*
+
+  Get Progress Count
+
+  */
   function wps_get_progress_count() {
     wp_send_json_success($_SESSION);
   }
 
 
+  /*
 
+  Update Settings General
 
+  */
   public function wps_update_settings_general() {
 
     global $wp_rewrite;
@@ -1391,7 +1374,6 @@ public function wps_get_error_message($error) {
 
     $results = $DB_Settings_General->update_general($newGeneralSettings);
 
-
     Transients::delete_cached_settings();
     set_transient('wps_settings_updated', $newGeneralSettings);
 
@@ -1408,45 +1390,6 @@ public function wps_get_error_message($error) {
   public function wps_reset_rewrite_rules($old_value, $new_value) {
     update_option('rewrite_rules', '');
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-
-NEW STRUCTURE
-
-
-
-
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
 
 
   /*
@@ -1486,7 +1429,7 @@ NEW STRUCTURE
     $results = $DB_Settings_Connection->insert_connection($connectionData);
 
     if ($results === false) {
-      wp_send_json_error('Unable to save Shopify connection details. Please try again.');
+      wp_send_json_error(esc_html__('Unable to save Shopify connection details. Please try again.', 'wp-shopify'));
 
     } else {
       wp_send_json_success($results);
@@ -1512,9 +1455,6 @@ NEW STRUCTURE
   }
 
 
-
-
-
   /*
 
   Delete Shop Data
@@ -1525,7 +1465,7 @@ NEW STRUCTURE
     $DB_Shop = new Shop();
 
     if (!$DB_Shop->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete shop data.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete shop data.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1545,7 +1485,7 @@ NEW STRUCTURE
 		$DB_Settings_Connection = new Settings_Connection();
 
     if (!$DB_Settings_Connection->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete connection settings.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete connection settings.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1565,17 +1505,16 @@ NEW STRUCTURE
     $Backend = new Backend($this->config);
 
     if (!$Backend->wps_delete_posts('wps_products')) {
-      $result = new \WP_Error('error', 'Warning: Some products could not be deleted. Please try again.');
+      $result = new \WP_Error('error', esc_html__('Warning: Some products could not be deleted. Please try again.', 'wp-shopify'));
     }
 
     if (!$Backend->wps_delete_posts('wps_collections')) {
-      $result = new \WP_Error('error', 'Warning: Some collections could not be deleted. Please try again.');
+      $result = new \WP_Error('error', esc_html__('Warning: Some collections could not be deleted. Please try again.', 'wp-shopify'));
     }
 
     return $result;
 
   }
-
 
 
   /*
@@ -1588,7 +1527,7 @@ NEW STRUCTURE
     $Images = new Images();
 
     if (!$Images->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete product images.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete product images.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1607,14 +1546,13 @@ NEW STRUCTURE
     $Inventory = new Inventory();
 
     if (!$Inventory->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete product inventory.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete product inventory.', 'wp-shopify'));
 
     } else {
       return true;
     }
 
   }
-
 
 
   /*
@@ -1627,7 +1565,7 @@ NEW STRUCTURE
     $Collects = new Collects();
 
     if (!$Collects->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete collects.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete collects.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1646,7 +1584,7 @@ NEW STRUCTURE
     $Tags = new Tags();
 
     if (!$Tags->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete product tags.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete product tags.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1665,7 +1603,7 @@ NEW STRUCTURE
     $Options = new Options();
 
     if (!$Options->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete product options.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete product options.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1684,7 +1622,7 @@ NEW STRUCTURE
     $Variants = new Variants();
 
     if (!$Variants->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete product variants.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete product variants.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1703,7 +1641,7 @@ NEW STRUCTURE
     $Products = new Products();
 
     if (!$Products->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete products.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete products.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1722,7 +1660,7 @@ NEW STRUCTURE
     $Collections_Custom = new Collections_Custom();
 
     if (!$Collections_Custom->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete custom collections.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete custom collections.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1741,7 +1679,7 @@ NEW STRUCTURE
     $Collections_Smart = new Collections_Smart();
 
     if (!$Collections_Smart->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete smart collections.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete smart collections.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1760,7 +1698,7 @@ NEW STRUCTURE
     $Orders = new Orders();
 
     if (!$Orders->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete orders.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete orders.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1779,7 +1717,7 @@ NEW STRUCTURE
     $Customers = new Customers();
 
     if (!$Customers->delete()) {
-      return new \WP_Error('error', 'Warning: Unable to delete customers.');
+      return new \WP_Error('error', esc_html__('Warning: Unable to delete customers.', 'wp-shopify'));
 
     } else {
       return true;
@@ -1790,9 +1728,7 @@ NEW STRUCTURE
 
   /*
 
-
   Drop databases used during uninstall
-
 
   */
   public function wps_drop_databases() {
@@ -1827,7 +1763,6 @@ NEW STRUCTURE
     $results['images'] = $Images->delete_table();
     $results['orders'] = $Orders->delete_table();
     $results['customers'] = $Customers->delete_table();
-
     $results['transients'] = $Transients->delete_all_cache();
 
     return $results;
@@ -1873,11 +1808,9 @@ NEW STRUCTURE
     $Transients = new Transients();
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('domain');
-
     $results = $this->wps_uninstall_product_data();
 
     if (!empty($connection)) {
-
 
       /*
 
@@ -1892,7 +1825,6 @@ NEW STRUCTURE
       } else {
         $results['connection_api'] = $response_connection_api;
       }
-
 
       /*
 
@@ -1974,7 +1906,6 @@ NEW STRUCTURE
     // } else {
     //   $results['cpt'] = $response_cpt;
     // }
-
 
     /*
 
@@ -2155,7 +2086,6 @@ NEW STRUCTURE
   }
 
 
-
   /*
 
   Set syncing indicator
@@ -2187,14 +2117,12 @@ NEW STRUCTURE
 
 
     if ($ajax) {
-
       wp_send_json_success($results);
 
     } else {
       return $results;
 
     }
-
 
   }
 
@@ -2210,24 +2138,11 @@ NEW STRUCTURE
     $results = $Transients->delete_all_cache();
 
     if (is_wp_error($results)) {
-      wp_send_json_error($results->get_error_message());
+      wp_send_json_error(esc_html__($results->get_error_message(), 'wp-shopify'));
 
     } else {
       wp_send_json_success($results);
     }
-
-  }
-
-
-  public function syncSingleProductWithCPT() {
-
-  }
-
-  public function syncSingleCollectionWithCPT() {
-
-  }
-
-  public function getPostContentHash($product) {
 
   }
 
@@ -2244,7 +2159,7 @@ NEW STRUCTURE
     $Utils = new Utils();
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -2275,20 +2190,9 @@ NEW STRUCTURE
 
       }
 
-
     }
 
-
   }
-
-
-
-
-
-
-
-
-
 
 
   /*
@@ -2302,7 +2206,7 @@ NEW STRUCTURE
     $DB_Orders = new Orders();
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -2349,7 +2253,7 @@ NEW STRUCTURE
           $resultOrders = $DB_Orders->insert_orders( $data->orders );
 
           if (empty($resultOrders)) {
-            wp_send_json_error('Syncing stopped at insert_orders');
+            wp_send_json_error(esc_html__('Syncing stopped at insert_orders', 'wp-shopify'));
           }
 
           $insertionResults['orders'] = $resultOrders;
@@ -2361,19 +2265,15 @@ NEW STRUCTURE
 
         }
 
-
       } catch (RequestException $error) {
 
         wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
-
     }
 
-
   }
-
 
 
   /*
@@ -2387,7 +2287,7 @@ NEW STRUCTURE
     $DB_Customers = new Customers();
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error('No connection details found. Please reconnect.');
+      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
 
     } else {
 
@@ -2434,7 +2334,7 @@ NEW STRUCTURE
           $results = $DB_Customers->insert_customers( $data->customers );
 
           if (empty($results)) {
-            wp_send_json_error('Syncing stopped at insert_customers');
+            wp_send_json_error(esc_html__('Syncing stopped at insert_customers', 'wp-shopify'));
           }
 
           $insertionResults['customers'] = $results;
@@ -2453,14 +2353,8 @@ NEW STRUCTURE
 
       }
 
-
     }
 
-
   }
-
-
-
-
 
 }

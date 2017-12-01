@@ -90,19 +90,19 @@ class CPT {
 
 
     $labels = array(
-      'name'                => _x('Products', 'Post Type General Name', 'text_domain'),
-      'singular_name'       => _x('Product', 'Post Type Singular Name', 'text_domain'),
-      'menu_name'           => __('Products', 'text_domain'),
-      'parent_item_colon'   => __('Parent Item:', 'text_domain'),
-      'new_item'            => __('Add New Product', 'text_domain'),
-      'edit_item'           => __('Edit Product', 'text_domain'),
-      'not_found'           => __('No Products found', 'text_domain'),
-      'not_found_in_trash'  => __('No Products found in trash', 'text_domain')
+      'name'                => _x('Products', 'Post Type General Name', 'wp-shopify'),
+      'singular_name'       => _x('Product', 'Post Type Singular Name', 'wp-shopify'),
+      'menu_name'           => __('Products', 'wp-shopify'),
+      'parent_item_colon'   => __('Parent Item:', 'wp-shopify'),
+      'new_item'            => __('Add New Product', 'wp-shopify'),
+      'edit_item'           => __('Edit Product', 'wp-shopify'),
+      'not_found'           => __('No Products found', 'wp-shopify'),
+      'not_found_in_trash'  => __('No Products found in trash', 'wp-shopify')
     );
 
     $args = array(
-      'label'               => __('Products', 'text_domain'),
-      'description'         => __('Custom Post Type for Products', 'text_domain'),
+      'label'               => __('Products', 'wp-shopify'),
+      'description'         => __('Custom Post Type for Products', 'wp-shopify'),
       'labels'              => $labels,
       'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
       'hierarchical'        => false,
@@ -148,22 +148,22 @@ class CPT {
     } else {
       $permalink = $this->general->url_collections;
     }
-    
+
 
     $labels = array(
-      'name'                => _x('Collections', 'Post Type General Name', 'text_domain'),
-      'singular_name'       => _x('Collection', 'Post Type Singular Name', 'text_domain'),
-      'menu_name'           => __('Collections', 'text_domain'),
-      'parent_item_colon'   => __('Parent Item:', 'text_domain'),
-      'new_item'            => __('Add New Collection', 'text_domain'),
-      'edit_item'           => __('Edit Collection', 'text_domain'),
-      'not_found'           => __('No Collections found', 'text_domain'),
-      'not_found_in_trash'  => __('No Collections found in trash', 'text_domain')
+      'name'                => _x('Collections', 'Post Type General Name', 'wp-shopify'),
+      'singular_name'       => _x('Collection', 'Post Type Singular Name', 'wp-shopify'),
+      'menu_name'           => __('Collections', 'wp-shopify'),
+      'parent_item_colon'   => __('Parent Item:', 'wp-shopify'),
+      'new_item'            => __('Add New Collection', 'wp-shopify'),
+      'edit_item'           => __('Edit Collection', 'wp-shopify'),
+      'not_found'           => __('No Collections found', 'wp-shopify'),
+      'not_found_in_trash'  => __('No Collections found in trash', 'wp-shopify')
     );
 
     $args = array(
-      'label'               => __('Collections', 'text_domain'),
-      'description'         => __('Custom Post Type for Collections', 'text_domain'),
+      'label'               => __('Collections', 'wp-shopify'),
+      'description'         => __('Custom Post Type for Collections', 'wp-shopify'),
       'labels'              => $labels,
       'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
       'hierarchical'        => false,
@@ -200,11 +200,11 @@ class CPT {
   public static function wps_get_product_cpt_model($product) {
 
     return $productModel = array(
-      'post_title'    => property_exists($product, 'title') ? $product->title : '',
-      'post_content'  => property_exists($product, 'body_html') ? $product->body_html : '',
+      'post_title'    => property_exists($product, 'title') ? __($product->title) : '',
+      'post_content'  => property_exists($product, 'body_html') ? __($product->body_html) : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_products',
-      'post_name'			=> property_exists($product, 'handle') ? $product->handle : '',
+      'post_name'			=> property_exists($product, 'handle') ? __($product->handle) : '',
       'meta_input' => array(
         'product_id' => property_exists($product, 'id') ? $product->id : ''
       )
@@ -221,11 +221,11 @@ class CPT {
   public static function wps_get_collection_cpt_model($collection, $newCollectionID) {
 
     return array(
-      'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
-      'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
+      'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
+      'post_content'  => property_exists($collection, 'body_html') ? __($collection->body_html) : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_collections',
-      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
+      'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
       'meta_input' => array(
         'collection_id' => $newCollectionID
       )
@@ -274,7 +274,6 @@ class CPT {
 
     $productModel = self::wps_get_product_cpt_model($product);
     $existing_post_id = Utils::wps_find_post_id_from_new_product_or_collection($product, $existingProducts, 'product');
-
 
     // If existing CPT found ...
     if (!empty($existing_post_id) && $existing_post_id) {
@@ -352,11 +351,11 @@ class CPT {
 
     $collection_args = array(
       'ID'            => !empty($found_post_id) ? $found_post_id : null,
-      'post_title'    => property_exists($collection, 'title') ? $collection->title : '',
-      'post_content'  => property_exists($collection, 'body_html') ? $collection->body_html : '',
+      'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
+      'post_content'  => property_exists($collection, 'body_html') ? __($collection->body_html) : '',
       'post_status'   => 'publish',
       'post_type'     => 'wps_collections',
-      'post_name'			=> property_exists($collection, 'handle') ? $collection->handle : '',
+      'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
       'meta_input' => array(
         'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
       )

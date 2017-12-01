@@ -51,7 +51,7 @@ use WPS\Utils;
         // echo 'First: ' . $priceFirst;
         // echo 'Last: ' . $priceLast;
 
-        $defaultPrice = apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">From: </small>') . apply_filters('wps_products_price_multi_first', $priceFirst) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $priceLast);
+        $defaultPrice = apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">' . esc_html__('From: ', 'wp-shopify') . '</small>') . apply_filters('wps_products_price_multi_first', $priceFirst) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $priceLast);
 
         echo apply_filters('wps_products_price_multi', $defaultPrice, $priceFirst, $priceLast, $product);
 

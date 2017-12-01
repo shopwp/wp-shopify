@@ -163,8 +163,12 @@ function onAddProductToCart(shopify) {
         matchingProductVariantID = $container.attr('data-product-selected-variant'),
         productID = $container.attr('data-product-id'),
         productQuantity = $container.attr('data-product-quantity'),
+        $cartForm = jQuery('.wps-cart-form .wps-cart-item-container'),
         product,
         productVariant;
+
+    showLoader($cartForm);
+    disable($cartForm);
 
     if (allProductVariantsSelected($container)) {
 
@@ -224,6 +228,9 @@ function onAddProductToCart(shopify) {
 
       enable($addToCartButton);
       hideLoader($addToCartButton);
+
+      enable($cartForm);
+      hideLoader($cartForm);
 
       if (!cartIsOpen()) {
         toggleCart();

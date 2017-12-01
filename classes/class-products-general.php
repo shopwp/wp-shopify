@@ -72,13 +72,13 @@ class Products_General {
     $images = $this->wps_create_image_model($postData['images']);
 
     $structure = array(
-      'post_title'   						=> $postData['title'],
-      'post_content' 						=> $postData['body_html'],
+      'post_title'   						=> esc_html__($postData['title']),
+      'post_content' 						=> esc_html__($postData['body_html']),
       'post_status'   					=> 'publish',
       'post_type'     					=> 'wps_products',
       'post_name'								=> $postData['handle'],
       'meta_input'							=> array(
-        "wps_product_title" 		=> $postData['title'],
+        "wps_product_title" 		=> esc_html__($postData['title']),
         "wps_product_id" 				=> $postData['id'],
         "wps_product_handle" 		=> $postData['handle'],
         "wps_product_images" 		=> $images,
@@ -196,14 +196,9 @@ class Products_General {
   }
 
 
-
-
-
   /*
 
-
   WPS API Method: Get Variants
-
 
   */
   public function get_variants($product_id) {
@@ -212,8 +207,6 @@ class Products_General {
     return $DB_Variants->get_product_variants($product_id);
 
   }
-
-
 
 
   /*
@@ -286,13 +279,14 @@ class Products_General {
 	*/
 	public static function wps_get_product_data($id = false) {
 
-		if(isset($id) && $id) {
+		if (isset($id) && $id) {
 			$productId = $id;
 
 		} else {
 			$productId = get_the_ID();
 
 		}
+
 
     /*
 

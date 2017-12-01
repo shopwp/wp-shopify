@@ -92,8 +92,8 @@ class Shop extends \WPS\DB {
       'province'                    => '',
       'province_code'               => '',
       'timezone'                    => '',
-			'created_at'                  => date( 'Y-m-d H:i:s' ),
-      'updated_at'                  => date( 'Y-m-d H:i:s' )
+			'created_at'                  => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'                  => date_i18n( 'Y-m-d H:i:s' )
     );
   }
 
@@ -165,10 +165,11 @@ class Shop extends \WPS\DB {
 	}
 
 
+	/*
 
+	Get Money Format
 
-
-
+	*/
 	public function get_money_format() {
 
     $money_format = $this->get_shop('money_format');
@@ -179,6 +180,11 @@ class Shop extends \WPS\DB {
   }
 
 
+	/*
+
+	Get Money With Currency Format
+
+	*/
 	public function get_money_with_currency_format() {
 
     $money_with_currency_format = $this->get_shop('money_with_currency_format');

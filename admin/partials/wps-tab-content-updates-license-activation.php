@@ -24,8 +24,12 @@ License Activation
       <!-- License Key -->
       <div class="wps-form-group">
 
-        <h3><?php esc_attr_e( 'License Key', 'wp_admin_style' ); ?></h3>
-        <small>You can find your license key <a href="https://wpshop.io/login" target="_blank">within your account</a> or contained inside your payment confirmation email.</small>
+        <h3><?php esc_html_e('License Key', 'wp-shopify'); ?></h3>
+
+        <small>
+          <?php printf(__('You can find your license key <a href="%1$s" target="_blank">within your account</a> or contained inside your payment confirmation email.', 'wp-shopify'), esc_url("https://wpshop.io/login")); ?>
+        </small>
+
         <input autocomplete="off" required <?php echo $activeLicense ? 'disabled' : ''; ?> type="text" class="regular-text wps-input-license-key <?php echo $activeLicense ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_license_option_name; ?>_license" name="<?php echo $this->config->settings_license_option_name; ?>[key]" value="<?php if(!empty($license->key)) echo $maskedKey; ?>" placeholder=""><div class="wps-form-icon wps-animated"></div>
 
       </div>
@@ -34,19 +38,28 @@ License Activation
       <div class="wps-button-group button-group button-group-ajax">
 
         <?php if($activeLicense) { ?>
-          <?php submit_button(__('Deactivate License', $this->config->settings_license_option_name), 'primary', 'submit-license', false, array('data-status' => 'deactivate')); ?>
+          <?php submit_button(esc_html__('Deactivate License', 'wp-shopify'), 'primary', 'submit-license', false, array('data-status' => 'deactivate')); ?>
+
         <?php } else { ?>
-          <?php submit_button(__('Activate License', $this->config->settings_license_option_name), 'primary', 'submit-license', false, array('data-status' => 'activate')); ?>
+          <?php submit_button(esc_html__('Activate License', 'wp-shopify'), 'primary', 'submit-license', false, array('data-status' => 'activate')); ?>
+
         <?php } ?>
 
         <div class="spinner"></div>
+
       </div>
 
-    <!-- <div class="">
-      <input type="submit" value="Deactivate License" class="button button-primary wps-btn-deactivate-license">
-      <input type="submit" value="Check License" class="button button-primary wps-btn-check-license">
-      <input type="submit" value="Get Product" class="button button-primary wps-btn-get-product">
-    </div> -->
+      <!--
+
+      Test functions
+
+      <div class="">
+        <input type="submit" value="Deactivate License" class="button button-primary wps-btn-deactivate-license">
+        <input type="submit" value="Check License" class="button button-primary wps-btn-check-license">
+        <input type="submit" value="Get Product" class="button button-primary wps-btn-get-product">
+      </div>
+
+      -->
 
     </form>
 

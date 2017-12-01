@@ -5,7 +5,10 @@ Tab Content: Updates
 -->
 <div class="tab-content <?php echo $tab === 'updates' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-updates">
 
-  <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-download"></span> License & Updates</h3>
+  <h3 class="wps-admin-section-heading">
+    <span class="dashicons dashicons-download"></span>
+    <?php esc_html_e('License & Updates', 'wp-shopify') ?>
+  </h3>
 
   <div id="post-body" class="metabox-holder columns-2">
 
@@ -25,6 +28,6 @@ Tab Content: Updates
 
     </div>
 
-</div>
+  </div>
 
 </div>

@@ -82,7 +82,7 @@ class Orders extends \WPS\DB {
 
     foreach ($orders as $key => $order) {
 
-      if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
+      if ($DB_Settings_Connection->is_syncing()) {
 
         // If product is visible on the Online Stores channel
         if (property_exists($order, 'created_at') && $order->created_at !== null) {

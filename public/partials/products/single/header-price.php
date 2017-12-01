@@ -28,7 +28,7 @@
 
     } else {
 
-      $defaultPrice = '<small class="wps-product-from-price">From: </small>' . Utils::wps_format_money($firstVariantPrice, $product) . ' <span class="wps-product-from-price-separator">-</span> ' . Utils::wps_format_money($lastVariantPrice, $product);
+      $defaultPrice = '<small class="wps-product-from-price">' . esc_html__('From: ', 'wp-shopify') . '</small>' . Utils::wps_format_money($firstVariantPrice, $product) . ' <span class="wps-product-from-price-separator">-</span> ' . Utils::wps_format_money($lastVariantPrice, $product);
 
       $firstVariantPrice = Utils::wps_format_money($firstVariantPrice, $product);
       $lastVariantPrice = Utils::wps_format_money($lastVariantPrice, $product);

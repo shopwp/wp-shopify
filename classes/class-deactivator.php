@@ -19,13 +19,7 @@ class Deactivator {
 
 	*/
 	public function __construct($Config) {
-		// $this->connection = $this->config->wps_get_settings_connection();
-		// $this->license 		= $this->config->wps_get_settings_license();
-		// $this->general 		= $this->config->wps_get_settings_general();
-
-
 		$this->plugin_basename = $Config->plugin_basename;
-
 	}
 
 	/*
@@ -53,7 +47,6 @@ class Deactivator {
 	public function deactivate() {
 		flush_rewrite_rules();
 	}
-
 
 	public function init() {
 		register_activation_hook($this->plugin_basename, [$this, 'deactivate']);
