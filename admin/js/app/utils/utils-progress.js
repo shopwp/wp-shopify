@@ -23,14 +23,24 @@ function removeProgressLoader() {
 }
 
 
+/*
+
+Stop Progress Loader
+
+*/
 function stopProgressLoader(timer) {
   clearInterval(timer);
 }
 
 
+/*
+
+Update Progress Loader
+
+*/
 function updateProgressLoader() {
 
-  getProgressCount();
+  // getProgressCount();
   // stopProgressLoader(timer)
 
 }

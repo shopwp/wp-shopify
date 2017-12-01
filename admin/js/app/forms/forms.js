@@ -89,7 +89,6 @@ function onWebhookGet() {
 
       var resp = await getWebhooks();
 
-
     } catch(error) {
 
 
@@ -170,9 +169,11 @@ function unbindDisconnectForm() {
 }
 
 
+/*
 
+Format Connector Form Data
 
-
+*/
 function formatConnectorFormData(formData) {
 
   var formData = JSON.parse(JSON.stringify(formData));
@@ -183,11 +184,6 @@ function formatConnectorFormData(formData) {
   }, {} );
 
 }
-
-
-
-
-
 
 
 /*
@@ -206,4 +202,9 @@ function formEventsInit() {
 
 }
 
-export { formEventsInit, unbindConnectForm, unbindDisconnectForm, formatConnectorFormData };
+export {
+  formEventsInit,
+  unbindConnectForm,
+  unbindDisconnectForm,
+  formatConnectorFormData
+};

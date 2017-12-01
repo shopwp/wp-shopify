@@ -76,7 +76,6 @@ async function syncPluginData() {
 
   return remainingResp;
 
-
 }
 
 export {

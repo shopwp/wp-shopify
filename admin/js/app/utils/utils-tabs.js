@@ -1,6 +1,6 @@
 /*
 
-toggleTab
+Toggle Tab
 
 */
 function toggleTab() {
@@ -26,7 +26,7 @@ function toggleTab() {
 
 /*
 
-findTab
+Find Tab
 
 */
 function findTab(targetTab) {
@@ -36,7 +36,7 @@ function findTab(targetTab) {
 
 /*
 
-findTabContent
+Find Tab Content
 
 */
 function findTabContent(targetTabContent) {
@@ -46,7 +46,7 @@ function findTabContent(targetTabContent) {
 
 /*
 
-removeCurrentActiveTab
+Remove Current Active Tab
 
 */
 function removeCurrentActiveTab() {
@@ -56,6 +56,8 @@ function removeCurrentActiveTab() {
 
 
 /*
+
+Tabs Init
 
 */
 function tabsInit() {

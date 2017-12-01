@@ -89,12 +89,15 @@ async function streamShop() {
 
   return new Promise(async function streamShopHandler(resolve, reject) {
 
-    //
-    // 1. Get Shop Data from Shopify
-    // TODO: It's hard to tell at first glance whether we're making a call
-    // to Shopify or our internal DB. We should prefix the function to
-    // ensure this is clear. Phase 2.
-    //
+    /*
+
+    1. Get Shop Data from Shopify
+
+    TODO: It's hard to tell at first glance whether we're making a call
+    to Shopify or our internal DB. We should prefix the function to
+    ensure this is clear. Phase 2.
+
+    */
     try {
 
       var shopData = await getShopData();
@@ -119,9 +122,12 @@ async function streamShop() {
 
     }
 
-    //
-    // 2. Send to server
-    //
+
+    /*
+
+    2. Send shop data to server
+
+    */
     try {
 
       var shop = await insertShopData(shopData);
@@ -163,10 +169,11 @@ async function streamProducts() {
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
+    /*
 
-    //
-    // 1. Get products count
-    //
+    1. Get products count
+
+    */
     try {
 
       productCount = await getProductsCount();
@@ -187,12 +194,14 @@ async function streamProducts() {
 
     }
 
-    //
-    // 2. Get all products
-    // TODO: Abstract out?
-    //
-    pages = Math.ceil(productCount / pageSize);
 
+    /*
+
+    2. Get all products
+    TODO: Abstract out?
+
+    */
+    pages = Math.ceil(productCount / pageSize);
 
     // Run for each page of products
     while(currentPage <= pages) {
@@ -228,9 +237,6 @@ async function streamProducts() {
         console.error("Error insertProductsData: ", error);
         reject(error);
         break;
-        // currentPage = pages+1;
-        // return reject(error);
-
       }
 
     }
@@ -254,9 +260,11 @@ async function streamCollects() {
 
   return new Promise(async function streamCollectsHandler(resolve, reject) {
 
-    //
-    // 1. Get collects count
-    //
+    /*
+
+    1. Get collects count
+
+    */
     try {
 
       collectsCount = await getCollectsCount();
@@ -273,14 +281,16 @@ async function streamCollects() {
       }
 
     } catch(error) {
-
       reject(error);
 
     }
 
-    //
-    // 2. Get all collects
-    //
+
+    /*
+
+    2. Get all collects
+
+    */
     try {
 
       var pageSize = 250,
@@ -489,7 +499,6 @@ async function streamOrders() {
   });
 
 }
-
 
 
 /*

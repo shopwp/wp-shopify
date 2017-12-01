@@ -12,6 +12,7 @@ import { toolsInit } from './tools/tools';
 
 
 (function($) {
+
 	'use strict';
 
 	$(function() {
@@ -21,7 +22,6 @@ import { toolsInit } from './tools/tools';
 		var params = getUrlParams(window.location.href);
 
 		initAdmin();
-
 		tabsInit();
 		vendorInit();
 		formEventsInit();
@@ -34,7 +34,7 @@ import { toolsInit } from './tools/tools';
 
 		} else {
 
-			if($submitButton.attr('name') === 'submitDisconnect') {
+			if ($submitButton.attr('name') === 'submitDisconnect') {
 				disconnectInit();
 
 			} else {
@@ -43,7 +43,6 @@ import { toolsInit } from './tools/tools';
 			}
 
 		}
-
 
   });
 

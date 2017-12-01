@@ -71,7 +71,7 @@ function onSettingsFormSubmit() {
       var collectionsURL = jQuery(form).find("#wps_settings_general_url_collections").val();
       var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
-    
+
       // var styles = jQuery(form).find("#wps_settings_general_styles").val();
 
       disable($submitButton);
@@ -100,7 +100,6 @@ function onSettingsFormSubmit() {
 
       } else {
         var cartLoaded = 0;
-
       }
 
 
@@ -109,7 +108,6 @@ function onSettingsFormSubmit() {
 
       } else {
         var stylesAll = 0;
-
       }
 
 
@@ -118,7 +116,6 @@ function onSettingsFormSubmit() {
 
       } else {
         var stylesCore = 0;
-
       }
 
 
@@ -127,7 +124,6 @@ function onSettingsFormSubmit() {
 
       } else {
         var stylesGrid = 0;
-
       }
 
 
@@ -136,9 +132,7 @@ function onSettingsFormSubmit() {
 
       } else {
         var priceFormat = 0;
-
       }
-
 
 
       var settings = {
@@ -201,8 +195,6 @@ function onSettingsFormSubmit() {
 
       }
 
-
-
     }
 
   });
@@ -210,20 +202,25 @@ function onSettingsFormSubmit() {
 }
 
 
+/*
+
+Toggle Styles Checkboxes
+
+*/
 function toggleStylesCheckboxes() {
 
   jQuery('#wps_settings_general_styles_all').on('click', function() {
 
     if (typeof jQuery(this).attr("checked") !== typeof undefined && jQuery(this).attr("checked") !== false) {
 
-        jQuery('#wps_settings_general_styles_core').attr('checked', false);
-        jQuery('#wps_settings_general_styles_grid').attr('checked', false);
+      jQuery('#wps_settings_general_styles_core').attr('checked', false);
+      jQuery('#wps_settings_general_styles_grid').attr('checked', false);
 
-        jQuery('#wps_settings_general_styles_core').attr('disabled', true);
-        jQuery('#wps_settings_general_styles_grid').attr('disabled', true);
+      jQuery('#wps_settings_general_styles_core').attr('disabled', true);
+      jQuery('#wps_settings_general_styles_grid').attr('disabled', true);
 
-        jQuery('#wps_settings_general_styles_core').parent().addClass('wps-is-disabled');
-        jQuery('#wps_settings_general_styles_grid').parent().addClass('wps-is-disabled');
+      jQuery('#wps_settings_general_styles_core').parent().addClass('wps-is-disabled');
+      jQuery('#wps_settings_general_styles_grid').parent().addClass('wps-is-disabled');
 
     } else {
 
@@ -236,7 +233,9 @@ function toggleStylesCheckboxes() {
     }
 
   });
+
 }
+
 
 /*
 
@@ -248,4 +247,6 @@ function settingsInit() {
   toggleStylesCheckboxes();
 }
 
-export { settingsInit };
+export {
+  settingsInit
+};

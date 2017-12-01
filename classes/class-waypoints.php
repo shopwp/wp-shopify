@@ -83,6 +83,8 @@ class Waypoints {
 	*/
 	public function wps_waypoint_get_shopify_url() {
 
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+
 		$shopifySettings = json_decode( $this->wps_waypoint_settings() );
     // $connection = $_POST['connection'];
 
@@ -95,7 +97,7 @@ class Waypoints {
       wp_send_json_success($url);
 
     } else {
-      wp_send_json_error(esc_html__('Unable to find Shopify settings. Please try again.', 'wp-shopify'));
+      wp_send_json_error(Messages::$message_connection_not_found);
 
     }
 

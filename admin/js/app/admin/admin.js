@@ -11,7 +11,14 @@ function addAdminNotice() {
 
 }
 
+
+/*
+
+Init Tooltips
+
+*/
 function initTooltips() {
+
   jQuery('.wps-help-tip').tooltipster({
     animation: 'fade',
     delay: 0,
@@ -20,6 +27,7 @@ function initTooltips() {
     IEmin: 8,
     timer: 0
   });
+
 }
 
 

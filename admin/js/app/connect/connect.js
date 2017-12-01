@@ -61,7 +61,8 @@ import {
   getConnectionData,
   setSyncingIndicator,
   removePluginData,
-  syncWithCPT
+  syncWithCPT,
+  startProgressBar
 } from '../ws/ws.js';
 
 import {
@@ -475,7 +476,7 @@ async function onAuthRedirect() {
     // TODO:
     // Create a real-time progress bar to show syncing progress
     //
-    // removeProgressLoader();
+    // startProgressBar('some_data');
 
     var syncPluginDataResp = await syncPluginData();
 

@@ -4,6 +4,7 @@ namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\DB\Settings_License;
+use WPS\Messages;
 use GuzzleHttp\Client as Guzzle;
 
 /*
@@ -77,6 +78,8 @@ class License {
   */
   public function wps_license_save() {
 
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+
 		$Settings_License = new Settings_License();
 
 		$newLicenseData = array(
@@ -116,6 +119,8 @@ class License {
   */
   public function wps_license_delete() {
 
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+
 		$Settings_License = new Settings_License();
 		$result = $Settings_License->delete_license($_POST['key']);
 
@@ -135,6 +140,9 @@ class License {
 		$license = $Settings_License->get();
 
 		if ($ajax) {
+
+			Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+
 			wp_send_json_success($license->key);
 
 		} else {

@@ -19,6 +19,7 @@ class Collections {
 	*/
 	public function __construct($Config) {
 		$this->config = $Config;
+    $this->connection = $this->config->wps_get_settings_connection();
 	}
 
   /*
@@ -104,6 +105,9 @@ class Collections {
 
   */
   public function wps_insert_collections() {
+
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
     $results = [];
     $results['added'] = [];

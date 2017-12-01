@@ -116,9 +116,11 @@ async function deactivateKey() {
   var $licensePostbox = jQuery('.wps-postbox-license-info');
 
 
-  //
-  // Getting License
-  //
+  /*
+
+  Getting License
+
+  */
   try {
     var savedLicenseKey = await getLicenseKey();
 
@@ -128,9 +130,11 @@ async function deactivateKey() {
   }
 
 
-  //
-  // Deactivating key at wpshop.io
-  //
+  /*
+
+  Deactivating key at wpshop.io
+
+  */
   try {
     var deactivatedstuff = await deactivateLicenseKey(savedLicenseKey);
 
@@ -141,11 +145,13 @@ async function deactivateKey() {
   }
 
 
-  //
-  // Deleting key locally
-  //
+  /*
+
+  Deleting key locally
+
+  */
   try {
-    
+
     var deleted = await deleteLicenseKey(savedLicenseKey);
 
     $submitButton.data('status', 'activate');
@@ -209,9 +215,11 @@ async function activateKey(key) {
   var $licensePostbox = jQuery('.wps-postbox-license-info');
   var $form = jQuery('#wps-license');
 
-  //
-  // Checking if we can activate ...
-  //
+  /*
+
+  Checking if we can activate ...
+
+  */
   try {
     var validKey = await isLicenseKeyValid(key);
 
@@ -223,9 +231,11 @@ async function activateKey(key) {
   }
 
 
-  //
-  // Activating key at wpshop.io
-  //
+  /*
+
+  Activating key at wpshop.io
+
+  */
   try {
 
     licenseKeyActivatedResp = await activateLicenseKey(key);
@@ -243,6 +253,11 @@ async function activateKey(key) {
   }
 
 
+  /*
+
+  Get License Key Status
+
+  */
   try {
     licenseKeyInfo = await getLicenseKeyStatus(key);
 
@@ -256,9 +271,11 @@ async function activateKey(key) {
   }
 
 
-  //
-  // Saving key locally
-  //
+  /*
+
+  Saving key locally
+
+  */
   try {
 
     if (licenseKeyInfo.expires === "lifetime") {
@@ -298,7 +315,6 @@ async function activateKey(key) {
 
   }
 
-
 }
 
 
@@ -317,14 +333,13 @@ function updateInfoBox(licenseKeyInfo) {
       licenseLimit,
       licenseCount;
 
-  if(licenseKeyInfo.license_limit === 0) {
+  if (licenseKeyInfo.license_limit === 0) {
     licenseLimit = 'unlimited';
 
   } else {
     licenseLimit = licenseKeyInfo.license_limit;
 
   }
-
 
   if (licenseKeyInfo.is_local) {
     licenseCount = licenseKeyInfo.site_count;
@@ -333,7 +348,6 @@ function updateInfoBox(licenseKeyInfo) {
     licenseCount = licenseKeyInfo.site_count + 1;
 
   }
-
 
   if (licenseKeyInfo.success) {
     $statusCol.text('Active');
@@ -344,7 +358,6 @@ function updateInfoBox(licenseKeyInfo) {
   $nameCol.text(licenseKeyInfo.customer_name);
   $emailCol.text(licenseKeyInfo.customer_email);
 
-
   if (licenseKeyInfo.lifetime) {
     $expireCol.text('Never expires');
 
@@ -352,14 +365,9 @@ function updateInfoBox(licenseKeyInfo) {
     $expireCol.text(formatExpireDate(licenseKeyInfo.expires));
   }
 
-
-
-
   if (licenseKeyInfo.is_local) {
     $limitCol.append('<small class="wps-table-supporting">(Activations on dev environents don\'t add to total)</small>');
-
   }
-
 
 }
 
@@ -417,4 +425,6 @@ function licenseInit() {
 
 }
 
-export { licenseInit };
+export {
+  licenseInit
+};

@@ -57,6 +57,8 @@ class Config {
 		$this->plugin_text_domain = 'wp-shopify';
 		$this->plugin_version = '1.0.34';
 		$this->plugin_author = 'Andrew Robbins';
+		$this->plugin_nonce_action_backend = 'wp-shopify-backend';
+		$this->plugin_nonce_action_frontend = 'wp-shopify-frontend';
 
 		$this->plugin_root_file = $this->plugin_path . $this->plugin_name . '.php';
 		$this->plugin_file = plugin_basename($this->plugin_root_file);
@@ -89,6 +91,26 @@ class Config {
 
 		return self::$instantiated;
 
+	}
+
+
+	/*
+
+	Get the backend nonce action
+
+	*/
+	public static function get_backendend_nonce_action() {
+		return $this->plugin_nonce_action_backend;
+	}
+
+
+	/*
+
+	Get the frontend nonce action
+
+	*/
+	public static function get_frontend_nonce_action() {
+		return $this->plugin_nonce_action_frontend;
 	}
 
 

@@ -22,7 +22,8 @@ function uninstallProductData() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_uninstall_product_data'
+      action: 'wps_uninstall_product_data',
+      nonce: wps.nonce
     }
   };
 
@@ -44,7 +45,8 @@ function getProductsCount() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_ws_get_products_count'
+      action: 'wps_ws_get_products_count',
+      nonce: wps.nonce
     }
   };
 
@@ -66,7 +68,8 @@ function getCollectsCount() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_ws_get_collects_count'
+      action: 'wps_ws_get_collects_count',
+      nonce: wps.nonce
     }
   };
 
@@ -88,7 +91,8 @@ function getOrdersCount() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_ws_get_orders_count'
+      action: 'wps_ws_get_orders_count',
+      nonce: wps.nonce
     }
   };
 
@@ -110,7 +114,8 @@ function getCustomersCount() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_ws_get_customers_count'
+      action: 'wps_ws_get_customers_count',
+      nonce: wps.nonce
     }
   };
 
@@ -133,7 +138,8 @@ function getProductsFromCollection(collection) {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_products_from_collection',
-      collectionID: collection.collectionId
+      collectionID: collection.collectionId,
+      nonce: wps.nonce
     }
   };
 
@@ -154,7 +160,8 @@ function insertCustomCollections() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_insert_custom_collections_data'
+      action: 'wps_insert_custom_collections_data',
+      nonce: wps.nonce
     }
   };
 
@@ -175,7 +182,8 @@ function insertSmartCollections() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_insert_smart_collections_data'
+      action: 'wps_insert_smart_collections_data',
+      nonce: wps.nonce
     }
   };
 
@@ -198,7 +206,8 @@ function getCollectsFromProductID(productID) {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_collects_from_product',
-      productID: productID
+      productID: productID,
+      nonce: wps.nonce
     }
   };
 
@@ -220,7 +229,8 @@ function insertCollects(currentPage = false) {
     dataType: 'json',
     data: {
       action: 'wps_insert_collects',
-      currentPage: currentPage
+      currentPage: currentPage,
+      nonce: wps.nonce
     }
   };
 
@@ -243,7 +253,8 @@ function getCollectsFromCollection(collectionID) {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_collects_from_collection',
-      collectionID: collectionID
+      collectionID: collectionID,
+      nonce: wps.nonce
     }
   };
 
@@ -266,7 +277,8 @@ function getSingleCollection(collectionID) {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_single_collection',
-      collectionID: collectionID
+      collectionID: collectionID,
+      nonce: wps.nonce
     }
   };
 
@@ -288,7 +300,8 @@ function sendCollectionsToServer(collections) {
     dataType: 'json',
     data: {
       action: 'wps_insert_collections',
-      collections: collections
+      collections: collections,
+      nonce: wps.nonce
     }
   };
 
@@ -310,7 +323,8 @@ function insertShopData(shopData) {
     dataType: 'json',
     data: {
       action: 'wps_insert_shop',
-      shopData: shopData
+      shopData: shopData,
+      nonce: wps.nonce
     }
   };
 
@@ -332,7 +346,8 @@ function insertConnectionData(connectionData) {
     dataType: 'json',
     data: {
       action: 'wps_insert_connection',
-      connectionData: connectionData
+      connectionData: connectionData,
+      nonce: wps.nonce
     }
   };
 
@@ -353,7 +368,8 @@ function getConnectionData() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_connection'
+      action: 'wps_get_connection',
+      nonce: wps.nonce
     }
   };
 
@@ -375,7 +391,8 @@ function insertProductsData(currentPage = false) {
     dataType: 'json',
     data: {
       action: 'wps_insert_products_data',
-      currentPage: currentPage
+      currentPage: currentPage,
+      nonce: wps.nonce
     }
   };
 
@@ -395,7 +412,8 @@ function getWebhooks() {
     method: 'POST',
     url: wps.ajax,
     data: {
-      action: 'wps_ws_get_webhooks'
+      action: 'wps_ws_get_webhooks',
+      nonce: wps.nonce
     }
   };
 
@@ -408,6 +426,7 @@ function getWebhooks() {
 
 EDD - Get License Key Info
 Returns Promise
+TODO: Should we remove the hardcoded wpshop.io URL domain?
 
 */
 function getProductInfo(key) {
@@ -485,6 +504,7 @@ Returns Promise
 function saveLicenseKey(data) {
 
   data.action = "wps_license_save";
+  data.nonce = wps.nonce;
 
   var options = {
     method: 'POST',
@@ -510,7 +530,8 @@ function deleteLicenseKey(key) {
     url: wps.ajax,
     data: {
       action: 'wps_license_delete',
-      key: key
+      key: key,
+      nonce: wps.nonce
     }
   };
 
@@ -531,7 +552,8 @@ function getLicenseKey() {
     method: 'GET',
     url: wps.ajax,
     data: {
-      action: 'wps_license_get'
+      action: 'wps_license_get',
+      nonce: wps.nonce
     }
   };
 
@@ -553,30 +575,8 @@ function getShopifyURL() {
     method: 'POST',
     url: wps.ajax,
     data: {
-      action: 'wps_waypoint_get_shopify_url'
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Delete Access Token
-TODO: maybe not needed anymore
-TODO: Not used?
-
-*/
-function deleteAccessToken() {
-
-  var options = {
-    method: 'POST',
-    url: wps.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_delete_access_token'
+      action: 'wps_waypoint_get_shopify_url',
+      nonce: wps.nonce
     }
   };
 
@@ -598,7 +598,8 @@ function uninstallPlugin() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_uninstall_consumer'
+      action: 'wps_uninstall_consumer',
+      nonce: wps.nonce
     }
   };
 
@@ -620,7 +621,8 @@ function removePluginData() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_uninstall_product_data'
+      action: 'wps_uninstall_product_data',
+      nonce: wps.nonce
     }
   };
 
@@ -638,6 +640,8 @@ Returns: Promise
 
 */
 function setPluginSettings(formData) {
+
+  formData.nonce = wps.nonce;
 
   var options = {
     method: "POST",
@@ -661,7 +665,8 @@ function addWebhook() {
     method: 'POST',
     url: wps.ajax,
     data: {
-      action: 'wps_webhooks_register_single'
+      action: 'wps_webhooks_register_single',
+      nonce: wps.nonce
     }
   };
 
@@ -681,7 +686,8 @@ function delWebhooks() {
     method: 'POST',
     url: wps.ajax,
     data: {
-      action: 'wps_ws_delete_webhook'
+      action: 'wps_ws_delete_webhook',
+      nonce: wps.nonce
     }
   };
 
@@ -704,7 +710,8 @@ function getShopifyCreds() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_credentials'
+      action: 'wps_get_credentials',
+      nonce: wps.nonce
     }
   };
 
@@ -786,7 +793,8 @@ function getPluginSettings() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_options'
+      action: 'wps_get_options',
+      nonce: wps.nonce
     }
   };
 
@@ -810,7 +818,7 @@ function updateAuthUser(authToken, authUserData) {
       sendable = convertAuthDataToString(finalData);
 
   var options = {
-    url: 'https://wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic
+    url: 'https://wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic?
     method: 'POST',
     headers: {
       'Authorization': 'Bearer ' + authToken
@@ -841,44 +849,42 @@ function updateAuthUser(authToken, authUserData) {
 // }
 
 
-function getProgressCount() {
-
-  //
-  //
-  // if (!!window.EventSource) {
-  //   var source = new EventSource(wps.pluginsPath + '/wp-shopify/admin/partials/wps-sync-progress.php');
-  //
-  //   source.addEventListener('message', function(e) {
-  //
-  //     // var session = await getProgressCookie();
-  //     //
-  //
-  //     // if (e.origin != window.location.origin) {
-  //     //   return;
-  //     // }
-  //
-  //   }, false);
-  //
-  //   source.addEventListener('open', function(e) {
-  //     // Connection was opened.
-  //
-  //   }, false);
-  //
-  //   source.addEventListener('error', function(e) {
-  //     if (e.readyState == EventSource.CLOSED) {
-  //     }
-  //   }, false);
-  //
-  // } else {
-  //   // Result to xhr polling :(
-  //
-  // }
-
-  // return controlPromise(options);
-
-}
-
-
+// function getProgressCount() {
+//
+//
+//
+//   if (!!window.EventSource) {
+//     var source = new EventSource(wps.pluginsPath + '/wp-shopify/admin/partials/wps-sync-progress.php');
+//
+//     source.addEventListener('message', function(e) {
+//
+//       // var session = await getProgressCookie();
+//       //
+//
+//       // if (e.origin != window.location.origin) {
+//       //   return;
+//       // }
+//
+//     }, false);
+//
+//     source.addEventListener('open', function(e) {
+//       // Connection was opened.
+//
+//     }, false);
+//
+//     source.addEventListener('error', function(e) {
+//       if (e.readyState == EventSource.CLOSED) {
+//       }
+//     }, false);
+//
+//   } else {
+//     // Result to xhr polling :(
+//
+//   }
+//
+//   return controlPromise(options);
+//
+// }
 
 
 /*
@@ -890,6 +896,7 @@ Returns: Promise
 function updateSettings(options) {
 
   options.action = 'wps_update_settings_general';
+  options.nonce = wps.nonce;
 
   var options = {
     method: 'POST',
@@ -916,7 +923,8 @@ function getShopData() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_ws_get_shop_data'
+      action: 'wps_ws_get_shop_data',
+      nonce: wps.nonce
     }
   };
 
@@ -925,7 +933,11 @@ function getShopData() {
 };
 
 
+/*
 
+Get Product Variants
+
+*/
 function getProductVariants(productID) {
 
   var options = {
@@ -934,7 +946,8 @@ function getProductVariants(productID) {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_variants',
-      productID: productID
+      productID: productID,
+      nonce: wps.nonce
     }
   };
 
@@ -955,7 +968,8 @@ function setSyncingIndicator(syncing) {
     url: wps.ajax,
     data: {
       action: 'wps_ws_set_syncing_indicator',
-      syncing: syncing
+      syncing: syncing,
+      nonce: wps.nonce
     }
   };
 
@@ -975,7 +989,8 @@ function clearCache() {
     method: 'POST',
     url: wps.ajax,
     data: {
-      action: 'wps_clear_cache'
+      action: 'wps_clear_cache',
+      nonce: wps.nonce
     }
   };
 
@@ -995,7 +1010,8 @@ function syncWithCPT() {
     method: 'POST',
     url: wps.ajax,
     data: {
-      action: 'wps_sync_with_cpt'
+      action: 'wps_sync_with_cpt',
+      nonce: wps.nonce
     }
   };
 
@@ -1017,7 +1033,8 @@ function insertOrders(currentPage = false) {
     dataType: 'json',
     data: {
       action: 'wps_insert_orders',
-      currentPage: currentPage
+      currentPage: currentPage,
+      nonce: wps.nonce
     }
   };
 
@@ -1039,7 +1056,8 @@ function insertCustomers(currentPage = false) {
     dataType: 'json',
     data: {
       action: 'wps_insert_customers',
-      currentPage: currentPage
+      currentPage: currentPage,
+      nonce: wps.nonce
     }
   };
 
@@ -1047,6 +1065,37 @@ function insertCustomers(currentPage = false) {
 
 }
 
+
+/*
+
+Insert Customers
+
+*/
+function startProgressBar(progress) {
+
+  jQuery(document).on('heartbeat-send', (event, data) => {
+
+    console.log("heartbeat-send: ", data);
+
+    // Add additional data to Heartbeat data.
+    data.myplugin_customfield = progress;
+
+  });
+
+
+  jQuery(document).on( 'heartbeat-tick', (event, data) => {
+
+    // Check for our data, and use it.
+    if ( ! data.myplugin_customfield_hashed ) {
+      return;
+    }
+
+    console.log("heartbeat-tick: ", data);
+    console.log( 'The hash is ' + data.myplugin_customfield_hashed );
+
+  });
+
+}
 
 
 export {
@@ -1078,7 +1127,6 @@ export {
   getProductsCount,
   insertCollects,
   getCollectsCount,
-  getProgressCount,
   updateSettings,
   getShopData,
   insertShopData,
@@ -1093,5 +1141,6 @@ export {
   insertOrders,
   getOrdersCount,
   insertCustomers,
-  getCustomersCount
+  getCustomersCount,
+  startProgressBar
 };

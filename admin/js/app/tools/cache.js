@@ -12,7 +12,6 @@ import {
   clearCache
 } from '../ws/ws.js';
 
-
 import {
   enable,
   disable,
@@ -62,10 +61,14 @@ function onCacheClear() {
 
   });
 
-
 }
 
 
+/*
+
+Clear All Cache
+
+*/
 function clearAllCache() {
 
   return new Promise(async function(resolve, reject) {
@@ -109,8 +112,6 @@ function clearAllCache() {
   });
 
 }
-
-
 
 export {
   onCacheClear,

@@ -64,6 +64,7 @@ module.exports = () => {
       }),
       new webpack.ProvidePlugin({
         Bottleneck: "Bottleneck",
+        ShopifyBuy: "shopify-buy",
         validator: "validator",
         crypto: "crypto",
         dateFormat: "dateFormat",
@@ -97,7 +98,8 @@ module.exports = () => {
         validator: "validator",
         crypto: "crypto",
         dateFormat: "dateFormat",
-        currencyFormatter: "currency-formatter"
+        currencyFormatter: "currency-formatter",
+        ShopifyBuy: "shopify-buy"
       }
     },
     module: {
