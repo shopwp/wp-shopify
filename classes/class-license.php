@@ -82,7 +82,7 @@ class License {
 		$newLicenseData = array(
     	'key'                   => isset($_POST['key']) ? $_POST['key'] : '',
     	'is_local'              => isset($_POST['is_local']) && $_POST['is_local'] ? 1 : 0,
-    	'expires'               => isset($_POST['expires']) ? date('Y-m-d H:i:s', strtotime($_POST['expires'])) : '',
+    	'expires'               => isset($_POST['expires']) ? date_i18n("Y-m-d H:i:s", strtotime($_POST['expires'])) : '',
 			'lifetime'							=> isset($_POST['lifetime']) ? $_POST['lifetime'] : '',
     	'site_count'            => isset($_POST['site_count']) ? $_POST['site_count'] : '',
     	'checksum'              => isset($_POST['checksum']) ? $_POST['checksum'] : '',
@@ -153,8 +153,8 @@ class License {
 			'edd_action' => 'get_version',
 			'item_name'  => isset( $this->config->plugin_name ) ? $this->config->plugin_name : false,
 			'item_id'    => 35, // TODO: remove hardcode
-			'author'     => isset( $this->config->plugin_author ) ? $this->config->plugin_author : 'Andrew Robbins',
-			'url'        => home_url(),
+			'author'     => isset( $this->config->plugin_author ) ? __($this->config->plugin_author) : __('Andrew Robbins'),
+			'url'        => esc_url(home_url()),
 			'beta'       => false
 		);
 
@@ -176,6 +176,7 @@ class License {
 			return json_decode($guzzelResponse->getBody()->getContents());
 
 		} catch (\Exception $e) {
+
 			return $e->getMessage();
 
 		}
@@ -198,7 +199,6 @@ class License {
 
 		$api_url = $this->plugin_env . '/edd-sl?edd_action=check_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
 
-
 		try {
 
 			$Guzzle = new Guzzle();
@@ -214,7 +214,6 @@ class License {
 			}
 
 			return $data->license;
-
 
 		} catch (\Exception $e) {
 
@@ -316,11 +315,8 @@ class License {
 		echo '<td colspan="3" class="plugin-update colspanchange">';
 		echo '<div class="update-message notice inline notice-warning notice-alt">';
 		echo '<p>';
-
-		echo __(wp_kses('Please <a href="' . get_admin_url() . 'admin.php?page=wps-settings&tab=updates">activate</a> or <a href="' . $this->config->plugin_env . '">purchase</a> a license key to receive plugin updates.', $allowed_tags), $this->config->plugin_name);
-
+		printf(esc_html__('Please <a href="%1admin.php?page=wps-settings&tab=updates">activate</a> or <a href="%2">purchase</a> a license key to receive plugin updates.'), esc_url(get_admin_url()), esc_url($this->config->plugin_env));
 		echo '</p></div></td></tr>';
-
 
 	}
 

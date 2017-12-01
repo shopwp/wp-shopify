@@ -33,7 +33,7 @@ class I18N {
 	public function wps_load_plugin_textdomain() {
 
 		load_plugin_textdomain(
-			'wps',
+			'wp-shopify',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);

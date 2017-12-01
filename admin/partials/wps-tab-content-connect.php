@@ -8,22 +8,24 @@ Tab Content: Connect
   <div class="wps-admin-section-heading-group wps-l-row wps-l-space-between">
 
     <h2 class="wps-admin-section-heading wps-l-box-2">
-      <span class="dashicons dashicons-update"></span> <?php esc_attr_e( 'Connect and Sync ', 'wp_admin_style' ); ?>
+      <span class="dashicons dashicons-update"></span> <?php esc_html_e( 'Connect and Sync ', 'wp-shopify' ); ?>
     </h2>
 
-    <h3 class="wps-status-heading wps-admin-section-heading wps-l-box-2">Status:
+    <h3 class="wps-status-heading wps-admin-section-heading wps-l-box-2"><?php esc_html_e( 'Status:', 'wp-shopify' ); ?>
+
       <?php if($connected) { ?>
-        <span class="wps-status is-connected">Connected</span>
+        <span class="wps-status is-connected"><?php esc_html_e('Connected', 'wp-shopify' ); ?></span>
       <?php } else { ?>
-        <span class="wps-status is-disconnected">Disconnected</span>
+        <span class="wps-status is-disconnected"><?php esc_html_e('Disconnected', 'wp-shopify' ); ?></span>
       <?php } ?>
+
     </h3>
 
   </div>
 
   <div class="wps-admin-section">
 
-    <p>To connect your Shopify account, enter your unique buy button API key and Shopify domain below. Once you hit connect WP Shopify will redirect you to Shopify to verify the connection. If you need additional help, please see the <a href="<?php echo $this->config->plugin_env; ?>/docs" target="_blank">video tutorial and documentation</a>.</p>
+    <p><?php printf(__('To connect your Shopify account, enter your unique buy button API key and Shopify domain below. Once you hit connect WP Shopify will redirect you to Shopify to verify the connection. If you need additional help, please see the <a href="%s" target="_blank"> video tutorial and documentation</a>.', 'wp-shopify'), esc_url($this->config->plugin_env . '/docs'));  ?></p>
 
     <form method="post" name="cleanup_options" action="options.php" id="wps-connect" class="wps-admin-form">
 
@@ -40,7 +42,7 @@ Tab Content: Connect
       <!-- JS Access Token -->
       <div class="wps-form-group">
 
-        <h3><?php esc_attr_e( 'Access Token', 'wp_admin_style' ); ?></h3>
+        <h3><?php esc_attr_e('Access Token', 'wp-shopify'); ?></h3>
         <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_connection_option_name; ?>_js_access_token" name="js_access_token" value="<?php if(!empty($connection->js_access_token)) echo $connection->js_access_token; ?>" placeholder=""><div class="wps-form-icon wps-animated"></div>
 
       </div>
@@ -48,8 +50,8 @@ Tab Content: Connect
       <!-- My Shopify Domain -->
       <div class="wps-form-group">
 
-        <h3><?php esc_attr_e( 'Domain', 'wp_admin_style' ); ?> <small>(example: yourshop.myshopify.com)</small></h3>
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_connection_option_name; ?>_domain" name="domain" value="<?php if(!empty($connection->domain)) echo $connection->domain; ?>" placeholder="shop.myshopify.com" id="domain">
+        <h3><?php esc_attr_e( 'Domain', 'wp-shopify' ); ?> <small><?php esc_html_e('(example: yourshop.myshopify.com)', 'wp-shopify' ); ?></small></h3>
+        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_connection_option_name; ?>_domain" name="domain" value="<?php if ( !empty($connection->domain) ) echo $connection->domain; ?>" placeholder="<?php esc_attr_e('shop.myshopify.com', 'wp-shopify' ); ?>" id="domain">
         <div class="wps-form-icon wps-animated"></div>
 
       </div>
@@ -69,9 +71,9 @@ Tab Content: Connect
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
         <?php if($connected) { ?>
-          <?php submit_button(__('Disconnect Your Shopify Store', $this->config->settings_connection_option_name), 'primary large', 'submitDisconnect', false, array()); ?>
+          <?php submit_button(esc_html__('Disconnect Your Shopify Store', 'wp-shopify'), 'primary large', 'submitDisconnect', false, array()); ?>
         <?php } else { ?>
-          <?php submit_button(__('Connect Your Shopify Store', $this->config->settings_connection_option_name), 'primary large', 'submitConnect', false, array()); ?>
+          <?php submit_button(esc_html__('Connect Your Shopify Store', 'wp-shopify'), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
         <div class="spinner"></div>
 

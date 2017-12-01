@@ -167,7 +167,7 @@ class Products extends \WPS\DB {
 
     foreach ($products as $key => $product) {
 
-      if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
+      if ($DB_Settings_Connection->is_syncing()) {
 
         // If product has an image
         if (property_exists($product, 'image') && is_object($product->image)) {
@@ -359,8 +359,6 @@ class Products extends \WPS\DB {
   }
 
 
-
-
   /*
 
   $product current represents the data coming from Shopify or
@@ -380,8 +378,11 @@ class Products extends \WPS\DB {
   }
 
 
+  /*
 
+  Update Post Content
 
+  */
   public function update_post_content($product) {
 
     $postID = $this->get_post_id_from_object($product);
@@ -392,7 +393,7 @@ class Products extends \WPS\DB {
     ));
 
     if ($response === 0) {
-      return new \WP_Error('error', __('Warning: Unable to update product: "' . $product->title . '"'));
+      return new \WP_Error('error', sprintf(esc_html__('Warning: Unable to update product: %s', 'wp-shopify'), $product->title));
 
     } else {
       return $response;
@@ -403,8 +404,11 @@ class Products extends \WPS\DB {
   }
 
 
+  /*
 
+  Post Content Has Changed
 
+  */
   public function post_content_has_changed($product) {
 
     $productsContent = $this->get_content_hash($product, 'body_html');
@@ -415,7 +419,11 @@ class Products extends \WPS\DB {
   }
 
 
+  /*
 
+  Get Post ID From Object
+
+  */
   public function get_post_id_from_object($post) {
 
     if (isset($post->post_id)) {
@@ -426,7 +434,6 @@ class Products extends \WPS\DB {
       // get post ID by looking up value manually
       if (isset($post->handle)) {
 
-
         return $post->id;
 
       }
@@ -434,7 +441,6 @@ class Products extends \WPS\DB {
     }
 
   }
-
 
 
   /*
@@ -458,11 +464,6 @@ class Products extends \WPS\DB {
     }
 
   }
-
-
-
-
-
 
 
   /*
@@ -525,7 +526,6 @@ class Products extends \WPS\DB {
     $products = $wpdb->get_results(
       $wpdb->prepare($query, $collection_id)
     );
-
 
     /*
 

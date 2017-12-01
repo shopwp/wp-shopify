@@ -61,8 +61,8 @@ class Collects extends \WPS\DB {
       'featured'             => '',
       'position'             => '',
       'sort_value'           => '',
-      'created_at'           => date( 'Y-m-d H:i:s' ),
-      'updated_at'           => date( 'Y-m-d H:i:s' )
+      'created_at'           => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'           => date_i18n( 'Y-m-d H:i:s' )
     );
 
   }
@@ -156,7 +156,6 @@ class Collects extends \WPS\DB {
 
   */
   public function delete_collects_by_product_id() {}
-
 
 
   /*

@@ -9,20 +9,27 @@
 
   usort($product['images'], array($Utils, "sort_product_images"));
 
+
   $i = 0;
   $len = count($product['images']);
-  $amountOfThumbs = $len-1;
+  $amountOfThumbs = $len;
 
   /*
 
   TODO: Revist how this is done. Duplication and fragility going on here
 
   */
-  if ($amountOfThumbs < 0) {
+  if ($amountOfThumbs < 1) {
 
     $typeClass = 'wps-product-gallery-img-feat';
 
-    $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $Config->plugin_url . 'public/imgs/placeholder.png' . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $product['details']['title'] . '"></div>';
+    $productImg = sprintf(
+      __('<div class="%1$s-wrapper"><img itemprop="image" src="%2$s" class="wps-product-gallery-img %3$s" alt="%4$s"></div>'),
+      $typeClass,
+      esc_url($Config->plugin_url . 'public/imgs/placeholder.png'),
+      $typeClass,
+      esc_attr__($product['details']['title'])
+    );
 
     echo apply_filters('wps_product_img', $productImg, $product, 0);
 
@@ -34,10 +41,20 @@
       $variantIDs = Images::get_variants_from_image($image);
 
       if ($i === 0) {
+
         $typeClass = 'wps-product-gallery-img-feat';
-        $productImg = '<div class="' . $typeClass . '-wrapper"><img itemprop="image" src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $image['alt'] . '" data-wps-image-variants="' . $variantIDs . '"></div>';
+
+        $productImg = sprintf(
+          __('<div class="%1$s-wrapper"><img itemprop="image" src="%2$s" class="wps-product-gallery-img %3$s" alt="%4$s" data-wps-image-variants="%5$s"></div>'),
+          $typeClass,
+          esc_url($image['src']),
+          $typeClass,
+          esc_attr__($product['details']['title']),
+          $variantIDs
+        );
 
       } else {
+
 
         if ($amountOfThumbs === 1) {
           $amountOfThumbs = 3;
@@ -48,7 +65,16 @@
         }
 
         $typeClass = 'wps-product-gallery-img-thumb';
-        $productImg = '<div class="' . $typeClass . '-wrapper wps-col wps-col-' . $amountOfThumbs . '"><img itemprop="image" src="' . $image['src'] . '" class="wps-product-gallery-img ' . $typeClass . '" alt="' . $image['alt'] . '" data-wps-image-variants="' . $variantIDs . '"></div>';
+
+        $productImg = sprintf(
+          __('<div class="%1$s-wrapper wps-col wps-col-%2$s"><img itemprop="image" src="%3$s" class="wps-product-gallery-img %4$s" alt="%5$s" data-wps-image-variants="%6$s"></div>'),
+          $typeClass,
+          $amountOfThumbs,
+          esc_url($image['src']),
+          $typeClass,
+          $image['alt'],
+          $variantIDs
+        );
 
       }
 
@@ -71,12 +97,5 @@
       $i++;
 
     }
-
-
-
-
-
-
-
 
   }

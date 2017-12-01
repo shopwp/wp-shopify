@@ -70,8 +70,8 @@ class Collections_Custom extends \WPS\DB {
       'published'           => '',
       'published_scope'     => '',
       'sort_order'          => '',
-      'published_at'        => date( 'Y-m-d H:i:s' ),
-      'updated_at'          => date( 'Y-m-d H:i:s' )
+      'published_at'        => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'          => date_i18n( 'Y-m-d H:i:s' )
     );
   }
 
@@ -106,7 +106,6 @@ class Collections_Custom extends \WPS\DB {
       $index++;
 
     }
-
 
     return $results;
 

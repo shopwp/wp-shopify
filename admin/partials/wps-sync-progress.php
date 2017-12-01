@@ -1,5 +1,7 @@
 <?php
 
+// TODO: Implement, not currently used
+
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 

@@ -1,5 +1,6 @@
 import { needsCacheFlush, flushCache } from '../utils/utils-cart';
 import { getCartID } from './ws-products';
+import { setCartCache } from './ws-settings';
 import { renderCartItems, renderSingleCartItem, updateTotalCartPricing } from '../cart/cart-ui';
 
 /*
@@ -114,6 +115,22 @@ function updateCart(variant, quantity, shopify) {
       reject(error);
     }
 
+
+    /*
+
+    Only caches if needed ...
+
+    */
+    try {
+
+      await setCartCache(newCart.id);
+
+    } catch (error) {
+      console.error('Cached cart ERROR', error);
+      reject(error);
+    }
+
+
     renderSingleCartItem(shopify, newCart, variant);
     updateTotalCartPricing(shopify, newCart);
     resolve(newCart);
@@ -128,50 +145,44 @@ function updateCart(variant, quantity, shopify) {
 Initialize Cart
 Returns a cart instance
 
+The cart will be cleared during any of the following scenarios:
+  1. If the user has successully purchased a product
+  2. If the user clears the browser cache
+  3. If it's been longer than three days
+
 */
 async function initCart(shopify) {
 
-  var cacheFlushNeeded;
-  var cart;
+  const currentCartID = getCartID();
+  var transientFound;
 
-  /*
+  // This only runs if user already has a cart instance. New users skip.
+  if (currentCartID) {
 
-  Check cache flush status ..
+    transientFound = await needsCacheFlush(currentCartID);
 
-  */
-  try {
-    cacheFlushNeeded = await needsCacheFlush();
+    if (!transientFound) {
 
-  } catch (error) {
-    console.error("needsCacheFlush", error);
+      try {
+        await flushCache(shopify);
+
+      } catch (error) {
+        console.error("flushCache: ", error);
+      }
+
+    }
+
   }
 
 
   /*
 
-  Flush cache if needed ...
-
-  */
-  // if (cacheFlushNeeded) {
-  //
-  //   try {
-  //     await flushCache(shopify);
-  //
-  //   } catch (error) {
-  //     console.error("flushCache: ", error);
-  //
-  //   }
-  //
-  // }
-
-
-  /*
-
-  Render the actual cart items (if any)
+  Render the actual cart items (if any). Empty for new users.
 
   */
   try {
-    cart = await renderCartItems(shopify);
+
+    var cart = await renderCartItems(shopify);
 
   } catch(error) {
     console.error("renderCartItems: ", error)
@@ -179,8 +190,14 @@ async function initCart(shopify) {
 
   }
 
-  saveCartID(cart);
-  updateTotalCartPricing(shopify);
+
+  // Save Cart ID to LS if new user
+  if (!currentCartID) {
+    saveCartID(cart);
+  }
+
+  // Saves cart ID to LS 'wps-last-cart-id' which is used by getCartID
+  // updateTotalCartPricing(shopify);
 
   return cart;
 

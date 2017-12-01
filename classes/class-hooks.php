@@ -197,16 +197,6 @@ if (!class_exists('Hooks')) {
 		}
 
 
-
-
-
-
-
-
-
-
-
-
 		/*
 
 		Products Loop - Meta Start
@@ -287,19 +277,6 @@ if (!class_exists('Hooks')) {
 		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 		/*
 
 		Products Loop - After
@@ -318,7 +295,6 @@ if (!class_exists('Hooks')) {
 		public function wps_products_no_results($args) {
 			return include($this->config->plugin_path . 'public/partials/products/loop/no-results.php');
 		}
-
 
 
     /*
@@ -445,9 +421,6 @@ if (!class_exists('Hooks')) {
 		public function wps_products_related_heading_start() {
 			return include($this->config->plugin_path . 'public/partials/products/related/heading-start.php');
 		}
-
-
-
 
 
 		/*
@@ -643,8 +616,6 @@ if (!class_exists('Hooks')) {
 		}
 
 
-
-
 		/*
 
 		wps_clauses_mod
@@ -756,9 +727,7 @@ if (!class_exists('Hooks')) {
 
 				}
 
-
 				$productQueryHash = md5(serialize($args));
-
 
 				/*
 
@@ -841,9 +810,6 @@ if (!class_exists('Hooks')) {
 			}
 
 		}
-
-
-
 
 
 		/*
@@ -1174,10 +1140,6 @@ if (!class_exists('Hooks')) {
 		}
 
 
-
-
-
-
 		/*
 
 		Need to get pagination to work
@@ -1200,7 +1162,6 @@ if (!class_exists('Hooks')) {
 			return $query;
 
 		}
-
 
 
 		/*
@@ -1259,8 +1220,6 @@ if (!class_exists('Hooks')) {
 		public function wps_product_single_header_price_after($product) {
 			return include($this->config->plugin_path . "public/partials/products/single/header-price-after.php");
 		}
-
-
 
 		public function wps_product_single_quantity($product) {
 			return include($this->config->plugin_path . "public/partials/products/single/quantity.php");
@@ -1393,11 +1352,6 @@ if (!class_exists('Hooks')) {
 		}
 
 
-
-
-
-
-
 		public function wps_collection_single_heading_before($collection) {
 			echo 'before';
 		}
@@ -1426,10 +1380,6 @@ if (!class_exists('Hooks')) {
 
 		}
 
-
-
-
-
 		public function wps_product_single_thumbs_start() {
 			return include($this->config->plugin_path . 'public/partials/products/single/thumbs-start.php');
 		}
@@ -1452,9 +1402,6 @@ if (!class_exists('Hooks')) {
 
 		}
 
-
-
-
 		public function wps_product_single_price($default, $priceFirst, $priceLast, $product) {
 
 			$finalPrice = '';
@@ -1473,8 +1420,6 @@ if (!class_exists('Hooks')) {
 			return $finalPrice;
 
 		}
-
-
 
 
 		/*
@@ -1498,10 +1443,6 @@ if (!class_exists('Hooks')) {
 			return $defaultPrice;
 		}
 
-
-
-
-
 		public function wps_products_sidebar() {
 
 			$sidebar = apply_filters('wps_products_show_sidebar', false);
@@ -1512,12 +1453,6 @@ if (!class_exists('Hooks')) {
 
 		}
 
-
-
-
-
-
-
 		public function wps_collection_single_products_heading_class() {
 			return '';
 		}
@@ -1525,7 +1460,6 @@ if (!class_exists('Hooks')) {
 		public function wps_collection_single_products_heading() {
 			return 'Products';
 		}
-
 
 		public function wps_cart_before() {
 			echo 'Cart before';
@@ -1584,18 +1518,6 @@ if (!class_exists('Hooks')) {
 		}
 
 
-    /*
-
-    Initialization
-
-    */
-		public function init() {}
-
-
-
-
-
-
 		public function wps_on_update() {
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -1606,14 +1528,12 @@ if (!class_exists('Hooks')) {
 			$pluginVersionCurrent = $DB_Settings_General->get_column_single('plugin_version');
 
 
-
 			if (isset($pluginVersionCurrent) && $pluginVersionCurrent) {
 				$databaseVersion = $pluginVersionCurrent[0]->plugin_version;
 
 			} else {
 				$databaseVersion = '0.0.0';
 			}
-
 
 
 			/*
@@ -1629,9 +1549,13 @@ if (!class_exists('Hooks')) {
 
 				global $wpdb;
 
-				// First delete all existing cache
+				// First delete necessary cache
 				$DB_Transients = new Transients();
-				$DB_Transients->delete_all_cache();
+				$DB_Transients->delete_cached_product_single();
+				$DB_Transients->delete_cached_product_queries();
+				$DB_Transients->delete_cached_collection_queries();
+				$DB_Transients->delete_cached_variants();
+				$DB_Transients->delete_cached_prices();
 
 				// Next get all tables
 				$DB = new DB();
@@ -1645,7 +1569,6 @@ if (!class_exists('Hooks')) {
 
 				}
 
-
 				// Now update plugin version to latest
 				$DB_Settings_General->update_column_single(
 					array('plugin_version' => $pluginVersion),
@@ -1655,7 +1578,6 @@ if (!class_exists('Hooks')) {
 			}
 
 		}
-
 
 
 		public function wps_checkout_before_init() {

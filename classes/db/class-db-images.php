@@ -62,8 +62,8 @@ class Images extends \WPS\DB {
       'src'                  => '',
       'alt'                  => '',
       'position'             => '',
-      'created_at'           => date( 'Y-m-d H:i:s' ),
-      'updated_at'           => date( 'Y-m-d H:i:s' )
+      'created_at'           => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'           => date_i18n( 'Y-m-d H:i:s' )
     );
   }
 
@@ -95,7 +95,7 @@ class Images extends \WPS\DB {
           cancel the connection at anytime.
 
           */
-          if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
+          if ($DB_Settings_Connection->is_syncing()) {
 
             // Gets Alt from Shopify
             $imageAltResponse = $WS->wps_ws_get_image_alt($image);
@@ -350,8 +350,6 @@ class Images extends \WPS\DB {
     }
 
   }
-
-
 
 
   /*

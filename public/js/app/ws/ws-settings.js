@@ -47,29 +47,40 @@ function getMoneyFormatWithCurrency() {
 };
 
 
-function getCacheFlushStatus() {
+/*
 
-  return jQuery.ajax({
-    method: 'GET',
-    url: wps.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_get_cache_flush_status'
-    }
-  });
+Returns true if transient exists / found -- false otherwise
 
-};
-
-
-function updateCacheFlushStatus(status) {
+*/
+function getCartCache(cartID) {
 
   return jQuery.ajax({
     method: 'POST',
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_update_cache_flush_status',
-      status: status
+      action: 'wps_get_cart_cache',
+      cartID: cartID
+    }
+  });
+
+};
+
+
+/*
+
+Cache Cart
+
+*/
+function setCartCache(cartID) {
+
+  return jQuery.ajax({
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_set_cart_cache',
+      cartID: cartID
     }
   });
 
@@ -80,6 +91,6 @@ export {
   getCurrencyFormat,
   getMoneyFormat,
   getMoneyFormatWithCurrency,
-  getCacheFlushStatus,
-  updateCacheFlushStatus
+  getCartCache,
+  setCartCache
 }

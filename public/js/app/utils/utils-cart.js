@@ -1,6 +1,5 @@
 import {
-  getCacheFlushStatus,
-  updateCacheFlushStatus
+  getCartCache
 } from '../ws/ws-settings';
 
 import {
@@ -8,23 +7,22 @@ import {
 } from '../ws/ws-cart';
 
 
-async function needsCacheFlush() {
+/*
+
+Needs Cache Flush
+
+*/
+async function needsCacheFlush(cartID) {
 
   try {
 
-    var cacheFlushStatus = await getCacheFlushStatus();
-
-    if (cacheFlushStatus.data == 1) {
-      return true;
-
-    } else {
-      return false;
-
-    }
+    var cacheFlushStatus = await getCartCache(cartID);
+    console.log('Existing cart found? ', cacheFlushStatus.success);
+    // True if found, false if not
+    return cacheFlushStatus.success;
 
   } catch(errors) {
-    console.error(errors);
-    return true;
+    return false;
 
   }
 
@@ -47,27 +45,22 @@ async function flushCache(shopify) {
     return;
   }
 
-  localStorage.removeItem('wps-cache-expiration');
+  localStorage.removeItem('wps-cache-expiration'); // Used for money format
   localStorage.removeItem('wps-animating');
   localStorage.removeItem('wps-connection-in-progress');
   localStorage.removeItem('wps-product-selection-id');
 
-  // Clearing the cart
-  try {
-    await cart.clearLineItems();
+  if (cart.lineItemCount > 0) {
 
-  } catch(error) {
-    console.error("flushCache clearLineItems ", error);
-    return;
-  }
+    // Clearing the cart
+    try {
+      await cart.clearLineItems();
 
-  // Updating cache status
-  try {
-    await updateCacheFlushStatus(0);
+    } catch(error) {
+      console.error("flushCache clearLineItems ", error);
+      return;
+    }
 
-  } catch(error) {
-    console.error("flushCache updateCacheStatus ", error);
-    return;
   }
 
 }

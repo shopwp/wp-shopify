@@ -60,7 +60,7 @@ class Settings_License extends \WPS\DB {
     return array(
       'key'                   => '',
       'is_local'              => '',
-      'expires'               => date( 'Y-m-d H:i:s' ),
+      'expires'               => date_i18n( 'Y-m-d H:i:s' ),
       'site_count'            => '',
       'checksum'              => '',
       'customer_email'        => '',

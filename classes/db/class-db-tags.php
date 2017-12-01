@@ -11,6 +11,7 @@ class Tags extends \WPS\DB {
 	public $version;
 	public $primary_key;
 
+
   /*
 
   Construct
@@ -57,17 +58,23 @@ class Tags extends \WPS\DB {
   }
 
 
+  /*
 
+	Construct Tag Model
+
+	*/
   public function construct_tag_model($tag, $product = 0, $cpt_id = 0) {
 
     $product_id = null;
 
     if (is_object($product)) {
+
       if (isset($product->id)) {
         $product_id = $product->id;
       } else {
         $product_id = $product->product_id;
       }
+
     }
 
     return array(
@@ -78,7 +85,6 @@ class Tags extends \WPS\DB {
     );
 
   }
-
 
 
   /*
@@ -102,7 +108,6 @@ class Tags extends \WPS\DB {
     return $results;
 
   }
-
 
 
   /*
@@ -168,40 +173,7 @@ class Tags extends \WPS\DB {
     }
 
 
-    /*
-
-    Update
-
-    */
-    // foreach ($tagsFromShopify as $key => $tag) {
-    //   $results['updated'] = $this->update($tag->id, $tag);
-    // }
-
-
-
     return $results;
-
-
-
-  }
-
-
-  /*
-
-  update_option
-
-  */
-	public function delete_tags($tag) {
-
-  }
-
-
-  /*
-
-  Get Product Variants
-
-  */
-  public function get_product_tags($postID = null) {
 
   }
 

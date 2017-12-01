@@ -76,7 +76,7 @@ class Options extends \WPS\DB {
 
         foreach ($product->options as $key => $option) {
 
-          if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
+          if ($DB_Settings_Connection->is_syncing()) {
 
             $results[] = $this->insert($option, 'option');
 
@@ -111,9 +111,7 @@ class Options extends \WPS\DB {
     $optionsFromShopify = $product->options;
 
     $newProductID = Utils::wps_find_product_id($product);
-
     $currentOptions = $this->get_rows('product_id', $newProductID);
-
 
     // If the product doesn't exist, insert it instead
     if (is_array($currentOptions) && empty($currentOptions)) {
@@ -134,10 +132,7 @@ class Options extends \WPS\DB {
           $results['created'][] = $this->insert($newOption, 'option');
         }
 
-      } else {
-
       }
-
 
       if (count($optionsToDelete) > 0) {
 
@@ -145,10 +140,7 @@ class Options extends \WPS\DB {
           $results['deleted'][] = $this->delete($oldOption->id);
         }
 
-      } else {
-
       }
-
 
       foreach ($product->options as $key => $option) {
         $results['updated'] = $this->update($option->id, $option);
@@ -158,11 +150,7 @@ class Options extends \WPS\DB {
 
     return $results;
 
-
   }
-
-
-
 
 
   /*

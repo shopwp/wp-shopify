@@ -5,12 +5,12 @@
   <div class="wps-cart-section wps-cart-section--top">
 
     <h2 class="wps-cart-title">
-      <?php echo apply_filters( 'wps_cart_title_text', 'Shopping cart' ); ?>
+      <?php echo apply_filters('wps_cart_title_text', 'Shopping cart'); ?>
     </h2>
 
     <button class="wps-btn-close wps-modal-close-trigger" title="Open Cart">
       <span aria-role="hidden" class="wps-modal-close-trigger">
-        <?php echo apply_filters( 'wps_cart_close_icon', '&times;' ); ?>
+        <?php echo apply_filters('wps_cart_close_icon', '&times;'); ?>
       </span>
     </button>
 
@@ -19,14 +19,14 @@
   <div class="wps-cart-form">
 
     <div class="wps-cart-item-container wps-cart-section">
-      <aside class="wps-cart-empty-notice"><h2>Your cart is empty</h2></aside>
+      <aside class="wps-cart-empty-notice"><h2><?php esc_html_e('Your cart is empty', 'wp-shopify'); ?></h2></aside>
     </div>
 
     <div class="wps-cart-bottom wps-row">
       <div class="wps-cart-info wps-clearfix wps-cart-section">
 
         <div class="wps-type--caps wps-cart-info__total">
-          <?php echo apply_filters( 'wps_cart_total_text', 'Total' ); ?>
+          <?php echo apply_filters('wps_cart_total_text', esc_html__('Total', 'wp-shopify')); ?>
         </div>
 
         <div class="wps-cart-info__pricing">
@@ -37,11 +37,11 @@
       <div class="wps-cart-actions-container wps-cart-section type--center">
 
         <div class="wps-cart-discount-notice wps-cart-info__small">
-          <?php echo apply_filters( 'wps_cart_shipping_text', 'Shipping and discount codes are added at checkout.' ); ?>
+          <?php echo apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', 'wp-shopify')); ?>
         </div>
 
-        <a href="https://checkout.shopify.com" class="wps-btn wps-btn-checkout" target="_self" title="Checkout" id="wps-btn-checkout">
-          <?php echo apply_filters( 'wps_cart_checkout_text', 'Checkout' ); ?>
+        <a href="<?php esc_url('https://checkout.shopify.com'); ?>" class="wps-btn wps-btn-checkout" target="_self" title="Checkout" id="wps-btn-checkout">
+          <?php echo apply_filters( 'wps_cart_checkout_text', esc_html__('Checkout', 'wp-shopify')); ?>
         </a>
 
       </div>
@@ -54,7 +54,7 @@
 
     <div class="wps-cart-item <?php echo apply_filters( 'wps_cart_item_class', '' ); ?>">
 
-      <a href="#" class="wps-cart-item-img-link">
+      <a href="#!" class="wps-cart-item-img-link">
         <div class="wps-cart-item__img"></div>
       </a>
 
@@ -62,7 +62,7 @@
 
         <div class="wps-cart-item__content-row">
           <div class="wps-cart-item__variant-title"></div>
-          <a href="#" class="wps-cart-item__title"></a>
+          <a href="#!" class="wps-cart-item__title"></a>
         </div>
 
         <div class="wps-cart-item__content-row">

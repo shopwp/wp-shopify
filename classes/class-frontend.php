@@ -65,7 +65,7 @@ if (!class_exists('Frontend')) {
 
 			$DB_Settings_General = new Settings_General();
 
-			if(!is_admin()) {
+			if (!is_admin()) {
 
 				$styles_all = $DB_Settings_General->get_column_single('styles_all');
 				$styles_core = $DB_Settings_General->get_column_single('styles_core');
@@ -84,9 +84,7 @@ if (!class_exists('Frontend')) {
 						}
 
 						if ($styles_grid[0]->styles_grid) {
-
 							wp_enqueue_style( $this->config->plugin_name . '-styles-grid', $this->config->plugin_url . 'css/grid.min.css', array(), $this->config->plugin_version, 'all' );
-
 						}
 
 					}
@@ -111,6 +109,7 @@ if (!class_exists('Frontend')) {
 	      $connected = get_transient('wps_connection_connected');
 
 	    } else {
+
 				$DB_Settings_Connection = new Settings_Connection();
 	      set_transient('wps_connection_connected', $DB_Settings_Connection->check_connection());
 
@@ -134,8 +133,8 @@ if (!class_exists('Frontend')) {
 				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery', 'shopify-js-sdk'), $this->config->plugin_version, true);
 
 				wp_localize_script($this->config->plugin_name . '-public', $this->config->plugin_name, array(
-						'ajax' => admin_url( 'admin-ajax.php' ),
-						'pluginsPath' => plugins_url(),
+						'ajax' => esc_url(admin_url( 'admin-ajax.php' )),
+						'pluginsPath' => esc_url(plugins_url()),
 						'productsSlug' => $DB_Settings_General->products_slug()[0]->url_products,
 						'is_connected' => $connected,
 						'is_recently_connected' => get_transient('wps_recently_connected'),
@@ -198,7 +197,6 @@ if (!class_exists('Frontend')) {
 
 		*/
 		public function wps_products_shortcode($atts) {
-
 
 			$shortcode_output = '';
 			$shortcodeArgs = Utils::wps_format_products_shortcode_args($atts);
@@ -271,11 +269,13 @@ if (!class_exists('Frontend')) {
 			$DB_Settings_General = new Settings_General();
 
 			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
+
 				ob_start();
 				include_once($this->config->plugin_path . "public/partials/cart/cart.php");
 				$content = ob_get_contents();
 				ob_end_clean();
 				echo $content;
+
 			}
 
 		}
@@ -402,7 +402,6 @@ if (!class_exists('Frontend')) {
 				$refinedVariants = array();
 				$refinedVariantsOptions = array();
 
-
 				foreach ($variantData as $key => $variant) {
 
 					$refinedVariantsOptions = array_filter_key($variant, function($key) {
@@ -434,7 +433,7 @@ if (!class_exists('Frontend')) {
 							wp_send_json_success($variant['id']);
 
 						} else {
-							wp_send_json_error('Out of stock');
+							wp_send_json_error(esc_html__('Out of stock', 'wp-shopify'));
 
 						}
 
@@ -444,12 +443,12 @@ if (!class_exists('Frontend')) {
 
 
 				if (!$found) {
-					wp_send_json_error('Selected option(s) aren\'t available. Please select a different combination.');
+					wp_send_json_error(esc_html__('Selected option(s) aren\'t available. Please select a different combination.', 'wp-shopify'));
 				}
 
 
 			} else {
-				wp_send_json_error('Unable to find selected options. Please try again.');
+				wp_send_json_error(esc_html__('Unable to find selected options. Please try again.', 'wp-shopify'));
 
 			}
 
@@ -464,6 +463,7 @@ if (!class_exists('Frontend')) {
     public function wps_notice() {
 
 			$DB_Settings_General = new Settings_General();
+			$osdkofdk = $DB_Settings_General->get_column_single('cart_loaded');
 
 			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
 				return include_once($this->config->plugin_path . "public/partials/notices/notice.php");
@@ -488,7 +488,7 @@ if (!class_exists('Frontend')) {
 				wp_send_json_success($result[0]->price_with_currency);
 
 			} else {
-				wp_send_json_error('Currency format not found. Please try again.');
+				wp_send_json_error(esc_html__('Currency format not found. Please try again.', 'wp-shopify'));
 
 			}
 
@@ -531,7 +531,6 @@ if (!class_exists('Frontend')) {
 			}
 
 		}
-
 
 
 		/*
@@ -580,31 +579,26 @@ if (!class_exists('Frontend')) {
 		}
 
 
-
-
 		/*
 
-		Get plugin setting money_format
+		Get cart cache
 
 		*/
-		public function wps_get_cache_flush_status() {
+		public function wps_get_cart_cache() {
 
-			$DB_Settings_Connection = new Settings_Connection();
-			$needsCacheFlush = $DB_Settings_Connection->get_column_single('needs_cache_flush');
+			$cartName = 'wps_cart_' . $_POST['cartID'];
 
-			if (is_null($needsCacheFlush) || !empty($needsCacheFlush->last_error)) {
-				wp_send_json_error($needsCacheFlush);
+			if (isset($cartName) && $cartName) {
 
-			} else {
-
-				if (is_array($needsCacheFlush) && isset($needsCacheFlush[0]) ) {
-
-					wp_send_json_success($needsCacheFlush[0]->needs_cache_flush);
+				if (Transients::get($cartName)) {
+					wp_send_json_success();
 
 				} else {
-					wp_send_json_error($needsCacheFlush);
-
+					wp_send_json_error();
 				}
+
+			} else {
+				wp_send_json_error();
 
 			}
 
@@ -613,30 +607,28 @@ if (!class_exists('Frontend')) {
 
 		/*
 
-		Get plugin setting money_format
+		Set cart cache in transient
 
 		*/
-		public function wps_update_cache_flush_status() {
+		public function wps_set_cart_cache() {
 
-			$DB_Settings_Connection = new Settings_Connection();
-			$connectionData = $DB_Settings_Connection->get();
+			$cartName = 'wps_cart_' . $_POST['cartID'];
 
-			$connectionData->needs_cache_flush = $_POST['status'];
-			$connectionData = (array) $connectionData;
+			if (isset($cartName) && $cartName) {
 
-			$response = $DB_Settings_Connection->insert_connection($connectionData);
+				if (Transients::set($cartName, true, $this->config->cart_cache_expiration)) {
+					wp_send_json_success();
 
-			if (is_wp_error($response)) {
-				wp_send_json_error($response->get_error_message());
+				} else {
+					wp_send_json_error();
+				}
 
 			} else {
-				wp_send_json_success($response);
+				wp_send_json_error();
+
 			}
 
-
 		}
-
-
 
 
 		/*
@@ -655,9 +647,6 @@ if (!class_exists('Frontend')) {
 			wp_send_json_success();
 
 		}
-
-
-
 
 
 		/*
@@ -684,8 +673,11 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_ajax_wps_update_cache_flush_status', array($this, 'wps_update_cache_flush_status') );
 			add_action( 'wp_ajax_nopriv_wps_update_cache_flush_status', array($this, 'wps_update_cache_flush_status') );
 
-			add_action( 'wp_ajax_wps_get_cache_flush_status', array($this, 'wps_get_cache_flush_status') );
-			add_action( 'wp_ajax_nopriv_wps_get_cache_flush_status', array($this, 'wps_get_cache_flush_status') );
+			add_action( 'wp_ajax_wps_set_cart_cache', array($this, 'wps_set_cart_cache') );
+			add_action( 'wp_ajax_nopriv_wps_set_cart_cache', array($this, 'wps_set_cart_cache') );
+
+			add_action( 'wp_ajax_wps_get_cart_cache', array($this, 'wps_get_cart_cache') );
+			add_action( 'wp_ajax_nopriv_wps_get_cart_cache', array($this, 'wps_get_cart_cache') );
 
 			add_action( 'wp_ajax_wps_get_credentials', array($this, 'wps_get_credentials') );
 			add_action( 'wp_ajax_nopriv_wps_get_credentials', array($this, 'wps_get_credentials') );

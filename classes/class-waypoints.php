@@ -95,7 +95,7 @@ class Waypoints {
       wp_send_json_success($url);
 
     } else {
-      wp_send_json_error('Unable to find Shopify settings. Please try again.');
+      wp_send_json_error(esc_html__('Unable to find Shopify settings. Please try again.', 'wp-shopify'));
 
     }
 
@@ -145,7 +145,7 @@ class Waypoints {
   /*
 
 	Generate a WP API auth token
-  TODO: Remove hardcoded credentials
+  TODO!: Remove hardcoded credentials
 
 	*/
 	public function wps_waypoint_auth() {

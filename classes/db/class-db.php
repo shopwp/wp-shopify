@@ -114,19 +114,7 @@ class DB {
 
 		if ($this->table_exists($this->table_name)) {
 
-			if( empty($row_id) ) {
-
-				// if (get_transient('wps_table_single_row_' . $this->table_name)) {
-				// 	$results = get_transient('wps_table_single_row_' . $this->table_name);
-				//
-				// } else {
-				//
-				// 	$query = "SELECT * FROM $this->table_name LIMIT 1;";
-				// 	$results = $wpdb->get_row($query);
-				//
-				// 	set_transient('wps_table_single_row_' . $this->table_name, $results);
-				//
-				// }
+			if (empty($row_id)) {
 
 				$query = "SELECT * FROM $this->table_name LIMIT 1;";
 				$results = $wpdb->get_row($query);
@@ -236,20 +224,43 @@ class DB {
 			return;
 		}
 
-		$data = wp_cache_get($column, $this->cache_group);
 
-		if (!$data) {
+		/*
 
+		Check cache for existing record ...
+
+		*/
+		$cachedResult = wp_cache_get($column, $this->cache_group);
+
+
+		/*
+
+		Check to see if the data we want exists already in the cache
+		If so, return and exist immediately
+
+		*/
+		if ($cachedResult) {
+			return $cachedResult;
+
+		} else {
+
+			// Otherwise, construct query and get result ...
 			$query = "SELECT $column FROM $this->table_name;";
+			$queryResults = $wpdb->get_results($query);
 
-			$data = $wpdb->get_results($query);
+			// Check if any errors came back ..
+			if (isset($wpdb->last_error) && $wpdb->last_error) {
+				return new \WP_Error( 'error', esc_html__($wpdb->last_error, 'wp-shopify') );
 
-			// Cache for 1 hour
-			wp_cache_add($column, $data, $this->cache_group, 3600);
+			} else {
+
+				// Otherwise cache the successful query and return the result
+				wp_cache_add($column, $queryResults, $this->cache_group, 3600);
+				return $queryResults;
+
+			}
 
 		}
-
-		return $data;
 
   }
 
@@ -407,9 +418,6 @@ class DB {
   }
 
 
-
-
-
 	/*
 
   Update a new row
@@ -442,7 +450,6 @@ class DB {
     return true;
 
   }
-
 
 
   /*
@@ -482,7 +489,6 @@ class DB {
 		}
 
   }
-
 
 
 	/*
@@ -557,7 +563,6 @@ class DB {
 
 			}
 
-
 		}
 
 		return array_filter($finalDelta);
@@ -606,15 +611,6 @@ class DB {
 	}
 
 
-
-
-
-
-
-
-
-
-
   /*
 
   Check if the given table exists
@@ -641,13 +637,6 @@ class DB {
   }
 
 
-
-
-
-
-
-
-
 	/*
 
 	Assigns the "post_id" foreign key to Products and Collections rows
@@ -663,24 +652,11 @@ class DB {
 	}
 
 
-
-
-
-
-
-
-
-
 	/*
 
 	Used to check the type of collection
 
-
-
 	Need to update Collects AND Collections
-
-
-
 
 	*/
 	public function update_collection($collection) {
@@ -822,7 +798,6 @@ class DB {
     return $results;
 
   }
-
 
 
   /*

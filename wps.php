@@ -17,7 +17,7 @@ Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
 License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
-Text Domain:       wps
+Text Domain:       wp-shopify
 Domain Path:       /languages
 
 */
@@ -142,7 +142,7 @@ if ( ! class_exists('WP_Shopify') ) {
 
 		*/
 		public function __clone() {
-			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wpshopify' ), '2.1' );
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wp-shopify' ), '2.1' );
 		}
 
 
@@ -152,7 +152,7 @@ if ( ! class_exists('WP_Shopify') ) {
 
 		*/
 		public function __wakeup() {
-			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wpshopify' ), '2.1' );
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'wp-shopify' ), '2.1' );
 		}
 
 
@@ -207,12 +207,13 @@ if ( ! class_exists('WP_Shopify') ) {
 		*/
 		public function init_hooks($Hooks) {
 
-
+			// TODO: This can be done better
 			$this->Activator->init();
 			$this->License->init();
+			$this->I18N->init();
+
 			$this->Backend->wps_backend_hooks();
 			$this->Frontend->wps_frontend_hooks();
-			$this->I18N->init();
 
 			// Register CPTs upon every consecutive init
 			add_action( 'init', array($this->CPT, 'wps_post_type_products') );

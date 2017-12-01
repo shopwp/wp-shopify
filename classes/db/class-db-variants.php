@@ -12,6 +12,7 @@ class Variants extends \WPS\DB {
 	public $version;
 	public $primary_key;
 
+
   /*
 
   Construct
@@ -90,8 +91,8 @@ class Variants extends \WPS\DB {
       'requires_shipping'         => '',
       'fulfillment_service'       => '',
       'barcode'                   => '',
-      'created_at'                => date( 'Y-m-d H:i:s' ),
-      'updated_at'                => date( 'Y-m-d H:i:s' )
+      'created_at'                => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'                => date_i18n( 'Y-m-d H:i:s' )
     );
   }
 
@@ -113,7 +114,7 @@ class Variants extends \WPS\DB {
 
         foreach ($product->variants as $key => $variant) {
 
-          if ($DB_Settings_Connection->is_syncing() || $DB_Settings_Connection->is_webhooking()) {
+          if ($DB_Settings_Connection->is_syncing()) {
 
             $results[] = $this->insert($variant, 'variant');
 
@@ -162,11 +163,10 @@ class Variants extends \WPS\DB {
 
 
     if (count($variantsToAdd) > 0) {
+
       foreach ($variantsToAdd as $key => $newVariant) {
         $results['created'][] = $this->insert($newVariant, 'variant');
       }
-
-    } else {
 
     }
 
@@ -180,8 +180,6 @@ class Variants extends \WPS\DB {
         }
 
       }
-
-    } else {
 
     }
 

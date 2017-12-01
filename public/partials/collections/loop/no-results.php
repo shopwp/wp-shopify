@@ -1,3 +1,3 @@
 <div class="wps-notice-inline wps-notice-error wps-contain">
-  <p>No collections found</p>
+  <p><?php esc_html_e('No collections found', 'wp-shopify'); ?></p>
 </div>

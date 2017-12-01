@@ -193,7 +193,7 @@ class Backend {
 	public function wps_config_add_action_links($links) {
 
 		// $this->config = new Config();
-		$settings_link = ['<a href="' . admin_url('/admin.php?page=' . $this->config->plugin_name) . '-settings">' . __('Settings', $this->config->plugin_name) . '</a>'];
+		$settings_link = ['<a href="' . esc_url( admin_url('/admin.php?page=' . $this->config->plugin_name) . '-settings' ) . '">' . esc_html_e('Settings', 'wp-shopify') . '</a>'];
 
 		return array_merge($settings_link, $links);
 
@@ -284,12 +284,6 @@ class Backend {
  	}
 
 
-
-
-
-
-
-
 	/*
 
 	Validate connection form settings
@@ -309,12 +303,6 @@ class Backend {
 		return $valid;
 
 	}
-
-
-
-
-
-
 
 
 	/*
@@ -345,22 +333,10 @@ class Backend {
 	public function wps_insert_auth_modal() {
 
 		if(isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
-			echo '<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="' . $this->config->plugin_url . 'admin/imgs/logo-wp.svg" /> to <img class="wps-connector-logo" src="' . $this->config->plugin_url . 'admin/imgs/shopify.svg" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>';
+			printf(esc_html__('<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="%1" /> to <img class="wps-connector-logo" src="%2" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>'), esc_url($this->config->plugin_url . 'admin/imgs/logo-wp.svg'), esc_url($this->config->plugin_url . 'admin/imgs/shopify.svg'));
 		}
 
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	/*
@@ -456,14 +432,9 @@ class Backend {
 
 		/*
 
-
 		TODO: Remove nopriv actions?
 
-
 		*/
-
-
-
 		add_action( 'admin_menu', array($this, 'wps_config_add_plugin_menu') );
 
 

@@ -2,6 +2,6 @@
   itemprop="description"
   class="wps-product-content">
 
-  <?php echo $product['details']['body_html']; ?>
-  
+  <?php esc_html_e($product['details']['body_html'], 'wp-shopify'); ?>
+
 </div>

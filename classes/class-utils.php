@@ -29,22 +29,18 @@ class Utils {
   protected static $instantiated = null;
 
 
-
-
   public function filter_errors($item) {
 
     return is_wp_error($item);
 
   }
 
+
   public function filter_errors_with_messages($title, $error) {
 
     return $error->get_error_message();
 
   }
-
-
-
 
 
   /*
@@ -62,7 +58,6 @@ class Utils {
 		return self::$instantiated;
 
 	}
-
 
 
   /*
@@ -86,7 +81,11 @@ class Utils {
   }
 
 
+  /*
 
+  Get feat image by id
+
+  */
   public function get_feat_image_by_id($productID) {
 
     $Images = new Images();
@@ -664,16 +663,11 @@ class Utils {
 	}
 
 
+  /*
 
+  Construct in clause
 
-
-
-
-
-
-
-
-
+  */
   public static function construct_in_clause($shortcodeAttrs, $type) {
 
     $tags = '';
@@ -763,9 +757,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Tag Clauses
 
-
+  */
   public static function construct_tag_clauses($shortcode_query, $tags, $table_name) {
 
     global $wpdb;
@@ -781,7 +777,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Variants Clauses
+
+  */
   public static function construct_variants_clauses($shortcode_query, $variants, $table_name) {
 
     global $wpdb;
@@ -797,6 +797,11 @@ class Utils {
   }
 
 
+  /*
+
+  Construct Options Clauses
+
+  */
   public static function construct_options_clauses($shortcode_query, $options, $table_name) {
 
     global $wpdb;
@@ -812,7 +817,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Vendors Clauses
+
+  */
   public static function construct_vendors_clauses($shortcode_query, $vendors, $table_name) {
 
     global $wpdb;
@@ -824,23 +833,27 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Types Clauses
 
+  */
   public static function construct_types_clauses($shortcode_query, $types, $table_name) {
 
     global $wpdb;
 
-
-
     $shortcode_query['where'] .= ' AND ' . $table_name . '.product_type IN (' . $types . ')';
-
-
 
     return $shortcode_query;
 
   }
 
 
+  /*
+
+  Construct Desc Clauses
+
+  */
   public static function construct_desc_clauses($shortcode_query, $desc, $table_name) {
 
     global $wpdb;
@@ -852,6 +865,11 @@ class Utils {
   }
 
 
+  /*
+
+  Construct Collection Slugs Clauses
+
+  */
   public static function construct_collection_slugs_clauses($shortcode_query, $slugs) {
 
     global $wpdb;
@@ -890,9 +908,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Collections Clauses
 
-
+  */
   public static function construct_collections_clauses($shortcode_query, $slugs) {
 
     global $wpdb;
@@ -932,10 +952,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Limit Clauses
 
-
-
+  */
   public static function construct_limit_clauses($shortcode_query, $limit) {
 
     global $wpdb;
@@ -947,7 +968,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Order Clauses
+
+  */
   public static function construct_order_clauses($shortcode_query, $order) {
 
     global $wpdb;
@@ -964,6 +989,11 @@ class Utils {
   }
 
 
+  /*
+
+  Construct Order By Clauses
+
+  */
   public static function construct_orderby_clauses($shortcode_query, $orderby, $table_name) {
 
     global $wpdb;
@@ -975,14 +1005,9 @@ class Utils {
   }
 
 
-
-
-
   /*
 
-
-  construct_clauses_from_products_shortcode
-
+  Construct Clauses From Products Shortcode
 
   */
   public static function construct_clauses_from_products_shortcode($shortcodeAttrs, $query) {
@@ -993,7 +1018,6 @@ class Utils {
     $DB_Products = new Products();
     $shortcode_query = $DB_Products->get_default_query();
 
-
     /*
 
     Removes the default "menu_order" value if the user
@@ -1002,7 +1026,6 @@ class Utils {
     */
     if (array_key_exists('custom', $query->query) && !empty($query->query['custom']['orderby'])) {
       $shortcode_query['orderby'] = '';
-
     }
 
 
@@ -1090,33 +1113,18 @@ class Utils {
 
     return $shortcode_query;
 
-
   }
-
-
-
-
-
-
-
-
-
-
-
 
 
   /*
 
-
-  construct_clauses_from_collections_custom_shortcode
-
+  Construct Clauses From Collections Custom Shortcode
 
   */
   public static function construct_clauses_from_collections_shortcode($shortcodeAttrs, $query) {
 
     global $wpdb;
     $sql = '';
-
 
     $DB = new DB();
     $shortcode_query = $DB->get_default_collections_query();
@@ -1127,14 +1135,17 @@ class Utils {
       $shortcode_query = self::construct_slug_clauses($shortcode_query, $slugs, 'collections');
     }
 
+
     if (array_key_exists('titles', $shortcodeAttrs)) {
       $titles = self::construct_in_clause($shortcodeAttrs, 'titles');
       $shortcode_query = self::construct_title_clauses($shortcode_query, $titles, 'collections');
     }
 
+
     if (array_key_exists('desc', $shortcodeAttrs)) {
       $shortcode_query = self::construct_desc_clauses($shortcode_query, $shortcodeAttrs['desc'], 'collections');
     }
+
 
     if (array_key_exists('orderby', $shortcodeAttrs)) {
 
@@ -1149,18 +1160,6 @@ class Utils {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     if (array_key_exists('limit', $shortcodeAttrs)) {
       $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
     }
@@ -1170,7 +1169,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Join From Products Shortcode
+
+  */
   public static function construct_join_from_products_shortcode($shortcodeAttrs) {
 
     $sql = '';
@@ -1237,25 +1240,6 @@ class Utils {
     return $sql;
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   /*
@@ -1637,20 +1621,6 @@ class Utils {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /*
 
   Get collection ID by Handle
@@ -1684,20 +1654,9 @@ class Utils {
   }
 
 
-
-
-
-
-
-
-
-
-
-
   /*
 
   Checks whether we want to show the 'money_with_currency_format' or 'money_format' column val
-  Since: 1.0.1
 
   */
   public static function wps_is_using_money_with_currency_format() {
@@ -1718,7 +1677,6 @@ class Utils {
   /*
 
   Extracts amount format
-  Since: 1.0.1
 
   */
   public static function wps_extract_amount_format() {
@@ -1732,7 +1690,6 @@ class Utils {
     } else {
       $settingsMoneyFormat = $DB_Shop->get_money_format();
     }
-
 
     $formatNoFrontDelimiter = explode("{{", $settingsMoneyFormat);
 
@@ -1755,7 +1712,6 @@ class Utils {
   /*
 
   Checks if the amount value exists within Shopify array
-  Since: 1.0.1
 
   */
   public static function wps_find_amount_format() {
@@ -1778,7 +1734,6 @@ class Utils {
 
   Array of money formatting options from Shopify.
   TODO: Can we pull this in dynamically from the API?
-  Since: 1.0.1
 
   */
   public static function wps_get_avail_money_formats() {
@@ -1854,7 +1809,6 @@ class Utils {
   /*
 
   Handles replacing delimiters with the correctly formatted money
-  Since: 1.0.1
 
   */
   public static function wps_replace_delimiters_with_formatted_money($money_format_current = '${{amount}}', $shop_currency = 'USD', $price) {
@@ -1871,6 +1825,11 @@ class Utils {
   }
 
 
+  /*
+
+  Find Variant By Price
+
+  */
   public static function wps_find_variant_by_price($price, $variants) {
 
     $foundVariant = array();
@@ -1968,7 +1927,6 @@ class Utils {
 
       $priceey = '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $currencySymbol[0] . '</span>' . '<span itemprop="price" class="wps-product-individual-price">' . $price .'</span>' . '<span itemprop="priceCurrency" class="wps-product-individual-price-format">' . trim($currencySymbol[1]) .'</span>';
 
-
       set_transient('wps_product_price_id_' . $productID, $priceey);
 
       return $priceey;
@@ -1978,15 +1936,12 @@ class Utils {
   }
 
 
-
-
   /*
 
-  Implement
+  Construct Products Args
 
   */
   public function wps_construct_products_args() {
-
 
     /*
 
@@ -2052,11 +2007,11 @@ class Utils {
   }
 
 
+  /*
 
+  Get Pagenum Link
 
-
-
-
+  */
   public function wps_get_pagenum_link($args, $page) {
 
     $Config = new Config();
@@ -2073,36 +2028,14 @@ class Utils {
 
     $link = $homeURL . '/' . $slug . '/page/' . $page;
 
-    return $link;
+    return esc_url($link);
 
   }
 
 
-
-
-
-
-
-
-
   /*
 
-  @author Pieter Goosen
-  @license GPLv2
-  @link http://www.gnu.org/licenses/gpl-2.0.html
-
-  @param array $args An array of key => value arguments. Defaults below
-  - mixed query variable                   'query'                 => $GLOBALS['wp_query'],
-  - string Previous page text              'previous_page_text'    => __( '&laquo;' ),
-  - string Next page text                  'next_page_text'        => __( '&raquo;' ),
-  - string First page link text            'first_page_text'       => __( 'First' ),
-  - string Last page link text             'last_page_text'        => __( 'Last' ),
-  - string Older posts text                'next_link_text'        => __( 'Older Entries' ),
-  - string Newer posts text                'previous_link_text'    => __( 'Newer Entries' ),
-  - bool Whether to use links              'show_posts_links'      => false,
-  - int Amount of numbered links to show   'range'                 => 5,
-
-  @return string $paginated_text
+  Get paginated numbers
 
   */
   function wps_get_paginated_numbers( $args = [] ) {
@@ -2127,7 +2060,6 @@ class Utils {
       'show_posts_links'      => apply_filters('wps_products_pagination_show_as_prev_next', false),
       'range'                 => apply_filters('wps_products_pagination_range', 5),
     ];
-
 
     // Merge default arguments with user set arguments
     $args = wp_parse_args( $args, $defaults );
@@ -2285,10 +2217,6 @@ class Utils {
       The $max_pages parameter is already set by the function to accommodate custom queries
 
       */
-
-
-
-
       $paginated_text = apply_filters('wps_products_pagination_start', '<div itemscope itemtype="https://schema.org/SiteNavigationElement" class="wps-products-pagination">');
       $paginated_text .= previous_posts_link( '<div class="wps-pagination-products-prev-link">' . $args['previous_link_text'] . '</div>' );
       $paginated_text .= next_posts_link( '<div class="wps-pagination-products-next-link">' . $args['next_link_text'] . '</div>', $max_pages );
@@ -2300,7 +2228,6 @@ class Utils {
     return $paginated_text;
 
   }
-
 
 
   /*
@@ -2352,7 +2279,11 @@ class Utils {
   }
 
 
+  /*
 
+  Product Inventory
+
+  */
   public static function product_inventory($product) {
 
     return array_filter($product['variants'], function($productVariant) {
@@ -2362,8 +2293,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Option Selections
 
+  */
   public static function construct_option_selections($selectedOptions) {
 
     $newSelectedOptions = $selectedOptions;
@@ -2372,7 +2306,6 @@ class Utils {
     foreach($newSelectedOptions as $key => $optionVal) {
 
       $newSelectedOptions['option' . $indexx] = $optionVal;
-
 
       $indexx++;
 
@@ -2385,8 +2318,11 @@ class Utils {
   }
 
 
+  /*
 
+  Filter Variants To Options Values
 
+  */
   public static function filter_variants_to_options_values($variants) {
 
     return array_map(function($variant) {
@@ -2400,8 +2336,6 @@ class Utils {
     }, $variants);
 
   }
-
-
 
 
   /*
@@ -2424,9 +2358,6 @@ class Utils {
     return $array;
 
   }
-
-
-
 
 
 }

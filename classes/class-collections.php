@@ -38,28 +38,6 @@ class Collections {
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /*
 
   Used to check the type of collection

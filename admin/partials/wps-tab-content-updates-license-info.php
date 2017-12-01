@@ -26,47 +26,80 @@ if (is_object($license)) {
 
 <div class="postbox wps-postbox-license-info <?php echo $activeLicense ? '' : 'wps-is-hidden'; ?>">
   <table class="form-table">
+
     <tr>
-      <th class="row-title"><?php esc_attr_e( 'License Key Information', 'wp_admin_style' ); ?></th>
-      <th><?php esc_attr_e( '', 'wp_admin_style' ); ?></th>
+
+      <th class="row-title">
+        <?php esc_html_e('License Key Information', 'wp-shopify'); ?>
+      </th>
+
+      <th>
+        <?php esc_html_e('', 'wp-shopify' ); ?>
+      </th>
+
     </tr>
+
     <tr valign="top">
+
       <td scope="row">
-        <label for="tablecell"><?php esc_attr_e('Status', 'wp_admin_style'); ?></label>
+        <label for="tablecell">
+          <?php esc_html_e('Status', 'wp-shopify'); ?>
+        </label>
       </td>
+
       <td class="wps-col wps-col-license-status wps-col-license-status-<?php echo strtolower($status); ?>">
-        <?php esc_attr_e($status, 'wp_admin_style' ); ?>
+        <?php printf(esc_html__('%s', 'wp-shopify'), $status); ?>
       </td>
+
     </tr>
+
     <tr valign="top">
+
       <td scope="row">
-        <label for="tablecell"><?php esc_attr_e('Name', 'wp_admin_style'); ?></label>
+        <label for="tablecell">
+          <?php esc_html_e('Name', 'wp-shopify'); ?>
+        </label>
       </td>
+
       <td class="wps-col wps-col-license-name">
-        <?php esc_attr_e($custName, 'wp_admin_style' ); ?>
+        <?php printf(esc_html__('%s', 'wp-shopify'), $custName); ?>
       </td>
+
     </tr>
+
     <tr valign="top" class="alternate">
+
       <td scope="row">
-        <label for="tablecell"><?php esc_attr_e('Email', 'wp_admin_style'); ?> </label>
+        <label for="tablecell">
+          <?php esc_html_e('Email', 'wp-shopify'); ?>
+        </label>
       </td>
+
       <td class="wps-col wps-col-license-email">
-        <?php esc_attr_e($custEmail, 'wp_admin_style' ); ?>
+        <?php printf(esc_html__('%s', 'wp-shopify'), $custEmail); ?>
       </td>
+
     </tr>
+
     <tr valign="top">
+
       <td scope="row">
-        <label for="tablecell"><?php esc_attr_e('Expires on', 'wp_admin_style'); ?></label>
+        <label for="tablecell">
+          <?php esc_html_e('Expires on', 'wp-shopify'); ?>
+        </label>
       </td>
+
       <td class="wps-col wps-col-license-expire">
 
         <?php
 
         if ($expires === '1970-01-01 00:00:00' || $expires === 0 || $expires === false) {
-          echo 'Never expires';
+          esc_html_e('Never expires', 'wp-shopify');
 
         } else {
-          esc_attr_e(date("F j, Y", strtotime($expires)), 'wp_admin_style' );
+
+          echo date_i18n("F j, Y", strtotime($expires));
+
         }
 
         ?>
@@ -74,12 +107,27 @@ if (is_object($license)) {
       </td>
 
     </tr>
+
     <tr valign="top">
+
       <td scope="row">
-        <label for="tablecell"><?php esc_attr_e('Activation count', 'wp_admin_style'); ?></label>
+        <label for="tablecell">
+          <?php esc_html_e('Activation count', 'wp-shopify'); ?>
+        </label>
       </td>
-      <td class="wps-col wps-col-license-limit"><?php esc_attr_e($count . ' / ' . $licenseLimit, 'wp_admin_style' ); ?> <small class="wps-table-supporting">(Activations on dev environents don't add to total)</small></td>
+
+      <td class="wps-col wps-col-license-limit">
+
+        <?php printf(esc_html__('%1$d / %2$d', 'wp-shopify'), $count, $licenseLimit); ?>
+
+        <small class="wps-table-supporting">
+          <?php esc_html_e('(Activations on dev environents don\'t add to total)', 'wp-shopify'); ?>
+        </small>
+
+      </td>
+
     </tr>
+
   </table>
 
 </div>
