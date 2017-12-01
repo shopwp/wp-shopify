@@ -86,6 +86,7 @@ Map Products Model
 function mapProductsModel(product) {
 
   if (product !== undefined) {
+
     return {
       productTitle: product.title,
       productDescription: product.body_html,
@@ -99,6 +100,7 @@ function mapProductsModel(product) {
       productOptions: product.options,
       productCollection: []
     };
+
   }
 
 };
@@ -180,6 +182,7 @@ Map Collections Model
 function mapCollectionsModel(collection) {
 
   if(collection !== undefined) {
+
     return {
       collectionTitle: collection.title,
       collectionDescription: collection.body_html,
@@ -188,6 +191,7 @@ function mapCollectionsModel(collection) {
       collectionImage: setCollectionImage(collection),
       collectionProducts: []
     };
+
   }
 
 };
@@ -201,7 +205,7 @@ Returns: image src
 */
 function setCollectionImage(collection) {
 
-  if(collection.hasOwnProperty('image')) {
+  if (collection.hasOwnProperty('image')) {
     return collection.image.src;
   }
 
@@ -295,6 +299,11 @@ function addCollectionsToProduct(products, collects) {
 }
 
 
+/*
+
+Sanitize Error Response
+
+*/
 function sanitizeErrorResponse(error) {
 
   if (error.hasOwnProperty('data')) {
@@ -306,7 +315,6 @@ function sanitizeErrorResponse(error) {
   }
 
 }
-
 
 
 export {

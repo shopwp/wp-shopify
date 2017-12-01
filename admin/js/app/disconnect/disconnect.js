@@ -74,14 +74,12 @@ function constructErrorList(errors, currentErrorList) {
 }
 
 
-
 /*
 
 On connection uninstall ...
 
 */
 async function uninstallPluginData(options = false, reconnect = true) {
-
 
   /*
 
@@ -162,14 +160,12 @@ async function uninstallPluginData(options = false, reconnect = true) {
   }
 
 
-
   updateDomAfterDisconnect(options);
 
   // Safe to reconnect again
   if (reconnect) {
     connectInit();
   }
-
 
 
 }
@@ -188,7 +184,8 @@ function onDisconnectionFormSubmit() {
   unbindConnectForm();
 
   $formConnect.on('submit.disconnect', async function(e) {
-
+    
+    console.log("Hello");
     e.preventDefault();
 
     // Remove previous connector modal if exists
@@ -257,7 +254,7 @@ function updateDomAfterDisconnect(options) {
   clearConnectInputs();
   setConnectionProgress("false");
 
-  if(document.querySelector('.wps-btn-cancel')) {
+  if (document.querySelector('.wps-btn-cancel')) {
     document.querySelector('.wps-btn-cancel').disabled = false;
   }
 
@@ -292,11 +289,9 @@ function updateDomAfterDisconnect(options) {
 
   }
 
-
   clearLocalstorageCache();
   resetConnectSubmit();
   initCloseModalEvents();
-
 
 }
 

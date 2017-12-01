@@ -1,9 +1,6 @@
 import forEachRamda from 'ramda/es/forEach';
 import isURL from 'validator/lib/isURL';
-
-import {
-  stopSpinner
-} from './utils-dom';
+import { stopSpinner } from './utils-dom';
 
 
 /*
@@ -27,6 +24,11 @@ function isObject(value) {
 }
 
 
+/*
+
+Is WordPress Error
+
+*/
 function isWordPressError(response) {
 
   if (isObject(response) && hasProp(response, 'success')) {
@@ -219,8 +221,6 @@ function cleanDomainURL(string) {
 }
 
 
-
-
 /*
 
 Check if value is only alphanumeric
@@ -239,7 +239,6 @@ Check if value exists
 function containsValue(value) {
   return value.length > 0;
 }
-
 
 
 /*

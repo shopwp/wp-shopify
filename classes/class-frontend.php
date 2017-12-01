@@ -36,6 +36,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function __construct($Config) {
 			$this->config = $Config;
+			$this->connection = $this->config->wps_get_settings_connection();
 		}
 
 
@@ -123,14 +124,11 @@ if (!class_exists('Frontend')) {
 				global $post;
 				$DB_Settings_General = new Settings_General();
 
-				// Shopify JS SDK
-				wp_enqueue_script('shopify-js-sdk', '//sdks.shopifycdn.com/js-buy-sdk/v0/latest/shopify-buy.umd.polyfilled.min.js', array(), $this->config->plugin_version, false );
-
 				// Promise polyfill
 				wp_enqueue_script($this->config->plugin_name . '-promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 
 				// WP Shopify JS Public
-				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery', 'shopify-js-sdk'), $this->config->plugin_version, true);
+				wp_enqueue_script($this->config->plugin_name . '-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery'), $this->config->plugin_version, true);
 
 				wp_localize_script($this->config->plugin_name . '-public', $this->config->plugin_name, array(
 						'ajax' => esc_url(admin_url( 'admin-ajax.php' )),
@@ -138,11 +136,13 @@ if (!class_exists('Frontend')) {
 						'productsSlug' => $DB_Settings_General->products_slug()[0]->url_products,
 						'is_connected' => $connected,
 						'is_recently_connected' => get_transient('wps_recently_connected'),
-						'post_id' => is_object($post) ? $post->ID : false
+						'post_id' => is_object($post) ? $post->ID : false,
+						'nonce'	=> wp_create_nonce('wp-shopify-frontend')
 					)
 				);
 
 			}
+
 
 			// Sets recently connected to false by default
 			if (get_transient('wps_recently_connected')) {
@@ -287,7 +287,12 @@ if (!class_exists('Frontend')) {
 
 		*/
 		public function wps_get_credentials() {
+
+			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+			Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+
 			wp_send_json_success($this->config->wps_get_settings_connection());
+
 		}
 
 

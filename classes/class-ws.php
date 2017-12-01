@@ -12,7 +12,6 @@ use WPS\DB\Shop;
 use WPS\DB\Products;
 use WPS\DB\Variants;
 use WPS\DB\Collects;
-use WPS\Transients;
 use WPS\DB\Options;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
@@ -20,6 +19,8 @@ use WPS\DB\Images;
 use WPS\DB\Tags;
 use WPS\DB\Orders;
 use WPS\DB\Customers;
+use WPS\Transients;
+use WPS\Messages;
 
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\HandlerStack;
@@ -234,10 +235,10 @@ class WS {
   */
   public function wps_ws_get_products_count() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
       $url = "https://" . $this->connection->domain . "/admin/products/count.json";
 
@@ -248,43 +249,39 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
-      try {
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $productsCountResponse = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (is_object($productsCountResponse) && property_exists($productsCountResponse, 'count')) {
-          wp_send_json_success($productsCountResponse);
-
-        } else {
-          wp_send_json_error($productsCountResponse);
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (\InvalidArgumentException $error) {
+      $productsCountResponse = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (is_object($productsCountResponse) && property_exists($productsCountResponse, 'count')) {
+        wp_send_json_success($productsCountResponse);
 
-      } catch (RequestException $error) {
-
-        wp_send_json_error( $this->wps_get_error_message($error) );
-
-      } catch (ClientException $error) {
-
-        wp_send_json_error( $this->wps_get_error_message($error) );
-
-      // Server errors 5xx
-      } catch (ServerException $error) {
-
-        wp_send_json_error( $this->wps_get_error_message($error) );
-
+      } else {
+        wp_send_json_error($productsCountResponse);
       }
+
+    } catch (\InvalidArgumentException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
+
+    } catch (ClientException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
+
+    // Server errors 5xx
+    } catch (ServerException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -299,10 +296,10 @@ class WS {
   */
   public function wps_ws_get_collects_count() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
       $url = "https://" . $this->connection->domain . "/admin/collects/count.json";
 
@@ -310,31 +307,27 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
-      try {
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $collectionsCountResponse = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (is_object($collectionsCountResponse) && property_exists($collectionsCountResponse, 'count')) {
-          wp_send_json_success($collectionsCountResponse);
-
-        } else {
-          wp_send_json_error($collectionsCountResponse);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $collectionsCountResponse = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (is_object($collectionsCountResponse) && property_exists($collectionsCountResponse, 'count')) {
+        wp_send_json_success($collectionsCountResponse);
+
+      } else {
+        wp_send_json_error($collectionsCountResponse);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -349,10 +342,10 @@ class WS {
   */
   public function wps_ws_get_orders_count() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
       $url = "https://" . $this->connection->domain . "/admin/orders/count.json";
 
@@ -360,31 +353,27 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
-      try {
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $countResponse = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (is_object($countResponse) && property_exists($countResponse, 'count')) {
-          wp_send_json_success($countResponse);
-
-        } else {
-          wp_send_json_error($countResponse);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $countResponse = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (is_object($countResponse) && property_exists($countResponse, 'count')) {
+        wp_send_json_success($countResponse);
+
+      } else {
+        wp_send_json_error($countResponse);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -399,10 +388,10 @@ class WS {
   */
   public function wps_ws_get_customers_count() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
       $url = "https://" . $this->connection->domain . "/admin/customers/count.json";
 
@@ -410,31 +399,27 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
-      try {
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $countResponse = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (is_object($countResponse) && property_exists($countResponse, 'count')) {
-          wp_send_json_success($countResponse);
-
-        } else {
-          wp_send_json_error($countResponse);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $countResponse = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (is_object($countResponse) && property_exists($countResponse, 'count')) {
+        wp_send_json_success($countResponse);
+
+      } else {
+        wp_send_json_error($countResponse);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -448,10 +433,10 @@ class WS {
   */
   public function wps_ws_get_shop_data() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
-    } else {
+    try {
 
       $url = "https://" . $this->connection->domain . "/admin/shop.json";
 
@@ -459,31 +444,27 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
-      try {
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $shopDataResponse = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (is_object($shopDataResponse) && property_exists($shopDataResponse, 'shop')) {
-          wp_send_json_success($shopDataResponse);
-
-        } else {
-          wp_send_json_error($shopDataResponse);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $shopDataResponse = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (is_object($shopDataResponse) && property_exists($shopDataResponse, 'shop')) {
+        wp_send_json_success($shopDataResponse);
+
+      } else {
+        wp_send_json_error($shopDataResponse);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -499,10 +480,10 @@ class WS {
   */
   public function wps_insert_products_data() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
-    } else {
+    try {
 
       $insertionResults = array();
 
@@ -531,85 +512,82 @@ class WS {
       );
 
 
-      try {
+      /*
+
+      For testing server timeout error, add these to guzzle settings ...
+
+      'timeout' => 0.5,
+      'connect_timeout' => 0.5,
+
+      */
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
+        }
+      ));
+
+      $data = json_decode($guzzelResponse->getBody()->getContents());
+
+      if (is_object($data) && property_exists($data, 'products')) {
 
         /*
 
-        For testing server timeout error, add these to guzzle settings ...
-
-        'timeout' => 0.5,
-        'connect_timeout' => 0.5,
+        This is where the bulk of product data is inserted into the database. The
+        "insert_products" method inserts both the CPT's and custom WPS table data.
 
         */
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
+        $resultProducts = $DB_Products->insert_products( $data->products );
 
-        $data = json_decode($guzzelResponse->getBody()->getContents());
+        if (empty($resultProducts)) {
+          wp_send_json_error(Messages::$message_syncing_products_error);
+        }
 
-        if (is_object($data) && property_exists($data, 'products')) {
+        $resultVariants = $DB_Variants->insert_variants( $data->products );
 
-          /*
+        if (empty($resultVariants)) {
+          wp_send_json_error(Messages::$message_syncing_variants_error);
+        }
 
-          This is where the bulk of product data is inserted into the database. The
-          "insert_products" method inserts both the CPT's and custom WPS table data.
+        $resultOptions = $DB_Options->insert_options( $data->products );
 
-          */
-          $resultProducts = $DB_Products->insert_products( $data->products );
-
-          if (empty($resultProducts)) {
-            wp_send_json_error(esc_html__('Syncing stopped at insert_products', 'wp-shopify'));
-          }
-
-          $resultVariants = $DB_Variants->insert_variants( $data->products );
-
-          if (empty($resultVariants)) {
-            wp_send_json_error(esc_html__('Syncing stopped at insert_variants', 'wp-shopify'));
-          }
-
-          $resultOptions = $DB_Options->insert_options( $data->products );
-
-          if (empty($resultOptions)) {
-            wp_send_json_error(esc_html__('Syncing stopped at insert_options', 'wp-shopify'));
-          }
-
-
-          /*
-
-          Gets Alt text from Shopify. Will stop immediately if error occurs.
-
-          */
-          $resultImages = $DB_Images->insert_images( $data->products );
-
-          if (is_wp_error($resultImages)) {
-            wp_send_json_error(esc_html__($resultImages->get_error_message(), 'wp-shopify'));
-          }
-
-
-          $insertionResults['products'] = $resultProducts;
-          $insertionResults['variants'] = $resultVariants;
-          $insertionResults['options'] = $resultOptions;
-          $insertionResults['images'] = $resultImages;
-
-          wp_send_json_success($insertionResults);
-
-        } else {
-          wp_send_json_error($data->errors);
-
+        if (empty($resultOptions)) {
+          wp_send_json_error(Messages::$message_syncing_options_error);
         }
 
 
-      } catch (RequestException $error) {
+        /*
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+        Gets Alt text from Shopify. Will stop immediately if error occurs.
+
+        */
+        $resultImages = $DB_Images->insert_images( $data->products );
+
+        if (is_wp_error($resultImages)) {
+          wp_send_json_error(esc_html__($resultImages->get_error_message(), 'wp-shopify'));
+        }
+
+
+        $insertionResults['products'] = $resultProducts;
+        $insertionResults['variants'] = $resultVariants;
+        $insertionResults['options'] = $resultOptions;
+        $insertionResults['images'] = $resultImages;
+
+        wp_send_json_success($insertionResults);
+
+      } else {
+        wp_send_json_error($data->errors);
 
       }
 
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
+
     }
+
 
   }
 
@@ -622,53 +600,49 @@ class WS {
   */
   public function wps_ws_get_variants() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+
+    $productID = $_POST['productID'];
+
+    if(!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+      $currentPage = 1;
+
+    } else {
+      $currentPage = $_POST['currentPage'];
+    }
+
+    if (empty($productID)) {
+      return false;
 
     } else {
 
-      $productID = $_POST['productID'];
+      try {
 
-      if(!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-        $currentPage = 1;
+        $url = "https://" . $this->connection->domain . "/admin/products/" . $productID . "/variants.json?limit=250&page=" . $currentPage;
 
-      } else {
-        $currentPage = $_POST['currentPage'];
-      }
+        $headers = array(
+          'X-Shopify-Access-Token' => $this->connection->access_token
+        );
 
-      if (empty($productID)) {
-        return false;
+        $Guzzle = new Guzzle();
+        $guzzelResponse = $Guzzle->request('GET', $url, array(
+          'headers' => $headers
+        ));
 
-      } else {
+        $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        try {
+        if (property_exists($data, 'variants')) {
+          wp_send_json_success($data);
 
-          $url = "https://" . $this->connection->domain . "/admin/products/" . $productID . "/variants.json?limit=250&page=" . $currentPage;
-
-          $headers = array(
-            'X-Shopify-Access-Token' => $this->connection->access_token
-          );
-
-          $Guzzle = new Guzzle();
-          $guzzelResponse = $Guzzle->request('GET', $url, array(
-            'headers' => $headers
-          ));
-
-          $data = json_decode($guzzelResponse->getBody()->getContents());
-
-          if (property_exists($data, 'variants')) {
-            wp_send_json_success($data);
-
-          } else {
-            wp_send_json_error($data->errors);
-
-          }
-
-        } catch (RequestException $error) {
-
-          wp_send_json_error( $this->wps_get_error_message($error) );
+        } else {
+          wp_send_json_error($data->errors);
 
         }
+
+      } catch (RequestException $error) {
+
+        wp_send_json_error( $this->wps_get_error_message($error) );
 
       }
 
@@ -684,65 +658,60 @@ class WS {
   */
   public function wps_insert_custom_collections_data() {
 
-    $DB_Images = new Images();
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    try {
 
-    } else {
-
+      $DB_Images = new Images();
       $DB_Collections_Custom = new Collections_Custom();
 
-      try {
+      $url = "https://" . $this->connection->domain . "/admin/custom_collections.json";
 
-        $url = "https://" . $this->connection->domain . "/admin/custom_collections.json";
+  		$headers = array(
+  			'X-Shopify-Access-Token' => $this->connection->access_token
+  		);
 
-    		$headers = array(
-    			'X-Shopify-Access-Token' => $this->connection->access_token
-    		);
+      $Guzzle = new Guzzle();
 
-        $Guzzle = new Guzzle();
-
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $data = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (property_exists($data, "custom_collections")) {
-
-          $results = $DB_Collections_Custom->insert_custom_collections( $data->custom_collections );
-
-          /*
-
-          Once this point is reached, all the data has been synced.
-          set_transident allows for /products and /collections permalinks to work
-
-          TODO: Make this more clear from within JS side
-          TODO: Modularize
-
-          */
-          set_transient('wps_settings_updated', true);
-          set_transient('wps_recently_connected', true);
-
-          Transients::check_rewrite_rules();
-          Transients::delete_cached_connections();
-
-          wp_send_json_success($results);
-
-        } else {
-          wp_send_json_error($data->errors);
-
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (property_exists($data, "custom_collections")) {
+
+        $results = $DB_Collections_Custom->insert_custom_collections( $data->custom_collections );
+
+        /*
+
+        Once this point is reached, all the data has been synced.
+        set_transident allows for /products and /collections permalinks to work
+
+        TODO: Make this more clear from within JS side
+        TODO: Modularize
+
+        */
+        set_transient('wps_settings_updated', true);
+        set_transient('wps_recently_connected', true);
+
+        Transients::check_rewrite_rules();
+        Transients::delete_cached_connections();
+
+        wp_send_json_success($results);
+
+      } else {
+        wp_send_json_error($data->errors);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -758,49 +727,44 @@ class WS {
   */
   public function wps_insert_smart_collections_data() {
 
-    $DB_Images = new Images();
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    try {
 
-    } else {
-
+      $DB_Images = new Images();
       $DB_Collections_Smart = new Collections_Smart();
 
-      try {
+      $url = "https://" . $this->connection->domain . "/admin/smart_collections.json";
 
-        $url = "https://" . $this->connection->domain . "/admin/smart_collections.json";
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $data = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (property_exists($data, "smart_collections")) {
-
-          $results = $DB_Collections_Smart->insert_smart_collections($data->smart_collections);
-
-          wp_send_json_success($results);
-
-        } else {
-          wp_send_json_error($data->errors);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (property_exists($data, "smart_collections")) {
+
+        $results = $DB_Collections_Smart->insert_smart_collections($data->smart_collections);
+
+        wp_send_json_success($results);
+
+      } else {
+        wp_send_json_error($data->errors);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -814,44 +778,40 @@ class WS {
   */
   public function wps_ws_get_products_from_collection() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
-      try {
+      $collectionID = $_POST['collectionID'];
 
-        $collectionID = $_POST['collectionID'];
+      $url = "https://" . $this->connection->domain . "/admin/products.json?collection_id=" . $collectionID;
 
-        $url = "https://" . $this->connection->domain . "/admin/products.json?collection_id=" . $collectionID;
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $productsResponse = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (property_exists($productsResponse, 'products')) {
-          wp_send_json_success($productsResponse->products);
-
-        } else {
-          wp_send_json_error($productsResponse->errors);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $productsResponse = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (property_exists($productsResponse, 'products')) {
+        wp_send_json_success($productsResponse->products);
+
+      } else {
+        wp_send_json_error($productsResponse->errors);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -865,10 +825,10 @@ class WS {
   */
   public function wps_insert_collects() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
       $DB_Collects = new Collects();
 
@@ -879,41 +839,37 @@ class WS {
         $currentPage = $_POST['currentPage'];
       }
 
-      try {
+      $url = "https://" . $this->connection->domain . "/admin/collects.json?limit=250&page=" . $currentPage;
 
-        $url = "https://" . $this->connection->domain . "/admin/collects.json?limit=250&page=" . $currentPage;
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $data = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (property_exists($data, "collects")) {
-
-          $resultProducts = $DB_Collects->insert_collects($data->collects);
-          wp_send_json_success($data->collects);
-
-        } else {
-
-          wp_send_json_error($data->errors);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-      } catch (RequestException $error) {
+      if (property_exists($data, "collects")) {
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+        $resultProducts = $DB_Collects->insert_collects($data->collects);
+        wp_send_json_success($data->collects);
+
+      } else {
+
+        wp_send_json_error($data->errors);
 
       }
+
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -936,56 +892,51 @@ class WS {
       $ajax = false;
     }
 
-    if (Utils::emptyConnection($this->connection)) {
 
-      if ($ajax) {
-        wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
-
-      } else {
-        return false;
-      }
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
 
-    } else {
+    if ($ajax) {
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    }
 
-      try {
 
-        $url = "https://" . $this->connection->domain . "/admin/collects.json?product_id=" . $productID;
+    try {
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
+      $url = "https://" . $this->connection->domain . "/admin/collects.json?product_id=" . $productID;
 
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $data = json_decode($guzzelResponse->getBody()->getContents());
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
+        }
+      ));
 
-        if (property_exists($data, 'collects')) {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-          if ($ajax) {
-            wp_send_json_success($data);
+      if (property_exists($data, 'collects')) {
 
-          } else {
-            return $data;
-
-          }
+        if ($ajax) {
+          wp_send_json_success($data);
 
         } else {
-          wp_send_json_error($data->errors);
+          return $data;
 
         }
 
-      } catch (RequestException $error) {
-
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      } else {
+        wp_send_json_error($data->errors);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -1008,58 +959,57 @@ class WS {
       $ajax = false;
     }
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    if ($ajax) {
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    }
 
-      try {
 
-        $url = "https://" . $this->connection->domain . "/admin/collects.json?collection_id=" . $collectionID;
+    try {
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
+      $url = "https://" . $this->connection->domain . "/admin/collects.json?collection_id=" . $collectionID;
 
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $data = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (property_exists($data, 'collects')) {
-          $response = $data->collects;
-
-        } else {
-          $response = $data->errors;
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        $response = $this->wps_get_error_message($error);
-
-      }
-
-
-      if ($ajax) {
-
-        if (property_exists($response, 'errors')) {
-          wp_send_json_success($response);
-
-        } else {
-          wp_send_json_error($response);
-        }
+      if (property_exists($data, 'collects')) {
+        $response = $data->collects;
 
       } else {
-        return $response;
+        $response = $data->errors;
 
       }
 
+    } catch (RequestException $error) {
+
+      $response = $this->wps_get_error_message($error);
+
+    }
+
+
+    if ($ajax) {
+
+      if (property_exists($response, 'errors')) {
+        wp_send_json_success($response);
+
+      } else {
+        wp_send_json_error($response);
+      }
+
+    } else {
+      return $response;
 
     }
 
@@ -1073,44 +1023,40 @@ class WS {
   */
   public function wps_ws_get_single_collection() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
 
-    } else {
+    try {
 
-      try {
+      $collectionID = $_POST['collectionID'];
 
-        $collectionID = $_POST['collectionID'];
+      $url = "https://" . $this->connection->domain . "/admin/custom_collections/" . $collectionID . ".json";
 
-        $url = "https://" . $this->connection->domain . "/admin/custom_collections/" . $collectionID . ".json";
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
-
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
-
-        $data = json_decode($guzzelResponse->getBody()->getContents());
-
-        if (property_exists($data, 'custom_collection')) {
-          wp_send_json_success($data);
-
-        } else {
-          wp_send_json_error($data->errors);
-
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
         }
+      ));
 
-      } catch (RequestException $error) {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      if (property_exists($data, 'custom_collection')) {
+        wp_send_json_success($data);
+
+      } else {
+        wp_send_json_error($data->errors);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -1220,39 +1166,35 @@ class WS {
 	*/
 	public function wps_ws_get_webhooks() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
-    } else {
+    try {
 
-      try {
+      $url = "https://" . $this->connection->domain . "/admin/webhooks.json";
 
-        $url = "https://" . $this->connection->domain . "/admin/webhooks.json";
+      $headers = array(
+        'X-Shopify-Access-Token' => $this->connection->access_token
+      );
 
-        $headers = array(
-          'X-Shopify-Access-Token' => $this->connection->access_token
-        );
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
+        }
+      ));
 
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
+      $data = $guzzelResponse->getBody()->getContents();
 
-        $data = $guzzelResponse->getBody()->getContents();
-
-        wp_send_json_success($data);
+      wp_send_json_success($data);
 
 
-      } catch (RequestException $error) {
+    } catch (RequestException $error) {
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
-      }
-
-		}
+    }
 
 	}
 
@@ -1265,40 +1207,37 @@ class WS {
   */
   public function wps_ws_delete_webhook() {
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+
+
+    if (property_exists($this->connection, 'webhook_id') && $this->connection->webhook_id) {
+
+      try {
+
+        $url = "https://" . $this->connection->domain . "/admin/webhooks/" . $this->connection->webhook_id . ".json";
+
+        $headers = array(
+          'X-Shopify-Access-Token' => $this->connection->access_token
+        );
+
+        $Guzzle = new Guzzle();
+        $guzzelResponse = $Guzzle->request('GET', $url, array(
+          'headers' => $headers
+        ));
+
+        $data = $guzzelResponse->getBody()->getContents();
+        wp_send_json_success($data);
+
+      } catch (RequestException $error) {
+
+        wp_send_json_error( $this->wps_get_error_message($error) );
+
+      }
 
     } else {
 
-      if (property_exists($this->connection, 'webhook_id') && $this->connection->webhook_id) {
-
-        try {
-
-          $url = "https://" . $this->connection->domain . "/admin/webhooks/" . $this->connection->webhook_id . ".json";
-
-          $headers = array(
-            'X-Shopify-Access-Token' => $this->connection->access_token
-          );
-
-          $Guzzle = new Guzzle();
-          $guzzelResponse = $Guzzle->request('GET', $url, array(
-            'headers' => $headers
-          ));
-
-          $data = $guzzelResponse->getBody()->getContents();
-          wp_send_json_success($data);
-
-        } catch (RequestException $error) {
-
-          wp_send_json_error( $this->wps_get_error_message($error) );
-
-        }
-
-      } else {
-
-        return new \WP_Error('error', esc_html__('No webhook ID set', 'wp-shopify'));
-
-      }
+      return new \WP_Error('error', Messages::$message_webhooks_no_id_set);
 
     }
 
@@ -1321,6 +1260,9 @@ class WS {
 
   */
   public function wps_update_settings_general() {
+
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
     global $wp_rewrite;
 
@@ -1399,6 +1341,9 @@ class WS {
   */
   public function wps_get_connection() {
 
+    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+
     if (get_transient('wps_settings_connection')) {
       $connectionData = get_transient('wps_settings_connection');
 
@@ -1422,6 +1367,9 @@ class WS {
   */
   public function wps_insert_connection() {
 
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+
     $DB_Settings_Connection = new Settings_Connection();
     $connectionData = $_POST['connectionData'];
     $connectionData = (array) $connectionData;
@@ -1429,7 +1377,7 @@ class WS {
     $results = $DB_Settings_Connection->insert_connection($connectionData);
 
     if ($results === false) {
-      wp_send_json_error(esc_html__('Unable to save Shopify connection details. Please try again.', 'wp-shopify'));
+      wp_send_json_error(Messages::$message_connection_save_error);
 
     } else {
       wp_send_json_success($results);
@@ -1445,9 +1393,11 @@ class WS {
   */
   public function wps_insert_shop() {
 
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+
     $DB_Shop = new Shop();
     $shopData = $_POST['shopData'];
-
     $results = $DB_Shop->insert_shop($shopData);
 
     wp_send_json_success($results);
@@ -1804,6 +1754,12 @@ class WS {
       $ajax = false;
     }
 
+
+    if ($ajax) {
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    }
+
+
     $results = array();
     $Transients = new Transients();
     $DB_Settings_Connection = new Settings_Connection();
@@ -1871,6 +1827,12 @@ class WS {
     } else {
       $ajax = false;
     }
+
+
+    if ($ajax) {
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    }
+
 
     $results = array();
     $Transients = new Transients();
@@ -2103,6 +2065,12 @@ class WS {
       $ajax = false;
     }
 
+
+    if ($ajax) {
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    }
+
+
     $connectionData->is_syncing = $_POST['syncing'];
     $connectionData = (array) $connectionData;
 
@@ -2134,6 +2102,9 @@ class WS {
   */
   public function wps_clear_cache() {
 
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+
     $Transients = new Transients();
     $results = $Transients->delete_all_cache();
 
@@ -2156,39 +2127,34 @@ class WS {
   */
   public function wps_sync_with_cpt() {
 
-    $Utils = new Utils();
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    $Utils = new Utils();
+    $DB_Products = new Products();
+    $products = $DB_Products->get_products();
+    $results = array();
+
+
+    foreach($products as $product) {
+      $results[] = $DB_Products->update_post_content_if_changed($product);
+    }
+
+
+    $filteredResults = array_filter($results, array($Utils, 'filter_errors'));
+
+    if (!empty($filteredResults)) {
+
+      $filteredResults = array_map(
+        array($Utils, 'filter_errors_with_messages'),
+        array_keys($filteredResults),
+        $filteredResults
+      );
+
+      wp_send_json_error($filteredResults);
 
     } else {
-
-      $DB_Products = new Products();
-      $products = $DB_Products->get_products();
-      $results = array();
-
-
-      foreach($products as $product) {
-        $results[] = $DB_Products->update_post_content_if_changed($product);
-      }
-
-
-      $filteredResults = array_filter($results, array($Utils, 'filter_errors'));
-
-      if (!empty($filteredResults)) {
-
-        $filteredResults = array_map(
-          array($Utils, 'filter_errors_with_messages'),
-          array_keys($filteredResults),
-          $filteredResults
-        );
-
-        wp_send_json_error($filteredResults);
-
-      } else {
-        wp_send_json_success();
-
-      }
+      wp_send_json_success();
 
     }
 
@@ -2202,13 +2168,13 @@ class WS {
   */
   public function wps_insert_orders() {
 
-    $Utils = new Utils();
-    $DB_Orders = new Orders();
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    try {
 
-    } else {
+      $Utils = new Utils();
+      $DB_Orders = new Orders();
 
       if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
         $currentPage = 1;
@@ -2229,47 +2195,42 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
+        }
+      ));
 
-      try {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
+      if (is_object($data) && property_exists($data, 'orders')) {
 
-        $data = json_decode($guzzelResponse->getBody()->getContents());
+        /*
 
-        if (is_object($data) && property_exists($data, 'orders')) {
+        This is where the bulk of product data is inserted into the database. The
+        "insert_products" method inserts both the CPT's and custom WPS table data.
 
-          /*
+        */
+        $resultOrders = $DB_Orders->insert_orders( $data->orders );
 
-          This is where the bulk of product data is inserted into the database. The
-          "insert_products" method inserts both the CPT's and custom WPS table data.
-
-          */
-          $resultOrders = $DB_Orders->insert_orders( $data->orders );
-
-          if (empty($resultOrders)) {
-            wp_send_json_error(esc_html__('Syncing stopped at insert_orders', 'wp-shopify'));
-          }
-
-          $insertionResults['orders'] = $resultOrders;
-
-          wp_send_json_success($insertionResults);
-
-        } else {
-          wp_send_json_error($data->errors);
-
+        if (empty($resultOrders)) {
+          wp_send_json_error(Messages::$message_syncing_orders_error);
         }
 
-      } catch (RequestException $error) {
+        $insertionResults['orders'] = $resultOrders;
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+        wp_send_json_success($insertionResults);
+
+      } else {
+        wp_send_json_error($data->errors);
 
       }
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
@@ -2283,13 +2244,13 @@ class WS {
   */
   public function wps_insert_customers() {
 
-    $Utils = new Utils();
-    $DB_Customers = new Customers();
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
 
-    if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+    try {
 
-    } else {
+      $Utils = new Utils();
+      $DB_Customers = new Customers();
 
       if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
         $currentPage = 1;
@@ -2310,51 +2271,77 @@ class WS {
         'X-Shopify-Access-Token' => $this->connection->access_token
       );
 
+      $Guzzle = new Guzzle();
+      $guzzelResponse = $Guzzle->request('GET', $url, array(
+        'headers' => $headers,
+        'on_headers' => function(ResponseInterface $response) {
+          $this->wps_ws_check_rate_limit($response);
+        }
+      ));
 
-      try {
+      $data = json_decode($guzzelResponse->getBody()->getContents());
 
-        $Guzzle = new Guzzle();
-        $guzzelResponse = $Guzzle->request('GET', $url, array(
-          'headers' => $headers,
-          'on_headers' => function(ResponseInterface $response) {
-            $this->wps_ws_check_rate_limit($response);
-          }
-        ));
+      if (is_object($data) && property_exists($data, 'customers')) {
 
-        $data = json_decode($guzzelResponse->getBody()->getContents());
+        /*
 
-        if (is_object($data) && property_exists($data, 'customers')) {
+        This is where the bulk of product data is inserted into the database. The
+        "insert_products" method inserts both the CPT's and custom WPS table data.
 
-          /*
+        */
+        $results = $DB_Customers->insert_customers( $data->customers );
 
-          This is where the bulk of product data is inserted into the database. The
-          "insert_products" method inserts both the CPT's and custom WPS table data.
-
-          */
-          $results = $DB_Customers->insert_customers( $data->customers );
-
-          if (empty($results)) {
-            wp_send_json_error(esc_html__('Syncing stopped at insert_customers', 'wp-shopify'));
-          }
-
-          $insertionResults['customers'] = $results;
-
-          wp_send_json_success($insertionResults);
-
-        } else {
-          wp_send_json_error($data->errors);
-
+        if (empty($results)) {
+          wp_send_json_error(Messages::$message_syncing_customers_error);
         }
 
+        $insertionResults['customers'] = $results;
 
-      } catch (RequestException $error) {
+        wp_send_json_success($insertionResults);
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+      } else {
+        wp_send_json_error($data->errors);
 
       }
+
+
+    } catch (RequestException $error) {
+
+      wp_send_json_error( $this->wps_get_error_message($error) );
 
     }
 
   }
+
+
+  /*
+
+  Heartbeat: Receive
+
+  */
+  public function wps_receive_heartbeat( $response, $data ) {
+
+    // If we didn't receive our data, don't send any back.
+    if ( empty( $data['myplugin_customfield'] ) ) {
+      return $response;
+    }
+
+    error_log('---- $response -----');
+    error_log(print_r($response, true));
+    error_log('---- /$response -----');
+
+    error_log('---- $data -----');
+    error_log(print_r($data, true));
+    error_log('---- /$data -----');
+
+    // Calculate our data and pass it back. For this example, we'll hash it.
+    $received_data = $data['myplugin_customfield'];
+
+    $response['myplugin_customfield_hashed'] = sha1( $received_data );
+
+    return $response;
+
+  }
+
 
 }

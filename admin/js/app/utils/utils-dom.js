@@ -95,7 +95,6 @@ function showConnectorModal($connectorModal) {
 };
 
 
-
 /*
 
 Creates a new connector modal if one doesn't already exist
@@ -304,16 +303,31 @@ function showAdminNotice(message, type) {
 }
 
 
+/*
+
+Remove Checkmarks
+
+*/
 function removeCheckmarks($form) {
   $form.find('input').removeClass('valid');
 }
 
 
+/*
+
+Clear Connect Inputs
+
+*/
 function clearConnectInputs() {
   jQuery('#wps_settings_connection_js_access_token, #wps_settings_connection_domain').val('').removeClass('valid').prop('disabled', false);
 }
 
 
+/*
+
+Reset Connect Submit
+
+*/
 function resetConnectSubmit() {
   jQuery('#submitDisconnect')
     .val('Connect your Shopify Account')
@@ -323,6 +337,11 @@ function resetConnectSubmit() {
 }
 
 
+/*
+
+Set Disconnect Submit
+
+*/
 function setDisconnectSubmit() {
 
   jQuery('#submitConnect')

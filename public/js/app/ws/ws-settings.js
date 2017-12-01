@@ -11,7 +11,8 @@ function getCurrencyFormat() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_currency_format'
+      action: 'wps_get_currency_format',
+      nonce: wps.nonce
     }
   });
 
@@ -26,7 +27,8 @@ function getMoneyFormat() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_money_format'
+      action: 'wps_get_money_format',
+      nonce: wps.nonce
     }
   });
 
@@ -40,7 +42,8 @@ function getMoneyFormatWithCurrency() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_money_format_with_currency'
+      action: 'wps_get_money_format_with_currency',
+      nonce: wps.nonce
     }
   });
 
@@ -60,7 +63,8 @@ function getCartCache(cartID) {
     dataType: 'json',
     data: {
       action: 'wps_get_cart_cache',
-      cartID: cartID
+      cartID: cartID,
+      nonce: wps.nonce
     }
   });
 
@@ -80,7 +84,8 @@ function setCartCache(cartID) {
     dataType: 'json',
     data: {
       action: 'wps_set_cart_cache',
-      cartID: cartID
+      cartID: cartID,
+      nonce: wps.nonce
     }
   });
 

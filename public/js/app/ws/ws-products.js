@@ -48,7 +48,8 @@ function getVariantIdFromOptions(productID, selectedOptions) {
     data: {
       action: 'wps_get_variant_id',
       productID: productID,
-      selectedOptions: selectedOptions
+      selectedOptions: selectedOptions,
+      nonce: wps.nonce
     }
   });
 
@@ -146,13 +147,12 @@ function moneyFormatChanged() {
     dataType: 'json',
     data: {
       action: 'wps_has_money_format_changed',
-      format: getMoneyFormatCache()
+      format: getMoneyFormatCache(),
+      nonce: wps.nonce
     }
   });
 
 }
-
-
 
 
 export {

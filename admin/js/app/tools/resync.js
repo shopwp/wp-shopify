@@ -52,9 +52,6 @@ import {
 } from '../disconnect/disconnect.js';
 
 
-
-
-
 /*
 
 When Resync form is submitted ...
@@ -78,7 +75,6 @@ function onResyncSubmit() {
     // Sets up close listenters
     onModalClose();
     setConnectionProgress(true);
-
 
     /*
 

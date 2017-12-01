@@ -12,7 +12,8 @@ function beforeCheckoutHook(cart) {
     dataType: 'json',
     data: {
       action: 'wps_add_checkout_before_hook',
-      cart: cart
+      cart: cart,
+      nonce: wps.nonce
     }
   });
 

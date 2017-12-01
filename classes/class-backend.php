@@ -31,6 +31,7 @@ class Backend {
 	*/
 	public function __construct($Config) {
 		$this->config = $Config;
+		$this->connection = $this->config->wps_get_settings_connection();
 	}
 
 
@@ -90,7 +91,7 @@ class Backend {
 	public function wps_config_admin_scripts() {
 
 		// Only loading admin script if we're on the settings page ...
-		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
+		if ('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
 
 			// Media scripts
 			wp_enqueue_media();
@@ -99,21 +100,19 @@ class Backend {
 			wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 
 			// Tooltipster
-			wp_enqueue_script('tooltipster-js', '//cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js', array(), $this->config->plugin_version, false );
-
-			// Shopify JS SDK
-			wp_enqueue_script('shopify-js-sdk', $this->config->plugin_url . 'admin/js/app/vendor/shopify-buy-button-0.2.3.min.js', array(), $this->config->plugin_version, false );
+			wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
 
 			// jQuery Validate
-			wp_enqueue_script('validate-js', '//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
+			wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
 
 			// WP Shopify JS Admin
-			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'shopify-js-sdk', 'validate-js', 'tooltipster-js', 'promise-polyfill'), $this->config->plugin_version, false );
+			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'validate-js', 'tooltipster-js', 'promise-polyfill'), $this->config->plugin_version, false );
 
 			wp_localize_script('wps-admin', 'wps', array(
-					'ajax' => admin_url( 'admin-ajax.php' ),
-					'pluginsPath' => plugins_url(),
-					'pluginsDirURL' => plugin_dir_url(dirname(__FILE__))
+					'ajax' => __(admin_url('admin-ajax.php')),
+					'pluginsPath' => __(plugins_url()),
+					'pluginsDirURL' => plugin_dir_url(dirname(__FILE__)),
+					'nonce'	=> wp_create_nonce('wp-shopify-backend')
 				)
 			);
 
@@ -313,6 +312,9 @@ class Backend {
 	*/
  	public function wps_get_credentials() {
 
+		Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+
 		$shopifyCreds = array();
 		$connection = $this->config->wps_get_settings_connection();
 
@@ -453,9 +455,6 @@ class Backend {
 		// Setup / Events
 		add_action( 'wp_ajax_wps_notice', array($this, 'wps_notice'));
 		add_action( 'wp_ajax_nopriv_wps_notice', array($this, 'wps_notice'));
-
-		// add_action( 'wp_ajax_wps_delete_access_token', array($this, 'wps_delete_access_token'));
-		// add_action( 'wp_ajax_nopriv_wps_delete_access_token', array($this, 'wps_delete_access_token'));
 
 		add_action( 'wps_after_settings_form', array($this, 'wps_insert_auth_modal'), 1);
 
@@ -779,7 +778,7 @@ class Backend {
 		add_action( 'update_option_wps_settings_general', array($WS, 'wps_reset_rewrite_rules'), 10, 2 );
 
 
-
+		add_filter( 'heartbeat_received', array($WS, 'wps_receive_heartbeat'), 10, 2 );
 
 
 

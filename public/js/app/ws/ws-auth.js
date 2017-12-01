@@ -1,3 +1,5 @@
+import ShopifyBuy from 'shopify-buy';
+
 /*
 
 Initialize Shopify
@@ -42,12 +44,12 @@ function getShopifyCreds() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_credentials'
+      action: 'wps_get_credentials',
+      nonce: wps.nonce
     }
   });
 
 };
-
 
 export {
   shopifyInit,

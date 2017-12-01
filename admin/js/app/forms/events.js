@@ -40,7 +40,6 @@ function onModalClose() {
   // Cancel request when user clicks outside modal ...
   jQuery(document).on('click', function(event) {
 
-
     // if (!jQuery(event.target).closest('.wps-connector-progress').length) {
     //   initCloseModalEvents();
     //   resetProgressIndicators();
@@ -66,26 +65,6 @@ function onModalClose() {
   });
 
 };
-
-
-/*
-
-button-group-ajax
-TODO: Could create a more reusable way of showing / hiding spinner
-
-*/
-// function showSpinnerOnClick() {
-//   jQuery('.button-group-ajax input[type="submit"]').on('click', function() {
-//     jQuery(this).parent().find('.spinner').
-//
-//   });
-// }
-
-
-
-
-
-
 
 export {
   onModalClose

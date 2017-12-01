@@ -118,7 +118,6 @@ function removeMoneyFormat() {
 }
 
 
-
 /*
 
 Remove Modal Cache
@@ -134,9 +133,6 @@ function clearLocalstorageCache() {
   removeProductSelection();
   removeMoneyFormat();
 }
-
-
-
 
 
 export {

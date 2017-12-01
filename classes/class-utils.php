@@ -29,17 +29,43 @@ class Utils {
   protected static $instantiated = null;
 
 
-  public function filter_errors($item) {
+  /*
 
-    return is_wp_error($item);
+  Checks for a valid backend nonce
 
+  */
+  public static function valid_backend_nonce($nonce) {
+    return wp_verify_nonce($nonce, Config::get_backendend_nonce_action());
   }
 
 
+  /*
+
+  Checks for a valid frontend nonce
+
+  */
+  public static function valid_frontend_nonce($nonce) {
+    return wp_verify_nonce($nonce, Config::get_frontend_nonce_action());
+  }
+
+
+  /*
+
+  Filter errors
+
+  */
+  public function filter_errors($item) {
+    return is_wp_error($item);
+  }
+
+
+  /*
+
+  Filter Errors With Messages
+
+  */
   public function filter_errors_with_messages($title, $error) {
-
     return $error->get_error_message();
-
   }
 
 
