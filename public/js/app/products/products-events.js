@@ -248,9 +248,6 @@ function onAddProductToCart(shopify) {
 };
 
 
-
-
-
 /*
 
 Toggle product gallery image
@@ -306,16 +303,19 @@ Auto-select quantity input
 
 */
 function onProductQuantitySelect() {
+
   jQuery('.wps-form-input[type="number"]').on('click', function selectNumberHandler() {
     jQuery(this).select();
   });
+
 }
 
 
+/*
 
+Reset All Variant IDs
 
-
-
+*/
 function resetAllVariantIDs() {
 
   var $productContainers = jQuery('.wps-product-meta');
@@ -332,10 +332,9 @@ function resetAllVariantIDs() {
 }
 
 
-
 /*
 
-TODO: Found Bug when user selects two different options with the same variant text
+Construct Variant Title Selections
 
 */
 function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
@@ -365,7 +364,6 @@ function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
     return [];
 
   }
-
 
 }
 
@@ -428,7 +426,11 @@ function updateSingleVariantValues($variantTrigger) {
 }
 
 
+/*
 
+Check for last selection
+
+*/
 function checkForLastSelection(previouslySelectedOptions, currentProductID) {
 
   var prevSelectedProductID = parseInt(getProductSelectionID());
@@ -488,10 +490,6 @@ function showVariantImage(variantID) {
 }
 
 
-
-
-
-
 /*
 
 Looks through the canonical array of available variants for a match
@@ -511,8 +509,11 @@ function findVariantFromTitle(availableVariants, selectedVariant) {
 }
 
 
+/*
 
+Construct Variant Selector From Match
 
+*/
 function constructVariantSelectorFromMatch($dropdown, availableMatch) {
 
   var availableMatchKey = 'option' + jQuery($dropdown).data('option');
@@ -521,8 +522,6 @@ function constructVariantSelectorFromMatch($dropdown, availableMatch) {
   return '.wps-product-style:not([data-variant-title="' + variantTitle + '"])';
 
 }
-
-
 
 
 /*

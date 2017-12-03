@@ -33,6 +33,11 @@ class Config {
 
 	public $cart_cache_expiration;
 
+	public static $plugin_nonce_action_backend;
+	public static $plugin_nonce_action_frontend;
+	public static $plugin_nonce_action_uninstall;
+	public static $plugin_nonce_action_cache;
+
 	protected static $instantiated = null;
 
 	/*
@@ -57,8 +62,11 @@ class Config {
 		$this->plugin_text_domain = 'wp-shopify';
 		$this->plugin_version = '1.0.34';
 		$this->plugin_author = 'Andrew Robbins';
-		$this->plugin_nonce_action_backend = 'wp-shopify-backend';
-		$this->plugin_nonce_action_frontend = 'wp-shopify-frontend';
+
+		self::$plugin_nonce_action_backend = 'wp-shopify-backend';
+		self::$plugin_nonce_action_frontend = 'wp-shopify-frontend';
+		self::$plugin_nonce_action_uninstall = 'wp-shopify-uninstall';
+		self::$plugin_nonce_action_cache = 'wp-shopify-cache';
 
 		$this->plugin_root_file = $this->plugin_path . $this->plugin_name . '.php';
 		$this->plugin_file = plugin_basename($this->plugin_root_file);
@@ -99,8 +107,28 @@ class Config {
 	Get the backend nonce action
 
 	*/
+	public static function get_cache_nonce_action() {
+		return self::$plugin_nonce_action_cache;
+	}
+
+
+	/*
+
+	Get the backend nonce action
+
+	*/
+	public static function get_uninstall_nonce_action() {
+		return self::$plugin_nonce_action_uninstall;
+	}
+
+
+	/*
+
+	Get the backend nonce action
+
+	*/
 	public static function get_backendend_nonce_action() {
-		return $this->plugin_nonce_action_backend;
+		return self::$plugin_nonce_action_backend;
 	}
 
 
@@ -110,7 +138,7 @@ class Config {
 
 	*/
 	public static function get_frontend_nonce_action() {
-		return $this->plugin_nonce_action_frontend;
+		return self::$plugin_nonce_action_frontend;
 	}
 
 

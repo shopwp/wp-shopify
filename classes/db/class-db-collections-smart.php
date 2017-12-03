@@ -92,7 +92,6 @@ class Collections_Smart extends \WPS\DB {
     $index = CPT::wps_find_latest_menu_order('collections');
     $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
 
-
     foreach ($smart_collections as $key => $smart_collection) {
 
       if (is_object($smart_collection)) {

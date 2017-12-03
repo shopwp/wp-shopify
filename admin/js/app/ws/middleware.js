@@ -18,10 +18,6 @@ import {
   updateCurrentConnectionStepText
 } from '../utils/utils-dom';
 
-import {
-  uninstallPluginData
-} from '../disconnect/disconnect';
-
 
 /*
 
@@ -29,7 +25,6 @@ Syncing Shopify data with WordPress CPT
 
 */
 async function syncPluginData() {
-
 
   // 1. Smart Collections
   try {
@@ -42,7 +37,6 @@ async function syncPluginData() {
 
   }
 
-
   // 2. Smart Collections
   try {
     await syncCustomCollections();
@@ -53,7 +47,6 @@ async function syncPluginData() {
     return new Error(errors);
 
   }
-
 
   // 3. Remaining data
   try {
@@ -77,6 +70,7 @@ async function syncPluginData() {
   return remainingResp;
 
 }
+
 
 export {
   syncPluginData

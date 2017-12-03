@@ -57,15 +57,19 @@ import {
 Construct Error List
 
 */
-function constructErrorList(errors, currentErrorList) {
+function constructErrorList(errors, currentErrorList, errorCode = '') {
 
   var newErrorList = currentErrorList;
 
   if (Array.isArray(newErrorList)) {
-    newErrorList.push(removeTrueAndTransformToArray(errors));
+
+    var errorModified = removeTrueAndTransformToArray(errors) + ' ' + errorCode;
+
+    newErrorList.push(errorModified);
 
   } else {
-    newErrorList = removeTrueAndTransformToArray(errors);
+
+    newErrorList = removeTrueAndTransformToArray(errors) + ' ' + errorCode;
 
   }
 
@@ -93,7 +97,9 @@ async function uninstallPluginData(options = false, reconnect = true) {
       stepText: 'Unable to finish operation',
       buttonText: 'Exit Sync',
       xMark: true,
-      errorList: 'Failed to finish operation at unknown step'
+      errorList: 'Failed to finish operation at unknown step',
+      errorCode: ' (Error code: #000)',
+      clearInputs: true
     }
 
   }
@@ -132,11 +138,11 @@ async function uninstallPluginData(options = false, reconnect = true) {
     var uninstallData = await uninstallPlugin();
 
     if (isWordPressError(uninstallData)) {
-      options.errorList = constructErrorList(uninstallData.data, options.errorList);
+      options.errorList = constructErrorList(uninstallData.data, options.errorList, options.errorCode);
     }
 
   } catch (error) {
-    options.errorList = constructErrorList(error, options.errorList);
+    options.errorList = constructErrorList(error, options.errorList, options.errorCode);
 
   }
 
@@ -151,11 +157,11 @@ async function uninstallPluginData(options = false, reconnect = true) {
     var clearAllCacheResponse = await clearAllCache();
 
     if (isWordPressError(uninstallData)) {
-      options.errorList = constructErrorList(uninstallData.data, options.errorList);
+      options.errorList = constructErrorList(uninstallData.data, options.errorList, options.errorCode);
     }
 
-  } catch(errors) {
-    options.errorList = constructErrorList(error, options.errorList);
+  } catch(error) {
+    options.errorList = constructErrorList(error, options.errorList, options.errorCode);
 
   }
 
@@ -184,8 +190,7 @@ function onDisconnectionFormSubmit() {
   unbindConnectForm();
 
   $formConnect.on('submit.disconnect', async function(e) {
-    
-    console.log("Hello");
+
     e.preventDefault();
 
     // Remove previous connector modal if exists
@@ -222,14 +227,13 @@ function onDisconnectionFormSubmit() {
         headingText: 'Disconnected',
         stepText: 'Disconnected Shopify store',
         buttonText: 'Exit Connection',
-        xMark: false
+        xMark: false,
+        errorCode: ' (Error code: #111)',
+        clearInputs: true
       });
 
     } catch (error) {
 
-      // Something happened, user needs to try
-      // disconnecting again
-      console.error('... Error disconnecting ...', error);
       return error;
 
     }
@@ -251,13 +255,15 @@ function updateDomAfterDisconnect(options) {
   updateCurrentConnectionStepText(options.stepText);
   updateConnectStatusHeading('is-disconnected');
 
-  clearConnectInputs();
+  if (options.clearInputs) {
+    clearConnectInputs();
+  }
+
   setConnectionProgress("false");
 
   if (document.querySelector('.wps-btn-cancel')) {
     document.querySelector('.wps-btn-cancel').disabled = false;
   }
-
 
   if(options.xMark) {
     insertXMark();
@@ -266,10 +272,8 @@ function updateDomAfterDisconnect(options) {
     insertCheckmark();
   }
 
-  // options.errorList = JSON.parse(options.errorList);
 
   // TODO: Modularize this, can put in Utils
-
   if (options.xMark) {
 
     // Showing error message

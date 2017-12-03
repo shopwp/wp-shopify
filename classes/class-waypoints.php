@@ -4,6 +4,7 @@ namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\WS;
+use WPS\Messages;
 use WPS\DB\Settings_Connection;
 use GuzzleHttp\Client as Guzzle;
 
@@ -19,6 +20,7 @@ class Waypoints {
   protected static $instantiated = null;
   private $Config;
   private $WS;
+  private $messages;
 
 	/*
 
@@ -28,6 +30,7 @@ class Waypoints {
 	public function __construct($Config) {
 		$this->config = $Config;
     $this->WS = new WS($this->config);
+    $this->messages = new Messages();
 	}
 
 
@@ -69,7 +72,7 @@ class Waypoints {
 
     } catch (RequestException $error) {
 
-      return $this->WS->wps_get_error_message($error);
+      return $this->WS->wps_get_error_message($error) . ' (Error code: #1052a)';
 
     }
 
@@ -83,7 +86,7 @@ class Waypoints {
 	*/
 	public function wps_waypoint_get_shopify_url() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1048a)');
 
 		$shopifySettings = json_decode( $this->wps_waypoint_settings() );
     // $connection = $_POST['connection'];
@@ -97,7 +100,7 @@ class Waypoints {
       wp_send_json_success($url);
 
     } else {
-      wp_send_json_error(Messages::$message_connection_not_found);
+      wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1048b)');
 
     }
 
@@ -118,7 +121,6 @@ class Waypoints {
 			'Authorization' => 'Bearer ' . $token
 		);
 
-
     try {
 
       $Guzzle = new Guzzle();
@@ -136,7 +138,7 @@ class Waypoints {
 
     } catch (\Exception $error) {
 
-      return $this->WS->wps_get_error_message($error);
+      return $this->WS->wps_get_error_message($error) . ' (Error code: #1049a)';
 
     }
 
@@ -171,7 +173,7 @@ class Waypoints {
 
     } catch (\Exception $error) {
 
-      return $this->WS->wps_get_error_message($error);
+      return $this->WS->wps_get_error_message($error) . ' (Error code: #1050a)';
 
     }
 
@@ -211,7 +213,7 @@ class Waypoints {
 
     } catch (\Exception $error) {
 
-      return $this->WS->wps_get_error_message($error);
+      return $this->WS->wps_get_error_message($error) . ' (Error code: #1051a)';
 
     }
 

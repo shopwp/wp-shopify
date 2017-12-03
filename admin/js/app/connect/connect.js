@@ -77,7 +77,6 @@ import {
 } from '../tools/cache.js';
 
 import {
-  updateDomAfterDisconnect,
   uninstallPluginData,
   disconnectInit
 } from '../disconnect/disconnect.js';
@@ -175,7 +174,7 @@ function onConnectionFormSubmit() {
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
+          stepText: 'Unable to finish syncing at insertConnectionData',
           buttonText: 'Exit Sync'
         });
 
@@ -187,6 +186,7 @@ function onConnectionFormSubmit() {
       /*
 
       Step 2. Get Waypoint auth token...
+      (Makes call to wpshop.io)
 
       */
       try {
@@ -209,7 +209,7 @@ function onConnectionFormSubmit() {
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
+          stepText: 'Unable to finish syncing at getAuthToken',
           buttonText: 'Exit Sync'
         });
 
@@ -221,6 +221,7 @@ function onConnectionFormSubmit() {
       /*
 
       Step 3. Get Waypoint auth user data ...
+      (Makes call to wpshop.io)
 
       */
       try {
@@ -243,7 +244,7 @@ function onConnectionFormSubmit() {
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
+          stepText: 'Unable to finish syncing at getAuthUser',
           buttonText: 'Exit Sync'
         });
 
@@ -255,6 +256,7 @@ function onConnectionFormSubmit() {
       /*
 
       Step 4. Update auth user data ...
+      (Makes call to wpshop.io)
 
       */
       try {
@@ -277,7 +279,7 @@ function onConnectionFormSubmit() {
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
+          stepText: 'Unable to finish syncing at updateAuthUser',
           buttonText: 'Exit Sync'
         });
 
@@ -295,7 +297,6 @@ function onConnectionFormSubmit() {
 
         var shopifyURLResponse = await getShopifyURL();
 
-
         if (isWordPressError(shopifyURLResponse)) {
           throw shopifyURLResponse.data;
 
@@ -311,21 +312,19 @@ function onConnectionFormSubmit() {
 
         }
 
-
       } catch (errors) {
 
         uninstallPluginData({
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
+          stepText: 'Unable to finish syncing at getShopifyURL',
           buttonText: 'Exit Sync'
         });
 
         return;
 
       }
-
 
 
       /*
@@ -357,7 +356,7 @@ function onConnectionFormSubmit() {
 
           uninstallPluginData({
             headingText: 'Canceled',
-            stepText: 'Unable to finish syncing',
+            stepText: 'Unable to finish syncing at setModalCache',
             buttonText: 'Exit Sync',
             errorList: 'Stopped by user',
             xMark: false
@@ -370,7 +369,6 @@ function onConnectionFormSubmit() {
       }, 2000);
 
     }
-
 
   });
 
@@ -399,7 +397,6 @@ async function onAuthRedirect() {
   updateModalHeadingText('Syncing ...');
   updateModalButtonText('Cancel syncing process');
   setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
-
 
   /*
 
@@ -605,7 +602,6 @@ async function onAuthRedirect() {
     });
 
   }
-
 
   // setConnectionStepMessage('Redirecting to Shopify');
 

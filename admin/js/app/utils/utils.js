@@ -54,22 +54,29 @@ function isWordPressError(response) {
 Remove true and transform to array
 
 */
-function removeTrueAndTransformToArray(myObj) {
+function removeTrueAndTransformToArray(item) {
 
   var myArray = [];
 
-  for (var key in myObj) {
+  if (isObject(item)) {
 
-    if (myObj[key] === true) {
-      delete myObj[key];
+    for (var key in item) {
 
-    } else {
-      myArray.push(myObj[key]);
+      if (item[key] === true) {
+        delete item[key];
+
+      } else {
+        myArray.push(item[key]);
+      }
+
     }
 
-  }
+    return myArray;
 
-  return myArray;
+  } else {
+    return item;
+
+  }
 
 }
 
@@ -401,8 +408,8 @@ Returns: undefined
 */
 function resetProgressIndicators() {
 
-  forEachRamda(stopSpinner, jQuery('.wps-admin-wrap .wps-spinner'));
-  forEachRamda(enableButton, jQuery('.wps-admin-wrap .wps-btn'));
+  forEachRamda(stopSpinner, jQuery('.wps-admin-wrap .wps-spinner, .wps-connector-wrapper .wps-spinner'));
+  forEachRamda(enableButton, jQuery('.wps-admin-wrap .wps-btn, .wps-connector-wrapper .wps-btn'));
 
 };
 

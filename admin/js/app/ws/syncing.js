@@ -32,7 +32,6 @@ function syncConnection() {
       resolve(connection);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }
@@ -56,7 +55,6 @@ function syncShop() {
       resolve(shop);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }
@@ -110,7 +108,6 @@ function syncCollects() {
       resolve(collects);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }
@@ -134,7 +131,6 @@ function syncSmartCollections() {
       resolve(smartCollections);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }
@@ -159,7 +155,6 @@ function syncCustomCollections() {
       resolve(customCollections);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }
@@ -185,7 +180,6 @@ function syncOrders() {
       resolve(orders);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }
@@ -211,7 +205,6 @@ function syncCustomers() {
       resolve(customers);
 
     } catch(error) {
-
       reject( sanitizeErrorResponse(error) );
 
     }

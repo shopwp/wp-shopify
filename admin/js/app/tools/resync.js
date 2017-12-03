@@ -72,7 +72,7 @@ function onResyncSubmit() {
     disable($resyncButton);
     injectConnectorModal( createConnectorModal('Re-syncing ...', 'Cancel sync') );
 
-    // Sets up close listenters
+    // Sets up cancel & close listenters
     onModalClose();
     setConnectionProgress(true);
 
@@ -103,7 +103,8 @@ function onResyncSubmit() {
         headingText: 'Canceled',
         buttonText: 'Exit Sync',
         xMark: true,
-        errorList: errors
+        errorList: errors,
+        clearInputs: false
       });
 
       enable($resyncButton);
@@ -140,7 +141,8 @@ function onResyncSubmit() {
         headingText: 'Canceled',
         buttonText: 'Exit Sync',
         xMark: true,
-        errorList: errors
+        errorList: errors,
+        clearInputs: false
       });
 
       enable($resyncButton);
@@ -177,7 +179,8 @@ function onResyncSubmit() {
         headingText: 'Canceled',
         errorList: errors,
         buttonText: 'Exit Sync',
-        xMark: true
+        xMark: true,
+        clearInputs: false
       });
 
       enable($resyncButton);
@@ -211,7 +214,8 @@ function onResyncSubmit() {
     //     headingText: 'Canceled',
     //     errorList: errors,
     //     buttonText: 'Exit Sync',
-    //     xMark: true
+    //     xMark: true,
+    //     clearInputs: false
     //   });
     //
     //   enable($resyncButton);
@@ -244,7 +248,8 @@ function onResyncSubmit() {
         xMark: true,
         headingText: 'Canceled',
         buttonText: 'Exit Sync',
-        errorList: errors
+        errorList: errors,
+        clearInputs: false
       });
 
       enable($resyncButton);
@@ -276,7 +281,8 @@ function onResyncSubmit() {
         xMark: true,
         headingText: 'Canceled',
         buttonText: 'Exit Sync',
-        errorList: errors
+        errorList: errors,
+        clearInputs: false
       });
 
       enable($resyncButton);

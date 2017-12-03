@@ -2,6 +2,9 @@
 
 namespace WPS;
 
+use WPS\Messages;
+
+
 /*
 
 Class Collections
@@ -11,6 +14,7 @@ class Collections {
 
   protected static $instantiated = null;
   private $Config;
+  private $messages;
 
 	/*
 
@@ -20,6 +24,7 @@ class Collections {
 	public function __construct($Config) {
 		$this->config = $Config;
     $this->connection = $this->config->wps_get_settings_connection();
+    $this->messages = new Messages();
 	}
 
   /*
@@ -42,6 +47,7 @@ class Collections {
   /*
 
   Used to check the type of collection
+  - Predicate Function (returns boolean)
 
   */
   public function wps_is_smart_collection($collection) {
@@ -106,8 +112,7 @@ class Collections {
   */
   public function wps_insert_collections() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1066a)');
 
     $results = [];
     $results['added'] = [];

@@ -16,6 +16,7 @@ class License {
 
 	protected static $instantiated = null;
 	private $Config;
+	private $messages;
 
 	/*
 
@@ -33,6 +34,7 @@ class License {
 		$this->plugin_env = $this->config->plugin_env;
 		$this->license = $this->config->wps_get_settings_license();
 		$this->license_option_name = $this->config->settings_license_option_name;
+		$this->messages = new Messages();
 
 	}
 
@@ -78,7 +80,7 @@ class License {
   */
   public function wps_license_save() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1053a)');
 
 		$Settings_License = new Settings_License();
 
@@ -118,9 +120,9 @@ class License {
 
   */
   public function wps_license_delete() {
-
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-
+		error_log('delete before ...');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1054a)');
+		error_log('delete after ...');
 		$Settings_License = new Settings_License();
 		$result = $Settings_License->delete_license($_POST['key']);
 
@@ -141,7 +143,7 @@ class License {
 
 		if ($ajax) {
 
-			Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+			Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1055a)');
 
 			wp_send_json_success($license->key);
 
@@ -185,7 +187,7 @@ class License {
 
 		} catch (\Exception $e) {
 
-			return $e->getMessage();
+			return $e->getMessage() . ' (Error code: #1056a)';
 
 		}
 
@@ -225,7 +227,7 @@ class License {
 
 		} catch (\Exception $e) {
 
-			return $e->getMessage();
+			return $e->getMessage() . ' (Error code: #1057a)';
 
 		}
 
@@ -308,6 +310,11 @@ class License {
 	}
 
 
+	/*
+
+	Invalid key notice
+
+	*/
 	public function wps_invalid_key_notice($plugin_file, $plugin_data, $status) {
 
 		$allowed_tags = array(
@@ -329,7 +336,12 @@ class License {
 	}
 
 
+	/*
 
+	Check for valid license key
+	- Predicate function (returns boolean)
+
+	*/
 	public function has_valid_key() {
 
 		$license = $this->wps_license_get(false);
@@ -376,7 +388,7 @@ class License {
 
 			} else {
 
-				add_filter( 'site_transient_update_plugins', function ( $value ) {
+				add_filter( 'site_transient_update_plugins', function ($value) {
 
 					if (is_object($value)) {
 						unset( $value->response[$this->config->plugin_file] );

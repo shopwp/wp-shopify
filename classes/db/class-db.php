@@ -468,22 +468,28 @@ class DB {
 
 			// If no primary key is passed, delete the entire table
 			if (empty($row_id)) {
+
 				$results = $wpdb->query("TRUNCATE TABLE $this->table_name");
 
 			} else {
+
 				$results = $wpdb->query( $wpdb->prepare( "DELETE FROM $this->table_name WHERE $this->primary_key = %d", $row_id ));
+
 			}
 
 			// Need to strictly check for FALSE since query can return 0 for no change
 			if ($results === false) {
+
 				return false;
 
 			} else {
+
 				return true;
 
 			}
 
 		} else {
+
 			$results = false;
 
 		}

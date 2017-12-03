@@ -84,9 +84,7 @@ if (!empty($license)) {
 
 $tab = null;
 
-
 ?>
-
 
 <div class="wrap wps-admin-wrap">
 
@@ -103,6 +101,10 @@ $tab = null;
   require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-help.php';
 
   ?>
+
+  <!-- Used to validate any uninstall action the user takes -->
+  <input type="hidden" name="wp-shopify-uninstall-nonce" id="wp-shopify-uninstall-nonce" value="<?php echo wp_create_nonce('wp-shopify-uninstall'); ?>">
+  <input type="hidden" name="wp-shopify-cache-nonce" id="wp-shopify-cache-nonce" value="<?php echo wp_create_nonce('wp-shopify-cache'); ?>">
 
 </div>
 
