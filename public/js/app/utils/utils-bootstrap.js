@@ -46,14 +46,14 @@ TODO: Little bit of duplication happening here. Could be done better.
 */
 async function bootstrap() {
 
-
   // Get Shopify Credentials
   try {
 
     var creds = await getShopifyCreds();
 
     if (isError(creds)) {
-      throw connectionData.data;
+      console.log("creds: ", creds);
+      throw creds.data;
     }
 
   } catch(error) {
@@ -75,6 +75,11 @@ async function bootstrap() {
   // Init Cart
   try {
     var cart = await initCart(shopify);
+
+    if (isError(cart)) {
+      console.log("cart: ", cart);
+      throw cart.data;
+    }
 
   } catch(error) {
     console.error('initCart error: ', error);

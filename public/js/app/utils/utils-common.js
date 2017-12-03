@@ -146,6 +146,11 @@ function throwError(error) {
 };
 
 
+/*
+
+Extract Money Format Type
+
+*/
 function extractMoneyFormatType(format) {
 
   if (format) {
@@ -160,6 +165,12 @@ function extractMoneyFormatType(format) {
 
 }
 
+
+/*
+
+Format Money per settings
+
+*/
 function formatMoneyPerSetting(amount, format, origFormat) {
 
   if (format === 'amount') {
@@ -258,9 +269,11 @@ function formatMoneyPerSetting(amount, format, origFormat) {
 }
 
 
+/*
 
+Replace money format with real amount
 
-
+*/
 function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat = '') {
 
   if (moneyFormat) {
@@ -308,8 +321,6 @@ function cacheExpired() {
   }
 
 }
-
-
 
 
 /*
@@ -475,6 +486,12 @@ function quantityFinder(currentQuantity, quantityUserWants) {
 
 }
 
+
+/*
+
+Is Cart?
+
+*/
 function isCart($element) {
   return $element.hasClass('wps-cart') ? true : false;
 }

@@ -43,6 +43,7 @@ class WS {
   protected static $instantiated = null;
 
   private $Config;
+  private $messages;
 
 	/*
 
@@ -57,6 +58,7 @@ class WS {
 
     $this->general = $this->config->wps_get_settings_general();
     $this->general_option_name = $this->config->settings_general_option_name;
+    $this->messages = new Messages();
 
 	}
 
@@ -111,6 +113,7 @@ class WS {
 
   Get Error Message
   TODO: Move to Utils
+  Returns: (string)
 
   */
   public function wps_get_error_message($error) {
@@ -160,7 +163,7 @@ class WS {
   public function wps_ws_get_image_alt($image) {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error(esc_html__('No connection details found. Please reconnect.', 'wp-shopify'));
+      wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1046a)');
 
     } else {
 
@@ -235,15 +238,15 @@ class WS {
   */
   public function wps_ws_get_products_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1045a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1045b)');
 
     try {
 
       $url = "https://" . $this->connection->domain . "/admin/products/count.json";
 
       // Unit test URL
-      // $url = 'http://www.mocky.io/v2/59752ba31000003c071bc37e';
+      // $url = 'http://www.mocky.io/v2/5a2486a52e0000ca1083bfc3';
 
       $headers = array(
         'X-Shopify-Access-Token' => $this->connection->access_token
@@ -268,20 +271,20 @@ class WS {
 
     } catch (\InvalidArgumentException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045c)');
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045d)');
 
     } catch (ClientException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045e)');
 
     // Server errors 5xx
     } catch (ServerException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045f)');
 
     }
 
@@ -296,8 +299,8 @@ class WS {
   */
   public function wps_ws_get_collects_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1044a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1044b)');
 
     try {
 
@@ -327,7 +330,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1044c)');
 
     }
 
@@ -342,8 +345,8 @@ class WS {
   */
   public function wps_ws_get_orders_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1043a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1043b)');
 
     try {
 
@@ -372,8 +375,7 @@ class WS {
       }
 
     } catch (RequestException $error) {
-
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1043c)');
 
     }
 
@@ -388,8 +390,8 @@ class WS {
   */
   public function wps_ws_get_customers_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1042a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1042b)');
 
     try {
 
@@ -419,7 +421,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1042c)');
 
     }
 
@@ -433,8 +435,8 @@ class WS {
   */
   public function wps_ws_get_shop_data() {
 
-    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1041a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1041b)');
 
     try {
 
@@ -464,7 +466,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1041c)');
 
     }
 
@@ -480,8 +482,8 @@ class WS {
   */
   public function wps_insert_products_data() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1040a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1040b)');
 
     try {
 
@@ -541,19 +543,19 @@ class WS {
         $resultProducts = $DB_Products->insert_products( $data->products );
 
         if (empty($resultProducts)) {
-          wp_send_json_error(Messages::$message_syncing_products_error);
+          wp_send_json_error($this->messages->message_syncing_products_error . ' (Error code: #1040c)');
         }
 
         $resultVariants = $DB_Variants->insert_variants( $data->products );
 
         if (empty($resultVariants)) {
-          wp_send_json_error(Messages::$message_syncing_variants_error);
+          wp_send_json_error($this->messages->message_syncing_variants_error . ' (Error code: #1040d)');
         }
 
         $resultOptions = $DB_Options->insert_options( $data->products );
 
         if (empty($resultOptions)) {
-          wp_send_json_error(Messages::$message_syncing_options_error);
+          wp_send_json_error($this->messages->message_syncing_options_error . ' (Error code: #1040e)');
         }
 
 
@@ -565,7 +567,7 @@ class WS {
         $resultImages = $DB_Images->insert_images( $data->products );
 
         if (is_wp_error($resultImages)) {
-          wp_send_json_error(esc_html__($resultImages->get_error_message(), 'wp-shopify'));
+          wp_send_json_error(esc_html__($resultImages->get_error_message() . ' (Error code: #1040f)', 'wp-shopify'));
         }
 
 
@@ -584,7 +586,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1040g)');
 
     }
 
@@ -600,8 +602,8 @@ class WS {
   */
   public function wps_ws_get_variants() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1039a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1039b)');
 
     $productID = $_POST['productID'];
 
@@ -642,7 +644,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+        wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1039c)');
 
       }
 
@@ -658,8 +660,8 @@ class WS {
   */
   public function wps_insert_custom_collections_data() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1038a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1038b)');
 
     try {
 
@@ -711,7 +713,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1038c)');
 
     }
 
@@ -727,8 +729,8 @@ class WS {
   */
   public function wps_insert_smart_collections_data() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1037a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1037b)');
 
     try {
 
@@ -764,7 +766,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1037c)');
 
     }
 
@@ -778,8 +780,8 @@ class WS {
   */
   public function wps_ws_get_products_from_collection() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1036a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1036b)');
 
     try {
 
@@ -811,7 +813,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1036c)');
 
     }
 
@@ -825,8 +827,8 @@ class WS {
   */
   public function wps_insert_collects() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1035a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1035b)');
 
     try {
 
@@ -869,7 +871,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1035c)');
 
     }
 
@@ -893,11 +895,10 @@ class WS {
     }
 
 
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
-
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1034a)');
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1034b)');
     }
 
 
@@ -936,7 +937,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1034c)');
 
     }
 
@@ -959,10 +960,10 @@ class WS {
       $ajax = false;
     }
 
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1033a)');
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1033b)');
     }
 
 
@@ -994,7 +995,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      $response = $this->wps_get_error_message($error);
+      $response = $this->wps_get_error_message($error) . ' (Error code: #1033c)';
 
     }
 
@@ -1013,6 +1014,7 @@ class WS {
 
     }
 
+
   }
 
 
@@ -1023,8 +1025,8 @@ class WS {
   */
   public function wps_ws_get_single_collection() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1032a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1032b)');
 
     try {
 
@@ -1056,7 +1058,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1032c)');
 
     }
 
@@ -1071,7 +1073,7 @@ class WS {
   public function wps_ws_end_api_connection() {
 
     if (Utils::emptyConnection($this->connection)) {
-      return new \WP_Error('error', esc_html__('Unable to disconnect Shopify store. Missing or invalid access token', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_connection_disconnect_invalid_access_token . ' (Error code: #1031a)');
 
     } else {
 
@@ -1098,7 +1100,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        return new \WP_Error('error', $this->wps_get_error_message($error));
+        return new \WP_Error('error', $this->wps_get_error_message($error) . ' (Error code: #1031b)');
 
       }
 
@@ -1166,8 +1168,8 @@ class WS {
 	*/
 	public function wps_ws_get_webhooks() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1030a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1030b)');
 
     try {
 
@@ -1192,7 +1194,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1030c)');
 
     }
 
@@ -1207,8 +1209,8 @@ class WS {
   */
   public function wps_ws_delete_webhook() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1029a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1029b)');
 
 
     if (property_exists($this->connection, 'webhook_id') && $this->connection->webhook_id) {
@@ -1231,13 +1233,13 @@ class WS {
 
       } catch (RequestException $error) {
 
-        wp_send_json_error( $this->wps_get_error_message($error) );
+        wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1029c)');
 
       }
 
     } else {
 
-      return new \WP_Error('error', Messages::$message_webhooks_no_id_set);
+      return new \WP_Error('error', $this->messages->message_webhooks_no_id_set . ' (Error code: #1029d)');
 
     }
 
@@ -1261,8 +1263,8 @@ class WS {
   */
   public function wps_update_settings_general() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #103a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #103b)');
 
     global $wp_rewrite;
 
@@ -1341,8 +1343,7 @@ class WS {
   */
   public function wps_get_connection() {
 
-    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #104a)');
 
     if (get_transient('wps_settings_connection')) {
       $connectionData = get_transient('wps_settings_connection');
@@ -1367,8 +1368,7 @@ class WS {
   */
   public function wps_insert_connection() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #105a)');
 
     $DB_Settings_Connection = new Settings_Connection();
     $connectionData = $_POST['connectionData'];
@@ -1377,7 +1377,7 @@ class WS {
     $results = $DB_Settings_Connection->insert_connection($connectionData);
 
     if ($results === false) {
-      wp_send_json_error(Messages::$message_connection_save_error);
+      wp_send_json_error($this->messages->message_connection_save_error . ' (Error code: #105b)');
 
     } else {
       wp_send_json_success($results);
@@ -1393,8 +1393,7 @@ class WS {
   */
   public function wps_insert_shop() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_connection_not_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #106a)');
 
     $DB_Shop = new Shop();
     $shopData = $_POST['shopData'];
@@ -1415,7 +1414,7 @@ class WS {
     $DB_Shop = new Shop();
 
     if (!$DB_Shop->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete shop data.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_shop_error . ' (Error code: #107a)');
 
     } else {
       return true;
@@ -1434,8 +1433,10 @@ class WS {
 
 		$DB_Settings_Connection = new Settings_Connection();
 
-    if (!$DB_Settings_Connection->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete connection settings.', 'wp-shopify'));
+    $deeltion = $DB_Settings_Connection->delete();
+
+    if (!$deeltion) {
+      return new \WP_Error('error', $this->messages->message_delete_connection_error . ' (Error code: #108a)');
 
     } else {
       return true;
@@ -1455,11 +1456,11 @@ class WS {
     $Backend = new Backend($this->config);
 
     if (!$Backend->wps_delete_posts('wps_products')) {
-      $result = new \WP_Error('error', esc_html__('Warning: Some products could not be deleted. Please try again.', 'wp-shopify'));
+      $result = new \WP_Error('error', $this->messages->message_delete_cpt_products_error . ' (Error code: #109a)');
     }
 
     if (!$Backend->wps_delete_posts('wps_collections')) {
-      $result = new \WP_Error('error', esc_html__('Warning: Some collections could not be deleted. Please try again.', 'wp-shopify'));
+      $result = new \WP_Error('error', $this->messages->message_delete_cpt_collections_error . ' (Error code: #109b)');
     }
 
     return $result;
@@ -1477,7 +1478,7 @@ class WS {
     $Images = new Images();
 
     if (!$Images->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete product images.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_product_images_error . ' (Error code: #1010a)');
 
     } else {
       return true;
@@ -1496,7 +1497,7 @@ class WS {
     $Inventory = new Inventory();
 
     if (!$Inventory->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete product inventory.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_product_inventory_error . ' (Error code: #1011a)');
 
     } else {
       return true;
@@ -1515,7 +1516,7 @@ class WS {
     $Collects = new Collects();
 
     if (!$Collects->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete collects.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_collects_error . ' (Error code: #1012a)');
 
     } else {
       return true;
@@ -1534,7 +1535,7 @@ class WS {
     $Tags = new Tags();
 
     if (!$Tags->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete product tags.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_product_tags_error . ' (Error code: #1013a)');
 
     } else {
       return true;
@@ -1553,7 +1554,7 @@ class WS {
     $Options = new Options();
 
     if (!$Options->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete product options.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_product_options_error . ' (Error code: #1014a)');
 
     } else {
       return true;
@@ -1572,7 +1573,7 @@ class WS {
     $Variants = new Variants();
 
     if (!$Variants->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete product variants.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_product_variants_error . ' (Error code: #1015a)');
 
     } else {
       return true;
@@ -1591,7 +1592,7 @@ class WS {
     $Products = new Products();
 
     if (!$Products->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete products.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_products_error . ' (Error code: #1016a)');
 
     } else {
       return true;
@@ -1610,7 +1611,7 @@ class WS {
     $Collections_Custom = new Collections_Custom();
 
     if (!$Collections_Custom->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete custom collections.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_custom_collections_error . ' (Error code: #1017a)');
 
     } else {
       return true;
@@ -1629,7 +1630,7 @@ class WS {
     $Collections_Smart = new Collections_Smart();
 
     if (!$Collections_Smart->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete smart collections.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_smart_collections_error . ' (Error code: #1017a)');
 
     } else {
       return true;
@@ -1648,7 +1649,7 @@ class WS {
     $Orders = new Orders();
 
     if (!$Orders->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete orders.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (Error code: #1018a)');
 
     } else {
       return true;
@@ -1667,7 +1668,7 @@ class WS {
     $Customers = new Customers();
 
     if (!$Customers->delete()) {
-      return new \WP_Error('error', esc_html__('Warning: Unable to delete customers.', 'wp-shopify'));
+      return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (Error code: #1019a)');
 
     } else {
       return true;
@@ -1725,27 +1726,23 @@ class WS {
   Uninstall consumer
   Returns: Response object
 
+  Need to do a few things here ...
+
+  1. Delete all the synced products and collections data
+  2. Invalidate the main Shopify API connection:
+  3. Remove the wps config values from the database
+  4. Delete cache
+
+
+  TODO: Since invalidating the main Shopify API connection is
+  performed asynchronously, we should break that into its own
+  request; perhaps after this one.
+
+  Each deletion returns either type boolean of TRUE or a type
+  STRING containing the error message.
+
   */
   public function wps_uninstall_consumer($ajax = true) {
-
-    /*
-
-    Need to do a few things here ...
-
-    1. Delete all the synced products and collections data
-    2. Invalidate the main Shopify API connection:
-    3. Remove the wps config values from the database
-    4. Delete cache
-
-
-    TODO: Since invalidating the main Shopify API connection is
-    performed asynchronously, we should break that into its own
-    request; perhaps after this one.
-
-    Each deletion returns either type boolean of TRUE or a type
-    STRING containing the error message.
-
-    */
 
     if ($_POST['action'] === 'wps_uninstall_consumer') {
       $ajax = true;
@@ -1754,17 +1751,16 @@ class WS {
       $ajax = false;
     }
 
-
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+      Utils::valid_uninstall_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1020a)');
     }
-
 
     $results = array();
     $Transients = new Transients();
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('domain');
     $results = $this->wps_uninstall_product_data();
+
 
     if (!empty($connection)) {
 
@@ -1776,11 +1772,12 @@ class WS {
       $response_connection_api = $this->wps_ws_end_api_connection();
 
       if (is_wp_error($response_connection_api)) {
-        $results['connection_api'] = $response_connection_api->get_error_message();
+        $results['connection_api'] = $response_connection_api->get_error_message()  . ' (Error code: #1020b)';
 
       } else {
         $results['connection_api'] = $response_connection_api;
       }
+
 
       /*
 
@@ -1790,7 +1787,7 @@ class WS {
       $response_connection_settings = $this->wps_delete_settings_connection();
 
       if (is_wp_error($response_connection_settings)) {
-        $results['connection_settings'] = $response_connection_settings->get_error_message();
+        $results['connection_settings'] = $response_connection_settings->get_error_message()  . ' (Error code: #1020c)';
 
       } else {
         $results['connection_settings'] = $response_connection_settings;
@@ -1800,15 +1797,12 @@ class WS {
 
 
     if ($ajax) {
-
       wp_send_json_success($results);
 
     } else {
-
       return $results;
 
     }
-
 
   }
 
@@ -1830,7 +1824,7 @@ class WS {
 
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1021a)');
     }
 
 
@@ -1848,7 +1842,7 @@ class WS {
     $response_shop = $this->wps_delete_shop();
 
     if (is_wp_error($response_shop)) {
-      $results['shop'] = $response_shop->get_error_message();
+      $results['shop'] = $response_shop->get_error_message()  . ' (Error code: #1021b)';
 
     } else {
       $results['shop'] = $response_shop;
@@ -1877,7 +1871,7 @@ class WS {
     $response_products = $this->wps_delete_products();
 
     if (is_wp_error($response_products)) {
-      $results['products'] = $response_products->get_error_message();
+      $results['products'] = $response_products->get_error_message()  . ' (Error code: #1021c)';
 
     } else {
       $results['products'] = $response_products;
@@ -1892,7 +1886,7 @@ class WS {
     $response_collections_custom = $this->wps_delete_custom_collections();
 
     if (is_wp_error($response_collections_custom)) {
-      $results['custom_collections'] = $response_collections_custom->get_error_message();
+      $results['custom_collections'] = $response_collections_custom->get_error_message()  . ' (Error code: #1021d)';
 
     } else {
       $results['custom_collections'] = $response_collections_custom;
@@ -1907,7 +1901,7 @@ class WS {
     $response_collections_smart = $this->wps_delete_smart_collections();
 
     if (is_wp_error($response_collections_smart)) {
-      $results['smart_collections'] = $response_collections_smart->get_error_message();
+      $results['smart_collections'] = $response_collections_smart->get_error_message()  . ' (Error code: #1021e)';
 
     } else {
       $results['smart_collections'] = $response_collections_smart;
@@ -1922,7 +1916,7 @@ class WS {
     $response_collects = $this->wps_delete_collects();
 
     if (is_wp_error($response_collects)) {
-      $results['collects'] = $response_collects->get_error_message();
+      $results['collects'] = $response_collects->get_error_message()  . ' (Error code: #1021f)';
 
     } else {
       $results['collects'] = $response_collects;
@@ -1937,7 +1931,7 @@ class WS {
     $response_variants = $this->wps_delete_variants();
 
     if (is_wp_error($response_variants)) {
-      $results['variants'] = $response_variants->get_error_message();
+      $results['variants'] = $response_variants->get_error_message()  . ' (Error code: #1021g)';
 
     } else {
       $results['variants'] = $response_variants;
@@ -1952,7 +1946,7 @@ class WS {
     $response_options = $this->wps_delete_options();
 
     if (is_wp_error($response_options)) {
-      $results['options'] = $response_options->get_error_message();
+      $results['options'] = $response_options->get_error_message()  . ' (Error code: #1021h)';
 
     } else {
       $results['options'] = $response_options;
@@ -1967,7 +1961,7 @@ class WS {
     $response_tags = $this->wps_delete_tags();
 
     if (is_wp_error($response_tags)) {
-      $results['tags'] = $response_tags->get_error_message();
+      $results['tags'] = $response_tags->get_error_message()  . ' (Error code: #1021i)';
 
     } else {
       $results['tags'] = $response_tags;
@@ -1982,7 +1976,7 @@ class WS {
     $response_images = $this->wps_delete_images();
 
     if (is_wp_error($response_images)) {
-      $results['images'] = $response_images->get_error_message();
+      $results['images'] = $response_images->get_error_message()  . ' (Error code: #1021j)';
 
     } else {
       $results['images'] = $response_images;
@@ -1997,7 +1991,7 @@ class WS {
     $response_orders = $this->wps_delete_orders();
 
     if (is_wp_error($response_orders)) {
-      $results['orders'] = $response_orders->get_error_message();
+      $results['orders'] = $response_orders->get_error_message()  . ' (Error code: #1021k)';
 
     } else {
       $results['orders'] = $response_orders;
@@ -2012,7 +2006,7 @@ class WS {
     $response_customers = $this->wps_delete_customers();
 
     if (is_wp_error($response_customers)) {
-      $results['customers'] = $response_customers->get_error_message();
+      $results['customers'] = $response_customers->get_error_message()  . ' (Error code: #1021l)';
 
     } else {
       $results['customers'] = $response_customers;
@@ -2027,7 +2021,7 @@ class WS {
     $response_transients = $Transients->delete_all_cache();
 
     if (is_wp_error($response_transients)) {
-      $results['transients'] = $response_transients->get_error_message();
+      $results['transients'] = $response_transients->get_error_message()  . ' (Error code: #1021m)';
 
     } else {
       $results['transients'] = $response_transients;
@@ -2067,7 +2061,7 @@ class WS {
 
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1022a)');
     }
 
 
@@ -2077,7 +2071,7 @@ class WS {
     $response = $DB_Settings_Connection->insert_connection($connectionData);
 
     if (is_wp_error($response)) {
-      $results['syncing_indicator'] = $response->get_error_message();
+      $results['syncing_indicator'] = $response->get_error_message()  . ' (Error code: #1022b)';
 
     } else {
       $results['syncing_indicator'] = $response;
@@ -2102,14 +2096,13 @@ class WS {
   */
   public function wps_clear_cache() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_cache_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1023a)');
 
     $Transients = new Transients();
     $results = $Transients->delete_all_cache();
 
     if (is_wp_error($results)) {
-      wp_send_json_error(esc_html__($results->get_error_message(), 'wp-shopify'));
+      wp_send_json_error(esc_html__($results->get_error_message()  . ' (Error code: #1023b)', 'wp-shopify'));
 
     } else {
       wp_send_json_success($results);
@@ -2127,8 +2120,7 @@ class WS {
   */
   public function wps_sync_with_cpt() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1024a)');
 
     $Utils = new Utils();
     $DB_Products = new Products();
@@ -2139,7 +2131,6 @@ class WS {
     foreach($products as $product) {
       $results[] = $DB_Products->update_post_content_if_changed($product);
     }
-
 
     $filteredResults = array_filter($results, array($Utils, 'filter_errors'));
 
@@ -2168,8 +2159,8 @@ class WS {
   */
   public function wps_insert_orders() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1025a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found  . ' (Error code: #1025b)');
 
     try {
 
@@ -2216,7 +2207,7 @@ class WS {
         $resultOrders = $DB_Orders->insert_orders( $data->orders );
 
         if (empty($resultOrders)) {
-          wp_send_json_error(Messages::$message_syncing_orders_error);
+          wp_send_json_error($this->messages->message_syncing_orders_error  . ' (Error code: #1025c)');
         }
 
         $insertionResults['orders'] = $resultOrders;
@@ -2230,7 +2221,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error)  . ' (Error code: #1025d)');
 
     }
 
@@ -2244,8 +2235,8 @@ class WS {
   */
   public function wps_insert_customers() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_die(Messages::$message_nonce_invalid);
-    Utils::emptyConnection($this->connection) ?: wp_send_json_error(Messages::$message_no_connection_found);
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1026a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found  . ' (Error code: #1026b)');
 
     try {
 
@@ -2292,7 +2283,7 @@ class WS {
         $results = $DB_Customers->insert_customers( $data->customers );
 
         if (empty($results)) {
-          wp_send_json_error(Messages::$message_syncing_customers_error);
+          wp_send_json_error($this->messages->message_syncing_customers_error  . ' (Error code: #1026c)');
         }
 
         $insertionResults['customers'] = $results;
@@ -2307,7 +2298,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) );
+      wp_send_json_error( $this->wps_get_error_message($error)  . ' (Error code: #1026d)');
 
     }
 

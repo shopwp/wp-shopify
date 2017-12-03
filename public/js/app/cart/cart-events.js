@@ -1,7 +1,6 @@
 import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
 import { fetchCart, updateCart } from '../ws/ws-cart';
-import { beforeCheckoutHook } from '../ws/ws-checkout';
 import { quantityFinder } from '../utils/utils-common';
 import { updateCartCounter, updateCartVariant, toggleCart, isCartEmpty, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
 
@@ -231,14 +230,6 @@ function onQuantityChange(shopify) {
   });
 
 };
-
-
-
-
-
-
-
-
 
 
 /*

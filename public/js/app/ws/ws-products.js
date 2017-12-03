@@ -79,7 +79,6 @@ function getMoneyFormatCache() {
 };
 
 
-
 /*
 
 Check if any cart items are in local storage
@@ -120,15 +119,31 @@ function getProductSelectionID() {
 };
 
 
+/*
+
+Get Product Option IDs
+
+*/
 function getProductOptionIds() {
   return localStorage.getItem('wps-option-ids');
 };
 
 
+/*
+
+Set Product Option IDs
+
+*/
 function setProductOptionIds(optionIds) {
   localStorage.setItem('wps-option-ids', optionIds);
 };
 
+
+/*
+
+Remove Product Option IDs
+
+*/
 function removeProductOptionIds() {
   localStorage.removeItem('wps-option-ids');
 };

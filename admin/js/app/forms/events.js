@@ -33,6 +33,8 @@ function onModalClose() {
     setConnectionProgress('false');
     updateModalHeadingText('Canceling ...');
     updateCurrentConnectionStepText('Cleaning up ...');
+
+    // This is responsible for firing the "cancel event" during a resync
     setSyncingIndicator(0);
 
   });

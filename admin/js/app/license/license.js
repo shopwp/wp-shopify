@@ -17,7 +17,8 @@ import {
   showSpinner,
   hideSpinner,
   showLoader,
-  hideLoader
+  hideLoader,
+  isWordPressError
 } from '../utils/utils.js';
 
 import {
@@ -154,6 +155,10 @@ async function deactivateKey() {
 
     var deleted = await deleteLicenseKey(savedLicenseKey);
 
+    if (isWordPressError(deleted)) {
+      throw deleted.data;
+    }
+
     $submitButton.data('status', 'activate');
     $submitButton.attr('data-status', 'activate');
     $submitButton.val('Activate License');
@@ -169,7 +174,7 @@ async function deactivateKey() {
 
   } catch(error) {
     enable($submitButton);
-    return rejectedPromise('Error: unable to delete license key. Please try again.');
+    return rejectedPromise(error);
   }
 
 }
@@ -262,9 +267,9 @@ async function activateKey(key) {
     licenseKeyInfo = await getLicenseKeyStatus(key);
 
   } catch(error) {
+
     removeCheckmarks($form);
     enable($submitButton);
-    console.error("Error getLicenseKeyStatus: ", error);
 
     return rejectedPromise('Error: unable to get license key. Please try again.');
 
@@ -289,7 +294,11 @@ async function activateKey(key) {
     licenseKeyInfo.key = key;
     licenseKeyInfo.is_local = licenseKeyActivatedResp.is_local;
 
-    await saveLicenseKey(licenseKeyInfo);
+    var savedKeyResponse = await saveLicenseKey(licenseKeyInfo);
+
+    if (isWordPressError(savedKeyResponse)) {
+      throw savedKeyResponse.data;
+    }
 
     $submitButton.data('status', 'deactivate');
     $submitButton.attr('data-status', 'deactivate');
@@ -309,9 +318,8 @@ async function activateKey(key) {
 
     removeCheckmarks($form);
     enable($submitButton);
-    console.error("Error saveLicenseKey: ", error);
 
-    return rejectedPromise('Error: unable to save license key. Please try again.');
+    return rejectedPromise(error);
 
   }
 

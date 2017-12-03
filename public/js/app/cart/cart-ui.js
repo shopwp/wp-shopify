@@ -101,54 +101,11 @@ async function updateCartCounter(shopify, cart) {
 };
 
 
+/*
 
+Find Line Item By Variant ID
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 function findLineItemByVariantID(cart, variant) {
 
   return cart.lineItems.filter(function(value, index, ar) {
@@ -156,7 +113,6 @@ function findLineItemByVariantID(cart, variant) {
   })[0];
 
 }
-
 
 
 /*
@@ -218,14 +174,11 @@ async function updateSingleProductCartDOM(lineItem, variant) {
 
       }
 
-
     }
 
   });
 
 }
-
-
 
 
 /*
@@ -307,12 +260,14 @@ function containsDefaultVariantTitle(lineItem) {
 }
 
 
+/*
 
+Get Line Item Link
+
+*/
 function getLineItemLink(lineItem) {
   return '/' + wps.productsSlug;
 }
-
-
 
 
 /*
@@ -565,7 +520,6 @@ function hasExistingCartItem(variant) {
 }
 
 
-
 /*
 
 Render Single Cart Item
@@ -613,10 +567,6 @@ async function renderSingleCartItem(shopify, cart, variant) {
   });
 
 }
-
-
-
-
 
 
 /*
@@ -703,11 +653,11 @@ async function renderCartItems(shopify, cart = false, variant = false) {
 }
 
 
+/*
 
+Update Cart Variant
 
-
-
-
+*/
 function updateCartVariant(variant, quantity, shopify) {
 
   return new Promise(async function(resolve, reject) {
@@ -844,6 +794,11 @@ async function toggleCart() {
 }
 
 
+/*
+
+Empty Cart UI
+
+*/
 function emptyCartUI(shopify, cart) {
 
   disable(jQuery('.wps-btn-checkout'));

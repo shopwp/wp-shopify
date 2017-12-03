@@ -118,6 +118,7 @@ async function streamShop() {
       }
 
     } catch(error) {
+
       reject(error);
 
     }
@@ -179,6 +180,7 @@ async function streamProducts() {
       productCount = await getProductsCount();
 
       if (isWordPressError(productCount)) {
+
         reject(productCount.data);
 
       } else {
@@ -190,6 +192,7 @@ async function streamProducts() {
       }
 
     } catch(error) {
+
       reject(error);
 
     }
@@ -215,6 +218,7 @@ async function streamProducts() {
         }
 
         if (isWordPressError(newProducts)) {
+
           reject(newProducts.data);
           break;
 
@@ -226,7 +230,6 @@ async function streamProducts() {
             currentPage += 1;
 
           } else {
-
             reject(newProducts.data.products);
 
           }
@@ -234,9 +237,10 @@ async function streamProducts() {
         }
 
       } catch(error) {
-        console.error("Error insertProductsData: ", error);
+
         reject(error);
         break;
+
       }
 
     }
@@ -449,7 +453,6 @@ async function streamOrders() {
       reject(error);
 
     }
-
 
     pages = Math.ceil(orderCount / pageSize);
 

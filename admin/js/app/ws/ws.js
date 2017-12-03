@@ -599,7 +599,7 @@ function uninstallPlugin() {
     dataType: 'json',
     data: {
       action: 'wps_uninstall_consumer',
-      nonce: wps.nonce
+      nonce: jQuery('#wp-shopify-uninstall-nonce').val()
     }
   };
 
@@ -990,7 +990,7 @@ function clearCache() {
     url: wps.ajax,
     data: {
       action: 'wps_clear_cache',
-      nonce: wps.nonce
+      nonce: jQuery('#wp-shopify-cache-nonce').val()
     }
   };
 

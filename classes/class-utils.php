@@ -28,10 +28,31 @@ class Utils {
 
   protected static $instantiated = null;
 
+  /*
+
+  Checks for a valid uninstall nonce
+  - Predicate Function (returns boolean)
+
+  */
+  public static function valid_cache_nonce($nonce) {
+    return wp_verify_nonce($nonce, Config::get_cache_nonce_action());
+  }
+
+  /*
+
+  Checks for a valid uninstall nonce
+  - Predicate Function (returns boolean)
+
+  */
+  public static function valid_uninstall_nonce($nonce) {
+    return wp_verify_nonce($nonce, Config::get_uninstall_nonce_action());
+  }
+
 
   /*
 
   Checks for a valid backend nonce
+  - Predicate Function (returns boolean)
 
   */
   public static function valid_backend_nonce($nonce) {
@@ -42,16 +63,26 @@ class Utils {
   /*
 
   Checks for a valid frontend nonce
+  - Predicate Function (returns boolean)
 
   */
   public static function valid_frontend_nonce($nonce) {
-    return wp_verify_nonce($nonce, Config::get_frontend_nonce_action());
+
+    $verified = wp_verify_nonce($nonce, Config::get_frontend_nonce_action());
+
+    error_log('---- valid_frontend_nonce -----');
+    error_log(print_r($verified, true));
+    error_log('---- /valid_frontend_nonce -----');
+
+    return $verified;
+
   }
 
 
   /*
 
   Filter errors
+  - Predicate Function (returns boolean)
 
   */
   public function filter_errors($item) {
@@ -123,7 +154,11 @@ class Utils {
   }
 
 
+  /*
 
+  Sort Product Images
+
+  */
   public function sort_product_images($a, $b) {
 
     $a = (int) $a['position'];
@@ -138,34 +173,12 @@ class Utils {
   }
 
 
+  /*
 
+  Empty Connection
+  - Predicate Function (returns boolean)
 
-  public static function print_elog($seperator = ':', $object = null) {
-
-    error_log(str_repeat($seperator, 10));
-    error_log(print_r($object, true));
-    error_log(str_repeat($seperator, 10));
-
-  }
-
-
-  public static function var_elog($seperator = '-', $object = null) {
-
-    ob_start();
-    var_dump( $object );
-    $contents = ob_get_contents();
-    ob_end_clean();
-
-    error_log(str_repeat($seperator, 10));
-    error_log($contents);
-    error_log(str_repeat($seperator, 10));
-
-  }
-
-
-
-
-
+  */
   public static function emptyConnection($connection) {
 
     if (!is_object($connection)) {
@@ -173,7 +186,7 @@ class Utils {
 
     } else {
 
-      if(property_exists($connection, 'access_token') && $connection->access_token) {
+      if (property_exists($connection, 'access_token') && $connection->access_token) {
         return false;
 
       } else {
@@ -186,7 +199,12 @@ class Utils {
   }
 
 
+  /*
 
+  Back From Shopify
+  - Predicate Function (returns boolean)
+
+  */
   public static function backFromShopify() {
 
     if(isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
@@ -197,8 +215,6 @@ class Utils {
     }
 
   }
-
-
 
 
   /*
@@ -231,12 +247,10 @@ class Utils {
   }
 
 
-
-
-
   /*
 
   Is Manually Sorted
+  - Predicate Function (returns boolean)
 
   */
   public static function wps_is_manually_sorted($shortcodeArgs) {
@@ -247,7 +261,6 @@ class Utils {
     } else {
       return false;
     }
-
 
   }
 
@@ -302,11 +315,11 @@ class Utils {
   }
 
 
+  /*
 
+  Find Product ID
 
-
-
-
+  */
   public static function wps_find_product_id($product) {
 
     if (isset($product->id)) {
@@ -322,8 +335,11 @@ class Utils {
   }
 
 
+  /*
 
+  Find Collection ID
 
+  */
   public static function wps_find_collection_id($collection) {
 
     if (isset($collection->id)) {
@@ -337,8 +353,6 @@ class Utils {
     }
 
   }
-
-
 
 
   /*
@@ -372,6 +386,7 @@ class Utils {
 
     } else {
       return false;
+
     }
 
   }
@@ -407,6 +422,7 @@ class Utils {
         $found_post_id = $existingCollection->post_id;
         break;
       }
+
     }
 
     return $found_post_id;
@@ -530,7 +546,11 @@ class Utils {
   }
 
 
+  /*
 
+  Find Items to Delete
+
+  */
   public static function wps_find_items_to_delete($currentItemsArray, $newItemsArray, $numDimensions = false, $keyToCheck = 'id') {
 
     $arrayOfIDsFromCurrent = self::wps_get_item_ids($currentItemsArray, $numDimensions, $keyToCheck);
@@ -547,8 +567,6 @@ class Utils {
     return self::wps_filter_items_by_id($currentItemsArray, $diff, $keyToCheck);
 
   }
-
-
 
 
   /*
@@ -626,7 +644,6 @@ class Utils {
     return $array;
 
   }
-
 
 
   /*
@@ -716,9 +733,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Slug Clauses
 
-
+  */
   public static function construct_slug_clauses($shortcode_query, $slugs, $table_name) {
 
     global $wpdb;
@@ -749,8 +768,11 @@ class Utils {
   }
 
 
+  /*
 
+  Construct Title Clauses
 
+  */
   public static function construct_title_clauses($shortcode_query, $titles, $table_name) {
 
     global $wpdb;
@@ -775,8 +797,6 @@ class Utils {
     } else {
       $shortcode_query['where'] .= ' AND ' . $table_name . '.title IN (' . $titles . ')';
     }
-
-
 
     return $shortcode_query;
 
@@ -1053,7 +1073,6 @@ class Utils {
     if (array_key_exists('custom', $query->query) && !empty($query->query['custom']['orderby'])) {
       $shortcode_query['orderby'] = '';
     }
-
 
     /*
 
@@ -1473,9 +1492,7 @@ class Utils {
 
     return $shortcode_args;
 
-
   }
-
 
 
   /*
@@ -1683,6 +1700,7 @@ class Utils {
   /*
 
   Checks whether we want to show the 'money_with_currency_format' or 'money_format' column val
+  - Predicate Function (returns boolean)
 
   */
   public static function wps_is_using_money_with_currency_format() {
@@ -1987,7 +2005,6 @@ class Utils {
       }
 
 
-
       // $collectionIDs = Utils::wps_comma_list_to_array($collections);
 
       $args = array(
@@ -2244,8 +2261,8 @@ class Utils {
 
       */
       $paginated_text = apply_filters('wps_products_pagination_start', '<div itemscope itemtype="https://schema.org/SiteNavigationElement" class="wps-products-pagination">');
-      $paginated_text .= previous_posts_link( '<div class="wps-pagination-products-prev-link">' . $args['previous_link_text'] . '</div>' );
-      $paginated_text .= next_posts_link( '<div class="wps-pagination-products-next-link">' . $args['next_link_text'] . '</div>', $max_pages );
+      $paginated_text .= previous_posts_link( '<div class="wps-pagination-products-prev-link">' . __($args['previous_link_text']) . '</div>' );
+      $paginated_text .= next_posts_link( '<div class="wps-pagination-products-next-link">' . __($args['next_link_text']) . '</div>', $max_pages );
       $paginated_text .= apply_filters('wps_products_pagination_end', '</div>');
 
     }
@@ -2273,7 +2290,7 @@ class Utils {
       $DB_Settings_General = new Settings_General();
       $generalSettings = $Config->wps_get_settings_general();
 
-      if($DB_Settings_General->get_num_posts() !== null) {
+      if ($DB_Settings_General->get_num_posts() !== null) {
 
         $posts_per_page = $DB_Settings_General->get_num_posts();
 
@@ -2291,7 +2308,6 @@ class Utils {
       }
 
       $limit = 'LIMIT ' . $minNumProducts . ', ' . $maxNumProducts;
-
 
     } else {
 

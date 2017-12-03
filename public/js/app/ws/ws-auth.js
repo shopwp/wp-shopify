@@ -44,7 +44,7 @@ function getShopifyCreds() {
     url: wps.ajax,
     dataType: 'json',
     data: {
-      action: 'wps_get_credentials',
+      action: 'wps_get_credentials_frontend',
       nonce: wps.nonce
     }
   });
