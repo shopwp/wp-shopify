@@ -82,7 +82,6 @@ class Images extends \WPS\DB {
     $count = 1;
 
 
-
     foreach ($products as $key => $product) {
 
       if (isset($product->images) && $product->images) {
@@ -102,7 +101,7 @@ class Images extends \WPS\DB {
 
             if (is_wp_error($imageAltResponse)) {
 
-              $results = $imageAltResponse;
+              $results = false;
               break 2;
 
             } else {

@@ -19,11 +19,11 @@ Tab Content: Settings
 
   <div class="wps-admin-section">
 
-    <p>
+    <!-- <p>
       <a href="<?php echo esc_url($this->config->plugin_env . '/docs'); ?>" target="_blank">
         <?php esc_html_e('How to display your products.', 'wp-shopify'); ?>
       </a>
-    </p>
+    </p> -->
 
     <form method="post" name="wps_settings_general" action="options.php" id="wps-settings" class="wps-admin-form">
 
@@ -32,8 +32,8 @@ Tab Content: Settings
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-product-urls.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-collections-urls.php';
 
-      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-webhooks-urls.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-webhooks-urls.php';
 
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';

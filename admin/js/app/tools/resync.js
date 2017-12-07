@@ -76,12 +76,14 @@ function onResyncSubmit() {
     onModalClose();
     setConnectionProgress(true);
 
+
     /*
 
     Step 1. Turn on syncing flag
 
     */
     try {
+
       var updatingSyncingIndicator = await setSyncingIndicator(1);
 
       if (isWordPressError(updatingSyncingIndicator)) {
@@ -104,7 +106,8 @@ function onResyncSubmit() {
         buttonText: 'Exit Sync',
         xMark: true,
         errorList: errors,
-        clearInputs: false
+        clearInputs: false,
+        resync: true
       });
 
       enable($resyncButton);
@@ -142,7 +145,8 @@ function onResyncSubmit() {
         buttonText: 'Exit Sync',
         xMark: true,
         errorList: errors,
-        clearInputs: false
+        clearInputs: false,
+        resync: true
       });
 
       enable($resyncButton);
@@ -180,7 +184,8 @@ function onResyncSubmit() {
         errorList: errors,
         buttonText: 'Exit Sync',
         xMark: true,
-        clearInputs: false
+        clearInputs: false,
+        resync: true
       });
 
       enable($resyncButton);
@@ -215,7 +220,8 @@ function onResyncSubmit() {
     //     errorList: errors,
     //     buttonText: 'Exit Sync',
     //     xMark: true,
-    //     clearInputs: false
+    //     clearInputs: false,
+    //     resync: true
     //   });
     //
     //   enable($resyncButton);
@@ -249,11 +255,11 @@ function onResyncSubmit() {
         headingText: 'Canceled',
         buttonText: 'Exit Sync',
         errorList: errors,
-        clearInputs: false
+        clearInputs: false,
+        resync: true
       });
 
       enable($resyncButton);
-
       return;
 
     }
@@ -282,11 +288,11 @@ function onResyncSubmit() {
         headingText: 'Canceled',
         buttonText: 'Exit Sync',
         errorList: errors,
-        clearInputs: false
+        clearInputs: false,
+        resync: true
       });
 
       enable($resyncButton);
-
       return;
 
     }
@@ -298,7 +304,9 @@ function onResyncSubmit() {
     updateModalButtonText("Ok, let's go!");
     enable($resyncButton);
 
+
   });
+
 
 }
 

@@ -12,13 +12,13 @@ $image = Images::get_image_details_from_product($product);
   class="wps-col wps-col-3 wps-collection-single-product">
 
   <a
-    href="<?php esc_url( home_url() . '/products/' . $product->handle); ?>"
+    href="<?php echo esc_url( home_url() . '/products/' . $product->handle); ?>"
     class="wps-collections-product-link"
     title="<?php esc_attr_e($product->title . ' ' . $product->product_id . ' ' . $product->product_type, 'wp-shopify' ); ?>">
 
     <img
       itemprop="image"
-      src="<?php esc_url($image['src']); ?>" alt="<?php esc_attr_e($image['alt'], 'wp-shopify'); ?>" class="wps-products-img" />
+      src="<?php echo esc_url($image['src']); ?>" alt="<?php esc_attr_e($image['alt'], 'wp-shopify'); ?>" class="wps-products-img" />
 
     <h2
       itemprop="name"

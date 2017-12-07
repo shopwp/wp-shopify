@@ -16,9 +16,13 @@ use WPS\DB\Images;
 use WPS\DB\Tags;
 use WPS\DB\Customers;
 use WPS\DB\Orders;
-
 use WPS\CPT;
-// use WPS\DB\Inventory as Inventory;
+use WPS\Utils;
+
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 
 /*
@@ -148,6 +152,7 @@ class Activator {
 
 		// Register CPTs upon plugin activation
 		$CPT->init();
+
 
 		flush_rewrite_rules();
 

@@ -14,6 +14,11 @@ use WPS\WS;
 use WPS\DB\Shop;
 use WPS\DB\Settings_Connection;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /*
 
 Admin Class
@@ -175,7 +180,7 @@ class Backend {
 	public function wps_config_add_action_links($links) {
 
 		// $this->config = new Config();
-		$settings_link = ['<a href="' . esc_url( admin_url('/admin.php?page=' . $this->config->plugin_name) . '-settings' ) . '">' . esc_html_e('Settings', 'wp-shopify') . '</a>'];
+		$settings_link = ['<a href="' . esc_url( admin_url('/admin.php?page=' . $this->config->plugin_name) . '-settings' ) . '">' . esc_html__('Settings', 'wp-shopify') . '</a>'];
 
 		return array_merge($settings_link, $links);
 
@@ -295,7 +300,7 @@ class Backend {
  	public function wps_get_credentials_frontend() {
 
 		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1067a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_no_connection_found . ' (Error code: #1067b)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1067b)');
 
 		$shopifyCreds = array();
 		$connection = $this->config->wps_get_settings_connection();

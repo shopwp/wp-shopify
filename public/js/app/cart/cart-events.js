@@ -49,7 +49,6 @@ async function onCheckout(shopify) {
         return e;
       }
 
-      console.log("cartID: ", getCartID());
       window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + '&attributes[testing]=wasup', '_self');
 
     });

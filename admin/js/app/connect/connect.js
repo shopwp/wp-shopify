@@ -50,6 +50,10 @@ import {
 } from '../utils/utils-dom';
 
 import {
+  resetSyncingURL
+} from '../utils/utils-data';
+
+import {
   setPluginSettings,
   getPluginSettings,
   getAuthToken,
@@ -69,7 +73,8 @@ import {
   connectionInProgress,
   setConnectionProgress,
   setModalCache,
-  clearLocalstorageCache
+  clearLocalstorageCache,
+  setStartingURL
 } from '../ws/localstorage.js';
 
 import {
@@ -125,6 +130,9 @@ function onConnectionFormSubmit() {
       var $formInputNonce = jQuery("#wps_settings_connection_nonce_id");
       var $connectorModal = createConnectorModal();
       var domain = jQuery('#wps_settings_connection_domain').val();
+
+
+      setStartingURL(window.location.pathname + window.location.search);
 
       // Clear protocol from input field if user mistakenly enters ...
       if (containsProtocol(domain) || containsPathAfterShopifyDomain(domain)) {
@@ -384,6 +392,7 @@ async function onAuthRedirect() {
 
   jQuery('body').addClass('wps-is-back-from-shopify');
 
+  resetSyncingURL();
 
   /*
 
@@ -424,7 +433,8 @@ async function onAuthRedirect() {
       xMark: true,
       headingText: 'Canceled',
       stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync'
+      buttonText: 'Exit Sync',
+      clearInputs: true
     });
 
   }
@@ -456,7 +466,8 @@ async function onAuthRedirect() {
       xMark: true,
       headingText: 'Canceled',
       stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync'
+      buttonText: 'Exit Sync',
+      clearInputs: true
     });
 
   }
@@ -494,7 +505,8 @@ async function onAuthRedirect() {
       xMark: true,
       headingText: 'Canceled',
       stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync'
+      buttonText: 'Exit Sync',
+      clearInputs: true
     });
 
   }
@@ -555,7 +567,8 @@ async function onAuthRedirect() {
       xMark: true,
       headingText: 'Canceled',
       stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync'
+      buttonText: 'Exit Sync',
+      clearInputs: true
     });
 
   }
@@ -598,7 +611,8 @@ async function onAuthRedirect() {
       xMark: true,
       headingText: 'Canceled',
       stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync'
+      buttonText: 'Exit Sync',
+      clearInputs: true
     });
 
   }
@@ -620,5 +634,6 @@ function connectInit() {
 
 export {
   connectInit,
-  onAuthRedirect
+  onAuthRedirect,
+  resetSyncingURL
 }

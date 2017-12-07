@@ -409,7 +409,7 @@ Returns: undefined
 function resetProgressIndicators() {
 
   forEachRamda(stopSpinner, jQuery('.wps-admin-wrap .wps-spinner, .wps-connector-wrapper .wps-spinner'));
-  forEachRamda(enableButton, jQuery('.wps-admin-wrap .wps-btn, .wps-connector-wrapper .wps-btn'));
+  forEachRamda(enableButton, jQuery('.wps-admin-wrap .wps-btn, .wps-connector-wrapper .wps-btn, #submitConnect'));
 
 };
 

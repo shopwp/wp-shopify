@@ -4,6 +4,10 @@ namespace WPS;
 
 use WPS\Messages;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /*
 

@@ -3,12 +3,15 @@
 namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\WS;
 use WPS\Messages;
 use WPS\DB\Settings_Connection;
 use GuzzleHttp\Client as Guzzle;
-
-// require_once plugin_dir_path( __FILE__ ) . '../admin/class-admin.php';
 
 /*
 

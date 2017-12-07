@@ -2,6 +2,11 @@
 
 namespace WPS;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /*
 
 Fired during plugin deactivation
@@ -45,11 +50,11 @@ class Deactivator {
 
 	*/
 	public function deactivate() {
-		flush_rewrite_rules();
+		delete_option('rewrite_rules');
 	}
 
 	public function init() {
-		register_activation_hook($this->plugin_basename, [$this, 'deactivate']);
+		register_deactivation_hook($this->plugin_basename, [$this, 'deactivate']);
 	}
 
 }

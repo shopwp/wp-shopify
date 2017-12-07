@@ -18,6 +18,10 @@ import {
 } from '../utils/utils';
 
 import {
+  resetSyncingURL
+} from '../utils/utils-data';
+
+import {
   createConnectorModal,
   injectConnectorModal,
   ejectConnectorModal,
@@ -40,7 +44,8 @@ import {
 
 import {
   setConnectionProgress,
-  clearLocalstorageCache
+  clearLocalstorageCache,
+  removeConnectionProgress
 } from '../ws/localstorage.js';
 
 import {
@@ -293,8 +298,13 @@ function updateDomAfterDisconnect(options) {
 
   }
 
+
   clearLocalstorageCache();
-  resetConnectSubmit();
+
+  if (!options.resync) {
+    resetConnectSubmit();
+  }
+
   initCloseModalEvents();
 
 }

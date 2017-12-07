@@ -4,6 +4,11 @@ namespace WPS;
 
 use WPS\DB\Variants;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /*
 
 Class Products

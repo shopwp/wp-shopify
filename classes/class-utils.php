@@ -3,6 +3,11 @@
 namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\DB;
 use WPS\Config;
 use WPS\DB\Products;
@@ -28,6 +33,7 @@ class Utils {
 
   protected static $instantiated = null;
 
+
   /*
 
   Checks for a valid uninstall nonce
@@ -37,6 +43,7 @@ class Utils {
   public static function valid_cache_nonce($nonce) {
     return wp_verify_nonce($nonce, Config::get_cache_nonce_action());
   }
+
 
   /*
 
@@ -67,15 +74,7 @@ class Utils {
 
   */
   public static function valid_frontend_nonce($nonce) {
-
-    $verified = wp_verify_nonce($nonce, Config::get_frontend_nonce_action());
-
-    error_log('---- valid_frontend_nonce -----');
-    error_log(print_r($verified, true));
-    error_log('---- /valid_frontend_nonce -----');
-
-    return $verified;
-
+    return wp_verify_nonce($nonce, Config::get_frontend_nonce_action());
   }
 
 

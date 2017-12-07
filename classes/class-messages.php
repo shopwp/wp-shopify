@@ -2,7 +2,10 @@
 
 namespace WPS;
 
-
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /*
 
@@ -20,6 +23,7 @@ class Messages {
 	public $message_syncing_variants_error;
 	public $message_syncing_options_error;
 	public $message_syncing_orders_error;
+	public $message_syncing_images_error;
 	public $message_syncing_customers_error;
 	public $message_delete_shop_error;
 	public $message_delete_connection_error;
@@ -47,6 +51,7 @@ class Messages {
 
 		$this->message_nonce_invalid = esc_html__('Hmm your request has been rejected for security reasons. Please clear your browser cache and try again.', 'wp-shopify');
 
+		$this->message_connection_not_syncing = esc_html__('', 'wp-shopify');
 		$this->message_connection_not_found = esc_html__('No connection details found. Please reconnect.', 'wp-shopify');
 		$this->message_connection_save_error = esc_html__('Unable to save Shopify connection details. Please try refresh your browser and again.', 'wp-shopify');
 		$this->message_connection_invalid_access_token = esc_html__('Invalid access token. Please try reconnecting WordPress to your Shopify site.', 'wp-shopify');
@@ -56,6 +61,7 @@ class Messages {
 		$this->message_syncing_variants_error = esc_html__('Syncing canceled early at insert_variants(). Please refresh your browser and try again.', 'wp-shopify');
 		$this->message_syncing_options_error = esc_html__('Syncing canceled early at insert_options(). Please refresh your browser and try again.', 'wp-shopify');
 		$this->message_syncing_orders_error = esc_html__('Syncing canceled early at insert_orders(). Please refresh your browser and try again.', 'wp-shopify');
+		$this->message_syncing_images_error = esc_html__('Syncing canceled early at insert_images(). Please refresh your browser and try again.', 'wp-shopify');
 		$this->message_syncing_customers_error = esc_html__('Syncing canceled early at insert_customers(). Please refresh your browser and try again.', 'wp-shopify');
 
 		$this->message_delete_shop_error = esc_html__('Warning: Unable to delete shop data.', 'wp-shopify');

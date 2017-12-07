@@ -12,7 +12,8 @@ import {
 } from '../ws/ws';
 
 import {
-  connectionInProgress
+  connectionInProgress,
+  getStartingURL
 } from '../ws/localstorage';
 
 
@@ -317,6 +318,16 @@ function sanitizeErrorResponse(error) {
 }
 
 
+/*
+
+Reset URL
+
+*/
+function resetSyncingURL() {
+  history.pushState(null, null, getStartingURL());
+}
+
+
 export {
   getProductImages,
   mapProductsModel,
@@ -332,5 +343,6 @@ export {
   rejectedPromise,
   mapCollectsToProducts,
   mapCollectsToCollections,
-  sanitizeErrorResponse
+  sanitizeErrorResponse,
+  resetSyncingURL
 };

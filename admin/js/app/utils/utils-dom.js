@@ -329,9 +329,11 @@ Reset Connect Submit
 
 */
 function resetConnectSubmit() {
+
   jQuery('#submitDisconnect')
     .val('Connect your Shopify Account')
     .prop('disabled', false)
+    .attr('disabled', false)
     .attr('name', 'submitConnect')
     .attr('id', 'submitConnect');
 }
@@ -347,11 +349,12 @@ function setDisconnectSubmit() {
   jQuery('#submitConnect')
     .val('Disconnect your Shopify Account')
     .prop('disabled', false)
+    .attr('disabled', false)
     .attr('name', 'submitDisconnect')
     .attr('id', 'submitDisconnect');
 
-  jQuery('#wps_settings_connection_js_access_token').prop('disabled', true);
-  jQuery('#wps_settings_connection_domain').prop('disabled', true);
+  jQuery('#wps_settings_connection_js_access_token').prop('disabled', true).attr('disabled', true);
+  jQuery('#wps_settings_connection_domain').prop('disabled', true).attr('disabled', true);
 
 }
 

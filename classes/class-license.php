@@ -3,9 +3,15 @@
 namespace WPS;
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
+
 use WPS\DB\Settings_License;
 use WPS\Messages;
 use GuzzleHttp\Client as Guzzle;
+
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /*
 
@@ -120,9 +126,9 @@ class License {
 
   */
   public function wps_license_delete() {
-		error_log('delete before ...');
+
 		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1054a)');
-		error_log('delete after ...');
+
 		$Settings_License = new Settings_License();
 		$result = $Settings_License->delete_license($_POST['key']);
 
@@ -134,6 +140,7 @@ class License {
 	/*
 
   Save License Key
+	TODO: Figure out how to check for valid nonce here
 
   */
   public function wps_license_get($ajax = true) {
@@ -141,20 +148,27 @@ class License {
 		$Settings_License = new Settings_License();
 		$license = $Settings_License->get();
 
-		if ($ajax) {
+		if ($ajax || isset($_GET['action']) && $_GET['action'] === 'wps_license_get') {
 
-			Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1055a)');
+			if (is_object($license) && isset($license->key)) {
+				wp_send_json_success($license->key);
 
-			wp_send_json_success($license->key);
+			} else {
+				wp_send_json_error();
+			}
 
 		} else {
 			return $license;
-
 		}
 
   }
 
 
+	/*
+
+	Get the latest plugin version
+
+	*/
 	public function wps_get_latest_plugin_version() {
 
 		$url = 'https://wpshop.io'; // TODO: Put in config

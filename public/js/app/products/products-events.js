@@ -184,7 +184,10 @@ function onAddProductToCart(shopify) {
       } catch(error) {
 
         enable($addToCartButton);
+        enable($cartForm);
         hideLoader($addToCartButton);
+        hideLoader($cartForm);
+
         showProductMetaError($addToCartButton,  'Sorry, it looks like this product isn\'t available to purchase');
         return;
 
@@ -203,7 +206,10 @@ function onAddProductToCart(shopify) {
       } catch(error) {
 
         enable($addToCartButton);
+        enable($cartForm);
         hideLoader($addToCartButton);
+        hideLoader($cartForm);
+
         showProductMetaError($addToCartButton,  error + '. Code: 4');
         return;
 
@@ -219,17 +225,19 @@ function onAddProductToCart(shopify) {
         await updateCartCounter(shopify, newCart);
 
       } catch(error) {
+
         enable($addToCartButton);
+        enable($cartForm);
         hideLoader($addToCartButton);
+        hideLoader($cartForm);
+
         showProductMetaError($addToCartButton,  error + '. Code: 5');
         return;
       }
 
-
+      enable($cartForm);
       enable($addToCartButton);
       hideLoader($addToCartButton);
-
-      enable($cartForm);
       hideLoader($cartForm);
 
       if (!cartIsOpen()) {
@@ -239,6 +247,7 @@ function onAddProductToCart(shopify) {
       resetSingleProductVariantSelector($addToCartButton);
 
     } else {
+
       showProductMetaError($addToCartButton, 'Please select the required options');
 
     }
