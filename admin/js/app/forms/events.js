@@ -28,14 +28,14 @@ function onModalClose() {
   // Cancel request when user clicks cancel button
   jQuery('.wps-btn-cancel').unbind().on('click', async function(e) {
 
+    // This is responsible for firing the "cancel event" during a resync
+    setSyncingIndicator(0);
+
     jQuery(this).prop("disabled", true);
     resetProgressIndicators();
     setConnectionProgress('false');
     updateModalHeadingText('Canceling ...');
     updateCurrentConnectionStepText('Cleaning up ...');
-
-    // This is responsible for firing the "cancel event" during a resync
-    setSyncingIndicator(0);
 
   });
 

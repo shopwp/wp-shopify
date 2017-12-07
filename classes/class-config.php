@@ -6,6 +6,10 @@ use WPS\DB\Settings_Connection;
 use WPS\DB\Settings_General;
 use WPS\DB\Settings_License;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /*
 
@@ -60,7 +64,7 @@ class Config {
 		$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 		$this->plugin_name = 'wps';
 		$this->plugin_text_domain = 'wp-shopify';
-		$this->plugin_version = '1.0.34';
+		$this->plugin_version = '1.0.35';
 		$this->plugin_author = 'Andrew Robbins';
 
 		self::$plugin_nonce_action_backend = 'wp-shopify-backend';

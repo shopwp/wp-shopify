@@ -32,6 +32,11 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Http\Message\ResponseInterface;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 
 /*
 
@@ -523,6 +528,7 @@ class WS {
 
       */
       $Guzzle = new Guzzle();
+
       $guzzelResponse = $Guzzle->request('GET', $url, array(
         'headers' => $headers,
         'on_headers' => function(ResponseInterface $response) {
@@ -531,6 +537,7 @@ class WS {
       ));
 
       $data = json_decode($guzzelResponse->getBody()->getContents());
+
 
       if (is_object($data) && property_exists($data, 'products')) {
 
@@ -558,16 +565,10 @@ class WS {
           wp_send_json_error($this->messages->message_syncing_options_error . ' (Error code: #1040e)');
         }
 
-
-        /*
-
-        Gets Alt text from Shopify. Will stop immediately if error occurs.
-
-        */
         $resultImages = $DB_Images->insert_images( $data->products );
 
-        if (is_wp_error($resultImages)) {
-          wp_send_json_error(esc_html__($resultImages->get_error_message() . ' (Error code: #1040f)', 'wp-shopify'));
+        if (empty($resultImages)) {
+          wp_send_json_error($this->messages->message_syncing_images_error . ' (Error code: #1040f)', 'wp-shopify');
         }
 
 
@@ -577,6 +578,7 @@ class WS {
         $insertionResults['images'] = $resultImages;
 
         wp_send_json_success($insertionResults);
+
 
       } else {
         wp_send_json_error($data->errors);
@@ -2105,7 +2107,10 @@ class WS {
       wp_send_json_error(esc_html__($results->get_error_message()  . ' (Error code: #1023b)', 'wp-shopify'));
 
     } else {
+
+			flush_rewrite_rules();
       wp_send_json_success($results);
+
     }
 
   }

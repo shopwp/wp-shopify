@@ -5,6 +5,11 @@ namespace WPS;
 use WPS\Utils;
 use WPS\Transients;
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /*
 
 Class Post Types
@@ -100,6 +105,7 @@ class CPT {
       'not_found_in_trash'  => __('No Products found in trash', 'wp-shopify')
     );
 
+
     $args = array(
       'label'               => __('Products', 'wp-shopify'),
       'description'         => __('Custom Post Type for Products', 'wp-shopify'),
@@ -184,6 +190,7 @@ class CPT {
       )
 
     );
+
 
     // Transients::check_rewrite_rules();
     register_post_type('wps_collections', $args);

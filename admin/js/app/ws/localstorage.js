@@ -120,6 +120,36 @@ function removeMoneyFormat() {
 
 /*
 
+Set the starting URL
+
+*/
+function setStartingURL(url) {
+  localStorage.setItem('wps-starting-url', url);
+}
+
+
+/*
+
+Get the starting URL
+
+*/
+function getStartingURL() {
+  return localStorage.getItem('wps-starting-url');
+}
+
+
+/*
+
+Remove Cache Expiration
+
+*/
+function removeStartingURL() {
+  localStorage.removeItem('wps-starting-url');
+}
+
+
+/*
+
 Remove Modal Cache
 
 */
@@ -132,6 +162,7 @@ function clearLocalstorageCache() {
   removeLastCartID();
   removeProductSelection();
   removeMoneyFormat();
+  removeStartingURL();
 }
 
 
@@ -143,5 +174,7 @@ export {
   setModalCache,
   removeModalCache,
   getModalCache,
-  clearLocalstorageCache
+  clearLocalstorageCache,
+  setStartingURL,
+  getStartingURL
 };

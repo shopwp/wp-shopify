@@ -17,9 +17,7 @@ async function updateTotalCartPricing(shopify, cart = false) {
 
   try {
 
-    console.log("cart.subtotal: ", cart.subtotal);
     var formattedSubtotal = await formatAsMoney(cart.subtotal);
-    console.log("formattedSubtotal: ", formattedSubtotal);
 
   } catch(e) {
     return e;

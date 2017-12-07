@@ -57,16 +57,18 @@ function onLicenseFormSubmit() {
     },
     submitHandler: async function(form) {
 
-      var $submitButton = jQuery(form).find('input[type="submit"]');
-      var $spinner = jQuery(form).find('.spinner');
-      var nonce = jQuery("#wps_settings_license_nonce_license_id").val();
-      var key = jQuery(form).find("#wps_settings_license_license").val();
+      var $submitButton = jQuery(form).find('input[type="submit"]'),
+          $spinner = jQuery(form).find('.spinner'),
+          nonce = jQuery("#wps_settings_license_nonce_license_id").val(),
+          $licenseInput = jQuery(form).find("#wps_settings_license_license"),
+          key = jQuery(form).find("#wps_settings_license_license").val(),
+          $licensePostbox = jQuery('.wps-postbox-license-info');
 
       disable($submitButton);
       toggleActive($spinner);
       showLoader($submitButton);
 
-      if($submitButton.data('status') === 'activate') {
+      if ($submitButton.data('status') === 'activate') {
 
         try {
           var response = await activateKey(key);
@@ -82,8 +84,24 @@ function onLicenseFormSubmit() {
       } else {
 
         try {
+
           var response = await deactivateKey();
+
+          $licensePostbox.animateCss('wps-fadeOutRight', function() {
+            $licensePostbox.addClass('wps-is-hidden');
+          });
+
+          $submitButton.data('status', 'activate');
+          $submitButton.attr('data-status', 'activate');
+          $submitButton.val('Activate License');
+
+          $licenseInput.val('');
+          $licenseInput.attr('disabled', false);
+          $licenseInput.prop('disabled', false);
+          $licenseInput.removeClass('error valid');
+
           showAdminNotice('Successfully deactivated license key', 'updated');
+
 
         } catch (errorMsg) {
 
@@ -112,70 +130,71 @@ Deactive License Key
 */
 async function deactivateKey() {
 
-  var $submitButton = jQuery('#wps-license input[type="submit"]');
-  var $licenseInput = jQuery('#wps_settings_license_license');
-  var $licensePostbox = jQuery('.wps-postbox-license-info');
+  return new Promise(async (resolve, reject) => {
 
+    var $submitButton = jQuery('#wps-license input[type="submit"]'),
+        $licenseInput = jQuery('#wps_settings_license_license'),
+        $licensePostbox = jQuery('.wps-postbox-license-info');
 
-  /*
+    /*
 
-  Getting License
+    Getting License
 
-  */
-  try {
-    var savedLicenseKey = await getLicenseKey();
+    */
+    try {
+      var savedLicenseKey = await getLicenseKey();
 
-  } catch(error) {
-    enable($submitButton);
-    return rejectedPromise('Error: unable to find license key. Please try again.');
-  }
+    } catch(error) {
 
+      enable($submitButton);
+      return reject('Error: unable to find license key. Please try again.');
 
-  /*
-
-  Deactivating key at wpshop.io
-
-  */
-  try {
-    var deactivatedstuff = await deactivateLicenseKey(savedLicenseKey);
-
-  } catch(error) {
-    enable($submitButton);
-    return rejectedPromise('Error: unable to deactive license key. Please try again.');
-
-  }
-
-
-  /*
-
-  Deleting key locally
-
-  */
-  try {
-
-    var deleted = await deleteLicenseKey(savedLicenseKey);
-
-    if (isWordPressError(deleted)) {
-      throw deleted.data;
     }
 
-    $submitButton.data('status', 'activate');
-    $submitButton.attr('data-status', 'activate');
-    $submitButton.val('Activate License');
 
-    $licenseInput.val('');
-    $licenseInput.removeClass('error valid');
+    /*
 
-    $licensePostbox.animateCss('wps-bounceOutLeft', function() {
-      $licensePostbox.addClass('wps-is-hidden');
-    });
+    Deactivating key at wpshop.io
 
-    enable(jQuery('#wps_settings_license_license'));
+    */
+    try {
+      var deactivatedstuff = await deactivateLicenseKey(savedLicenseKey.data);
 
-  } catch(error) {
-    enable($submitButton);
-    return rejectedPromise(error);
-  }
+      if (isWordPressError(deactivatedstuff)) {
+        throw deactivatedstuff.license;
+      }
+
+    } catch(error) {
+
+      enable($submitButton);
+      return reject('Error: unable to deactive license key. Please try again.');
+
+    }
+
+
+    /*
+
+    Deleting key locally
+
+    */
+    try {
+
+      var deleted = await deleteLicenseKey(savedLicenseKey);
+
+      if (isWordPressError(deleted)) {
+        throw deleted.data;
+      }
+
+      resolve(deleted);
+
+    } catch(error) {
+
+      enable($submitButton);
+      return reject(error);
+
+    }
+
+  });
 
 }
 
@@ -190,8 +209,12 @@ async function isLicenseKeyValid(key) {
 
   var keyStatusObj = await getLicenseKeyStatus(key);
 
-  if (keyStatusObj.license === 'invalid') {
+  if (keyStatusObj.license === 'invalid' || keyStatusObj.license === 'inactive') {
     return rejectedPromise('Error: license key is invalid. Please double check your key and try again.');
+  }
+
+  if (keyStatusObj.license === 'expired') {
+    return rejectedPromise('Error: license key is expired. Please login and renew your key at <a href="https://wpshop.io." target="_blank">wpshop.io</a>');
   }
 
   if(keyStatusObj.activations_left <= 0) {
@@ -245,7 +268,7 @@ async function activateKey(key) {
 
     licenseKeyActivatedResp = await activateLicenseKey(key);
 
-    if(!isObject(licenseKeyActivatedResp)) {
+    if (!isObject(licenseKeyActivatedResp)) {
       enable($submitButton);
       return rejectedPromise('Error: invalid license key format. Please try again.');
     }
@@ -265,6 +288,10 @@ async function activateKey(key) {
   */
   try {
     licenseKeyInfo = await getLicenseKeyStatus(key);
+
+    if (isWordPressError(licenseKeyInfo)) {
+      throw licenseKeyInfo.license;
+    }
 
   } catch(error) {
 
@@ -349,13 +376,15 @@ function updateInfoBox(licenseKeyInfo) {
 
   }
 
-  if (licenseKeyInfo.is_local) {
-    licenseCount = licenseKeyInfo.site_count;
+  // if (licenseKeyInfo.is_local) {
+  //   licenseCount = licenseKeyInfo.site_count;
+  //
+  // } else {
+  //   licenseCount = licenseKeyInfo.site_count + 1;
+  //
+  // }
 
-  } else {
-    licenseCount = licenseKeyInfo.site_count + 1;
-
-  }
+  licenseCount = licenseKeyInfo.site_count;
 
   if (licenseKeyInfo.success) {
     $statusCol.text('Active');

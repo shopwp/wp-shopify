@@ -56,6 +56,8 @@ Animations
 }
 
 .wps-bounceOutLeft {
+  animation-duration: 1s;
+  animation-fill-mode: both;
   animation-name: wpsBounceOutLeft;
 }
 

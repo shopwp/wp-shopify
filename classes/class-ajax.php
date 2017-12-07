@@ -2,7 +2,10 @@
 
 namespace WPS;
 
-//require_once plugin_dir_path( __FILE__ ) . '../admin/class-admin.php';
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /*
 

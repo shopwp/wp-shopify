@@ -40,7 +40,7 @@
           <?php echo apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', 'wp-shopify')); ?>
         </div>
 
-        <a href="<?php esc_url('https://checkout.shopify.com'); ?>" class="wps-btn wps-btn-checkout" target="_self" title="Checkout" id="wps-btn-checkout">
+        <a href="<?php echo esc_url('https://checkout.shopify.com'); ?>" class="wps-btn wps-btn-checkout" target="_self" title="Checkout" id="wps-btn-checkout">
           <?php echo apply_filters( 'wps_cart_checkout_text', esc_html__('Checkout', 'wp-shopify')); ?>
         </a>
 

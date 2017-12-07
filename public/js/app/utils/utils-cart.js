@@ -17,7 +17,7 @@ async function needsCacheFlush(cartID) {
   try {
 
     var cacheFlushStatus = await getCartCache(cartID);
-    console.log('Existing cart found? ', cacheFlushStatus.success);
+    
     // True if found, false if not
     return cacheFlushStatus.success;
 

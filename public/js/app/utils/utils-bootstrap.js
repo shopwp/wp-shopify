@@ -52,7 +52,6 @@ async function bootstrap() {
     var creds = await getShopifyCreds();
 
     if (isError(creds)) {
-      console.log("creds: ", creds);
       throw creds.data;
     }
 
@@ -77,7 +76,6 @@ async function bootstrap() {
     var cart = await initCart(shopify);
 
     if (isError(cart)) {
-      console.log("cart: ", cart);
       throw cart.data;
     }
 

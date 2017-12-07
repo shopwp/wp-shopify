@@ -289,7 +289,7 @@ if (!class_exists('Frontend')) {
 		public function wps_get_credentials() {
 
 			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1058a)');
-			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_no_connection_found . ' (Error code: #1058b)');
+			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1058b)');
 
 			wp_send_json_success($this->config->wps_get_settings_connection());
 
@@ -385,8 +385,8 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_variant_id() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1059b)');
-			Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_no_connection_found . ' (Error code: #1059b)');
+			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1059a)');
+			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1059b)');
 
 			if (isset($_POST['selectedOptions']) && is_array($_POST['selectedOptions'])) {
 
