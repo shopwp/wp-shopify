@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.35
+@since             1.0.36
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
-Description:       Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful.
-Version:           1.0.35
+Description:       Sell your Shopify products on WordPress.
+Version:           1.0.36
 Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+

@@ -46,10 +46,10 @@ function onSettingsFormSubmit() {
 
     rules: {
       "wps_settings_general[wps_general_url_products]": {
-        alphaNumeric: true
+        alphaNumeric: false
       },
       "wps_settings_general[wps_general_url_collections]": {
-        alphaNumeric: true
+        alphaNumeric: false
       },
       "wps_settings_general[wps_general_num_posts]": {
         number: true

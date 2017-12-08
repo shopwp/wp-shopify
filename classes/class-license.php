@@ -344,7 +344,7 @@ class License {
 		echo '<td colspan="3" class="plugin-update colspanchange">';
 		echo '<div class="update-message notice inline notice-warning notice-alt">';
 		echo '<p>';
-		printf(esc_html__('Please <a href="%1admin.php?page=wps-settings&tab=updates">activate</a> or <a href="%2">purchase</a> a license key to receive plugin updates.'), esc_url(get_admin_url()), esc_url($this->config->plugin_env));
+		printf(__('Please <a href="%1$sadmin.php?page=wps-settings&tab=updates">activate</a> or <a href="%2$s" target="_blank">purchase</a> a license key to receive plugin updates.', 'wp-shopify'), esc_url(get_admin_url()), esc_url($this->config->plugin_env . '/purchase'));
 		echo '</p></div></td></tr>';
 
 	}
