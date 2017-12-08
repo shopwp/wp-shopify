@@ -1115,22 +1115,22 @@ class WS {
 
   When the user is sent back to their site ...
 
-  TODO: More effective way to do this?
+	This fires when ?auth=true is present within the URL
 
   At this point we know that all the validation and authorization checks
   have passed (because auth=true). We can now get our Shopify access token.
   However before we can do that, we need to collect all the values that we'll
   need for the call. Those values are ...
 
-    1. code
-    2. api key
-    3. shared secret
-    4. shop
+	  1. code
+	  2. api key
+	  3. shared secret
+	  4. shop
 
   We also need to verify that the shop domain that is passed into the URL
   parameters has a corrosponding code (generated via shopify). We can access
   this data from the WP Shopify database. To find the code, we'll do a lookup
-  by shop domain AND nonce.
+  by shop domain and nonce.
 
   */
   public function wps_ws_on_authorization() {
@@ -2308,6 +2308,17 @@ class WS {
     }
 
   }
+
+
+	/*
+
+	Returns hmac value
+	Used: to verify webhooks
+
+	*/
+	public static function get_header_hmac() {
+		return $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'];
+	}
 
 
   /*

@@ -62,12 +62,10 @@ class Waypoints {
   */
   public function wps_waypoint_settings() {
 
-    $url = 'https://wpshop.io/wp-json/wp-shopify/v1/settings';
-
     try {
 
       $Guzzle = new Guzzle();
-      $guzzelResponse = $Guzzle->request('GET', $url);
+      $guzzelResponse = $Guzzle->request('GET', 'https://wpshop.io/wp-json/wp-shopify/v1/settings');
 
       $shopDataResponse = $guzzelResponse->getBody()->getContents();
 
