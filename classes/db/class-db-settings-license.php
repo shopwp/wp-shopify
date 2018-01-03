@@ -103,7 +103,7 @@ class Settings_License extends \WPS\DB {
   delete_license
 
   */
-  public function delete_license($licenseKey) {
+  public function delete_license() {
 
     return $this->delete('key');
 

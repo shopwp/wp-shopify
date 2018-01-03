@@ -5,6 +5,8 @@ import {
   getShopData,
   getProductsCount,
   getCollectsCount,
+  getSmartCollectionsCount,
+  getCustomCollectionsCount,
   getOrdersCount,
   getCustomersCount,
   insertConnectionData,
@@ -25,6 +27,25 @@ import {
   isWordPressError
 } from '../utils/utils';
 
+
+/*
+
+Construct Streaming Options
+
+*/
+function constructStreamingOptions(itemCount) {
+
+  var pageSize = 250;
+
+  return {
+    currentPage: 1,
+    pages: Math.ceil(itemCount / pageSize),
+    items: []
+  }
+
+};
+
+
 /*
 
 Stream Connection
@@ -35,40 +56,59 @@ async function streamConnection() {
 
   return new Promise(async function streamConnectionHandler(resolve, reject) {
 
-    //
-    // 1. Get Shop Data
-    //
+    /*
+
+    1. Get Shop Data
+
+    */
     try {
 
       var connectionData = await getConnectionData();
 
       if (isWordPressError(connectionData)) {
         reject(connectionData.data);
+        return;
       }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamConnection');
+        return;
+      }
+
+      // If we already have an active connection ...
+      if (connectionData.data.api_key) {
+        resolve(connectionData);
       }
 
     } catch(error) {
       reject(error);
-
+      return;
     }
 
 
-    //
-    // 2. Send to server
-    //
+    /*
+
+    2. Send to server
+
+    */
     try {
 
-      var connection = await insertConnectionData(connectionData);
+      var connection = await insertConnectionData(connectionData); // wps_insert_connection
+      console.log("insertConnectionData: ", connection);
+      
+      if (isWordPressError(connection)) {
+        reject(connection.data);
+        return;
+      }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamConnection');
+        return;
       }
 
     } catch(error) {
       reject(error);
+      return;
 
     }
 
@@ -104,23 +144,23 @@ async function streamShop() {
 
       if (typeof shopData === 'string') {
         reject(shopData);
+        return;
       }
 
       if (isWordPressError(shopData)) {
-        reject(shopData.data);
-
-      } else {
-        shopData = shopData.data;
+        reject(shopData);
+        return;
       }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamShop');
       }
 
+      shopData = shopData.data;
+
     } catch(error) {
-
       reject(error);
-
+      return;
     }
 
 
@@ -131,19 +171,21 @@ async function streamShop() {
     */
     try {
 
-      var shop = await insertShopData(shopData);
+      var shop = await insertShopData(shopData); // wps_insert_shop
 
       if (isWordPressError(shop)) {
-        reject(shop.data);
+        reject(shop);
+        return;
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamShop');
+        reject({ success: false, data: 'Syncing stopped during streamShop'});
+        return;
       }
 
     } catch(error) {
       reject(error);
-
+      return;
     }
 
     resolve(shop);
@@ -161,13 +203,6 @@ Returns products
 */
 async function streamProducts() {
 
-	var productCount,
-      products = [],
-      productsCPT,
-      pageSize = 250,
-      currentPage = 1,
-      pages;
-
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
     /*
@@ -177,75 +212,60 @@ async function streamProducts() {
     */
     try {
 
-      productCount = await getProductsCount();
+      var itemCount = await getProductsCount(); // wps_ws_get_products_count
 
-      if (isWordPressError(productCount)) {
-
-        reject(productCount.data);
-
-      } else {
-        productCount = productCount.data.count;
+      if (isWordPressError(itemCount)) {
+        reject(itemCount.data);
+        return;
       }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamProducts');
+        return;
       }
 
+      itemCount = itemCount.data.count;
+
     } catch(error) {
-
       reject(error);
-
+      return;
     }
 
 
     /*
 
     2. Get all products
-    TODO: Abstract out?
 
     */
-    pages = Math.ceil(productCount / pageSize);
+    try {
 
-    // Run for each page of products
-    while(currentPage <= pages) {
+      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      try {
+      while(currentPage <= pages) {
 
-        var newProducts = await insertProductsData(currentPage);
+        var itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
+        console.log("insertProductsData: ", itemsToAdd);
+
+        if (isWordPressError(itemsToAdd)) {
+          reject(itemsToAdd);
+          break;
+        }
 
         if (!connectionInProgress()) {
-          reject('Syncing stopped during streamProducts');
-        }
-
-        if (isWordPressError(newProducts)) {
-
-          reject(newProducts.data);
+          reject({ success: false, data: 'Syncing stopped during streamProducts'});
           break;
-
-        } else {
-
-          if (Array.isArray(newProducts.data.products)) {
-
-            products = concat(products, newProducts.data.products);
-            currentPage += 1;
-
-          } else {
-            reject(newProducts.data.products);
-
-          }
-
         }
 
-      } catch(error) {
-
-        reject(error);
-        break;
+        currentPage += 1;
 
       }
 
-    }
+      resolve(itemsToAdd);
+      return;
 
-    resolve(products);
+    } catch (error) {
+      reject(error);
+    }
 
   });
 
@@ -260,8 +280,6 @@ Returns Collects
 */
 async function streamCollects() {
 
-	var collectsCount;
-
   return new Promise(async function streamCollectsHandler(resolve, reject) {
 
     /*
@@ -271,66 +289,61 @@ async function streamCollects() {
     */
     try {
 
-      collectsCount = await getCollectsCount();
+      var itemCount = await getCollectsCount();
 
-      if (isWordPressError(collectsCount)) {
-        reject(collectsCount.data);
-
-      } else {
-        collectsCount = collectsCount.data.count;
+      if (isWordPressError(itemCount)) {
+        reject(itemCount.data);
+        return;
       }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamCollects');
+        return;
       }
+
+      itemCount = itemCount.data.count;
 
     } catch(error) {
       reject(error);
-
+      return;
     }
 
 
     /*
 
-    2. Get all collects
+    2. Insert all collects
 
     */
     try {
 
-      var pageSize = 250,
-          currentPage = 1,
-          pages = Math.ceil(collectsCount / pageSize),
-          collects = [];
+      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
       // Runs for each page of collects until all done
       while(currentPage <= pages) {
 
-        try {
+        var itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
 
-          var collectsNew = await insertCollects(currentPage);
-
-          if (!connectionInProgress()) {
-            reject('Syncing stopped during streamCollects');
-          }
-
-          if (isWordPressError(collectsNew)) {
-            reject(collectsNew);
-          }
-
-        } catch(errorCollects) {
-          reject(errorCollects);
+        if (isWordPressError(itemsToAdd)) {
+          reject(itemsToAdd);
+          break;
         }
 
-        collects = concat(collects, collectsNew.data);
+        if (!connectionInProgress()) {
+          reject({ success: false, data: 'Syncing stopped during streamCollects'});
+          break;
+        }
+
+        // items = concat(items, itemsToAdd.data);
         currentPage += 1;
 
       }
 
-      resolve(collects);
+      resolve(itemsToAdd);
+      return;
 
     } catch(error) {
-
       reject(error);
+      return;
 
     }
 
@@ -345,28 +358,72 @@ Stream Smart Collections
 Returns Smart Collections
 
 */
-async function streamSmartCollections() {
+function streamSmartCollections() {
 
   return new Promise(async function streamSmartCollectionsHandler(resolve, reject) {
 
+    /*
+
+    1. Get Smart Collections Count
+
+    */
     try {
 
-      var smartCollections = await insertSmartCollections();
+      var itemCount = await getSmartCollectionsCount();
 
-      if (isWordPressError(smartCollections)) {
-        reject(smartCollections.data);
-
-      } else {
-        resolve(smartCollections);
+      if (isWordPressError(itemCount)) {
+        reject(itemCount.data);
+        return;
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamSmartCollections');
+        reject('Syncing stopped during getSmartCollectionsCount');
+        return;
       }
+
+      itemCount = itemCount.data.count;
 
     } catch(error) {
       reject(error);
+      return;
 
+    }
+
+
+    /*
+
+    2. Insert all Smart Collections
+
+    */
+    try {
+
+      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+
+      while(currentPage <= pages) {
+
+        var itemsToAdd = await insertSmartCollections(); // wps_insert_smart_collections_data
+
+        if (isWordPressError(itemsToAdd)) {
+          reject(itemsToAdd.data);
+          break;
+        }
+
+        if (!connectionInProgress()) {
+          reject('Syncing stopped during streamSmartCollections');
+          break;
+        }
+
+        // items = concat(items, itemsToAdd.data);
+        currentPage += 1;
+
+      }
+
+      resolve(itemsToAdd);
+      return;
+
+    } catch(error) {
+      reject(error);
+      return;
     }
 
   });
@@ -384,25 +441,66 @@ async function streamCustomCollections() {
 
   return new Promise(async function streamCustomCollectionsHandler(resolve, reject) {
 
+    /*
+
+    1. Get Smart Collections Count
+
+    */
     try {
 
-      var customCollections = await insertCustomCollections();
+      var itemCount = await getCustomCollectionsCount();
 
-      if (isWordPressError(customCollections)) {
-        reject(customCollections.data);
-
-      } else {
-        resolve(customCollections);
+      if (isWordPressError(itemCount)) {
+        reject(itemCount.data);
+        return;
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamCustomCollections');
+        reject('Syncing stopped during getCustomCollectionsCount');
+        return;
       }
 
+      itemCount = itemCount.data.count;
+
     } catch(error) {
-
       reject(error);
+      return;
+    }
 
+
+    /*
+
+    2. Insert all Smart Collections
+
+    */
+    try {
+
+      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+
+      while(currentPage <= pages) {
+
+        var itemsToAdd = await insertCustomCollections(); // wps_insert_custom_collections_data
+
+        if (isWordPressError(itemsToAdd)) {
+          reject(itemsToAdd.data);
+          break;
+        }
+
+        if (!connectionInProgress()) {
+          reject('Syncing stopped during insertCustomCollections');
+          break;
+        }
+
+        currentPage += 1;
+
+      }
+
+      resolve(itemsToAdd);
+      return;
+
+    } catch(error) {
+      reject(error);
+      return;
     }
 
   });
@@ -415,17 +513,8 @@ async function streamCustomCollections() {
 Stream Orders
 Returns Orders
 
-TODO: Combine with streamOrders into a more generalized function
-
 */
 async function streamOrders() {
-
-  var orderCount,
-      orders = [],
-      pageSize = 250,
-      currentPage = 1,
-      pages,
-      orderData;
 
   return new Promise(async function streamOrdersHandler(resolve, reject) {
 
@@ -436,25 +525,25 @@ async function streamOrders() {
     */
     try {
 
-      orderCount = await getOrdersCount();
+      var itemCount = await getOrdersCount();
 
-      if (isWordPressError(orderCount)) {
-        reject(orderCount.data);
-
-      } else {
-        orderCount = orderCount.data.count;
+      if (isWordPressError(itemCount)) {
+        reject(itemCount.data);
+        return;
       }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamOrders');
+        return;
       }
+
+      itemCount = itemCount.data.count;
 
     } catch(error) {
       reject(error);
+      return;
 
     }
-
-    pages = Math.ceil(orderCount / pageSize);
 
 
     /*
@@ -462,42 +551,35 @@ async function streamOrders() {
     Step 2. Insert Orders
 
     */
-    while(currentPage <= pages) {
+    try {
 
-      try {
+      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-        var newOrders = await insertOrders();
+      while(currentPage <= pages) {
 
-        if (isWordPressError(newOrders)) {
-          reject(newOrders.data);
+        var itemsToAdd = await insertOrders(); // wps_insert_orders
 
-        } else {
-
-          if (Array.isArray(newOrders.data.orders)) {
-            orders = concat(orders, newOrders.data.orders);
-            currentPage += 1;
-
-          } else {
-            reject(newOrders.data.orders);
-
-          }
-
+        if (isWordPressError(itemsToAdd)) {
+          reject(itemsToAdd);
+          break;
         }
 
         if (!connectionInProgress()) {
-          reject('Syncing stopped during streamOrders');
+          reject({ success: false, data: 'Syncing stopped during streamOrders'});
+          break;
         }
 
-      } catch(error) {
-
-        currentPage = pages+1;
-        return reject(error);
+        currentPage += 1;
 
       }
 
-    }
+      resolve(itemsToAdd);
+      return;
 
-    resolve(orders);
+    } catch(error) {
+      reject(error);
+      return;
+    }
 
   });
 
@@ -514,13 +596,6 @@ TODO: Combine with streamCustomers into a more generalized function
 */
 async function streamCustomers() {
 
-  var customerCount,
-      customers = [],
-      pageSize = 250,
-      currentPage = 1,
-      pages,
-      customerData;
-
   return new Promise(async function streamCustomersHandler(resolve, reject) {
 
     /*
@@ -530,25 +605,24 @@ async function streamCustomers() {
     */
     try {
 
-      customerCount = await getCustomersCount();
+      var itemCount = await getCustomersCount();
 
-      if (isWordPressError(customerCount)) {
-        reject(customerCount.data);
-
-      } else {
-        customerCount = customerCount.data.count;
+      if (isWordPressError(itemCount)) {
+        reject(itemCount.data);
+        return;
       }
 
       if (!connectionInProgress()) {
         reject('Syncing stopped during streamCustomers');
+        return;
       }
+
+      itemCount = itemCount.data.count;
 
     } catch(error) {
       reject(error);
-
+      return;
     }
-
-    pages = Math.ceil(customerCount / pageSize);
 
 
     /*
@@ -556,42 +630,43 @@ async function streamCustomers() {
     Step 2. Insert Customers
 
     */
-    while(currentPage <= pages) {
+    try {
 
-      try {
+      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-        var newCustomers = await insertCustomers();
+      while(currentPage <= pages) {
 
-        if (isWordPressError(newCustomers)) {
-          reject(newCustomers.data);
+        var itemsToAdd = await insertCustomers(); // wps_insert_customers
 
-        } else {
-
-          if (Array.isArray(newCustomers.data.customers)) {
-            customers = concat(customers, newCustomers.data.customers);
-            currentPage += 1;
-
-          } else {
-            reject(newCustomers.data.customers);
-
-          }
-
+        if (isWordPressError(itemsToAdd)) {
+          reject(itemsToAdd);
+          break;
         }
 
         if (!connectionInProgress()) {
-          reject('Syncing stopped during streamCustomers');
+
+          reject({
+            success: false,
+            data: 'Syncing stopped during streamCustomers'
+          });
+
+          break;
+
         }
 
-      } catch(error) {
-
-        currentPage = pages+1;
-        return reject(error);
+        currentPage += 1;
 
       }
 
-    }
+      resolve(itemsToAdd);
+      return;
 
-    resolve(customers);
+    } catch(error) {
+
+      reject(error);
+      return;
+
+    }
 
   });
 

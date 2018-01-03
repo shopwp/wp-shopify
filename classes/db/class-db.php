@@ -208,6 +208,7 @@ class DB {
 	/*
 
   Retrieve a specific column's value by the primary key
+	TODO: Return the actual value instead of array('col_name' => 'value')
 
   */
 	public function get_column_single($column) {
@@ -747,7 +748,7 @@ class DB {
 				}
 
 			} else {
-
+error_log('---- hiih -----');
 				$results['collection_cpt'] = $CPT->wps_insert_or_update_collection($collection, $existingCollections);
 				$results['collection'] = $this->update($newCollectionID, $collection);
 

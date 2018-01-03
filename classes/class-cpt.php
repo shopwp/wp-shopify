@@ -38,10 +38,10 @@ class CPT {
   Ensures only one instance is used.
 
   */
-  public static function instance() {
+  public static function instance($Config) {
 
     if (is_null(self::$instantiated)) {
-      self::$instantiated = new self();
+      self::$instantiated = new self($Config);
     }
 
     return self::$instantiated;
@@ -337,10 +337,13 @@ class CPT {
 
       // Use the current menu order number instead
       $collectionCPT = get_post($existing_post_id);
-      $newCollectionModel['menu_order'] = $collectionCPT->menu_order;
+
+			if (is_object($collectionCPT) && isset($collectionCPT->menu_order)) {
+				$newCollectionModel['menu_order'] = $collectionCPT->menu_order;
+			}
 
     }
-
+		
     // Insert post and return the ID or error object if fail
     return wp_insert_post($newCollectionModel, true);
 

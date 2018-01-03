@@ -37,7 +37,7 @@
 
     foreach ($product['images'] as $key => $image) {
 
-      $image = Images::get_image_details_from_image($image);
+      $image = Images::get_image_details_from_image($image, $product);
       $variantIDs = Images::get_variants_from_image($image);
 
       if ($i === 0) {

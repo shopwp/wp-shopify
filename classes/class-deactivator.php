@@ -33,10 +33,10 @@ class Deactivator {
 	Ensures only one instance is used.
 
 	*/
-	public static function instance() {
+	public static function instance($Config) {
 
 		if (is_null(self::$instantiated)) {
-			self::$instantiated = new self();
+			self::$instantiated = new self($Config);
 		}
 
 		return self::$instantiated;

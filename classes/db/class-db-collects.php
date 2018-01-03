@@ -5,6 +5,7 @@ namespace WPS\DB;
 use WPS\WS;
 use WPS\Config;
 use WPS\Utils;
+use WPS\Progress_Bar;
 
 class Collects extends \WPS\DB {
 
@@ -76,11 +77,16 @@ class Collects extends \WPS\DB {
 	public function insert_collects($collects) {
 
     $results = array();
+    $progress = new Progress_Bar(new Config());
 
     if (isset($collects) && $collects) {
 
       foreach ($collects as $key => $collect) {
+        error_log('INSERTING COLLECT -----');
+
         $results[] = $this->insert($collect, 'collect');
+        $progress->increment_current_amount('collects');
+
       }
 
     }

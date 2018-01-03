@@ -6,6 +6,7 @@ require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\DB\Settings_License;
 use WPS\Messages;
+use WPS\WS;
 use GuzzleHttp\Client as Guzzle;
 
 // If this file is called directly, abort.
@@ -41,7 +42,7 @@ class License {
 		$this->license = $this->config->wps_get_settings_license();
 		$this->license_option_name = $this->config->settings_license_option_name;
 		$this->messages = new Messages();
-
+		$this->WS = new WS($this->config);
 	}
 
 
@@ -51,10 +52,10 @@ class License {
 	Ensures only one instance is used.
 
 	*/
-	public static function instance() {
+	public static function instance($Config) {
 
 		if (is_null(self::$instantiated)) {
-			self::$instantiated = new self();
+			self::$instantiated = new self($Config);
 		}
 
 		return self::$instantiated;
@@ -110,7 +111,7 @@ class License {
 		$result = $Settings_License->insert_license($newLicenseData);
 
 		if ($result) {
-			wp_send_json_success(true);
+			wp_send_json_success($newLicenseData);
 
 		} else {
 			wp_send_json_success(false);
@@ -122,7 +123,7 @@ class License {
 
   /*
 
-  Save License Key
+  Delete License Key
 
   */
   public function wps_license_delete() {
@@ -130,9 +131,16 @@ class License {
 		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1054a)');
 
 		$Settings_License = new Settings_License();
-		$result = $Settings_License->delete_license($_POST['key']);
+		$keyDeleted = $Settings_License->delete_license();
 
-		wp_send_json_success($result);
+		if ($keyDeleted) {
+			wp_send_json_success($keyDeleted);
+
+		} else {
+			wp_send_json_error($this->messages->message_license_unable_to_delete . ' (Error code: #1081a)');
+		}
+
+
 
   }
 
@@ -154,7 +162,7 @@ class License {
 				wp_send_json_success($license->key);
 
 			} else {
-				wp_send_json_error();
+				wp_send_json_error($this->messages->message_license_invalid_or_missing . ' (Error code: #1080a)');
 			}
 
 		} else {
@@ -171,33 +179,28 @@ class License {
 	*/
 	public function wps_get_latest_plugin_version() {
 
-		$url = 'https://wpshop.io'; // TODO: Put in config
+		$WS = new WS($this->config);
 
-		$body = array(
-			'edd_action' => 'get_version',
-			'item_name'  => isset( $this->config->plugin_name ) ? $this->config->plugin_name : false,
-			'item_id'    => 35, // TODO: remove hardcode
-			'author'     => isset( $this->config->plugin_author ) ? __($this->config->plugin_author) : __('Andrew Robbins'),
-			'url'        => esc_url(home_url()),
-			'beta'       => false
-		);
+		$body = [
+			'query' => [
+				'edd_action' => 'get_version',
+				'item_id'    => 35
+			]
+		];
 
-		$headers = array(
-			'Accept' => 'application/json',
+		$headers = [
 			'Content-type' => 'application/json'
-		);
-
+		];
 
 		try {
 
-			$Guzzle = new Guzzle();
+			$response = $WS->wps_request(
+				'POST',
+				$this->config->plugin_env,
+				$this->WS->get_request_options($headers, $body, false)
+			);
 
-			$guzzelResponse = $Guzzle->post($url, [
-				'query' => $body,
-				'headers' => $headers
-			]);
-
-			return json_decode($guzzelResponse->getBody()->getContents());
+			return json_decode($response->getBody()->getContents());
 
 		} catch (\Exception $e) {
 
@@ -212,6 +215,7 @@ class License {
 	/*
 
   Save License Key
+	TODO: Not used?
 
   */
   public function wps_license_check_valid() {
@@ -221,20 +225,20 @@ class License {
 		$license = $Settings_License->get();
 		$key = $license->key;
 
-		$api_url = $this->plugin_env . '/edd-sl?edd_action=check_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
+		$url = $this->plugin_env . '/edd-sl?edd_action=check_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
 
 		try {
 
-			$Guzzle = new Guzzle();
-			$guzzelResponse = $Guzzle->get($api_url);
-			$data = json_decode($guzzelResponse->getBody()->getContents());
+			$response = $this->WS->wps_request(
+				'GET',
+				$url,
+				[]
+			);
+
+			$data = json_decode($response->getBody()->getContents());
 
 			if ($data->license === 'valid') {
 				$this->wps_activate_plugin_license($license);
-
-			} else {
-				$this->wps_deactivate_plugin_license($license);
-
 			}
 
 			return $data->license;
@@ -265,6 +269,47 @@ class License {
 
 	*/
 	public function wps_deactivate_plugin_license() {
+
+		$Settings_License = new Settings_License();
+		$license = $Settings_License->get();
+
+		if (empty($license)) {
+			error_log('---- License already empty -----');
+			return;
+
+		} else {
+			$key = $license->key;
+
+			// Deletes key locally
+			$Settings_License->delete_license();
+
+			$url = $this->plugin_env . '/edd-sl?edd_action=deactivate_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
+
+			try {
+
+				$promise = $this->WS->wps_request(
+					'GET',
+					$url,
+					[],
+					true
+				);
+
+				$promise->then(function ($response) {
+
+					$data = json_decode($response->getBody()->getContents());
+					return $data;
+
+				});
+
+
+
+			} catch (\Exception $e) {
+
+				return new WP_Error('error', $this->messages->message_license_unable_to_delete . ' (Error code: #1088a)');
+
+			}
+
+		}
 
 	}
 

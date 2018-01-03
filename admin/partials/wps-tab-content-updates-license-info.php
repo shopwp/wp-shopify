@@ -6,6 +6,11 @@ License Info
 
 <?php
 
+use WPS\Config;
+use WPS\License;
+
+$License = new License(new Config());
+
 if (is_object($license)) {
 
   $expires = $license->expires ? $license->expires : false;
@@ -27,7 +32,7 @@ if (is_object($license)) {
 <div class="postbox wps-postbox-license-info <?php echo $activeLicense ? '' : 'wps-is-hidden'; ?>">
   <table class="form-table">
 
-    <tr>
+    <tr valign="top">
 
       <th class="row-title">
         <?php esc_html_e('License Key Information', 'wp-shopify'); ?>
@@ -39,7 +44,7 @@ if (is_object($license)) {
 
     </tr>
 
-    <tr valign="top">
+    <tr valign="top" class="alternate">
 
       <td scope="row">
         <label for="tablecell">
@@ -93,11 +98,10 @@ if (is_object($license)) {
 
         <?php
 
-        if ($expires === '1970-01-01 00:00:00' || $expires === 0 || $expires === false) {
+        if (strpos($expires, '1970-01-01') !== false || $expires === 0 || $expires === false) {
           esc_html_e('Never expires', 'wp-shopify');
 
         } else {
-
           echo date_i18n("F j, Y", strtotime($expires));
 
         }
@@ -108,7 +112,7 @@ if (is_object($license)) {
 
     </tr>
 
-    <tr valign="top">
+    <tr valign="top" class="alternate">
 
       <td scope="row">
         <label for="tablecell">
@@ -120,9 +124,11 @@ if (is_object($license)) {
 
         <?php printf(esc_html__('%1$d / %2$d', 'wp-shopify'), $count, $licenseLimit); ?>
 
-        <small class="wps-table-supporting">
-          <?php esc_html_e('(Activations on dev environents don\'t add to total)', 'wp-shopify'); ?>
-        </small>
+        <?php if (isset($license) && $license->is_local) { ?>
+          <small class="wps-table-supporting">
+            <?php esc_html_e('(Activations on dev environments don\'t add to total)', 'wp-shopify'); ?>
+          </small>
+        <?php } ?>
 
       </td>
 

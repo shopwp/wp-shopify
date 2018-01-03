@@ -1,5 +1,16 @@
 <?php
 
-use WPS\DB\Settings_Connection;
+use WPS\Webhooks;
+use WPS\WS;
 
-$app = json_decode( file_get_contents('php://input') );
+$jsonData = file_get_contents('php://input');
+
+
+if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
+
+  error_log('---- Webhook verified app-uninstall -----');
+  $app = json_decode($jsonData);
+
+} else {
+  error_log('WP Shopify Error - Unable to verify webhook response from app-uninstall.php');
+}

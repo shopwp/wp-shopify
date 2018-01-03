@@ -1,4 +1,5 @@
 import currencyFormatter from 'currency-formatter';
+import forOwn from 'lodash/forOwn';
 
 import {
   cartIsOpen
@@ -25,6 +26,25 @@ import {
 import {
   closeOptionsModal
 } from '../products/products-meta';
+
+
+
+/*
+
+Construct the custom attrs param
+
+*/
+function convertCustomAttrsToQueryString(customAttrs) {
+
+  var finalQueryParam = '';
+
+  forOwn(customAttrs, function(value, key) {
+    finalQueryParam += '&attributes[' + key + ']=' + value;
+  });
+
+  return finalQueryParam;
+
+}
 
 
 /*
@@ -591,5 +611,6 @@ export {
   isError,
   isObject,
   hasProp,
-  isAnimating
+  isAnimating,
+  convertCustomAttrsToQueryString
 };

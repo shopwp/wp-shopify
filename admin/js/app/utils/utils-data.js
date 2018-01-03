@@ -302,7 +302,7 @@ function addCollectionsToProduct(products, collects) {
 
 /*
 
-Sanitize Error Response
+Returns data property of WordPress reponse
 
 */
 function sanitizeErrorResponse(error) {

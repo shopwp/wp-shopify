@@ -55,7 +55,7 @@ if (is_single()) {
       do_action('wps_products_add_to_cart', $productWithVariants);
 
     } else {
-      do_action('wps_product_notice_out_of_stock', $productWithVariants);
+      do_action('wps_products_notice_out_of_stock', $productWithVariants);
     }
 
   }

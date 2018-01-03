@@ -16,12 +16,12 @@ $license = $this->config->wps_get_settings_license();
 $Config = new Config();
 $License = new License($Config);
 $plugin_current_version = $Config->plugin_version;
-$plugin_data_latest = $License->wps_get_latest_plugin_version();
+
 
 
 if (!empty($connection)) {
 
-  if ($connection->access_token) {
+  if ($connection->api_key) {
     $connected = true;
 
   } else {
@@ -44,13 +44,6 @@ if (!empty($license)) {
     $activeLicense = false;
   }
 
-} else {
-  $activeLicense = false;
-
-}
-
-
-if (!empty($license)) {
 
   if ($license->is_local === 1) {
     $count = $license->site_count - 1;
@@ -60,13 +53,6 @@ if (!empty($license)) {
 
   }
 
-} else {
-  $count = false;
-
-}
-
-
-if (!empty($license)) {
 
   if ($license->success) {
     $status = 'Active';
@@ -76,7 +62,10 @@ if (!empty($license)) {
 
   }
 
+
 } else {
+  $activeLicense = false;
+  $count = false;
   $status = 'Inactive';
 
 }

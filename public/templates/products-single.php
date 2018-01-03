@@ -37,7 +37,7 @@ if ( is_single() ) {
     do_action('wps_product_single_button_add_to_cart', $wps_product);
 
   } else {
-    do_action('wps_product_notice_out_of_stock', $wps_product);
+    do_action('wps_products_notice_out_of_stock', $wps_product);
   }
 
   do_action('wps_product_cart_buttons_after', $wps_product);

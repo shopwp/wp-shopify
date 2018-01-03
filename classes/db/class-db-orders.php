@@ -5,7 +5,7 @@ namespace WPS\DB;
 use WPS\Config;
 use WPS\WS;
 use WPS\Utils;
-
+use WPS\Progress_Bar;
 
 class Orders extends \WPS\DB {
 
@@ -78,6 +78,7 @@ class Orders extends \WPS\DB {
 
     $DB_Settings_Connection = new Settings_Connection();
     $results = array();
+    $progress = new Progress_Bar(new Config());
     $index = 1;
 
     foreach ($orders as $key => $order) {
@@ -89,6 +90,7 @@ class Orders extends \WPS\DB {
 
           // Converting to a fully qualified associative array
           $order = json_decode(json_encode($order), true);
+          error_log('INSERTING ORDER -----');
 
           $results[] = $this->insert($order, 'order');
 
@@ -100,6 +102,8 @@ class Orders extends \WPS\DB {
         break;
 
       }
+
+      $progress->increment_current_amount('orders');
 
       $index++;
 

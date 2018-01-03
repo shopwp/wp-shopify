@@ -1,8 +1,10 @@
 import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
 import { fetchCart, updateCart } from '../ws/ws-cart';
-import { quantityFinder } from '../utils/utils-common';
+import { quantityFinder, convertCustomAttrsToQueryString } from '../utils/utils-common';
 import { updateCartCounter, updateCartVariant, toggleCart, isCartEmpty, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
+
+import { anyCustomAttrs } from '../ws/ws-checkout';
 
 /*
 
@@ -10,6 +12,8 @@ Checkout listener
 
 */
 async function onCheckout(shopify) {
+
+  var finalCustomAttrs;
 
   try {
 
@@ -49,9 +53,28 @@ async function onCheckout(shopify) {
         return e;
       }
 
-      window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + '&attributes[testing]=wasup', '_self');
+
+      try {
+
+        var customAttrs = await anyCustomAttrs();
+
+      } catch (e) {
+        console.error("errrr: ", e);
+      }
+
+
+      if (customAttrs.success) {
+        finalCustomAttrs = convertCustomAttrsToQueryString(customAttrs.data);
+
+      } else {
+        finalCustomAttrs = '';
+      }
+
+
+      window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + finalCustomAttrs, '_self');
 
     });
+
 
   } catch(e) {
     console.error('Error: fetchCart() 2:  ', e);

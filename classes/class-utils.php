@@ -15,6 +15,7 @@ use WPS\DB\Collects;
 use WPS\DB\Images;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
+use WPS\DB\Settings_Connection;
 use WPS\DB\Settings_General;
 use WPS\DB\Shop;
 use WPS\DB\Tags;
@@ -185,7 +186,7 @@ class Utils {
 
     } else {
 
-      if (property_exists($connection, 'access_token') && $connection->access_token) {
+      if (property_exists($connection, 'api_key') && $connection->api_key) {
         return false;
 
       } else {
@@ -194,6 +195,23 @@ class Utils {
       }
 
     }
+
+  }
+
+
+	/*
+
+  Empty Connection
+  - Predicate Function (returns boolean)
+
+  */
+  public static function isStillSyncing($connection = false) {
+
+		if (!$connection) {
+			$connection = new Settings_Connection();
+		}
+
+		return $connection->is_syncing();
 
   }
 
@@ -211,36 +229,6 @@ class Utils {
 
     } else {
       return false;
-    }
-
-  }
-
-
-  /*
-
-  Is Manually Sorted
-
-  */
-  public static function wps_construct_access_token_data($matchedWaypointClient, $waypointSettings) {
-
-    if (is_object($matchedWaypointClient) && property_exists($matchedWaypointClient, 'code') && property_exists($matchedWaypointClient, 'shop') && is_object($waypointSettings) && property_exists($waypointSettings, 'wps_api_key') && property_exists($waypointSettings, 'wps_shared_secret')) {
-
-      return array(
-        'client_id' => $waypointSettings->wps_api_key,
-        'client_secret' => $waypointSettings->wps_shared_secret,
-        'code' => $matchedWaypointClient->code,
-        'shop' => $matchedWaypointClient->shop
-      );
-
-    } else {
-
-      return array(
-        'client_id' => null,
-        'client_secret' => null,
-        'code' => null,
-        'shop' => null
-      );
-
     }
 
   }
@@ -297,19 +285,29 @@ class Utils {
   */
   public static function wps_construct_admin_path_from_urls($homeURL, $adminURL) {
 
-    $explodedHome = explode('/', $homeURL);
-    $explodedAdmin = explode('/', $adminURL);
+		if (strpos($homeURL, 'https://') !== false) {
+			$homeProtocol = 'https';
 
-    array_filter($explodedHome);
-    array_filter($explodedAdmin);
+		} else {
+			$homeProtocol = 'http';
+		}
 
-    $diff = array_diff($explodedAdmin, $explodedHome);
-    $diff = array_values($diff);
+		if (strpos($adminURL, 'https://') !== false) {
+			$adminProtocol = 'https';
 
-    $newPath = implode("/", $diff);
-    $newPath = '/' . $newPath . '/';
+		} else {
+			$adminProtocol = 'http';
+		}
 
-    return $newPath;
+		$explodedHome = explode($homeProtocol, $homeURL);
+		$explodedAdmin = explode($adminProtocol, $adminURL);
+
+		$explodedHomeFiltered = array_values(array_filter($explodedHome))[0];
+		$explodedAdminFiltered = array_values(array_filter($explodedAdmin))[0];
+
+		$adminPath = explode($explodedHomeFiltered, $explodedAdminFiltered);
+
+		return array_values(array_filter($adminPath))[0];
 
   }
 
@@ -359,7 +357,7 @@ class Utils {
   wps_find_post_id_from_new_product_or_collection
 
   */
-  public static function wps_find_post_id_from_new_product_or_collection($product, $existingProducts, $type = '') {
+  public static function wps_find_post_id_from_new_product_or_collection($item, $existingItems, $type = '') {
 
     /*
 
@@ -367,21 +365,20 @@ class Utils {
 
     */
     $found_post_id = null;
-    $newProductID = self::wps_find_product_id($product);
+    $newItemID = self::wps_find_product_id($item);
     $typeKey = '';
     $typeKey = $type . '_id';
 
-    $founddder = array_filter($existingProducts, function($existingProduct) use ($newProductID, $typeKey) {
-      return $existingProduct['post_meta'][$typeKey][0] == $newProductID;
+    $foundItem = array_filter($existingItems, function($existingItem) use ($newItemID, $typeKey) {
+      return $existingItem['post_meta'][$typeKey][0] == $newItemID;
     });
 
+    if (is_array($foundItem) && !empty($foundItem)) {
 
-    if (is_array($founddder) && !empty($founddder)) {
+      reset($foundItem);
+      $foundItem = current($foundItem);
 
-      reset($founddder);
-      $founddder = current($founddder);
-
-      return $founddder['ID'];
+      return $foundItem['ID'];
 
     } else {
       return false;
@@ -1417,6 +1414,13 @@ class Utils {
       $shortcode_args['paged'] = $shortcodeArgs['page'];
     }
 
+		//
+    // Add to cart
+    //
+    if (isset($shortcodeArgs['add-to-cart']) && $shortcodeArgs['add-to-cart']) {
+      $shortcode_args['custom']['add-to-cart'] = $shortcodeArgs['add-to-cart'];
+    }
+
     return $shortcode_args;
 
   }
@@ -2399,6 +2403,43 @@ class Utils {
     return $array;
 
   }
+
+
+	/*
+
+	Ensures scripts don't timeout
+
+	*/
+	public static function prevent_timeouts() {
+
+		if ( !function_exists('ini_get') || !ini_get('safe_mode') ) {
+			error_log('---- Setting time limit to 0  -----');
+			@set_time_limit(0);
+		}
+
+	}
+
+
+	public static function wps_session_flush() {
+
+		session_write_close();
+		self::wps_access_session();
+
+	}
+
+	public static function wps_access_session() {
+
+		if (session_status() == PHP_SESSION_NONE) {
+      session_start();
+    }
+
+	}
+
+	public static function wps_close_session_write() {
+
+		session_write_close();
+
+	}
 
 
 }

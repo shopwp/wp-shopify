@@ -27,9 +27,81 @@ import {
   removeCheckmarks
 } from '../utils/utils-dom.js';
 
-import {
-  rejectedPromise
-} from '../utils/utils-data.js';
+import { rejectedPromise } from '../utils/utils-data.js';
+import { deactivateKey } from './license-deactivate.js';
+import { activateKey } from './license-activate.js';
+
+
+/*
+
+Update DOM After License Activation
+
+*/
+function updateDOMAfterLicenseActivation(newLicenseKeyInfo) {
+
+  var $form = jQuery('#wps-license'),
+      $submitButton = $form.find('input[type="submit"]'),
+      $licenseInput = $form.find("#wps_settings_license_license"),
+      $licensePostbox = jQuery('.wps-postbox-license-info');
+
+  $submitButton.data('status', 'deactivate');
+  $submitButton.attr('data-status', 'deactivate');
+  $submitButton.val('Deactivate License');
+
+  $licenseInput.val( createMask(newLicenseKeyInfo.key, '•', 4) );
+  $licenseInput.removeClass('error');
+
+  updateInfoBox(newLicenseKeyInfo);
+
+  $licensePostbox.removeClass('wps-is-hidden').animateCss('wps-fadeInRight', function() {
+    $licensePostbox.removeClass('wps-fadeInRight');
+  });
+
+  disable(jQuery('#wps_settings_license_license'));
+
+}
+
+
+/*
+
+Clear License Form
+
+*/
+function clearLicenseForm() {
+
+  var $form = jQuery('#wps-license'),
+      $submitButton = $form.find('input[type="submit"]'),
+      $licenseInput = $form.find("#wps_settings_license_license"),
+      $licensePostbox = jQuery('.wps-postbox-license-info');
+
+  $submitButton.data('status', 'activate');
+  $submitButton.attr('data-status', 'activate');
+  $submitButton.val('Activate License');
+
+  $licenseInput.val('');
+  $licenseInput.attr('disabled', false);
+  $licenseInput.prop('disabled', false);
+  $licenseInput.removeClass('error valid');
+
+  $licensePostbox.animateCss('wps-fadeOutRight', function() {
+    $licensePostbox.addClass('wps-is-hidden');
+  });
+
+}
+
+
+/*
+
+Show License Form
+
+*/
+function showLicenseForm() {
+
+  var $forms = jQuery('#wps-license, #wps-plugin-info');
+
+  $forms.addClass('wps-is-ready');
+  $forms.find('.wps-is-hidden').removeClass('wps-is-hidden');
+}
 
 
 /*
@@ -64,22 +136,47 @@ function onLicenseFormSubmit() {
           key = jQuery(form).find("#wps_settings_license_license").val(),
           $licensePostbox = jQuery('.wps-postbox-license-info');
 
+
       disable($submitButton);
       toggleActive($spinner);
       showLoader($submitButton);
 
       if ($submitButton.data('status') === 'activate') {
 
+        // Updates license info box
         try {
-          var response = await activateKey(key);
-          showAdminNotice('Successfully activated license key. Enjoy :)', 'updated');
+
+          var activatedKeyData = await activateKey(key);
 
         } catch (errorMsg) {
 
           hideLoader($submitButton);
           showAdminNotice(errorMsg, 'error');
+          return errorMsg;
 
         }
+
+        // Updates plugin info box
+        try {
+
+          var licenseAndProductInfo = await getProductInfo(key);
+
+        } catch (errorMsg) {
+
+          hideLoader($submitButton);
+          showAdminNotice(errorMsg, 'error');
+          return errorMsg;
+
+        }
+
+
+        updatePluginInfoDOM({
+          productInfo: licenseAndProductInfo
+        });
+
+        updateDOMAfterLicenseActivation(activatedKeyData);
+        showAdminNotice('Successfully activated license key. Enjoy :)', 'updated');
+
 
       } else {
 
@@ -87,19 +184,7 @@ function onLicenseFormSubmit() {
 
           var response = await deactivateKey();
 
-          $licensePostbox.animateCss('wps-fadeOutRight', function() {
-            $licensePostbox.addClass('wps-is-hidden');
-          });
-
-          $submitButton.data('status', 'activate');
-          $submitButton.attr('data-status', 'activate');
-          $submitButton.val('Activate License');
-
-          $licenseInput.val('');
-          $licenseInput.attr('disabled', false);
-          $licenseInput.prop('disabled', false);
-          $licenseInput.removeClass('error valid');
-
+          clearLicenseForm();
           showAdminNotice('Successfully deactivated license key', 'updated');
 
 
@@ -125,76 +210,24 @@ function onLicenseFormSubmit() {
 
 /*
 
-Deactive License Key
+Construct License Info For Saving
 
 */
-async function deactivateKey() {
+function constructLicenseInfoForSaving(licenseKeyInfo, key) {
 
-  return new Promise(async (resolve, reject) => {
+  var newLicenseKeyInfo = licenseKeyInfo;
 
-    var $submitButton = jQuery('#wps-license input[type="submit"]'),
-        $licenseInput = jQuery('#wps_settings_license_license'),
-        $licensePostbox = jQuery('.wps-postbox-license-info');
+  if (newLicenseKeyInfo.expires === "lifetime") {
+    newLicenseKeyInfo.expires = new Date('January 1, 1970');
+    newLicenseKeyInfo.lifetime = true;
 
-    /*
+  } else {
+    newLicenseKeyInfo.lifetime = false;
+  }
 
-    Getting License
+  newLicenseKeyInfo.key = key;
 
-    */
-    try {
-      var savedLicenseKey = await getLicenseKey();
-
-    } catch(error) {
-
-      enable($submitButton);
-      return reject('Error: unable to find license key. Please try again.');
-
-    }
-
-
-    /*
-
-    Deactivating key at wpshop.io
-
-    */
-    try {
-      var deactivatedstuff = await deactivateLicenseKey(savedLicenseKey.data);
-
-      if (isWordPressError(deactivatedstuff)) {
-        throw deactivatedstuff.license;
-      }
-
-    } catch(error) {
-
-      enable($submitButton);
-      return reject('Error: unable to deactive license key. Please try again.');
-
-    }
-
-
-    /*
-
-    Deleting key locally
-
-    */
-    try {
-
-      var deleted = await deleteLicenseKey(savedLicenseKey);
-
-      if (isWordPressError(deleted)) {
-        throw deleted.data;
-      }
-
-      resolve(deleted);
-
-    } catch(error) {
-
-      enable($submitButton);
-      return reject(error);
-
-    }
-
-  });
+  return newLicenseKeyInfo;
 
 }
 
@@ -205,150 +238,43 @@ Helper function for checking license key validity
 Checks for error properties from WPS
 
 */
-async function isLicenseKeyValid(key) {
+function isLicenseKeyValid(key) {
 
-  var keyStatusObj = await getLicenseKeyStatus(key);
+  return new Promise(async (resolve, reject) => {
 
-  if (keyStatusObj.license === 'invalid' || keyStatusObj.license === 'inactive') {
-    return rejectedPromise('Error: license key is invalid. Please double check your key and try again.');
-  }
-
-  if (keyStatusObj.license === 'expired') {
-    return rejectedPromise('Error: license key is expired. Please login and renew your key at <a href="https://wpshop.io." target="_blank">wpshop.io</a>');
-  }
-
-  if(keyStatusObj.activations_left <= 0) {
-    return rejectedPromise('Error: license key has reached it\'s activation limit. Please upgrade.');
-
-  } else {
-
-    return true;
-
-  }
-
-}
-
-
-/*
-
-Activate License Key
-
-*/
-async function activateKey(key) {
-
-  var licenseKeyInfo = {};
-  var licenseKeyActivatedResp = {};
-  var $submitButton = jQuery('#wps-license input[type="submit"]');
-  var $licenseInput = jQuery('#wps_settings_license_license');
-  var $licensePostbox = jQuery('.wps-postbox-license-info');
-  var $form = jQuery('#wps-license');
-
-  /*
-
-  Checking if we can activate ...
-
-  */
-  try {
-    var validKey = await isLicenseKeyValid(key);
-
-  } catch(error) {
-
-    removeCheckmarks($form);
-    return rejectedPromise(error);
-
-  }
-
-
-  /*
-
-  Activating key at wpshop.io
-
-  */
-  try {
-
-    licenseKeyActivatedResp = await activateLicenseKey(key);
-
-    if (!isObject(licenseKeyActivatedResp)) {
-      enable($submitButton);
-      return rejectedPromise('Error: invalid license key format. Please try again.');
+    if (key.license === 'invalid' || key.license === 'inactive') {
+      return reject('This license key is inactive or disabled. Please double check your key and try again.');
     }
 
-  } catch(error) {
-
-    removeCheckmarks($form);
-    return rejectedPromise('Error: unable to activate license key. Please try again.');
-
-  }
-
-
-  /*
-
-  Get License Key Status
-
-  */
-  try {
-    licenseKeyInfo = await getLicenseKeyStatus(key);
-
-    if (isWordPressError(licenseKeyInfo)) {
-      throw licenseKeyInfo.license;
+    if (key.license === 'expired') {
+      return reject('This license key is expired. Please login and renew your key at <a href="https://wpshop.io/account" target="_blank">wpshop.io/account</a>');
     }
 
-  } catch(error) {
+    if (key.license === 'revoked') {
+      return reject('This license key has been disabled. Please purchase a new key at <a href="https://wpshop.io/purchase" target="_blank">wpshop.io/purchase</a>');
+    }
 
-    removeCheckmarks($form);
-    enable($submitButton);
+    if (key.license === 'missing') {
+      return reject('This license key cannot be found. Please purchase a new key at <a href="https://wpshop.io/purchase" target="_blank">wpshop.io/purchase</a>');
+    }
 
-    return rejectedPromise('Error: unable to get license key. Please try again.');
+    if (key.license === 'item_name_mismatch') {
+      return reject('This appears to be an invalid license key for WP Shopify. Please purchase a new key at <a href="https://wpshop.io/purchase" target="_blank">wpshop.io/purchase</a>');
+    }
 
-  }
+    if (key.license === 'no_activations_left') {
+      return reject('This license key has reached its activation limit. Please update at <a href="https://wpshop.io/purchase" target="_blank">wpshop.io/purchase</a>');
+    }
 
-
-  /*
-
-  Saving key locally
-
-  */
-  try {
-
-    if (licenseKeyInfo.expires === "lifetime") {
-      licenseKeyInfo.expires = new Date('January 1, 1970');
-      licenseKeyInfo.lifetime = true;
+    if (key.activations_left <= 0) {
+      return reject('This license key has reached it\'s activation limit. Please upgrade.');
 
     } else {
-      licenseKeyInfo.lifetime = false;
+      return resolve(true);
+
     }
 
-    licenseKeyInfo.key = key;
-    licenseKeyInfo.is_local = licenseKeyActivatedResp.is_local;
-
-    var savedKeyResponse = await saveLicenseKey(licenseKeyInfo);
-
-    if (isWordPressError(savedKeyResponse)) {
-      throw savedKeyResponse.data;
-    }
-
-    $submitButton.data('status', 'deactivate');
-    $submitButton.attr('data-status', 'deactivate');
-    $submitButton.val('Deactivate License');
-
-    $licenseInput.val( createMask(key, '•', 4) );
-    $licenseInput.removeClass('error');
-
-    $licensePostbox.removeClass('wps-is-hidden').animateCss('wps-fadeInRight', function() {
-      $licensePostbox.removeClass('wps-fadeInRight');
-    });
-
-    updateInfoBox(licenseKeyInfo);
-    disable(jQuery('#wps_settings_license_license'));
-
-  } catch(error) {
-
-    removeCheckmarks($form);
-    enable($submitButton);
-
-    return rejectedPromise(error);
-
-  }
+  });
 
 }
 
@@ -376,14 +302,6 @@ function updateInfoBox(licenseKeyInfo) {
 
   }
 
-  // if (licenseKeyInfo.is_local) {
-  //   licenseCount = licenseKeyInfo.site_count;
-  //
-  // } else {
-  //   licenseCount = licenseKeyInfo.site_count + 1;
-  //
-  // }
-
   licenseCount = licenseKeyInfo.site_count;
 
   if (licenseKeyInfo.success) {
@@ -395,15 +313,15 @@ function updateInfoBox(licenseKeyInfo) {
   $nameCol.text(licenseKeyInfo.customer_name);
   $emailCol.text(licenseKeyInfo.customer_email);
 
-  if (licenseKeyInfo.lifetime) {
-    $expireCol.text('Never expires');
+  if (licenseKeyInfo.lifetime === 'false' || !licenseKeyInfo.lifetime) {
+    $expireCol.text(formatExpireDate(licenseKeyInfo.expires));
 
   } else {
-    $expireCol.text(formatExpireDate(licenseKeyInfo.expires));
+    $expireCol.text('Never expires');
   }
 
   if (licenseKeyInfo.is_local) {
-    $limitCol.append('<small class="wps-table-supporting">(Activations on dev environents don\'t add to total)</small>');
+    $limitCol.append('<small class="wps-table-supporting">(Activations on dev environments don\'t add to total)</small>');
   }
 
 }
@@ -429,20 +347,202 @@ function onCheckLicenseKeyValidity() {
 }
 
 
+
+function updatePluginInfoDOM(licenseAndProductInfo) {
+
+  var $table = jQuery('#wps-plugin-info'),
+      $latestVersionCol = $table.find('.wps-col-plugin-version'),
+      $updateCol = $table.find('.wps-col-plugin-update-avail'),
+      $nameCol = $table.find('.wps-col-plugin-name'),
+      $testedUpToCol = $table.find('.wps-col-tested-up-to');
+
+  // If banners property exists then we know we have the plugin info
+  if (licenseAndProductInfo && licenseAndProductInfo.productInfo.banners) {
+
+    $nameCol.text(licenseAndProductInfo.productInfo.name);
+    $latestVersionCol.text(licenseAndProductInfo.productInfo.new_version);
+    $testedUpToCol.text(licenseAndProductInfo.productInfo.tested_up_to);
+
+  }
+
+}
+
+
+
+
+
 /*
 
-When user deactivates license key
-TODO: Remove, not needed
+On initial page load
 
 */
-function onGetLicenseKeyInfo() {
+function onLoad() {
 
-  jQuery(".wps-btn-get-product").on('click', async function(e) {
+  return new Promise(async function(resolve, reject) {
 
-    e.preventDefault();
+    var $form = jQuery('#wps-license'),
+        $loader = jQuery('#wps-license > .spinner'),
+        $submitButton = $form.find('input[type="submit"]'),
+        $spinner = $form.find('.spinner'),
+        $licenseInput = $form.find("#wps_settings_license_license"),
+        $licensePostbox = jQuery('.wps-postbox-license-info'),
+        $postBox = jQuery('.wps-postbox-license-activation'),
+        $pluginInfo = jQuery('#wps-plugin-info'),
+        $pluginInfoLoader = jQuery('#wps-plugin-info > .spinner');
 
-    var key = jQuery('.wps-input-license-key').val();
-    var stuff = await getProductInfo(key);
+    toggleActive($pluginInfoLoader);
+    toggleActive($loader);
+
+    /*
+
+    Step 1. Get license from database
+
+    */
+    try {
+
+      var licenseKeyData = await getLicenseKey();
+
+      if (isWordPressError(licenseKeyData)) {
+        return resolve();
+
+      } else {
+        var currentLicenseKey = licenseKeyData.data;
+      }
+
+    } catch(error) {
+      return reject(error);
+
+    }
+
+
+    /*
+
+    Step 2. Get license key status from wpshop.io
+
+    */
+    try {
+      var currentLicenseKeyStatus = await getLicenseKeyStatus(currentLicenseKey);
+
+    } catch (error) {
+      return reject(error);
+
+    }
+
+
+    /*
+
+    Step 3. Check if license key is valid
+
+    */
+    try {
+
+      var validKey = await isLicenseKeyValid(currentLicenseKeyStatus);
+
+    } catch (error) {
+
+      /*
+
+      Deleting key locally
+
+      */
+      try {
+
+        var deletedKey = await deleteLicenseKey(currentLicenseKey);
+
+        if (isWordPressError(deletedKey)) {
+          throw deletedKey.data;
+        }
+
+      } catch(error) {
+
+        return reject(error);
+
+      }
+
+      return reject(error);
+
+    }
+
+
+    /*
+
+    Step 4. If invalid key, delete and clear form, otherwise just show form.
+
+    */
+    if (!validKey) {
+
+      /*
+
+      Deleting key locally
+
+      */
+      try {
+
+        var deletedKey = await deleteLicenseKey(currentLicenseKey);
+
+        if (isWordPressError(deletedKey)) {
+          throw deletedKey.data;
+        }
+
+      } catch(error) {
+
+        return reject(error);
+
+      }
+
+    } else {
+
+      resolve(licenseKeyData.data);
+
+    }
+
+  });
+
+}
+
+
+/*
+
+Load License Key and WP Shopify Info
+
+*/
+function loadLicenseInfo() {
+
+  return new Promise(async (resolve, reject) => {
+
+    /*
+
+    Step 1. Load License Key Info
+
+    */
+    try {
+      var licenseKey = await onLoad();
+
+    } catch(error) {
+
+      return reject(error);
+
+    }
+
+
+    /*
+
+    Step 2. Load Get latest WP Shopify info
+
+    */
+    try {
+      var productInfo = await getProductInfo(licenseKey);
+
+    } catch (error) {
+      return reject(error);
+    }
+
+
+    resolve({
+      licenseKey: licenseKey,
+      productInfo: productInfo
+    });
+
 
   });
 
@@ -454,14 +554,27 @@ function onGetLicenseKeyInfo() {
 Form Events Init
 
 */
-function licenseInit() {
+async function licenseInit() {
 
-  // onCheckLicenseKeyValidity();
-  // onGetLicenseKeyInfo();
   onLicenseFormSubmit();
+
+  try {
+    var licenseAndProductInfo = await loadLicenseInfo();
+
+  } catch (error) {
+    showAdminNotice(error, 'error');
+    clearLicenseForm();
+  }
+
+  updatePluginInfoDOM(licenseAndProductInfo)
+  showLicenseForm();
 
 }
 
+
 export {
-  licenseInit
+  licenseInit,
+  isLicenseKeyValid,
+  constructLicenseInfoForSaving,
+  updateDOMAfterLicenseActivation
 };

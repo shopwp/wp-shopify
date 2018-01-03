@@ -255,6 +255,8 @@ updateDomAfterDisconnect
 */
 function updateDomAfterDisconnect(options) {
 
+  console.log("updateDomAfterDisconnect: ", options);
+
   updateModalHeadingText(options.headingText);
   updateModalButtonText(options.buttonText);
   updateCurrentConnectionStepText(options.stepText);
@@ -277,6 +279,10 @@ function updateDomAfterDisconnect(options) {
     insertCheckmark();
   }
 
+  if (!options.noticeType) {
+    options.noticeType = 'success';
+  }
+
 
   // TODO: Modularize this, can put in Utils
   if (options.xMark) {
@@ -285,11 +291,11 @@ function updateDomAfterDisconnect(options) {
     if (Array.isArray(options.errorList) && options.errorList.length > 0) {
 
       options.errorList.forEach(function(entry) {
-        jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + entry + '</div>');
+        jQuery('.wps-connector-heading').after('<div class="notice notice-' + options.noticeType + '">' + entry + '</div>');
       });
 
     } else {
-      jQuery('.wps-connector-heading').after('<div class="notice notice-warning">' + options.errorList + '</div>');
+      jQuery('.wps-connector-heading').after('<div class="notice notice-' + options.noticeType + '">' + options.errorList + '</div>');
 
     }
 
