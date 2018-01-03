@@ -72,6 +72,7 @@ function onSettingsFormSubmit() {
       var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
 
+
       // var styles = jQuery(form).find("#wps_settings_general_styles").val();
 
       disable($submitButton);
@@ -93,6 +94,16 @@ function onSettingsFormSubmit() {
       var stylesGridAttr = jQuery(form).find("#wps_settings_general_styles_grid").attr("checked");
       var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
       var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
+      var titlesAsAltAttr = jQuery(form).find("#wps_settings_general_title_as_alt").attr("checked");
+
+
+
+      if (typeof titlesAsAltAttr !== typeof undefined && titlesAsAltAttr !== false) {
+        var titlesAsAlt = 1;
+
+      } else {
+        var titlesAsAlt = 0;
+      }
 
 
       if (typeof cartLoaddedAttr !== typeof undefined && cartLoaddedAttr !== false) {
@@ -140,6 +151,7 @@ function onSettingsFormSubmit() {
         wps_settings_general_collections_url: collectionsURL,
         wps_settings_general_url_webhooks: webhooksURL,
         wps_settings_general_num_posts: numPosts,
+        wps_settings_general_title_as_alt: titlesAsAlt,
         wps_settings_general_styles_all: stylesAll,
         wps_settings_general_styles_core: stylesCore,
         wps_settings_general_styles_grid: stylesGrid,

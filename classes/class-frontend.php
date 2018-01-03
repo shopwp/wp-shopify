@@ -49,10 +49,10 @@ if (!class_exists('Frontend')) {
 		Ensures only one instance is used.
 
 		*/
-		public static function instance() {
+		public static function instance($Config) {
 
 			if (is_null(self::$instantiated)) {
-				self::$instantiated = new self();
+				self::$instantiated = new self($Config);
 			}
 
 			return self::$instantiated;
@@ -673,7 +673,7 @@ if (!class_exists('Frontend')) {
 		Only hooks not meant for public consumption
 
 		*/
-		public function wps_frontend_hooks() {
+		public function init() {
 
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_styles') );
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );

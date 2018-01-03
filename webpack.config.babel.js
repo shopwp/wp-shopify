@@ -15,6 +15,8 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HappyPack = require('happypack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const Visualizer = require('webpack-visualizer-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 
 module.exports = () => {
 
@@ -49,21 +51,25 @@ module.exports = () => {
       filename: '[name].min.js'
     },
     plugins: [
+      new HardSourceWebpackPlugin(),
       new webpack.optimize.ModuleConcatenationPlugin(),
       new Visualizer(),
-      new UglifyJsPlugin({
-        test: /\.js($|\?)/i,
+      new ParallelUglifyPlugin({
         exclude: /(node_modules|bower_components)/,
-        cache: true,
-        parallel: true,
-        uglifyOptions: {
-          ie8: false,
-          ecma: 8,
-          warnings: false,
+        cacheDir: path.resolve('node_modules/.cache'),
+        sourceMap: false,
+        uglifyJS: {
+          output: {
+            comments: false
+          },
+          compress: {
+            warnings: false
+          }
         }
       }),
       new webpack.ProvidePlugin({
         Bottleneck: "Bottleneck",
+        ramda: "ramda",
         ShopifyBuy: "shopify-buy",
         validator: "validator",
         crypto: "crypto",
@@ -96,6 +102,7 @@ module.exports = () => {
       alias: {
         bottleneck: "bottleneck",
         validator: "validator",
+        ramda: "ramda",
         crypto: "crypto",
         dateFormat: "dateFormat",
         currencyFormatter: "currency-formatter",
@@ -103,32 +110,53 @@ module.exports = () => {
       }
     },
     module: {
-      rules: [{
-        test: /\.js$/,
-        exclude: /node_modules/,
-        enforce: 'pre',
-        use: [
-          'babel-loader?presets[]=es2015&plugins[]=transform-async-to-generator',
-          "eslint-loader",
-        ],
-      },
-      {
-        test: /\.(png|jpe?g|gif|woff|woff2|eot|ttf|svg)$/,
-        use: [{
-          loader: 'url-loader?limit=100000'
-        }]
-      },
-      {
-        test: /\.scss$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'postcss-loader', 'sass-loader', 'resolve-url-loader']
-        })
-      },
-      {
-        test: require.resolve("pace-progress"),
-        loader: "imports-loader?define=>false"
-      }]
+      rules: [
+        {
+          test: /\.js$/,
+          include: [
+            path.resolve('public/js/app/'),
+            path.resolve('admin/js/app/'),
+          ],
+          enforce: 'pre',
+          use: [
+            'babel-loader?presets[]=es2015&plugins[]=transform-async-to-generator',
+            "eslint-loader",
+          ],
+        },
+        {
+          test: /\.(png|jpe?g|gif|woff|woff2|eot|ttf|svg)$/,
+          exclude: /node_modules/,
+          use: [{
+            loader: 'url-loader?limit=100000'
+          }]
+        },
+        {
+          test: /\.scss$/,
+          include: [
+            path.resolve('public/css/app/'),
+            path.resolve('admin/css/app/'),
+          ],
+          use: ExtractTextPlugin.extract({
+            fallback: 'style-loader',
+            use: [
+              {
+                loader: 'css-loader',
+                options: {
+                  url: false,
+                  minimize: true,
+                  sourceMap: true
+                }
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true
+                }
+              }
+            ]
+          })
+        }
+      ]
     }
   }
 

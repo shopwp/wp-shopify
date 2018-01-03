@@ -15,6 +15,7 @@ Class Messages
 class Messages {
 
 	public $message_nonce_invalid;
+	public $message_connection_not_syncing;
 	public $message_connection_not_found;
 	public $message_connection_save_error;
 	public $message_connection_invalid_access_token;
@@ -32,12 +33,15 @@ class Messages {
 	public $message_delete_product_images_error;
 	public $message_delete_product_inventory_error;
 	public $message_delete_collects_error;
+	public $message_insert_collects_error;
 	public $message_delete_product_tags_error;
 	public $message_delete_product_options_error;
 	public $message_delete_product_variants_error;
 	public $message_delete_products_error;
 	public $message_delete_custom_collections_error;
+	public $message_insert_custom_collections_error;
 	public $message_delete_smart_collections_error;
+	public $message_insert_smart_collections_error;
 	public $message_delete_orders_error;
 	public $message_delete_customers_error;
 	public $message_products_curency_format_not_found;
@@ -45,7 +49,9 @@ class Messages {
 	public $message_products_options_unavailable;
 	public $message_products_options_not_found;
 	public $message_webhooks_no_id_set;
-
+	public $message_webhooks_delete_error;
+	public $message_license_invalid_or_missing;
+	public $message_license_unable_to_delete;
 
 	public function __construct() {
 
@@ -57,12 +63,12 @@ class Messages {
 		$this->message_connection_invalid_access_token = esc_html__('Invalid access token. Please try reconnecting WordPress to your Shopify site.', 'wp-shopify');
 		$this->message_connection_disconnect_invalid_access_token = esc_html__('Unable to disconnect Shopify store. Missing or invalid access token.', 'wp-shopify');
 
-		$this->message_syncing_products_error = esc_html__('Syncing canceled early at insert_products(). Please refresh your browser and try again.', 'wp-shopify');
-		$this->message_syncing_variants_error = esc_html__('Syncing canceled early at insert_variants(). Please refresh your browser and try again.', 'wp-shopify');
-		$this->message_syncing_options_error = esc_html__('Syncing canceled early at insert_options(). Please refresh your browser and try again.', 'wp-shopify');
-		$this->message_syncing_orders_error = esc_html__('Syncing canceled early at insert_orders(). Please refresh your browser and try again.', 'wp-shopify');
-		$this->message_syncing_images_error = esc_html__('Syncing canceled early at insert_images(). Please refresh your browser and try again.', 'wp-shopify');
-		$this->message_syncing_customers_error = esc_html__('Syncing canceled early at insert_customers(). Please refresh your browser and try again.', 'wp-shopify');
+		$this->message_syncing_products_error = esc_html__('Syncing canceled early at insert_products().', 'wp-shopify');
+		$this->message_syncing_variants_error = esc_html__('Syncing canceled early at insert_variants().', 'wp-shopify');
+		$this->message_syncing_options_error = esc_html__('Syncing canceled early at insert_options().', 'wp-shopify');
+		$this->message_syncing_orders_error = esc_html__('Syncing canceled early at insert_orders().', 'wp-shopify');
+		$this->message_syncing_images_error = esc_html__('Syncing canceled early at insert_images().', 'wp-shopify');
+		$this->message_syncing_customers_error = esc_html__('Syncing canceled early at insert_customers().', 'wp-shopify');
 
 		$this->message_delete_shop_error = esc_html__('Warning: Unable to delete shop data.', 'wp-shopify');
 		$this->message_delete_connection_error = esc_html__('Warning: Unable to delete connection settings.', 'wp-shopify');
@@ -71,12 +77,15 @@ class Messages {
 		$this->message_delete_product_images_error = esc_html__('Warning: Unable to delete product images.', 'wp-shopify');
 		$this->message_delete_product_inventory_error = esc_html__('Warning: Unable to delete product inventory.', 'wp-shopify');
 		$this->message_delete_collects_error = esc_html__('Warning: Unable to delete collects.', 'wp-shopify');
+		$this->message_insert_collects_error = esc_html__('Warning: Unable to insert certain collects.', 'wp-shopify');
 		$this->message_delete_product_tags_error = esc_html__('Warning: Unable to delete product tags.', 'wp-shopify');
 		$this->message_delete_product_options_error = esc_html__('Warning: Unable to delete product options.', 'wp-shopify');
 		$this->message_delete_product_variants_error = esc_html__('Warning: Unable to delete product variants.', 'wp-shopify');
 		$this->message_delete_products_error = esc_html__('Warning: Unable to delete products.', 'wp-shopify');
 		$this->message_delete_custom_collections_error = esc_html__('Warning: Unable to delete custom collections.', 'wp-shopify');
+		$this->message_insert_custom_collections_error = esc_html__('Warning: Unable to insert certain custom collections.', 'wp-shopify');
 		$this->message_delete_smart_collections_error = esc_html__('Warning: Unable to delete smart collections.', 'wp-shopify');
+		$this->message_insert_smart_collections_error = esc_html__('Warning: Unable to insert certain smart collections.', 'wp-shopify');
 		$this->message_delete_orders_error = esc_html__('Warning: Unable to delete orders.', 'wp-shopify');
 		$this->message_delete_customers_error = esc_html__('Warning: Unable to delete customers.', 'wp-shopify');
 
@@ -86,6 +95,11 @@ class Messages {
 		$this->message_products_options_not_found = esc_html__('Unable to find selected options. Please try again.', 'wp-shopify');
 
 		$this->message_webhooks_no_id_set = esc_html__('No webhook ID set. Please try reconnecting WordPress to your Shopify site.', 'wp-shopify');
+		$this->message_webhooks_delete_error = esc_html__('Unable to remove webhook', 'wp-shopify');
+
+		$this->message_license_invalid_or_missing = esc_html__('This license key is either missing or invalid. Please verify your key by logging into your account at wpshop.io.', 'wp-shopify');
+
+		$this->message_license_unable_to_delete = esc_html__('Unable to delete license key. Please refresh your browser and try again.', 'wp-shopify');
 
 	}
 

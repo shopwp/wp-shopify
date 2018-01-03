@@ -5,10 +5,10 @@ namespace WPS;
 use WPS\Utils;
 use WPS\AJAX;
 use WPS\License;
-use WPS\Waypoints;
 use WPS\Collections;
 use WPS\Products_General;
 use WPS\Webhooks;
+use WPS\Progress_Bar;
 use WPS\WS;
 
 use WPS\DB\Shop;
@@ -48,10 +48,10 @@ class Backend {
 	Ensures only one instance is used.
 
 	*/
-	public static function instance() {
+	public static function instance($Config) {
 
 		if (is_null(self::$instantiated)) {
-			self::$instantiated = new self();
+			self::$instantiated = new self($Config);
 		}
 
 		return self::$instantiated;
@@ -91,10 +91,12 @@ class Backend {
 		if ('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
 
 			wp_enqueue_media();
+
 			wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 			wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
 			wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
-			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js'), $this->config->plugin_version, false );
+			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js'), $this->config->plugin_version, true );
+
 
 			wp_localize_script('wps-admin', 'wps', array(
 					'ajax' => __(admin_url('admin-ajax.php')),
@@ -300,14 +302,21 @@ class Backend {
  	public function wps_get_credentials_frontend() {
 
 		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1067a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1067b)');
 
 		$shopifyCreds = array();
 		$connection = $this->config->wps_get_settings_connection();
 
-		$shopifyCreds['js_access_token'] = $connection->js_access_token;
-		$shopifyCreds['app_id'] = $connection->app_id;
-		$shopifyCreds['domain'] = $connection->domain;
+		if (is_object($connection) && isset($connection->js_access_token)) {
+			$shopifyCreds['js_access_token'] = $connection->js_access_token;
+		}
+
+		if (is_object($connection) && isset($connection->app_id)) {
+			$shopifyCreds['app_id'] = $connection->app_id;
+		}
+
+		if (is_object($connection) && isset($connection->domain)) {
+			$shopifyCreds['domain'] = $connection->domain;
+		}
 
 		wp_send_json_success($shopifyCreds);
 
@@ -382,7 +391,7 @@ class Backend {
 		// $this->config = new Config();
 		$connection = $this->config->wps_get_settings_connection();
 
-		if(isset($setting) && $setting) {
+		if (isset($setting) && $setting) {
 
 			if( array_key_exists($setting, $connection) ) {
 
@@ -403,17 +412,18 @@ class Backend {
 	}
 
 
-	public function wps_backend_hooks() {
+	public function init() {
 
 		// $this->config = new Config();
 
 		$AJAX = new AJAX($this->config);
 		$License = new License($this->config);
-		$Waypoints = new Waypoints($this->config);
+
 		$Collections = new Collections($this->config);
 		$Products_General = new Products_General($this->config);
 		$Webhooks = new Webhooks($this->config);
 		$WS = new WS($this->config);
+		$ProgressBar = new Progress_Bar($this->config);
 
 		$DB_Shop = new Shop();
 		$DB_Settings_Connection = new Settings_Connection();
@@ -453,6 +463,9 @@ class Backend {
 
 
 		// WS
+		add_action( 'wp_ajax_wps_ws_testing_private_app', array($WS, 'wps_ws_testing_private_app'));
+		add_action( 'wp_ajax_nopriv_wps_ws_testing_private_app', array($WS, 'wps_ws_testing_private_app'));
+
 		add_action( 'wp_ajax_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
 		add_action( 'wp_ajax_nopriv_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
 
@@ -468,11 +481,22 @@ class Backend {
 		add_action( 'wp_ajax_wps_uninstall_product_data', array($WS, 'wps_uninstall_product_data'));
 		add_action( 'wp_ajax_nopriv_wps_uninstall_product_data', array($WS, 'wps_uninstall_product_data'));
 
+		add_action( 'wp_ajax_wps_uninstall_all_data', array($WS, 'wps_uninstall_all_data'));
+		add_action( 'wp_ajax_nopriv_wps_uninstall_all_data', array($WS, 'wps_uninstall_all_data'));
+
 		add_action( 'wp_ajax_wps_get_progress_count', array($WS, 'wps_get_progress_count'));
 		add_action( 'wp_ajax_nopriv_wps_get_progress_count', array($WS, 'wps_get_progress_count'));
 
 		add_action( 'wp_ajax_wps_ws_get_collects_count', array($WS, 'wps_ws_get_collects_count'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_collects_count', array($WS, 'wps_ws_get_collects_count'));
+
+
+
+		add_action( 'wp_ajax_wps_ws_get_smart_collections_count', array($WS, 'wps_ws_get_smart_collections_count'));
+		add_action( 'wp_ajax_nopriv_wps_ws_get_smart_collections_count', array($WS, 'wps_ws_get_smart_collections_count'));
+
+		add_action( 'wp_ajax_wps_ws_get_custom_collections_count', array($WS, 'wps_ws_get_custom_collections_count'));
+		add_action( 'wp_ajax_nopriv_wps_ws_get_custom_collections_count', array($WS, 'wps_ws_get_custom_collections_count'));
 
 		add_action( 'wp_ajax_wps_insert_collects', array($WS, 'wps_insert_collects'));
 		add_action( 'wp_ajax_nopriv_wps_insert_collects', array($WS, 'wps_insert_collects'));
@@ -489,6 +513,9 @@ class Backend {
 		add_action( 'wp_ajax_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
 		add_action( 'wp_ajax_nopriv_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
 
+		add_action( 'wp_ajax_wps_insert_alt_text', array($WS, 'wps_insert_alt_text'));
+		add_action( 'wp_ajax_nopriv_wps_insert_alt_text', array($WS, 'wps_insert_alt_text'));
+
 		add_action( 'wp_ajax_wps_insert_custom_collections_data', array($WS, 'wps_insert_custom_collections_data'));
 		add_action( 'wp_ajax_nopriv_wps_insert_custom_collections_data', array($WS, 'wps_insert_custom_collections_data'));
 
@@ -504,8 +531,6 @@ class Backend {
 		add_action( 'wp_ajax_wps_ws_get_collects_from_collection', array($WS, 'wps_ws_get_collects_from_collection'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_collects_from_collection', array($WS, 'wps_ws_get_collects_from_collection'));
 
-		// TODO: Should this be in another hook?
-		add_action( 'init', array($WS, 'wps_ws_on_authorization' ));
 
 		add_action( 'wp_ajax_wps_ws_get_webhooks', array($WS, 'wps_ws_get_webhooks'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_webhooks', array($WS, 'wps_ws_get_webhooks'));
@@ -515,6 +540,7 @@ class Backend {
 
 		add_action( 'wp_ajax_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
 		add_action( 'wp_ajax_nopriv_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
+
 
 		// Collections
 		add_action( 'wp_ajax_wps_insert_collections', array($Collections, 'wps_insert_collections'));
@@ -544,16 +570,21 @@ class Backend {
 		add_action( 'wp_ajax_wps_ws_get_variants', array($WS, 'wps_ws_get_variants'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_variants', array($WS, 'wps_ws_get_variants'));
 
-		// Get Waypoint
-		add_action( 'wp_ajax_wps_waypoint_get_shopify_url', array($Waypoints, 'wps_waypoint_get_shopify_url'));
-		add_action( 'wp_ajax_nopriv_wps_waypoint_get_shopify_url', array($Waypoints, 'wps_waypoint_get_shopify_url'));
-
 
 		/*
 
 		Webhook: Products
 
 		*/
+
+		add_action( 'wp_ajax_get_webhooks_count', array($Webhooks, 'get_webhooks_count'));
+		add_action( 'wp_ajax_nopriv_get_webhooks_count', array($Webhooks, 'get_webhooks_count'));
+
+		add_action( 'wp_ajax_remove_webhooks', array($Webhooks, 'remove_webhooks'));
+		add_action( 'wp_ajax_nopriv_remove_webhooks', array($Webhooks, 'remove_webhooks'));
+
+		add_action( 'wp_ajax_wps_webhooks_register_single', array($Webhooks, 'wps_webhooks_register_single'));
+		add_action( 'wp_ajax_nopriv_wps_webhooks_register_single', array($Webhooks, 'wps_webhooks_register_single'));
 
 		// products/create
 		add_action( 'wp_ajax_wps_webhooks_product_create', array($Webhooks, 'wps_webhooks_product_create'));
@@ -720,10 +751,30 @@ class Backend {
 		add_action( 'wp_ajax_wps_ws_get_shop_data', array($WS, 'wps_ws_get_shop_data'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_shop_data', array($WS, 'wps_ws_get_shop_data'));
 
+		// Webhooks
+		add_action( 'wp_ajax_wps_ws_register_all_webhooks', array($WS, 'wps_ws_register_all_webhooks'));
+		add_action( 'wp_ajax_nopriv_wps_ws_register_all_webhooks', array($WS, 'wps_ws_register_all_webhooks'));
 
-		add_action( 'update_option_wps_settings_general', array($WS, 'wps_reset_rewrite_rules'), 10, 2 );
 
-		add_filter( 'heartbeat_received', array($WS, 'wps_receive_heartbeat'), 10, 2 );
+		// Progress Bar
+		add_action( 'wp_ajax_wps_progress_status', array($ProgressBar, 'wps_progress_status'));
+		add_action( 'wp_ajax_nopriv_wps_progress_status', array($ProgressBar, 'wps_progress_status'));
+
+		add_action( 'wp_ajax_wps_progress_bar_end', array($ProgressBar, 'wps_progress_bar_end'));
+		add_action( 'wp_ajax_nopriv_wps_progress_bar_end', array($ProgressBar, 'wps_progress_bar_end'));
+
+
+		add_action( 'wp_ajax_wps_progress_session_create', array($ProgressBar, 'wps_progress_session_create'));
+		add_action( 'wp_ajax_nopriv_wps_progress_session_create', array($ProgressBar, 'wps_progress_session_create'));
+
+
+
+
+
+
+
+
+		add_action( 'update_option_wps_settings_general', array($ProgressBar, 'wps_reset_rewrite_rules'), 10, 2 );
 
 	}
 

@@ -3,6 +3,9 @@
 namespace WPS\DB;
 
 use WPS\Transients;
+use WPS\Utils;
+use WPS\Progress_Bar;
+use WPS\Config;
 
 class Shop extends \WPS\DB {
 
@@ -142,6 +145,7 @@ class Shop extends \WPS\DB {
 	public function insert_shop($shopData) {
 
 		global $wpdb;
+		$progress = new Progress_Bar(new Config());
 
 		if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
 
@@ -155,10 +159,11 @@ class Shop extends \WPS\DB {
 			}
 
 		} else {
-
 			$results = false;
 
 		}
+
+		$progress->increment_current_amount('shop');
 
 		return $results;
 

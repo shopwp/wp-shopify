@@ -186,6 +186,29 @@ function formatConnectorFormData(formData) {
 }
 
 
+
+
+function formConnectionRules() {
+  return {
+    "js_access_token": {
+      alphaNumeric: true
+    },
+    "shared_secret": {
+      alphaNumeric: true
+    },
+    "api_key": {
+      alphaNumeric: true
+    },
+    "password": {
+      alphaNumeric: true
+    },
+    "domain": {
+      domainRule: true
+    }
+  }
+}
+
+
 /*
 
 Form Events Init
@@ -206,5 +229,6 @@ export {
   formEventsInit,
   unbindConnectForm,
   unbindDisconnectForm,
-  formatConnectorFormData
+  formatConnectorFormData,
+  formConnectionRules
 };

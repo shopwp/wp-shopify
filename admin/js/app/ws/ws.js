@@ -34,6 +34,28 @@ function uninstallProductData() {
 
 /*
 
+Removing all data
+
+*/
+function removeAllData() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_uninstall_all_data',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
 Get all products from Shopify
 Returns: Promise
 
@@ -57,6 +79,52 @@ function getProductsCount() {
 
 /*
 
+Attach all Webhooks
+Returns: Promise
+
+*/
+function registerWebhooks() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_register_all_webhooks',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
+Syncs Alt Text
+Returns: Promise
+
+*/
+function insertAltText() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_insert_alt_text',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
 Get all Collects from Shopify
 Returns: Promise
 
@@ -69,6 +137,52 @@ function getCollectsCount() {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_collects_count',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
+Get Smart Collections Count
+Returns: Promise
+
+*/
+function getSmartCollectionsCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_get_smart_collections_count',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
+Get Custom Collections Count
+Returns: Promise
+
+*/
+function getCustomCollectionsCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_get_custom_collections_count',
       nonce: wps.nonce
     }
   };
@@ -426,7 +540,6 @@ function getWebhooks() {
 
 EDD - Get License Key Info
 Returns Promise
-TODO: Should we remove the hardcoded wpshop.io URL domain?
 
 */
 function getProductInfo(key) {
@@ -833,58 +946,26 @@ function updateAuthUser(authToken, authUserData) {
 };
 
 
-// function getProgressCookie() {
-//
-//   var options = {
-//     method: 'GET',
-//     url: wps.ajax,
-//     dataType: 'json',
-//     data: {
-//       action: 'wps_get_progress_count'
-//     }
-//   };
-//
-//   return controlPromise(options);
-//
-// }
+/*
 
+Get Progress Count
 
-// function getProgressCount() {
-//
-//
-//
-//   if (!!window.EventSource) {
-//     var source = new EventSource(wps.pluginsPath + '/wp-shopify/admin/partials/wps-sync-progress.php');
-//
-//     source.addEventListener('message', function(e) {
-//
-//       // var session = await getProgressCookie();
-//       //
-//
-//       // if (e.origin != window.location.origin) {
-//       //   return;
-//       // }
-//
-//     }, false);
-//
-//     source.addEventListener('open', function(e) {
-//       // Connection was opened.
-//
-//     }, false);
-//
-//     source.addEventListener('error', function(e) {
-//       if (e.readyState == EventSource.CLOSED) {
-//       }
-//     }, false);
-//
-//   } else {
-//     // Result to xhr polling :(
-//
-//   }
-//
-//   return controlPromise(options);
-//
-// }
+*/
+function getProgressCount() {
+
+  var options = {
+    method: 'GET',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_progress_status',
+      nonce: wps.nonce
+    }
+  };
+
+  return jQuery.ajax(options);
+
+}
 
 
 /*
@@ -1071,31 +1152,116 @@ function insertCustomers(currentPage = false) {
 Insert Customers
 
 */
-function startProgressBar(progress) {
+function startProgress(progress) {
 
-  jQuery(document).on('heartbeat-send', (event, data) => {
-
-    console.log("heartbeat-send: ", data);
-
-    // Add additional data to Heartbeat data.
-    data.myplugin_customfield = progress;
-
-  });
-
-
-  jQuery(document).on( 'heartbeat-tick', (event, data) => {
-
-    // Check for our data, and use it.
-    if ( ! data.myplugin_customfield_hashed ) {
-      return;
+  var options = {
+    method: 'GET',
+    url: wps.ajax,
+    data: {
+      action: 'wps_progress_bar_start',
+      nonce: wps.nonce
     }
+  };
 
-    console.log("heartbeat-tick: ", data);
-    console.log( 'The hash is ' + data.myplugin_customfield_hashed );
-
-  });
+  return jQuery.ajax(options);
 
 }
+
+
+/*
+
+Insert Customers
+
+*/
+function endProgress() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'wps_progress_bar_end',
+      nonce: wps.nonce
+    }
+  };
+
+  return jQuery.ajax(options);
+
+}
+
+
+function testingPrivateApp() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'wps_ws_testing_private_app'
+    }
+  };
+
+  return jQuery.ajax(options);
+
+}
+
+
+function progressSessionStart(resync = false, includes = []) {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'wps_progress_session_create',
+      nonce: wps.nonce,
+      resync: resync,
+      includes: includes
+    }
+  };
+
+  return jQuery.ajax(options);
+
+}
+
+
+/*
+
+Get Webhooks Count
+
+*/
+function getWebhooksCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'get_webhooks_count',
+      nonce: wps.nonce
+    }
+  };
+
+  return jQuery.ajax(options);
+
+}
+
+
+/*
+
+Remove Webhooks
+
+*/
+function removeWebhooks() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'remove_webhooks',
+      nonce: wps.nonce
+    }
+  };
+
+  return jQuery.ajax(options);
+
+};
 
 
 export {
@@ -1142,5 +1308,16 @@ export {
   getOrdersCount,
   insertCustomers,
   getCustomersCount,
-  startProgressBar
+  startProgress,
+  testingPrivateApp,
+  registerWebhooks,
+  removeAllData,
+  insertAltText,
+  getProgressCount,
+  endProgress,
+  getSmartCollectionsCount,
+  getCustomCollectionsCount,
+  progressSessionStart,
+  getWebhooksCount,
+  removeWebhooks
 };

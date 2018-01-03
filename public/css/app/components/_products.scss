@@ -73,7 +73,7 @@ label[for="wps-product-quantity"] {
     top: 0;
     right: 0;
     z-index: 1;
-    background-image: url('../../imgs/icon-add-to-cart.svg');
+    background-image: url('../public/imgs/icon-add-to-cart.svg');
     background-size: cover;
     top: calc(50% - 10px);
     right: 15px;
@@ -342,7 +342,7 @@ If only two gallery thumbs exist ...
 
   &[data-selected="true"]:before {
     content: '';
-    background-image: url('../../imgs/icon-success.svg');
+    background-image: url('../public/imgs/icon-success.svg');
     z-index: 2;
     display: block;
     width: 30px;

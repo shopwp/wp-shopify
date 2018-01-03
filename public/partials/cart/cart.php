@@ -23,6 +23,7 @@
     </div>
 
     <div class="wps-cart-bottom wps-row">
+
       <div class="wps-cart-info wps-clearfix wps-cart-section">
 
         <div class="wps-type--caps wps-cart-info__total">
@@ -40,9 +41,13 @@
           <?php echo apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', 'wp-shopify')); ?>
         </div>
 
-        <a href="<?php echo esc_url('https://checkout.shopify.com'); ?>" class="wps-btn wps-btn-checkout" target="_self" title="Checkout" id="wps-btn-checkout">
-          <?php echo apply_filters( 'wps_cart_checkout_text', esc_html__('Checkout', 'wp-shopify')); ?>
-        </a>
+        <?php
+
+        do_action('wps_cart_checkout_btn_before');
+        do_action('wps_cart_checkout_btn');
+        do_action('wps_cart_checkout_btn_after');
+
+        ?>
 
       </div>
 
@@ -85,8 +90,11 @@
           <span class="wps-cart-item__price"></span>
 
         </div>
+
       </div>
+
     </div>
+
   </script>
 
   <?php do_action('wps_cart_after'); ?>

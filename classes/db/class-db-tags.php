@@ -4,6 +4,8 @@ namespace WPS\DB;
 
 use WPS\Utils;
 use WPS\DB\Products;
+use WPS\Progress_Bar;
+use WPS\Config;
 
 class Tags extends \WPS\DB {
 
@@ -96,12 +98,16 @@ class Tags extends \WPS\DB {
 
     $tags = Utils::wps_comma_list_to_array($product->tags);
     $results = array();
+    $progress = new Progress_Bar(new Config());
 
     foreach ($tags as $key => $tag) {
 
       $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
 
+      error_log('INSERTING TAG -----');
+
       $results[] = $this->insert($tagData, 'tag');
+      $progress->increment_current_amount('tags');
 
     }
 

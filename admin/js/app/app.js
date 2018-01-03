@@ -10,7 +10,6 @@ import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
 import { toolsInit } from './tools/tools';
 
-
 (function($) {
 
 	'use strict';
@@ -29,20 +28,13 @@ import { toolsInit } from './tools/tools';
 		settingsInit();
 		toolsInit();
 
-		if(params.auth && params.shop) {
-			onAuthRedirect();
+		if ($submitButton.attr('name') === 'submitDisconnect') {
+			disconnectInit();
 
 		} else {
-
-			if ($submitButton.attr('name') === 'submitDisconnect') {
-				disconnectInit();
-
-			} else {
-				connectInit();
-
-			}
-
+			connectInit();
 		}
+
 
   });
 

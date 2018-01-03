@@ -44,14 +44,14 @@
     top: 0;
     right: 0;
     z-index: 1;
-    background-image: url('../../imgs/icon-arrow-dropdown.svg');
+    background-image: url('../public/imgs/icon-arrow-dropdown.svg');
     background-size: cover;
     top: calc(50% - 10px);
     right: 15px;
     position: absolute;
     width: 20px;
     height: 20px;
-    z-index: 1;  
+    z-index: 1;
   }
 
 

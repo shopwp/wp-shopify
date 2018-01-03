@@ -16,6 +16,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+
 /*
 
 Public Class
@@ -735,7 +736,8 @@ if (!class_exists('Hooks')) {
 				argument array. We can safely assume that a given set of args
 				will always produce the same list of products assuming the
 				product data doesn't change. Therefore it's important that we clear
-				this cache whenever a product is updated, created, or deleted.
+				this cache whenever a product is updated, created, or deleted. OR
+				whenever the plugin settings are updated.
 
 				*/
 		    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
@@ -752,13 +754,10 @@ if (!class_exists('Hooks')) {
 
 
 				if (Utils::wps_is_manually_sorted($args)) {
-
 					$wps_products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $productsQuery->posts);
 
 				} else {
-
 					$wps_products = $productsQuery->posts;
-
 				}
 
 
@@ -768,8 +767,24 @@ if (!class_exists('Hooks')) {
 		    }
 
 
-				$amountOfProducts = count($wps_products);
 
+
+
+				/*
+
+				Show add to cart button if add to cart is passed in
+
+				*/
+				if (isset($args['custom']['add-to-cart']) && $args['custom']['add-to-cart']) {
+					add_filter( 'wps_products_show_add_to_cart', function() { return true; });
+				}
+
+
+
+
+
+
+				$amountOfProducts = count($wps_products);
 				$settings = $this->config->wps_get_settings_general();
 
 				do_action( 'wps_products_before', $productsQuery );
@@ -1265,7 +1280,7 @@ if (!class_exists('Hooks')) {
 			return include($this->config->plugin_path . "public/partials/products/single/end.php");
 		}
 
-		public function wps_product_notice_out_of_stock($product) {
+		public function wps_products_notice_out_of_stock($product) {
 			return include($this->config->plugin_path . "public/partials/notices/out-of-stock.php");
 		}
 
@@ -1575,15 +1590,10 @@ if (!class_exists('Hooks')) {
 					array('id' => $DB_Settings_General->get_column_single('id')[0]->id)
 				);
 
+
 			}
 
 		}
-
-
-		public function wps_checkout_before_init() {
-
-		}
-
 
 	}
 

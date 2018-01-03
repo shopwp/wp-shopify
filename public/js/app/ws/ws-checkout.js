@@ -19,6 +19,28 @@ function beforeCheckoutHook(cart) {
 
 };
 
+
+/*
+
+Fires the on checkout action
+Returns: Promise
+
+*/
+function anyCustomAttrs(cart) {
+
+  return jQuery.ajax({
+    method: 'GET',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_get_cart_checkout_attrs',
+      nonce: wps.nonce
+    }
+  });
+
+};
+
 export {
-  beforeCheckoutHook
+  beforeCheckoutHook,
+  anyCustomAttrs
 };

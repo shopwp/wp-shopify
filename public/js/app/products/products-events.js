@@ -52,7 +52,6 @@ import {
 } from '../cart/cart-ui';
 
 
-
 /*
 
 showProductMetaError

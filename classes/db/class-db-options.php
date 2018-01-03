@@ -5,6 +5,8 @@ namespace WPS\DB;
 use WPS\Utils;
 use WPS\DB\Products;
 use WPS\DB\Settings_Connection;
+use WPS\Progress_Bar;
+use WPS\Config;
 
 class Options extends \WPS\DB {
 
@@ -68,6 +70,7 @@ class Options extends \WPS\DB {
 	public function insert_options($products) {
 
     $DB_Settings_Connection = new Settings_Connection();
+    $progress = new Progress_Bar(new Config());
     $results = array();
 
     foreach ($products as $key => $product) {
@@ -78,7 +81,10 @@ class Options extends \WPS\DB {
 
           if ($DB_Settings_Connection->is_syncing()) {
 
+            error_log('INSERTING OPTION -----');
+
             $results[] = $this->insert($option, 'option');
+            $progress->increment_current_amount('products');
 
           } else {
 

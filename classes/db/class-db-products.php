@@ -13,6 +13,7 @@ use WPS\Config;
 use WPS\Backend;
 use WPS\Transients;
 use WPS\DB\Settings_Connection;
+use WPS\Progress_Bar;
 
 class Products extends \WPS\DB {
 
@@ -162,8 +163,10 @@ class Products extends \WPS\DB {
     $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
     $DB_Settings_Connection = new Settings_Connection();
     $DB_Tags = new Tags();
+    $progress = new Progress_Bar(new Config());
     $results = array();
     $index = 1;
+
 
     foreach ($products as $key => $product) {
 
@@ -186,7 +189,7 @@ class Products extends \WPS\DB {
 
           $DB_Tags->insert_tags($product, $customPostTypeID);
 
-          // Inserts Product into WPS table
+          error_log('INSERTING PRODUCT -----');
           $results[] = $this->insert($product, 'product');
 
         }
@@ -198,6 +201,7 @@ class Products extends \WPS\DB {
 
       }
 
+      $progress->increment_current_amount('products');
       $index++;
 
     }

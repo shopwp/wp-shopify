@@ -35,6 +35,8 @@ Tab Content: Settings
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-webhooks-urls.php';
 
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-sync-image-alt.php';
+
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
 

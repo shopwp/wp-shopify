@@ -96,7 +96,7 @@ function clearAllCache() {
 
     */
     try {
-      var clearCacheResponse = await clearCache();
+      var clearCacheResponse = await clearCache(); // wps_clear_cache
 
       if (isWordPressError(clearCacheResponse)) {
         reject(clearCacheResponse.data);

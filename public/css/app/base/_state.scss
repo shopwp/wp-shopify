@@ -30,7 +30,7 @@ Fade out
   to {
     opacity: 0;
   }
-  
+
 }
 
 
@@ -419,10 +419,10 @@ Shake
 
 .wps-notice-inline {
   text-align: center;
-  width: calc(100% - 2.4em);
   font-size: 1em;
   padding: 1.2em;
   margin-top: 0;
+  width: 300px;
 
   p {
     margin: 0;

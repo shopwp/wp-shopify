@@ -7,6 +7,7 @@ use WPS\WS;
 use WPS\DB\Collects;
 use WPS\Config;
 use WPS\CPT;
+use WPS\Progress_Bar;
 
 class Collections_Custom extends \WPS\DB {
 
@@ -85,7 +86,13 @@ class Collections_Custom extends \WPS\DB {
   */
 	public function insert_custom_collections($custom_collections) {
 
+    // If no custom collections exist to insert, keep moving ...
+    if (empty($custom_collections)) {
+      return true;
+    }
+
     $results = array();
+    $progress = new Progress_Bar(new Config());
     $custom_collections = Utils::flatten_collections_image_prop($custom_collections);
     $index = CPT::wps_find_latest_menu_order('collections');
     $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
@@ -99,9 +106,13 @@ class Collections_Custom extends \WPS\DB {
         $custom_collection = $this->assign_foreign_key($custom_collection, $customPostTypeID);
         $custom_collection = $this->rename_primary_key($custom_collection);
 
+        error_log(print_r('INSERTING CUSTOM COLLECTION ----- ' . $index, true));
+
         $results[$customPostTypeID] = $this->insert($custom_collection, 'custom_collection');
 
       }
+
+      $progress->increment_current_amount('custom_collections');
 
       $index++;
 
@@ -120,6 +131,10 @@ class Collections_Custom extends \WPS\DB {
   */
 	public function insert_custom_collection($collection) {
 
+    if (!Utils::isStillSyncing()) {
+      wp_die();
+    }
+
     $WS = new WS(new Config());
     $DB_Collects = new Collects();
     $collection = Utils::flatten_collections_image_prop($collection);
@@ -127,7 +142,7 @@ class Collections_Custom extends \WPS\DB {
     $newCollectionID = Utils::wps_find_collection_id($collection);
 
     $shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
-
+error_log('---- xxxx -----');
     $customPostTypeID = CPT::wps_insert_or_update_collection($collection, $existingCollections);
 
     $collection = $this->assign_foreign_key($collection, $customPostTypeID);
@@ -139,6 +154,9 @@ class Collections_Custom extends \WPS\DB {
 
     $results['custom_collection'] = $this->insert($collection, 'custom_collection');
 
+error_log('---- $customPostTypeID -----');
+error_log(print_r($customPostTypeID, true));
+error_log('---- /$customPostTypeID -----');
     return $results;
 
   }

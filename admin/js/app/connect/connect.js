@@ -12,7 +12,8 @@ import {
 import {
   unbindConnectForm,
   unbindDisconnectForm,
-  formatConnectorFormData
+  formatConnectorFormData,
+  formConnectionRules
 } from '../forms/forms';
 
 import {
@@ -29,8 +30,7 @@ import {
 
 import {
   createProgressLoader,
-  removeProgressLoader,
-  updateProgressLoader
+  removeProgressLoader
 } from '../utils/utils-progress';
 
 import {
@@ -45,7 +45,7 @@ import {
   insertXMark,
   initCloseModalEvents,
   insertCheckmark,
-  setConnectionMessage,
+  setConnectionNotice,
   setDisconnectSubmit
 } from '../utils/utils-dom';
 
@@ -65,8 +65,7 @@ import {
   getConnectionData,
   setSyncingIndicator,
   removePluginData,
-  syncWithCPT,
-  startProgressBar
+  syncWithCPT
 } from '../ws/ws.js';
 
 import {
@@ -87,6 +86,24 @@ import {
 } from '../disconnect/disconnect.js';
 
 
+
+function onSuccess(label, $submitButton) {
+
+  label.addClass("valid").text("Ok!");
+  jQuery('#wps-errors').addClass('wps-is-hidden');
+  enable($submitButton);
+
+}
+
+
+function onError(error, $submitButton) {
+
+  disable($submitButton);
+  showAdminNotice(error.text(), 'error');
+
+}
+
+
 /*
 
 Step 1/2: Shopify Connect
@@ -104,24 +121,12 @@ function onConnectionFormSubmit() {
 
   }).validate({
 
-    rules: {
-      "js_access_token": {
-        alphaNumeric: true
-      },
-      "domain": {
-        domainRule: true
-      }
-    },
+    rules: formConnectionRules(),
     success: function(label) {
-      label.addClass("valid").text("Ok!");
-      jQuery('#wps-errors').addClass('wps-is-hidden');
-      enable($submitButton);
-
+      onSuccess(label, $submitButton);
     },
     errorPlacement: function(error) {
-      disable($submitButton);
-      showAdminNotice(error.text(), 'error');
-
+      onError(error, $submitButton);
     },
     submitHandler: async function(form) {
 
@@ -130,7 +135,6 @@ function onConnectionFormSubmit() {
       var $formInputNonce = jQuery("#wps_settings_connection_nonce_id");
       var $connectorModal = createConnectorModal();
       var domain = jQuery('#wps_settings_connection_domain').val();
-
 
       setStartingURL(window.location.pathname + window.location.search);
 
@@ -153,7 +157,6 @@ function onConnectionFormSubmit() {
 
       showConnectorModal($connectorModal);
       setNonce( $formInputNonce.val() );
-      setConnectionStepMessage('Saving connection ...');
 
 
       /*
@@ -163,16 +166,15 @@ function onConnectionFormSubmit() {
       */
       try {
 
-        var connectionData = await insertConnectionData(formData);
+        setConnectionStepMessage('Saving connection ...');
+
+        var connectionData = await insertConnectionData(formData); // wps_insert_connection
 
         if (isWordPressError(connectionData)) {
           throw connectionData.data;
 
         } else if (isError(connectionData)) {
           throw connectionData;
-
-        } else {
-          setConnectionStepMessage('Getting authentication token ...');
 
         }
 
@@ -193,188 +195,223 @@ function onConnectionFormSubmit() {
 
       /*
 
-      Step 2. Get Waypoint auth token...
-      (Makes call to wpshop.io)
+      Step 2. Remove any existing data
 
       */
       try {
 
-        var authToken = await getAuthToken();
+        setConnectionStepMessage('Cleaning out any existing data ...');
 
-        if (isWordPressError(authToken)) {
-          throw authToken.data;
+        var removePluginDataResp = await removePluginData();
 
-        } else if (isError(authToken)) {
-          throw authToken;
+        if (isWordPressError(removePluginDataResp)) {
 
-        } else {
-          setConnectionStepMessage('Verifying authenticated user ...');
+          throw removePluginDataResp.data;
+
+        } else if (isError(removePluginDataResp)) {
+
+          throw removePluginDataResp;
+
         }
 
-      } catch (errors) {
+      } catch(errors) {
 
-        uninstallPluginData({
+        return uninstallPluginData({
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing at getAuthToken',
-          buttonText: 'Exit Sync'
+          stepText: 'Unable to finish syncing',
+          buttonText: 'Exit Sync',
+          clearInputs: true
         });
-
-        return;
 
       }
 
 
       /*
 
-      Step 3. Get Waypoint auth user data ...
-      (Makes call to wpshop.io)
+      Step 1. Turn on syncing flag
 
       */
       try {
 
-        var authUserData = await getAuthUser(authToken.token);
+        setConnectionStepMessage('Preparing to sync ...');
 
-        if (isWordPressError(authUserData)) {
-          throw authUserData.data;
+        var updatingSyncingIndicator = await setSyncingIndicator(1);
 
-        } else if (isError(authUserData)) {
-          throw authUserData;
+        if (isWordPressError(updatingSyncingIndicator)) {
 
-        } else {
-          setConnectionStepMessage('Establishing session ...');
+          throw updatingSyncingIndicator.data;
+
+        } else if (isError(updatingSyncingIndicator)) {
+
+          throw updatingSyncingIndicator;
+
         }
 
-      } catch (errors) {
+      } catch(errors) {
 
-        uninstallPluginData({
+        return uninstallPluginData({
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing at getAuthUser',
-          buttonText: 'Exit Sync'
+          stepText: 'Unable to finish syncing',
+          buttonText: 'Exit Sync',
+          clearInputs: true
         });
-
-        return;
 
       }
 
 
       /*
 
-      Step 4. Update auth user data ...
-      (Makes call to wpshop.io)
+      Step 3. Sync data
 
       */
       try {
 
-        var authUserResult = await updateAuthUser(authToken.token, authUserData);
+        //
+        // TODO:
+        // Create a real-time progress bar to show syncing progress
+        //
 
-        if (isWordPressError(authUserResult)) {
-          throw authUserResult.data;
 
-        } else if (isError(authUserResult)) {
-          throw authUserResult;
+        updateModalHeadingText('Syncing ...');
+        updateModalButtonText('Cancel syncing process');
+        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+
+        var syncPluginDataResp = await syncPluginData();
+
+        if (isWordPressError(syncPluginDataResp)) {
+          throw syncPluginDataResp.data;
+
+        } else if (isError(syncPluginDataResp)) {
+          throw syncPluginDataResp;
 
         } else {
-          setConnectionStepMessage('Creating Shopify URL ...');
+          setConnectionStepMessage('Finishing ...');
         }
 
       } catch (errors) {
 
-        uninstallPluginData({
+        return uninstallPluginData({
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing at updateAuthUser',
-          buttonText: 'Exit Sync'
+          stepText: 'Unable to finish syncing',
+          buttonText: 'Exit Sync',
+          clearInputs: true
         });
-
-        return;
 
       }
 
 
       /*
 
-      Step 5. Getting Shopify URL ...
+      Step 4. Sync new data with CPT
+
+      */
+      // try {
+      //   var syncWithCPTResponse = await syncWithCPT();
+      //
+      //   if (isWordPressError(syncWithCPTResponse)) {
+      //     throw syncWithCPTResponse.data;
+      //
+      //   } else if (isError(syncWithCPTResponse)) {
+      //     throw syncWithCPTResponse;
+      //
+      //   } else {
+      //     setConnectionStepMessage('Finishing ...');
+      //   }
+      //
+      // } catch(errors) {
+      //
+      //   return uninstallPluginData({
+      //     stepText: 'Failed syncing custom post types',
+      //     headingText: 'Canceled',
+      //     errorList: errors,
+      //     buttonText: 'Exit Sync',
+      //     xMark: true
+      //   });
+      //
+      // }
+
+
+      /*
+
+      Step 4. Clear all plugin cache
 
       */
       try {
 
-        var shopifyURLResponse = await getShopifyURL();
+        var clearAllCacheResponse = await clearAllCache();
 
-        if (isWordPressError(shopifyURLResponse)) {
-          throw shopifyURLResponse.data;
+        if (isWordPressError(clearAllCacheResponse)) {
+          throw clearAllCacheResponse.data;
 
-        } else if (isError(shopifyURLResponse)) {
-          throw shopifyURLResponse;
-
-        } else {
-
-          var shopifyURL = shopifyURLResponse.data;
-
-          setConnectionStepMessage('Redirecting to Shopify ...');
-          updateModalHeadingText('Redirecting to Shopify ...');
+        } else if (isError(syncPluginDataResp)) {
+          throw clearAllCacheResponse;
 
         }
 
-      } catch (errors) {
+      } catch(errors) {
 
-        uninstallPluginData({
+        return uninstallPluginData({
           errorList: errors,
           xMark: true,
           headingText: 'Canceled',
-          stepText: 'Unable to finish syncing at getShopifyURL',
-          buttonText: 'Exit Sync'
+          stepText: 'Unable to finish syncing',
+          buttonText: 'Exit Sync',
+          clearInputs: true
         });
-
-        return;
 
       }
 
 
       /*
 
-      Step 6. Sending user to Shopify for OAuth ...
+      Step 5. Turn off syncing flag
 
       */
-      setTimeout(async function() {
+      try {
 
-        if (connectionInProgress() === 'true') {
+        var updatingSyncingIndicator = await setSyncingIndicator(0);
 
-          /*
+        if (isWordPressError(updatingSyncingIndicator)) {
 
-          Saving modal to LS for later use
+          throw updatingSyncingIndicator.data;
 
-          */
-          setModalCache(
-            jQuery('.wps-connector-wrapper')
-              .clone()
-              .wrap('<p/>')
-              .parent()
-              .html()
-          );
+        } else if (isError(updatingSyncingIndicator)) {
 
-          // Let's go!
-          window.location = shopifyURL;
+          throw updatingSyncingIndicator;
 
         } else {
 
-          uninstallPluginData({
-            headingText: 'Canceled',
-            stepText: 'Unable to finish syncing at setModalCache',
-            buttonText: 'Exit Sync',
-            errorList: 'Stopped by user',
-            xMark: false
-          });
-
-          return;
+          initCloseModalEvents();
+          insertCheckmark();
+          setConnectionNotice('Success! You\'re now connected and syncing with Shopify.', 'success');
+          updateModalHeadingText('Connected');
+          setConnectionProgress("false");
+          updateModalButtonText("Ok, let's go!");
+          setDisconnectSubmit();
+          disconnectInit();
 
         }
 
-      }, 2000);
+      } catch(errors) {
+
+        return uninstallPluginData({
+          errorList: errors,
+          xMark: true,
+          headingText: 'Canceled',
+          stepText: 'Unable to finish syncing',
+          buttonText: 'Exit Sync',
+          clearInputs: true
+        });
+
+      }
+
+      // setConnectionStepMessage('Redirecting to Shopify');
 
     }
 
@@ -407,217 +444,7 @@ async function onAuthRedirect() {
   updateModalButtonText('Cancel syncing process');
   setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
 
-  /*
 
-  Step 1. Turn on syncing flag
-
-  */
-  try {
-
-    var updatingSyncingIndicator = await setSyncingIndicator(1);
-
-    if (isWordPressError(updatingSyncingIndicator)) {
-
-      throw updatingSyncingIndicator.data;
-
-    } else if (isError(updatingSyncingIndicator)) {
-
-      throw updatingSyncingIndicator;
-
-    }
-
-  } catch(errors) {
-
-    return uninstallPluginData({
-      errorList: errors,
-      xMark: true,
-      headingText: 'Canceled',
-      stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync',
-      clearInputs: true
-    });
-
-  }
-
-
-  /*
-
-  Step 2. Remove any existing data
-
-  */
-  try {
-
-    var removePluginDataResp = await removePluginData();
-
-    if (isWordPressError(removePluginDataResp)) {
-
-      throw removePluginDataResp.data;
-
-    } else if (isError(removePluginDataResp)) {
-
-      throw removePluginDataResp;
-
-    }
-
-  } catch(errors) {
-
-    return uninstallPluginData({
-      errorList: errors,
-      xMark: true,
-      headingText: 'Canceled',
-      stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync',
-      clearInputs: true
-    });
-
-  }
-
-
-  /*
-
-  Step 3. Sync data
-
-  */
-  try {
-
-    //
-    // TODO:
-    // Create a real-time progress bar to show syncing progress
-    //
-    // startProgressBar('some_data');
-
-    var syncPluginDataResp = await syncPluginData();
-
-    if (isWordPressError(syncPluginDataResp)) {
-      throw syncPluginDataResp.data;
-
-    } else if (isError(syncPluginDataResp)) {
-      throw syncPluginDataResp;
-
-    } else {
-      setConnectionStepMessage('Finishing ...');
-    }
-
-  } catch (errors) {
-
-    return uninstallPluginData({
-      errorList: errors,
-      xMark: true,
-      headingText: 'Canceled',
-      stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync',
-      clearInputs: true
-    });
-
-  }
-
-
-  /*
-
-  Step 4. Sync new data with CPT
-
-  */
-  // try {
-  //   var syncWithCPTResponse = await syncWithCPT();
-  //
-  //   if (isWordPressError(syncWithCPTResponse)) {
-  //     throw syncWithCPTResponse.data;
-  //
-  //   } else if (isError(syncWithCPTResponse)) {
-  //     throw syncWithCPTResponse;
-  //
-  //   } else {
-  //     setConnectionStepMessage('Finishing ...');
-  //   }
-  //
-  // } catch(errors) {
-  //
-  //   return uninstallPluginData({
-  //     stepText: 'Failed syncing custom post types',
-  //     headingText: 'Canceled',
-  //     errorList: errors,
-  //     buttonText: 'Exit Sync',
-  //     xMark: true
-  //   });
-  //
-  // }
-
-
-  /*
-
-  Step 4. Clear all plugin cache
-
-  */
-  try {
-
-    var clearAllCacheResponse = await clearAllCache();
-
-    if (isWordPressError(clearAllCacheResponse)) {
-      throw clearAllCacheResponse.data;
-
-    } else if (isError(syncPluginDataResp)) {
-      throw clearAllCacheResponse;
-
-    }
-
-  } catch(errors) {
-
-    return uninstallPluginData({
-      errorList: errors,
-      xMark: true,
-      headingText: 'Canceled',
-      stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync',
-      clearInputs: true
-    });
-
-  }
-
-
-  /*
-
-  Step 5. Turn off syncing flag
-
-  */
-  try {
-
-    var updatingSyncingIndicator = await setSyncingIndicator(0);
-
-    if (isWordPressError(updatingSyncingIndicator)) {
-
-      throw updatingSyncingIndicator.data;
-
-    } else if (isError(updatingSyncingIndicator)) {
-
-      throw updatingSyncingIndicator;
-
-    } else {
-
-      initCloseModalEvents();
-      insertCheckmark();
-      setConnectionMessage('Success! You\'re now connected and syncing with Shopify.', 'success');
-      updateModalHeadingText('Connected');
-      setConnectionProgress("false");
-      updateModalButtonText("Ok, let's go!");
-      setDisconnectSubmit();
-      disconnectInit();
-
-    }
-
-  } catch(errors) {
-
-    return uninstallPluginData({
-      errorList: errors,
-      xMark: true,
-      headingText: 'Canceled',
-      stepText: 'Unable to finish syncing',
-      buttonText: 'Exit Sync',
-      clearInputs: true
-    });
-
-  }
-
-  // setConnectionStepMessage('Redirecting to Shopify');
 
 
 }

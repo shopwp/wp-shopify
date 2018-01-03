@@ -17,6 +17,8 @@ class Settings_General extends \WPS\DB {
   public $plugin_name;
   public $num_posts;
   public $cache_group;
+  public $title_as_alt;
+
 
   /*
 
@@ -40,6 +42,7 @@ class Settings_General extends \WPS\DB {
     $this->cache_group            = 'wps_db_general';
     $this->num_posts              = get_option('posts_per_page');
     $this->cart_loaded            = 1;
+    $this->title_as_alt           = 0;
     $this->price_with_currency    = 0;
 
     $this->styles_all             = 1;
@@ -69,7 +72,8 @@ class Settings_General extends \WPS\DB {
       'plugin_version'            => '%s',
       'plugin_author'             => '%s',
       'price_with_currency'       => '%d',
-      'cart_loaded'               => '%d'
+      'cart_loaded'               => '%d',
+      'title_as_alt'              => '%d'
     );
   }
 
@@ -94,7 +98,8 @@ class Settings_General extends \WPS\DB {
       'plugin_version'            => $this->plugin_version,
       'plugin_author'             => $this->plugin_author,
       'price_with_currency'       => $this->price_with_currency,
-      'cart_loaded'               => $this->cart_loaded
+      'cart_loaded'               => $this->cart_loaded,
+      'title_as_alt'              => $this->title_as_alt
     );
   }
 
@@ -122,7 +127,8 @@ class Settings_General extends \WPS\DB {
       'plugin_version'            => $this->plugin_version,
       'plugin_author'             => $this->plugin_author,
       'price_with_currency'       => $this->price_with_currency,
-      'cart_loaded'               => $this->cart_loaded
+      'cart_loaded'               => $this->cart_loaded,
+      'title_as_alt'              => $this->title_as_alt
     );
 
     $row = $this->get_rows('id', 1);
@@ -215,6 +221,7 @@ class Settings_General extends \WPS\DB {
       `plugin_author` varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
       `price_with_currency` tinyint(1) DEFAULT 0,
       `cart_loaded` tinyint(1) DEFAULT '{$this->cart_loaded}',
+      `title_as_alt` tinyint(1) DEFAULT '{$this->title_as_alt}',
 		  PRIMARY KEY  (`{$this->primary_key}`)
 		) ENGINE=InnoDB $collate";
 
@@ -246,5 +253,25 @@ class Settings_General extends \WPS\DB {
     return $this->get_column_single('url_products');
   }
 
+
+  /*
+
+  Get the current products slug
+  TODO: We should abstract out the logic here into the main db class. We shouldn't need to
+  check whether the return value of get_column_single is truthy or not. Then we can simply
+  use get_column_single instead of title_as_alt
+
+  */
+	public function title_as_alt() {
+
+    $setting = $this->get_column_single('title_as_alt');
+
+    if (is_array($setting) && isset($setting)) {
+      return $setting[0]->title_as_alt;
+    } else {
+      return false;
+    }
+
+  }
 
 }

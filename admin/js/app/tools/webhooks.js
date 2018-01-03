@@ -1,10 +1,6 @@
 import isError from 'lodash/isError';
 
 import {
-  syncPluginData
-} from '../ws/middleware';
-
-import {
   createConnectorModal,
   injectConnectorModal,
   showConnectorModal,
@@ -16,21 +12,27 @@ import {
   insertXMark,
   initCloseModalEvents,
   insertCheckmark,
-  setConnectionNotice
+  setConnectionNotice,
+  addConnectorStepMessage,
+  addNotice,
+  showAnyWarnings
 } from '../utils/utils-dom';
 
 import {
   connectionInProgress,
   setConnectionProgress,
-  setModalCache,
-  clearLocalstorageCache
-} from '../ws/localstorage.js';
+  setModalCache
+} from '../ws/localstorage';
 
 import {
   setSyncingIndicator,
-  removePluginData,
-  syncWithCPT
-} from '../ws/ws.js';
+  removeWebhooks,
+  registerWebhooks
+} from '../ws/ws';
+
+import {
+  syncWebhooks
+} from '../ws/syncing';
 
 import {
   onModalClose
@@ -52,10 +54,6 @@ import {
 } from '../utils/utils-progress';
 
 import {
-  clearAllCache
-} from '../tools/cache';
-
-import {
   updateDomAfterDisconnect
 } from '../disconnect/disconnect.js';
 
@@ -69,17 +67,18 @@ TODO: We could potentially enhance performance considerably if we do
 checksum comparisons. Look into this.
 
 */
-function onResyncSubmit() {
+function onWebhooksSubmit() {
 
-  jQuery(".wps-is-active #wps-button-sync").unbind().on('click', async function(e) {
+  jQuery(".wps-is-active #wps-button-webhooks").unbind().on('click', async function(e) {
 
     e.preventDefault();
 
     var $resyncButton = jQuery(this);
 
-    clearLocalstorageCache();
+    console.log("$resyncButton: ", $resyncButton);
+
     disable($resyncButton);
-    injectConnectorModal( createConnectorModal('Re-syncing ...', 'Cancel sync') );
+    injectConnectorModal( createConnectorModal('Reconnecting Webhooks ...', 'Cancel') );
 
     // Sets up cancel & close listenters
     onModalClose();
@@ -102,7 +101,7 @@ function onResyncSubmit() {
         throw updatingSyncingIndicator;
 
       } else {
-        setConnectionStepMessage('Preparing for sync ...');
+        setConnectionStepMessage('Removing any existing webhooks ...');
 
       }
 
@@ -134,7 +133,8 @@ function onResyncSubmit() {
     */
     try {
 
-      var removedResponse = await removePluginData();
+      var removedResponse = await removeWebhooks();
+      console.log("removedResponse: ", removedResponse);
 
       if (isWordPressError(removedResponse)) {
         throw removedResponse.data;
@@ -143,12 +143,12 @@ function onResyncSubmit() {
         throw removedResponse;
 
       } else {
-        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+        setConnectionStepMessage('Syncing new webhooks ...');
 
       }
 
     } catch(errors) {
-
+      console.log("errors: ", errors);
       updateModalHeadingText('Canceling ...');
       endProgressBar();
 
@@ -175,8 +175,8 @@ function onResyncSubmit() {
     */
     try {
 
-      var progressSession = await startProgressBar(true);
-
+      var progressSession = await startProgressBar(true, ['webhooks']);
+      console.log("progressSession: ", progressSession);
       if (isWordPressError(progressSession)) {
         throw progressSession.data;
 
@@ -217,6 +217,8 @@ function onResyncSubmit() {
     appendProgressBars(progressSession.data);
 
 
+
+
     /*
 
     Step 2. Syncing new data
@@ -224,15 +226,15 @@ function onResyncSubmit() {
     */
     try {
 
-      var syncPluginDataResp = await syncPluginData();
+      var registerWebhooksResp = await syncWebhooks();
 
-      console.log("&&&&& syncPluginDataResp: ", syncPluginDataResp);
+      console.log("registerWebhooksResp: ", registerWebhooksResp);
 
-      if (isWordPressError(syncPluginDataResp)) {
-        throw syncPluginDataResp.data;
+      if (isWordPressError(registerWebhooksResp)) {
+        throw registerWebhooksResp.data;
 
-      } else if (isError(syncPluginDataResp)) {
-        throw syncPluginDataResp;
+      } else if (isError(registerWebhooksResp)) {
+        throw registerWebhooksResp;
 
       } else {
         setConnectionStepMessage('Finishing ...');
@@ -240,7 +242,7 @@ function onResyncSubmit() {
       }
 
     } catch(errors) {
-      console.log("syncPluginDatasyncPluginData: ", errors);
+      console.log("syncWebhooks: ", errors);
       updateModalHeadingText('Canceling ...');
       endProgressBar();
 
@@ -249,80 +251,6 @@ function onResyncSubmit() {
         errorList: errors,
         buttonText: 'Exit Sync',
         xMark: true,
-        clearInputs: false,
-        resync: true,
-        noticeType: 'error'
-      });
-
-      enable($resyncButton);
-      return;
-
-    }
-
-
-    /*
-
-    Step 4. Sync new data with CPT
-
-    */
-    // try {
-    //   var syncWithCPTResponse = await syncWithCPT();
-    //
-    //   if (isWordPressError(syncWithCPTResponse)) {
-    //     throw syncWithCPTResponse.data;
-    //
-    //   } else if (isError(syncWithCPTResponse)) {
-    //     throw syncWithCPTResponse;
-    //
-    //   } else {
-    //     setConnectionStepMessage('Finishing ...');
-    //   }
-    //
-    // } catch(errors) {
-    //
-    //   updateDomAfterDisconnect({
-    //     stepText: 'Failed syncing custom post types',
-    //     headingText: 'Canceled',
-    //     errorList: errors,
-    //     buttonText: 'Exit Sync',
-    //     xMark: true,
-    //     clearInputs: false,
-    //     resync: true
-    //   });
-    //
-    //   enable($resyncButton);
-    //
-    //   return;
-    //
-    // }
-
-
-    /*
-
-    Step 5. Clear all plugin cache
-
-    */
-    try {
-
-      var clearAllCacheResponse = await clearAllCache();
-
-      if (isWordPressError(clearAllCacheResponse)) {
-        throw clearAllCacheResponse.data;
-
-      } else if (isError(clearAllCacheResponse)) {
-        throw clearAllCacheResponse;
-
-      }
-
-    } catch(errors) {
-
-      endProgressBar();
-
-      updateDomAfterDisconnect({
-        xMark: true,
-        headingText: 'Canceled',
-        buttonText: 'Exit Sync',
-        errorList: errors,
         clearInputs: false,
         resync: true,
         noticeType: 'error'
@@ -375,12 +303,19 @@ function onResyncSubmit() {
 
     }
 
+    console.log('Any warnings to show? ', registerWebhooksResp.data.warnings);
+
+    showAnyWarnings(registerWebhooksResp.data.warnings, 'Warning: Unable to connect the webhook: ');
+
+
     initCloseModalEvents();
     insertCheckmark();
     setConnectionNotice('Success! You\'re now syncing with Shopify.', 'success');
     updateModalHeadingText('Sync Complete');
     updateModalButtonText("Ok, let's go!");
     enable($resyncButton);
+
+
 
 
   });
@@ -390,5 +325,5 @@ function onResyncSubmit() {
 
 
 export {
-  onResyncSubmit
+  onWebhooksSubmit
 };

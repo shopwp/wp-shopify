@@ -1,3 +1,5 @@
+import forOwn from 'lodash/forOwn';
+
 import {
   syncPluginData
 } from '../forms/forms';
@@ -104,7 +106,7 @@ TODO: Needs dynamic image paths
 */
 function createConnectorModal(heading = 'Connecting ...', cancelText = 'Cancel connection') {
 
-  if(getModalCache() === null) {
+  if (getModalCache() === null) {
 
     return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><h1 class="wps-connector-heading"><span>' + heading + '</span> <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/shopify.svg" /> to <img class="wps-connector-logo" src="' + window.wps.pluginsDirURL + 'admin/imgs/logo-wp.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">' + cancelText + '</button></div><div class="wps-connector-content"></div></ div></div>');
 
@@ -127,15 +129,15 @@ function updateModalHeadingText(text) {
 
 /*
 
-Util: Adds a notice message to the connector modal
+Adds a message to the step
 Returns: undefined
 
 */
-function addConnectorNotice(content, type = '', supportingMessage = '') {
+function addConnectorStepMessage(content, type = '', supportingMessage = '') {
 
   var $notice;
 
-  if(type === 'error') {
+  if (type === 'error') {
     $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-error"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span></div></div>');
 
   } else {
@@ -180,7 +182,7 @@ function setConnectionStepMessage(message, supportingMessage = '') {
 
   if (connectionInProgress() !== 'false') {
     insertCheckmark();
-    addConnectorNotice(message, '', supportingMessage);
+    addConnectorStepMessage(message, '', supportingMessage);
   }
 
 }
@@ -191,8 +193,29 @@ function setConnectionStepMessage(message, supportingMessage = '') {
 Inserts a step in a connection process
 
 */
-function setConnectionMessage(message, type) {
+function setConnectionNotice(message, type) {
   jQuery('.wps-connector-heading').after('<div class="notice notice-' + type + '">' + message + '</div>');
+}
+
+
+/*
+
+Inserts a step in a connection process
+
+*/
+function addNotice(message, type) {
+
+  var $heading = jQuery('.wps-connector-heading');
+  var $existingNotices = $heading.next('.notice');
+
+  if ($existingNotices.length) {
+    $existingNotices.after('<div class="notice notice-' + type + '">' + message + '</div>');
+
+  } else {
+    setConnectionNotice(message, type);
+  }
+
+
 }
 
 
@@ -319,7 +342,17 @@ Clear Connect Inputs
 
 */
 function clearConnectInputs() {
-  jQuery('#wps_settings_connection_js_access_token, #wps_settings_connection_domain').val('').removeClass('valid').prop('disabled', false);
+  jQuery('#wps-connect .wps-form-group input').val('').removeClass('valid').prop('disabled', false);
+}
+
+
+/*
+
+Clear Connect Inputs
+
+*/
+function disableConnectInputs() {
+  jQuery('#wps-connect .wps-form-group input').prop('disabled', true).attr('disabled', true);
 }
 
 
@@ -353,8 +386,23 @@ function setDisconnectSubmit() {
     .attr('name', 'submitDisconnect')
     .attr('id', 'submitDisconnect');
 
-  jQuery('#wps_settings_connection_js_access_token').prop('disabled', true).attr('disabled', true);
-  jQuery('#wps_settings_connection_domain').prop('disabled', true).attr('disabled', true);
+  disableConnectInputs();
+
+}
+
+
+/*
+
+Show any warnings
+
+*/
+function showAnyWarnings(warnings, msg = '') {
+
+  var type = 'warning';
+
+  forOwn(warnings, (value, key) => {
+    addNotice(msg + key, type);
+  });
 
 }
 
@@ -365,7 +413,7 @@ export {
   injectConnectorModal,
   showConnectorModal,
   createConnectorModal,
-  addConnectorNotice,
+  addConnectorStepMessage,
   initCloseModalEvents,
   stopSpinner,
   insertCheckmark,
@@ -375,12 +423,14 @@ export {
   updateModalHeadingText,
   updateCurrentConnectionStepText,
   setConnectionStepMessage,
-  setConnectionMessage,
+  setConnectionNotice,
   showAdminNotice,
   toggleActive,
   ejectConnectorModal,
   updateConnectStatusHeading,
   clearConnectInputs,
   resetConnectSubmit,
-  setDisconnectSubmit
+  setDisconnectSubmit,
+  addNotice,
+  showAnyWarnings
 };

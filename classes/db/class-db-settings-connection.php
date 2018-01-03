@@ -2,6 +2,10 @@
 
 namespace WPS\DB;
 
+use WPS\Utils;
+use WPS\Config;
+use WPS\Progress_Bar;
+
 class Settings_Connection extends \WPS\DB {
 
   public $table_name;
@@ -30,16 +34,23 @@ class Settings_Connection extends \WPS\DB {
 
   */
 	public function get_columns() {
+
     return array(
       'id'                        => '%d',
       'domain'                    => '%s',
-      'js_access_token'           => '%s',
-      'access_token'              => '%s',
-      'app_id'                    => '%s',
+      'js_access_token'           => '%s', // now storefront access token
+      'access_token'              => '%s', // soon to be deprecated
+      'app_id'                    => '%s', // soon to be deprecated
       'webhook_id'                => '%s',
       'nonce'                     => '%s',
-      'is_syncing'                => '%d'
+      'is_syncing'                => '%d',
+      'api_key'                   => '%s',
+      'password'                  => '%s',
+      'shared_secret'             => '%s',
+      'syncing_step_total'        => '%d',
+      'syncing_step_current'      => '%d'
     );
+
   }
 
 
@@ -52,12 +63,17 @@ class Settings_Connection extends \WPS\DB {
     return array(
       'id'                        => 1,
       'domain'                    => '',
-      'js_access_token'           => '',
-      'access_token'              => '',
-      'app_id'                    => '',
+      'js_access_token'           => '', // now storefront access token
+      'access_token'              => '', // soon to be deprecated
+      'app_id'                    => '', // soon to be deprecated
       'webhook_id'                => '',
       'nonce'                     => '',
-      'is_syncing'                => 0
+      'is_syncing'                => 0,
+      'api_key'                   => '',
+      'password'                  => '',
+      'shared_secret'             => '',
+      'syncing_step_total'        => 0,
+      'syncing_step_current'      => 0
     );
   }
 
@@ -70,6 +86,7 @@ class Settings_Connection extends \WPS\DB {
 	public function insert_connection($connectionData) {
 
     global $wpdb;
+    $progress = new Progress_Bar(new Config());
 
     if (isset($connectionData['domain']) && $connectionData['domain']) {
 
@@ -79,14 +96,18 @@ class Settings_Connection extends \WPS\DB {
         $results = $this->update($rowID, $connectionData);
 
       } else {
+
         $results = $this->insert($connectionData, 'connection');
 
       }
 
     } else {
+
       $results = false;
 
     }
+
+    $progress->increment_current_amount('connection');
 
     return $results;
 
@@ -117,9 +138,11 @@ class Settings_Connection extends \WPS\DB {
   is_syncing
 
   */
-  public function is_syncing() {
+  public function is_syncing($connection = false) {
 
-    $connection = $this->get();
+    if (!$connection) {
+      $connection = $this->get();
+    }
 
     if (is_object($connection) && $connection->is_syncing == 0) {
       return false;
@@ -156,6 +179,11 @@ class Settings_Connection extends \WPS\DB {
       `webhook_id` varchar(100) DEFAULT NULL,
       `nonce` varchar(100) DEFAULT NULL,
       `is_syncing` tinyint(1) DEFAULT 0,
+      `api_key` varchar(100) DEFAULT NULL,
+      `password` varchar(100) DEFAULT NULL,
+      `shared_secret` varchar(100) DEFAULT NULL,
+      `syncing_step_total` bigint(100) unsigned NULL,
+      `syncing_step_current` bigint(100) unsigned NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 
@@ -176,5 +204,20 @@ class Settings_Connection extends \WPS\DB {
     }
 
   }
+
+
+
+  public function shared_secret() {
+
+    $setting = $this->get_column_single('shared_secret');
+
+    if (is_array($setting) && isset($setting)) {
+      return $setting[0]->shared_secret;
+    } else {
+      return false;
+    }
+
+  }
+
 
 }

@@ -6,7 +6,11 @@ use WPS\Config;
 use WPS\WS;
 use WPS\Utils;
 use WPS\DB\Products;
+use WPS\DB\Settings_Connection;
+use WPS\DB\Settings_General;
+use WPS\Progress_Bar;
 
+use GuzzleHttp\Promise;
 
 class Images extends \WPS\DB {
 
@@ -68,6 +72,33 @@ class Images extends \WPS\DB {
   }
 
 
+
+  public function get_alt_text_from_response($imageAltResponse) {
+
+    $data = json_decode($imageAltResponse->getBody()->getContents());
+
+    if (!is_object($data)) {
+      return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if nothing exists
+    }
+
+    if (property_exists($data, 'metafields')) {
+
+      if (is_array($data->metafields) && !empty($data->metafields)) {
+        return $data->metafields[0]->value;
+
+      } else {
+        return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
+      }
+
+    } else {
+
+      return new \WP_Error('error', $data->errors);
+
+    }
+
+  }
+
+
   /*
 
   Get single shop info value
@@ -77,10 +108,11 @@ class Images extends \WPS\DB {
 	public function insert_images($products) {
 
     $DB_Settings_Connection = new Settings_Connection();
+    $DB_Settings_General = new Settings_General();
     $WS = new WS(new Config());
-    $results = array();
+    $progress = new Progress_Bar(new Config());
+    $results = [];
     $count = 1;
-
 
     foreach ($products as $key => $product) {
 
@@ -96,21 +128,39 @@ class Images extends \WPS\DB {
           */
           if ($DB_Settings_Connection->is_syncing()) {
 
-            // Gets Alt from Shopify
-            $imageAltResponse = $WS->wps_ws_get_image_alt($image);
+            /*
 
-            if (is_wp_error($imageAltResponse)) {
+            If use title as alt isn't checked, go get the real alt text, otherwise
+            use the title for alt.
 
-              $results = false;
-              break 2;
+            */
+            if (!$DB_Settings_General->title_as_alt()) {
+
+              // Calls API asynchronously and returns a Promise
+              $response = $WS->wps_ws_get_image_alt($image);
+              $altText = $this->get_alt_text_from_response($response);
+
+              if (is_wp_error($altText)) {
+
+                // $results[] = false;
+                $results = false;
+                break 2;
+
+              } else {
+
+                // $results[] = $altText;
+                $image->alt = $altText;
+
+              }
 
             } else {
-
-              $image->alt = $imageAltResponse;
-              $results[] = $this->insert($image, 'image');
-              $count++;
-
+              $image->alt = $product->title;
             }
+
+            error_log('INSERTING IMAGE -----');
+
+            $results[] = $this->insert($image, 'image');
+
 
           } else {
 
@@ -118,6 +168,9 @@ class Images extends \WPS\DB {
             break 2;
 
           }
+
+          $progress->increment_current_amount('products');
+          $count++;
 
         }
 
@@ -278,7 +331,7 @@ class Images extends \WPS\DB {
   Currently used within imgs.partials/products/single/imgs.php
 
   */
-  public static function get_image_details_from_image($image) {
+  public static function get_image_details_from_image($image, $product) {
 
     $Config = new Config();
 

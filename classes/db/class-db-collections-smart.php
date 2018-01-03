@@ -5,9 +5,10 @@ namespace WPS\DB;
 use WPS\Utils;
 use WPS\WS;
 use WPS\DB\Collects;
+use WPS\DB\Settings_Connection;
 use WPS\Config;
 use WPS\CPT;
-
+use WPS\Progress_Bar;
 
 class Collections_Smart extends \WPS\DB {
 
@@ -87,7 +88,17 @@ class Collections_Smart extends \WPS\DB {
   */
 	public function insert_smart_collections($smart_collections) {
 
+    if (!Utils::isStillSyncing()) {
+      wp_die();
+    }
+
+    // If no smart collections exist to insert, keep moving ...
+    if (empty($smart_collections)) {
+      return true;
+    }
+
     $results = array();
+    $progress = new Progress_Bar(new Config());
     $smart_collections = Utils::flatten_collections_image_prop($smart_collections);
     $index = CPT::wps_find_latest_menu_order('collections');
     $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
@@ -103,11 +114,16 @@ class Collections_Smart extends \WPS\DB {
           $smart_collection = $this->assign_foreign_key($smart_collection, $customPostTypeID);
           $smart_collection = $this->rename_primary_key($smart_collection);
 
+
+          error_log(print_r('INSERTING SMART COLLECTION ----- ' . $index, true));
+
           $results[$customPostTypeID] = $this->insert($smart_collection, 'smart_collection');
 
         }
 
       }
+
+      $progress->increment_current_amount('smart_collections');
 
       $index++;
 
