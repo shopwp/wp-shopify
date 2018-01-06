@@ -224,9 +224,28 @@ class Orders extends \WPS\DB {
 
     $result = array();
 
-    foreach ($orders as $key => $order) {
-      $result[] = $this->update($order['id'], $order);
+    error_log('---- update_orders -----');
+    error_log(print_r($orders, true));
+    error_log('---- /update_orders -----');
+
+
+    if (is_array($orders) && isset($order['id'])) {
+
+      foreach ($orders as $key => $order) {
+        $result[] = $this->update($order['id'], $order);
+      }
+
     }
+
+
+    if (is_object($orders)) {
+      $result[] = $this->update($orders->id, $orders);
+    }
+
+
+    error_log('---- update_orders $result -----');
+    error_log(print_r($result, true));
+    error_log('---- /update_orders $result -----');
 
     return $result;
 
@@ -335,9 +354,9 @@ class Orders extends \WPS\DB {
       'id'                        => 0,
       'customer_id'               => 0,
       'email'                     => '',
-      'closed_at'                 => '',
-      'created_at'                => '',
-      'updated_at'                => '',
+      'closed_at'                 => date_i18n( 'Y-m-d H:i:s' ),
+      'created_at'                => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'                => date_i18n( 'Y-m-d H:i:s' ),
       'number'                    => 0,
       'note'                      => '',
       'token'                     => '',
@@ -422,7 +441,7 @@ class Orders extends \WPS\DB {
       `created_at` datetime,
       `updated_at` datetime,
       `number` bigint(100) unsigned DEFAULT NULL,
-      `note` mediumtext,
+      `note` longtext,
       `token` varchar(255) DEFAULT NULL,
       `gateway` varchar(255) DEFAULT NULL,
       `test` varchar(255) DEFAULT NULL,
@@ -459,24 +478,24 @@ class Orders extends \WPS\DB {
       `landing_site_ref` varchar(255) DEFAULT NULL,
       `order_number` bigint(100) unsigned DEFAULT NULL,
       `discount_codes` varchar(100) DEFAULT NULL,
-      `note_attributes` mediumtext,
+      `note_attributes` longtext,
       `payment_gateway_names` varchar(100) DEFAULT NULL,
       `processing_method` varchar(100) DEFAULT NULL,
       `checkout_id` bigint(100) unsigned DEFAULT NULL,
       `source_name` varchar(100) DEFAULT NULL,
       `fulfillment_status` varchar(100) DEFAULT NULL,
-      `tax_lines` mediumtext,
-      `tags` mediumtext,
+      `tax_lines` longtext,
+      `tags` longtext,
       `contact_email` varchar(100) DEFAULT NULL,
-      `order_status_url` mediumtext,
-      `line_items` mediumtext,
-      `shipping_lines` mediumtext,
-      `billing_address` mediumtext,
-      `shipping_address` mediumtext,
-      `fulfillments` mediumtext,
-      `client_details` mediumtext,
-      `refunds` mediumtext,
-      `customer` mediumtext,
+      `order_status_url` longtext,
+      `line_items` longtext,
+      `shipping_lines` longtext,
+      `billing_address` longtext,
+      `shipping_address` longtext,
+      `fulfillments` longtext,
+      `client_details` longtext,
+      `refunds` longtext,
+      `customer` longtext,
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 

@@ -396,12 +396,28 @@ class DB {
 
     $column_formats = array_merge( array_flip($data_keys), $column_formats );
 
+
 		$results = $wpdb->update(
 	    $this->table_name,
 	    $data,
 	    array($where => $row_id),
 	    $column_formats
 	  );
+
+		error_log('---- get type $results -----');
+		error_log(print_r(gettype($results), true));
+		error_log('---- get type $results -----');
+
+		error_log('---- $results -----');
+		error_log(print_r($results, true));
+		error_log('---- /$results -----');
+
+
+
+
+
+		exit( error_log(print_r( $wpdb->last_query, true )) );
+
 
 
 		if (isset($data['access_token'])) {

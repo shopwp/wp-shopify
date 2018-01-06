@@ -1,5 +1,6 @@
-import forEachRamda from 'ramda/es/forEach';
+import forEach from 'lodash/forEach';
 import isURL from 'validator/lib/isURL';
+
 import { stopSpinner } from './utils-dom';
 
 
@@ -408,8 +409,8 @@ Returns: undefined
 */
 function resetProgressIndicators() {
 
-  forEachRamda(stopSpinner, jQuery('.wps-admin-wrap .wps-spinner, .wps-connector-wrapper .wps-spinner'));
-  forEachRamda(enableButton, jQuery('.wps-admin-wrap .wps-btn, .wps-connector-wrapper .wps-btn, #submitConnect'));
+  forEach(jQuery('.wps-admin-wrap .wps-spinner, .wps-connector-wrapper .wps-spinner'), stopSpinner);
+  forEach(jQuery('.wps-admin-wrap .wps-btn, .wps-connector-wrapper .wps-btn, #submitConnect'), enableButton);
 
 };
 
@@ -484,6 +485,12 @@ function formatExpireDate(dateString) {
 
 }
 
+function getDataFromArray(array) {
+  return array.map(function(item) {
+    return item.data;
+  });
+}
+
 
 export {
   getUrlParams,
@@ -513,5 +520,6 @@ export {
   removeTrueAndTransformToArray,
   isWordPressError,
   hasProp,
-  isObject
+  isObject,
+  getDataFromArray
 };

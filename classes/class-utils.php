@@ -2405,6 +2405,46 @@ class Utils {
   }
 
 
+  /*
+
+  Generic function to sort by a specific key / value
+
+  */
+  public static function shift_arrays_up($array) {
+
+		$newArray = [];
+
+		foreach ($array as $index => $countArray) {
+
+			foreach ($countArray as $name => $count) {
+				$newArray[$name] = $count;
+			}
+		}
+
+		return $newArray;
+
+  }
+
+
+	/*
+
+  Generic function to sort by a specific key / value
+
+  */
+  public static function get_current_page($postVariables) {
+
+		if (!isset($postVariables['currentPage']) || !$postVariables['currentPage']) {
+			$currentPage = 1;
+
+		} else {
+			$currentPage = $postVariables['currentPage'];
+		}
+
+		return $currentPage;
+
+  }
+
+
 	/*
 
 	Ensures scripts don't timeout

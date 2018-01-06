@@ -1,14 +1,7 @@
-import concat from 'ramda/es/concat';
-
 import {
   getConnectionData,
   getShopData,
-  getProductsCount,
-  getCollectsCount,
-  getSmartCollectionsCount,
-  getCustomCollectionsCount,
-  getOrdersCount,
-  getCustomersCount,
+  getTotalCountsFromSession,
   insertConnectionData,
   insertShopData,
   insertProductsData,
@@ -56,6 +49,7 @@ async function streamConnection() {
 
   return new Promise(async function streamConnectionHandler(resolve, reject) {
 
+
     /*
 
     1. Get Shop Data
@@ -95,7 +89,7 @@ async function streamConnection() {
 
       var connection = await insertConnectionData(connectionData); // wps_insert_connection
       console.log("insertConnectionData: ", connection);
-      
+
       if (isWordPressError(connection)) {
         reject(connection.data);
         return;
@@ -212,7 +206,7 @@ async function streamProducts() {
     */
     try {
 
-      var itemCount = await getProductsCount(); // wps_ws_get_products_count
+      var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
         reject(itemCount.data);
@@ -224,7 +218,7 @@ async function streamProducts() {
         return;
       }
 
-      itemCount = itemCount.data.count;
+      itemCount = itemCount.data.products;
 
     } catch(error) {
       reject(error);
@@ -289,7 +283,7 @@ async function streamCollects() {
     */
     try {
 
-      var itemCount = await getCollectsCount();
+      var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
         reject(itemCount.data);
@@ -301,7 +295,7 @@ async function streamCollects() {
         return;
       }
 
-      itemCount = itemCount.data.count;
+      itemCount = itemCount.data.collects;
 
     } catch(error) {
       reject(error);
@@ -333,7 +327,6 @@ async function streamCollects() {
           break;
         }
 
-        // items = concat(items, itemsToAdd.data);
         currentPage += 1;
 
       }
@@ -369,7 +362,7 @@ function streamSmartCollections() {
     */
     try {
 
-      var itemCount = await getSmartCollectionsCount();
+      var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
         reject(itemCount.data);
@@ -377,11 +370,11 @@ function streamSmartCollections() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during getSmartCollectionsCount');
+        reject('Syncing stopped during smart_collections getTotalCountsFromSession');
         return;
       }
 
-      itemCount = itemCount.data.count;
+      itemCount = itemCount.data.smart_collections;
 
     } catch(error) {
       reject(error);
@@ -413,7 +406,6 @@ function streamSmartCollections() {
           break;
         }
 
-        // items = concat(items, itemsToAdd.data);
         currentPage += 1;
 
       }
@@ -448,7 +440,7 @@ async function streamCustomCollections() {
     */
     try {
 
-      var itemCount = await getCustomCollectionsCount();
+      var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
         reject(itemCount.data);
@@ -456,11 +448,11 @@ async function streamCustomCollections() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during getCustomCollectionsCount');
+        reject('Syncing stopped during custom_collections getTotalCountsFromSession');
         return;
       }
 
-      itemCount = itemCount.data.count;
+      itemCount = itemCount.data.custom_collections;
 
     } catch(error) {
       reject(error);
@@ -525,7 +517,7 @@ async function streamOrders() {
     */
     try {
 
-      var itemCount = await getOrdersCount();
+      var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
         reject(itemCount.data);
@@ -533,11 +525,11 @@ async function streamOrders() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamOrders');
+        reject('Syncing stopped during orders getTotalCountsFromSession');
         return;
       }
 
-      itemCount = itemCount.data.count;
+      itemCount = itemCount.data.orders;
 
     } catch(error) {
       reject(error);
@@ -605,7 +597,7 @@ async function streamCustomers() {
     */
     try {
 
-      var itemCount = await getCustomersCount();
+      var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
         reject(itemCount.data);
@@ -613,11 +605,11 @@ async function streamCustomers() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamCustomers');
+        reject('Syncing stopped during customers streamCustomers');
         return;
       }
 
-      itemCount = itemCount.data.count;
+      itemCount = itemCount.data.customers;
 
     } catch(error) {
       reject(error);

@@ -9,6 +9,7 @@ use WPS\DB\Images;
 use WPS\DB\Collects;
 use WPS\DB\Tags;
 use WPS\CPT;
+use WPS\WS;
 use WPS\Config;
 use WPS\Backend;
 use WPS\Transients;
@@ -154,12 +155,62 @@ class Products extends \WPS\DB {
 
   /*
 
+  Add Image To Product
+
+  */
+  public function add_image_to_product($product) {
+
+    // If product has an image
+    if (property_exists($product, 'image') && is_object($product->image)) {
+      $product->image = $product->image->src;
+    }
+
+    return $product;
+
+  }
+
+
+
+
+  /*
+
+  Product Mods Before Insert
+
+  */
+  public function modify_product_before_insert($product, $customPostTypeID) {
+
+    $product = $this->add_image_to_product($product);
+
+    return $product;
+
+  }
+
+
+
+  /*
+
+  Product Mods Update After CPT
+
+  */
+  public function modify_product_after_cpt_insert($product, $customPostTypeID) {
+
+    // Modify's the products model with CPT foreign key
+    $product = $this->assign_foreign_key($product, $customPostTypeID);
+    $product = $this->rename_primary_key($product);
+
+    return $product;
+
+  }
+
+
+
+  /*
+
   Insert products
 
   */
 	public function insert_products($products) {
 
-    $DB_Products = new Products();
     $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
     $DB_Settings_Connection = new Settings_Connection();
     $DB_Tags = new Tags();
@@ -220,6 +271,12 @@ class Products extends \WPS\DB {
 
     $newProductID = Utils::wps_find_product_id($product);
     $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
+    $results = [];
+
+
+    error_log('---- $product -----');
+    error_log(print_r($product, true));
+    error_log('---- /$product -----');
 
     /*
 
@@ -229,6 +286,8 @@ class Products extends \WPS\DB {
 
     */
     if (property_exists($product, 'published_at') && $product->published_at !== null) {
+
+      error_log('---- 1 -----');
 
       $DB_Variants = new Variants();
       $DB_Options = new Options();
@@ -258,6 +317,9 @@ class Products extends \WPS\DB {
 
 
     } else {
+
+      error_log('---- PRODUCT IS NOT ENABLED ON THE ONLINE STORE SALES CHANNEL. SKIPPING UPDATING. -----');
+
       // $results['deleted_product'] = $this->delete_product($product, $newProductID);
 
     }
@@ -542,6 +604,24 @@ class Products extends \WPS\DB {
     }
 
     return $products;
+
+  }
+
+
+  /*
+
+  Rename primary key
+
+  */
+  public function get_products_by_page($currentPage) {
+
+    $WS = new WS(new Config());
+
+    return $WS->wps_request(
+      'GET',
+      $WS->get_request_url("/admin/products.json", "?limit=250&page=" . $currentPage),
+      $WS->get_request_options()
+    );
 
   }
 

@@ -1,4 +1,4 @@
-import forEachRamda from 'ramda/es/forEach';
+import forEach from 'lodash/forEach';
 
 import {
   onModalClose
@@ -208,7 +208,7 @@ function onDisconnectionFormSubmit() {
 
     disable($submitButton);
 
-    forEachRamda(showSpinner, $submitButton);
+    forEach(showSpinner, $submitButton);
 
     injectConnectorModal($connectorModal);
 
@@ -242,6 +242,7 @@ function onDisconnectionFormSubmit() {
       return error;
 
     }
+
 
   });
 

@@ -70,7 +70,7 @@ class Progress_Bar {
 			$_SESSION['wps_syncing_totals']['custom_collections'] = 0;
 		}
 
-		if (!isset($_SESSION['wps_syncing_totals']['connection']) && !$_POST['resync']) {
+		if (!isset($_SESSION['wps_syncing_totals']['connection'])) {
 			$_SESSION['wps_syncing_totals']['connection'] = 1;
 		}
 
@@ -92,10 +92,6 @@ class Progress_Bar {
 
 		if (!isset($_SESSION['wps_syncing_totals']['customers'])) {
 			$_SESSION['wps_syncing_totals']['customers'] = 0;
-		}
-
-		if (!isset($_SESSION['wps_syncing_totals']['tags'])) {
-			$_SESSION['wps_syncing_totals']['tags'] = 0;
 		}
 
 		if (!isset($_SESSION['wps_syncing_totals']['webhooks'])) {
@@ -138,10 +134,6 @@ class Progress_Bar {
 
 		if (!isset($_SESSION['wps_syncing_current_amounts']['customers'])) {
 			$_SESSION['wps_syncing_current_amounts']['customers'] = 0;
-		}
-
-		if (!isset($_SESSION['wps_syncing_current_amounts']['tags'])) {
-			$_SESSION['wps_syncing_current_amounts']['tags'] = 0;
 		}
 
 		if (!isset($_SESSION['wps_syncing_current_amounts']['webhooks'])) {

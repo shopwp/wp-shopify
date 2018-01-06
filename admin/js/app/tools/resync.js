@@ -1,7 +1,8 @@
 import isError from 'lodash/isError';
 
 import {
-  syncPluginData
+  syncPluginData,
+  getItemCounts
 } from '../ws/middleware';
 
 import {
@@ -29,7 +30,8 @@ import {
 import {
   setSyncingIndicator,
   removePluginData,
-  syncWithCPT
+  syncWithCPT,
+  saveCountsToSession
 } from '../ws/ws.js';
 
 import {
@@ -40,7 +42,8 @@ import {
   enable,
   disable,
   showSpinner,
-  isWordPressError
+  isWordPressError,
+  getDataFromArray
 } from '../utils/utils';
 
 import {
@@ -143,7 +146,7 @@ function onResyncSubmit() {
         throw removedResponse;
 
       } else {
-        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+        setConnectionStepMessage('Determining the number of items to sync ...');
 
       }
 
@@ -207,14 +210,105 @@ function onResyncSubmit() {
 
     /*
 
+    Step 2. Clearing current data
+
+    */
+    try {
+
+      var allCounts = getDataFromArray( await getItemCounts() );
+
+      if (isWordPressError(allCounts)) {
+        console.log("1");
+        throw allCounts.data;
+
+      } else if (isError(allCounts)) {
+        console.log("2");
+        throw allCounts;
+
+      } else {
+        console.log("3");
+
+      }
+
+    } catch(errors) {
+      console.log("4");
+      updateModalHeadingText('Canceling ...');
+      endProgressBar();
+      console.log("5");
+      updateDomAfterDisconnect({
+        headingText: 'Canceled',
+        buttonText: 'Exit Sync',
+        xMark: true,
+        errorList: errors,
+        clearInputs: false,
+        resync: true,
+        noticeType: 'error'
+      });
+
+      enable($resyncButton);
+      return;
+
+    }
+
+
+    /*
+
+    Step 2. Clearing current data
+
+    */
+    try {
+
+      console.log("allCounts: ", allCounts);
+
+      var saveCountsResponse = await saveCountsToSession(allCounts);
+      console.log("saveCountsResponse: ", saveCountsResponse);
+
+      if (isWordPressError(saveCountsResponse)) {
+        console.log("11");
+        throw saveCountsResponse.data;
+
+      } else if (isError(saveCountsResponse)) {
+        console.log("22");
+        throw saveCountsResponse;
+
+      } else {
+        console.log("33");
+        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+
+      }
+
+    } catch(errors) {
+      console.log("44");
+      updateModalHeadingText('Canceling ...');
+      endProgressBar();
+      console.log("55");
+      updateDomAfterDisconnect({
+        headingText: 'Canceled',
+        buttonText: 'Exit Sync',
+        xMark: true,
+        errorList: errors,
+        clearInputs: false,
+        resync: true,
+        noticeType: 'error'
+      });
+
+      enable($resyncButton);
+      return;
+
+    }
+
+
+
+    /*
+
     Begin polling for the status ...
 
     */
     await progressStatus();
 
     // var steps = mapProgressDataFromSessionValues(progressSession.data);
-
-    appendProgressBars(progressSession.data);
+    console.log("allCounts: ", allCounts);
+    appendProgressBars(allCounts);
 
 
     /*

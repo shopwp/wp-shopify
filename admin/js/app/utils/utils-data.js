@@ -1,7 +1,6 @@
-import unionWith from 'ramda/es/unionWith';
-import eqProps from 'ramda/es/eqProps';
-import concat from 'ramda/es/concat';
-import map from 'ramda/es/map';
+import isEqual from 'lodash/isEqual';
+import concat from 'lodash/concat';
+import unionWith from 'lodash/unionWith';
 
 import {
   getNonce
@@ -256,7 +255,7 @@ Returns: Array
 
 */
 function mergeNewDataIntoCurrent(newAuthData, currentAuthData) {
-  return unionWith(eqProps('domain'), newAuthData, currentAuthData);
+  return unionWith(newAuthData, currentAuthData, isEqual);
 }
 
 

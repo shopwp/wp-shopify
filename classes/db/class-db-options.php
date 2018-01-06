@@ -62,6 +62,59 @@ class Options extends \WPS\DB {
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  Get single shop info value
+
+  */
+	public function insert_option($product) {
+
+    $DB_Settings_Connection = new Settings_Connection();
+    $results = [];
+
+    if (isset($product->options) && $product->options) {
+
+      foreach ($product->options as $key => $option) {
+
+        if ($DB_Settings_Connection->is_syncing()) {
+
+          error_log('INSERTING OPTION -----');
+          return $results[] = $this->insert($option, 'option');
+
+        } else {
+
+          return $results;
+          break;
+
+        }
+
+      }
+
+    }
+
+  }
+
+
+
+
+
+
+
+
+
+
   /*
 
   Get single shop info value
