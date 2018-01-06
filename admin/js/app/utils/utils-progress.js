@@ -1,8 +1,10 @@
+import isArray from 'lodash/isArray';
 import mapKeys from 'lodash/mapKeys';
-import split from 'ramda/es/split';
-import filter from 'ramda/es/filter';
-import isEmpty from 'ramda/es/isEmpty';
-import forEachObjIndexed from 'ramda/es/forEachObjIndexed';
+import filter from 'lodash/filter';
+import split from 'lodash/split';
+import isEmpty from 'lodash/isEmpty';
+import forOwn from 'lodash/forOwn';
+import forEach from 'lodash/forEach';
 
 import {
   getProgressCount,
@@ -156,8 +158,8 @@ Shorten Session Step Names
 */
 function shortenSessionStepNames(value, key, obj) {
 
-  var splitName = split('wps_progress_current_amount_', key);
-  return filter(notEmptyValue, splitName)[0];
+  var splitName = split(key, 'wps_progress_current_amount_');
+  return filter(splitName, notEmptyValue)[0];
 
 }
 
@@ -178,8 +180,7 @@ Create Progress Bar
 
 */
 function createProgressBar(stepName, stepTotal) {
-  console.log('================ stepTotal: ', stepTotal);
-  return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepTotal + '" id="wps-progress-bar-' + stepName + '"><div class="wps-progress-bar"></div></div>');
+  return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepTotal + '" id="wps-progress-bar-' + stepName + '"><div class="wps-progress-bar"></div><span class="dashicons dashicons-yes"></span></div>');
 }
 
 
@@ -199,11 +200,11 @@ Progress Bar: Update Totals
 
 */
 function updateProgressBarTotals(stepTotals) {
-  forEachObjIndexed(updateProgressBarTotal, stepTotals);
+  forOwn(stepTotals, updateProgressBarTotal);
 }
 
 function updateProgressBarTotal(stepTotal, stepName) {
-  jQuery('#wps-progress-bar-' + stepName).find('.wps-progress-bar').data('wps-progress-total', stepTotal);
+  jQuery('#wps-progress-bar-' + stepName).data('wps-progress-total', stepTotal).attr('data-wps-progress-total', stepTotal);
 }
 
 
@@ -213,8 +214,7 @@ Progress Bar: Update Current Amounts
 
 */
 function updateProgressBarCurrentAmounts(currentAmounts) {
-  console.log("currentAmounts: ", currentAmounts);
-  forEachObjIndexed(updateProgressCurrentAmount, currentAmounts);
+  forOwn(currentAmounts, updateProgressCurrentAmount);
 }
 
 
@@ -244,9 +244,8 @@ Update Progress Bar Current Amount
 function updateProgressCurrentAmount(stepCurrentValue, stepName) {
 
   var percentage = getProgressBarPercentage(stepCurrentValue, stepName);
-  var $progressWrapper = jQuery('#wps-progress-bar-' + stepName);
 
-  console.log("stepCurrentValue: ", stepCurrentValue);
+  var $progressWrapper = jQuery('#wps-progress-bar-' + stepName);
 
   if (stepCurrentValue == $progressWrapper.data('wps-progress-total')) {
     $progressWrapper.addClass('wps-is-complete');
@@ -263,9 +262,18 @@ function updateProgressCurrentAmount(stepCurrentValue, stepName) {
 Append Progress Bars
 
 */
-function appendProgressBars(steps) {
-  console.log("steps: ", steps);
-  return forEachObjIndexed(insertProgressBar, steps.wps_syncing_totals);
+function appendProgressBars(allCounts) {
+
+  if (isArray(allCounts)) {
+
+    return forEach(allCounts, function(count) {
+      return forOwn(count, insertProgressBar);
+    });
+
+  } else {
+    return forOwn(allCounts.wps_syncing_totals, insertProgressBar);
+  }
+
 }
 
 

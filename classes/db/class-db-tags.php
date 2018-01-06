@@ -96,18 +96,22 @@ class Tags extends \WPS\DB {
   */
 	public function insert_tags($product, $cpt_id) {
 
-    $tags = Utils::wps_comma_list_to_array($product->tags);
-    $results = array();
-    $progress = new Progress_Bar(new Config());
+    $results = [];
 
-    foreach ($tags as $key => $tag) {
+    if (isset($product->tags) && $product->tags) {
 
-      $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
+      $tags = Utils::wps_comma_list_to_array($product->tags);
 
-      error_log('INSERTING TAG -----');
+      foreach ($tags as $key => $tag) {
 
-      $results[] = $this->insert($tagData, 'tag');
-      $progress->increment_current_amount('tags');
+        $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
+
+        error_log('INSERTING TAG -----');
+
+        $results[] = $this->insert($tagData, 'tag');
+        // $progress->increment_current_amount('tags');
+
+      }
 
     }
 

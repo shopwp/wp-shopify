@@ -1460,9 +1460,10 @@ if (!class_exists('Hooks')) {
 
 		public function wps_products_sidebar() {
 
-			$sidebar = apply_filters('wps_products_show_sidebar', false);
+			$showSidebar = apply_filters('wps_products_show_sidebar', false);
 
-			if ($sidebar) {
+			if ($showSidebar) {
+				error_log('---- ppppppppppp -----');
 				get_sidebar('wps');
 			}
 

@@ -12,6 +12,7 @@ $jsonData = file_get_contents('php://input');
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
 
   error_log('---- Webhook verified product-delete -----');
+  
   $product = json_decode($jsonData);
   $Products->delete_product($product);
 

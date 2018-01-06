@@ -19,11 +19,13 @@ use WPS\DB\Images;
 use WPS\DB\Tags;
 use WPS\DB\Orders;
 use WPS\DB\Customers;
+use WPS\CPT;
 use WPS\Transients;
 use WPS\Messages;
 use WPS\Webhooks;
 use WPS\Utils;
 use WPS\License;
+use WPS\Progress_Bar;
 
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Pool;
@@ -244,12 +246,12 @@ class WS {
 
       if (is_object($data) && property_exists($data, 'count')) {
 
-				$_SESSION['wps_syncing_totals']['products'] = $data->count;
-				session_write_close();
-        wp_send_json_success($data);
+				// $_SESSION['wps_syncing_totals']['products'] = $data->count;
+				// session_write_close();
+        wp_send_json_success(['products' => $data->count]);
 
       } else {
-        wp_send_json_error($data);
+        wp_send_json_error(['products' => 0]);
       }
 
 
@@ -298,13 +300,10 @@ class WS {
       $data = json_decode($response->getBody()->getContents());
 
       if (is_object($data) && property_exists($data, 'count')) {
-
-				$_SESSION['wps_syncing_totals']['collects'] = $data->count;
-				session_write_close();
-        wp_send_json_success($data);
+        wp_send_json_success(['collects' => $data->count]);
 
       } else {
-        wp_send_json_error($data);
+        wp_send_json_error(['collects' => 0]);
 
       }
 
@@ -340,12 +339,13 @@ class WS {
 
 			if (is_object($data) && property_exists($data, 'count')) {
 
-				$_SESSION['wps_syncing_totals']['smart_collections'] = $data->count;
-				session_write_close();
-				wp_send_json_success($data);
+				// $_SESSION['wps_syncing_totals']['smart_collections'] = $data->count;
+				// session_write_close();
+
+				wp_send_json_success(['smart_collections' => $data->count]);
 
 			} else {
-				wp_send_json_error($data);
+				wp_send_json_error(['smart_collections' => 0]);
 
 			}
 
@@ -381,12 +381,12 @@ class WS {
 
 			if (is_object($data) && property_exists($data, 'count')) {
 
-				$_SESSION['wps_syncing_totals']['custom_collections'] = $data->count;
-				session_write_close();
-				wp_send_json_success($data);
+				// $_SESSION['wps_syncing_totals']['custom_collections'] = $data->count;
+				// session_write_close();
+				wp_send_json_success(['custom_collections' => $data->count]);
 
 			} else {
-				wp_send_json_error($data);
+				wp_send_json_error(['custom_collections' => 0]);
 
 			}
 
@@ -415,19 +415,18 @@ class WS {
 
 			$response = $this->wps_request(
 				'GET',
-				$this->get_request_url("/admin/orders/count.json"),
+				$this->get_request_url("/admin/orders/count.json?status=any"),
 				$this->get_request_options()
 			);
 
       $data = json_decode($response->getBody()->getContents());
 
       if (is_object($data) && property_exists($data, 'count')) {
-				$_SESSION['wps_syncing_totals']['orders'] = $data->count;
-				session_write_close();
-        wp_send_json_success($data);
+
+        wp_send_json_success(['orders' => $data->count]);
 
       } else {
-        wp_send_json_error($countResponse);
+        wp_send_json_error(['orders' => 0]);
 
       }
 
@@ -462,12 +461,10 @@ class WS {
       $data = json_decode($response->getBody()->getContents());
 
       if (is_object($data) && property_exists($data, 'count')) {
-				$_SESSION['wps_syncing_totals']['customers'] = $data->count;
-				session_write_close();
-        wp_send_json_success($data);
+        wp_send_json_success(['customers' => $data->count]);
 
       } else {
-        wp_send_json_error($data);
+        wp_send_json_error(['customers' => 0]);
 
       }
 
@@ -478,6 +475,57 @@ class WS {
     }
 
   }
+
+
+	/*
+
+	Get Webhooks Count
+
+	*/
+	public function wps_ws_get_webhooks_count() {
+
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_nonce_invalid . ' (wps_ws_get_webhooks_count)');
+			wp_die();
+		}
+
+		if (Utils::emptyConnection($this->connection)) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_connection_not_found . ' (wps_ws_get_webhooks_count)');
+			wp_die();
+		}
+
+		if (!Utils::isStillSyncing()) {
+			wp_send_json_error();
+			wp_die();
+		}
+
+		try {
+
+			$response = $this->wps_request(
+				'GET',
+				$this->get_request_url("/admin/webhooks/count.js"),
+				$this->get_request_options()
+			);
+
+			$data = json_decode($response->getBody()->getContents());
+
+			if (is_object($data) && property_exists($data, 'count')) {
+				wp_send_json_success(['webhooks' => $data->count]);
+
+			} else {
+				wp_send_json_error(['webhooks' => 0]);
+
+			}
+
+		} catch (RequestException $error) {
+
+			wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1042c)');
+
+		}
+
+	}
 
 
   /*
@@ -531,7 +579,7 @@ class WS {
 
 		error_log('................ Calling API for alt ...');
 
-		$client = new Guzzle();
+		// $client = new Guzzle();
 
     //
     //
@@ -566,13 +614,13 @@ class WS {
 		// };
 
 
-
+		$Guzzle = new Guzzle();
 
 
 		// TODO: Should we type check or type cast?
 
 
-		$requests = function () use ($client, $allImages) {
+		$requests = function () use ($Guzzle, $allImages) {
 
 			foreach ($allImages as $image) {
 
@@ -591,7 +639,7 @@ class WS {
 
 
 
-				yield $client->requestAsync(
+				yield $Guzzle->requestAsync(
 					'GET',
 					$this->get_request_url($url, $urlParams),
 					$this->get_request_options()
@@ -723,81 +771,116 @@ class WS {
 			wp_die();
 		}
 
-		error_log('Inserting Products ...');
+
+		error_log('Begin Inserting Products ...');
+
+
+		$index = 1;
+		$insertionResults = [];
+		$existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
+		$DB_Variants = new Variants();
+		$DB_Products = new Products();
+		$DB_Options = new Options();
+		$DB_Images = new Images();
+		$DB_Tags = new Tags();
+		$Progress = new Progress_Bar(new Config());
+		$currentPage = Utils::get_current_page($_POST);
+
 
     try {
 
-      $insertionResults = array();
-
-      $DB_Variants = new Variants();
-      $DB_Products = new Products();
-      $DB_Options = new Options();
-      $DB_Images = new Images();
-
-      if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-        $currentPage = 1;
-
-      } else {
-        $currentPage = $_POST['currentPage'];
-      }
-
-			$response = $this->wps_request(
-				'GET',
-				$this->get_request_url("/admin/products.json", "?limit=250&page=" . $currentPage),
-				$this->get_request_options()
-			);
-
+			$response = $DB_Products->get_products_by_page($currentPage);
 
 			$data = json_decode($response->getBody()->getContents());
 
+
+
+			/*
+
+			Check for products property on response -- needed to loop
+
+			*/
 			if (is_object($data) && property_exists($data, 'products')) {
+
 
 				/*
 
-				This is where the bulk of product data is inserted into the database. The
-				"insert_products" method inserts both the CPT's and custom WPS table data.
+				Begin the main loop. May god have mercy on your soul ...
 
 				*/
-				if (!empty($data->products)) {
+				foreach ($data->products as $key => $product) {
 
-					$resultProducts = $DB_Products->insert_products($data->products);
-
-					if (empty($resultProducts)) {
-						wp_send_json_error($this->messages->message_syncing_products_error . ' (Error code: #1040d)');
+					// Check if still syncing during each interation to ensure proper sync cancelation
+					if (!Utils::isStillSyncing()) {
+						wp_send_json_error();
+						wp_die();
 					}
 
 
-					$resultVariants = $DB_Variants->insert_variants($data->products);
+					// If product is visible on the Online Stores channel
+	        if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
-					if (empty($resultVariants)) {
-						wp_send_json_error($this->messages->message_syncing_variants_error . ' (Error code: #1040e)');
+
+						/*
+
+						Insert CPT ...
+
+						*/
+
+				    $insertionResults[$product->title]['cpt'] = $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
+
+						$product = $DB_Products->modify_product_after_cpt_insert($product, $customPostTypeID);
+						$product = $DB_Products->modify_product_before_insert($product, $customPostTypeID);
+
+						/*
+
+						Insert Product ...
+
+						*/
+	          $insertionResults[$product->title]['products'] = $DB_Products->insert($product, 'product');
+
+
+						/*
+
+						Insert tags ...
+
+						*/
+						$insertionResults[$product->title]['tags'] = $DB_Tags->insert_tags($product, $customPostTypeID);
+
+
+						/*
+
+						Insert Variants ...
+
+						*/
+						$insertionResults[$product->title]['variants'] = $DB_Variants->insert_variant($product);
+
+
+						/*
+
+						Insert Options ...
+
+						*/
+						$insertionResults[$product->title]['options'] = $DB_Options->insert_option($product);
+
+
+						/*
+
+						Insert Images ...
+
+						*/
+						$insertionResults[$product->title]['images'] = $DB_Images->insert_image($product);
+
+
 					}
 
 
-					$resultOptions = $DB_Options->insert_options($data->products);
-
-					if (empty($resultOptions)) {
-						wp_send_json_error($this->messages->message_syncing_options_error . ' (Error code: #1040f)');
-					}
-
-
-					$resultImages = $DB_Images->insert_images($data->products);
-
-
-					if (empty($resultImages)) {
-						wp_send_json_error($this->messages->message_syncing_images_error . ' (Error code: #1040g)', 'wp-shopify');
-					}
+					$index++;
+					$Progress->increment_current_amount('products');
 
 				}
 
-				// $insertionResults['products'] = $resultProducts;
-				// $insertionResults['variants'] = $resultVariants;
-				// $insertionResults['options'] = $resultOptions;
-				// $insertionResults['images'] = $resultImages;
-
-				error_log('Done Inserting Products Set -----');
-
-				wp_send_json_success();
+				wp_send_json_success($insertionResults);
 
 
 			} else {
@@ -813,6 +896,9 @@ class WS {
 
 
   }
+
+
+
 
 
   /*
@@ -2786,5 +2872,114 @@ class WS {
 
 
 
+
+
+
+
+	/*
+
+	Save Counts
+
+	*/
+	public function save_counts() {
+
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_nonce_invalid . ' (wps_insert_customers)');
+			wp_die();
+		}
+
+		if (Utils::emptyConnection($this->connection)) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_connection_not_found . ' (wps_insert_customers)');
+			wp_die();
+		}
+
+		// if (!Utils::isStillSyncing()) {
+		// 	wp_send_json_error();
+		// 	wp_die();
+		// }
+
+
+		if (isset($_POST['counts']) && $_POST['counts']) {
+			$counts = Utils::shift_arrays_up($_POST['counts']);
+
+		} else {
+			$counts = [];
+		}
+
+
+		if (!empty($counts)) {
+
+			Utils::wps_access_session();
+
+			if (isset($_SESSION['wps_syncing_totals']['smart_collections'])) {
+				$_SESSION['wps_syncing_totals']['smart_collections'] = $counts['smart_collections'];
+			}
+
+			if (isset($_SESSION['wps_syncing_totals']['custom_collections'])) {
+				$_SESSION['wps_syncing_totals']['custom_collections'] = $counts['custom_collections'];
+			}
+
+			if (isset($_SESSION['wps_syncing_totals']['products'])) {
+				$_SESSION['wps_syncing_totals']['products'] = $counts['products'];
+			}
+
+			if (isset($_SESSION['wps_syncing_totals']['collects'])) {
+				$_SESSION['wps_syncing_totals']['collects'] = $counts['collects'];
+			}
+
+			if (isset($_SESSION['wps_syncing_totals']['orders'])) {
+				$_SESSION['wps_syncing_totals']['orders'] = $counts['orders'];
+			}
+
+			if (isset($_SESSION['wps_syncing_totals']['customers'])) {
+				$_SESSION['wps_syncing_totals']['customers'] = $counts['customers'];
+			}
+
+			$counts['webhooks'] = 27;
+
+			Utils::wps_close_session_write();
+
+
+			error_log('---- UPDATED $_SESSION -----');
+			error_log(print_r($_SESSION, true));
+			error_log('---- /UPDATED $_SESSION -----');
+
+			wp_send_json_success($counts);
+
+		}
+
+	}
+
+
+	/*
+
+	Get Total Counts
+
+	*/
+	public function get_total_counts() {
+
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_nonce_invalid . ' (wps_insert_customers)');
+			wp_die();
+		}
+
+		if (Utils::emptyConnection($this->connection)) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_connection_not_found . ' (wps_insert_customers)');
+			wp_die();
+		}
+
+		if (!Utils::isStillSyncing()) {
+			wp_send_json_error();
+			wp_die();
+		}
+
+		Utils::wps_access_session();
+		wp_send_json_success($_SESSION['wps_syncing_totals']);
+
+	}
 
 }

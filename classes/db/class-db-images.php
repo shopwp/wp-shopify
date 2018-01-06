@@ -183,6 +183,134 @@ class Images extends \WPS\DB {
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+  Insert Images
+
+  */
+  public function insert_image($product) {
+
+    $DB_Settings_Connection = new Settings_Connection();
+    $DB_Settings_General = new Settings_General();
+    $WS = new WS(new Config());
+
+    $results = [];
+    $count = 1;
+
+    if (isset($product->images) && $product->images) {
+
+      foreach ($product->images as $key => $image) {
+
+        /*
+
+        Need to check this within the loop since the user can potentially
+        cancel the connection at anytime.
+
+        */
+        if ($DB_Settings_Connection->is_syncing()) {
+
+          /*
+
+          If use title as alt isn't checked, go get the real alt text, otherwise
+          use the title for alt.
+
+          */
+          if (!$DB_Settings_General->title_as_alt()) {
+
+            // Calls API asynchronously and returns a Promise
+            $response = $WS->wps_ws_get_image_alt($image);
+            $altText = $this->get_alt_text_from_response($response);
+
+            if (is_wp_error($altText)) {
+
+              // $results[] = false;
+              $results = false;
+              break;
+
+            } else {
+
+              // $results[] = $altText;
+              $image->alt = $altText;
+
+            }
+
+          } else {
+            $image->alt = $product->title;
+          }
+
+          error_log('INSERTING IMAGE -----');
+
+          $results[] = $this->insert($image, 'image');
+
+
+        } else {
+
+          $results = false;
+          break;
+
+        }
+
+        $count++;
+
+      }
+
+    }
+
+    return $results;
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /*
 
   update_variant
@@ -222,10 +350,12 @@ class Images extends \WPS\DB {
 
         // TODO: Should we type check or type cast?
         if (is_object($newImage)) {
-          $newImage->alt = $WS->wps_ws_get_image_alt($newImage);
+          $imageResponse = $WS->wps_ws_get_image_alt($newImage);
+          $newImage->alt = $this->get_alt_text_from_response($imageResponse);
 
         } else if (is_array($newImage)) {
-          $newImage['alt'] = $WS->wps_ws_get_image_alt($newImage);
+          $imageResponse = $WS->wps_ws_get_image_alt($newImage);
+          $newImage['alt'] = $this->get_alt_text_from_response($imageResponse);
         }
 
         $results['created'] = $this->insert($newImage, 'image');
@@ -256,7 +386,9 @@ class Images extends \WPS\DB {
     */
     foreach ($imagesFromShopify as $key => $image) {
 
-      $image->alt = $WS->wps_ws_get_image_alt($image);
+      $imageResponse = $WS->wps_ws_get_image_alt($image);
+      $image->alt = $this->get_alt_text_from_response($imageResponse);
+
       $results['updated'] = $this->update($image->id, $image);
 
     }

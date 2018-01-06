@@ -29,6 +29,24 @@ import {
 
 
 
+
+/*
+
+Update
+
+*/
+function update(index, newVal, array) {
+
+  var newArray = array;
+
+  newArray.slice(0,index);
+  newArray[index] = newVal;
+
+  return newArray;
+
+}
+
+
 /*
 
 Construct the custom attrs param
@@ -612,5 +630,6 @@ export {
   isObject,
   hasProp,
   isAnimating,
-  convertCustomAttrsToQueryString
+  convertCustomAttrsToQueryString,
+  update
 };

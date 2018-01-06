@@ -1,11 +1,11 @@
-import update from 'ramda/es/update';
-import intersection from 'ramda/es/intersection';
+import intersection from 'lodash/intersection';
 import filter from 'lodash/filter';
 import matches from 'lodash/matches';
 
 import {
   isError,
-  listenForClose
+  listenForClose,
+  update
 } from '../utils/utils-common';
 
 import {
@@ -349,7 +349,7 @@ function constructVariantTitleSelections($trigger, previouslySelectedOptions) {
 
   var variantText = $trigger.text().trim();
 
-  if (intersection([variantText], previouslySelectedOptions).length === 0) {
+  if (intersection(previouslySelectedOptions, [variantText]).length === 0) {
 
     var previouslySee = $trigger.closest('.wps-btn-dropdown').data('selected-val');
     var index = previouslySelectedOptions.indexOf(previouslySee);

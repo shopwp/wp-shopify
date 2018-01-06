@@ -240,6 +240,29 @@ function getCustomersCount() {
 
 /*
 
+Get Webhooks Count
+Returns: Promise
+
+*/
+function getWebhooksCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_get_webhooks_count',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
 Get all products from Shopify
 Returns: Promise
 
@@ -1227,20 +1250,20 @@ function progressSessionStart(resync = false, includes = []) {
 Get Webhooks Count
 
 */
-function getWebhooksCount() {
-
-  var options = {
-    method: 'POST',
-    url: wps.ajax,
-    data: {
-      action: 'get_webhooks_count',
-      nonce: wps.nonce
-    }
-  };
-
-  return jQuery.ajax(options);
-
-}
+// function getWebhooksCount() {
+//
+//   var options = {
+//     method: 'POST',
+//     url: wps.ajax,
+//     data: {
+//       action: 'get_webhooks_count',
+//       nonce: wps.nonce
+//     }
+//   };
+//
+//   return jQuery.ajax(options);
+//
+// }
 
 
 /*
@@ -1260,6 +1283,51 @@ function removeWebhooks() {
   };
 
   return jQuery.ajax(options);
+
+};
+
+
+/*
+
+Remove Webhooks
+
+*/
+function saveCountsToSession(counts) {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    data: {
+      action: 'save_counts',
+      nonce: wps.nonce,
+      counts: counts
+    }
+  };
+
+  return jQuery.ajax(options);
+
+};
+
+
+/*
+
+Get Smart Collections Count
+Returns: Promise
+
+*/
+function getTotalCountsFromSession() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'get_total_counts',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
 
 };
 
@@ -1318,6 +1386,8 @@ export {
   getSmartCollectionsCount,
   getCustomCollectionsCount,
   progressSessionStart,
-  getWebhooksCount,
-  removeWebhooks
+  removeWebhooks,
+  saveCountsToSession,
+  getTotalCountsFromSession,
+  getWebhooksCount
 };

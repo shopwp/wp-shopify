@@ -99,6 +99,46 @@ class Variants extends \WPS\DB {
   }
 
 
+
+
+
+
+
+
+
+  public function insert_variant($product) {
+
+    $results = [];
+    $DB_Settings_Connection = new Settings_Connection();
+
+    if (isset($product->variants) && $product->variants) {
+
+      foreach ($product->variants as $key => $variant) {
+
+        if ($DB_Settings_Connection->is_syncing()) {
+
+          error_log('INSERTING VARIANT -----');
+          return $results[] = $this->insert($variant, 'variant');
+
+        } else {
+
+          return $results;
+          break;
+
+        }
+
+      }
+
+    }
+
+  }
+
+
+
+
+
+
+
   /*
 
   Get single shop info value

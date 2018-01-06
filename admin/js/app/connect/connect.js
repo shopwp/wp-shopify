@@ -1,8 +1,9 @@
-import forEachRamda from 'ramda/es/forEach';
 import isError from 'lodash/isError';
+import forEach from 'lodash/forEach';
 
 import {
-  syncPluginData
+  syncPluginData,
+  getItemCounts
 } from '../ws/middleware';
 
 import {
@@ -25,13 +26,20 @@ import {
   containsProtocol,
   cleanDomainURL,
   containsPathAfterShopifyDomain,
-  isWordPressError
+  isWordPressError,
+  getDataFromArray
 } from '../utils/utils';
 
 import {
   createProgressLoader,
-  removeProgressLoader
+  removeProgressLoader,
+  startProgressBar,
+  endProgressBar,
+  mapProgressDataFromSessionValues,
+  appendProgressBars,
+  progressStatus
 } from '../utils/utils-progress';
+
 
 import {
   createConnectorModal,
@@ -46,7 +54,8 @@ import {
   initCloseModalEvents,
   insertCheckmark,
   setConnectionNotice,
-  setDisconnectSubmit
+  setDisconnectSubmit,
+  updateConnectStatusHeading
 } from '../utils/utils-dom';
 
 import {
@@ -65,7 +74,8 @@ import {
   getConnectionData,
   setSyncingIndicator,
   removePluginData,
-  syncWithCPT
+  syncWithCPT,
+  saveCountsToSession
 } from '../ws/ws.js';
 
 import {
@@ -82,7 +92,8 @@ import {
 
 import {
   uninstallPluginData,
-  disconnectInit
+  disconnectInit,
+  updateDomAfterDisconnect
 } from '../disconnect/disconnect.js';
 
 
@@ -148,7 +159,7 @@ function onConnectionFormSubmit() {
       setConnectionProgress("true");
 
       disable($submitButton);
-      forEachRamda(showSpinner, $submitButton);
+      forEach($submitButton, showSpinner);
 
       injectConnectorModal($connectorModal);
 
@@ -195,6 +206,133 @@ function onConnectionFormSubmit() {
 
       /*
 
+      Start the progress bar
+
+      */
+      try {
+
+        var progressSession = await startProgressBar(true);
+
+        if (isWordPressError(progressSession)) {
+          throw progressSession.data;
+
+        } else if (isError(progressSession)) {
+          throw progressSession;
+        }
+
+      } catch (errors) {
+
+        updateModalHeadingText('Canceling ...');
+        endProgressBar();
+
+        updateDomAfterDisconnect({
+          headingText: 'Canceled',
+          errorList: errors,
+          buttonText: 'Exit Sync',
+          xMark: true,
+          clearInputs: false,
+          resync: true,
+          noticeType: 'error'
+        });
+
+        enable($submitButton);
+        return;
+
+      }
+
+
+      /*
+
+      Step 2. Clearing current data
+
+      */
+      try {
+
+        var allCounts = getDataFromArray( await getItemCounts() );
+
+        if (isWordPressError(allCounts)) {
+          console.log("1");
+          throw allCounts.data;
+
+        } else if (isError(allCounts)) {
+          console.log("2");
+          throw allCounts;
+
+        } else {
+          console.log("3");
+
+        }
+
+      } catch(errors) {
+        console.log("4");
+        updateModalHeadingText('Canceling ...');
+        endProgressBar();
+        console.log("5");
+        updateDomAfterDisconnect({
+          headingText: 'Canceled',
+          buttonText: 'Exit Sync',
+          xMark: true,
+          errorList: errors,
+          clearInputs: false,
+          resync: true,
+          noticeType: 'error'
+        });
+
+        enable($submitButton);
+        return;
+
+      }
+
+
+      /*
+
+      Step 2. Clearing current data
+
+      */
+      try {
+
+        console.log("allCounts: ", allCounts);
+
+        var saveCountsResponse = await saveCountsToSession(allCounts);
+        console.log("saveCountsResponse: ", saveCountsResponse);
+
+        if (isWordPressError(saveCountsResponse)) {
+          console.log("11");
+          throw saveCountsResponse.data;
+
+        } else if (isError(saveCountsResponse)) {
+          console.log("22");
+          throw saveCountsResponse;
+
+        } else {
+          console.log("33");
+
+        }
+
+      } catch(errors) {
+        console.log("44");
+        updateModalHeadingText('Canceling ...');
+        endProgressBar();
+        console.log("55");
+        updateDomAfterDisconnect({
+          headingText: 'Canceled',
+          buttonText: 'Exit Sync',
+          xMark: true,
+          errorList: errors,
+          clearInputs: false,
+          resync: true,
+          noticeType: 'error'
+        });
+
+        enable($submitButton);
+        return;
+
+      }
+
+
+
+      /*
+
       Step 2. Remove any existing data
 
       */
@@ -235,7 +373,7 @@ function onConnectionFormSubmit() {
       */
       try {
 
-        setConnectionStepMessage('Preparing to sync ...');
+        // setConnectionStepMessage('Preparing to sync ...');
 
         var updatingSyncingIndicator = await setSyncingIndicator(1);
 
@@ -261,6 +399,19 @@ function onConnectionFormSubmit() {
         });
 
       }
+
+
+      /*
+
+      Begin polling for the status ...
+
+      */
+      await progressStatus();
+
+      // var steps = mapProgressDataFromSessionValues(progressSession.data);
+      console.log("allCounts: ", allCounts);
+      appendProgressBars(allCounts);
+      
 
 
       /*
@@ -308,37 +459,6 @@ function onConnectionFormSubmit() {
 
       /*
 
-      Step 4. Sync new data with CPT
-
-      */
-      // try {
-      //   var syncWithCPTResponse = await syncWithCPT();
-      //
-      //   if (isWordPressError(syncWithCPTResponse)) {
-      //     throw syncWithCPTResponse.data;
-      //
-      //   } else if (isError(syncWithCPTResponse)) {
-      //     throw syncWithCPTResponse;
-      //
-      //   } else {
-      //     setConnectionStepMessage('Finishing ...');
-      //   }
-      //
-      // } catch(errors) {
-      //
-      //   return uninstallPluginData({
-      //     stepText: 'Failed syncing custom post types',
-      //     headingText: 'Canceled',
-      //     errorList: errors,
-      //     buttonText: 'Exit Sync',
-      //     xMark: true
-      //   });
-      //
-      // }
-
-
-      /*
-
       Step 4. Clear all plugin cache
 
       */
@@ -370,6 +490,14 @@ function onConnectionFormSubmit() {
 
       /*
 
+      End the progress bar
+
+      */
+      endProgressBar();
+
+
+      /*
+
       Step 5. Turn off syncing flag
 
       */
@@ -394,6 +522,7 @@ function onConnectionFormSubmit() {
           setConnectionProgress("false");
           updateModalButtonText("Ok, let's go!");
           setDisconnectSubmit();
+          updateConnectStatusHeading('is-connected');
           disconnectInit();
 
         }
@@ -411,7 +540,6 @@ function onConnectionFormSubmit() {
 
       }
 
-      // setConnectionStepMessage('Redirecting to Shopify');
 
     }
 

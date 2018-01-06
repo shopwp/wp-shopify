@@ -8,8 +8,9 @@ use WPS\WS;
 $Products = new Products(new Config());
 $jsonData = file_get_contents('php://input');
 
-
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
+
+  error_log('---- Webhook verified product-update -----');
 
   $product = json_decode($jsonData);
   $Products->update_product($product);
