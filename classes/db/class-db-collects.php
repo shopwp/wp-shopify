@@ -82,7 +82,10 @@ class Collects extends \WPS\DB {
     if (isset($collects) && $collects) {
 
       foreach ($collects as $key => $collect) {
-        error_log('INSERTING COLLECT -----');
+
+        if (!Utils::isStillSyncing()) {
+          wp_die();
+    		}
 
         $results[] = $this->insert($collect, 'collect');
         $progress->increment_current_amount('collects');

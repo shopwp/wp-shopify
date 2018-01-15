@@ -6,30 +6,9 @@ import {
   controlPromise
 } from '../utils/utils-data';
 
-
-/*
-
-Get all products from Shopify
-Returns: Promise
-
-NOT CURRENTLY USED
-
-*/
-function uninstallProductData() {
-
-  var options = {
-    method: 'POST',
-    url: wps.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_uninstall_product_data',
-      nonce: wps.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
+import {
+  connectionInProgress
+} from './localstorage';
 
 
 /*
@@ -83,7 +62,7 @@ Attach all Webhooks
 Returns: Promise
 
 */
-function registerWebhooks() {
+function registerWebhooks(removalErrors) {
 
   var options = {
     method: 'POST',
@@ -91,7 +70,8 @@ function registerWebhooks() {
     dataType: 'json',
     data: {
       action: 'wps_ws_register_all_webhooks',
-      nonce: wps.nonce
+      nonce: wps.nonce,
+      removalErrors: removalErrors
     }
   };
 
@@ -313,7 +293,7 @@ Get Collections
 
 */
 function insertSmartCollections() {
-
+  
   var options = {
     method: 'POST',
     url: wps.ajax,
@@ -484,6 +464,28 @@ function insertConnectionData(connectionData) {
     data: {
       action: 'wps_insert_connection',
       connectionData: connectionData,
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
+Sending collections to server
+
+*/
+function removeConnectionData() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_remove_connection',
       nonce: wps.nonce
     }
   };
@@ -1367,7 +1369,6 @@ export {
   insertConnectionData,
   getConnectionData,
   getProductVariants,
-  uninstallProductData,
   removePluginData,
   setSyncingIndicator,
   clearCache,
@@ -1389,5 +1390,6 @@ export {
   removeWebhooks,
   saveCountsToSession,
   getTotalCountsFromSession,
-  getWebhooksCount
+  getWebhooksCount,
+  removeConnectionData
 };

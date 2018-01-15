@@ -1,3 +1,6 @@
+import filter from 'lodash/filter';
+import isEmpty from 'lodash/isEmpty';
+
 import {
   getProductsCount,
   getCollectsCount,
@@ -22,16 +25,17 @@ import {
 } from './syncing';
 
 import {
-  setConnectionStepMessage
-} from '../connect/connect';
-
-import {
   updateModalHeadingText,
   updateCurrentConnectionStepText
 } from '../utils/utils-dom';
 
 import {
-  sanitizeErrorResponse
+  isWordPressError
+} from '../utils/utils';
+
+import {
+  sanitizeErrorResponse,
+  returnCustomError
 } from '../utils/utils-data';
 
 
@@ -49,7 +53,7 @@ async function syncPluginData() {
 
   } catch(errors) {
     console.error('syncSmartCollections ERRRORS: ', errors);
-    return new Error(errors);
+    return returnCustomError(errors);
 
   }
 
@@ -59,7 +63,7 @@ async function syncPluginData() {
 
   } catch(errors) {
     console.error('syncCustomCollections ERRRORS: ', errors);
-    return new Error(errors);
+    return returnCustomError(errors);
 
   }
 
@@ -79,12 +83,9 @@ async function syncPluginData() {
 
   } catch(errors) {
     console.error('Promise.all ERRRORS: ', errors);
-
-    return new Error(sanitizeErrorResponse(errors));
+    return returnCustomError(errors);
 
   }
-
-  console.log("remainingResp ", remainingResp);
 
   return remainingResp;
 
@@ -114,24 +115,24 @@ function getItemCounts() {
     try {
 
       var counts = await Promise.all([
+        getWebhooksCount(), // wps_ws_get_webhooks_count
         getSmartCollectionsCount(), // wps_ws_get_smart_collections_count
         getCustomCollectionsCount(), // wps_ws_get_custom_collections_count
         getProductsCount(), // wps_ws_get_products_count
         getCollectsCount(), // wps_ws_get_collects_count
         getOrdersCount(), // wps_ws_get_orders_count
-        getCustomersCount(), // wps_ws_get_customers_count
-        getWebhooksCount() // wps_ws_get_webhooks_count
+        getCustomersCount() // wps_ws_get_customers_count
       ]);
 
-      console.log("counts ", counts);
-      resolve(counts);
+      if (!isEmpty(filter(counts, isWordPressError))) {
+        reject(counts);
+
+      } else {
+        resolve(counts);
+      }
 
     } catch(errors) {
-
-      console.error('getItemCounts: ', errors);
-      reject(sanitizeErrorResponse(errors));
-      return;
-
+      reject(errors);
     }
 
   });

@@ -3,14 +3,12 @@ import isError from 'lodash/isError';
 import {
   createConnectorModal,
   injectConnectorModal,
-  setConnectionStepMessage,
   updateModalHeadingText,
   toggleActive,
   showAdminNotice
 } from '../utils/utils-dom';
 
 import {
-  setConnectionProgress,
   clearLocalstorageCache
 } from '../ws/localstorage.js';
 

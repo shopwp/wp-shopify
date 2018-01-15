@@ -135,17 +135,27 @@ class WS {
       $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
 
       if (is_object($responseDecoded) && isset($responseDecoded->errors)) {
-        $errorMessage = $responseDecoded->errors;
+
+				$errorMessage = $responseDecoded->errors;
 
       } else {
         $errorMessage = $error->getMessage();
       }
 
-      return esc_html__($errorMessage, 'wp-shopify');
+
+			if (property_exists($errorMessage, "id")) {
+				$errorMessage = $errorMessage->id;
+			}
+
+			error_log('---- $errorMessage -----');
+			error_log(print_r($errorMessage, true));
+			error_log('---- /$errorMessage -----');
+
+      return esc_html__('Error: ' . ucfirst($errorMessage), 'wp-shopify');
 
     } else {
 
-      return esc_html__($error->getMessage(), 'wp-shopify');
+      return esc_html__('Error: ' . ucfirst($error->getMessage()), 'wp-shopify');
 
     }
 
@@ -179,7 +189,7 @@ class WS {
   public function wps_ws_get_image_alt($image, $async = false) {
 
     if (Utils::emptyConnection($this->connection)) {
-      wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1046a)');
+      wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1046a)');
 
     } else {
 
@@ -230,12 +240,13 @@ class WS {
   */
   public function wps_ws_get_products_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1045a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1045b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1045a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1045b)');
 		Utils::wps_access_session();
 
     try {
 
+			error_log('---- Start Products Count -----');
 			$response = $this->wps_request(
 				'GET',
 				$this->get_request_url("/admin/products/count.json"),
@@ -248,6 +259,7 @@ class WS {
 
 				// $_SESSION['wps_syncing_totals']['products'] = $data->count;
 				// session_write_close();
+				error_log('---- End Products Count -----');
         wp_send_json_success(['products' => $data->count]);
 
       } else {
@@ -257,20 +269,32 @@ class WS {
 
     } catch (\InvalidArgumentException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045c)');
+      wp_send_json_error([
+				'type' => 'error',
+				'message' => $this->wps_get_error_message($error) . ' (code: #1045c)'
+			]);
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045d)');
+      wp_send_json_error([
+				'type' => 'error',
+				'message' => $this->wps_get_error_message($error) . ' (code: #1045d)'
+			]);
 
     } catch (ClientException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045e)');
+      wp_send_json_error([
+				'type' => 'error',
+				'message' => $this->wps_get_error_message($error) . ' (code: #1045e)'
+			]);
 
     // Server errors 5xx
     } catch (ServerException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1045f)');
+      wp_send_json_error([
+				'type' => 'error',
+				'message' => $this->wps_get_error_message($error) . ' (code: #1045f)'
+			]);
 
     }
 
@@ -285,12 +309,13 @@ class WS {
   */
   public function wps_ws_get_collects_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1044a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1044b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1044a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1044b)');
 		Utils::wps_access_session();
 
     try {
 
+			error_log('---- Start Collects Count -----');
 			$response = $this->wps_request(
 				'GET',
 				$this->get_request_url("/admin/collects/count.json"),
@@ -300,6 +325,7 @@ class WS {
       $data = json_decode($response->getBody()->getContents());
 
       if (is_object($data) && property_exists($data, 'count')) {
+				error_log('---- End Collects Count -----');
         wp_send_json_success(['collects' => $data->count]);
 
       } else {
@@ -309,7 +335,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1044c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1044c)');
 
     }
 
@@ -323,12 +349,13 @@ class WS {
 	*/
 	public function wps_ws_get_smart_collections_count() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1103a)');
-		!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1103b)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1103a)');
+		!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1103b)');
 		Utils::wps_access_session();
 
 		try {
 
+			error_log('---- Start Smart Collections Count -----');
 			$response = $this->wps_request(
 				'GET',
 				$this->get_request_url("/admin/smart_collections/count.json"),
@@ -342,6 +369,7 @@ class WS {
 				// $_SESSION['wps_syncing_totals']['smart_collections'] = $data->count;
 				// session_write_close();
 
+				error_log('---- End Smart Collections Count -----');
 				wp_send_json_success(['smart_collections' => $data->count]);
 
 			} else {
@@ -351,7 +379,7 @@ class WS {
 
 		} catch (RequestException $error) {
 
-			wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1103c)');
+			wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1103c)');
 
 		}
 
@@ -365,12 +393,13 @@ class WS {
 	*/
 	public function wps_ws_get_custom_collections_count() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1104a)');
-		!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1104b)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1104a)');
+		!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1104b)');
 		Utils::wps_access_session();
 
 		try {
 
+			error_log('---- Start Custom Collections Count -----');
 			$response = $this->wps_request(
 				'GET',
 				$this->get_request_url("/admin/custom_collections/count.json"),
@@ -383,6 +412,7 @@ class WS {
 
 				// $_SESSION['wps_syncing_totals']['custom_collections'] = $data->count;
 				// session_write_close();
+				error_log('---- Start End Collections Count -----');
 				wp_send_json_success(['custom_collections' => $data->count]);
 
 			} else {
@@ -392,7 +422,7 @@ class WS {
 
 		} catch (RequestException $error) {
 
-			wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1104c)');
+			wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1104c)');
 
 		}
 
@@ -407,10 +437,11 @@ class WS {
   */
   public function wps_ws_get_orders_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1043a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1043b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1043a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1043b)');
 		Utils::wps_access_session();
 
+		error_log('---- Start Orders Count -----');
     try {
 
 			$response = $this->wps_request(
@@ -423,6 +454,7 @@ class WS {
 
       if (is_object($data) && property_exists($data, 'count')) {
 
+				error_log('---- End Orders Count -----');
         wp_send_json_success(['orders' => $data->count]);
 
       } else {
@@ -431,7 +463,7 @@ class WS {
       }
 
     } catch (RequestException $error) {
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1043c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1043c)');
 
     }
 
@@ -446,12 +478,13 @@ class WS {
   */
   public function wps_ws_get_customers_count() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1042a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1042b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1042a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1042b)');
 		Utils::wps_access_session();
 
     try {
 
+			error_log('---- Start Customers Count -----');
 			$response = $this->wps_request(
 				'GET',
 				$this->get_request_url("/admin/customers/count.json"),
@@ -461,6 +494,7 @@ class WS {
       $data = json_decode($response->getBody()->getContents());
 
       if (is_object($data) && property_exists($data, 'count')) {
+				error_log('---- End Customers Count -----');
         wp_send_json_success(['customers' => $data->count]);
 
       } else {
@@ -470,7 +504,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1042c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1042c)');
 
     }
 
@@ -484,6 +518,7 @@ class WS {
 	*/
 	public function wps_ws_get_webhooks_count() {
 
+		error_log('---- Start Webhooks Count -----');
 		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
 			$this->turn_off_syncing();
 			wp_send_json_error($this->messages->message_nonce_invalid . ' (wps_ws_get_webhooks_count)');
@@ -497,33 +532,50 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_ws_get_webhooks_count)');
 			wp_die();
 		}
 
-		try {
+		wp_send_json_success(['webhooks' => 27]);
 
-			$response = $this->wps_request(
-				'GET',
-				$this->get_request_url("/admin/webhooks/count.js"),
-				$this->get_request_options()
-			);
-
-			$data = json_decode($response->getBody()->getContents());
-
-			if (is_object($data) && property_exists($data, 'count')) {
-				wp_send_json_success(['webhooks' => $data->count]);
-
-			} else {
-				wp_send_json_error(['webhooks' => 0]);
-
-			}
-
-		} catch (RequestException $error) {
-
-			wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1042c)');
-
-		}
+		// try {
+    //
+		// 	$response = $this->wps_request(
+		// 		'GET',
+		// 		$this->get_request_url("/admin/webhooks/count.js"),
+		// 		$this->get_request_options()
+		// 	);
+    //
+		// 	error_log('---- URL -----');
+		// 	error_log(print_r($this->get_request_url("/admin/webhooks/count.js"), true));
+		// 	error_log('---- /URL -----');
+    //
+		// 	error_log('---- URL OPTIONS -----');
+		// 	error_log(print_r($this->get_request_options(), true));
+		// 	error_log('---- /URL OPTIONS -----');
+    //
+		// 	$data = json_decode($response->getBody()->getContents());
+    //
+		// 	error_log('---- $response -----');
+		// 	error_log(print_r($response->getBody()->getContents(), true));
+		// 	error_log('---- /$response -----');
+    //
+		// 	error_log('---- End Webhooks Count -----');
+    //
+		// 	if (is_object($data) && property_exists($data, 'count')) {
+    //
+		// 		wp_send_json_success(['webhooks' => $data->count]);
+    //
+		// 	} else {
+		// 		wp_send_json_error(['webhooks' => 0]);
+    //
+		// 	}
+    //
+		// } catch (RequestException $error) {
+    //
+		// 	wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1042c)');
+    //
+		// }
 
 	}
 
@@ -535,8 +587,8 @@ class WS {
   */
   public function wps_ws_get_shop_data() {
 
-    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1041a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1041b)');
+    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1041a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1041b)');
 
     try {
 
@@ -558,7 +610,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1041c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1041c)');
 
     }
 
@@ -572,7 +624,7 @@ class WS {
 	*/
 	public function wps_insert_alt_text() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1090a)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1090a)');
 
 		$Images = new Images();
 		$allImages = $Images->get_all_rows();
@@ -767,12 +819,9 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_products_data)');
 			wp_die();
 		}
-
-
-		error_log('Begin Inserting Products ...');
 
 
 		$index = 1;
@@ -812,12 +861,12 @@ class WS {
 
 					// Check if still syncing during each interation to ensure proper sync cancelation
 					if (!Utils::isStillSyncing()) {
-						wp_send_json_error();
+						wp_send_json_error($this->messages->message_connection_not_syncing . ': ' . $product->title);
 						wp_die();
 					}
 
 
-					// If product is visible on the Online Stores channel
+					// If product is published
 	        if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
 
@@ -826,7 +875,6 @@ class WS {
 						Insert CPT ...
 
 						*/
-
 				    $insertionResults[$product->title]['cpt'] = $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
 
 						$product = $DB_Products->modify_product_after_cpt_insert($product, $customPostTypeID);
@@ -890,7 +938,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1040h)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1040h)');
 
     }
 
@@ -909,8 +957,8 @@ class WS {
   */
   public function wps_ws_get_variants() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1039a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1039b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1039a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1039b)');
 
     $productID = $_POST['productID'];
 
@@ -947,7 +995,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1039c)');
+        wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1039c)');
 
       }
 
@@ -976,11 +1024,10 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_custom_collections_data)');
 			wp_die();
 		}
 
-		error_log('Inserting Custom Collections ...');
 
     try {
 
@@ -1002,13 +1049,11 @@ class WS {
 
 
 				if (empty($results)) {
-					wp_send_json_error($this->messages->message_insert_custom_collections_error . ' (Error code: #1038c)');
+					wp_send_json_error($this->messages->message_insert_custom_collections_error . ' (code: #1038c)');
 
 				} else {
 					wp_send_json_success();
 				}
-
-				error_log('Done Inserting Custom Collections ...');
 
 
       } else {
@@ -1018,7 +1063,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1038d)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1038d)');
 
     }
 
@@ -1047,13 +1092,12 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_smart_collections_data)');
 			wp_die();
 		}
 
 		Utils::prevent_timeouts();
 
-		error_log('Inserting Smart Collections ...');
 
     try {
 
@@ -1071,11 +1115,9 @@ class WS {
       if (property_exists($data, "smart_collections")) {
 
         $results = $DB_Collections_Smart->insert_smart_collections($data->smart_collections);
-				error_log('Done Inserting Smart Collections ...');
-
 
 				if (empty($results)) {
-					wp_send_json_error( $this->messages->message_insert_smart_collections_error . ' (Error code: #1037d)');
+					wp_send_json_error( $this->messages->message_insert_smart_collections_error . ' (code: #1037d)');
 
 				} else {
 					wp_send_json_success();
@@ -1084,12 +1126,10 @@ class WS {
 
       } else {
         wp_send_json_error($data->errors);
-
       }
 
     } catch (RequestException $error) {
-
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1037d)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1037d)');
 
     }
 
@@ -1103,8 +1143,8 @@ class WS {
   */
   public function wps_ws_get_products_from_collection() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1036a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1036b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1036a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1036b)');
 
     try {
 
@@ -1128,7 +1168,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1036c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1036c)');
 
     }
 
@@ -1155,11 +1195,10 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_collects)');
 			wp_die();
 		}
 
-		error_log('Inserting Collects ...');
 
     try {
 
@@ -1182,18 +1221,10 @@ class WS {
 
       if (property_exists($data, "collects")) {
 
-				// Utils::wps_access_session();
-        //
-				// if (!$_SESSION['wps_is_syncing']) {
-				// 	$resultProducts = $DB_Collects->insert_collects($data->collects);
-				// }
-
 				$resultProducts = $DB_Collects->insert_collects($data->collects);
 
-				error_log('Done Inserting Collects Set ...');
-
 				if (empty($resultProducts)) {
-					wp_send_json_error($this->messages->message_insert_collects_error . ' (Error code: #1035c)');
+					wp_send_json_error($this->messages->message_insert_collects_error . ' (code: #1035c)');
 
 				} else {
 					wp_send_json_success();
@@ -1208,7 +1239,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1035d)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1035d)');
 
     }
 
@@ -1232,10 +1263,10 @@ class WS {
     }
 
 
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1034a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1034a)');
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1034b)');
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1034b)');
     }
 
 
@@ -1266,7 +1297,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1034c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1034c)');
 
     }
 
@@ -1289,10 +1320,10 @@ class WS {
       $ajax = false;
     }
 
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1033a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1033a)');
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1033b)');
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1033b)');
     }
 
 
@@ -1316,7 +1347,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      $response = $this->wps_get_error_message($error) . ' (Error code: #1033c)';
+      $response = $this->wps_get_error_message($error) . ' (code: #1033c)';
 
     }
 
@@ -1346,8 +1377,8 @@ class WS {
   */
   public function wps_ws_get_single_collection() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1032a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1032b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1032a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1032b)');
 
     try {
 
@@ -1369,7 +1400,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1032c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1032c)');
 
     }
 
@@ -1384,7 +1415,7 @@ class WS {
   public function wps_ws_end_api_connection() {
 
     if (Utils::emptyConnection($this->connection)) {
-      return new \WP_Error('error', $this->messages->message_connection_disconnect_invalid_access_token . ' (Error code: #1031a)');
+      return new \WP_Error('error', $this->messages->message_connection_disconnect_invalid_access_token . ' (code: #1031a)');
 
     } else {
 
@@ -1407,7 +1438,7 @@ class WS {
 
       } catch (RequestException $error) {
 
-        return new \WP_Error('error', $this->wps_get_error_message($error) . ' (Error code: #1031b)');
+        return new \WP_Error('error', $this->wps_get_error_message($error) . ' (code: #1031b)');
 
       }
 
@@ -1425,54 +1456,40 @@ class WS {
 
 		$Webhooks = new Webhooks($this->config);
 
-		// Remove all webhooks before resyncing ...
-		$webhooksDeletionsList = $Webhooks->remove_webhooks();
+		if (isset($_POST['removalErrors']) && $_POST['removalErrors']) {
+			$webhooksErrorList = $_POST['removalErrors'];
 
-		error_log('---- $webhooksDeletionsList -----');
-		error_log(print_r($webhooksDeletionsList, true));
-		error_log('---- /$webhooksDeletionsList -----');
+		} else {
+			$webhooksErrorList = [];
+		}
 
-		$webhooksErrorList = $Webhooks->filter_for_removal_errors($webhooksDeletionsList);
+		$webhooksDefaultList = $Webhooks->default_topics();
 
-		error_log('---- $webhooksErrorList -----');
-		error_log(print_r($webhooksErrorList, true));
-		error_log('---- /$webhooksErrorList -----');
-
-
-		$webhooksToRegister = array_diff_key($webhooksDeletionsList, $webhooksErrorList);
-
-		error_log('---- $webhooksToRegister -----');
-		error_log(print_r($webhooksToRegister, true));
-		error_log('---- /$webhooksToRegister -----');
-
+		$webhooksToRegister = array_diff_key($webhooksDefaultList, $webhooksErrorList);
 
 		$registerResults = $Webhooks->wps_webhooks_register($webhooksToRegister);
 
-		error_log('---- $registerResults -----');
-		error_log(print_r($registerResults, true));
-		error_log('---- /$registerResults -----');
+		if (is_array($registerResults)) {
 
-		// Contains an array of topics and webhook IDs on success or false on error
-		$finalWebhooksResult = array_merge($webhooksErrorList, $registerResults);
+			// Contains an array of topics and webhook IDs on success or false on error
+			$finalWebhooksResult = array_merge($webhooksErrorList, $registerResults);
 
-		error_log('---- $finalWebhooksResult -----');
-		error_log(print_r($finalWebhooksResult, true));
-		error_log('---- /$finalWebhooksResult -----');
+			$registerErrors = $Webhooks->filter_for_register_errors($finalWebhooksResult);
 
-		$registerErrors = $Webhooks->filter_for_register_errors($finalWebhooksResult);
+			if (empty($registerErrors)) {
+				wp_send_json_success([
+					'warnings' => false
+				]);
 
-		error_log('---- $registerErrors -----');
-		error_log(print_r($registerErrors, true));
-		error_log('---- /$registerErrors -----');
+			} else {
+				wp_send_json_success([
+					'warnings' => $registerErrors
+				]);
 
-		if (empty($registerErrors)) {
-			wp_send_json_success($registerErrors);
+			}
 
 		} else {
-			wp_send_json_success([
-				'warnings' => $registerErrors
-			]);
-
+			wp_send_json_error();
 		}
 
 	}
@@ -1485,10 +1502,11 @@ class WS {
 	*/
 	public function wps_ws_get_webhooks() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1030a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1030b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1030a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1030b)');
 
     try {
+			error_log('---- start wps_ws_get_webhooks -----');
 
 			$response = $this->wps_request(
 				'GET',
@@ -1497,13 +1515,13 @@ class WS {
 			);
 
       $data = $response->getBody()->getContents();
-
+			error_log('---- end wps_ws_get_webhooks -----');
       wp_send_json_success($data);
 
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1030c)');
+      wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1030c)');
 
     }
 
@@ -1518,8 +1536,8 @@ class WS {
   */
   public function wps_ws_delete_webhook() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1029a)');
-    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1029b)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1029a)');
+    !Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1029b)');
 
 
     if (property_exists($this->connection, 'webhook_id') && $this->connection->webhook_id) {
@@ -1537,13 +1555,13 @@ class WS {
 
       } catch (RequestException $error) {
 
-        wp_send_json_error( $this->wps_get_error_message($error) . ' (Error code: #1029c)');
+        wp_send_json_error( $this->wps_get_error_message($error) . ' (code: #1029c)');
 
       }
 
     } else {
 
-      return new \WP_Error('error', $this->messages->message_webhooks_no_id_set . ' (Error code: #1029d)');
+      return new \WP_Error('error', $this->messages->message_webhooks_no_id_set . ' (code: #1029d)');
 
     }
 
@@ -1567,7 +1585,7 @@ class WS {
   */
   public function wps_update_settings_general() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #103a)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #103a)');
 
     global $wp_rewrite;
 
@@ -1650,7 +1668,7 @@ class WS {
   */
   public function wps_get_connection() {
 
-    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #104a)');
+    Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #104a)');
 
     if (get_transient('wps_settings_connection')) {
       $connectionData = get_transient('wps_settings_connection');
@@ -1668,6 +1686,31 @@ class WS {
   }
 
 
+	/*
+
+	Reset rewrite rules on CTP url change
+
+	*/
+	public function wps_remove_connection() {
+
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->turn_off_syncing();
+			wp_send_json_error($this->messages->message_nonce_invalid . ' (wps_remove_connection)');
+			wp_die();
+		}
+
+		$response_connection_settings = $this->wps_delete_settings_connection();
+
+		if (is_wp_error($response_connection_settings)) {
+			wp_send_json_error($response_connection_settings->get_error_message()  . ' (wps_remove_connection)');
+
+		} else {
+			wp_send_json_success();
+		}
+
+	}
+
+
   /*
 
   Insert connection data
@@ -1682,11 +1725,9 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_connection)');
 			wp_die();
 		}
-
-		error_log('Inserting Connection ...');
 
     $DB_Settings_Connection = new Settings_Connection();
     $connectionData = $_POST['connectionData'];
@@ -1695,11 +1736,12 @@ class WS {
     $results = $DB_Settings_Connection->insert_connection($connectionData);
 
     if ($results === false) {
+			error_log('Error inserting connection data');
       wp_send_json_error($this->messages->message_connection_save_error . ' (wps_insert_connection)');
 
     } else {
-			error_log('Done Inserting Connection ...');
       wp_send_json_success();
+
     }
 
   }
@@ -1719,24 +1761,22 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_shop)');
 			wp_die();
 		}
 
-		error_log('Inserting Shop ...');
 
 		$DB_Shop = new Shop();
     $shopData = $_POST['shopData'];
     $results = $DB_Shop->insert_shop($shopData);
 
 		if (empty($results)) {
-			wp_send_json_error($this->message_connection_save_error . ' (Error code: #106b)');
+			wp_send_json_error($this->message_connection_save_error . ' (code: #106b)');
 
 		} else {
 			wp_send_json_success();
 		}
 
-		error_log('Done Inserting Shop ...');
 
   }
 
@@ -1751,7 +1791,7 @@ class WS {
     $DB_Shop = new Shop();
 
     if (!$DB_Shop->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_shop_error . ' (Error code: #107a)');
+      return new \WP_Error('error', $this->messages->message_delete_shop_error . ' (code: #107a)');
 
     } else {
       return true;
@@ -1763,7 +1803,7 @@ class WS {
   /*
 
 	Delete the config data
-  TODO: Support multiple connections by making connection ID dynamic
+  TODO: Support multiple connections by making connection ID dynamic?
 
 	*/
 	public function wps_delete_settings_connection() {
@@ -1773,7 +1813,7 @@ class WS {
     $deeltion = $DB_Settings_Connection->delete();
 
     if (!$deeltion) {
-      return new \WP_Error('error', $this->messages->message_delete_connection_error . ' (Error code: #108a)');
+      return new \WP_Error('error', $this->messages->message_delete_connection_error . ' (code: #108a)');
 
     } else {
       return true;
@@ -1793,11 +1833,11 @@ class WS {
     $Backend = new Backend($this->config);
 
     if (!$Backend->wps_delete_posts('wps_products')) {
-      $result = new \WP_Error('error', $this->messages->message_delete_cpt_products_error . ' (Error code: #109a)');
+      $result = new \WP_Error('error', $this->messages->message_delete_cpt_products_error . ' (code: #109a)');
     }
 
     if (!$Backend->wps_delete_posts('wps_collections')) {
-      $result = new \WP_Error('error', $this->messages->message_delete_cpt_collections_error . ' (Error code: #109b)');
+      $result = new \WP_Error('error', $this->messages->message_delete_cpt_collections_error . ' (code: #109b)');
     }
 
     return $result;
@@ -1815,7 +1855,7 @@ class WS {
     $Images = new Images();
 
     if (!$Images->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_images_error . ' (Error code: #1010a)');
+      return new \WP_Error('error', $this->messages->message_delete_product_images_error . ' (code: #1010a)');
 
     } else {
       return true;
@@ -1834,7 +1874,7 @@ class WS {
     $Inventory = new Inventory();
 
     if (!$Inventory->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_inventory_error . ' (Error code: #1011a)');
+      return new \WP_Error('error', $this->messages->message_delete_product_inventory_error . ' (code: #1011a)');
 
     } else {
       return true;
@@ -1853,7 +1893,7 @@ class WS {
     $Collects = new Collects();
 
     if (!$Collects->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_collects_error . ' (Error code: #1012a)');
+      return new \WP_Error('error', $this->messages->message_delete_collects_error . ' (code: #1012a)');
 
     } else {
       return true;
@@ -1872,7 +1912,7 @@ class WS {
     $Tags = new Tags();
 
     if (!$Tags->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_tags_error . ' (Error code: #1013a)');
+      return new \WP_Error('error', $this->messages->message_delete_product_tags_error . ' (code: #1013a)');
 
     } else {
       return true;
@@ -1891,7 +1931,7 @@ class WS {
     $Options = new Options();
 
     if (!$Options->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_options_error . ' (Error code: #1014a)');
+      return new \WP_Error('error', $this->messages->message_delete_product_options_error . ' (code: #1014a)');
 
     } else {
       return true;
@@ -1910,7 +1950,7 @@ class WS {
     $Variants = new Variants();
 
     if (!$Variants->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_variants_error . ' (Error code: #1015a)');
+      return new \WP_Error('error', $this->messages->message_delete_product_variants_error . ' (code: #1015a)');
 
     } else {
       return true;
@@ -1929,7 +1969,7 @@ class WS {
     $Products = new Products();
 
     if (!$Products->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_products_error . ' (Error code: #1016a)');
+      return new \WP_Error('error', $this->messages->message_delete_products_error . ' (code: #1016a)');
 
     } else {
       return true;
@@ -1948,7 +1988,7 @@ class WS {
     $Collections_Custom = new Collections_Custom();
 
     if (!$Collections_Custom->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_custom_collections_error . ' (Error code: #1017a)');
+      return new \WP_Error('error', $this->messages->message_delete_custom_collections_error . ' (code: #1017a)');
 
     } else {
       return true;
@@ -1967,7 +2007,7 @@ class WS {
     $Collections_Smart = new Collections_Smart();
 
     if (!$Collections_Smart->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_smart_collections_error . ' (Error code: #1017a)');
+      return new \WP_Error('error', $this->messages->message_delete_smart_collections_error . ' (code: #1017a)');
 
     } else {
       return true;
@@ -1986,7 +2026,7 @@ class WS {
     $Orders = new Orders();
 
     if (!$Orders->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (Error code: #1018a)');
+      return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (code: #1018a)');
 
     } else {
       return true;
@@ -2005,7 +2045,7 @@ class WS {
     $Customers = new Customers();
 
     if (!$Customers->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (Error code: #1019a)');
+      return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (code: #1019a)');
 
     } else {
       return true;
@@ -2078,17 +2118,18 @@ class WS {
   STRING containing the error message.
 
   */
-  public function wps_uninstall_consumer($ajax = true) {
+  public function wps_uninstall_consumer($ajax = true, $async = false) {
 
     if ($_POST['action'] === 'wps_uninstall_consumer') {
       $ajax = true;
+			$async = true;
 
     } else {
       $ajax = false;
     }
 
     if ($ajax) {
-      Utils::valid_uninstall_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1020a)');
+      Utils::valid_uninstall_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1020a)');
     }
 
     $results = array();
@@ -2097,64 +2138,50 @@ class WS {
 		$Webhooks = new Webhooks($this->config);
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('api_key');
-    $results = $this->wps_uninstall_product_data();
+
+
+		/*
+
+		Step 1. Remove all product data including CPTs
+
+		*/
+		$results = $this->wps_uninstall_all_data();
 
 
     if (!empty($connection)) {
 
-			error_log('---- 111 ----');
-
 			/*
 
-			Remove Webhooks
-
-			*/
-			$response_webhooks = $Webhooks->remove_webhooks();
-
-			error_log('---- $response_webhooks -----');
-			error_log(print_r($response_webhooks, true));
-			error_log('---- /$response_webhooks -----');
-
-			if (is_wp_error($response_webhooks)) {
-				$results['connection_api'] = $response_webhooks->get_error_message()  . ' (Error code: #1020b)';
-
-			} else {
-				$results['connection_api'] = $response_webhooks;
-			}
-
-
-			/*
-
-			Remove & Deactivate any license keys
+			Step 2. Remove & Deactivate any license keys
 
 			*/
 			$response_license = $License->wps_deactivate_plugin_license();
 
 			if (is_wp_error($response_license)) {
-				$results['connection_settings'] = $response_license->get_error_message()  . ' (Error code: #1020d)';
+				$results['connection_settings'] = $response_license->get_error_message()  . ' (code: #1020d)';
 
 			} else {
 				$results['connection_settings'] = $response_license;
 			}
 
 
-      /*
+			/*
 
-      Remove Connection Settings
+			Step 3. Remove Webhooks
 
-      */
-      $response_connection_settings = $this->wps_delete_settings_connection();
+			*/
+			$response_webhooks = $Webhooks->remove_webhooks(false, $async);
 
-      if (is_wp_error($response_connection_settings)) {
-        $results['connection_settings'] = $response_connection_settings->get_error_message()  . ' (Error code: #1020c)';
 
-      } else {
-        $results['connection_settings'] = $response_connection_settings;
-      }
+			if (is_wp_error($response_webhooks)) {
+				$results['connection_api'] = $response_webhooks->get_error_message()  . ' (code: #1020b)';
+
+			} else {
+				$results['connection_api'] = 1;
+			}
 
 
     }
-
 
 
     if ($ajax) {
@@ -2177,7 +2204,7 @@ class WS {
 	*/
 	public function wps_uninstall_all_data() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1068a)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (code: #1068a)');
 
 		$results = $this->wps_uninstall_product_data(false);
 
@@ -2208,7 +2235,6 @@ class WS {
   */
   public function wps_uninstall_product_data($ajax = true) {
 
-
     if ($_POST['action'] === 'wps_uninstall_product_data') {
       $ajax = true;
 
@@ -2218,12 +2244,13 @@ class WS {
 
 
     if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1021a)');
+      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (code: #1021a)');
     }
 
 
     $results = array();
     $Transients = new Transients();
+		$Webhooks = new Webhooks($this->config);
     $DB_Settings_Connection = new Settings_Connection();
     $connection = $DB_Settings_Connection->get_column_single('domain');
 
@@ -2236,11 +2263,27 @@ class WS {
     $response_shop = $this->wps_delete_shop();
 
     if (is_wp_error($response_shop)) {
-      $results['shop'] = $response_shop->get_error_message()  . ' (Error code: #1021b)';
+      $results['shop'] = $response_shop->get_error_message()  . ' (code: #1021b)';
 
     } else {
       $results['shop'] = $response_shop;
     }
+
+
+		/*
+
+		Remove Webhooks
+
+		*/
+		$response_webhooks = $Webhooks->remove_webhooks(false, true);
+
+
+		if (is_wp_error($response_webhooks)) {
+			$results['connection_api'] = $response_webhooks->get_error_message()  . ' (code: #1021bb)';
+
+		} else {
+			$results['connection_api'] = 1;
+		}
 
 
     /*
@@ -2251,7 +2294,7 @@ class WS {
     $response_products = $this->wps_delete_products();
 
     if (is_wp_error($response_products)) {
-      $results['products'] = $response_products->get_error_message()  . ' (Error code: #1021c)';
+      $results['products'] = $response_products->get_error_message()  . ' (code: #1021c)';
 
     } else {
       $results['products'] = $response_products;
@@ -2266,7 +2309,7 @@ class WS {
     $response_collections_custom = $this->wps_delete_custom_collections();
 
     if (is_wp_error($response_collections_custom)) {
-      $results['custom_collections'] = $response_collections_custom->get_error_message()  . ' (Error code: #1021d)';
+      $results['custom_collections'] = $response_collections_custom->get_error_message()  . ' (code: #1021d)';
 
     } else {
       $results['custom_collections'] = $response_collections_custom;
@@ -2281,7 +2324,7 @@ class WS {
     $response_collections_smart = $this->wps_delete_smart_collections();
 
     if (is_wp_error($response_collections_smart)) {
-      $results['smart_collections'] = $response_collections_smart->get_error_message()  . ' (Error code: #1021e)';
+      $results['smart_collections'] = $response_collections_smart->get_error_message()  . ' (code: #1021e)';
 
     } else {
       $results['smart_collections'] = $response_collections_smart;
@@ -2296,7 +2339,7 @@ class WS {
     $response_collects = $this->wps_delete_collects();
 
     if (is_wp_error($response_collects)) {
-      $results['collects'] = $response_collects->get_error_message()  . ' (Error code: #1021f)';
+      $results['collects'] = $response_collects->get_error_message()  . ' (code: #1021f)';
 
     } else {
       $results['collects'] = $response_collects;
@@ -2311,7 +2354,7 @@ class WS {
     $response_variants = $this->wps_delete_variants();
 
     if (is_wp_error($response_variants)) {
-      $results['variants'] = $response_variants->get_error_message()  . ' (Error code: #1021g)';
+      $results['variants'] = $response_variants->get_error_message()  . ' (code: #1021g)';
 
     } else {
       $results['variants'] = $response_variants;
@@ -2326,7 +2369,7 @@ class WS {
     $response_options = $this->wps_delete_options();
 
     if (is_wp_error($response_options)) {
-      $results['options'] = $response_options->get_error_message()  . ' (Error code: #1021h)';
+      $results['options'] = $response_options->get_error_message()  . ' (code: #1021h)';
 
     } else {
       $results['options'] = $response_options;
@@ -2341,7 +2384,7 @@ class WS {
     $response_tags = $this->wps_delete_tags();
 
     if (is_wp_error($response_tags)) {
-      $results['tags'] = $response_tags->get_error_message()  . ' (Error code: #1021i)';
+      $results['tags'] = $response_tags->get_error_message()  . ' (code: #1021i)';
 
     } else {
       $results['tags'] = $response_tags;
@@ -2356,7 +2399,7 @@ class WS {
     $response_images = $this->wps_delete_images();
 
     if (is_wp_error($response_images)) {
-      $results['images'] = $response_images->get_error_message()  . ' (Error code: #1021j)';
+      $results['images'] = $response_images->get_error_message()  . ' (code: #1021j)';
 
     } else {
       $results['images'] = $response_images;
@@ -2371,7 +2414,7 @@ class WS {
     $response_orders = $this->wps_delete_orders();
 
     if (is_wp_error($response_orders)) {
-      $results['orders'] = $response_orders->get_error_message()  . ' (Error code: #1021k)';
+      $results['orders'] = $response_orders->get_error_message()  . ' (code: #1021k)';
 
     } else {
       $results['orders'] = $response_orders;
@@ -2386,7 +2429,7 @@ class WS {
     $response_customers = $this->wps_delete_customers();
 
     if (is_wp_error($response_customers)) {
-      $results['customers'] = $response_customers->get_error_message()  . ' (Error code: #1021l)';
+      $results['customers'] = $response_customers->get_error_message()  . ' (code: #1021l)';
 
     } else {
       $results['customers'] = $response_customers;
@@ -2401,7 +2444,7 @@ class WS {
     $response_transients = $Transients->delete_all_cache();
 
     if (is_wp_error($response_transients)) {
-      $results['transients'] = $response_transients->get_error_message()  . ' (Error code: #1021m)';
+      $results['transients'] = $response_transients->get_error_message()  . ' (code: #1021m)';
 
     } else {
       $results['transients'] = $response_transients;
@@ -2439,45 +2482,28 @@ class WS {
   */
   public function wps_ws_set_syncing_indicator($ajax = true, $flag = false) {
 
-    $DB_Settings_Connection = new Settings_Connection();
-    $connectionData = $DB_Settings_Connection->get();
-
     if (isset($_POST['action']) && $_POST['action'] === 'wps_ws_set_syncing_indicator') {
       $ajax = true;
+			$flag = $_POST['syncing'];
 
     } else {
       $ajax = false;
     }
 
+		Utils::wps_access_session();
 
-    if ($ajax) {
-      Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1022a)');
-			$connectionData->is_syncing = $_POST['syncing'];
+		$results = [];
+		$_SESSION['wps_is_syncing'] = $flag;
+		$results['syncing_indicator'] = $flag;
 
-    } else {
-			$connectionData->is_syncing = $flag;
-		}
-
-
-    $connectionData = (array) $connectionData;
-    $response = $DB_Settings_Connection->insert_connection($connectionData);
-
-
-    if (is_wp_error($response)) {
-      $results['syncing_indicator'] = $response->get_error_message()  . ' (Error code: #1022b)';
-
-    } else {
-      $results['syncing_indicator'] = $response;
-    }
-
-
-    if ($ajax) {
+		if ($ajax) {
       wp_send_json_success($results);
 
     } else {
       return $results;
 
     }
+
 
   }
 
@@ -2495,7 +2521,7 @@ class WS {
   */
   public function wps_clear_cache() {
 
-    Utils::valid_cache_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1023a)');
+    Utils::valid_cache_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (code: #1023a)');
 
     $Transients = new Transients();
 
@@ -2505,7 +2531,7 @@ class WS {
     $results = $Transients->delete_all_cache();
 
     if (is_wp_error($results)) {
-      wp_send_json_error(esc_html__($results->get_error_message()  . ' (Error code: #1023b)', 'wp-shopify'));
+      wp_send_json_error(esc_html__($results->get_error_message()  . ' (code: #1023b)', 'wp-shopify'));
 
     } else {
 
@@ -2526,7 +2552,7 @@ class WS {
   */
   public function wps_sync_with_cpt() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (Error code: #1024a)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid  . ' (code: #1024a)');
 
     $Utils = new Utils();
     $DB_Products = new Products();
@@ -2578,11 +2604,10 @@ class WS {
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_orders)');
 			wp_die();
 		}
 
-		error_log('Inserting Orders ...');
 
     try {
 
@@ -2613,11 +2638,13 @@ class WS {
         */
         $resultOrders = $DB_Orders->insert_orders( $data->orders );
 
-        if (empty($resultOrders)) {
-          wp_send_json_error($this->messages->message_syncing_orders_error  . ' (Error code: #1025c)');
-        }
+				error_log('---- $resultOrders -----');
+				error_log(print_r($resultOrders, true));
+				error_log('---- /$resultOrders -----');
 
-				error_log('Done Inserting Orders ... -----');
+        if (empty($resultOrders)) {
+          wp_send_json_error($this->messages->message_syncing_orders_error  . ' (code: #1025c)');
+        }
 
         wp_send_json_success();
 
@@ -2628,7 +2655,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error)  . ' (Error code: #1025d)');
+      wp_send_json_error( $this->wps_get_error_message($error)  . ' (code: #1025d)');
 
     }
 
@@ -2649,17 +2676,17 @@ class WS {
 		}
 
 		if (Utils::emptyConnection($this->connection)) {
+			error_log('---- empty connection at wps_insert_customers -----');
 			$this->turn_off_syncing();
 			wp_send_json_error($this->messages->message_connection_not_found . ' (wps_insert_customers)');
 			wp_die();
 		}
 
 		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
+			wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_customers)');
 			wp_die();
 		}
 
-		error_log('Inserting Customers ...');
 
     try {
 
@@ -2691,10 +2718,9 @@ class WS {
         */
         $results = $DB_Customers->insert_customers( $data->customers );
 
-				error_log('Done Inserting Customers ...');
 
         if (empty($results)) {
-          wp_send_json_error($this->messages->message_syncing_customers_error  . ' (Error code: #1026c)');
+          wp_send_json_error($this->messages->message_syncing_customers_error  . ' (code: #1026c)');
         }
 
         wp_send_json_success();
@@ -2707,7 +2733,7 @@ class WS {
 
     } catch (RequestException $error) {
 
-      wp_send_json_error( $this->wps_get_error_message($error)  . ' (Error code: #1026d)');
+      wp_send_json_error( $this->wps_get_error_message($error)  . ' (code: #1026d)');
 
     }
 
@@ -2795,6 +2821,7 @@ class WS {
 		usleep(180000);
 
 		$Guzzle = new Guzzle();
+
 
 		if (empty($options)) {
 			$options = [];
@@ -2890,15 +2917,21 @@ class WS {
 		}
 
 		if (Utils::emptyConnection($this->connection)) {
+			error_log('---- empty connection at save_counts -----');
 			$this->turn_off_syncing();
 			wp_send_json_error($this->messages->message_connection_not_found . ' (wps_insert_customers)');
 			wp_die();
 		}
 
 		// if (!Utils::isStillSyncing()) {
-		// 	wp_send_json_error();
+		// wp_send_json_error($this->messages->message_connection_not_syncing . ' (wps_insert_customers)');
 		// 	wp_die();
 		// }
+
+
+		// error_log('---- $_POST -----');
+		// error_log(print_r($_POST['counts'], true));
+		// error_log('---- /$_POST -----');
 
 
 		if (isset($_POST['counts']) && $_POST['counts']) {
@@ -2941,11 +2974,6 @@ class WS {
 
 			Utils::wps_close_session_write();
 
-
-			error_log('---- UPDATED $_SESSION -----');
-			error_log(print_r($_SESSION, true));
-			error_log('---- /UPDATED $_SESSION -----');
-
 			wp_send_json_success($counts);
 
 		}
@@ -2963,17 +2991,6 @@ class WS {
 		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
 			$this->turn_off_syncing();
 			wp_send_json_error($this->messages->message_nonce_invalid . ' (wps_insert_customers)');
-			wp_die();
-		}
-
-		if (Utils::emptyConnection($this->connection)) {
-			$this->turn_off_syncing();
-			wp_send_json_error($this->messages->message_connection_not_found . ' (wps_insert_customers)');
-			wp_die();
-		}
-
-		if (!Utils::isStillSyncing()) {
-			wp_send_json_error();
 			wp_die();
 		}
 

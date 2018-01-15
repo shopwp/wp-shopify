@@ -301,7 +301,7 @@ class Backend {
 	*/
  	public function wps_get_credentials_frontend() {
 
-		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1067a)');
+		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1067a)');
 
 		$shopifyCreds = array();
 		$connection = $this->config->wps_get_settings_connection();
@@ -568,6 +568,10 @@ class Backend {
 		// Get connection data
 		add_action( 'wp_ajax_wps_get_connection', array($WS, 'wps_get_connection'));
 		add_action( 'wp_ajax_nopriv_wps_get_connection', array($WS, 'wps_get_connection'));
+
+		// Remove connection data
+		add_action( 'wp_ajax_wps_remove_connection', array($WS, 'wps_remove_connection'));
+		add_action( 'wp_ajax_nopriv_wps_remove_connection', array($WS, 'wps_remove_connection'));
 
 		// Get Variants
 		add_action( 'wp_ajax_wps_ws_get_variants', array($WS, 'wps_ws_get_variants'));

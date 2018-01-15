@@ -75,23 +75,6 @@ function clearAllCache() {
 
     /*
 
-    Step 1. Clear Localstorage cache
-
-    */
-    try {
-      var clearLocalstorageResponse = await clearLocalstorageCache();
-
-      if (isWordPressError(clearLocalstorageResponse)) {
-        reject(clearLocalstorageResponse.data);
-      }
-
-    } catch(clearLocalstorageCacheError) {
-      reject(clearLocalstorageCacheError);
-    }
-
-
-    /*
-
     Step 2. Clear main cache
 
     */
@@ -107,7 +90,7 @@ function clearAllCache() {
 
     }
 
-    resolve();
+    resolve(clearCacheResponse);
 
   });
 

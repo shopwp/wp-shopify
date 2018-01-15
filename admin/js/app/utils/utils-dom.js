@@ -1,4 +1,20 @@
 import forOwn from 'lodash/forOwn';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import forEach from 'lodash/forEach';
+
+import {
+  connectInit
+} from '../connect/connect';
+
+import {
+  getDefaultExitOptions,
+  getCombinedExitOptions
+} from './utils-data';
+
+import {
+  enable
+} from './utils';
 
 import {
   syncPluginData
@@ -10,9 +26,11 @@ import {
   removeModalCache,
   removeConnectionProgress,
   removeConnectionNonce,
-  clearLocalstorageCache
+  clearLocalstorageCache,
+  setConnectionProgress,
+  isConnectionInProgress,
+  syncIsCanceled
 } from '../ws/localstorage';
-
 
 /*
 
@@ -21,7 +39,7 @@ Returns: $element
 
 */
 function createX() {
-  return jQuery('<div class="wps-icon-xmark"></div>');
+  return jQuery('<span class="dashicons dashicons-no"></span>');
 };
 
 
@@ -32,7 +50,7 @@ Returns: $element
 
 */
 function createCheckmark() {
-  return jQuery('<div class="wps-icon-checkmark"></div>');
+  return jQuery('<span class="dashicons dashicons-yes"></span>');
 };
 
 
@@ -135,17 +153,21 @@ Returns: undefined
 */
 function addConnectorStepMessage(content, type = '', supportingMessage = '') {
 
-  var $notice;
+  if ( !syncIsCanceled() ) {
 
-  if (type === 'error') {
-    $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-error"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span></div></div>');
+    var $notice;
 
-  } else {
-    $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-success"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span><div class="spinner is-active"></div></div></div>');
+    if (type === 'error') {
+      $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-error"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span></div></div>');
+
+    } else {
+      $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-success"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span><div class="spinner is-active"></div></div></div>');
+
+    }
+
+    jQuery('.wps-connector-wrapper').find('.wps-connector-content').prepend($notice);
 
   }
-
-  jQuery('.wps-connector-wrapper').find('.wps-connector-content').prepend($notice);
 
 };
 
@@ -181,7 +203,6 @@ Inserts a step in a connection process
 function setConnectionStepMessage(message, supportingMessage = '') {
 
   if (connectionInProgress() !== 'false') {
-    insertCheckmark();
     addConnectorStepMessage(message, '', supportingMessage);
   }
 
@@ -231,6 +252,7 @@ function initCloseModalEvents() {
 
     jQuery('.wps-connector-wrapper').remove();
     jQuery(document).unbind();
+    clearLocalstorageCache();
 
   });
 
@@ -240,6 +262,7 @@ function initCloseModalEvents() {
     if (!jQuery(event.target).closest('.wps-connector').length) {
       jQuery('.wps-connector-wrapper').remove();
       jQuery(document).unbind();
+      clearLocalstorageCache();
     }
 
   });
@@ -249,6 +272,7 @@ function initCloseModalEvents() {
 
     jQuery('.wps-connector-wrapper').remove();
     jQuery(document).unbind();
+    clearLocalstorageCache();
 
   });
 
@@ -363,12 +387,13 @@ Reset Connect Submit
 */
 function resetConnectSubmit() {
 
-  jQuery('#submitDisconnect')
-    .val('Connect your Shopify Account')
+  jQuery('#submitDisconnect, #wps-connect .wps-button-group input[type="submit"]')
+    .val('Connect your Shopify store')
     .prop('disabled', false)
     .attr('disabled', false)
     .attr('name', 'submitConnect')
     .attr('id', 'submitConnect');
+
 }
 
 
@@ -380,7 +405,7 @@ Set Disconnect Submit
 function setDisconnectSubmit() {
 
   jQuery('#submitConnect')
-    .val('Disconnect your Shopify Account')
+    .val('Disconnect your Shopify store')
     .prop('disabled', false)
     .attr('disabled', false)
     .attr('name', 'submitDisconnect')
@@ -388,6 +413,16 @@ function setDisconnectSubmit() {
 
   disableConnectInputs();
 
+}
+
+
+/*
+
+Set Disconnect Submit
+
+*/
+function addStopConnectorClass() {
+  jQuery('.wps-connector').addClass('wps-is-stopping');
 }
 
 
@@ -404,6 +439,110 @@ function showAnyWarnings(warnings, msg = '') {
     addNotice(msg + key, type);
   });
 
+}
+
+
+
+/*
+
+Resets the DOM elements related to the connector
+
+*/
+function resetConnectionDOM() {
+
+  // clearConnectInputs();
+  initCloseModalEvents();
+  resetConnectSubmit();
+
+  jQuery('.wps-connector').addClass('wps-is-finished');
+  enable(jQuery('.wps-btn-cancel'));
+
+  setConnectionProgress("false");
+
+}
+
+
+function appendNotice(notice) {
+  jQuery('.wps-connector-heading').after('<div class="notice notice-' + notice.type + '">' + notice.message + '</div>');
+}
+
+
+/*
+
+Showing error message
+
+*/
+function updateNotices(exitOptions) {
+
+  if (isArray(exitOptions.noticeList) && !isEmpty(exitOptions.noticeList)) {
+    forEach(exitOptions.noticeList, appendNotice);
+  }
+
+}
+
+function replaceSpinnersWithCheckmarks() {
+
+  jQuery('.wps-progress-notice').not('.is-inactive').each(function() {
+
+    var $notice = jQuery(this);
+    var $spinner = $notice.find('.spinner');
+
+    if ($spinner.length) {
+      $spinner.remove();
+      $notice.append(createCheckmark());
+    }
+
+    $notice.addClass('is-inactive');
+
+  });
+
+}
+
+
+/*
+
+Runs as the final step after:
+  - Disconnecting
+  - Connecting
+  - Any erors
+  - Manual disconnecting
+
+*/
+function updateDomAfterSync(customOptions = {}) {
+
+  const exitOptions = getCombinedExitOptions(customOptions);
+
+  resetConnectionDOM();
+
+  updateModalHeadingText(exitOptions.headingText);
+  updateModalButtonText(exitOptions.buttonText);
+  updateCurrentConnectionStepText(exitOptions.stepText);
+  updateConnectStatusHeading(exitOptions.status);
+  updateNotices(exitOptions);
+
+  if (exitOptions.status === 'is-connected') {
+    setDisconnectSubmit();
+
+  } else {
+    resetConnectSubmit();
+  }
+
+  enable( getConnectorCancelButton() );
+  replaceSpinnersWithCheckmarks();
+
+  // Safe to reconnect again -- reattaches the submit form handler
+  connectInit();
+
+}
+
+
+/*
+
+Returns the connector cancel button
+
+*/
+function getConnectorCancelButton() {
+  return jQuery('.wps-connector .wps-btn-cancel');
 }
 
 
@@ -432,5 +571,9 @@ export {
   resetConnectSubmit,
   setDisconnectSubmit,
   addNotice,
-  showAnyWarnings
+  showAnyWarnings,
+  updateDomAfterSync,
+  resetConnectionDOM,
+  addStopConnectorClass,
+  getConnectorCancelButton
 };

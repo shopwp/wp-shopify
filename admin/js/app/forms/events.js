@@ -6,7 +6,8 @@ import {
 
 import {
   connectionInProgress,
-  setConnectionProgress
+  setConnectionProgress,
+  setCancelSync
 } from '../ws/localstorage';
 
 import {
@@ -17,10 +18,18 @@ import {
   setSyncingIndicator
 } from '../ws/ws';
 
+import {
+  clearSync
+} from '../ws/wrappers.js';
+
+
+
 /*
 
 When the user closes any modal
 Returns: undefined
+
+TODO: Add try catch to clearSync?
 
 */
 function onModalClose() {
@@ -28,14 +37,7 @@ function onModalClose() {
   // Cancel request when user clicks cancel button
   jQuery('.wps-btn-cancel').unbind().on('click', async function(e) {
 
-    // This is responsible for firing the "cancel event" during a resync
-    setSyncingIndicator(0);
-
-    jQuery(this).prop("disabled", true);
-    resetProgressIndicators();
-    setConnectionProgress('false');
-    updateModalHeadingText('Canceling ...');
-    updateCurrentConnectionStepText('Cleaning up ...');
+    await clearSync();
 
   });
 
@@ -59,7 +61,7 @@ function onModalClose() {
       resetProgressIndicators();
       setConnectionProgress('false');
       updateModalHeadingText('Canceling ...');
-      updateCurrentConnectionStepText('Cleaning up ...');
+      updateCurrentConnectionStepText('Canceling sync ...');
       setSyncingIndicator(0);
 
     }

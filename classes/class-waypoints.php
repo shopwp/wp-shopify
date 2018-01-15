@@ -10,7 +10,6 @@ if (!defined('ABSPATH')) {
 
 use WPS\WS;
 use WPS\Messages;
-use WPS\DB\Settings_Connection;
 use GuzzleHttp\Client as Guzzle;
 
 /*

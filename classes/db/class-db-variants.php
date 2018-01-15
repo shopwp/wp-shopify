@@ -115,17 +115,12 @@ class Variants extends \WPS\DB {
 
       foreach ($product->variants as $key => $variant) {
 
-        if ($DB_Settings_Connection->is_syncing()) {
-
-          error_log('INSERTING VARIANT -----');
-          return $results[] = $this->insert($variant, 'variant');
-
-        } else {
-
-          return $results;
+        if (!Utils::isStillSyncing()) {
+          wp_die();
           break;
-
         }
+
+        return $results[] = $this->insert($variant, 'variant');
 
       }
 
@@ -156,17 +151,12 @@ class Variants extends \WPS\DB {
 
         foreach ($product->variants as $key => $variant) {
 
-          if ($DB_Settings_Connection->is_syncing()) {
-            error_log('INSERTING VARIANT -----');
-            $results[] = $this->insert($variant, 'variant');
-
-          } else {
-
-            $results = false;
+          if (!Utils::isStillSyncing()) {
+            wp_die();
             break 2;
-
           }
 
+          $results[] = $this->insert($variant, 'variant');
           $progress->increment_current_amount('products');
 
         }

@@ -99,14 +99,16 @@ class Collections_Custom extends \WPS\DB {
 
     foreach ($custom_collections as $key => $custom_collection) {
 
-      // If product is visible on the Online Stores channel
+      if (!Utils::isStillSyncing()) {
+        wp_die();
+      }
+
+      // If product is published
       if (property_exists($custom_collection, 'published_at') && $custom_collection->published_at !== null) {
 
         $customPostTypeID = CPT::wps_insert_or_update_collection($custom_collection, $existingCollections, $index);
         $custom_collection = $this->assign_foreign_key($custom_collection, $customPostTypeID);
         $custom_collection = $this->rename_primary_key($custom_collection);
-
-        error_log(print_r('INSERTING CUSTOM COLLECTION ----- ' . $index, true));
 
         $results[$customPostTypeID] = $this->insert($custom_collection, 'custom_collection');
 
@@ -142,7 +144,7 @@ class Collections_Custom extends \WPS\DB {
     $newCollectionID = Utils::wps_find_collection_id($collection);
 
     $shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
-error_log('---- xxxx -----');
+
     $customPostTypeID = CPT::wps_insert_or_update_collection($collection, $existingCollections);
 
     $collection = $this->assign_foreign_key($collection, $customPostTypeID);
@@ -154,9 +156,6 @@ error_log('---- xxxx -----');
 
     $results['custom_collection'] = $this->insert($collection, 'custom_collection');
 
-error_log('---- $customPostTypeID -----');
-error_log(print_r($customPostTypeID, true));
-error_log('---- /$customPostTypeID -----');
     return $results;
 
   }
@@ -242,7 +241,7 @@ error_log('---- /$customPostTypeID -----');
       `post_id` bigint(100) unsigned DEFAULT NULL,
       `title` varchar(255) DEFAULT NULL,
       `handle` varchar(255) DEFAULT NULL,
-      `body_html` longtext,
+      `body_html` longtext DEFAULT NULL,
       `image` longtext DEFAULT NULL,
       `metafield` longtext DEFAULT NULL,
       `published` varchar(50) DEFAULT NULL,

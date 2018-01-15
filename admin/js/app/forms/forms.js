@@ -186,9 +186,13 @@ function formatConnectorFormData(formData) {
 }
 
 
+/*
 
+Form Connection Rules
 
+*/
 function formConnectionRules() {
+
   return {
     "js_access_token": {
       alphaNumeric: true
@@ -206,6 +210,7 @@ function formConnectionRules() {
       domainRule: true
     }
   }
+
 }
 
 

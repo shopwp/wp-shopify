@@ -31,7 +31,7 @@ Tab Content: Tools
 
       }
 
-      submit_button(esc_html__('Sync Shopify', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Re-sync Shopify', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
 
       <div class="spinner"></div>
 

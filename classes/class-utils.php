@@ -15,7 +15,6 @@ use WPS\DB\Collects;
 use WPS\DB\Images;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
-use WPS\DB\Settings_Connection;
 use WPS\DB\Settings_General;
 use WPS\DB\Shop;
 use WPS\DB\Tags;
@@ -181,6 +180,10 @@ class Utils {
   */
   public static function emptyConnection($connection) {
 
+		error_log('---- emptyConnection???? -----');
+		error_log(print_r($connection, true));
+		error_log('---- /emptyConnection???? -----');
+
     if (!is_object($connection)) {
       return true;
 
@@ -203,15 +206,19 @@ class Utils {
 
   Empty Connection
   - Predicate Function (returns boolean)
+	TODO: Should we use syncing flag within Session instead?
 
   */
   public static function isStillSyncing($connection = false) {
 
-		if (!$connection) {
-			$connection = new Settings_Connection();
-		}
+		self::wps_access_session();
 
-		return $connection->is_syncing();
+		if (!isset($_SESSION['wps_is_syncing'])) {
+			return false;
+
+		} else {
+			return $_SESSION['wps_is_syncing'];
+		}
 
   }
 
@@ -2419,6 +2426,7 @@ class Utils {
 			foreach ($countArray as $name => $count) {
 				$newArray[$name] = $count;
 			}
+
 		}
 
 		return $newArray;

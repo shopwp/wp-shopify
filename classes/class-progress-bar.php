@@ -38,7 +38,7 @@ class Progress_Bar {
 	*/
 	public function wps_progress_session_create() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1105a)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1105a)');
 		Utils::wps_access_session();
 
 		session_unset();
@@ -144,10 +144,6 @@ class Progress_Bar {
 
 		$sessionVariablesFiltered = $this->filter_session_variables_by_includes($sessionVariables, $includes);
 
-		error_log('---- $sessionVariablesFiltered -----');
-		error_log(print_r($sessionVariablesFiltered, true));
-		error_log('---- /$sessionVariablesFiltered -----');
-
 		$_SESSION['wps_syncing_current_amounts'] = $sessionVariablesFiltered['wps_syncing_current_amounts'];
 		$_SESSION['wps_syncing_totals'] = $sessionVariablesFiltered['wps_syncing_totals'];
 
@@ -207,27 +203,6 @@ class Progress_Bar {
 
 	/*
 
-	Progress: Get Step Total
-
-	*/
-	public function wps_progress_step_total() {
-
-		$databaseResponse = $this->connection->get_column_single('syncing_step_total');
-
-		if (is_array($databaseResponse) && isset($databaseResponse[0]->syncing_step_total)) {
-			$syncingTotal = intval($databaseResponse[0]->syncing_step_total);
-
-		} else {
-			$syncingTotal = false;
-		}
-
-		return $syncingTotal;
-
-	}
-
-
-	/*
-
 	Progress: Get Syncing Status
 	TODO: Combine with the previous two getters above
 
@@ -235,6 +210,10 @@ class Progress_Bar {
 	public function wps_progress_syncing_status() {
 
 		$syncingStatus = $this->connection->get_column_single('is_syncing');
+
+		error_log('---- wps_progress_syncing_status -----');
+		error_log(print_r($syncingStatus, true));
+		error_log('---- /wps_progress_syncing_status -----');
 
 		if (is_array($syncingStatus) && isset($syncingStatus[0]->is_syncing)) {
 			$syncing = intval($syncingStatus[0]->is_syncing);
@@ -250,51 +229,15 @@ class Progress_Bar {
 
 	/*
 
-	Progress: Set Step Total
-
-	*/
-	public function wps_progress_set_step_total($total) {
-
-		return $this->connection->update_column_single(
-			array('syncing_step_total' => $total),
-			array('id' => $this->connection->get_column_single('id')[0]->id)
-		);
-
-	}
-
-
-	/*
-
-	Progress: Set Step Current
-
-	*/
-	public function wps_progress_set_step_current($currentAmount) {
-
-		return $this->connection->update_column_single(
-			array('syncing_step_current' => $currentAmount),
-			array('id' => $this->connection->get_column_single('id')[0]->id)
-		);
-
-	}
-
-
-	/*
-
 	Ends a progress bar instance
 
 	*/
 	public function wps_progress_bar_end($ajax = true) {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1102a)');
 		Utils::wps_session_flush();
 
-		error_log('---- wps_progress_bar_end -----');
-
-		$this->wps_progress_set_step_total(null);
-		$this->wps_progress_set_step_current(null);
-
-
 		session_unset();
+
 		$_SESSION = [
 			'wps_is_syncing' => 0,
 			'wps_syncing_totals' => [],
@@ -302,7 +245,10 @@ class Progress_Bar {
 		];
 
 		if ($ajax) {
-			wp_send_json_success();
+			wp_send_json_error('DIED');
+
+		} else {
+			return $_SESSION;
 		}
 
 	}
@@ -315,12 +261,13 @@ class Progress_Bar {
 	*/
 	public function wps_progress_status() {
 
-		Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1100a)');
+		Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1100a)');
+
 		Utils::wps_access_session();
 
-		// error_log('---- wps_progress_status -----');
-		// error_log(print_r($_SESSION, true));
-		// error_log('---- / wps_progress_status -----');
+		error_log('---- Syncing Status -----');
+		error_log(print_r($_SESSION['wps_is_syncing'], true));
+		error_log('---- /Syncing Status -----');
 
 		wp_send_json_success([
 			'is_syncing' 								=> isset($_SESSION['wps_is_syncing']) ? $_SESSION['wps_is_syncing'] : 1,

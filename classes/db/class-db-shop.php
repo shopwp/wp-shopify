@@ -147,6 +147,10 @@ class Shop extends \WPS\DB {
 		global $wpdb;
 		$progress = new Progress_Bar(new Config());
 
+		if (!Utils::isStillSyncing()) {
+			wp_die();
+		}
+		
 		if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
 
 			if ($this->get_by('id', $shopData['shop']['id'])) {

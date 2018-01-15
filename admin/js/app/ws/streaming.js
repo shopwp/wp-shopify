@@ -88,7 +88,6 @@ async function streamConnection() {
     try {
 
       var connection = await insertConnectionData(connectionData); // wps_insert_connection
-      console.log("insertConnectionData: ", connection);
 
       if (isWordPressError(connection)) {
         reject(connection.data);
@@ -238,7 +237,6 @@ async function streamProducts() {
       while(currentPage <= pages) {
 
         var itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
-        console.log("insertProductsData: ", itemsToAdd);
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -377,6 +375,7 @@ function streamSmartCollections() {
       itemCount = itemCount.data.smart_collections;
 
     } catch(error) {
+
       reject(error);
       return;
 

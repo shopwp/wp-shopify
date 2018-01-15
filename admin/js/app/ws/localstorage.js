@@ -10,6 +10,23 @@ function connectionInProgress() {
 
 /*
 
+Get Connection Progress
+
+*/
+function isConnectionInProgress() {
+
+  if (connectionInProgress() === 'true') {
+    return true;
+
+  } else {
+    return false;
+  }
+
+}
+
+
+/*
+
 Set Connection Progress
 
 */
@@ -150,7 +167,58 @@ function removeStartingURL() {
 
 /*
 
+Set canceling indicator
+
+*/
+function setCancelSync(flag) {
+  localStorage.setItem('wps-is-canceling', flag);
+}
+
+
+/*
+
+Set canceling indicator
+
+*/
+function getCancelSync() {
+  return localStorage.getItem('wps-is-canceling');
+}
+
+
+/*
+
+Set canceling indicator
+
+*/
+function removeCancelSync() {
+  localStorage.removeItem('wps-is-canceling');
+}
+
+
+/*
+
+Set canceling indicator
+
+*/
+function syncIsCanceled() {
+
+  if (getCancelSync() === 'true') {
+
+    jQuery('.wps-connector').addClass('wps-is-stopping');
+    
+    return true;
+
+  } else {
+    return false;
+  }
+
+}
+
+
+/*
+
 Remove Modal Cache
+Clears all localstorage cache
 
 */
 function clearLocalstorageCache() {
@@ -163,6 +231,7 @@ function clearLocalstorageCache() {
   removeProductSelection();
   removeMoneyFormat();
   removeStartingURL();
+  removeCancelSync();
 }
 
 
@@ -176,5 +245,9 @@ export {
   getModalCache,
   clearLocalstorageCache,
   setStartingURL,
-  getStartingURL
+  getStartingURL,
+  isConnectionInProgress,
+  syncIsCanceled,
+  setCancelSync,
+  getCancelSync
 };

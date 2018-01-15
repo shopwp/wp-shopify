@@ -221,36 +221,32 @@ class Products extends \WPS\DB {
 
     foreach ($products as $key => $product) {
 
-      if ($DB_Settings_Connection->is_syncing()) {
-
-        // If product has an image
-        if (property_exists($product, 'image') && is_object($product->image)) {
-          $product->image = $product->image->src;
-        }
-
-        // If product is visible on the Online Stores channel
-        if (property_exists($product, 'published_at') && $product->published_at !== null) {
-
-          // Inserts CPT
-          $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
-
-          // Modify's the products model with CPT foreign key
-          $product = $this->assign_foreign_key($product, $customPostTypeID);
-          $product = $this->rename_primary_key($product);
-
-          $DB_Tags->insert_tags($product, $customPostTypeID);
-
-          error_log('INSERTING PRODUCT -----');
-          $results[] = $this->insert($product, 'product');
-
-        }
-
-      } else {
-
-        $results = false;
+      if (!Utils::isStillSyncing()) {
+        wp_die();
         break;
+      }
+
+      // If product has an image
+      if (property_exists($product, 'image') && is_object($product->image)) {
+        $product->image = $product->image->src;
+      }
+
+      // If product is published
+      if (property_exists($product, 'published_at') && $product->published_at !== null) {
+
+        // Inserts CPT
+        $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
+
+        // Modify's the products model with CPT foreign key
+        $product = $this->assign_foreign_key($product, $customPostTypeID);
+        $product = $this->rename_primary_key($product);
+
+        $DB_Tags->insert_tags($product, $customPostTypeID);
+
+        $results[] = $this->insert($product, 'product');
 
       }
+
 
       $progress->increment_current_amount('products');
       $index++;
@@ -274,10 +270,6 @@ class Products extends \WPS\DB {
     $results = [];
 
 
-    error_log('---- $product -----');
-    error_log(print_r($product, true));
-    error_log('---- /$product -----');
-
     /*
 
     If published_at is null, we know the user turned off the Online Store sales channel.
@@ -286,8 +278,6 @@ class Products extends \WPS\DB {
 
     */
     if (property_exists($product, 'published_at') && $product->published_at !== null) {
-
-      error_log('---- 1 -----');
 
       $DB_Variants = new Variants();
       $DB_Options = new Options();

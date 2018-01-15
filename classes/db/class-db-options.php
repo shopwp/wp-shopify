@@ -88,17 +88,12 @@ class Options extends \WPS\DB {
 
       foreach ($product->options as $key => $option) {
 
-        if ($DB_Settings_Connection->is_syncing()) {
-
-          error_log('INSERTING OPTION -----');
-          return $results[] = $this->insert($option, 'option');
-
-        } else {
-
-          return $results;
+        if (!Utils::isStillSyncing()) {
+          wp_die();
           break;
-
         }
+
+        return $results[] = $this->insert($option, 'option');
 
       }
 
@@ -132,19 +127,13 @@ class Options extends \WPS\DB {
 
         foreach ($product->options as $key => $option) {
 
-          if ($DB_Settings_Connection->is_syncing()) {
-
-            error_log('INSERTING OPTION -----');
-
-            $results[] = $this->insert($option, 'option');
-            $progress->increment_current_amount('products');
-
-          } else {
-
-            $results = false;
+          if (!Utils::isStillSyncing()) {
+            wp_die();
             break 2;
-
           }
+
+          $results[] = $this->insert($option, 'option');
+          $progress->increment_current_amount('products');
 
         }
 
