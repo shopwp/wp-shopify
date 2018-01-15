@@ -2,9 +2,16 @@ import isError from 'lodash/isError';
 import forEach from 'lodash/forEach';
 
 import {
-  syncPluginData,
   getItemCounts
 } from '../ws/middleware';
+
+import {
+  syncOn,
+  saveConnection,
+  saveCounts,
+  removeExistingData,
+  syncData
+} from '../ws/syncing';
 
 import {
   onModalClose
@@ -34,7 +41,6 @@ import {
   createProgressLoader,
   removeProgressLoader,
   startProgressBar,
-  endProgressBar,
   mapProgressDataFromSessionValues,
   appendProgressBars,
   progressStatus
@@ -55,12 +61,11 @@ import {
   insertCheckmark,
   setConnectionNotice,
   setDisconnectSubmit,
-  updateConnectStatusHeading
+  updateConnectStatusHeading,
+  resetConnectSubmit,
+  updateDomAfterSync,
+  ejectConnectorModal
 } from '../utils/utils-dom';
-
-import {
-  resetSyncingURL
-} from '../utils/utils-data';
 
 import {
   setPluginSettings,
@@ -73,17 +78,23 @@ import {
   insertConnectionData,
   getConnectionData,
   setSyncingIndicator,
-  removePluginData,
   syncWithCPT,
-  saveCountsToSession
+  saveCountsToSession,
+  endProgress
 } from '../ws/ws.js';
+
+import {
+  syncOff,
+  clearSync
+} from '../ws/wrappers.js';
 
 import {
   connectionInProgress,
   setConnectionProgress,
   setModalCache,
   clearLocalstorageCache,
-  setStartingURL
+  setStartingURL,
+  syncIsCanceled
 } from '../ws/localstorage.js';
 
 import {
@@ -91,9 +102,7 @@ import {
 } from '../tools/cache.js';
 
 import {
-  uninstallPluginData,
-  disconnectInit,
-  updateDomAfterDisconnect
+  disconnectInit
 } from '../disconnect/disconnect.js';
 
 
@@ -133,414 +142,14 @@ function onConnectionFormSubmit() {
   }).validate({
 
     rules: formConnectionRules(),
-    success: function(label) {
+    success: label => {
       onSuccess(label, $submitButton);
     },
-    errorPlacement: function(error) {
+    errorPlacement: error => {
       onError(error, $submitButton);
     },
-    submitHandler: async function(form) {
-
-      clearLocalstorageCache();
-
-      var $formInputNonce = jQuery("#wps_settings_connection_nonce_id");
-      var $connectorModal = createConnectorModal();
-      var domain = jQuery('#wps_settings_connection_domain').val();
-
-      setStartingURL(window.location.pathname + window.location.search);
-
-      // Clear protocol from input field if user mistakenly enters ...
-      if (containsProtocol(domain) || containsPathAfterShopifyDomain(domain)) {
-        jQuery('#wps_settings_connection_domain').val(cleanDomainURL(domain));
-      }
-
-      var formData = formatConnectorFormData(jQuery(form).serializeArray());
-
-      setConnectionProgress("true");
-
-      disable($submitButton);
-      forEach($submitButton, showSpinner);
-
-      injectConnectorModal($connectorModal);
-
-      // Close Listenter
-      onModalClose();
-
-      showConnectorModal($connectorModal);
-      setNonce( $formInputNonce.val() );
-
-
-      /*
-
-      Step 1. Insert Connection Data
-
-      */
-      try {
-
-        setConnectionStepMessage('Saving connection ...');
-
-        var connectionData = await insertConnectionData(formData); // wps_insert_connection
-
-        if (isWordPressError(connectionData)) {
-          throw connectionData.data;
-
-        } else if (isError(connectionData)) {
-          throw connectionData;
-
-        }
-
-      } catch (errors) {
-
-        uninstallPluginData({
-          errorList: errors,
-          xMark: true,
-          headingText: 'Canceled',
-          stepText: 'Unable to finish syncing at insertConnectionData',
-          buttonText: 'Exit Sync'
-        });
-
-        return;
-
-      }
-
-
-      /*
-
-      Start the progress bar
-
-      */
-      try {
-
-        var progressSession = await startProgressBar(true);
-
-        if (isWordPressError(progressSession)) {
-          throw progressSession.data;
-
-        } else if (isError(progressSession)) {
-          throw progressSession;
-        }
-
-      } catch (errors) {
-
-        updateModalHeadingText('Canceling ...');
-        endProgressBar();
-
-        updateDomAfterDisconnect({
-          headingText: 'Canceled',
-          errorList: errors,
-          buttonText: 'Exit Sync',
-          xMark: true,
-          clearInputs: false,
-          resync: true,
-          noticeType: 'error'
-        });
-
-        enable($submitButton);
-        return;
-
-      }
-
-
-      /*
-
-      Step 2. Clearing current data
-
-      */
-      try {
-
-        var allCounts = getDataFromArray( await getItemCounts() );
-
-        if (isWordPressError(allCounts)) {
-          console.log("1");
-          throw allCounts.data;
-
-        } else if (isError(allCounts)) {
-          console.log("2");
-          throw allCounts;
-
-        } else {
-          console.log("3");
-
-        }
-
-      } catch(errors) {
-        console.log("4");
-        updateModalHeadingText('Canceling ...');
-        endProgressBar();
-        console.log("5");
-        updateDomAfterDisconnect({
-          headingText: 'Canceled',
-          buttonText: 'Exit Sync',
-          xMark: true,
-          errorList: errors,
-          clearInputs: false,
-          resync: true,
-          noticeType: 'error'
-        });
-
-        enable($submitButton);
-        return;
-
-      }
-
-
-      /*
-
-      Step 2. Clearing current data
-
-      */
-      try {
-
-        console.log("allCounts: ", allCounts);
-
-        var saveCountsResponse = await saveCountsToSession(allCounts);
-        console.log("saveCountsResponse: ", saveCountsResponse);
-
-        if (isWordPressError(saveCountsResponse)) {
-          console.log("11");
-          throw saveCountsResponse.data;
-
-        } else if (isError(saveCountsResponse)) {
-          console.log("22");
-          throw saveCountsResponse;
-
-        } else {
-          console.log("33");
-
-        }
-
-      } catch(errors) {
-        console.log("44");
-        updateModalHeadingText('Canceling ...');
-        endProgressBar();
-        console.log("55");
-        updateDomAfterDisconnect({
-          headingText: 'Canceled',
-          buttonText: 'Exit Sync',
-          xMark: true,
-          errorList: errors,
-          clearInputs: false,
-          resync: true,
-          noticeType: 'error'
-        });
-
-        enable($submitButton);
-        return;
-
-      }
-
-
-
-      /*
-
-      Step 2. Remove any existing data
-
-      */
-      try {
-
-        setConnectionStepMessage('Cleaning out any existing data ...');
-
-        var removePluginDataResp = await removePluginData();
-
-        if (isWordPressError(removePluginDataResp)) {
-
-          throw removePluginDataResp.data;
-
-        } else if (isError(removePluginDataResp)) {
-
-          throw removePluginDataResp;
-
-        }
-
-      } catch(errors) {
-
-        return uninstallPluginData({
-          errorList: errors,
-          xMark: true,
-          headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
-          buttonText: 'Exit Sync',
-          clearInputs: true
-        });
-
-      }
-
-
-      /*
-
-      Step 1. Turn on syncing flag
-
-      */
-      try {
-
-        // setConnectionStepMessage('Preparing to sync ...');
-
-        var updatingSyncingIndicator = await setSyncingIndicator(1);
-
-        if (isWordPressError(updatingSyncingIndicator)) {
-
-          throw updatingSyncingIndicator.data;
-
-        } else if (isError(updatingSyncingIndicator)) {
-
-          throw updatingSyncingIndicator;
-
-        }
-
-      } catch(errors) {
-
-        return uninstallPluginData({
-          errorList: errors,
-          xMark: true,
-          headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
-          buttonText: 'Exit Sync',
-          clearInputs: true
-        });
-
-      }
-
-
-      /*
-
-      Begin polling for the status ...
-
-      */
-      await progressStatus();
-
-      // var steps = mapProgressDataFromSessionValues(progressSession.data);
-      console.log("allCounts: ", allCounts);
-      appendProgressBars(allCounts);
-      
-
-
-      /*
-
-      Step 3. Sync data
-
-      */
-      try {
-
-        //
-        // TODO:
-        // Create a real-time progress bar to show syncing progress
-        //
-
-
-        updateModalHeadingText('Syncing ...');
-        updateModalButtonText('Cancel syncing process');
-        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
-
-        var syncPluginDataResp = await syncPluginData();
-
-        if (isWordPressError(syncPluginDataResp)) {
-          throw syncPluginDataResp.data;
-
-        } else if (isError(syncPluginDataResp)) {
-          throw syncPluginDataResp;
-
-        } else {
-          setConnectionStepMessage('Finishing ...');
-        }
-
-      } catch (errors) {
-
-        return uninstallPluginData({
-          errorList: errors,
-          xMark: true,
-          headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
-          buttonText: 'Exit Sync',
-          clearInputs: true
-        });
-
-      }
-
-
-      /*
-
-      Step 4. Clear all plugin cache
-
-      */
-      try {
-
-        var clearAllCacheResponse = await clearAllCache();
-
-        if (isWordPressError(clearAllCacheResponse)) {
-          throw clearAllCacheResponse.data;
-
-        } else if (isError(syncPluginDataResp)) {
-          throw clearAllCacheResponse;
-
-        }
-
-      } catch(errors) {
-
-        return uninstallPluginData({
-          errorList: errors,
-          xMark: true,
-          headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
-          buttonText: 'Exit Sync',
-          clearInputs: true
-        });
-
-      }
-
-
-      /*
-
-      End the progress bar
-
-      */
-      endProgressBar();
-
-
-      /*
-
-      Step 5. Turn off syncing flag
-
-      */
-      try {
-
-        var updatingSyncingIndicator = await setSyncingIndicator(0);
-
-        if (isWordPressError(updatingSyncingIndicator)) {
-
-          throw updatingSyncingIndicator.data;
-
-        } else if (isError(updatingSyncingIndicator)) {
-
-          throw updatingSyncingIndicator;
-
-        } else {
-
-          initCloseModalEvents();
-          insertCheckmark();
-          setConnectionNotice('Success! You\'re now connected and syncing with Shopify.', 'success');
-          updateModalHeadingText('Connected');
-          setConnectionProgress("false");
-          updateModalButtonText("Ok, let's go!");
-          setDisconnectSubmit();
-          updateConnectStatusHeading('is-connected');
-          disconnectInit();
-
-        }
-
-      } catch(errors) {
-
-        return uninstallPluginData({
-          errorList: errors,
-          xMark: true,
-          headingText: 'Canceled',
-          stepText: 'Unable to finish syncing',
-          buttonText: 'Exit Sync',
-          clearInputs: true
-        });
-
-      }
-
-
+    submitHandler: form => {
+      connectionFormSubmitHandler(form);
     }
 
   });
@@ -548,32 +157,286 @@ function onConnectionFormSubmit() {
 }
 
 
+
+function sanitizeDomainField() {
+
+  var domain = jQuery('#wps_settings_connection_domain').val();
+
+  // Clear protocol from input field if user mistakenly enters ...
+  if (containsProtocol(domain) || containsPathAfterShopifyDomain(domain)) {
+    jQuery('#wps_settings_connection_domain').val(cleanDomainURL(domain));
+  }
+
+}
+
+
+function getConnectionFormData(form) {
+  return formatConnectorFormData(jQuery(form).serializeArray());
+}
+
+
+
+function prepareBeforeSync() {
+
+  var $formConnect = jQuery("#wps-connect");
+  var $submitButton = $formConnect.find('input[type="submit"]');
+  var $formInputNonce = jQuery("#wps_settings_connection_nonce_id");
+  var $connectorModal = createConnectorModal();
+
+  // Removes previous modal if one exists
+  ejectConnectorModal();
+
+  // Clears all LS cache before we begin
+  clearLocalstorageCache();
+
+  // Removes added protocol or superfluous characters from domain field
+  sanitizeDomainField();
+
+  // Disable submit button once clicked
+  disable($submitButton);
+  forEach($submitButton, showSpinner);
+
+  injectConnectorModal($connectorModal);
+
+  // Close Listenter
+  onModalClose();
+
+  showConnectorModal($connectorModal);
+  setNonce( $formInputNonce.val() );
+
+}
+
+
 /*
 
-Step 2/2: OAuth Redirect
+On connect ...
 
 */
-async function onAuthRedirect() {
+function connectionFormSubmitHandler(form) {
 
-  jQuery('body').addClass('wps-is-back-from-shopify');
+  return new Promise(async (resolve, reject) => {
 
-  resetSyncingURL();
+    prepareBeforeSync();
+    setConnectionStepMessage('Preparing connection ...');
 
-  /*
+    /*
 
-  At this point we can start syncing the products / collections
+    1. Turn sync on
 
-  */
-  injectConnectorModal( createConnectorModal() );
+    */
+    try {
+      await syncOn();
 
-  onModalClose();
-  insertCheckmark();
-  updateModalHeadingText('Syncing ...');
-  updateModalButtonText('Cancel syncing process');
-  setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+    } catch (errors) {
+
+      console.error("syncOn: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+    insertCheckmark();
+    setConnectionStepMessage('Starting connection ...');
 
 
+    /*
 
+    2. Save connection
+
+    */
+    try {
+      await saveConnection( getConnectionFormData(form) );
+
+    } catch (errors) {
+      console.error("saveConnection: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+
+    /*
+
+    3. Start progress bar
+
+    */
+    try {
+      await startProgressBar(true);
+
+    } catch (errors) {
+      console.error("startProgressBar: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+    insertCheckmark();
+    setConnectionStepMessage('Determining the number of items to sync ...');
+
+
+    /*
+
+    4. Get item count
+
+    */
+    try {
+
+      var itemCountsResp = await getItemCounts();
+      var allCounts = getDataFromArray(itemCountsResp);
+
+    } catch (errors) {
+      console.error("getItemCounts: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+
+    /*
+
+    5. Save item counts
+
+    */
+    try {
+      await saveCounts(allCounts);
+
+    } catch (errors) {
+      console.error("saveCounts: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+    insertCheckmark();
+    setConnectionStepMessage('Cleaning out any existing data first ...');
+
+
+    /*
+
+    6. Remove existing data
+
+    */
+    try {
+      await removeExistingData();
+
+    } catch (errors) {
+      console.error("removeExistingData: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+    insertCheckmark();
+    updateModalHeadingText('Syncing ...');
+    updateModalButtonText('Cancel syncing process');
+    setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+
+
+    /*
+
+    7. Begin polling for the status ... creates a cancelable loop
+
+    */
+    progressStatus();
+    appendProgressBars(allCounts);
+
+
+    /*
+
+    8. Sync data
+
+    */
+    try {
+      var syncResp = await syncData();
+
+    } catch (errors) {
+      console.error("syncData: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+    insertCheckmark();
+    setConnectionStepMessage('Cleaning up ...');
+
+
+    /*
+
+    9. Turn sync off
+
+    */
+    try {
+      await syncOff();
+
+    } catch (errors) {
+      console.error("syncOff: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+
+    /*
+
+    10. Finally update DOM
+
+    */
+    updateDomAfterSync({
+      headingText: 'Connected',
+      buttonText: 'Ok, let\'s go!',
+      status: 'is-connected',
+      stepText: 'Finished syncing',
+      noticeList: [{
+        type: 'success',
+        message: 'Success! You\'re now connected and syncing with Shopify.'
+      }],
+      noticeType: 'success'
+    });
+
+    disconnectInit();
+
+
+  });
 
 }
 
@@ -589,6 +452,5 @@ function connectInit() {
 
 export {
   connectInit,
-  onAuthRedirect,
-  resetSyncingURL
+  prepareBeforeSync
 }

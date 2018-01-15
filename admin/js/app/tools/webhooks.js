@@ -15,13 +15,15 @@ import {
   setConnectionNotice,
   addConnectorStepMessage,
   addNotice,
-  showAnyWarnings
+  showAnyWarnings,
+  updateDomAfterSync
 } from '../utils/utils-dom';
 
 import {
   connectionInProgress,
   setConnectionProgress,
-  setModalCache
+  setModalCache,
+  syncIsCanceled
 } from '../ws/localstorage';
 
 import {
@@ -31,8 +33,18 @@ import {
 } from '../ws/ws';
 
 import {
-  syncWebhooks
+  syncWebhooks,
+  syncOn
 } from '../ws/syncing';
+
+import {
+  prepareBeforeSync
+} from '../connect/connect';
+
+import {
+  syncOff,
+  clearSync
+} from '../ws/wrappers.js';
 
 import {
   onModalClose
@@ -47,21 +59,15 @@ import {
 
 import {
   startProgressBar,
-  endProgressBar,
   mapProgressDataFromSessionValues,
   appendProgressBars,
   progressStatus
 } from '../utils/utils-progress';
 
-import {
-  updateDomAfterDisconnect
-} from '../disconnect/disconnect.js';
-
-
 
 /*
 
-When Resync form is submitted ...
+Webhook re-sync
 
 TODO: We could potentially enhance performance considerably if we do
 checksum comparisons. Look into this.
@@ -69,137 +75,93 @@ checksum comparisons. Look into this.
 */
 function onWebhooksSubmit() {
 
-  jQuery(".wps-is-active #wps-button-webhooks").unbind().on('click', async function(e) {
+  jQuery(".wps-is-active #wps-button-webhooks")
+    .unbind()
+    .on('click', webhooksSubmitCallback);
+}
 
-    e.preventDefault();
 
-    var $resyncButton = jQuery(this);
+/*
 
-    console.log("$resyncButton: ", $resyncButton);
+Webhook re-sync callback
 
-    disable($resyncButton);
-    injectConnectorModal( createConnectorModal('Reconnecting Webhooks ...', 'Cancel') );
+*/
+async function webhooksSubmitCallback(e) {
 
-    // Sets up cancel & close listenters
-    onModalClose();
-    setConnectionProgress(true);
+  e.preventDefault();
 
+  return new Promise(async (resolve, reject) => {
+
+    prepareBeforeSync();
+    updateModalHeadingText('Reconnecting Webhooks ...');
+    setConnectionStepMessage('Preparing sync ...');
 
     /*
 
-    Step 1. Turn on syncing flag
+    1. Turn sync on
 
     */
     try {
+      await syncOn();
 
-      var updatingSyncingIndicator = await setSyncingIndicator(1);
+    } catch (errors) {
+      console.error("syncOn error: ", errors);
 
-      if (isWordPressError(updatingSyncingIndicator)) {
-        throw updatingSyncingIndicator.data;
-
-      } else if (isError(updatingSyncingIndicator)) {
-        throw updatingSyncingIndicator;
-
-      } else {
-        setConnectionStepMessage('Removing any existing webhooks ...');
-
-      }
-
-    } catch(errors) {
-
-      updateModalHeadingText('Canceling ...');
-      endProgressBar();
-
-      updateDomAfterDisconnect({
-        headingText: 'Canceled',
-        buttonText: 'Exit Sync',
-        xMark: true,
-        errorList: errors,
-        clearInputs: false,
-        resync: true,
-        noticeType: 'error'
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
       });
 
-      enable($resyncButton);
+      resolve();
       return;
 
     }
 
+    insertCheckmark();
+    setConnectionStepMessage('Removing any existing webhooks first ...');
+
 
     /*
 
-    Step 2. Clearing current data
+    2. Remove webhook
 
     */
     try {
 
-      var removedResponse = await removeWebhooks();
-      console.log("removedResponse: ", removedResponse);
-
-      if (isWordPressError(removedResponse)) {
-        throw removedResponse.data;
-
-      } else if (isError(removedResponse)) {
-        throw removedResponse;
-
-      } else {
-        setConnectionStepMessage('Syncing new webhooks ...');
-
-      }
+      var removalErrors = await removeWebhooks(); // remove_webhooks
 
     } catch(errors) {
-      console.log("errors: ", errors);
-      updateModalHeadingText('Canceling ...');
-      endProgressBar();
+      console.error("removeWebhooks: ", errors);
 
-      updateDomAfterDisconnect({
-        headingText: 'Canceled',
-        buttonText: 'Exit Sync',
-        xMark: true,
-        errorList: errors,
-        clearInputs: false,
-        resync: true,
-        noticeType: 'error'
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
       });
 
-      enable($resyncButton);
+      resolve();
       return;
 
     }
 
+    insertCheckmark();
+    setConnectionStepMessage('Syncing new webhooks ...');
+
 
     /*
 
-    Start the progress bar
+    3. Start progress bar
 
     */
     try {
 
       var progressSession = await startProgressBar(true, ['webhooks']);
-      console.log("progressSession: ", progressSession);
-      if (isWordPressError(progressSession)) {
-        throw progressSession.data;
-
-      } else if (isError(progressSession)) {
-        throw progressSession;
-      }
 
     } catch (errors) {
+      console.error("startProgressBar: ", errors);
 
-      updateModalHeadingText('Canceling ...');
-      endProgressBar();
-
-      updateDomAfterDisconnect({
-        headingText: 'Canceled',
-        errorList: errors,
-        buttonText: 'Exit Sync',
-        xMark: true,
-        clearInputs: false,
-        resync: true,
-        noticeType: 'error'
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
       });
 
-      enable($resyncButton);
+      resolve();
       return;
 
     }
@@ -207,56 +169,30 @@ function onWebhooksSubmit() {
 
     /*
 
-    Begin polling for the status ...
+    4. Begin polling for the status ... creates a cancelable loop
 
     */
     await progressStatus();
-
-    // var steps = mapProgressDataFromSessionValues(progressSession.data);
-
     appendProgressBars(progressSession.data);
 
 
-
-
     /*
 
-    Step 2. Syncing new data
+    5. Syncing webhooks
 
     */
     try {
 
-      var registerWebhooksResp = await syncWebhooks();
-
-      console.log("registerWebhooksResp: ", registerWebhooksResp);
-
-      if (isWordPressError(registerWebhooksResp)) {
-        throw registerWebhooksResp.data;
-
-      } else if (isError(registerWebhooksResp)) {
-        throw registerWebhooksResp;
-
-      } else {
-        setConnectionStepMessage('Finishing ...');
-
-      }
+      var registerWebhooksResp = await syncWebhooks(removalErrors.data); // wps_ws_register_all_webhooks
 
     } catch(errors) {
-      console.log("syncWebhooks: ", errors);
-      updateModalHeadingText('Canceling ...');
-      endProgressBar();
 
-      updateDomAfterDisconnect({
-        headingText: 'Canceled',
-        errorList: errors,
-        buttonText: 'Exit Sync',
-        xMark: true,
-        clearInputs: false,
-        resync: true,
-        noticeType: 'error'
+      console.error('syncWebhooks: ', errors);
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
       });
 
-      enable($resyncButton);
+      resolve();
       return;
 
     }
@@ -264,59 +200,41 @@ function onWebhooksSubmit() {
 
     /*
 
-    End the progress bar
-
-    */
-    endProgressBar();
-
-
-    /*
-
-    Step 6. Setting Syncing Indicator
+    6. Turn sync off
 
     */
     try {
+      await syncOff();
 
-      var updatingSyncingIndicatorResponse = await setSyncingIndicator(0);
+    } catch (errors) {
+      console.error("syncOff: ", errors);
 
-      if (isWordPressError(updatingSyncingIndicatorResponse)) {
-        throw updatingSyncingIndicatorResponse.data;
-
-      } else if (isError(updatingSyncingIndicatorResponse)) {
-        throw updatingSyncingIndicatorResponse;
-      }
-
-    } catch(errors) {
-
-      updateDomAfterDisconnect({
-        xMark: true,
-        headingText: 'Canceled',
-        buttonText: 'Exit Sync',
-        errorList: errors,
-        clearInputs: false,
-        resync: true,
-        noticeType: 'error'
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
       });
 
-      enable($resyncButton);
+      resolve();
       return;
 
     }
 
-    console.log('Any warnings to show? ', registerWebhooksResp.data.warnings);
 
-    showAnyWarnings(registerWebhooksResp.data.warnings, 'Warning: Unable to connect the webhook: ');
+    /*
 
+    7. Finally update DOM
 
-    initCloseModalEvents();
-    insertCheckmark();
-    setConnectionNotice('Success! You\'re now syncing with Shopify.', 'success');
-    updateModalHeadingText('Sync Complete');
-    updateModalButtonText("Ok, let's go!");
-    enable($resyncButton);
-
-
-
+    */
+    updateDomAfterSync({
+      headingText: 'Finish syncing Webhooks',
+      buttonText: 'Ok, let\'s go!',
+      status: 'is-connected',
+      stepText: 'Finished syncing webhooks',
+      noticeList: [{
+        type: 'success',
+        message: 'Success! You\'re now connected and syncing with Shopify.'
+      }],
+      noticeType: 'success'
+    });
 
   });
 

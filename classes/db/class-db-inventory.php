@@ -2,6 +2,8 @@
 
 namespace WPS\DB;
 
+use WPS\Utils;
+
 class Inventory extends \WPS\DB {
 
   public $table_name;
@@ -74,7 +76,14 @@ class Inventory extends \WPS\DB {
     foreach ($products as $key => $product) {
 
       foreach ($product->variants as $key => $variant) {
+
+        if (!Utils::isStillSyncing()) {
+          wp_die();
+          break 2;
+        }
+
         $results[] = $this->insert($variant, 'variant');
+
       }
 
     }

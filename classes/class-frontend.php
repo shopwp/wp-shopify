@@ -288,8 +288,8 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_credentials() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1058a)');
-			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1058b)');
+			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1058a)');
+			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1058b)');
 
 			wp_send_json_success($this->config->wps_get_settings_connection());
 
@@ -385,8 +385,8 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_variant_id() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1059a)');
-			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (Error code: #1059b)');
+			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1059a)');
+			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1059b)');
 
 			if (isset($_POST['selectedOptions']) && is_array($_POST['selectedOptions'])) {
 
@@ -440,7 +440,7 @@ if (!class_exists('Frontend')) {
 							wp_send_json_success($variant['id']);
 
 						} else {
-							wp_send_json_error($this->messages->message_products_out_of_stock . ' (Error code: #1059c)');
+							wp_send_json_error($this->messages->message_products_out_of_stock . ' (code: #1059c)');
 
 						}
 
@@ -449,11 +449,11 @@ if (!class_exists('Frontend')) {
 				}
 
 				if (!$found) {
-					wp_send_json_error($this->messages->message_products_options_unavailable . ' (Error code: #1059d)', 'wp-shopify');
+					wp_send_json_error($this->messages->message_products_options_unavailable . ' (code: #1059d)', 'wp-shopify');
 				}
 
 			} else {
-				wp_send_json_error($this->messages->message_products_options_not_found . ' (Error code: #1059e)', 'wp-shopify');
+				wp_send_json_error($this->messages->message_products_options_not_found . ' (code: #1059e)', 'wp-shopify');
 
 			}
 
@@ -484,7 +484,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_currency_format() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1060a)');
+			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1060a)');
 
 			$DB_Settings_General = new Settings_General();
 
@@ -495,7 +495,7 @@ if (!class_exists('Frontend')) {
 				wp_send_json_success($result[0]->price_with_currency);
 
 			} else {
-				wp_send_json_error($this->messages->message_products_curency_format_not_found . ' (Error code: #1060b)');
+				wp_send_json_error($this->messages->message_products_curency_format_not_found . ' (code: #1060b)');
 
 			}
 
@@ -509,7 +509,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_has_money_format_changed() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1061a)');
+			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1061a)');
 
 			$DB_Shop = new Shop();
 
@@ -549,7 +549,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_money_format() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1062a)');
+			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1062a)');
 
 			$DB_Shop = new Shop();
 			$moneyFormat = $DB_Shop->get_shop('money_format');
@@ -574,7 +574,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_money_format_with_currency() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1063a)');
+			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1063a)');
 
 			$DB_Shop = new Shop();
 			$moneyFormat = $DB_Shop->get_shop('money_with_currency_format');
@@ -599,7 +599,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_cart_cache() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1064a)');
+			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1064a)');
 
 			$cartName = 'wps_cart_' . $_POST['cartID'];
 
@@ -627,7 +627,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_set_cart_cache() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1065a)');
+			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1065a)');
 
 			$cartName = 'wps_cart_' . $_POST['cartID'];
 
@@ -655,7 +655,7 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_add_checkout_before_hook() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1066a)');
+			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1066a)');
 
 			$cart = $_POST['cart'];
 			$exploded = explode($cart['domain'], $cart['checkoutUrl']);

@@ -3,6 +3,7 @@
 use WPS\Webhooks;
 use WPS\WS;
 use WPS\Config;
+use WPS\DB\Customers;
 
 $jsonData = file_get_contents('php://input');
 
@@ -13,7 +14,10 @@ if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
   $WS->wps_ws_set_syncing_indicator(false, 1);
 
   error_log('---- Webhook verified customer-create -----');
+  $Customers = new Customers();
+
   $customer = json_decode($jsonData);
+  $Customers->insert_customers($customer);
 
   $WS->wps_ws_set_syncing_indicator(false, 0);
 

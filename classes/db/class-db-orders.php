@@ -13,6 +13,7 @@ class Orders extends \WPS\DB {
   public $version;
   public $primary_key;
 
+
   /*
 
   Construct
@@ -25,6 +26,156 @@ class Orders extends \WPS\DB {
     $this->primary_key        = 'id';
     $this->version            = '1.0';
     $this->cache_group        = 'wps_db_orders';
+
+  }
+
+
+  /*
+
+  Get Columns
+
+  */
+  public function get_columns() {
+
+    return array(
+      'id'                        => '%d',
+      'customer_id'               => '%d',
+      'email'                     => '%s',
+      'closed_at'                 => '%s',
+      'created_at'                => '%s',
+      'updated_at'                => '%s',
+      'number'                    => '%d',
+      'note'                      => '%s',
+      'token'                     => '%s',
+      'gateway'                   => '%s',
+      'test'                      => '%s',
+      'total_price'               => '%s',
+      'subtotal_price'            => '%s',
+      'total_weight'              => '%d',
+      'total_tax'                 => '%s',
+      'taxes_included'            => '%d',
+      'currency'                  => '%s',
+      'financial_status'          => '%s',
+      'confirmed'                 => '%d',
+      'total_discounts'           => '%s',
+      'total_line_items_price'    => '%s',
+      'cart_token'                => '%s',
+      'buyer_accepts_marketing'   => '%d',
+      'name'                      => '%s',
+      'referring_site'            => '%s',
+      'landing_site'              => '%s',
+      'cancelled_at'              => '%s',
+      'cancel_reason'             => '%s',
+      'total_price_usd'           => '%s',
+      'checkout_token'            => '%s',
+      'reference'                 => '%s',
+      'user_id'                   => '%s',
+      'location_id'               => '%s',
+      'source_identifier'         => '%s',
+      'source_url'                => '%s',
+      'processed_at'              => '%s',
+      'device_id'                 => '%s',
+      'phone'                     => '%s',
+      'customer_locale'           => '%s',
+      'app_id'                    => '%d',
+      'browser_ip'                => '%s',
+      'landing_site_ref'          => '%s',
+      'order_number'              => '%d',
+      'discount_codes'            => '%s',
+      'note_attributes'           => '%s',
+      'payment_gateway_names'     => '%s',
+      'processing_method'         => '%s',
+      'checkout_id'               => '%d',
+      'source_name'               => '%s',
+      'fulfillment_status'        => '%s',
+      'tax_lines'                 => '%s',
+      'tags'                      => '%s',
+      'contact_email'             => '%s',
+      'order_status_url'          => '%s',
+      'line_items'                => '%s',
+      'shipping_lines'            => '%s',
+      'billing_address'           => '%s',
+      'shipping_address'          => '%s',
+      'fulfillments'              => '%s',
+      'client_details'            => '%s',
+      'refunds'                   => '%s',
+      'customer'                  => '%s'
+    );
+
+  }
+
+
+  /*
+
+  Get Column Defaults
+
+  */
+  public function get_column_defaults() {
+
+    return array(
+      'id'                        => 0,
+      'customer_id'               => 0,
+      'email'                     => '',
+      'closed_at'                 => date_i18n( 'Y-m-d H:i:s' ),
+      'created_at'                => date_i18n( 'Y-m-d H:i:s' ),
+      'updated_at'                => date_i18n( 'Y-m-d H:i:s' ),
+      'number'                    => 0,
+      'note'                      => '',
+      'token'                     => '',
+      'gateway'                   => '',
+      'test'                      => '',
+      'total_price'               => '',
+      'subtotal_price'            => '',
+      'total_weight'              => 0,
+      'total_tax'                 => '',
+      'taxes_included'            => 0,
+      'currency'                  => '',
+      'financial_status'          => '',
+      'confirmed'                 => 0,
+      'total_discounts'           => '',
+      'total_line_items_price'    => '',
+      'cart_token'                => '',
+      'buyer_accepts_marketing'   => 0,
+      'name'                      => '',
+      'referring_site'            => '',
+      'landing_site'              => '',
+      'cancelled_at'              => date_i18n( 'Y-m-d H:i:s' ),
+      'cancel_reason'             => '',
+      'total_price_usd'           => '',
+      'checkout_token'            => '',
+      'reference'                 => '',
+      'user_id'                   => '',
+      'location_id'               => '',
+      'source_identifier'         => '',
+      'source_url'                => '',
+      'processed_at'              => date_i18n( 'Y-m-d H:i:s' ),
+      'device_id'                 => '',
+      'phone'                     => '',
+      'customer_locale'           => '',
+      'app_id'                    => 0,
+      'browser_ip'                => '',
+      'landing_site_ref'          => '',
+      'order_number'              => 0,
+      'discount_codes'            => '',
+      'note_attributes'           => '',
+      'payment_gateway_names'     => '',
+      'processing_method'         => '',
+      'checkout_id'               => 0,
+      'source_name'               => '',
+      'fulfillment_status'        => '',
+      'tax_lines'                 => '',
+      'tags'                      => '',
+      'contact_email'             => '',
+      'order_status_url'          => '',
+      'line_items'                => '',
+      'shipping_lines'            => '',
+      'billing_address'           => '',
+      'shipping_address'          => '',
+      'fulfillments'              => '',
+      'client_details'            => '',
+      'refunds'                   => '',
+      'customer'                  => ''
+    );
 
   }
 
@@ -83,23 +234,18 @@ class Orders extends \WPS\DB {
 
     foreach ($orders as $key => $order) {
 
-      if ($DB_Settings_Connection->is_syncing()) {
+      if (!Utils::isStillSyncing()) {
+        error_log('---- NOT Syncing -----');
+        wp_die();
+      }
 
-        // If product is visible on the Online Stores channel
-        if (property_exists($order, 'created_at') && $order->created_at !== null) {
+      // If product is visible on the Online Stores channel
+      if (property_exists($order, 'created_at') && $order->created_at !== null) {
 
-          // Converting to a fully qualified associative array
-          $order = json_decode(json_encode($order), true);
-          error_log('INSERTING ORDER -----');
+        // Converting to a fully qualified associative array
+        $order = json_decode(json_encode($order), true);
 
-          $results[] = $this->insert($order, 'order');
-
-        }
-
-      } else {
-
-        $results = false;
-        break;
+        $results[] = $this->insert($order, 'order');
 
       }
 
@@ -123,8 +269,7 @@ class Orders extends \WPS\DB {
 
     /*
 
-    If published_at is null, we know the user turned off the Online Store sales channel.
-    TODO: Shopify may implement better sales channel checking in the future API. We should
+    TODO: Shopify may implement better sales channel checking in a future API. We should
     then check for Buy Button visibility as-well.
 
     */
@@ -224,28 +369,17 @@ class Orders extends \WPS\DB {
 
     $result = array();
 
-    error_log('---- update_orders -----');
-    error_log(print_r($orders, true));
-    error_log('---- /update_orders -----');
-
-
     if (is_array($orders) && isset($order['id'])) {
 
       foreach ($orders as $key => $order) {
         $result[] = $this->update($order['id'], $order);
       }
 
-    }
+    } else if (is_object($orders)) {
 
-
-    if (is_object($orders)) {
       $result[] = $this->update($orders->id, $orders);
+
     }
-
-
-    error_log('---- update_orders $result -----');
-    error_log(print_r($result, true));
-    error_log('---- /update_orders $result -----');
 
     return $result;
 
@@ -264,156 +398,6 @@ class Orders extends \WPS\DB {
     unset($orderCopy->id);
 
     return $orderCopy;
-
-  }
-
-
-  /*
-
-  Get Columns
-
-  */
-	public function get_columns() {
-
-    return array(
-      'id'                        => '%d',
-      'customer_id'               => '%d',
-      'email'                     => '%s',
-      'closed_at'                 => '%s',
-      'created_at'                => '%s',
-      'updated_at'                => '%s',
-      'number'                    => '%d',
-      'note'                      => '%s',
-      'token'                     => '%s',
-      'gateway'                   => '%s',
-      'test'                      => '%s',
-      'total_price'               => '%s',
-      'subtotal_price'            => '%s',
-      'total_weight'              => '%d',
-      'total_tax'                 => '%s',
-      'taxes_included'            => '%d',
-      'currency'                  => '%s',
-      'financial_status'          => '%s',
-      'confirmed'                 => '%d',
-      'total_discounts'           => '%s',
-      'total_line_items_price'    => '%s',
-      'cart_token'                => '%s',
-      'buyer_accepts_marketing'   => '%d',
-      'name'                      => '%s',
-      'referring_site'            => '%s',
-      'landing_site'              => '%s',
-      'cancelled_at'              => '%s',
-      'cancel_reason'             => '%s',
-      'total_price_usd'           => '%s',
-      'checkout_token'            => '%s',
-      'reference'                 => '%s',
-      'user_id'                   => '%s',
-      'location_id'               => '%s',
-      'source_identifier'         => '%s',
-      'source_url'                => '%s',
-      'processed_at'              => '%s',
-      'device_id'                 => '%s',
-      'phone'                     => '%s',
-      'customer_locale'           => '%s',
-      'app_id'                    => '%d',
-      'browser_ip'                => '%s',
-      'landing_site_ref'          => '%s',
-      'order_number'              => '%d',
-      'discount_codes'            => '%s',
-      'note_attributes'           => '%s',
-      'payment_gateway_names'     => '%s',
-      'processing_method'         => '%s',
-      'checkout_id'               => '%d',
-      'source_name'               => '%s',
-      'fulfillment_status'        => '%s',
-      'tax_lines'                 => '%s',
-      'tags'                      => '%s',
-      'contact_email'             => '%s',
-      'order_status_url'          => '%s',
-      'line_items'                => '%s',
-      'shipping_lines'            => '%s',
-      'billing_address'           => '%s',
-      'shipping_address'          => '%s',
-      'fulfillments'              => '%s',
-      'client_details'            => '%s',
-      'refunds'                   => '%s',
-      'customer'                  => '%s'
-    );
-
-  }
-
-
-  /*
-
-  Get Column Defaults
-
-  */
-	public function get_column_defaults() {
-
-    return array(
-      'id'                        => 0,
-      'customer_id'               => 0,
-      'email'                     => '',
-      'closed_at'                 => date_i18n( 'Y-m-d H:i:s' ),
-      'created_at'                => date_i18n( 'Y-m-d H:i:s' ),
-      'updated_at'                => date_i18n( 'Y-m-d H:i:s' ),
-      'number'                    => 0,
-      'note'                      => '',
-      'token'                     => '',
-      'gateway'                   => '',
-      'test'                      => '',
-      'total_price'               => '',
-      'subtotal_price'            => '',
-      'total_weight'              => 0,
-      'total_tax'                 => '',
-      'taxes_included'            => 0,
-      'currency'                  => '',
-      'financial_status'          => '',
-      'confirmed'                 => 0,
-      'total_discounts'           => '',
-      'total_line_items_price'    => '',
-      'cart_token'                => '',
-      'buyer_accepts_marketing'   => 0,
-      'name'                      => '',
-      'referring_site'            => '',
-      'landing_site'              => '',
-      'cancelled_at'              => '',
-      'cancel_reason'             => '',
-      'total_price_usd'           => '',
-      'checkout_token'            => '',
-      'reference'                 => '',
-      'user_id'                   => '',
-      'location_id'               => '',
-      'source_identifier'         => '',
-      'source_url'                => '',
-      'processed_at'              => '',
-      'device_id'                 => '',
-      'phone'                     => '',
-      'customer_locale'           => '',
-      'app_id'                    => 0,
-      'browser_ip'                => '',
-      'landing_site_ref'          => '',
-      'order_number'              => 0,
-      'discount_codes'            => '',
-      'note_attributes'           => '',
-      'payment_gateway_names'     => '',
-      'processing_method'         => '',
-      'checkout_id'               => 0,
-      'source_name'               => '',
-      'fulfillment_status'        => '',
-      'tax_lines'                 => '',
-      'tags'                      => '',
-      'contact_email'             => '',
-      'order_status_url'          => '',
-      'line_items'                => '',
-      'shipping_lines'            => '',
-      'billing_address'           => '',
-      'shipping_address'          => '',
-      'fulfillments'              => '',
-      'client_details'            => '',
-      'refunds'                   => '',
-      'customer'                  => ''
-    );
 
   }
 
@@ -441,7 +425,7 @@ class Orders extends \WPS\DB {
       `created_at` datetime,
       `updated_at` datetime,
       `number` bigint(100) unsigned DEFAULT NULL,
-      `note` longtext,
+      `note` longtext DEFAULT NULL,
       `token` varchar(255) DEFAULT NULL,
       `gateway` varchar(255) DEFAULT NULL,
       `test` varchar(255) DEFAULT NULL,
@@ -478,24 +462,24 @@ class Orders extends \WPS\DB {
       `landing_site_ref` varchar(255) DEFAULT NULL,
       `order_number` bigint(100) unsigned DEFAULT NULL,
       `discount_codes` varchar(100) DEFAULT NULL,
-      `note_attributes` longtext,
+      `note_attributes` longtext DEFAULT NULL,
       `payment_gateway_names` varchar(100) DEFAULT NULL,
       `processing_method` varchar(100) DEFAULT NULL,
       `checkout_id` bigint(100) unsigned DEFAULT NULL,
       `source_name` varchar(100) DEFAULT NULL,
       `fulfillment_status` varchar(100) DEFAULT NULL,
-      `tax_lines` longtext,
-      `tags` longtext,
+      `tax_lines` longtext DEFAULT NULL,
+      `tags` longtext DEFAULT NULL,
       `contact_email` varchar(100) DEFAULT NULL,
-      `order_status_url` longtext,
-      `line_items` longtext,
-      `shipping_lines` longtext,
-      `billing_address` longtext,
-      `shipping_address` longtext,
-      `fulfillments` longtext,
-      `client_details` longtext,
-      `refunds` longtext,
-      `customer` longtext,
+      `order_status_url` longtext DEFAULT NULL,
+      `line_items` longtext DEFAULT NULL,
+      `shipping_lines` longtext DEFAULT NULL,
+      `billing_address` longtext DEFAULT NULL,
+      `shipping_address` longtext DEFAULT NULL,
+      `fulfillments` longtext DEFAULT NULL,
+      `client_details` longtext DEFAULT NULL,
+      `refunds` longtext DEFAULT NULL,
+      `customer` longtext DEFAULT NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 

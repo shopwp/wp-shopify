@@ -88,10 +88,6 @@ class Collections_Smart extends \WPS\DB {
   */
 	public function insert_smart_collections($smart_collections) {
 
-    if (!Utils::isStillSyncing()) {
-      wp_die();
-    }
-
     // If no smart collections exist to insert, keep moving ...
     if (empty($smart_collections)) {
       return true;
@@ -105,6 +101,10 @@ class Collections_Smart extends \WPS\DB {
 
     foreach ($smart_collections as $key => $smart_collection) {
 
+      if (!Utils::isStillSyncing()) {
+        wp_die();
+      }
+
       if (is_object($smart_collection)) {
 
         if (property_exists($smart_collection, 'published_at') && $smart_collection->published_at !== null) {
@@ -113,9 +113,6 @@ class Collections_Smart extends \WPS\DB {
 
           $smart_collection = $this->assign_foreign_key($smart_collection, $customPostTypeID);
           $smart_collection = $this->rename_primary_key($smart_collection);
-
-
-          error_log(print_r('INSERTING SMART COLLECTION ----- ' . $index, true));
 
           $results[$customPostTypeID] = $this->insert($smart_collection, 'smart_collection');
 
@@ -244,7 +241,7 @@ class Collections_Smart extends \WPS\DB {
       `post_id` bigint(100) unsigned DEFAULT NULL,
       `title` varchar(255) DEFAULT NULL,
       `handle` varchar(255) DEFAULT NULL,
-      `body_html` longtext,
+      `body_html` longtext DEFAULT NULL,
       `image` longtext DEFAULT NULL,
       `rules` longtext DEFAULT NULL,
       `disjunctive` varchar(100) DEFAULT NULL,

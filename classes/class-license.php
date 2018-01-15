@@ -87,7 +87,7 @@ class License {
   */
   public function wps_license_save() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1053a)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1053a)');
 
 		$Settings_License = new Settings_License();
 
@@ -128,7 +128,7 @@ class License {
   */
   public function wps_license_delete() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1054a)');
+		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1054a)');
 
 		$Settings_License = new Settings_License();
 		$keyDeleted = $Settings_License->delete_license();
@@ -137,7 +137,7 @@ class License {
 			wp_send_json_success($keyDeleted);
 
 		} else {
-			wp_send_json_error($this->messages->message_license_unable_to_delete . ' (Error code: #1081a)');
+			wp_send_json_error($this->messages->message_license_unable_to_delete . ' (code: #1081a)');
 		}
 
 
@@ -162,7 +162,7 @@ class License {
 				wp_send_json_success($license->key);
 
 			} else {
-				wp_send_json_error($this->messages->message_license_invalid_or_missing . ' (Error code: #1080a)');
+				wp_send_json_error($this->messages->message_license_invalid_or_missing . ' (code: #1080a)');
 			}
 
 		} else {
@@ -204,7 +204,7 @@ class License {
 
 		} catch (\Exception $e) {
 
-			return $e->getMessage() . ' (Error code: #1056a)';
+			return $e->getMessage() . ' (code: #1056a)';
 
 		}
 
@@ -245,7 +245,7 @@ class License {
 
 		} catch (\Exception $e) {
 
-			return $e->getMessage() . ' (Error code: #1057a)';
+			return $e->getMessage() . ' (code: #1057a)';
 
 		}
 
@@ -274,7 +274,6 @@ class License {
 		$license = $Settings_License->get();
 
 		if (empty($license)) {
-			error_log('---- License already empty -----');
 			return;
 
 		} else {
@@ -305,7 +304,7 @@ class License {
 
 			} catch (\Exception $e) {
 
-				return new WP_Error('error', $this->messages->message_license_unable_to_delete . ' (Error code: #1088a)');
+				return new WP_Error('error', $this->messages->message_license_unable_to_delete . ' (code: #1088a)');
 
 			}
 

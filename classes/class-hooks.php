@@ -1463,7 +1463,6 @@ if (!class_exists('Hooks')) {
 			$showSidebar = apply_filters('wps_products_show_sidebar', false);
 
 			if ($showSidebar) {
-				error_log('---- ppppppppppp -----');
 				get_sidebar('wps');
 			}
 

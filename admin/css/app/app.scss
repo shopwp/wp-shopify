@@ -161,7 +161,7 @@ div[class^="wps-postbox-"] {
 
   &.is-connected {
     &:before {
-      background-color: #46b450;
+      background-color: #85d937;
     }
   }
 
@@ -251,12 +251,16 @@ div[class^="wps-postbox-"] {
   max-width: 630px;
   background-color: #f3f3f3;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  margin-top: 10vh;
+  margin-top: 5vh;
   padding: 1em;
 
   .notice {
     padding: 1em;
     margin-bottom: 1em;
+  }
+
+  &.wps-is-finished {
+
   }
 
 }
@@ -479,8 +483,8 @@ div[class^="wps-postbox-"] {
 .wps-icon-checkmark:after {
   transform: scaleX(-1) rotate(135deg);
   transform-origin: left top;
-  border-right: 4px solid #46b450;
-  border-top: 4px solid #46b450;
+  border-right: 4px solid #85d937;
+  border-top: 4px solid #85d937;
   content: '';
   display: block;
   height: 18px;
@@ -529,7 +533,7 @@ div[class^="wps-postbox-"] {
   line-height: 1;
   margin: 0.5em 0 1em;
   font-size: 32px;
-  color: #46b450;
+  color: #85d937;
 }
 
 
@@ -591,11 +595,13 @@ div[class^="wps-postbox-"] {
 
   display: inline-block;
   max-width: 90%;
-
+  width: 90%;
+  
   .wps-progress-text {
     float: left;
     position: relative;
     display: inline-block;
+    width: 90%;
   }
 
   .wps-spinner {
@@ -605,7 +611,7 @@ div[class^="wps-postbox-"] {
 
   .spinner {
     position: absolute;
-    right: 0;
+    right: -3px;
     top: 0;
     margin-top: 0;
   }
@@ -700,8 +706,8 @@ Tabs
         // animation: wpsCheck 0.4s;
         transform: scaleX(-1) rotate(135deg);
         transform-origin: left top;
-        border-right: 4px solid #46b450;
-        border-top: 4px solid #46b450;
+        border-right: 4px solid #85d937;
+        border-top: 4px solid #85d937;
         content: '';
         display: block;
         height: 14px;
@@ -948,7 +954,7 @@ Custom Loader
 }
 
 .wps-loader-body > span {
-  background-color: #46b450;
+  background-color: #85d937;
   border-radius: 2px;
 
   display: block;
@@ -990,12 +996,12 @@ TODO: Remove for Phase 2
 
 
 .wps-col-license-status-active {
-  color: #46b450;
+  color: #85d937;
 }
 
 .wps-col-license-status-notify {
   // color: #ffb900;
-  color: #46b450;
+  color: #85d937;
 }
 
 .wps-table-supporting {
@@ -1157,7 +1163,7 @@ input.code {
   height: 28px;
   width: 100%;
   background-color: #F3F3F3;
-  margin: 5px 0 28px;
+  margin: 5px 0 20px;
   background-image: linear-gradient(-45deg, rgba(255,255,255,0.35) 25%,rgba(0,0,0,0) 25%,rgba(0,0,0,0) 50%,rgba(255,255,255,0.35) 50%,rgba(255,255,255,0.35) 75%,rgba(0,0,0,0) 75%,rgba(0,0,0,0));
   background-size: 28px 28px;
   animation: animate-stripes 5s linear infinite;
@@ -1172,6 +1178,10 @@ input.code {
       background-color: #85d937;
     }
 
+    .wps-progress-step-percentage {
+      display: none;
+    }
+
     .dashicons-yes {
       opacity: 1;
     }
@@ -1183,20 +1193,39 @@ input.code {
     right: .3em;
     top: 0.12em;
     z-index: 20;
+    opacity: 0;
     background: #333;
     color: #85d937;
-    width: .75em;
-    height: .75em;
-    border-radius: 50%;
-    text-indent: -.18em;
-    line-height: .8;
-    vertical-align: 2.2em;
     font-size: 2.2em;
-    opacity: 0;
-    transition: opacity .3s ease-in;
-    transition-delay: .5s;
   }
 
+}
+
+.dashicons-no,
+.dashicons-yes {
+  width: .75em;
+  height: .75em;
+  border-radius: 50%;
+  text-indent: -.18em;
+  line-height: .8;
+  vertical-align: 2.2em;
+  font-size: 2.6em;
+  transition: opacity .2s ease-in;
+  float: right;
+  position: relative;
+  top: -12px;
+}
+
+.dashicons-yes {
+  color: #85d937;
+}
+
+.dashicons-no {
+  color: #ea5f5f;
+  font-size: 2.2em;
+  position: relative;
+  top: -5px;
+  right: 2px;
 }
 
 .wps-progress-bar {
@@ -1207,4 +1236,46 @@ input.code {
   height: 100%;
   transition: width 1s ease-out;
   z-index: 0;
+}
+
+.wps-is-stopping {
+  .wps-progress-bar-wrapper {
+    display: none;
+  }
+}
+
+.wps-is-finished {
+
+  .wps-progress-bar-wrapper.wps-is-complete .wps-progress-bar,
+  .wps-progress-bar {
+    width: 0% !important;
+  }
+
+  .wps-progress-bar-wrapper {
+    animation: none;
+    display: none;
+  }
+
+  .wps-connector-content {
+    > div:first-of-type {
+      opacity: 1;
+    }
+  }
+
+}
+
+.wps-progress-step-percentage {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  z-index: 9;
+}
+
+.wps-progress-step-name {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  top: 4px;
+  text-transform: capitalize;
+  z-index: 9;
 }

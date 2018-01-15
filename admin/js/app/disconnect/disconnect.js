@@ -11,15 +11,13 @@ import {
 
 import {
   disable,
+  enable,
   setNonce,
   showSpinner,
   removeTrueAndTransformToArray,
-  isWordPressError
+  isWordPressError,
+  isConnected
 } from '../utils/utils';
-
-import {
-  resetSyncingURL
-} from '../utils/utils-data';
 
 import {
   createConnectorModal,
@@ -35,26 +33,40 @@ import {
   insertCheckmark,
   updateConnectStatusHeading,
   clearConnectInputs,
-  resetConnectSubmit
+  resetConnectSubmit,
+  updateDomAfterSync,
+  resetConnectionDOM
 } from '../utils/utils-dom';
 
 import {
-  uninstallPlugin
-} from '../ws/ws.js';
+  uninstallPlugin,
+  removeConnectionData
+} from '../ws/ws';
+
+import {
+  clearSync,
+  syncOff
+} from '../ws/wrappers';
 
 import {
   setConnectionProgress,
   clearLocalstorageCache,
   removeConnectionProgress
-} from '../ws/localstorage.js';
+} from '../ws/localstorage';
 
 import {
-  connectInit
-} from '../connect/connect.js';
+  connectInit,
+  prepareBeforeSync
+} from '../connect/connect';
 
 import {
   clearAllCache
-} from '../tools/cache.js';
+} from '../tools/cache';
+
+import {
+  removeExistingData,
+  syncOn
+} from '../ws/syncing';
 
 
 /*
@@ -69,7 +81,6 @@ function constructErrorList(errors, currentErrorList, errorCode = '') {
   if (Array.isArray(newErrorList)) {
 
     var errorModified = removeTrueAndTransformToArray(errors) + ' ' + errorCode;
-
     newErrorList.push(errorModified);
 
   } else {
@@ -85,99 +96,187 @@ function constructErrorList(errors, currentErrorList, errorCode = '') {
 
 /*
 
-On connection uninstall ...
+Updates the connector modal with the proper messaging
 
 */
-async function uninstallPluginData(options = false, reconnect = true) {
+function showCleanDataMessaging() {
 
-  /*
+  // updateModalHeadingText('Disconnecting ...');
+  updateModalButtonText('Stop disconnecting');
+  setConnectionStepMessage('Removing added data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+  // insertCheckmark();
 
-  Setting Default options
+  jQuery('.wps-progress-bar-wrapper').remove();
 
-  */
-  if (options === false) {
+  attachStopEvent();
 
-    options = {
-      headingText: 'Canceled',
-      stepText: 'Unable to finish operation',
-      buttonText: 'Exit Sync',
-      xMark: true,
-      errorList: 'Failed to finish operation at unknown step',
-      errorCode: ' (Error code: #000)',
-      clearInputs: true
+}
+
+
+/*
+
+Called when the user manually cancels an in-progress disconnect
+
+*/
+function attachStopEvent() {
+
+  jQuery('.wps-btn-cancel').on('click', function() {
+
+    if (!isConnected()) {
+      resetConnectionDOM();
+      resetConnectSubmit();
     }
 
-  }
+    ejectConnectorModal();
 
-  // if (!options.headingText) {
-  //   options.headingText = 'Canceled';
-  // }
-  //
-  // if (!options.stepText) {
-  //   options.stepText = 'Unable to finish operation';
-  // }
-  //
-  // if (!options.buttonText) {
-  //   options.buttonText = 'Exit Sync';
-  // }
-  //
-  // if (!options.errorList) {
-  //
-  //   if (options.xMark) {
-  //     options.errorList = 'Failed to finish operation at unknown step';
-  //
-  //   } else {
-  //     options.errorList = false;
-  //   }
-  //
-  // }
+  });
+
+}
 
 
-  /*
+function disconnectionFormSubmitHandler(e) {
 
-  Step 1. Uninstall current plugin data
+  e.preventDefault();
 
-  */
-  try {
+  return new Promise(async (resolve, reject) => {
 
-    var uninstallData = await uninstallPlugin();
+    prepareBeforeSync();
 
-    if (isWordPressError(uninstallData)) {
-      options.errorList = constructErrorList(uninstallData.data, options.errorList, options.errorCode);
+    updateModalHeadingText('Disconnecting ...');
+    updateModalButtonText('Cancel disconnecting');
+    setConnectionStepMessage('Preparing to disconnect ...');
+
+    /*
+
+    1. Turn syncing on
+
+    */
+    try {
+      await syncOn();
+
+    } catch (errors) {
+
+      console.error("syncOn: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
     }
 
-  } catch (error) {
-    options.errorList = constructErrorList(error, options.errorList, options.errorCode);
 
-  }
+    /*
 
+    2. Clear all cache
 
-  /*
+    */
+    try {
+      await clearAllCache();
 
-  Step 2. Clear all plugin cache
+    } catch (errors) {
+      console.error("clearAllCache: ", errors);
 
-  */
-  try {
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
 
-    var clearAllCacheResponse = await clearAllCache();
+      resolve();
+      return;
 
-    if (isWordPressError(uninstallData)) {
-      options.errorList = constructErrorList(uninstallData.data, options.errorList, options.errorCode);
     }
 
-  } catch(error) {
-    options.errorList = constructErrorList(error, options.errorList, options.errorCode);
 
-  }
+    insertCheckmark();
+    setConnectionStepMessage('Removing added Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
 
 
-  updateDomAfterDisconnect(options);
+    /*
 
-  // Safe to reconnect again
-  if (reconnect) {
-    connectInit();
-  }
+    3. Remove product data
 
+    */
+    try {
+      await removeExistingData();
+
+    } catch (errors) {
+      console.error('removeExistingData: ', errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+
+    /*
+
+    4. Remove connection data
+
+    */
+    try {
+      await removeConnectionData();
+
+    } catch (errors) {
+      console.error("removeConnectionData: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+
+    insertCheckmark();
+    setConnectionStepMessage('Cleaning up ...');
+
+    /*
+
+    5. Turn sync off
+
+    */
+    try {
+      await syncOff();
+
+    } catch (errors) {
+      console.error("syncOff: ", errors);
+
+      updateDomAfterSync({
+        noticeList: returnOnlyFailedRequests(errors)
+      });
+
+      resolve();
+      return;
+
+    }
+
+
+    /*
+
+    6. Finally update DOM
+
+    */
+    updateDomAfterSync({
+      headingText: 'Disconnected',
+      stepText: 'Finished disconnecting',
+      noticeList: [{
+        type: 'success',
+        message: 'Successfully disconnected from Shopify'
+      }],
+      noticeType: 'success'
+    });
+
+    clearConnectInputs();
+
+  });
 
 }
 
@@ -194,125 +293,7 @@ function onDisconnectionFormSubmit() {
 
   unbindConnectForm();
 
-  $formConnect.on('submit.disconnect', async function(e) {
-
-    e.preventDefault();
-
-    // Remove previous connector modal if exists
-    ejectConnectorModal();
-
-    var $formInputNonce = jQuery("#wps_settings_connection_nonce_id");
-    var $connectorModal = createConnectorModal();
-
-    setConnectionProgress("true");
-
-    disable($submitButton);
-
-    forEach(showSpinner, $submitButton);
-
-    injectConnectorModal($connectorModal);
-
-    // Close Listenter
-    onModalClose();
-
-    updateModalHeadingText('Disconnecting ...');
-    updateModalButtonText('Stop disconnecting');
-    showConnectorModal($connectorModal);
-    setNonce( $formInputNonce.val() );
-    setConnectionStepMessage('Disconnecting ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
-
-    /*
-
-    Disconnecting ..
-
-    */
-    try {
-
-      await uninstallPluginData({
-        headingText: 'Disconnected',
-        stepText: 'Disconnected Shopify store',
-        buttonText: 'Exit Connection',
-        xMark: false,
-        errorCode: ' (Error code: #111)',
-        clearInputs: true
-      });
-
-    } catch (error) {
-
-      return error;
-
-    }
-
-
-  });
-
-}
-
-
-/*
-
-updateDomAfterDisconnect
-
-*/
-function updateDomAfterDisconnect(options) {
-
-  console.log("updateDomAfterDisconnect: ", options);
-
-  updateModalHeadingText(options.headingText);
-  updateModalButtonText(options.buttonText);
-  updateCurrentConnectionStepText(options.stepText);
-  updateConnectStatusHeading('is-disconnected');
-
-  if (options.clearInputs) {
-    clearConnectInputs();
-  }
-
-  setConnectionProgress("false");
-
-  if (document.querySelector('.wps-btn-cancel')) {
-    document.querySelector('.wps-btn-cancel').disabled = false;
-  }
-
-  if(options.xMark) {
-    insertXMark();
-
-  } else {
-    insertCheckmark();
-  }
-
-  if (!options.noticeType) {
-    options.noticeType = 'success';
-  }
-
-
-  // TODO: Modularize this, can put in Utils
-  if (options.xMark) {
-
-    // Showing error message
-    if (Array.isArray(options.errorList) && options.errorList.length > 0) {
-
-      options.errorList.forEach(function(entry) {
-        jQuery('.wps-connector-heading').after('<div class="notice notice-' + options.noticeType + '">' + entry + '</div>');
-      });
-
-    } else {
-      jQuery('.wps-connector-heading').after('<div class="notice notice-' + options.noticeType + '">' + options.errorList + '</div>');
-
-    }
-
-  } else {
-    jQuery('.wps-connector-heading').after('<div class="notice notice-success">Successfully disconnected</div>');
-
-  }
-
-
-  clearLocalstorageCache();
-
-  if (!options.resync) {
-    resetConnectSubmit();
-  }
-
-  initCloseModalEvents();
+  $formConnect.on('submit.disconnect', disconnectionFormSubmitHandler);
 
 }
 
@@ -328,6 +309,5 @@ function disconnectInit() {
 
 export {
   disconnectInit,
-  uninstallPluginData,
-  updateDomAfterDisconnect
+  showCleanDataMessaging
 };

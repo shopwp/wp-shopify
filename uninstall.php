@@ -17,7 +17,7 @@ if ( !current_user_can('activate_plugins') ) {
 	return;
 }
 
-$Config = new Config();
-$WS = new WS($Config);
+$WS = new WS(new Config());
+
 $WS->wps_uninstall_consumer(false);
 $WS->wps_drop_databases();

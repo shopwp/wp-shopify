@@ -66,7 +66,7 @@ class Checkouts {
 		return [
 			'mynameis'	=>	'andrew'
 		];
-		
+
 	}
 
 
@@ -77,7 +77,7 @@ class Checkouts {
 	*/
 	public function wps_get_cart_checkout_attrs() {
 
-		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1058a)');
+		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1058a)');
 
 		$defaultAttrs = [];
 

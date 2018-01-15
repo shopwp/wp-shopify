@@ -104,9 +104,12 @@ class Tags extends \WPS\DB {
 
       foreach ($tags as $key => $tag) {
 
-        $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
+        if (!Utils::isStillSyncing()) {
+          wp_die();
+          break;
+        }
 
-        error_log('INSERTING TAG -----');
+        $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
 
         $results[] = $this->insert($tagData, 'tag');
         // $progress->increment_current_amount('tags');

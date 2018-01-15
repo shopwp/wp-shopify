@@ -123,9 +123,9 @@ Tab Content: Connect
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
         <?php if($connected) { ?>
-          <?php submit_button(esc_html__('Disconnect Your Shopify Store', 'wp-shopify'), 'primary large', 'submitDisconnect', false, array()); ?>
+          <?php submit_button(esc_html__('Disconnect your Shopify store', 'wp-shopify'), 'primary large', 'submitDisconnect', false, array()); ?>
         <?php } else { ?>
-          <?php submit_button(esc_html__('Connect Your Shopify Store', 'wp-shopify'), 'primary large', 'submitConnect', false, array()); ?>
+          <?php submit_button(esc_html__('Connect your Shopify store', 'wp-shopify'), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
         <div class="spinner"></div>
 
@@ -134,7 +134,5 @@ Tab Content: Connect
     </form>
 
   </div>
-
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/Svdan_l13l4" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
 
 </div>

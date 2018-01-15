@@ -27,7 +27,6 @@ class Collections {
 	*/
 	public function __construct($Config) {
 		$this->config = $Config;
-    $this->connection = $this->config->wps_get_settings_connection();
     $this->messages = new Messages();
 	}
 
@@ -116,7 +115,7 @@ class Collections {
   */
   public function wps_insert_collections() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (Error code: #1066a)');
+    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1066a)');
 
     $results = [];
     $results['added'] = [];

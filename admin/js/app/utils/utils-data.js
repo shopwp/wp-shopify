@@ -1,6 +1,9 @@
 import isEqual from 'lodash/isEqual';
 import concat from 'lodash/concat';
 import unionWith from 'lodash/unionWith';
+import merge from 'lodash/merge';
+import filter from 'lodash/filter';
+import map from 'lodash/map';
 
 import {
   getNonce
@@ -319,13 +322,59 @@ function sanitizeErrorResponse(error) {
 
 /*
 
-Reset URL
+Control promise
 
 */
-function resetSyncingURL() {
-  history.pushState(null, null, getStartingURL());
+function returnCustomError(errorMsg) {
+
+  return {
+    success: false,
+    data: errorMsg
+  }
+
 }
 
+
+/*
+
+Returns the default exit options
+
+*/
+function getDefaultExitOptions() {
+
+  return {
+    headingText: 'Canceled',
+    stepText: 'Stopped syncing',
+    status: 'is-disconnected',
+    buttonText: 'Exit Shopify Sync',
+    xMark: false,
+    noticeList: [{
+      type: 'warning',
+      message: 'Syncing manually canceled early'
+    }],
+    errorCode: '',
+    clearInputs: true,
+    noticeType: 'warning'
+  }
+
+}
+
+/*
+
+Produces a final object of all the config options for the DOM
+
+*/
+function getCombinedExitOptions(customOptions) {
+  return merge(getDefaultExitOptions(), customOptions);
+}
+
+function onlyFailedRequests(request) {
+  return !request.success;
+}
+
+function returnOnlyFailedRequests(noticeList) {
+  return map(filter(noticeList, onlyFailedRequests), sanitizeErrorResponse);
+}
 
 export {
   getProductImages,
@@ -343,5 +392,9 @@ export {
   mapCollectsToProducts,
   mapCollectsToCollections,
   sanitizeErrorResponse,
-  resetSyncingURL
+  returnCustomError,
+  getDefaultExitOptions,
+  getCombinedExitOptions,
+  returnOnlyFailedRequests,
+  onlyFailedRequests
 };

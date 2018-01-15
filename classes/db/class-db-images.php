@@ -120,54 +120,41 @@ class Images extends \WPS\DB {
 
         foreach ($product->images as $key => $image) {
 
+          if (!Utils::isStillSyncing()) {
+            wp_die();
+            break 2;
+          }
+
           /*
 
-          Need to check this within the loop since the user can potentially
-          cancel the connection at anytime.
+          If use title as alt isn't checked, go get the real alt text, otherwise
+          use the title for alt.
 
           */
-          if ($DB_Settings_Connection->is_syncing()) {
+          if (!$DB_Settings_General->title_as_alt()) {
 
-            /*
+            // Calls API asynchronously and returns a Promise
+            $response = $WS->wps_ws_get_image_alt($image);
+            $altText = $this->get_alt_text_from_response($response);
 
-            If use title as alt isn't checked, go get the real alt text, otherwise
-            use the title for alt.
+            if (is_wp_error($altText)) {
 
-            */
-            if (!$DB_Settings_General->title_as_alt()) {
-
-              // Calls API asynchronously and returns a Promise
-              $response = $WS->wps_ws_get_image_alt($image);
-              $altText = $this->get_alt_text_from_response($response);
-
-              if (is_wp_error($altText)) {
-
-                // $results[] = false;
-                $results = false;
-                break 2;
-
-              } else {
-
-                // $results[] = $altText;
-                $image->alt = $altText;
-
-              }
+              // $results[] = false;
+              $results = false;
+              break 2;
 
             } else {
-              $image->alt = $product->title;
+
+              // $results[] = $altText;
+              $image->alt = $altText;
+
             }
 
-            error_log('INSERTING IMAGE -----');
-
-            $results[] = $this->insert($image, 'image');
-
-
           } else {
-
-            $results = false;
-            break 2;
-
+            $image->alt = $product->title;
           }
+
+          $results[] = $this->insert($image, 'image');
 
           $progress->increment_current_amount('products');
           $count++;
@@ -177,6 +164,10 @@ class Images extends \WPS\DB {
       }
 
     }
+
+    error_log('---- $results -----');
+    error_log(print_r($results, true));
+    error_log('---- /$results -----');
 
     return $results;
 
@@ -219,54 +210,41 @@ class Images extends \WPS\DB {
 
       foreach ($product->images as $key => $image) {
 
+        if (!Utils::isStillSyncing()) {
+          wp_die();
+          break;
+        }
+
         /*
 
-        Need to check this within the loop since the user can potentially
-        cancel the connection at anytime.
+        If use title as alt isn't checked, go get the real alt text, otherwise
+        use the title for alt.
 
         */
-        if ($DB_Settings_Connection->is_syncing()) {
+        if (!$DB_Settings_General->title_as_alt()) {
 
-          /*
+          // Calls API asynchronously and returns a Promise
+          $response = $WS->wps_ws_get_image_alt($image);
+          $altText = $this->get_alt_text_from_response($response);
 
-          If use title as alt isn't checked, go get the real alt text, otherwise
-          use the title for alt.
+          if (is_wp_error($altText)) {
 
-          */
-          if (!$DB_Settings_General->title_as_alt()) {
-
-            // Calls API asynchronously and returns a Promise
-            $response = $WS->wps_ws_get_image_alt($image);
-            $altText = $this->get_alt_text_from_response($response);
-
-            if (is_wp_error($altText)) {
-
-              // $results[] = false;
-              $results = false;
-              break;
-
-            } else {
-
-              // $results[] = $altText;
-              $image->alt = $altText;
-
-            }
+            // $results[] = false;
+            $results = false;
+            break;
 
           } else {
-            $image->alt = $product->title;
+
+            // $results[] = $altText;
+            $image->alt = $altText;
+
           }
 
-          error_log('INSERTING IMAGE -----');
-
-          $results[] = $this->insert($image, 'image');
-
-
         } else {
-
-          $results = false;
-          break;
-
+          $image->alt = $product->title;
         }
+
+        $results[] = $this->insert($image, 'image');
 
         $count++;
 
@@ -582,7 +560,7 @@ class Images extends \WPS\DB {
     return "CREATE TABLE `{$this->table_name}` (
       `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
       `product_id` bigint(100) DEFAULT NULL,
-      `variant_ids` mediumtext,
+      `variant_ids` longtext DEFAULT NULL,
       `src` longtext DEFAULT NULL,
       `alt` longtext DEFAULT NULL,
       `position` int(20) DEFAULT NULL,

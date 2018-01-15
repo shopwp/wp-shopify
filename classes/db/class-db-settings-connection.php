@@ -47,8 +47,6 @@ class Settings_Connection extends \WPS\DB {
       'api_key'                   => '%s',
       'password'                  => '%s',
       'shared_secret'             => '%s',
-      'syncing_step_total'        => '%d',
-      'syncing_step_current'      => '%d'
     );
 
   }
@@ -72,8 +70,6 @@ class Settings_Connection extends \WPS\DB {
       'api_key'                   => '',
       'password'                  => '',
       'shared_secret'             => '',
-      'syncing_step_total'        => 0,
-      'syncing_step_current'      => 0
     );
   }
 
@@ -88,6 +84,10 @@ class Settings_Connection extends \WPS\DB {
     global $wpdb;
     $progress = new Progress_Bar(new Config());
 
+    if (!Utils::isStillSyncing()) {
+      wp_die();
+    }
+    
     if (isset($connectionData['domain']) && $connectionData['domain']) {
 
       if ($this->get_by('domain', $connectionData['domain'])) {
@@ -182,8 +182,6 @@ class Settings_Connection extends \WPS\DB {
       `api_key` varchar(100) DEFAULT NULL,
       `password` varchar(100) DEFAULT NULL,
       `shared_secret` varchar(100) DEFAULT NULL,
-      `syncing_step_total` bigint(100) unsigned NULL,
-      `syncing_step_current` bigint(100) unsigned NULL,
       PRIMARY KEY  (`{$this->primary_key}`)
     ) ENGINE=InnoDB $collate";
 

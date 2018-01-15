@@ -52,6 +52,16 @@ function isWordPressError(response) {
 
 /*
 
+Is WordPress Error
+
+*/
+function isConnected() {
+  return jQuery('.wps-status-heading .wps-status').hasClass('is-connected');
+}
+
+
+/*
+
 Remove true and transform to array
 
 */
@@ -278,7 +288,7 @@ Disable
 
 */
 function disable($element) {
-  $element.prop('disabled', true);
+  $element.prop('disabled', true).attr('disabled', true);
 }
 
 
@@ -288,7 +298,7 @@ Enable
 
 */
 function enable($element) {
-  $element.prop('disabled', false);
+  $element.prop('disabled', false).attr('disabled', false);
 }
 
 
@@ -301,7 +311,7 @@ TODO: Combine with the above
 */
 function enableButton(button) {
 
-  if(jQuery(button).is(':disabled')) {
+  if (jQuery(button).is(':disabled')) {
     jQuery(button).prop('disabled', false);
   }
 
@@ -521,5 +531,6 @@ export {
   isWordPressError,
   hasProp,
   isObject,
-  getDataFromArray
+  getDataFromArray,
+  isConnected
 };

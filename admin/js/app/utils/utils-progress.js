@@ -17,6 +17,9 @@ import {
   isWordPressError
 } from './utils';
 
+import {
+  getCancelSync
+} from '../ws/localstorage';
 
 
 /*
@@ -66,20 +69,18 @@ Progress Status
 */
 async function progressStatus() {
 
-  console.log("Poll");
-
   try {
 
     var status = await getProgressCount(); // wps_progress_status
 
-    if (isWordPressError(status)) {
+    if (isWordPressError(status) || getCancelSync()) {
       return;
 
     } else {
 
       var syncStatus = status.data.is_syncing;
 
-      if (syncStatus == 1 || syncStatus == "1" || syncStatus === true) {
+      if (syncStatus) {
 
         /*
 
@@ -87,14 +88,14 @@ async function progressStatus() {
         the DOM accordingly
 
         */
-        console.log("status: ", status);
+
         updateProgressBarTotals(status.data.syncing_totals);
         updateProgressBarCurrentAmounts(status.data.syncing_current_amounts);
 
         setTimeout(progressStatus, 1000);
 
       } else {
-        console.log('DONE SYNCING');
+        // console.log('DONE SYNCING');
       }
 
     }
@@ -128,16 +129,6 @@ function startProgressBar(resync = false, includes = []) {
 
   });
 
-}
-
-
-/*
-
-Update Progress Loader
-
-*/
-function endProgressBar() {
-  endProgress();
 }
 
 
@@ -180,7 +171,10 @@ Create Progress Bar
 
 */
 function createProgressBar(stepName, stepTotal) {
-  return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepTotal + '" id="wps-progress-bar-' + stepName + '"><div class="wps-progress-bar"></div><span class="dashicons dashicons-yes"></span></div>');
+
+  var stepNamePretty = stepName.split('_').join(' ');
+
+  return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepTotal + '" id="wps-progress-bar-' + stepName + '"><span class="wps-progress-step-name">' + stepNamePretty + '</span><span class="wps-progress-step-percentage">0%</span><div class="wps-progress-bar"></div><span class="dashicons dashicons-yes"></span></div>');
 }
 
 
@@ -243,9 +237,8 @@ Update Progress Bar Current Amount
 */
 function updateProgressCurrentAmount(stepCurrentValue, stepName) {
 
-  var percentage = getProgressBarPercentage(stepCurrentValue, stepName);
-
-  var $progressWrapper = jQuery('#wps-progress-bar-' + stepName);
+  var percentage = getProgressBarPercentage(stepCurrentValue, stepName),
+      $progressWrapper = jQuery('#wps-progress-bar-' + stepName);
 
   if (stepCurrentValue == $progressWrapper.data('wps-progress-total')) {
     $progressWrapper.addClass('wps-is-complete');
@@ -253,6 +246,9 @@ function updateProgressCurrentAmount(stepCurrentValue, stepName) {
 
   $progressWrapper
     .find('.wps-progress-bar').css('width', percentage + '%');
+
+  $progressWrapper
+    .find('.wps-progress-step-percentage').text(Math.round(percentage) + '%');
 
 }
 
@@ -282,7 +278,6 @@ export {
   createProgressLoader,
   removeProgressLoader,
   startProgressBar,
-  endProgressBar,
   progressStatus,
   mapProgressDataFromSessionValues,
   createProgressBar,
