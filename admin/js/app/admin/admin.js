@@ -1,5 +1,3 @@
-import { testingPrivateApp } from '../ws/ws';
-
 /*
 
 Admin Notice
@@ -32,24 +30,6 @@ function initTooltips() {
 
 }
 
-function testingPrivateAppWrapper() {
-
-  jQuery('#ws-test').on('click', async function(e) {
-
-    e.preventDefault();
-
-    try {
-      var stuff = await testingPrivateApp();
-
-    } catch (e) {
-
-    }
-
-
-  });
-
-}
-
 
 /*
 
@@ -58,7 +38,6 @@ Init Admin
 */
 function initAdmin() {
   // addAdminNotice();
-  testingPrivateAppWrapper();
   initTooltips();
 }
 

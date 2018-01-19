@@ -42,7 +42,7 @@ class License {
 		$this->license = $this->config->wps_get_settings_license();
 		$this->license_option_name = $this->config->settings_license_option_name;
 		$this->messages = new Messages();
-		$this->WS = new WS($this->config);
+		$this->ws = new WS($this->config);
 	}
 
 
@@ -87,7 +87,9 @@ class License {
   */
   public function wps_license_save() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1053a)');
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_license_save)');
+		}
 
 		$Settings_License = new Settings_License();
 
@@ -111,10 +113,10 @@ class License {
 		$result = $Settings_License->insert_license($newLicenseData);
 
 		if ($result) {
-			wp_send_json_success($newLicenseData);
+			$this->ws->send_success($newLicenseData);
 
 		} else {
-			wp_send_json_success(false);
+			$this->ws->send_success(false);
 
 		}
 
@@ -128,19 +130,19 @@ class License {
   */
   public function wps_license_delete() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1054a)');
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_license_delete)');
+		}
 
 		$Settings_License = new Settings_License();
 		$keyDeleted = $Settings_License->delete_license();
 
 		if ($keyDeleted) {
-			wp_send_json_success($keyDeleted);
+			$this->ws->send_success($keyDeleted);
 
 		} else {
-			wp_send_json_error($this->messages->message_license_unable_to_delete . ' (code: #1081a)');
+			$this->ws->send_error($this->messages->message_license_unable_to_delete . ' (wps_license_delete)');
 		}
-
-
 
   }
 
@@ -159,10 +161,10 @@ class License {
 		if ($ajax || isset($_GET['action']) && $_GET['action'] === 'wps_license_get') {
 
 			if (is_object($license) && isset($license->key)) {
-				wp_send_json_success($license->key);
+				$this->ws->send_success($license->key);
 
 			} else {
-				wp_send_json_error($this->messages->message_license_invalid_or_missing . ' (code: #1080a)');
+				$this->ws->send_error($this->messages->message_license_invalid_or_missing . ' (wps_license_get)');
 			}
 
 		} else {
@@ -179,8 +181,6 @@ class License {
 	*/
 	public function wps_get_latest_plugin_version() {
 
-		$WS = new WS($this->config);
-
 		$body = [
 			'query' => [
 				'edd_action' => 'get_version',
@@ -194,17 +194,17 @@ class License {
 
 		try {
 
-			$response = $WS->wps_request(
+			$response = $this->ws->wps_request(
 				'POST',
 				$this->config->plugin_env,
-				$this->WS->get_request_options($headers, $body, false)
+				$this->ws->get_request_options($headers, $body, false)
 			);
 
 			return json_decode($response->getBody()->getContents());
 
 		} catch (\Exception $e) {
 
-			return $e->getMessage() . ' (code: #1056a)';
+			return $e->getMessage() . ' (wps_license_get)';
 
 		}
 
@@ -229,7 +229,7 @@ class License {
 
 		try {
 
-			$response = $this->WS->wps_request(
+			$response = $this->ws->wps_request(
 				'GET',
 				$url,
 				[]
@@ -245,7 +245,7 @@ class License {
 
 		} catch (\Exception $e) {
 
-			return $e->getMessage() . ' (code: #1057a)';
+			return $e->getMessage() . ' (wps_license_check_valid)';
 
 		}
 
@@ -286,7 +286,7 @@ class License {
 
 			try {
 
-				$promise = $this->WS->wps_request(
+				$promise = $this->ws->wps_request(
 					'GET',
 					$url,
 					[],
@@ -304,7 +304,7 @@ class License {
 
 			} catch (\Exception $e) {
 
-				return new WP_Error('error', $this->messages->message_license_unable_to_delete . ' (code: #1088a)');
+				return new WP_Error('error', $this->messages->message_license_unable_to_delete . ' (wps_deactivate_plugin_license)');
 
 			}
 

@@ -4,6 +4,7 @@ import unionWith from 'lodash/unionWith';
 import merge from 'lodash/merge';
 import filter from 'lodash/filter';
 import map from 'lodash/map';
+import union from 'lodash/union';
 
 import {
   getNonce
@@ -369,12 +370,88 @@ function getCombinedExitOptions(customOptions) {
 }
 
 function onlyFailedRequests(request) {
-  return !request.success;
+
+  if (request) {
+    return !request.success;
+  }
+
 }
 
 function returnOnlyFailedRequests(noticeList) {
   return map(filter(noticeList, onlyFailedRequests), sanitizeErrorResponse);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function onlyWarnings(notice) {
+
+  if (notice) {
+    return notice.type === 'warning';
+  }
+
+}
+
+function returnOnlyWarningNotices(noticeList) {
+  return filter(extractNoticeData(noticeList, extractNoticeData), onlyWarnings);
+}
+
+
+function onlyData(notice) {
+  return notice.data;
+}
+
+
+function extractNoticeData(noticeList) {
+  return map(noticeList, onlyData);
+}
+
+
+function createEmptyWarningList() {
+  return [];
+}
+
+
+function addToWarningList(currentWarningList, newWarning) {
+
+  var currentWarningListClone = currentWarningList;
+  currentWarningListClone.push(newWarning);
+
+  return currentWarningListClone;
+
+}
+
+function addSuccessNotice() {
+
+  return [{
+    type: 'success',
+    message: 'Success! You\'re now connected and syncing with Shopify.'
+  }];
+
+}
+
+function constructFinalNoticeList(anyWarnings) {
+  return union(addSuccessNotice(), anyWarnings);
+}
+
 
 export {
   getProductImages,
@@ -396,5 +473,8 @@ export {
   getDefaultExitOptions,
   getCombinedExitOptions,
   returnOnlyFailedRequests,
-  onlyFailedRequests
+  onlyFailedRequests,
+  addSuccessNotice,
+  addToWarningList,
+  constructFinalNoticeList
 };

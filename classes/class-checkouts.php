@@ -2,6 +2,9 @@
 
 namespace WPS;
 
+use WPS\WS;
+use WPS\Messages;
+
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
@@ -25,6 +28,8 @@ class Checkouts {
 	*/
 	public function __construct($Config) {
 		$this->config = $Config;
+		$this->messages = new Messages();
+		$this->ws = new WS($this->config);
 	}
 
 
@@ -77,11 +82,12 @@ class Checkouts {
 	*/
 	public function wps_get_cart_checkout_attrs() {
 
-		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1058a)');
+		if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_cart_checkout_attrs)');
+		}
 
 		$defaultAttrs = [];
-
-		wp_send_json_success( apply_filters('wps_cart_checkout_attrs', $defaultAttrs) );
+		$this->ws->send_success(apply_filters('wps_cart_checkout_attrs', $defaultAttrs));
 
 	}
 

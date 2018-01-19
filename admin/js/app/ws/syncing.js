@@ -23,7 +23,6 @@ import {
 import {
   registerWebhooks,
   insertAltText,
-  getWebhooksCount,
   setSyncingIndicator,
   saveCountsToSession,
   insertConnectionData,
@@ -67,22 +66,30 @@ function syncWebhooks(removalErrors) {
 
       }
 
+
       if (isWordPressError(webhooks)) {
-        reject(webhooks.data);
+        reject(webhooks);
       }
 
+
       if (syncIsCanceled()) {
-        reject();
+
+        reject({
+          success: false,
+          data: false
+        });
         return;
       }
 
       resolve(webhooks);
+
 
     } catch(error) {
 
       reject(error);
 
     }
+
 
   });
 
@@ -407,7 +414,7 @@ function syncOn() {
       var updatingSyncingIndicator = await setSyncingIndicator(1); // wps_ws_set_syncing_indicator
 
       if (isWordPressError(updatingSyncingIndicator)) {
-        throw updatingSyncingIndicator.data;
+        throw updatingSyncingIndicator;
 
       } else if (isError(updatingSyncingIndicator)) {
         throw updatingSyncingIndicator;

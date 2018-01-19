@@ -8,6 +8,7 @@ use WPS\DB\Settings_General;
 use WPS\DB\Settings_Connection;
 use WPS\DB\Shop;
 use WPS\Messages;
+use WPS\WS;
 
 
 // If this file is called directly, abort.
@@ -40,6 +41,7 @@ if (!class_exists('Frontend')) {
 			$this->config = $Config;
 			$this->connection = $this->config->wps_get_settings_connection();
 			$this->messages = new Messages();
+			$this->ws = new WS($this->config);
 		}
 
 
@@ -288,10 +290,15 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_credentials() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1058a)');
-			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1058b)');
+			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+			  $this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials)');
+			}
 
-			wp_send_json_success($this->config->wps_get_settings_connection());
+			if (Utils::emptyConnection($this->connection)) {
+			  $this->ws->send_error($this->messages->message_connection_not_found . ' (wps_get_credentials)');
+			}
+
+			$this->ws->send_success($this->config->wps_get_settings_connection());
 
 		}
 
@@ -306,7 +313,7 @@ if (!class_exists('Frontend')) {
 
 			global $wp_query, $post;
 
-			if(isset($post) && $post) {
+			if (isset($post) && $post) {
 
 				if ($post->post_type == "wps_products") {
 
@@ -347,7 +354,7 @@ if (!class_exists('Frontend')) {
 
 			global $wp_query, $post;
 
-			if(isset($post) && $post) {
+			if (isset($post) && $post) {
 
 				if ($post->post_type == "wps_products") {
 
@@ -361,7 +368,7 @@ if (!class_exists('Frontend')) {
 
 					$templateFile = $this->config->plugin_path . "public/templates/collections-all.php";
 
-					if(file_exists($templateFile)) {
+					if (file_exists($templateFile)) {
 						$template = $templateFile;
 					}
 
@@ -385,8 +392,14 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_variant_id() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1059a)');
-			!Utils::emptyConnection($this->connection) ?: wp_send_json_error($this->messages->message_connection_not_found . ' (code: #1059b)');
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_variant_id)');
+			}
+
+			if (Utils::emptyConnection($this->connection)) {
+				$this->ws->send_error($this->messages->message_connection_not_found . ' (wps_get_variant_id)');
+			}
+
 
 			if (isset($_POST['selectedOptions']) && is_array($_POST['selectedOptions'])) {
 
@@ -437,10 +450,10 @@ if (!class_exists('Frontend')) {
 
 						if ($variantObj->inventory_quantity > 0 || $variantObj->inventory_policy === 'deny') {
 							$found = true;
-							wp_send_json_success($variant['id']);
+							$this->ws->send_success($variant['id']);
 
 						} else {
-							wp_send_json_error($this->messages->message_products_out_of_stock . ' (code: #1059c)');
+							$this->ws->send_error($this->messages->message_products_out_of_stock . ' (wps_get_variant_id)');
 
 						}
 
@@ -449,11 +462,11 @@ if (!class_exists('Frontend')) {
 				}
 
 				if (!$found) {
-					wp_send_json_error($this->messages->message_products_options_unavailable . ' (code: #1059d)', 'wp-shopify');
+					$this->ws->send_error($this->messages->message_products_options_unavailable . ' (wps_get_variant_id)', 'wp-shopify');
 				}
 
 			} else {
-				wp_send_json_error($this->messages->message_products_options_not_found . ' (code: #1059e)', 'wp-shopify');
+				$this->ws->send_error($this->messages->message_products_options_not_found . ' (wps_get_variant_id)', 'wp-shopify');
 
 			}
 
@@ -484,7 +497,9 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_currency_format() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1060a)');
+			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_currency_format)');
+			}
 
 			$DB_Settings_General = new Settings_General();
 
@@ -492,10 +507,10 @@ if (!class_exists('Frontend')) {
 
 			if (isset($result[0]) && $result[0]->price_with_currency) {
 
-				wp_send_json_success($result[0]->price_with_currency);
+				$this->ws->send_success($result[0]->price_with_currency);
 
 			} else {
-				wp_send_json_error($this->messages->message_products_curency_format_not_found . ' (code: #1060b)');
+				$this->ws->send_error($this->messages->message_products_curency_format_not_found . ' (wps_get_currency_format)');
 
 			}
 
@@ -509,7 +524,9 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_has_money_format_changed() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1061a)');
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_has_money_format_changed)');
+			}
 
 			$DB_Shop = new Shop();
 
@@ -532,10 +549,10 @@ if (!class_exists('Frontend')) {
 			}
 
 			if ($_POST['format'] === $current_money_format || $_POST['format'] === $money_with_currency_format) {
-				wp_send_json_success(false);
+				$this->ws->send_success(false);
 
 			} else {
-				wp_send_json_success(true);
+				$this->ws->send_success(true);
 
 			}
 
@@ -549,7 +566,9 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_money_format() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1062a)');
+			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_money_format)');
+			}
 
 			$DB_Shop = new Shop();
 			$moneyFormat = $DB_Shop->get_shop('money_format');
@@ -557,10 +576,10 @@ if (!class_exists('Frontend')) {
 			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_format) {
 
 				$moneyFormat = (string)$moneyFormat[0]->money_format;
-				wp_send_json_success($moneyFormat);
+				$this->ws->send_success($moneyFormat);
 
 			} else {
-				wp_send_json_success(false);
+				$this->ws->send_success(false);
 
 			}
 
@@ -574,7 +593,9 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_money_format_with_currency() {
 
-			Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1063a)');
+			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_money_format_with_currency)');
+			}
 
 			$DB_Shop = new Shop();
 			$moneyFormat = $DB_Shop->get_shop('money_with_currency_format');
@@ -582,10 +603,10 @@ if (!class_exists('Frontend')) {
 			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_with_currency_format) {
 
 				$moneyFormat = (string)$moneyFormat[0]->money_with_currency_format;
-				wp_send_json_success($moneyFormat);
+				$this->ws->send_success($moneyFormat);
 
 			} else {
-				wp_send_json_success(false);
+				$this->ws->send_success(false);
 
 			}
 
@@ -599,21 +620,23 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_get_cart_cache() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1064a)');
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_cart_cache)');
+			}
 
 			$cartName = 'wps_cart_' . $_POST['cartID'];
 
 			if (isset($cartName) && $cartName) {
 
 				if (Transients::get($cartName)) {
-					wp_send_json_success();
+					$this->ws->send_success();
 
 				} else {
-					wp_send_json_error();
+					$this->ws->send_error();
 				}
 
 			} else {
-				wp_send_json_error();
+				$this->ws->send_error();
 
 			}
 
@@ -627,21 +650,23 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_set_cart_cache() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1065a)');
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_set_cart_cache)');
+			}
 
 			$cartName = 'wps_cart_' . $_POST['cartID'];
 
 			if (isset($cartName) && $cartName) {
 
 				if (Transients::set($cartName, true, $this->config->cart_cache_expiration)) {
-					wp_send_json_success();
+					$this->ws->send_success();
 
 				} else {
-					wp_send_json_error();
+					$this->ws->send_error();
 				}
 
 			} else {
-				wp_send_json_error();
+				$this->ws->send_error();
 
 			}
 
@@ -655,7 +680,9 @@ if (!class_exists('Frontend')) {
 		*/
 		public function wps_add_checkout_before_hook() {
 
-			Utils::valid_frontend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1066a)');
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_add_checkout_before_hook)');
+			}
 
 			$cart = $_POST['cart'];
 			$exploded = explode($cart['domain'], $cart['checkoutUrl']);
@@ -663,7 +690,7 @@ if (!class_exists('Frontend')) {
 
 			$landing_site_hash = Utils::wps_hash($landing_site);
 
-			wp_send_json_success();
+			$this->ws->send_success();
 
 		}
 

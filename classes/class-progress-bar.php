@@ -2,6 +2,7 @@
 
 namespace WPS;
 
+use WPS\WS;
 use WPS\Messages;
 use WPS\DB\Settings_Connection;
 
@@ -27,6 +28,7 @@ class Progress_Bar {
 		$this->config = $Config;
 		$this->connection = new Settings_Connection();
 		$this->messages = new Messages();
+		$this->ws = new WS($this->config);
 
 	}
 
@@ -38,7 +40,11 @@ class Progress_Bar {
 	*/
 	public function wps_progress_session_create() {
 
-		Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1105a)');
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_progress_session_create)');
+		}
+
+
 		Utils::wps_access_session();
 
 		session_unset();
@@ -147,7 +153,7 @@ class Progress_Bar {
 		$_SESSION['wps_syncing_current_amounts'] = $sessionVariablesFiltered['wps_syncing_current_amounts'];
 		$_SESSION['wps_syncing_totals'] = $sessionVariablesFiltered['wps_syncing_totals'];
 
-		wp_send_json_success($sessionVariablesFiltered);
+		$this->ws->send_success($sessionVariablesFiltered);
 
 	}
 
@@ -245,7 +251,7 @@ class Progress_Bar {
 		];
 
 		if ($ajax) {
-			wp_send_json_error('DIED');
+			$this->ws->send_error('DIED');
 
 		} else {
 			return $_SESSION;
@@ -261,15 +267,13 @@ class Progress_Bar {
 	*/
 	public function wps_progress_status() {
 
-		Utils::valid_backend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1100a)');
+		if (!Utils::valid_backend_nonce($_GET['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_progress_status)');
+		}
 
 		Utils::wps_access_session();
 
-		error_log('---- Syncing Status -----');
-		error_log(print_r($_SESSION['wps_is_syncing'], true));
-		error_log('---- /Syncing Status -----');
-
-		wp_send_json_success([
+		$this->ws->send_success([
 			'is_syncing' 								=> isset($_SESSION['wps_is_syncing']) ? $_SESSION['wps_is_syncing'] : 1,
 			'syncing_totals'						=> isset($_SESSION['wps_syncing_totals']) ? $_SESSION['wps_syncing_totals'] : [],
 			'syncing_current_amounts'		=> isset($_SESSION['wps_syncing_current_amounts']) ? $_SESSION['wps_syncing_current_amounts'] : []

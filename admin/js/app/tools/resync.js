@@ -160,7 +160,6 @@ function onResyncSubmit() {
       try {
 
         var itemCountsResp = await getItemCounts();
-        console.error("itemCountsResp: ", itemCountsResp);
         var allCounts = getDataFromArray(itemCountsResp);
 
       } catch (errors) {

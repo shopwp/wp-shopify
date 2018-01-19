@@ -293,7 +293,7 @@ Get Collections
 
 */
 function insertSmartCollections() {
-  
+
   var options = {
     method: 'POST',
     url: wps.ajax,
@@ -920,29 +920,6 @@ function getAuthUser(token) {
 
 /*
 
-Get plugin settings from consumer
-Returns: Promise
-
-*/
-function getPluginSettings() {
-
-  var options = {
-    method: 'GET',
-    url: wps.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_get_options',
-      nonce: wps.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
 Sending new auth data to WP Shopify server
 Returns: Promise
 
@@ -1214,21 +1191,6 @@ function endProgress() {
 }
 
 
-function testingPrivateApp() {
-
-  var options = {
-    method: 'POST',
-    url: wps.ajax,
-    data: {
-      action: 'wps_ws_testing_private_app'
-    }
-  };
-
-  return jQuery.ajax(options);
-
-}
-
-
 function progressSessionStart(resync = false, includes = []) {
 
   var options = {
@@ -1245,27 +1207,6 @@ function progressSessionStart(resync = false, includes = []) {
   return jQuery.ajax(options);
 
 }
-
-
-/*
-
-Get Webhooks Count
-
-*/
-// function getWebhooksCount() {
-//
-//   var options = {
-//     method: 'POST',
-//     url: wps.ajax,
-//     data: {
-//       action: 'get_webhooks_count',
-//       nonce: wps.nonce
-//     }
-//   };
-//
-//   return jQuery.ajax(options);
-//
-// }
 
 
 /*
@@ -1350,7 +1291,6 @@ export {
   delWebhooks,
   getAuthToken,
   getAuthUser,
-  getPluginSettings,
   updateAuthUser,
   getSingleCollection,
   deactivateLicenseKey,
@@ -1378,7 +1318,6 @@ export {
   insertCustomers,
   getCustomersCount,
   startProgress,
-  testingPrivateApp,
   registerWebhooks,
   removeAllData,
   insertAltText,
@@ -1390,6 +1329,6 @@ export {
   removeWebhooks,
   saveCountsToSession,
   getTotalCountsFromSession,
-  getWebhooksCount,
-  removeConnectionData
+  removeConnectionData,
+  getWebhooksCount
 };

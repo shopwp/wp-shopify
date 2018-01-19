@@ -34,6 +34,7 @@ class Messages {
 	public $message_delete_product_inventory_error;
 	public $message_delete_collects_error;
 	public $message_insert_collects_error;
+	public $message_insert_collects_error_missing;
 	public $message_delete_product_tags_error;
 	public $message_delete_product_options_error;
 	public $message_delete_product_variants_error;
@@ -43,6 +44,7 @@ class Messages {
 	public $message_delete_smart_collections_error;
 	public $message_insert_smart_collections_error;
 	public $message_delete_orders_error;
+	public $message_orders_insert_error;
 	public $message_delete_customers_error;
 	public $message_products_curency_format_not_found;
 	public $message_products_out_of_stock;
@@ -52,6 +54,16 @@ class Messages {
 	public $message_webhooks_delete_error;
 	public $message_license_invalid_or_missing;
 	public $message_license_unable_to_delete;
+
+	public $message_products_not_found;
+	public $message_collects_not_found;
+	public $message_smart_collections_not_found;
+	public $message_custom_collections_not_found;
+	public $message_message_orders_not_found;
+	public $message_message_customers_not_found;
+	public $message_shop_not_found;
+	public $message_message_variants_not_found;
+	public $message_products_from_collection_not_found;
 
 	public function __construct() {
 
@@ -78,6 +90,8 @@ class Messages {
 		$this->message_delete_product_inventory_error = esc_html__('Warning: Unable to delete product inventory.', 'wp-shopify');
 		$this->message_delete_collects_error = esc_html__('Warning: Unable to delete collects.', 'wp-shopify');
 		$this->message_insert_collects_error = esc_html__('Warning: Unable to insert certain collects.', 'wp-shopify');
+		$this->message_insert_collects_error_missing = esc_html__('Warning: Unable to insert certain collects, none found.', 'wp-shopify');
+
 		$this->message_delete_product_tags_error = esc_html__('Warning: Unable to delete product tags.', 'wp-shopify');
 		$this->message_delete_product_options_error = esc_html__('Warning: Unable to delete product options.', 'wp-shopify');
 		$this->message_delete_product_variants_error = esc_html__('Warning: Unable to delete product variants.', 'wp-shopify');
@@ -96,10 +110,27 @@ class Messages {
 
 		$this->message_webhooks_no_id_set = esc_html__('Error: No webhook ID set. Please try reconnecting WordPress to your Shopify site.', 'wp-shopify');
 		$this->message_webhooks_delete_error = esc_html__('Error: Unable to remove webhook', 'wp-shopify');
+		$this->message_webhooks_sync_warning = esc_html__('Warning: Unable to sync webhook: ', 'wp-shopify');
 
 		$this->message_license_invalid_or_missing = esc_html__('Error: This license key is either missing or invalid. Please verify your key by logging into your account at wpshop.io.', 'wp-shopify');
 
 		$this->message_license_unable_to_delete = esc_html__('Error: Unable to delete license key. Please refresh your browser and try again.', 'wp-shopify');
+
+
+		$this->message_smart_collections_not_found = esc_html__('Warning: Unable to sync smart collections, none found.', 'wp-shopify');
+		$this->message_custom_collections_not_found = esc_html__('Warning: Unable to sync custom collections, none found.', 'wp-shopify');
+		$this->message_message_orders_not_found = esc_html__('Warning: Unable to sync orders, none found.', 'wp-shopify');
+		$this->message_message_customers_not_found = esc_html__('Warning: Unable to sync customers, none found.', 'wp-shopify');
+		$this->message_shop_not_found = esc_html__('Warning: Unable to sync general shop data, none found.', 'wp-shopify');
+		$this->message_products_not_found = esc_html__('Warning: Unable to sync products, none found.', 'wp-shopify');
+		$this->message_products_from_collection_not_found = esc_html__('Warning: Unable to find products attached to any collections.', 'wp-shopify');
+		$this->message_message_variants_not_found = esc_html__('Warning: Unable to sync variants, none found.', 'wp-shopify');
+		$this->message_collects_not_found = esc_html__('Warning: Unable to sync collects, none found.', 'wp-shopify');
+
+		$this->message_orders_insert_error = esc_html__('Warning: Unable to sync 1 or more orders.', 'wp-shopify');
+
+
+
 
 	}
 
