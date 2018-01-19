@@ -44,15 +44,4 @@ class AJAX {
 	}
 
 
-  /*
-
-	Get the plugin options
-
-	*/
-	public function wps_get_options() {
-
-    wp_send_json_success('from class-ajax');
-
-	}
-
 }

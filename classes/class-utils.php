@@ -180,10 +180,6 @@ class Utils {
   */
   public static function emptyConnection($connection) {
 
-		error_log('---- emptyConnection???? -----');
-		error_log(print_r($connection, true));
-		error_log('---- /emptyConnection???? -----');
-
     if (!is_object($connection)) {
       return true;
 

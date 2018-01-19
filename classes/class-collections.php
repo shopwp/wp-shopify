@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Messages;
+use WPS\WS;
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -28,6 +29,7 @@ class Collections {
 	public function __construct($Config) {
 		$this->config = $Config;
     $this->messages = new Messages();
+		$this->ws = new WS($this->config);
 	}
 
   /*
@@ -115,7 +117,10 @@ class Collections {
   */
   public function wps_insert_collections() {
 
-    Utils::valid_backend_nonce($_POST['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1066a)');
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_insert_collections)');
+		}
+
 
     $results = [];
     $results['added'] = [];
@@ -182,7 +187,7 @@ class Collections {
 
     }
 
-    wp_send_json_success($results);
+		$this->ws->send_success($results);
 
   }
 

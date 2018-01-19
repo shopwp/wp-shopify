@@ -31,7 +31,7 @@ class Waypoints {
 	*/
 	public function __construct($Config) {
 		$this->config = $Config;
-    $this->WS = new WS($this->config);
+    $this->ws = new WS($this->config);
     $this->messages = new Messages();
 	}
 

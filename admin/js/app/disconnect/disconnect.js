@@ -35,8 +35,14 @@ import {
   clearConnectInputs,
   resetConnectSubmit,
   updateDomAfterSync,
-  resetConnectionDOM
+  resetConnectionDOM,
+  getConnectorCancelButton,
+  getToolsButtons
 } from '../utils/utils-dom';
+
+import {
+  returnOnlyFailedRequests
+} from '../utils/utils-data';
 
 import {
   uninstallPlugin,
@@ -275,6 +281,9 @@ function disconnectionFormSubmitHandler(e) {
     });
 
     clearConnectInputs();
+
+    disable( getConnectorCancelButton() );
+    disable( getToolsButtons() );
 
   });
 

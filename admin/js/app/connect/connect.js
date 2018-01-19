@@ -68,8 +68,11 @@ import {
 } from '../utils/utils-dom';
 
 import {
+  returnOnlyFailedRequests
+} from '../utils/utils-data';
+
+import {
   setPluginSettings,
-  getPluginSettings,
   getAuthToken,
   getShopifyURL,
   getAuthUser,

@@ -64,6 +64,12 @@ import {
   progressStatus
 } from '../utils/utils-progress';
 
+import {
+  returnOnlyFailedRequests,
+  constructFinalNoticeList,
+  addToWarningList
+} from '../utils/utils-data';
+
 
 /*
 
@@ -96,13 +102,15 @@ async function webhooksSubmitCallback(e) {
     updateModalHeadingText('Reconnecting Webhooks ...');
     setConnectionStepMessage('Preparing sync ...');
 
+    var warningList = [];
+
     /*
 
     1. Turn sync on
 
     */
     try {
-      await syncOn();
+      var syncOnResponse = await syncOn();
 
     } catch (errors) {
       console.error("syncOn error: ", errors);
@@ -118,6 +126,7 @@ async function webhooksSubmitCallback(e) {
 
     insertCheckmark();
     setConnectionStepMessage('Removing any existing webhooks first ...');
+    warningList = addToWarningList(warningList, syncOnResponse);
 
 
     /*
@@ -143,6 +152,7 @@ async function webhooksSubmitCallback(e) {
 
     insertCheckmark();
     setConnectionStepMessage('Syncing new webhooks ...');
+    warningList = addToWarningList(warningList, removalErrors);
 
 
     /*
@@ -174,6 +184,7 @@ async function webhooksSubmitCallback(e) {
     */
     await progressStatus();
     appendProgressBars(progressSession.data);
+    warningList = addToWarningList(warningList, progressSession);
 
 
     /*
@@ -184,6 +195,7 @@ async function webhooksSubmitCallback(e) {
     try {
 
       var registerWebhooksResp = await syncWebhooks(removalErrors.data); // wps_ws_register_all_webhooks
+      console.log("registerWebhooksResp: ", registerWebhooksResp);
 
     } catch(errors) {
 
@@ -196,6 +208,9 @@ async function webhooksSubmitCallback(e) {
       return;
 
     }
+
+
+    warningList = addToWarningList(warningList, registerWebhooksResp);
 
 
     /*
@@ -229,10 +244,7 @@ async function webhooksSubmitCallback(e) {
       buttonText: 'Ok, let\'s go!',
       status: 'is-connected',
       stepText: 'Finished syncing webhooks',
-      noticeList: [{
-        type: 'success',
-        message: 'Success! You\'re now connected and syncing with Shopify.'
-      }],
+      noticeList: constructFinalNoticeList(warningList),
       noticeType: 'success'
     });
 

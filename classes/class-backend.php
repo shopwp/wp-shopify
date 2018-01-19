@@ -10,6 +10,7 @@ use WPS\Products_General;
 use WPS\Webhooks;
 use WPS\Progress_Bar;
 use WPS\WS;
+use WPS\Messages;
 
 use WPS\DB\Shop;
 use WPS\DB\Settings_Connection;
@@ -39,6 +40,7 @@ class Backend {
 		$this->config = $Config;
 		$this->connection = $this->config->wps_get_settings_connection();
 		$this->messages = new Messages();
+		$this->ws = new WS($this->config);
 	}
 
 
@@ -301,7 +303,10 @@ class Backend {
 	*/
  	public function wps_get_credentials_frontend() {
 
-		Utils::valid_frontend_nonce($_GET['nonce']) ?: wp_send_json_error($this->messages->message_nonce_invalid . ' (code: #1067a)');
+		if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials_frontend)');
+		}
+
 
 		$shopifyCreds = array();
 		$connection = $this->config->wps_get_settings_connection();
@@ -318,7 +323,7 @@ class Backend {
 			$shopifyCreds['domain'] = $connection->domain;
 		}
 
-		wp_send_json_success($shopifyCreds);
+		$this->ws->send_success($shopifyCreds);
 
 	}
 
@@ -330,7 +335,7 @@ class Backend {
 	*/
 	public function wps_insert_auth_modal() {
 
-		if(isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
+		if (isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
 			printf(esc_html__('<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="%1" /> to <img class="wps-connector-logo" src="%2" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>'), esc_url($this->config->plugin_url . 'admin/imgs/logo-wp.svg'), esc_url($this->config->plugin_url . 'admin/imgs/shopify.svg'));
 		}
 
@@ -442,9 +447,6 @@ class Backend {
 
 		add_filter( 'plugin_action_links_' . $this->config->plugin_basename, array($this, 'wps_config_add_action_links') );
 
-		// AJAX
-		add_action( 'wp_ajax_wps_get_options', array($AJAX, 'wps_get_options'));
-		add_action( 'wp_ajax_nopriv_wps_get_options', array($AJAX, 'wps_get_options'));
 
 		add_action( 'wp_ajax_wps_get_credentials_frontend', array($this, 'wps_get_credentials_frontend'));
 		add_action( 'wp_ajax_nopriv_wps_get_credentials_frontend', array($this, 'wps_get_credentials_frontend'));
@@ -463,9 +465,6 @@ class Backend {
 
 
 		// WS
-		add_action( 'wp_ajax_wps_ws_testing_private_app', array($WS, 'wps_ws_testing_private_app'));
-		add_action( 'wp_ajax_nopriv_wps_ws_testing_private_app', array($WS, 'wps_ws_testing_private_app'));
-
 		add_action( 'wp_ajax_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
 		add_action( 'wp_ajax_nopriv_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
 
@@ -490,7 +489,8 @@ class Backend {
 		add_action( 'wp_ajax_wps_ws_get_collects_count', array($WS, 'wps_ws_get_collects_count'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_collects_count', array($WS, 'wps_ws_get_collects_count'));
 
-
+		add_action( 'wp_ajax_wps_ws_get_webhooks_count', array($WS, 'wps_ws_get_webhooks_count'));
+		add_action( 'wp_ajax_nopriv_wps_ws_get_webhooks_count', array($WS, 'wps_ws_get_webhooks_count'));
 
 		add_action( 'wp_ajax_wps_ws_get_smart_collections_count', array($WS, 'wps_ws_get_smart_collections_count'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_smart_collections_count', array($WS, 'wps_ws_get_smart_collections_count'));
@@ -509,9 +509,6 @@ class Backend {
 
 		add_action( 'wp_ajax_wps_ws_get_customers_count', array($WS, 'wps_ws_get_customers_count'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_customers_count', array($WS, 'wps_ws_get_customers_count'));
-
-		add_action( 'wp_ajax_wps_ws_get_webhooks_count', array($WS, 'wps_ws_get_webhooks_count'));
-		add_action( 'wp_ajax_nopriv_wps_ws_get_webhooks_count', array($WS, 'wps_ws_get_webhooks_count'));
 
 		add_action( 'wp_ajax_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
 		add_action( 'wp_ajax_nopriv_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
@@ -538,8 +535,6 @@ class Backend {
 		add_action( 'wp_ajax_wps_ws_get_webhooks', array($WS, 'wps_ws_get_webhooks'));
 		add_action( 'wp_ajax_nopriv_wps_ws_get_webhooks', array($WS, 'wps_ws_get_webhooks'));
 
-		add_action( 'wp_ajax_wps_ws_delete_webhook', array($WS, 'wps_ws_delete_webhook'));
-		add_action( 'wp_ajax_nopriv_wps_ws_delete_webhook', array($WS, 'wps_ws_delete_webhook'));
 
 		add_action( 'wp_ajax_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
 		add_action( 'wp_ajax_nopriv_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
@@ -590,9 +585,6 @@ class Backend {
 		Webhook: Products
 
 		*/
-
-		// add_action( 'wp_ajax_get_webhooks_count', array($Webhooks, 'get_webhooks_count'));
-		// add_action( 'wp_ajax_nopriv_get_webhooks_count', array($Webhooks, 'get_webhooks_count'));
 
 		add_action( 'wp_ajax_remove_webhooks', array($Webhooks, 'remove_webhooks'));
 		add_action( 'wp_ajax_nopriv_remove_webhooks', array($Webhooks, 'remove_webhooks'));

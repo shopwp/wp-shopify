@@ -235,7 +235,6 @@ class Orders extends \WPS\DB {
     foreach ($orders as $key => $order) {
 
       if (!Utils::isStillSyncing()) {
-        error_log('---- NOT Syncing -----');
         wp_die();
       }
 

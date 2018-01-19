@@ -528,6 +528,8 @@ function updateDomAfterSync(customOptions = {}) {
   }
 
   enable( getConnectorCancelButton() );
+  enable( getToolsButtons() );
+
   replaceSpinnersWithCheckmarks();
 
   // Safe to reconnect again -- reattaches the submit form handler
@@ -543,6 +545,16 @@ Returns the connector cancel button
 */
 function getConnectorCancelButton() {
   return jQuery('.wps-connector .wps-btn-cancel');
+}
+
+
+/*
+
+Returns all the Tools buttons
+
+*/
+function getToolsButtons() {
+  return jQuery('#wps-button-sync, #wps-button-webhooks');
 }
 
 
@@ -575,5 +587,6 @@ export {
   updateDomAfterSync,
   resetConnectionDOM,
   addStopConnectorClass,
-  getConnectorCancelButton
+  getConnectorCancelButton,
+  getToolsButtons
 };
