@@ -101,7 +101,7 @@ async function progressStatus() {
     }
 
   } catch (error) {
-    console.error("getProgressCount: ", error);
+
   }
 
 }

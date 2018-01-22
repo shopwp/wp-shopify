@@ -68,12 +68,19 @@ import {
 } from '../utils/utils-progress';
 
 import {
-  returnOnlyFailedRequests
+  returnOnlyFailedRequests,
+  constructFinalNoticeList,
+  addToWarningList,
+  filterOutAnyNotice
 } from '../utils/utils-data';
 
 import {
   clearAllCache
 } from '../tools/cache';
+
+import {
+  activateToolButtons
+} from './tools';
 
 import {
   prepareBeforeSync
@@ -100,6 +107,8 @@ function onResyncSubmit() {
 
     return new Promise(async (resolve, reject) => {
 
+      var warningList = [];
+
       prepareBeforeSync();
       updateModalHeadingText('Re-syncing ...');
       setConnectionStepMessage('Preparing re-sync ...');
@@ -110,10 +119,9 @@ function onResyncSubmit() {
 
       */
       try {
-        await syncOn();
+        var syncOnResponse = await syncOn();
 
       } catch (errors) {
-        console.error("syncOn: ", errors);
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -126,7 +134,7 @@ function onResyncSubmit() {
 
       insertCheckmark();
       setConnectionStepMessage('Starting re-sync ...');
-
+      warningList = addToWarningList(warningList, syncOnResponse);
 
       /*
 
@@ -134,10 +142,9 @@ function onResyncSubmit() {
 
       */
       try {
-        await startProgressBar(true);
+        var startProgressBarResponse = await startProgressBar(true);
 
       } catch (errors) {
-        console.error("startProgressBar: ", errors);
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -150,6 +157,7 @@ function onResyncSubmit() {
 
       insertCheckmark();
       setConnectionStepMessage('Determining the number of items to sync ...');
+      warningList = addToWarningList(warningList, startProgressBarResponse);
 
 
       /*
@@ -160,11 +168,9 @@ function onResyncSubmit() {
       try {
 
         var itemCountsResp = await getItemCounts();
-        var allCounts = getDataFromArray(itemCountsResp);
+        var allCounts = filterOutAnyNotice( getDataFromArray(itemCountsResp) );
 
       } catch (errors) {
-
-        console.error("getItemCountssss: ", returnOnlyFailedRequests(errors));
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -175,6 +181,8 @@ function onResyncSubmit() {
 
       }
 
+      warningList = addToWarningList(warningList, itemCountsResp);
+
 
       /*
 
@@ -182,11 +190,9 @@ function onResyncSubmit() {
 
       */
       try {
-        await saveCounts(allCounts);
+        var saveCountsResponse = await saveCounts(allCounts);
 
       } catch (errors) {
-
-        console.error("saveCounts: ", errors);
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -199,6 +205,7 @@ function onResyncSubmit() {
 
       insertCheckmark();
       setConnectionStepMessage('Cleaning out any existing data first ...');
+      warningList = addToWarningList(warningList, saveCountsResponse);
 
 
       /*
@@ -207,10 +214,9 @@ function onResyncSubmit() {
 
       */
       try {
-        await removeExistingData();
+        var removeExistingDataResponse = await removeExistingData();
 
       } catch (errors) {
-        console.error("removeExistingData: ", errors);
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -225,6 +231,7 @@ function onResyncSubmit() {
 
       updateModalButtonText('Cancel re-syncing process');
       setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+      warningList = addToWarningList(warningList, removeExistingDataResponse);
 
 
       /*
@@ -245,7 +252,6 @@ function onResyncSubmit() {
         var syncResp = await syncData();
 
       } catch (errors) {
-        console.error("syncData: ", errors);
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -258,6 +264,7 @@ function onResyncSubmit() {
 
       insertCheckmark();
       setConnectionStepMessage('Cleaning up ...');
+      warningList = addToWarningList(warningList, syncResp);
 
 
       /*
@@ -266,10 +273,9 @@ function onResyncSubmit() {
 
       */
       try {
-        await syncOff();
+        var syncOffResponse = await syncOff();
 
       } catch (errors) {
-        console.error("syncOff: ", error);
 
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
@@ -279,6 +285,8 @@ function onResyncSubmit() {
         return;
 
       }
+
+      warningList = addToWarningList(warningList, syncOffResponse);
 
 
       /*
@@ -291,13 +299,11 @@ function onResyncSubmit() {
         buttonText: 'Ok, let\'s go!',
         status: 'is-connected',
         stepText: 'Finished re-syncing',
-        noticeList: [{
-          type: 'success',
-          message: 'Success! You\'ve finished re-syncing with Shopify.'
-        }],
+        noticeList: constructFinalNoticeList(warningList),
         noticeType: 'success'
       });
 
+      activateToolButtons();
 
     });
 

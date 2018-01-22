@@ -12,7 +12,6 @@ import {
 } from './streaming';
 
 import {
-  sanitizeErrorResponse,
   returnCustomError
 } from '../utils/utils-data';
 
@@ -116,8 +115,7 @@ function syncConnection() {
       resolve(connection);
 
     } catch(error) {
-      console.error('streamConnection', error);
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 
@@ -146,8 +144,7 @@ function syncShop() {
       resolve(shop);
 
     } catch(error) {
-      console.error('streamShop', error);
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 
@@ -175,15 +172,13 @@ function syncProducts() {
       var products = await streamProducts();
 
       if (isWordPressError(products)) {
-        console.error('streamProducts isWordPressError', products);
-        throw products.data;
+        throw products;
 
       } else {
         resolve(products);
       }
 
     } catch(error) {
-      console.error('streamProducts', error);
       reject(error);
 
     }
@@ -212,8 +207,7 @@ function syncCollects() {
       resolve(collects);
 
     } catch(error) {
-      console.error('streamCollects', error);
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 
@@ -242,8 +236,7 @@ function syncSmartCollections() {
       resolve(smartCollections);
 
     } catch(error) {
-      console.error('streamSmartCollections', error);
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 
@@ -275,7 +268,7 @@ function syncCustomCollections() {
 
     } catch(error) {
 
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
       return;
 
     }
@@ -305,8 +298,7 @@ function syncOrders() {
       resolve(orders);
 
     } catch(error) {
-      console.error('streamOrders', error);
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 
@@ -336,8 +328,7 @@ function syncCustomers() {
       resolve(customers);
 
     } catch(error) {
-      console.error('streamCustomers', error);
-      reject( sanitizeErrorResponse(error) );
+      reject(error);
 
     }
 
@@ -369,8 +360,7 @@ function syncImageAlt() {
       }
 
       if (isWordPressError(altText)) {
-        console.error('altText', altText);
-        reject(altText.data);
+        reject(altText);
 
       } else {
         altText = altText.data;
@@ -379,7 +369,6 @@ function syncImageAlt() {
       resolve(altText);
 
     } catch(error) {
-      console.error('insertAltText', error);
       reject(error);
 
     }
@@ -387,12 +376,6 @@ function syncImageAlt() {
   });
 
 }
-
-
-
-
-
-
 
 
 /*
@@ -418,7 +401,6 @@ function syncOn() {
 
       } else if (isError(updatingSyncingIndicator)) {
         throw updatingSyncingIndicator;
-
       }
 
       resolve(updatingSyncingIndicator);
@@ -454,7 +436,7 @@ function saveConnection(formData) {
       var connectionData = await insertConnectionData(formData); // wps_insert_connection
 
       if (isWordPressError(connectionData)) {
-        throw connectionData.data;
+        throw connectionData;
 
       } else if (isError(connectionData)) {
         throw connectionData;
@@ -463,8 +445,6 @@ function saveConnection(formData) {
       resolve(connectionData);
 
     } catch (errors) {
-
-      console.error("saveConnection", saveConnection);
 
       reject(errors);
       return;
@@ -495,7 +475,7 @@ function saveCounts(allCounts) {
       var saveCountsResponse = await saveCountsToSession(allCounts);
 
       if (isWordPressError(saveCountsResponse)) {
-        throw saveCountsResponse.data;
+        throw saveCountsResponse;
 
       } else if (isError(saveCountsResponse)) {
         throw saveCountsResponse;
@@ -531,7 +511,7 @@ function removeExistingData() {
 
       if (isWordPressError(removePluginDataResp)) {
 
-        throw removePluginDataResp.data;
+        throw removePluginDataResp;
 
       } else if (isError(removePluginDataResp)) {
 
@@ -575,7 +555,7 @@ function syncData() {
 
 
       if (isWordPressError(syncPluginDataResp)) {
-        throw syncPluginDataResp.data;
+        throw syncPluginDataResp;
 
       } else if (isError(syncPluginDataResp)) {
         throw syncPluginDataResp;
@@ -585,7 +565,7 @@ function syncData() {
       resolve(syncPluginDataResp);
 
     } catch (errors) {
-      console.error("errors: ", errors);
+
       reject(errors);
       return;
 

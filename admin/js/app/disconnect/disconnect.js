@@ -41,7 +41,9 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  returnOnlyFailedRequests
+  returnOnlyFailedRequests,
+  constructFinalNoticeList,
+  addToWarningList
 } from '../utils/utils-data';
 
 import {
@@ -146,6 +148,8 @@ function disconnectionFormSubmitHandler(e) {
 
   return new Promise(async (resolve, reject) => {
 
+    var warningList = [];
+
     prepareBeforeSync();
 
     updateModalHeadingText('Disconnecting ...');
@@ -158,11 +162,9 @@ function disconnectionFormSubmitHandler(e) {
 
     */
     try {
-      await syncOn();
+      var syncOnResponse = await syncOn();
 
     } catch (errors) {
-
-      console.error("syncOn: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -173,6 +175,8 @@ function disconnectionFormSubmitHandler(e) {
 
     }
 
+    warningList = addToWarningList(warningList, syncOnResponse);
+
 
     /*
 
@@ -180,10 +184,9 @@ function disconnectionFormSubmitHandler(e) {
 
     */
     try {
-      await clearAllCache();
+      var clearAllCacheResponse = await clearAllCache();
 
     } catch (errors) {
-      console.error("clearAllCache: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -197,6 +200,8 @@ function disconnectionFormSubmitHandler(e) {
 
     insertCheckmark();
     setConnectionStepMessage('Removing added Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+    warningList = addToWarningList(warningList, clearAllCacheResponse);
+
 
 
     /*
@@ -205,10 +210,9 @@ function disconnectionFormSubmitHandler(e) {
 
     */
     try {
-      await removeExistingData();
+      var removeExistingDataResponse = await removeExistingData();
 
     } catch (errors) {
-      console.error('removeExistingData: ', errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -219,6 +223,8 @@ function disconnectionFormSubmitHandler(e) {
 
     }
 
+    warningList = addToWarningList(warningList, removeExistingDataResponse);
+
 
     /*
 
@@ -226,10 +232,9 @@ function disconnectionFormSubmitHandler(e) {
 
     */
     try {
-      await removeConnectionData();
+      var removeConnectionDataResponse = await removeConnectionData();
 
     } catch (errors) {
-      console.error("removeConnectionData: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -243,6 +248,8 @@ function disconnectionFormSubmitHandler(e) {
 
     insertCheckmark();
     setConnectionStepMessage('Cleaning up ...');
+    warningList = addToWarningList(warningList, removeConnectionDataResponse);
+
 
     /*
 
@@ -250,10 +257,9 @@ function disconnectionFormSubmitHandler(e) {
 
     */
     try {
-      await syncOff();
+      var syncOffResponse = await syncOff();
 
     } catch (errors) {
-      console.error("syncOff: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -264,6 +270,8 @@ function disconnectionFormSubmitHandler(e) {
 
     }
 
+    warningList = addToWarningList(warningList, syncOffResponse);
+
 
     /*
 
@@ -273,16 +281,13 @@ function disconnectionFormSubmitHandler(e) {
     updateDomAfterSync({
       headingText: 'Disconnected',
       stepText: 'Finished disconnecting',
-      noticeList: [{
-        type: 'success',
-        message: 'Successfully disconnected from Shopify'
-      }],
+      noticeList: constructFinalNoticeList(warningList),
       noticeType: 'success'
     });
 
     clearConnectInputs();
 
-    disable( getConnectorCancelButton() );
+    enable( getConnectorCancelButton() );
     disable( getToolsButtons() );
 
   });

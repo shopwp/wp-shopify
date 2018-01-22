@@ -195,8 +195,6 @@ class WS {
 
 		$callTotal = $this->wps_ws_get_shopify_api_call_amount($response);
 
-		error_log(print_r($callTotal, true));
-
     if ($callTotal === '39/40' || $callTotal === false) {
       $this->wps_ws_throttle_requests();
     }
@@ -580,7 +578,6 @@ class WS {
 			$this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_shop_data)');
 		}
 
-
     try {
 
 			$response = $this->wps_request(
@@ -600,7 +597,6 @@ class WS {
       }
 
     } catch (RequestException $error) {
-
       $this->send_error( $this->wps_get_error_message($error) . ' (wps_ws_get_shop_data)');
 
     }
@@ -630,7 +626,6 @@ class WS {
 			foreach ($allImages as $image) {
 
 				usleep(200000);
-				error_log("Starting request...");
 
 				if (is_object($image)) {
 					$imageID = $image->id;
@@ -648,7 +643,6 @@ class WS {
 					$this->get_request_options()
 				)->then(function ($response) use ($image, $imageID) {
 
-					error_log("Request completed ...");
 					// error_log(print_r($response, true));
 
 				});
@@ -661,10 +655,10 @@ class WS {
 	    $requests(),
 	    3,
 	    function($resp) {
-				error_log('---- COMPLETELY DONE -----');
+				// error_log('---- COMPLETELY DONE -----');
 			},
 			function($test) {
-				error_log('---- REJECTED DONE -----');
+				// error_log('---- REJECTED DONE -----');
 				// error_log(print_r($test, true));
 				// error_log('---- / REJECTED DONE -----');
 			}
@@ -1070,6 +1064,7 @@ class WS {
         $currentPage = $_POST['currentPage'];
       }
 
+
 			$response = $this->wps_request(
 				'GET',
 				$this->get_request_url("/admin/collects.json", "?limit=250&page=" . $currentPage),
@@ -1095,12 +1090,11 @@ class WS {
 
       }
 
-
     } catch (RequestException $error) {
-
       $this->send_error( $this->wps_get_error_message($error) . ' (wps_insert_collects)');
 
-    }
+		}
+
 
   }
 
@@ -1353,12 +1347,7 @@ class WS {
 
 			// Contains an array of topics and webhook IDs on success or false on error
 			$finalWebhooksResult = array_merge($webhooksErrorList, $registerResults);
-
 			$registerErrors = $Webhooks->filter_for_register_errors($finalWebhooksResult);
-
-			error_log('---- $registerErrors -----');
-			error_log(print_r($registerErrors, true));
-			error_log('---- /$registerErrors -----');
 
 			if (empty($registerErrors)) {
 				$this->send_success();
@@ -2616,6 +2605,7 @@ class WS {
 		if ($shopify) {
 
 			$finalOptions = [
+				'http_errors' => true,
 				'headers' => [
 					'Authorization' => 'Basic ' . base64_encode($this->connection->api_key . ':' . $this->connection->password)
 				],
@@ -2721,27 +2711,27 @@ class WS {
 
 			Utils::wps_access_session();
 
-			if (isset($_SESSION['wps_syncing_totals']['smart_collections'])) {
+			if (isset($_SESSION['wps_syncing_totals']['smart_collections']) && isset($counts['smart_collections'])) {
 				$_SESSION['wps_syncing_totals']['smart_collections'] = $counts['smart_collections'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['custom_collections'])) {
+			if (isset($_SESSION['wps_syncing_totals']['custom_collections']) && isset($counts['custom_collections'])) {
 				$_SESSION['wps_syncing_totals']['custom_collections'] = $counts['custom_collections'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['products'])) {
+			if (isset($_SESSION['wps_syncing_totals']['products']) && isset($counts['products'])) {
 				$_SESSION['wps_syncing_totals']['products'] = $counts['products'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['collects'])) {
+			if (isset($_SESSION['wps_syncing_totals']['collects']) && isset($counts['collects'])) {
 				$_SESSION['wps_syncing_totals']['collects'] = $counts['collects'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['orders'])) {
+			if (isset($_SESSION['wps_syncing_totals']['orders']) && isset($counts['orders'])) {
 				$_SESSION['wps_syncing_totals']['orders'] = $counts['orders'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['customers'])) {
+			if (isset($_SESSION['wps_syncing_totals']['customers']) && isset($counts['customers'])) {
 				$_SESSION['wps_syncing_totals']['customers'] = $counts['customers'];
 			}
 

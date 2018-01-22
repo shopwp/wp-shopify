@@ -165,10 +165,6 @@ class Images extends \WPS\DB {
 
     }
 
-    error_log('---- $results -----');
-    error_log(print_r($results, true));
-    error_log('---- /$results -----');
-
     return $results;
 
   }

@@ -8,14 +8,8 @@ $jsonData = file_get_contents('php://input');
 
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
 
-  error_log('---- Webhook verified order-updated -----');
-
   $Orders = new Orders();
   $orderData = json_decode($jsonData);
-
-  error_log('---- $orderData -----');
-  error_log(print_r($orderData, true));
-  error_log('---- /$orderData -----');
 
   $Orders->update_orders($orderData);
 

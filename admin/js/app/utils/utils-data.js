@@ -5,6 +5,9 @@ import merge from 'lodash/merge';
 import filter from 'lodash/filter';
 import map from 'lodash/map';
 import union from 'lodash/union';
+import matches from 'lodash/matches';
+import find from 'lodash/find';
+import isArray from 'lodash/isArray';
 
 import {
   getNonce
@@ -360,6 +363,7 @@ function getDefaultExitOptions() {
 
 }
 
+
 /*
 
 Produces a final object of all the config options for the DOM
@@ -369,6 +373,12 @@ function getCombinedExitOptions(customOptions) {
   return merge(getDefaultExitOptions(), customOptions);
 }
 
+
+/*
+
+Only Failed Requests
+
+*/
 function onlyFailedRequests(request) {
 
   if (request) {
@@ -377,31 +387,22 @@ function onlyFailedRequests(request) {
 
 }
 
+
+/*
+
+Return Only Failed Requests
+
+*/
 function returnOnlyFailedRequests(noticeList) {
   return map(filter(noticeList, onlyFailedRequests), sanitizeErrorResponse);
 }
 
 
+/*
 
+Only Warnings
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 function onlyWarnings(notice) {
 
   if (notice) {
@@ -410,35 +411,133 @@ function onlyWarnings(notice) {
 
 }
 
+
+/*
+
+Only non notice
+
+*/
+function onlyNonNotice(obj) {
+
+  if (obj) {
+    return !find([obj], 'type');
+  }
+
+}
+
+
+/*
+
+Filter Out Any Notice
+
+*/
+function filterOutAnyNotice(array) {
+  return filter(array, onlyNonNotice);
+}
+
+
+/*
+
+Return only warning notices
+
+*/
 function returnOnlyWarningNotices(noticeList) {
   return filter(extractNoticeData(noticeList, extractNoticeData), onlyWarnings);
 }
 
 
+/*
+
+Only notices with a data property
+
+*/
 function onlyData(notice) {
   return notice.data;
 }
 
 
+/*
+
+Extract notice data
+
+*/
 function extractNoticeData(noticeList) {
   return map(noticeList, onlyData);
 }
 
 
+/*
+
+Create empty warning list
+
+*/
 function createEmptyWarningList() {
   return [];
 }
 
 
+/*
+
+Add to current warning list
+
+*/
+function addToCurrentWarningList(currentWarningList, warning) {
+
+  if (find([warning.data], { 'type': 'warning'} )) {
+
+    if (isArray(warning.data.message) && warning.data.message.length > 1) {
+
+      warning.data.message.forEach(message => {
+        currentWarningList.push({
+          type: 'warning',
+          message: [message]
+        });
+      });
+
+    } else {
+      currentWarningList.push(warning.data);
+    }
+
+  }
+
+  return currentWarningList;
+
+}
+
+
+/*
+
+Add to warning list
+
+*/
 function addToWarningList(currentWarningList, newWarning) {
 
   var currentWarningListClone = currentWarningList;
-  currentWarningListClone.push(newWarning);
+
+  if (isArray(newWarning)) {
+
+    newWarning.forEach( obj => {
+
+      currentWarningListClone = addToCurrentWarningList(currentWarningListClone, obj);
+
+    });
+
+  } else {
+
+    currentWarningListClone = addToCurrentWarningList(currentWarningListClone, newWarning);
+
+  }
 
   return currentWarningListClone;
 
 }
 
+
+/*
+
+Add Success Notice
+
+*/
 function addSuccessNotice() {
 
   return [{
@@ -448,6 +547,12 @@ function addSuccessNotice() {
 
 }
 
+
+/*
+
+Construct Final Notice List
+
+*/
 function constructFinalNoticeList(anyWarnings) {
   return union(addSuccessNotice(), anyWarnings);
 }
@@ -476,5 +581,7 @@ export {
   onlyFailedRequests,
   addSuccessNotice,
   addToWarningList,
-  constructFinalNoticeList
+  constructFinalNoticeList,
+  onlyNonNotice,
+  filterOutAnyNotice
 };

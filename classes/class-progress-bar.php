@@ -217,10 +217,6 @@ class Progress_Bar {
 
 		$syncingStatus = $this->connection->get_column_single('is_syncing');
 
-		error_log('---- wps_progress_syncing_status -----');
-		error_log(print_r($syncingStatus, true));
-		error_log('---- /wps_progress_syncing_status -----');
-
 		if (is_array($syncingStatus) && isset($syncingStatus[0]->is_syncing)) {
 			$syncing = intval($syncingStatus[0]->is_syncing);
 

@@ -308,8 +308,6 @@ class Products extends \WPS\DB {
 
     } else {
 
-      error_log('---- PRODUCT IS NOT ENABLED ON THE ONLINE STORE SALES CHANNEL. SKIPPING UPDATING. -----');
-
       // $results['deleted_product'] = $this->delete_product($product, $newProductID);
 
     }

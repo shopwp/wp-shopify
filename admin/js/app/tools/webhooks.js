@@ -98,11 +98,11 @@ async function webhooksSubmitCallback(e) {
 
   return new Promise(async (resolve, reject) => {
 
+    var warningList = [];
+
     prepareBeforeSync();
     updateModalHeadingText('Reconnecting Webhooks ...');
     setConnectionStepMessage('Preparing sync ...');
-
-    var warningList = [];
 
     /*
 
@@ -113,7 +113,6 @@ async function webhooksSubmitCallback(e) {
       var syncOnResponse = await syncOn();
 
     } catch (errors) {
-      console.error("syncOn error: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -139,7 +138,6 @@ async function webhooksSubmitCallback(e) {
       var removalErrors = await removeWebhooks(); // remove_webhooks
 
     } catch(errors) {
-      console.error("removeWebhooks: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -165,7 +163,6 @@ async function webhooksSubmitCallback(e) {
       var progressSession = await startProgressBar(true, ['webhooks']);
 
     } catch (errors) {
-      console.error("startProgressBar: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -195,11 +192,9 @@ async function webhooksSubmitCallback(e) {
     try {
 
       var registerWebhooksResp = await syncWebhooks(removalErrors.data); // wps_ws_register_all_webhooks
-      console.log("registerWebhooksResp: ", registerWebhooksResp);
 
     } catch(errors) {
 
-      console.error('syncWebhooks: ', errors);
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
       });
@@ -222,7 +217,6 @@ async function webhooksSubmitCallback(e) {
       await syncOff();
 
     } catch (errors) {
-      console.error("syncOff: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)

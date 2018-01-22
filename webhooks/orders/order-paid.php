@@ -12,8 +12,6 @@ $jsonData = file_get_contents('php://input');
 
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
 
-  error_log('---- Webhook verified order-paid -----');
-
   $order = json_decode($jsonData);
   $cartID = Cart::wps_get_cart_id_from_order($order);
 

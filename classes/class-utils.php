@@ -2457,7 +2457,6 @@ class Utils {
 	public static function prevent_timeouts() {
 
 		if ( !function_exists('ini_get') || !ini_get('safe_mode') ) {
-			error_log('---- Setting time limit to 0  -----');
 			@set_time_limit(0);
 		}
 

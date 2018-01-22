@@ -8,7 +8,6 @@ $jsonData = file_get_contents('php://input');
 
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
 
-  error_log('---- Webhook verified shop-update -----');
   $shopData = json_decode($jsonData);
 
   $Shop = new Shop();

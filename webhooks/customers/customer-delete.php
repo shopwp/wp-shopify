@@ -9,8 +9,6 @@ $jsonData = file_get_contents('php://input');
 
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
 
-  error_log('---- Webhook verified customer-delete -----');
-
   $Customers = new Customers();
 
   $customer = json_decode($jsonData);
