@@ -15,6 +15,11 @@ function toolsInit() {
   onWebhooksSubmit();
 }
 
+function activateToolButtons() {
+  jQuery('.tab-content .wps-is-not-active').removeClass('wps-is-not-active').addClass('wps-is-active');
+}
+
 export {
-  toolsInit
+  toolsInit,
+  activateToolButtons
 }

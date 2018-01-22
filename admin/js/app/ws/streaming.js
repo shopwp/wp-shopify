@@ -60,7 +60,7 @@ async function streamConnection() {
       var connectionData = await getConnectionData();
 
       if (isWordPressError(connectionData)) {
-        reject(connectionData.data);
+        reject(connectionData);
         return;
       }
 
@@ -90,7 +90,7 @@ async function streamConnection() {
       var connection = await insertConnectionData(connectionData); // wps_insert_connection
 
       if (isWordPressError(connection)) {
-        reject(connection.data);
+        reject(connection);
         return;
       }
 
@@ -154,6 +154,7 @@ async function streamShop() {
     } catch(error) {
       reject(error);
       return;
+
     }
 
 
@@ -208,7 +209,7 @@ async function streamProducts() {
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
-        reject(itemCount.data);
+        reject(itemCount);
         return;
       }
 
@@ -284,7 +285,7 @@ async function streamCollects() {
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
-        reject(itemCount.data);
+        reject(itemCount);
         return;
       }
 
@@ -363,7 +364,7 @@ function streamSmartCollections() {
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
-        reject(itemCount.data);
+        reject(itemCount);
         return;
       }
 
@@ -396,7 +397,7 @@ function streamSmartCollections() {
         var itemsToAdd = await insertSmartCollections(); // wps_insert_smart_collections_data
 
         if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd.data);
+          reject(itemsToAdd);
           break;
         }
 
@@ -442,7 +443,7 @@ async function streamCustomCollections() {
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
-        reject(itemCount.data);
+        reject(itemCount);
         return;
       }
 
@@ -473,7 +474,7 @@ async function streamCustomCollections() {
         var itemsToAdd = await insertCustomCollections(); // wps_insert_custom_collections_data
 
         if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd.data);
+          reject(itemsToAdd);
           break;
         }
 
@@ -519,7 +520,7 @@ async function streamOrders() {
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
-        reject(itemCount.data);
+        reject(itemCount);
         return;
       }
 
@@ -599,7 +600,7 @@ async function streamCustomers() {
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
 
       if (isWordPressError(itemCount)) {
-        reject(itemCount.data);
+        reject(itemCount);
         return;
       }
 

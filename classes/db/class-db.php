@@ -405,16 +405,6 @@ class DB {
 	    $column_formats
 	  );
 
-    //
-		// error_log('---- $wpdb->last_query -----');
-		// error_log(print_r($wpdb->last_query, true));
-		// error_log('---- /$wpdb->last_query -----');
-    //
-		// error_log('---- $wpdb->print_error() -----');
-		// error_log(print_r($wpdb->print_error(), true));
-		// error_log('---- /$wpdb->print_error() -----');
-
-
 
 		if (isset($data['access_token'])) {
 			Transients::delete_cached_settings();

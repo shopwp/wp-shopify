@@ -243,10 +243,6 @@ class Customers extends \WPS\DB {
 
     }
 
-    error_log('---- $this->update -----');
-    error_log(print_r($customers, true));
-    error_log('---- /$this->update -----');
-
     return $result;
 
   }

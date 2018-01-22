@@ -68,7 +68,9 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  returnOnlyFailedRequests
+  returnOnlyFailedRequests,
+  constructFinalNoticeList,
+  addToWarningList
 } from '../utils/utils-data';
 
 import {
@@ -84,12 +86,12 @@ import {
   syncWithCPT,
   saveCountsToSession,
   endProgress
-} from '../ws/ws.js';
+} from '../ws/ws';
 
 import {
   syncOff,
   clearSync
-} from '../ws/wrappers.js';
+} from '../ws/wrappers';
 
 import {
   connectionInProgress,
@@ -98,15 +100,20 @@ import {
   clearLocalstorageCache,
   setStartingURL,
   syncIsCanceled
-} from '../ws/localstorage.js';
+} from '../ws/localstorage';
 
 import {
   clearAllCache
-} from '../tools/cache.js';
+} from '../tools/cache';
+
+import {
+  toolsInit,
+  activateToolButtons
+} from '../tools/tools';
 
 import {
   disconnectInit
-} from '../disconnect/disconnect.js';
+} from '../disconnect/disconnect';
 
 
 
@@ -219,8 +226,11 @@ function connectionFormSubmitHandler(form) {
 
   return new Promise(async (resolve, reject) => {
 
+    var warningList = [];
+
     prepareBeforeSync();
     setConnectionStepMessage('Preparing connection ...');
+
 
     /*
 
@@ -228,11 +238,9 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      await syncOn();
+      var syncOnResponse = await syncOn();
 
     } catch (errors) {
-
-      console.error("syncOn: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -245,6 +253,7 @@ function connectionFormSubmitHandler(form) {
 
     insertCheckmark();
     setConnectionStepMessage('Starting connection ...');
+    warningList = addToWarningList(warningList, syncOnResponse);
 
 
     /*
@@ -253,10 +262,9 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      await saveConnection( getConnectionFormData(form) );
+      var saveConnectionResponse = await saveConnection( getConnectionFormData(form) );
 
     } catch (errors) {
-      console.error("saveConnection: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -267,6 +275,8 @@ function connectionFormSubmitHandler(form) {
 
     }
 
+    warningList = addToWarningList(warningList, saveConnectionResponse);
+
 
     /*
 
@@ -274,10 +284,9 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      await startProgressBar(true);
+      var startProgressBarResponse = await startProgressBar(true);
 
     } catch (errors) {
-      console.error("startProgressBar: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -290,6 +299,7 @@ function connectionFormSubmitHandler(form) {
 
     insertCheckmark();
     setConnectionStepMessage('Determining the number of items to sync ...');
+    warningList = addToWarningList(warningList, startProgressBarResponse);
 
 
     /*
@@ -303,7 +313,6 @@ function connectionFormSubmitHandler(form) {
       var allCounts = getDataFromArray(itemCountsResp);
 
     } catch (errors) {
-      console.error("getItemCounts: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -314,6 +323,8 @@ function connectionFormSubmitHandler(form) {
 
     }
 
+    warningList = addToWarningList(warningList, itemCountsResp);
+
 
     /*
 
@@ -321,10 +332,9 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      await saveCounts(allCounts);
+      var saveCountsResponse = await saveCounts(allCounts);
 
     } catch (errors) {
-      console.error("saveCounts: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -337,6 +347,7 @@ function connectionFormSubmitHandler(form) {
 
     insertCheckmark();
     setConnectionStepMessage('Cleaning out any existing data first ...');
+    warningList = addToWarningList(warningList, saveCountsResponse);
 
 
     /*
@@ -345,10 +356,9 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      await removeExistingData();
+      var removeExistingResponse = await removeExistingData();
 
     } catch (errors) {
-      console.error("removeExistingData: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -363,6 +373,7 @@ function connectionFormSubmitHandler(form) {
     updateModalHeadingText('Syncing ...');
     updateModalButtonText('Cancel syncing process');
     setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
+    warningList = addToWarningList(warningList, removeExistingResponse);
 
 
     /*
@@ -383,7 +394,6 @@ function connectionFormSubmitHandler(form) {
       var syncResp = await syncData();
 
     } catch (errors) {
-      console.error("syncData: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -396,6 +406,7 @@ function connectionFormSubmitHandler(form) {
 
     insertCheckmark();
     setConnectionStepMessage('Cleaning up ...');
+    warningList = addToWarningList(warningList, syncResp);
 
 
     /*
@@ -404,10 +415,9 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      await syncOff();
+      var syncOffResponse = await syncOff();
 
     } catch (errors) {
-      console.error("syncOff: ", errors);
 
       updateDomAfterSync({
         noticeList: returnOnlyFailedRequests(errors)
@@ -417,6 +427,8 @@ function connectionFormSubmitHandler(form) {
       return;
 
     }
+
+    warningList = addToWarningList(warningList, syncOffResponse);
 
 
     /*
@@ -429,15 +441,13 @@ function connectionFormSubmitHandler(form) {
       buttonText: 'Ok, let\'s go!',
       status: 'is-connected',
       stepText: 'Finished syncing',
-      noticeList: [{
-        type: 'success',
-        message: 'Success! You\'re now connected and syncing with Shopify.'
-      }],
+      noticeList: constructFinalNoticeList(warningList),
       noticeType: 'success'
     });
 
     disconnectInit();
-
+    activateToolButtons();
+    toolsInit();
 
   });
 

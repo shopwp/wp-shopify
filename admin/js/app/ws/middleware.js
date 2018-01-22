@@ -52,7 +52,6 @@ async function syncPluginData() {
     await syncSmartCollections(); // wps_insert_smart_collections_data
 
   } catch(errors) {
-    console.error('syncSmartCollections ERRRORS: ', errors);
     return returnCustomError(errors);
 
   }
@@ -62,7 +61,6 @@ async function syncPluginData() {
     await syncCustomCollections(); // wps_insert_custom_collections_data
 
   } catch(errors) {
-    console.error('syncCustomCollections ERRRORS: ', errors);
     return returnCustomError(errors);
 
   }
@@ -82,23 +80,11 @@ async function syncPluginData() {
     ]);
 
   } catch(errors) {
-    console.error('Promise.all ERRRORS: ', errors);
     return returnCustomError(errors);
 
   }
 
   return remainingResp;
-
-
-
-  // try {
-  //   console.log('ABOUT TO TRY THIS syncImageAlt');
-  //   var okok = await syncImageAlt();
-  //   console.log("okok: ", okok);
-  //
-  // } catch (e) {
-  //   console.log("e: ", e);
-  // }
 
 }
 
