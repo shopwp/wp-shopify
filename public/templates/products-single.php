@@ -33,7 +33,7 @@ if ( is_single() ) {
     do_action('wps_product_single_options', $wps_product);
   }
 
-  if ( !empty(Utils::product_inventory($wps_product)) ) {
+  if (Utils::product_inventory($wps_product)) {
     do_action('wps_product_single_button_add_to_cart', $wps_product);
 
   } else {

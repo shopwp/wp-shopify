@@ -28,6 +28,29 @@ import {
 } from '../products/products-meta';
 
 
+/*
+
+Is WordPress Error
+
+*/
+function isWordPressError(response) {
+
+  if (isObject(response) && hasProp(response, 'success')) {
+
+    if (response.success) {
+      return false;
+
+    } else {
+      return true;
+
+    }
+
+  } else {
+    return false;
+
+  }
+
+}
 
 
 /*
@@ -631,5 +654,6 @@ export {
   hasProp,
   isAnimating,
   convertCustomAttrsToQueryString,
-  update
+  update,
+  isWordPressError
 };

@@ -137,11 +137,11 @@ class Collections {
 
     $posts = get_posts($args);
 
-    foreach($posts as $post) {
+    foreach ($posts as $post) {
       $existingCollections[$post->ID] = $post->ID;
     }
 
-    foreach($newCollections as $key => $collection) {
+    foreach ($newCollections as $key => $collection) {
 
      if(!in_array($collection['collectionId'], $existingCollections)) {
 

@@ -5,7 +5,8 @@ import matches from 'lodash/matches';
 import {
   isError,
   listenForClose,
-  update
+  update,
+  isWordPressError
 } from '../utils/utils-common';
 
 import {
@@ -717,6 +718,10 @@ function onProductVariantChange() {
 
         var foundVariantIDResponse = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
 
+        if (isWordPressError(foundVariantIDResponse)) {
+          throw foundVariantIDResponse.data;
+        }
+
         if (isError(foundVariantIDResponse)) {
           throw foundVariantIDResponse.data;
 
@@ -738,7 +743,7 @@ function onProductVariantChange() {
 
       } catch(error) {
 
-        showProductMetaError($trigger,  error);
+        showProductMetaError($trigger,  error.message);
         enable($newProductMetaContainer.find('.wps-btn'));
         shake($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
 

@@ -263,10 +263,10 @@ function isLicenseKeyValid(key) {
     }
 
     if (key.license === 'no_activations_left') {
-      return reject('This license key has reached its activation limit. Please update at <a href="https://wpshop.io/purchase" target="_blank">wpshop.io/purchase</a>');
+      // return reject('This license key has reached its activation limit. Please update at <a href="https://wpshop.io/purchase" target="_blank">wpshop.io/purchase</a>');
     }
 
-    if (key.activations_left <= 0) {
+    if (key.activations_left < 0) {
       return reject('This license key has reached it\'s activation limit. Please upgrade.');
 
     } else {

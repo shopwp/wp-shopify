@@ -419,6 +419,7 @@ if (!class_exists('Frontend')) {
 					return array_intersect_key($ar, array_flip(array_filter(array_keys($ar), $callback)));
 				}
 
+				// $productWithVariantsProperty = $productData
 				$refinedVariants = array();
 				$refinedVariantsOptions = array();
 
@@ -448,12 +449,15 @@ if (!class_exists('Frontend')) {
 
 						$variantObj = $DB_Variants->get_by('id', $variant['id']);
 
-						if ($variantObj->inventory_quantity > 0 || $variantObj->inventory_policy === 'deny') {
+						$productWithVariants = (array) $productData;
+						$productWithVariants['variants'] = (array) Utils::wps_convert_object_to_array($variantData);
+
+						if (Utils::product_inventory($productWithVariants, [(array) $variantObj])) {
 							$found = true;
 							$this->ws->send_success($variant['id']);
 
 						} else {
-							$this->ws->send_error($this->messages->message_products_out_of_stock . ' (wps_get_variant_id)');
+							$this->ws->send_error($this->messages->message_products_out_of_stock);
 
 						}
 
