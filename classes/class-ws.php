@@ -2411,7 +2411,7 @@ class WS {
     $results = array();
 
 
-    foreach($products as $product) {
+    foreach ($products as $product) {
       $results[] = $DB_Products->update_post_content_if_changed($product);
     }
 
@@ -2602,12 +2602,21 @@ class WS {
 		$finalOptions = [];
 		$defaultHeaders = [];
 
+
+		if (is_object($this->connection) && isset($this->connection->api_key)) {
+			$authToken = base64_encode($this->connection->api_key . ':' . $this->connection->password);
+
+		} else {
+			$authToken = '';
+		}
+
+
 		if ($shopify) {
 
 			$finalOptions = [
 				'http_errors' => true,
 				'headers' => [
-					'Authorization' => 'Basic ' . base64_encode($this->connection->api_key . ':' . $this->connection->password)
+					'Authorization' => 'Basic ' . $authToken
 				],
 				'on_headers' => function(ResponseInterface $response) {
 					$this->wps_ws_check_rate_limit($response);
@@ -2642,7 +2651,11 @@ class WS {
 
 	*/
 	public function get_request_url($endpoint, $params = false) {
-		return "https://" . $this->connection->domain . $endpoint . $params;
+
+		if (is_object($this->connection) && isset($this->connection->domain)) {
+			return "https://" . $this->connection->domain . $endpoint . $params;
+		}
+
 	}
 
 

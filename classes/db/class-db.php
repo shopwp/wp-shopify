@@ -551,7 +551,7 @@ class DB {
 		$tables[] = new Customers();
 
 
-		foreach($tables as $key => $table) {
+		foreach ($tables as $key => $table) {
 
 			if ( $table->table_exists($table->get_table_name()) ) {
 

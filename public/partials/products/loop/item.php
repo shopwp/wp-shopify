@@ -51,7 +51,7 @@ if (is_single()) {
     }
 
     // Only shows if total product inventory > 0
-    if ( !empty(Utils::product_inventory($productWithVariants)) ) {
+    if (Utils::product_inventory($productWithVariants)) {
       do_action('wps_products_add_to_cart', $productWithVariants);
 
     } else {

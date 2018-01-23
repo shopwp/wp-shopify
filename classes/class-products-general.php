@@ -57,7 +57,7 @@ class Products_General {
 
 		$model = array();
 
-		foreach($images as $key => $image) {
+		foreach ($images as $key => $image) {
 			$model[] = $image['src'];
 		}
 

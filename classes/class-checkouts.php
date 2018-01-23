@@ -63,15 +63,12 @@ class Checkouts {
 
 	/*
 
-	Checkout Attrs
-
+	Checkout Attrs (Fires once the user clicks the checkout button)
+	Returns nothing by default
+	
 	*/
 	public function wps_cart_checkout_attrs() {
-
-		return [
-			'mynameis'	=>	'andrew'
-		];
-
+		return [];
 	}
 
 

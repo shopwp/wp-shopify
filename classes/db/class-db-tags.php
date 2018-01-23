@@ -110,9 +110,7 @@ class Tags extends \WPS\DB {
         }
 
         $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
-
         $results[] = $this->insert($tagData, 'tag');
-        // $progress->increment_current_amount('tags');
 
       }
 

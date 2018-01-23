@@ -1516,7 +1516,6 @@ class Utils {
       foreach ($shortcodeArgs as $key => $arg) {
 
         if (strpos($arg, ',') !== false) {
-
           $shortcodeArgs[$key] = Utils::wps_comma_list_to_array( trim($arg) );
 
         } else {
@@ -1593,10 +1592,12 @@ class Utils {
 
     $dups = array();
 
-    foreach( array_count_values($collectionIDs) as $collection => $ID ) {
-      if($ID > 1) {
+    foreach ( array_count_values($collectionIDs) as $collection => $ID ) {
+
+      if ($ID > 1) {
         $dups[] = $collection;
       }
+
 	  }
 
     return $dups;
@@ -1610,9 +1611,11 @@ class Utils {
 
   */
   public static function wps_delete_product_data($postID, $type, $dataToDelete) {
+
   	foreach ($dataToDelete as $key => $value) {
   		delete_post_meta($postID, $type, $value);
   	}
+
   }
 
 
@@ -1622,9 +1625,11 @@ class Utils {
 
   */
   public static function wps_add_product_data($postID, $type, $dataToAdd) {
+
     foreach ($dataToAdd as $key => $value) {
       add_post_meta($postID, $type, $value);
     }
+
   }
 
 
@@ -1661,7 +1666,7 @@ class Utils {
       'post_status'      => 'publish'
     ));
 
-    foreach($posts as $post) {
+    foreach ($posts as $post) {
 			$existingProducts[$post->ID] = $post->post_name;
 		}
 
@@ -1885,9 +1890,11 @@ class Utils {
     $foundVariant = array();
 
     foreach ($variants as $key => $variant) {
+
       if ($variant['price'] === $price) {
         $foundVariant = $variant;
       }
+
     }
 
     return $foundVariant;
@@ -2330,12 +2337,42 @@ class Utils {
   /*
 
   Product Inventory
+	Checks whether a product's variant(s) are in stock or not
 
   */
-  public static function product_inventory($product) {
+  public static function product_inventory($product, $variant = false) {
 
-    return array_filter($product['variants'], function($productVariant) {
-      return $productVariant['inventory_quantity'];
+		if ($variant) {
+			$vairantsToCheck = $variant;
+
+		} else {
+			$vairantsToCheck = $product['variants'];
+		}
+
+    return array_filter($vairantsToCheck, function($productVariant) {
+
+			// User has set Shopify to track the product's inventory
+			if ($productVariant['inventory_management'] === 'shopify') {
+
+				if ($productVariant['inventory_quantity'] <= 0) {
+
+					if ($productVariant['inventory_policy'] === 'deny') {
+						return false;
+
+					} else {
+						return true;
+					}
+
+				} else {
+					return true;
+				}
+
+			// User has set product to do not track inventory (always able to purchase)
+			} else {
+				return true;
+
+			}
+
     });
 
   }
@@ -2351,10 +2388,9 @@ class Utils {
     $newSelectedOptions = $selectedOptions;
     $indexx = 1;
 
-    foreach($newSelectedOptions as $key => $optionVal) {
+    foreach ($newSelectedOptions as $key => $optionVal) {
 
       $newSelectedOptions['option' . $indexx] = $optionVal;
-
       $indexx++;
 
       unset($newSelectedOptions[$key]);

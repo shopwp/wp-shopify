@@ -128,15 +128,20 @@ class Collects extends \WPS\DB {
 
 
     if (count($collectsToAdd) > 0) {
+
       foreach ($collectsToAdd as $key => $newCollect) {
         $results['created'][] = $this->insert($newCollect, 'collect');
       }
+
     }
 
+
     if (count($collectsToDelete) > 0) {
+
       foreach ($collectsToDelete as $key => $oldCollect) {
         $results['deleted'][] = $this->delete($oldCollect['id']);
       }
+
     }
 
     return $results;

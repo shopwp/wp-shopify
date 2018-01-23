@@ -99,13 +99,11 @@ class Variants extends \WPS\DB {
   }
 
 
+  /*
 
+  Insert variant
 
-
-
-
-
-
+  */
   public function insert_variant($product) {
 
     $results = [];
@@ -120,18 +118,15 @@ class Variants extends \WPS\DB {
           break;
         }
 
-        return $results[] = $this->insert($variant, 'variant');
+        $results[] = $this->insert($variant, 'variant');
 
       }
 
     }
 
+    return $results;
+
   }
-
-
-
-
-
 
 
   /*
@@ -218,9 +213,7 @@ class Variants extends \WPS\DB {
     }
 
     foreach ($product->variants as $key => $variant) {
-
       $results['updated'] = $this->update($variant->id, $variant);
-
     }
 
     return $results;

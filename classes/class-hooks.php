@@ -795,7 +795,7 @@ if (!class_exists('Hooks')) {
 
 					do_action( 'wps_products_loop_start', $productsQuery );
 
-					foreach($wps_products as $wps_product) {
+					foreach ($wps_products as $wps_product) {
 
 						do_action( 'wps_products_item_start', $wps_product, $args, $customArgs );
 						do_action( 'wps_products_item', $wps_product, $args, $settings );
@@ -903,7 +903,7 @@ if (!class_exists('Hooks')) {
 
 					do_action( 'wps_collections_loop_start', $collections );
 
-					foreach($collections as $collection) {
+					foreach ($collections as $collection) {
 
 						do_action( 'wps_collections_item_start', $collection, $args, $customArgs );
 						do_action( 'wps_collections_item', $collection, $args );
@@ -1578,7 +1578,7 @@ if (!class_exists('Hooks')) {
 
 				if (is_array($tables) && !empty($tables)) {
 
-					foreach($tables as $table) {
+					foreach ($tables as $table) {
 						\dbDelta( $table->create_table_query() );
 					}
 

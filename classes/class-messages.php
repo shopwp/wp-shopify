@@ -104,7 +104,7 @@ class Messages {
 		$this->message_delete_customers_error = esc_html__('Warning: Unable to delete customers.', 'wp-shopify');
 
 		$this->message_products_curency_format_not_found = esc_html__('Error: Currency format not found. Please try again.', 'wp-shopify');
-		$this->message_products_out_of_stock = esc_html__('Error: Out of stock.', 'wp-shopify');
+		$this->message_products_out_of_stock = esc_html__('Out of stock. Please choose another product combination.', 'wp-shopify');
 		$this->message_products_options_unavailable = esc_html__('Error: Selected option(s) aren\'t available. Please select a different combination.', 'wp-shopify');
 		$this->message_products_options_not_found = esc_html__('Error: Unable to find selected options. Please try again.', 'wp-shopify');
 
