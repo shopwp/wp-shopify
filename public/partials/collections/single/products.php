@@ -1,15 +1,13 @@
 <section class="wps-collections-products <?php echo apply_filters('wps_collection_single_products_class', ''); ?>">
 
-  <?php do_action('wps_collection_single_products_before', $collection, $products); ?>
+  <?php
 
-  <ul class="wps-row wps-row-left wps-collections-products">
+  do_action('wps_collection_single_heading', $collection, $products);
 
-    <?php foreach ($products as $key => $product) {
+  do_action('wps_collection_single_products_before', $collection, $products);
+  do_action('wps_collection_single_products_list',  $collection, $products);
+  do_action('wps_collection_single_products_after', $collection, $products);
 
-      do_action('wps_collection_single_product', $product);
-
-    } ?>
-
-  </ul>
+  ?>
 
 </section>

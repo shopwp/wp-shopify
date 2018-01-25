@@ -298,6 +298,10 @@ class CPT {
 
     }
 
+		if ($productModel['post_content'] == null) {
+			$productModel['post_content']	= '';
+		}
+
     // Insert post and return the ID or error object if fail
     return wp_insert_post($productModel, true);
 
@@ -343,9 +347,14 @@ class CPT {
 			}
 
     }
-		
+
+		if ($newCollectionModel['post_content'] == null) {
+			$newCollectionModel['post_content']	= '';
+		}
+
     // Insert post and return the ID or error object if fail
-    return wp_insert_post($newCollectionModel, true);
+
+		return wp_insert_post($newCollectionModel, true);
 
   }
 

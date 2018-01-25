@@ -269,7 +269,6 @@ class Products extends \WPS\DB {
     $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
     $results = [];
 
-
     /*
 
     If published_at is null, we know the user turned off the Online Store sales channel.
@@ -304,7 +303,6 @@ class Products extends \WPS\DB {
       $results['collects']    = $DB_Collects->update_collects($product);
       $results['product_cpt'] = CPT::wps_insert_or_update_product($product, $existingProducts);
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
-
 
     } else {
 

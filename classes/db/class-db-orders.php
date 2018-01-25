@@ -376,7 +376,8 @@ class Orders extends \WPS\DB {
 
     } else if (is_object($orders)) {
 
-      $result[] = $this->update($orders->id, $orders);
+      $orders = json_decode(json_encode($orders), true);
+      $result[] = $this->update($orders['id'], $orders);
 
     }
 
