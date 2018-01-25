@@ -317,6 +317,23 @@ if (!class_exists('Hooks')) {
 
 		/*
 
+    Collections Pagination
+
+    */
+		public function wps_collections_pagination($collectionsQuery) {
+
+			$Utils = new Utils();
+			$args = array(
+				'query' => $collectionsQuery
+			);
+
+			echo $Utils->wps_get_paginated_numbers($args);
+
+		}
+
+
+		/*
+
 		wps_products_custom_args
 
 		*/
@@ -835,7 +852,7 @@ if (!class_exists('Hooks')) {
 		Fires the wps_clauses_mod during WP_Query
 
 		*/
-			public function wps_collections_display($args, $customArgs) {
+		public function wps_collections_display($args, $customArgs) {
 
 			if (!is_admin()) {
 
@@ -872,7 +889,6 @@ if (!class_exists('Hooks')) {
 
 				}
 
-				// $collectionsQuery = new \WP_Query($args);
 
 				if (Utils::wps_is_manually_sorted($args)) {
 					$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
@@ -915,7 +931,7 @@ if (!class_exists('Hooks')) {
 					do_action( 'wps_before_collections_pagination', $collections );
 
 					if ( isset($args['paged']) && $args['paged']) {
-						do_action( 'wps_collections_pagination', $collections );
+						do_action( 'wps_collections_pagination', $collectionsQuery );
 					}
 
 					do_action( 'wps_after_collections_pagination', $collections );
@@ -1111,13 +1127,13 @@ if (!class_exists('Hooks')) {
 
 			} else {
 
-				return array(
-					'post_type' => 'wps_collections',
-					'post_status' => 'publish',
-					'posts_per_page' => apply_filters('wps_collections_args_posts_per_page', $settingsNumPosts),
-					'orderby'   => apply_filters('wps_collections_args_orderby', 'desc'),
-					'paged' => apply_filters('wps_collections_args_paged', $paged)
-				);
+				return [
+					'post_type' 			=> 'wps_collections',
+					'post_status' 		=> 'publish',
+					'posts_per_page' 	=> apply_filters('wps_collections_args_posts_per_page', $settingsNumPosts),
+					'orderby'   			=> apply_filters('wps_collections_args_orderby', 'desc'),
+					'paged' 					=> apply_filters('wps_collections_args_paged', $paged)
+				];
 
 			}
 
@@ -1358,13 +1374,18 @@ if (!class_exists('Hooks')) {
 			return include($this->config->plugin_path . "public/partials/collections/single/end.php");
 		}
 
-		public function wps_collection_single_products_before($collection, $products) {
+		public function wps_collection_single_heading($collection, $products) {
 			return include($this->config->plugin_path . "public/partials/collections/single/products-before.php");
 		}
 
 		public function wps_collection_single_product($product) {
 			return include($this->config->plugin_path . "public/partials/collections/single/product.php");
 		}
+
+		public function wps_collection_single_products_list($collection, $products) {
+			return include($this->config->plugin_path . "public/partials/collections/single/products-list.php");
+		}
+
 
 
 		public function wps_collection_single_heading_before($collection) {

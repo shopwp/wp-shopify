@@ -10,6 +10,8 @@ Tab Content: Help / Debug
 
     <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-sos"></span> <?php esc_html_e('Help', 'wp-shopify'); ?></h3>
 
+    <p><?php printf(__('Need help finding your Shoify API keys? Watch the <a href="%s" target="_blank"> video tutorial</a>.', 'wp-shopify'), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
+
     <p><?php printf(__('If you\'re running into problems don\'t hesitate to jump into our public Slack to <a href="%1$s" target="_blank">ask a question</a>. If Slack isn\'t your thing, feel free to send us an email outlining your problem to <a href="%2$s">hello@wpshop.io</a>', 'wp-shopify'), esc_url("https://join.slack.com/wpshopify/shared_invite/MTg5OTQxODEwOTM1LTE0OTU5ODY2MTktN2Y1ODk0YzBlNg"), esc_url("mailto:hello@wpshop.io")); ?></p>
     <p><?php printf(__('Also make sure to review the documentation found here: <a href="%1$s" target="_blank">%2$s</a>', 'wp-shopify'), esc_url($this->config->plugin_env . "/docs"), esc_url($this->config->plugin_env . "/docs")); ?></p>
 

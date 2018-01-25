@@ -174,6 +174,8 @@ class Customers extends \WPS\DB {
       }
 
      } else if (is_object($customers)) {
+
+      $customers = json_decode(json_encode($customers), true);
       $results[] = $this->insert($customers, 'customer');
 
     }
@@ -239,7 +241,9 @@ class Customers extends \WPS\DB {
       }
 
     } else if (is_object($customers)) {
-      $result[] = $this->update($customers->id, $customers);
+
+      $customers = json_decode(json_encode($customers), true);
+      $result[] = $this->update($customers['id'], $customers);
 
     }
 

@@ -825,7 +825,7 @@ class WS {
 
     $productID = $_POST['productID'];
 
-    if(!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+    if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
       $currentPage = 1;
 
     } else {
@@ -887,6 +887,14 @@ class WS {
 		}
 
 
+		if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+      $currentPage = 1;
+
+    } else {
+      $currentPage = $_POST['currentPage'];
+    }
+
+
     try {
 
       $DB_Images = new Images();
@@ -895,7 +903,7 @@ class WS {
 
 			$response = $this->wps_request(
 				'GET',
-				$this->get_request_url("/admin/custom_collections.json"),
+				$this->get_request_url("/admin/custom_collections.json", "?limit=250&page=" . $currentPage, "?limit=250&page=" . $currentPage),
 				$this->get_request_options()
 			);
 
@@ -951,6 +959,15 @@ class WS {
 
 		Utils::prevent_timeouts();
 
+
+		if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+      $currentPage = 1;
+
+    } else {
+      $currentPage = $_POST['currentPage'];
+    }
+
+
     try {
 
       $DB_Images = new Images();
@@ -958,7 +975,7 @@ class WS {
 
 			$response = $this->wps_request(
 				'GET',
-				$this->get_request_url("/admin/smart_collections.json"),
+				$this->get_request_url("/admin/smart_collections.json", "?limit=250&page=" . $currentPage),
 				$this->get_request_options()
 			);
 
@@ -1075,13 +1092,13 @@ class WS {
 
       if (property_exists($data, "collects")) {
 
-				$resultProducts = $DB_Collects->insert_collects($data->collects);
+				$resultCollects = $DB_Collects->insert_collects($data->collects);
 
-				if (empty($resultProducts)) {
+				if (empty($resultCollects)) {
 					$this->send_error($this->messages->message_insert_collects_error . ' (wps_insert_collects)');
 
 				} else {
-					$this->send_success($resultProducts);
+					$this->send_success($resultCollects);
 				}
 
       } else {
@@ -2455,25 +2472,26 @@ class WS {
 		}
 
 
+		if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+			$currentPage = 1;
+
+		} else {
+			$currentPage = $_POST['currentPage'];
+		}
+
+
     try {
 
       $DB_Orders = new Orders();
 
-      if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-        $currentPage = 1;
-
-      } else {
-        $currentPage = $_POST['currentPage'];
-      }
-
-
 			$response = $this->wps_request(
 				'GET',
-				$this->get_request_url("/admin/orders.json", "?status=any&page=" . $currentPage),
+				$this->get_request_url("/admin/orders.json", "?limit=250&status=any&page=" . $currentPage),
 				$this->get_request_options()
 			);
 
       $data = json_decode($response->getBody()->getContents());
+
 
       if (is_object($data) && property_exists($data, 'orders')) {
 
@@ -2489,7 +2507,7 @@ class WS {
           $this->send_warning($this->messages->message_orders_insert_error  . ' (wps_insert_orders)');
         }
 
-        $this->send_success();
+        $this->send_success($resultOrders);
 
       } else {
         $this->send_error($data->errors);
@@ -2525,21 +2543,22 @@ class WS {
 		}
 
 
+		if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+			$currentPage = 1;
+
+		} else {
+			$currentPage = $_POST['currentPage'];
+		}
+
+
     try {
 
       $Utils = new Utils();
       $DB_Customers = new Customers();
 
-      if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-        $currentPage = 1;
-
-      } else {
-        $currentPage = $_POST['currentPage'];
-      }
-
 			$response = $this->wps_request(
 				'GET',
-				$this->get_request_url("/admin/customers.json", "?page=" . $currentPage),
+				$this->get_request_url("/admin/customers.json", "?limit=250&page=" . $currentPage),
 				$this->get_request_options()
 			);
 

@@ -25,7 +25,7 @@ Tab Content: Connect
 
   <div class="wps-admin-section">
 
-    <p><?php printf(__('To connect your Shopify account, enter your unique buy button API key and Shopify domain below. Once you hit connect WP Shopify will redirect you to Shopify to verify the connection. If you need additional help, please see the <a href="%s" target="_blank"> video tutorial and documentation</a>.', 'wp-shopify'), esc_url($this->config->plugin_env . '/docs'));  ?></p>
+    <p><?php printf(__('Enter your Shopify API keys below. Need help creating a Shopify private app? Watch the <a href="%s" target="_blank"> video tutorial</a>.', 'wp-shopify'), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
 
     <form method="post" name="cleanup_options" action="options.php" id="wps-connect" class="wps-admin-form">
 

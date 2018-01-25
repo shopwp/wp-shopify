@@ -8,6 +8,7 @@ import union from 'lodash/union';
 import matches from 'lodash/matches';
 import find from 'lodash/find';
 import isArray from 'lodash/isArray';
+import has from 'lodash/has';
 
 import {
   getNonce
@@ -174,7 +175,7 @@ Create the actual products model
 */
 function createProductsModel(products) {
 
-  if(products !== undefined) {
+  if (products !== undefined) {
     return products.map(mapProductsModel);
   }
 
@@ -188,7 +189,7 @@ Map Collections Model
 */
 function mapCollectionsModel(collection) {
 
-  if(collection !== undefined) {
+  if (collection !== undefined) {
 
     return {
       collectionTitle: collection.title,
@@ -483,19 +484,23 @@ Add to current warning list
 */
 function addToCurrentWarningList(currentWarningList, warning) {
 
-  if (find([warning.data], { 'type': 'warning'} )) {
+  if (warning !== undefined && has(warning, 'data')) {
 
-    if (isArray(warning.data.message) && warning.data.message.length > 1) {
+    if (find([warning.data], { 'type': 'warning'} )) {
 
-      warning.data.message.forEach(message => {
-        currentWarningList.push({
-          type: 'warning',
-          message: [message]
+      if (isArray(warning.data.message) && warning.data.message.length > 1) {
+
+        warning.data.message.forEach(message => {
+          currentWarningList.push({
+            type: 'warning',
+            message: [message]
+          });
         });
-      });
 
-    } else {
-      currentWarningList.push(warning.data);
+      } else {
+        currentWarningList.push(warning.data);
+      }
+
     }
 
   }
@@ -558,6 +563,22 @@ function constructFinalNoticeList(anyWarnings) {
 }
 
 
+/*
+
+Checks if count returns nothing
+
+*/
+function emptyDataCount(count) {
+
+  if (count === 0 || count === '0') {
+    return true;
+  } else {
+    return false;
+  }
+
+}
+
+
 export {
   getProductImages,
   mapProductsModel,
@@ -583,5 +604,6 @@ export {
   addToWarningList,
   constructFinalNoticeList,
   onlyNonNotice,
-  filterOutAnyNotice
+  filterOutAnyNotice,
+  emptyDataCount
 };

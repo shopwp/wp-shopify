@@ -20,6 +20,10 @@ import {
   isWordPressError
 } from '../utils/utils';
 
+import {
+  emptyDataCount
+} from '../utils/utils-data';
+
 
 /*
 
@@ -220,6 +224,10 @@ async function streamProducts() {
 
       itemCount = itemCount.data.products;
 
+      if (emptyDataCount(itemCount)) {
+        resolve();
+      }
+
     } catch(error) {
       reject(error);
       return;
@@ -295,6 +303,10 @@ async function streamCollects() {
       }
 
       itemCount = itemCount.data.collects;
+
+      if (emptyDataCount(itemCount)) {
+        resolve();
+      }
 
     } catch(error) {
       reject(error);
@@ -375,6 +387,10 @@ function streamSmartCollections() {
 
       itemCount = itemCount.data.smart_collections;
 
+      if (emptyDataCount(itemCount)) {
+        resolve();
+      }
+
     } catch(error) {
 
       reject(error);
@@ -394,7 +410,7 @@ function streamSmartCollections() {
 
       while(currentPage <= pages) {
 
-        var itemsToAdd = await insertSmartCollections(); // wps_insert_smart_collections_data
+        var itemsToAdd = await insertSmartCollections(currentPage); // wps_insert_smart_collections_data
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -454,6 +470,10 @@ async function streamCustomCollections() {
 
       itemCount = itemCount.data.custom_collections;
 
+      if (emptyDataCount(itemCount)) {
+        resolve();
+      }
+
     } catch(error) {
       reject(error);
       return;
@@ -471,7 +491,7 @@ async function streamCustomCollections() {
 
       while(currentPage <= pages) {
 
-        var itemsToAdd = await insertCustomCollections(); // wps_insert_custom_collections_data
+        var itemsToAdd = await insertCustomCollections(currentPage); // wps_insert_custom_collections_data
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -531,6 +551,10 @@ async function streamOrders() {
 
       itemCount = itemCount.data.orders;
 
+      if (emptyDataCount(itemCount)) {
+        resolve();
+      }
+
     } catch(error) {
       reject(error);
       return;
@@ -549,7 +573,7 @@ async function streamOrders() {
 
       while(currentPage <= pages) {
 
-        var itemsToAdd = await insertOrders(); // wps_insert_orders
+        var itemsToAdd = await insertOrders(currentPage); // wps_insert_orders
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -611,6 +635,10 @@ async function streamCustomers() {
 
       itemCount = itemCount.data.customers;
 
+      if (emptyDataCount(itemCount)) {
+        resolve();
+      }
+
     } catch(error) {
       reject(error);
       return;
@@ -628,7 +656,7 @@ async function streamCustomers() {
 
       while(currentPage <= pages) {
 
-        var itemsToAdd = await insertCustomers(); // wps_insert_customers
+        var itemsToAdd = await insertCustomers(currentPage); // wps_insert_customers
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);

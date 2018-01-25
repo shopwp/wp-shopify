@@ -262,7 +262,6 @@ function syncCustomCollections() {
     try {
 
       var customCollections = await streamCustomCollections(); // wps_insert_custom_collections_data
-
       resolve(customCollections);
       return;
 
@@ -294,6 +293,7 @@ function syncOrders() {
     }
 
     try {
+
       var orders = await streamOrders(); // wps_insert_orders
       resolve(orders);
 

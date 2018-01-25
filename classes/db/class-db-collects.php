@@ -126,7 +126,6 @@ class Collects extends \WPS\DB {
     $collectsToAdd = Utils::wps_find_items_to_add($currentCollectsForProductArray, $collectsFromShopify, true);
     $collectsToDelete = Utils::wps_find_items_to_delete($currentCollectsForProductArray, $collectsFromShopify, true);
 
-
     if (count($collectsToAdd) > 0) {
 
       foreach ($collectsToAdd as $key => $newCollect) {

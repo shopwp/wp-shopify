@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.0.38
+@since             1.0.39
 @package           WPS
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress
-Version:           1.0.38
+Version:           1.0.39
 Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
@@ -45,6 +45,7 @@ use WPS\CPT;
 use WPS\I18N;
 use WPS\License;
 use WPS\Checkouts;
+use WPS\Admin_Menus;
 use WPS\Deactivator;
 use WPS\Activator;
 
@@ -209,6 +210,16 @@ if ( ! class_exists('WP_Shopify') ) {
 
 		/*
 
+		Get Checkouts Class
+
+		*/
+		public static function Admin_Menus() {
+			return Admin_Menus::instance(new Config());
+		}
+
+
+		/*
+
 		Init Hooks
 
 		*/
@@ -223,6 +234,7 @@ if ( ! class_exists('WP_Shopify') ) {
 			$License = self::License();
 			$I18N = self::I18N();
 			$Checkouts = self::Checkouts();
+			$Admin_Menus = self::Admin_Menus();
 
 			$Activator->init();
 			$Deactivator->init();
@@ -231,6 +243,8 @@ if ( ! class_exists('WP_Shopify') ) {
 			$Backend->init();
 			$Frontend->init();
 			$Checkouts->init();
+			// $Admin_Menus->init();
+
 
 
 			/*
@@ -277,6 +291,8 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action('wps_collections_sidebar', array($Hooks, 'wps_collections_sidebar'));
 			add_action('wps_collections_display', array($Hooks, 'wps_collections_display'), 10, 2);
 
+
+
 			add_action('wps_collection_single_start', array($Hooks, 'wps_collection_single_start'));
 			add_action('wps_collection_single_header', array($Hooks, 'wps_collection_single_header'));
 			add_action('wps_collection_single_img', array($Hooks, 'wps_collection_single_img'));
@@ -286,7 +302,10 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action('wps_collection_single_sidebar', array($Hooks, 'wps_collection_single_sidebar'));
 			add_action('wps_collection_single_product', array($Hooks, 'wps_collection_single_product'));
 
-			add_action('wps_collection_single_products_before', array($Hooks, 'wps_collection_single_products_before'), 10, 3);
+			add_action('wps_collection_single_products_list', array($Hooks, 'wps_collection_single_products_list'),  10, 3);
+
+			add_action('wps_collection_single_heading', array($Hooks, 'wps_collection_single_heading'), 10, 3);
+
 			add_filter('wps_collection_single_products_heading_class', array($Hooks, 'wps_collection_single_products_heading_class'));
 			add_filter('wps_collection_single_products_heading', array($Hooks, 'wps_collection_single_products_heading'));
 
@@ -322,7 +341,21 @@ if ( ! class_exists('WP_Shopify') ) {
 			add_action('wps_products_price', array($Hooks, 'wps_products_price'));
 			add_filter('wps_products_price_multi', array($Hooks, 'wps_products_price_multi'), 10, 4);
 			add_filter('wps_products_price_one', array($Hooks, 'wps_products_price_one'), 10, 2);
+
+
+
+
+			/*
+
+			Pagination actions
+
+			*/
+			add_action('wps_collections_pagination', array($Hooks, 'wps_collections_pagination'));
 			add_action('wps_products_pagination', array($Hooks, 'wps_products_pagination'));
+
+
+
+
 			add_action('wps_products_no_results', array($Hooks, 'wps_products_no_results'));
 			add_action('wps_products_add_to_cart', array($Hooks, 'wps_products_add_to_cart'));
 			add_action('wps_products_meta_start', array($Hooks, 'wps_products_meta_start'));

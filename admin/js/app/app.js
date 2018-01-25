@@ -9,6 +9,7 @@ import { settingsInit } from './settings/settings';
 import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
 import { toolsInit } from './tools/tools';
+import { menusInit } from './menus/menus';
 
 (function($) {
 
