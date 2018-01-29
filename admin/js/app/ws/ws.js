@@ -7,7 +7,8 @@ import {
 } from '../utils/utils-data';
 
 import {
-  connectionInProgress
+  connectionInProgress,
+  getWebhooksReconnect
 } from './localstorage';
 
 
@@ -48,30 +49,6 @@ function getProductsCount() {
     data: {
       action: 'wps_ws_get_products_count',
       nonce: wps.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Attach all Webhooks
-Returns: Promise
-
-*/
-function registerWebhooks(removalErrors) {
-
-  var options = {
-    method: 'POST',
-    url: wps.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_register_all_webhooks',
-      nonce: wps.nonce,
-      removalErrors: removalErrors
     }
   };
 
@@ -209,6 +186,29 @@ function getCustomersCount() {
     dataType: 'json',
     data: {
       action: 'wps_ws_get_customers_count',
+      nonce: wps.nonce
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
+Get Shop Count
+Returns: Promise
+
+*/
+function getShopCount() {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_get_shop_count',
       nonce: wps.nonce
     }
   };
@@ -571,7 +571,7 @@ function getProductInfo(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=get_version&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=get_version&item_name=WP+Shopify&license=' + key + '&url=' + wps.siteUrl
   };
 
   return jQuery.ajax(options);
@@ -589,7 +589,7 @@ function getLicenseKeyStatus(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=check_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=check_license&item_name=WP+Shopify&license=' + key + '&url=' + wps.siteUrl
   };
 
   return jQuery.ajax(options);
@@ -607,7 +607,7 @@ function activateLicenseKey(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=activate_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=activate_license&item_name=WP+Shopify&license=' + key + '&url=' + wps.siteUrl
   };
 
   return jQuery.ajax(options);
@@ -625,7 +625,7 @@ function deactivateLicenseKey(key) {
 
   var options = {
     type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=deactivate_license&item_name=WP+Shopify&license=' + key + '&url=' + window.location.origin
+    url: 'https://wpshop.io/edd-sl?edd_action=deactivate_license&item_name=WP+Shopify&license=' + key + '&url=' + wps.siteUrl
   };
 
   return jQuery.ajax(options);
@@ -748,6 +748,31 @@ function uninstallPlugin() {
 
 /*
 
+Attach all Webhooks
+Returns: Promise
+
+*/
+function registerWebhooks(removalErrors) {
+
+  var options = {
+    method: 'POST',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_ws_register_all_webhooks',
+      nonce: wps.nonce,
+      removalErrors: removalErrors,
+      webhooksReconnect: getWebhooksReconnect()
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
 Send uninstall request to Shopify
 Returns Promise
 
@@ -760,7 +785,8 @@ function removePluginData() {
     dataType: 'json',
     data: {
       action: 'wps_uninstall_product_data',
-      nonce: wps.nonce
+      nonce: wps.nonce,
+      webhooksReconnect: getWebhooksReconnect()
     }
   };
 
@@ -888,7 +914,7 @@ function getAuthToken() {
     dataType: "json",
     data: {
       username: 'wp-shopify-auth-user', // TODO: make dynamic?
-      password: 'xyWlcxyIwkA(#gUl!Exy$ITz' // TODO: make dynamic?
+      password: '' // TODO: make dynamic?
     }
   };
 
@@ -1330,5 +1356,6 @@ export {
   saveCountsToSession,
   getTotalCountsFromSession,
   removeConnectionData,
-  getWebhooksCount
+  getWebhooksCount,
+  getShopCount
 };

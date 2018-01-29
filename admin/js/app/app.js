@@ -28,7 +28,8 @@ import { menusInit } from './menus/menus';
 		licenseInit();
 		settingsInit();
 		toolsInit();
-
+		menusInit();
+		
 		if ($submitButton.attr('name') === 'submitDisconnect') {
 			disconnectInit();
 

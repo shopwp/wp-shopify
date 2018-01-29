@@ -535,6 +535,7 @@ function updateDomAfterSync(customOptions = {}) {
   // Safe to reconnect again -- reattaches the submit form handler
   connectInit();
 
+
 }
 
 

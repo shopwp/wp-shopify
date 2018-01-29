@@ -1,3 +1,4 @@
+import isError from 'lodash/isError';
 import isEqual from 'lodash/isEqual';
 import concat from 'lodash/concat';
 import unionWith from 'lodash/unionWith';
@@ -9,6 +10,7 @@ import matches from 'lodash/matches';
 import find from 'lodash/find';
 import isArray from 'lodash/isArray';
 import has from 'lodash/has';
+import pickBy from 'lodash/pickBy';
 
 import {
   getNonce
@@ -395,7 +397,20 @@ Return Only Failed Requests
 
 */
 function returnOnlyFailedRequests(noticeList) {
-  return map(filter(noticeList, onlyFailedRequests), sanitizeErrorResponse);
+
+  if (isError(noticeList)) {
+
+    return [{
+      'success': false,
+      'type': 'error',
+      'message': noticeList,
+    }];
+
+  } else {
+    return map(filter(noticeList, onlyFailedRequests), sanitizeErrorResponse);
+
+  }
+
 }
 
 
@@ -429,11 +444,98 @@ function onlyNonNotice(obj) {
 
 /*
 
+Only non notice
+
+*/
+function onlyAvailableSyncOptions(obj) {
+
+  if (wps.selective_sync.all) {
+    return obj;
+
+  } else {
+
+    var onlySelectedSyncs = filterOutDeselectedSyncs(wps.selective_sync);
+    var nameOfSync = Object.getOwnPropertyNames(obj)[0];
+
+
+    if (onlySelectedSyncs.hasOwnProperty(nameOfSync)) {
+
+      return obj;
+
+    } else {
+
+      if (nameOfSync === 'products') {
+
+        if ( has(onlySelectedSyncs, 'tags') ) {
+          return obj;
+        }
+
+        if ( has(onlySelectedSyncs, 'images') ) {
+          return obj;
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+
+/*
+
+Filter Out Any Deselected Selective Syncs
+
+*/
+function filterOutDeselectedSyncs(syncs) {
+  return pickBy(syncs, (value, key) => value == 1);
+}
+
+
+/*
+
 Filter Out Any Notice
 
 */
 function filterOutAnyNotice(array) {
   return filter(array, onlyNonNotice);
+}
+
+
+/*
+
+Filter Out Any Notice
+
+*/
+function filterOutSelectiveSync(array) {
+
+  var filteredSyncs = filter(array, onlyAvailableSyncOptions);
+
+  return filteredSyncs;
+
+}
+
+
+/*
+
+Filter Out Any Notice
+
+*/
+function filterOutSelectedDataForSync(array, arrayOfFilters) {
+
+  return filter(array, function(dataSet) {
+
+    return find(arrayOfFilters, function(filter) {
+
+      return !dataSet[filter];
+
+    });
+
+  });
+
+  return array;
+
 }
 
 
@@ -605,5 +707,7 @@ export {
   constructFinalNoticeList,
   onlyNonNotice,
   filterOutAnyNotice,
-  emptyDataCount
+  emptyDataCount,
+  filterOutSelectiveSync,
+  filterOutSelectedDataForSync
 };

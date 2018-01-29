@@ -133,8 +133,12 @@ function syncShop() {
 
   return new Promise(async function syncShopHandler(resolve, reject) {
 
-    if (syncIsCanceled()) {
+    if (!wps.selective_sync.all && !wps.selective_sync.shop) {
+      resolve();
+      return;
+    }
 
+    if (syncIsCanceled()) {
       reject();
       return;
     }
@@ -161,6 +165,11 @@ Syncing Products
 function syncProducts() {
 
   return new Promise(async function syncProductsHandler(resolve, reject) {
+
+    if (!wps.selective_sync.all && !wps.selective_sync.products) {
+      resolve();
+      return;
+    }
 
     if (syncIsCanceled()) {
       reject();
@@ -196,6 +205,11 @@ Sync Collects
 function syncCollects() {
 
   return new Promise(async function syncCollectsHandler(resolve, reject) {
+
+    if (!wps.selective_sync.all && !wps.selective_sync.products) {
+      resolve();
+      return;
+    }
 
     if (syncIsCanceled()) {
       reject();
@@ -287,6 +301,11 @@ function syncOrders() {
 
   return new Promise(async function syncOrdersHandler(resolve, reject) {
 
+    if (!wps.selective_sync.all && !wps.selective_sync.orders) {
+      resolve();
+      return;
+    }
+
     if (syncIsCanceled()) {
       reject();
       return;
@@ -317,6 +336,11 @@ function syncCustomers() {
 
   return new Promise(async function syncCustomersHandler(resolve, reject) {
 
+    if (!wps.selective_sync.all && !wps.selective_sync.customers) {
+      resolve();
+      return;
+    }
+
     if (syncIsCanceled()) {
       reject();
       return;
@@ -345,6 +369,11 @@ Sync Shop Data
 function syncImageAlt() {
 
   return new Promise(async function syncImageAltHandler(resolve, reject) {
+
+    if (!wps.selective_sync.all && !wps.selective_sync.products) {
+      resolve();
+      return;
+    }
 
     if (syncIsCanceled()) {
       reject();
@@ -574,7 +603,6 @@ function syncData() {
   });
 
 }
-
 
 
 export {

@@ -72,7 +72,6 @@ function onSettingsFormSubmit() {
       var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
 
-
       // var styles = jQuery(form).find("#wps_settings_general_styles").val();
 
       disable($submitButton);
@@ -95,6 +94,59 @@ function onSettingsFormSubmit() {
       var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
       var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
       var titlesAsAltAttr = jQuery(form).find("#wps_settings_general_title_as_alt").attr("checked");
+
+      var selectiveSyncAllAttr = jQuery(form).find("#wps_settings_general_selective_sync_all").attr("checked");
+      var selectiveSyncProductsAttr = jQuery(form).find("#wps_settings_general_selective_sync_products").attr("checked");
+      var selectiveSyncCollectionsAttr = jQuery(form).find("#wps_settings_general_selective_sync_collections").attr("checked");
+      var selectiveSyncCustomersAttr = jQuery(form).find("#wps_settings_general_selective_sync_customers").attr("checked");
+      var selectiveSyncOrdersAttr = jQuery(form).find("#wps_settings_general_selective_sync_orders").attr("checked");
+      var selectiveSyncShopAttr = jQuery(form).find("#wps_settings_general_selective_sync_shop").attr("checked");
+
+
+      if (typeof selectiveSyncAllAttr !== typeof undefined && selectiveSyncAllAttr !== false) {
+        var selectiveSyncAll = 1;
+
+      } else {
+        var selectiveSyncAll = 0;
+      }
+
+      if (typeof selectiveSyncProductsAttr !== typeof undefined && selectiveSyncProductsAttr !== false) {
+        var selectiveSyncProducts = 1;
+
+      } else {
+        var selectiveSyncProducts = 0;
+      }
+
+      if (typeof selectiveSyncCollectionsAttr !== typeof undefined && selectiveSyncCollectionsAttr !== false) {
+        var selectiveSyncCollections = 1;
+
+      } else {
+        var selectiveSyncCollections = 0;
+      }
+
+      if (typeof selectiveSyncCustomersAttr !== typeof undefined && selectiveSyncCustomersAttr !== false) {
+        var selectiveSyncCustomers = 1;
+
+      } else {
+        var selectiveSyncCustomers = 0;
+      }
+
+      if (typeof selectiveSyncOrdersAttr !== typeof undefined && selectiveSyncOrdersAttr !== false) {
+        var selectiveSyncOrders = 1;
+
+      } else {
+        var selectiveSyncOrders = 0;
+      }
+
+      if (typeof selectiveSyncShopAttr !== typeof undefined && selectiveSyncShopAttr !== false) {
+        var selectiveSyncShop = 1;
+
+      } else {
+        var selectiveSyncShop = 0;
+      }
+
+
+
 
 
 
@@ -147,6 +199,7 @@ function onSettingsFormSubmit() {
 
 
       var settings = {
+
         wps_settings_general_products_url: productsURL,
         wps_settings_general_collections_url: collectionsURL,
         wps_settings_general_url_webhooks: webhooksURL,
@@ -156,8 +209,24 @@ function onSettingsFormSubmit() {
         wps_settings_general_styles_core: stylesCore,
         wps_settings_general_styles_grid: stylesGrid,
         wps_settings_general_price_with_currency: priceFormat,
-        wps_settings_general_cart_loaded: cartLoaded
+        wps_settings_general_cart_loaded: cartLoaded,
+        wps_settings_general_selective_sync_all: selectiveSyncAll,
+        wps_settings_general_selective_sync_products: selectiveSyncProducts,
+        wps_settings_general_selective_sync_collections: selectiveSyncCollections,
+        wps_settings_general_selective_sync_customers: selectiveSyncCustomers,
+        wps_settings_general_selective_sync_orders: selectiveSyncOrders,
+        wps_settings_general_selective_sync_shop: selectiveSyncShop,
+
       }
+
+
+      wps.selective_sync.all = selectiveSyncAll;
+      wps.selective_sync.products = selectiveSyncProducts;
+      wps.selective_sync.custom_collections = selectiveSyncCollections;
+      wps.selective_sync.smart_collections = selectiveSyncCollections;
+      wps.selective_sync.customers = selectiveSyncCustomers;
+      wps.selective_sync.orders = selectiveSyncOrders;
+      wps.selective_sync.shop = selectiveSyncShop;
 
 
       /*
@@ -219,32 +288,72 @@ function onSettingsFormSubmit() {
 Toggle Styles Checkboxes
 
 */
-function toggleStylesCheckboxes() {
+function toggleCheckboxes() {
 
-  jQuery('#wps_settings_general_styles_all').on('click', function() {
+  jQuery('.wps-checkbox-all input').on('click', function() {
 
-    if (typeof jQuery(this).attr("checked") !== typeof undefined && jQuery(this).attr("checked") !== false) {
+    var $clicked = jQuery(this);
 
-      jQuery('#wps_settings_general_styles_core').attr('checked', false);
-      jQuery('#wps_settings_general_styles_grid').attr('checked', false);
+    if (typeof $clicked.attr("checked") !== typeof undefined && $clicked.attr("checked") !== false) {
 
-      jQuery('#wps_settings_general_styles_core').attr('disabled', true);
-      jQuery('#wps_settings_general_styles_grid').attr('disabled', true);
-
-      jQuery('#wps_settings_general_styles_core').parent().addClass('wps-is-disabled');
-      jQuery('#wps_settings_general_styles_grid').parent().addClass('wps-is-disabled');
+      $clicked.closest('.wps-checkbox-wrapper')
+        .find('.wps-checkbox')
+        .attr('checked', false)
+        .attr('disabled', true)
+        .parent()
+        .addClass('wps-is-disabled');
 
     } else {
 
-      jQuery('#wps_settings_general_styles_core').attr('disabled', false);
-      jQuery('#wps_settings_general_styles_grid').attr('disabled', false);
-
-      jQuery('#wps_settings_general_styles_core').parent().removeClass('wps-is-disabled');
-      jQuery('#wps_settings_general_styles_grid').parent().removeClass('wps-is-disabled');
+      $clicked.closest('.wps-checkbox-wrapper')
+        .find('.wps-checkbox')
+        .attr('disabled', false)
+        .parent()
+        .removeClass('wps-is-disabled');
 
     }
 
   });
+
+}
+
+
+function getSelectiveSyncOptions() {
+
+  if (wps.selective_sync.all) {
+    return [];
+
+  } else {
+
+    var includes = [];
+
+    if (wps.selective_sync.smart_collections) {
+      includes.push('smart_collections');
+    }
+
+    if (wps.selective_sync.custom_collections) {
+      includes.push('custom_collections');
+    }
+
+    if (wps.selective_sync.customers) {
+      includes.push('customers');
+    }
+
+    if (wps.selective_sync.orders) {
+      includes.push('orders');
+    }
+
+    if (wps.selective_sync.products) {
+      includes.push('products');
+    }
+
+    if (wps.selective_sync.shop) {
+      includes.push('shop');
+    }
+
+    return includes;
+
+  }
 
 }
 
@@ -255,10 +364,13 @@ Form Events Init
 
 */
 function settingsInit() {
+
   onSettingsFormSubmit();
-  toggleStylesCheckboxes();
+  toggleCheckboxes();
+
 }
 
 export {
-  settingsInit
+  settingsInit,
+  getSelectiveSyncOptions
 };

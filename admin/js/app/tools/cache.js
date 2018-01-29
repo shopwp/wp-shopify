@@ -75,6 +75,14 @@ function clearAllCache() {
 
     /*
 
+    Step 1. Clear LS cache
+
+    */
+    clearLocalstorageCache();
+
+
+    /*
+
     Step 2. Clear main cache
 
     */
@@ -91,6 +99,7 @@ function clearAllCache() {
     }
 
     resolve(clearCacheResponse);
+
 
   });
 

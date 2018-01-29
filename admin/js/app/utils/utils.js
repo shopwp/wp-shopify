@@ -496,9 +496,11 @@ function formatExpireDate(dateString) {
 }
 
 function getDataFromArray(array) {
+
   return array.map(function(item) {
     return item.data;
   });
+
 }
 
 

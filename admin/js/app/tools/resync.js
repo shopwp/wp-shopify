@@ -22,15 +22,11 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  connectionInProgress,
-  setConnectionProgress,
-  setModalCache,
-  clearLocalstorageCache
+  setWebhooksReconnect
 } from '../ws/localstorage.js';
 
 import {
   setSyncingIndicator,
-  removePluginData,
   syncWithCPT,
   saveCountsToSession
 } from '../ws/ws.js';
@@ -61,17 +57,24 @@ import {
 } from '../utils/utils';
 
 import {
+  getSelectiveSyncOptions
+} from '../settings/settings';
+
+import {
   startProgressBar,
   mapProgressDataFromSessionValues,
   appendProgressBars,
-  progressStatus
+  progressStatus,
+  forceProgressBarsComplete
 } from '../utils/utils-progress';
 
 import {
   returnOnlyFailedRequests,
   constructFinalNoticeList,
   addToWarningList,
-  filterOutAnyNotice
+  filterOutAnyNotice,
+  filterOutSelectiveSync,
+  filterOutSelectedDataForSync
 } from '../utils/utils-data';
 
 import {
@@ -112,6 +115,7 @@ function onResyncSubmit() {
       prepareBeforeSync();
       updateModalHeadingText('Re-syncing ...');
       setConnectionStepMessage('Preparing re-sync ...');
+      setWebhooksReconnect(false);
 
       /*
 
@@ -142,7 +146,7 @@ function onResyncSubmit() {
 
       */
       try {
-        var startProgressBarResponse = await startProgressBar(true);
+        var startProgressBarResponse = await startProgressBar( true, getSelectiveSyncOptions() );
 
       } catch (errors) {
 
@@ -168,7 +172,8 @@ function onResyncSubmit() {
       try {
 
         var itemCountsResp = await getItemCounts();
-        var allCounts = filterOutAnyNotice( getDataFromArray(itemCountsResp) );
+        var allCounts = filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) );
+
 
       } catch (errors) {
 
@@ -190,7 +195,7 @@ function onResyncSubmit() {
 
       */
       try {
-        var saveCountsResponse = await saveCounts(allCounts);
+        var saveCountsResponse = await saveCounts(allCounts); // save_counts
 
       } catch (errors) {
 
@@ -204,6 +209,7 @@ function onResyncSubmit() {
       }
 
       insertCheckmark();
+
       setConnectionStepMessage('Cleaning out any existing data first ...');
       warningList = addToWarningList(warningList, saveCountsResponse);
 
@@ -228,7 +234,6 @@ function onResyncSubmit() {
       }
 
       insertCheckmark();
-
       updateModalButtonText('Cancel re-syncing process');
       setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
       warningList = addToWarningList(warningList, removeExistingDataResponse);
@@ -240,7 +245,7 @@ function onResyncSubmit() {
 
       */
       progressStatus();
-      appendProgressBars(allCounts);
+      appendProgressBars( filterOutSelectedDataForSync(allCounts, ['webhooks']) );
 
 
       /*
@@ -265,7 +270,8 @@ function onResyncSubmit() {
       insertCheckmark();
       setConnectionStepMessage('Cleaning up ...');
       warningList = addToWarningList(warningList, syncResp);
-
+      forceProgressBarsComplete();
+      
 
       /*
 
@@ -304,6 +310,7 @@ function onResyncSubmit() {
       });
 
       activateToolButtons();
+
 
     });
 

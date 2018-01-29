@@ -40,6 +40,8 @@ Tab Content: Settings
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
 
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-selective-sync.php';
+
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-price-formatter.php';
 
       ?>

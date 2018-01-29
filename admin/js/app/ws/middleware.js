@@ -8,7 +8,8 @@ import {
   getCustomCollectionsCount,
   getOrdersCount,
   getCustomersCount,
-  getWebhooksCount
+  getWebhooksCount,
+  getShopCount
 } from '../ws/ws';
 
 import {
@@ -46,22 +47,30 @@ Syncing Shopify data with WordPress CPT
 */
 async function syncPluginData() {
 
-
   // 1. Smart Collections
-  try {
-    await syncSmartCollections(); // wps_insert_smart_collections_data
+  if (wps.selective_sync.all || wps.selective_sync.smart_collections) {
 
-  } catch(errors) {
-    return returnCustomError(errors);
+    try {
+      await syncSmartCollections(); // wps_insert_smart_collections_data
+
+    } catch(errors) {
+      return returnCustomError(errors);
+
+    }
 
   }
 
-  // 2. Custom Collections
-  try {
-    await syncCustomCollections(); // wps_insert_custom_collections_data
 
-  } catch(errors) {
-    return returnCustomError(errors);
+  // 2. Custom Collections
+  if (wps.selective_sync.all || wps.selective_sync.custom_collections) {
+
+    try {
+      await syncCustomCollections(); // wps_insert_custom_collections_data
+
+    } catch(errors) {
+      return returnCustomError(errors);
+
+    }
 
   }
 
@@ -107,7 +116,8 @@ function getItemCounts() {
         getProductsCount(), // wps_ws_get_products_count
         getCollectsCount(), // wps_ws_get_collects_count
         getOrdersCount(), // wps_ws_get_orders_count
-        getCustomersCount() // wps_ws_get_customers_count
+        getCustomersCount(), // wps_ws_get_customers_count
+        getShopCount() // wps_ws_get_shop_count
       ]);
 
       if (!isEmpty(filter(counts, isWordPressError))) {

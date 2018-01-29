@@ -31,23 +31,31 @@ class Settings_General extends \WPS\DB {
 
     global $wpdb;
 
-    $this->table_name             = $wpdb->prefix . 'wps_settings_general';
-    $this->primary_key            = 'id';
-    $this->version                = '1.0';
-    $this->webhooks               = get_home_url();
-    $this->plugin_version         = $Config->plugin_version;
-    $this->plugin_author          = $Config->plugin_author;
-    $this->plugin_textdomain      = $Config->plugin_name;
-    $this->plugin_name            = $Config->plugin_name_full;
-    $this->cache_group            = 'wps_db_general';
-    $this->num_posts              = get_option('posts_per_page');
-    $this->cart_loaded            = 1;
-    $this->title_as_alt           = 0;
-    $this->price_with_currency    = 0;
+    $this->table_name                     = $wpdb->prefix . 'wps_settings_general';
+    $this->primary_key                    = 'id';
+    $this->version                        = '1.0';
+    $this->webhooks                       = get_home_url();
+    $this->plugin_version                 = $Config->plugin_version;
+    $this->plugin_author                  = $Config->plugin_author;
+    $this->plugin_textdomain              = $Config->plugin_name;
+    $this->plugin_name                    = $Config->plugin_name_full;
+    $this->cache_group                    = 'wps_db_general';
+    $this->num_posts                      = get_option('posts_per_page');
 
-    $this->styles_all             = 1;
-    $this->styles_core            = 0;
-    $this->styles_grid            = 0;
+    $this->cart_loaded                    = 1;
+    $this->title_as_alt                   = 0;
+    $this->price_with_currency            = 0;
+
+    $this->styles_all                     = 1;
+    $this->styles_core                    = 0;
+    $this->styles_grid                    = 0;
+
+    $this->selective_sync_all             = 1;
+    $this->selective_sync_products        = 0;
+    $this->selective_sync_collections     = 0;
+    $this->selective_sync_customers       = 0;
+    $this->selective_sync_orders          = 0;
+    $this->selective_sync_shop            = 0;
 
   }
 
@@ -58,23 +66,31 @@ class Settings_General extends \WPS\DB {
 
   */
 	public function get_columns() {
+
     return array(
-      'id'                        => '%d',
-      'url_products'              => '%s',
-      'url_collections'           => '%s',
-      'url_webhooks'              => '%s',
-      'num_posts'                 => '%d',
-      'styles_all'                => '%d',
-      'styles_core'               => '%d',
-      'styles_grid'               => '%d',
-      'plugin_name'               => '%s',
-      'plugin_textdomain'         => '%s',
-      'plugin_version'            => '%s',
-      'plugin_author'             => '%s',
-      'price_with_currency'       => '%d',
-      'cart_loaded'               => '%d',
-      'title_as_alt'              => '%d'
+      'id'                            => '%d',
+      'url_products'                  => '%s',
+      'url_collections'               => '%s',
+      'url_webhooks'                  => '%s',
+      'num_posts'                     => '%d',
+      'styles_all'                    => '%d',
+      'styles_core'                   => '%d',
+      'styles_grid'                   => '%d',
+      'plugin_name'                   => '%s',
+      'plugin_textdomain'             => '%s',
+      'plugin_version'                => '%s',
+      'plugin_author'                 => '%s',
+      'price_with_currency'           => '%d',
+      'cart_loaded'                   => '%d',
+      'title_as_alt'                  => '%d',
+      'selective_sync_all'            => '%d',
+      'selective_sync_products'       => '%d',
+      'selective_sync_collections'    => '%d',
+      'selective_sync_customers'      => '%d',
+      'selective_sync_orders'         => '%d',
+      'selective_sync_shop'           => '%d'
     );
+
   }
 
 
@@ -85,21 +101,27 @@ class Settings_General extends \WPS\DB {
   */
 	public function get_column_defaults() {
     return array(
-      'id'                        => 1,
-      'url_products'              => 'products',
-      'url_collections'           => 'collections',
-      'url_webhooks'              => $this->webhooks,
-      'num_posts'                 => $this->num_posts,
-      'styles_all'                => $this->styles_all,
-      'styles_core'               => $this->styles_core,
-      'styles_grid'               => $this->styles_grid,
-      'plugin_name'               => $this->plugin_name,
-      'plugin_textdomain'         => $this->plugin_textdomain,
-      'plugin_version'            => $this->plugin_version,
-      'plugin_author'             => $this->plugin_author,
-      'price_with_currency'       => $this->price_with_currency,
-      'cart_loaded'               => $this->cart_loaded,
-      'title_as_alt'              => $this->title_as_alt
+      'id'                            => 1,
+      'url_products'                  => 'products',
+      'url_collections'               => 'collections',
+      'url_webhooks'                  => $this->webhooks,
+      'num_posts'                     => $this->num_posts,
+      'styles_all'                    => $this->styles_all,
+      'styles_core'                   => $this->styles_core,
+      'styles_grid'                   => $this->styles_grid,
+      'plugin_name'                   => $this->plugin_name,
+      'plugin_textdomain'             => $this->plugin_textdomain,
+      'plugin_version'                => $this->plugin_version,
+      'plugin_author'                 => $this->plugin_author,
+      'price_with_currency'           => $this->price_with_currency,
+      'cart_loaded'                   => $this->cart_loaded,
+      'title_as_alt'                  => $this->title_as_alt,
+      'selective_sync_all'            => $this->selective_sync_all,
+      'selective_sync_products'       => $this->selective_sync_products,
+      'selective_sync_collections'    => $this->selective_sync_collections,
+      'selective_sync_customers'      => $this->selective_sync_customers,
+      'selective_sync_orders'         => $this->selective_sync_orders,
+      'selective_sync_shop'           => $this->selective_sync_shop
     );
   }
 
@@ -114,21 +136,27 @@ class Settings_General extends \WPS\DB {
     $results = array();
 
     $data = array(
-      'id'                        => 1,
-      'url_products'              => 'products',
-      'url_collections'           => 'collections',
-      'url_webhooks'              => $this->webhooks,
-      'num_posts'                 => $this->num_posts,
-      'styles_all'                => $this->styles_all,
-      'styles_core'               => $this->styles_core,
-      'styles_grid'               => $this->styles_grid,
-      'plugin_name'               => $this->plugin_name,
-      'plugin_textdomain'         => $this->plugin_textdomain,
-      'plugin_version'            => $this->plugin_version,
-      'plugin_author'             => $this->plugin_author,
-      'price_with_currency'       => $this->price_with_currency,
-      'cart_loaded'               => $this->cart_loaded,
-      'title_as_alt'              => $this->title_as_alt
+      'id'                            => 1,
+      'url_products'                  => 'products',
+      'url_collections'               => 'collections',
+      'url_webhooks'                  => $this->webhooks,
+      'num_posts'                     => $this->num_posts,
+      'styles_all'                    => $this->styles_all,
+      'styles_core'                   => $this->styles_core,
+      'styles_grid'                   => $this->styles_grid,
+      'plugin_name'                   => $this->plugin_name,
+      'plugin_textdomain'             => $this->plugin_textdomain,
+      'plugin_version'                => $this->plugin_version,
+      'plugin_author'                 => $this->plugin_author,
+      'price_with_currency'           => $this->price_with_currency,
+      'cart_loaded'                   => $this->cart_loaded,
+      'title_as_alt'                  => $this->title_as_alt,
+      'selective_sync_all'            => $this->selective_sync_all,
+      'selective_sync_products'       => $this->selective_sync_products,
+      'selective_sync_collections'    => $this->selective_sync_collections,
+      'selective_sync_customers'      => $this->selective_sync_customers,
+      'selective_sync_orders'         => $this->selective_sync_orders,
+      'selective_sync_shop'           => $this->selective_sync_shop
     );
 
     $row = $this->get_rows('id', 1);
@@ -222,6 +250,12 @@ class Settings_General extends \WPS\DB {
       `price_with_currency` tinyint(1) DEFAULT 0,
       `cart_loaded` tinyint(1) DEFAULT '{$this->cart_loaded}',
       `title_as_alt` tinyint(1) DEFAULT '{$this->title_as_alt}',
+      `selective_sync_all` tinyint(1) DEFAULT '{$this->selective_sync_all}',
+      `selective_sync_products` tinyint(1) DEFAULT '{$this->selective_sync_products}',
+      `selective_sync_collections` tinyint(1) DEFAULT '{$this->selective_sync_collections}',
+      `selective_sync_customers` tinyint(1) DEFAULT '{$this->selective_sync_customers}',
+      `selective_sync_orders` tinyint(1) DEFAULT '{$this->selective_sync_orders}',
+      `selective_sync_shop` tinyint(1) DEFAULT '{$this->selective_sync_shop}',
 		  PRIMARY KEY  (`{$this->primary_key}`)
 		) ENGINE=InnoDB $collate";
 
@@ -268,10 +302,32 @@ class Settings_General extends \WPS\DB {
 
     if (is_array($setting) && isset($setting)) {
       return $setting[0]->title_as_alt;
+      
     } else {
       return false;
     }
 
   }
+
+
+  /*
+
+  selective_sync_status
+
+  */
+	public function selective_sync_status() {
+
+    return [
+      'all'                 => (int) $this->get_column_single('selective_sync_all')[0]->selective_sync_all,
+      'products'            => (int) $this->get_column_single('selective_sync_products')[0]->selective_sync_products,
+      'smart_collections'   => (int) $this->get_column_single('selective_sync_collections')[0]->selective_sync_collections,
+      'custom_collections'  => (int) $this->get_column_single('selective_sync_collections')[0]->selective_sync_collections,
+      'customers'           => (int) $this->get_column_single('selective_sync_customers')[0]->selective_sync_customers,
+      'orders'              => (int) $this->get_column_single('selective_sync_orders')[0]->selective_sync_orders,
+      'shop'                => (int) $this->get_column_single('selective_sync_shop')[0]->selective_sync_shop
+    ];
+
+  }
+
 
 }

@@ -195,6 +195,48 @@ function removeCancelSync() {
 }
 
 
+
+
+
+/*
+
+Set canceling indicator
+
+*/
+function setWebhooksReconnect(flag) {
+  localStorage.setItem('wps-webhooks-reconnect', flag);
+}
+
+
+/*
+
+Set canceling indicator
+
+*/
+function getWebhooksReconnect() {
+
+  if (localStorage.getItem('wps-webhooks-reconnect') === 'false') {
+    return 0;
+
+  } else {
+    return localStorage.getItem('wps-webhooks-reconnect');
+  }
+
+}
+
+
+/*
+
+Set canceling indicator
+
+*/
+function removeWebhooksReconnect() {
+  localStorage.removeItem('wps-webhooks-reconnect');
+}
+
+
+
+
 /*
 
 Set canceling indicator
@@ -205,7 +247,7 @@ function syncIsCanceled() {
   if (getCancelSync() === 'true') {
 
     jQuery('.wps-connector').addClass('wps-is-stopping');
-    
+
     return true;
 
   } else {
@@ -232,6 +274,7 @@ function clearLocalstorageCache() {
   removeMoneyFormat();
   removeStartingURL();
   removeCancelSync();
+  removeWebhooksReconnect();
 }
 
 
@@ -249,5 +292,7 @@ export {
   isConnectionInProgress,
   syncIsCanceled,
   setCancelSync,
-  getCancelSync
+  getCancelSync,
+  setWebhooksReconnect,
+  getWebhooksReconnect
 };

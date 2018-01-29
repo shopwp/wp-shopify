@@ -80,10 +80,16 @@
   background-color: transparent;
   border: none;
   margin: 0;
-  padding: 0 1em;
   position: relative;
-  max-width: 30px;
-  
+  max-width: auto;
+  width: auto;
+  height: 30px;
+
+  img {
+    height: 30px;
+    width: auto;
+  }
+
   &:focus {
     outline: 0;
   }
