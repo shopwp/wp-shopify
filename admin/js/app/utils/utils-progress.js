@@ -88,7 +88,6 @@ async function progressStatus() {
         the DOM accordingly
 
         */
-
         updateProgressBarTotals(status.data.syncing_totals);
         updateProgressBarCurrentAmounts(status.data.syncing_current_amounts);
 
@@ -174,6 +173,14 @@ function createProgressBar(stepName, stepTotal) {
 
   var stepNamePretty = stepName.split('_').join(' ');
 
+  if (stepNamePretty === 'products') {
+    stepNamePretty = 'Products (includes images, tags, variant data, etc)'
+  }
+
+  if (stepNamePretty === 'shop') {
+    stepNamePretty = 'Shop (includes store name, location, phone number, etc)'
+  }
+
   return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepTotal + '" id="wps-progress-bar-' + stepName + '"><span class="wps-progress-step-name">' + stepNamePretty + '</span><span class="wps-progress-step-percentage">0%</span><div class="wps-progress-bar"></div><span class="dashicons dashicons-yes"></span></div>');
 }
 
@@ -240,15 +247,18 @@ function updateProgressCurrentAmount(stepCurrentValue, stepName) {
   var percentage = getProgressBarPercentage(stepCurrentValue, stepName),
       $progressWrapper = jQuery('#wps-progress-bar-' + stepName);
 
-  if (stepCurrentValue == $progressWrapper.data('wps-progress-total')) {
-    $progressWrapper.addClass('wps-is-complete');
+  if (!isNaN(percentage)) {
+
+    if (stepCurrentValue == $progressWrapper.data('wps-progress-total')) {
+      $progressWrapper.addClass('wps-is-complete');
+    }
+
+    $progressWrapper
+      .find('.wps-progress-bar').css('width', percentage + '%');
+
+    $progressWrapper
+      .find('.wps-progress-step-percentage').text(Math.round(percentage) + '%');
   }
-
-  $progressWrapper
-    .find('.wps-progress-bar').css('width', percentage + '%');
-
-  $progressWrapper
-    .find('.wps-progress-step-percentage').text(Math.round(percentage) + '%');
 
 }
 
@@ -273,6 +283,24 @@ function appendProgressBars(allCounts) {
 }
 
 
+/*
+
+Force Progress Bars to 100%
+
+*/
+function forceProgressBarsComplete() {
+
+  var $progressWrapper = jQuery('.wps-progress-bar-wrapper');
+  $progressWrapper.addClass('wps-is-complete');
+
+  $progressWrapper
+    .find('.wps-progress-bar').css('width', '100%');
+
+  $progressWrapper
+    .find('.wps-progress-step-percentage').text('100%');
+
+}
+
 
 export {
   createProgressLoader,
@@ -281,5 +309,6 @@ export {
   progressStatus,
   mapProgressDataFromSessionValues,
   createProgressBar,
-  appendProgressBars
+  appendProgressBars,
+  forceProgressBarsComplete
 };

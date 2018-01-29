@@ -9,7 +9,7 @@ Tab Content: Tools
 
   <div class="wps-admin-section">
 
-    <h3><?php esc_attr_e('Manual Sync ', 'wp-shopify'); ?> <span class="wps-help-tip wps-help-tip-inline" title="<?php esc_attr_e("Note: To fix syncing issues you may want to ensure that the 'Webhooks callback URL' located on the Settings tab is set to a publicly accessible URL. Also be aware that this does not delete the custom post types or any custom fields you\'ve added."); ?>"></span></h3>
+    <h3><?php esc_attr_e('Re-Sync Shopify', 'wp-shopify'); ?> <span class="wps-help-tip wps-help-tip-inline" title="<?php esc_attr_e("Note: To fix syncing issues you may want to ensure that the 'Webhooks callback URL' located on the Settings tab is set to a publicly accessible URL. Also be aware that this does not delete the custom post types or any custom fields you\'ve added."); ?>"></span></h3>
     <p><?php esc_attr_e('If you\'re having trouble keeping WordPress in sync with Shopify you can manually resync here.', 'wp-shopify'); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax <?php echo $connected ? 'wps-is-active' : 'wps-is-not-active'; ?>">
@@ -31,7 +31,7 @@ Tab Content: Tools
 
       }
 
-      submit_button(esc_html__('Re-sync Shopify', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Re-sync Shopify data', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
 
       <div class="spinner"></div>
 

@@ -48,7 +48,8 @@ import {
 
 import {
   uninstallPlugin,
-  removeConnectionData
+  removeConnectionData,
+  removeWebhooks
 } from '../ws/ws';
 
 import {
@@ -59,7 +60,8 @@ import {
 import {
   setConnectionProgress,
   clearLocalstorageCache,
-  removeConnectionProgress
+  removeConnectionProgress,
+  setWebhooksReconnect
 } from '../ws/localstorage';
 
 import {
@@ -155,6 +157,7 @@ function disconnectionFormSubmitHandler(e) {
     updateModalHeadingText('Disconnecting ...');
     updateModalButtonText('Cancel disconnecting');
     setConnectionStepMessage('Preparing to disconnect ...');
+    setWebhooksReconnect(true);
 
     /*
 
@@ -201,7 +204,6 @@ function disconnectionFormSubmitHandler(e) {
     insertCheckmark();
     setConnectionStepMessage('Removing added Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
     warningList = addToWarningList(warningList, clearAllCacheResponse);
-
 
 
     /*

@@ -43,7 +43,8 @@ import {
   startProgressBar,
   mapProgressDataFromSessionValues,
   appendProgressBars,
-  progressStatus
+  progressStatus,
+  forceProgressBarsComplete
 } from '../utils/utils-progress';
 
 
@@ -70,7 +71,10 @@ import {
 import {
   returnOnlyFailedRequests,
   constructFinalNoticeList,
-  addToWarningList
+  addToWarningList,
+  filterOutAnyNotice,
+  filterOutSelectiveSync,
+  filterOutSelectedDataForSync
 } from '../utils/utils-data';
 
 import {
@@ -78,7 +82,6 @@ import {
   getAuthToken,
   getShopifyURL,
   getAuthUser,
-  updateAuthUser,
   uninstallPlugin,
   insertConnectionData,
   getConnectionData,
@@ -99,12 +102,17 @@ import {
   setModalCache,
   clearLocalstorageCache,
   setStartingURL,
-  syncIsCanceled
+  syncIsCanceled,
+  setWebhooksReconnect
 } from '../ws/localstorage';
 
 import {
   clearAllCache
 } from '../tools/cache';
+
+import {
+  getSelectiveSyncOptions
+} from '../settings/settings';
 
 import {
   toolsInit,
@@ -230,6 +238,7 @@ function connectionFormSubmitHandler(form) {
 
     prepareBeforeSync();
     setConnectionStepMessage('Preparing connection ...');
+    setWebhooksReconnect(true);
 
 
     /*
@@ -284,7 +293,7 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
-      var startProgressBarResponse = await startProgressBar(true);
+      var startProgressBarResponse = await startProgressBar(true, getSelectiveSyncOptions() );
 
     } catch (errors) {
 
@@ -310,7 +319,7 @@ function connectionFormSubmitHandler(form) {
     try {
 
       var itemCountsResp = await getItemCounts();
-      var allCounts = getDataFromArray(itemCountsResp);
+      var allCounts = filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) );
 
     } catch (errors) {
 
@@ -407,6 +416,7 @@ function connectionFormSubmitHandler(form) {
     insertCheckmark();
     setConnectionStepMessage('Cleaning up ...');
     warningList = addToWarningList(warningList, syncResp);
+    forceProgressBarsComplete();
 
 
     /*

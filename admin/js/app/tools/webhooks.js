@@ -23,7 +23,8 @@ import {
   connectionInProgress,
   setConnectionProgress,
   setModalCache,
-  syncIsCanceled
+  syncIsCanceled,
+  setWebhooksReconnect
 } from '../ws/localstorage';
 
 import {
@@ -103,6 +104,7 @@ async function webhooksSubmitCallback(e) {
     prepareBeforeSync();
     updateModalHeadingText('Reconnecting Webhooks ...');
     setConnectionStepMessage('Preparing sync ...');
+    setWebhooksReconnect(true);
 
     /*
 

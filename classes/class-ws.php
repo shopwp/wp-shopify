@@ -541,6 +541,26 @@ class WS {
 
 	/*
 
+	Get Shop Count
+
+	*/
+	public function wps_ws_get_shop_count() {
+
+		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+			$this->send_error($this->messages->message_nonce_invalid . ' (wps_ws_get_shop_count)');
+		}
+
+		if (Utils::emptyConnection($this->connection)) {
+			$this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_shop_count)');
+		}
+
+		$this->send_success(['shop' => 1]);
+
+	}
+
+
+	/*
+
 	Get Webhooks Count
 
 	*/
@@ -689,10 +709,10 @@ class WS {
 			$this->send_error($this->messages->message_connection_not_syncing . ' (wps_insert_products_data)');
 		}
 
-
 		$index = 1;
 		$insertionResults = [];
 		$existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
+		$DB_Settings_General = new Settings_General();
 		$DB_Variants = new Variants();
 		$DB_Products = new Products();
 		$DB_Options = new Options();
@@ -797,7 +817,6 @@ class WS {
 			}
 
     } catch (RequestException $error) {
-
       $this->send_error( $this->wps_get_error_message($error) . ' (wps_insert_products_data)');
 
     }
@@ -1344,38 +1363,46 @@ class WS {
 	*/
 	public function wps_ws_register_all_webhooks() {
 
-		$Webhooks = new Webhooks($this->config);
-
-		if (isset($_POST['removalErrors']) && $_POST['removalErrors']) {
-			$webhooksErrorList = $_POST['removalErrors'];
+		if (isset($_POST['webhooksReconnect']) && !$_POST['webhooksReconnect']) {
+			$this->send_success();
 
 		} else {
-			$webhooksErrorList = [];
-		}
 
-		$webhooksDefaultList = $Webhooks->default_topics();
+			$Webhooks = new Webhooks($this->config);
 
-		$webhooksToRegister = array_diff_key($webhooksDefaultList, $webhooksErrorList);
-
-		$registerResults = $Webhooks->wps_webhooks_register($webhooksToRegister);
-
-
-		if (is_array($registerResults)) {
-
-			// Contains an array of topics and webhook IDs on success or false on error
-			$finalWebhooksResult = array_merge($webhooksErrorList, $registerResults);
-			$registerErrors = $Webhooks->filter_for_register_errors($finalWebhooksResult);
-
-			if (empty($registerErrors)) {
-				$this->send_success();
+			if (isset($_POST['removalErrors']) && $_POST['removalErrors']) {
+				$webhooksErrorList = $_POST['removalErrors'];
 
 			} else {
-				$this->send_warning( $Webhooks->construct_warning_messages($registerErrors) );
-
+				$webhooksErrorList = [];
 			}
 
-		} else {
-			$this->send_warning();
+
+			$webhooksDefaultList = $Webhooks->default_topics();
+
+			$webhooksToRegister = array_diff_key($webhooksDefaultList, $webhooksErrorList);
+
+			$registerResults = $Webhooks->wps_webhooks_register($webhooksToRegister);
+
+
+			if (is_array($registerResults)) {
+
+				// Contains an array of topics and webhook IDs on success or false on error
+				$finalWebhooksResult = array_merge($webhooksErrorList, $registerResults);
+				$registerErrors = $Webhooks->filter_for_register_errors($finalWebhooksResult);
+
+				if (empty($registerErrors)) {
+					$this->send_success();
+
+				} else {
+					$this->send_warning( $Webhooks->construct_warning_messages($registerErrors) );
+
+				}
+
+			} else {
+				$this->send_warning();
+			}
+
 		}
 
 	}
@@ -1492,6 +1519,41 @@ class WS {
     if (isset($_POST['wps_settings_general_cart_loaded'])) {
       $newGeneralSettings['cart_loaded'] = (int)$_POST['wps_settings_general_cart_loaded'];
     }
+
+
+
+		if (isset($_POST['wps_settings_general_selective_sync_all'])) {
+			$newGeneralSettings['selective_sync_all'] = (int)$_POST['wps_settings_general_selective_sync_all'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_products'])) {
+			$newGeneralSettings['selective_sync_products'] = (int)$_POST['wps_settings_general_selective_sync_products'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_collections'])) {
+			$newGeneralSettings['selective_sync_collections'] = (int)$_POST['wps_settings_general_selective_sync_collections'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_customers'])) {
+			$newGeneralSettings['selective_sync_customers'] = (int)$_POST['wps_settings_general_selective_sync_customers'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_orders'])) {
+			$newGeneralSettings['selective_sync_orders'] = (int)$_POST['wps_settings_general_selective_sync_orders'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_tags'])) {
+			$newGeneralSettings['selective_sync_tags'] = (int)$_POST['wps_settings_general_selective_sync_tags'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_images'])) {
+			$newGeneralSettings['selective_sync_images'] = (int)$_POST['wps_settings_general_selective_sync_images'];
+		}
+
+		if (isset($_POST['wps_settings_general_selective_sync_shop'])) {
+			$newGeneralSettings['selective_sync_shop'] = (int)$_POST['wps_settings_general_selective_sync_shop'];
+		}
+
 
     $results = $DB_Settings_General->update_general($newGeneralSettings);
 
@@ -1633,14 +1695,35 @@ class WS {
   */
   public function wps_delete_shop() {
 
-    $DB_Shop = new Shop();
+		$DB_Shop = new Shop();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$DB_Shop->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_shop_error . ' (wps_delete_shop)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if ( !$DB_Shop->delete() ) {
+	      return new \WP_Error('error', $this->messages->message_delete_shop_error . ' (wps_delete_shop)');
+
+	    } else {
+	      return true;
+	    }
+
+		} else {
+
+			if ($syncStates['shop']) {
+
+				if ( !$DB_Shop->delete() ) {
+		      return new \WP_Error('error', $this->messages->message_delete_shop_error . ' (wps_delete_shop)');
+
+		    } else {
+		      return true;
+		    }
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1697,14 +1780,35 @@ class WS {
   */
   public function wps_delete_images() {
 
-    $Images = new Images();
+		$Images = new Images();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Images->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_images_error . ' (wps_delete_images)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Images->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_product_images_error . ' (wps_delete_images)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['products']) {
+
+				if (!$Images->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_product_images_error . ' (wps_delete_images 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1736,13 +1840,34 @@ class WS {
   public function wps_delete_collects() {
 
     $Collects = new Collects();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Collects->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_collects_error . ' (wps_delete_collects)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Collects->delete()) {
+	      return new \WP_Error('error', $this->messages->message_delete_collects_error . ' (wps_delete_collects)');
+
+	    } else {
+	      return true;
+	    }
+
+		} else {
+
+			if ($syncStates['products']) {
+
+				if (!$Collects->delete()) {
+		      return new \WP_Error('error', $this->messages->message_delete_collects_error . ' (wps_delete_collects 2)');
+
+		    } else {
+		      return true;
+		    }
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1754,14 +1879,35 @@ class WS {
   */
   public function wps_delete_tags() {
 
-    $Tags = new Tags();
+		$Tags = new Tags();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Tags->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_tags_error . ' (wps_delete_tags)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Tags->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_product_tags_error . ' (wps_delete_tags)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['products']) {
+
+				if (!$Tags->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_product_tags_error . ' (wps_delete_tags 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1773,14 +1919,35 @@ class WS {
   */
   public function wps_delete_options() {
 
-    $Options = new Options();
+		$Options = new Options();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Options->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_options_error . ' (wps_delete_options)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Options->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_product_options_error . ' (wps_delete_options)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['products']) {
+
+				if (!$Options->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_product_options_error . ' (wps_delete_options 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1792,14 +1959,35 @@ class WS {
   */
   public function wps_delete_variants() {
 
-    $Variants = new Variants();
+		$Variants = new Variants();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Variants->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_product_variants_error . ' (wps_delete_variants)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Variants->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_product_variants_error . ' (wps_delete_variants)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['products']) {
+
+				if (!$Variants->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_product_variants_error . ' (wps_delete_variants 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1811,14 +1999,35 @@ class WS {
   */
   public function wps_delete_products() {
 
-    $Products = new Products();
+		$Products = new Products();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Products->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_products_error . ' (wps_delete_products)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Products->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_products_error . ' (wps_delete_products)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['products']) {
+
+				if (!$Products->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_products_error . ' (wps_delete_products 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1830,14 +2039,35 @@ class WS {
   */
   public function wps_delete_custom_collections() {
 
-    $Collections_Custom = new Collections_Custom();
+		$Collections_Custom = new Collections_Custom();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Collections_Custom->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_custom_collections_error . ' (wps_delete_custom_collections)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Collections_Custom->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_custom_collections_error . ' (wps_delete_custom_collections)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['custom_collections']) {
+
+				if (!$Collections_Custom->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_custom_collections_error . ' (wps_delete_custom_collections 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1849,14 +2079,35 @@ class WS {
   */
   public function wps_delete_smart_collections() {
 
-    $Collections_Smart = new Collections_Smart();
+		$Collections_Smart = new Collections_Smart();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Collections_Smart->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_smart_collections_error . ' (wps_delete_smart_collections)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Collections_Smart->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_smart_collections_error . ' (wps_delete_smart_collections)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['smart_collections']) {
+
+				if (!$Collections_Smart->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_smart_collections_error . ' (wps_delete_smart_collections 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1868,14 +2119,35 @@ class WS {
   */
   public function wps_delete_orders() {
 
-    $Orders = new Orders();
+		$Orders = new Orders();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Orders->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (wps_delete_orders)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Orders->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (wps_delete_orders)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['orders']) {
+
+				if (!$Orders->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (wps_delete_orders 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -1887,14 +2159,35 @@ class WS {
   */
   public function wps_delete_customers() {
 
-    $Customers = new Customers();
+		$Customers = new Customers();
+		$DB_Settings_General = new Settings_General();
+		$syncStates = $DB_Settings_General->selective_sync_status();
 
-    if (!$Customers->delete()) {
-      return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (wps_delete_customers)');
+		if ($syncStates['all']) {
 
-    } else {
-      return true;
-    }
+			if (!$Customers->delete()) {
+				return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (wps_delete_customers)');
+
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if ($syncStates['customers']) {
+
+				if (!$Customers->delete()) {
+					return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (wps_delete_customers 2)');
+
+				} else {
+					return true;
+				}
+
+			} else {
+				return true;
+			}
+
+		}
 
   }
 
@@ -2094,6 +2387,15 @@ class WS {
   */
   public function wps_uninstall_product_data($ajax = true) {
 
+		$results = array();
+		$webhooksReconnect = true;
+		$Transients = new Transients();
+		$Webhooks = new Webhooks($this->config);
+		$DB_Settings_Connection = new Settings_Connection();
+
+		$connection = $DB_Settings_Connection->get_column_single('domain');
+
+
     if ($_POST['action'] === 'wps_uninstall_product_data') {
       $ajax = true;
 
@@ -2108,14 +2410,20 @@ class WS {
 				$this->send_error($this->messages->message_nonce_invalid . ' (wps_uninstall_product_data)');
 			}
 
+
+			if (isset($_POST['webhooksReconnect']) && !empty($_POST['webhooksReconnect'])) {
+				$webhooksReconnect = $_POST['webhooksReconnect'];
+
+			} else {
+				error_log('---- /22 -----');
+				$webhooksReconnect = true; // Default set to true so we don't have to worry about setting defaults on the front-end
+			}
+
     }
 
 
-    $results = array();
-    $Transients = new Transients();
-		$Webhooks = new Webhooks($this->config);
-    $DB_Settings_Connection = new Settings_Connection();
-    $connection = $DB_Settings_Connection->get_column_single('domain');
+		Utils::wps_access_session();
+
 
 
     /*
@@ -2138,8 +2446,7 @@ class WS {
 		Remove Webhooks
 
 		*/
-		$response_webhooks = $Webhooks->remove_webhooks(false, true);
-
+		$response_webhooks = $Webhooks->remove_webhooks(false, true, $webhooksReconnect);
 
 		if (is_wp_error($response_webhooks)) {
 			$results['connection_api'] = $response_webhooks->get_error_message()  . ' (wps_uninstall_product_data)';
@@ -2312,6 +2619,10 @@ class WS {
     } else {
       $results['transients'] = $response_transients;
     }
+
+		error_log('---- $results -----');
+		error_log(print_r($results, true));
+		error_log('---- /$results -----');
 
 
     if ($ajax) {
@@ -2743,27 +3054,27 @@ class WS {
 
 			Utils::wps_access_session();
 
-			if (isset($_SESSION['wps_syncing_totals']['smart_collections']) && isset($counts['smart_collections'])) {
+			if (isset($counts['smart_collections'])) {
 				$_SESSION['wps_syncing_totals']['smart_collections'] = $counts['smart_collections'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['custom_collections']) && isset($counts['custom_collections'])) {
+			if (isset($counts['custom_collections'])) {
 				$_SESSION['wps_syncing_totals']['custom_collections'] = $counts['custom_collections'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['products']) && isset($counts['products'])) {
+			if (isset($counts['products'])) {
 				$_SESSION['wps_syncing_totals']['products'] = $counts['products'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['collects']) && isset($counts['collects'])) {
+			if (isset($counts['collects'])) {
 				$_SESSION['wps_syncing_totals']['collects'] = $counts['collects'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['orders']) && isset($counts['orders'])) {
+			if (isset($counts['orders'])) {
 				$_SESSION['wps_syncing_totals']['orders'] = $counts['orders'];
 			}
 
-			if (isset($_SESSION['wps_syncing_totals']['customers']) && isset($counts['customers'])) {
+			if (isset($counts['customers'])) {
 				$_SESSION['wps_syncing_totals']['customers'] = $counts['customers'];
 			}
 
@@ -2790,6 +3101,7 @@ class WS {
 		}
 
 		Utils::wps_access_session();
+
 		$this->send_success($_SESSION['wps_syncing_totals']);
 
 	}

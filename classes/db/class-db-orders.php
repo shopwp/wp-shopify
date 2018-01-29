@@ -243,7 +243,6 @@ class Orders extends \WPS\DB {
 
         // Converting to a fully qualified associative array
         $order = json_decode(json_encode($order), true);
-
         $results[] = $this->insert($order, 'order');
 
       }

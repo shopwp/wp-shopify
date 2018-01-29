@@ -147,7 +147,6 @@ class Progress_Bar {
 		}
 
 		$sessionVariables = $_SESSION;
-
 		$sessionVariablesFiltered = $this->filter_session_variables_by_includes($sessionVariables, $includes);
 
 		$_SESSION['wps_syncing_current_amounts'] = $sessionVariablesFiltered['wps_syncing_current_amounts'];
@@ -287,7 +286,7 @@ class Progress_Bar {
 
 		Utils::wps_access_session();
 
-		if (isset($_SESSION['wps_syncing_current_amounts'][$key])) {
+		if (isset($key) && isset($_SESSION['wps_syncing_current_amounts'][$key]) && !empty($key)) {
 			$_SESSION['wps_syncing_current_amounts'][$key] = $_SESSION['wps_syncing_current_amounts'][$key] + 1;
 		}
 
