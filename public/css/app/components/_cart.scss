@@ -26,8 +26,11 @@
   }
 
   .wps-is-disabled:before {
-    left: 45%;
+    left: 44%;
+    top: 16%;
   }
+
+
 
 }
 
@@ -361,7 +364,7 @@ input[type="number"].wps-cart-item__quantity {
 .wps-cart-item__title {
   color: color(darkblue);
   text-decoration: none;
-  
+
   &:hover {
     color: color(darkblue);
   }

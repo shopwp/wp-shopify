@@ -17,7 +17,8 @@ import {
 } from '../ws/localstorage';
 
 import {
-  isWordPressError
+  isWordPressError,
+  isTimeout
 } from '../utils/utils';
 
 import {
@@ -203,6 +204,7 @@ async function streamProducts() {
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
+
     /*
 
     1. Get products count
@@ -234,16 +236,18 @@ async function streamProducts() {
     }
 
 
-    /*
 
-    2. Get all products
 
-    */
-    try {
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    while(currentPage <= pages) {
 
-      while(currentPage <= pages) {
+      /*
+
+      2. Get all products
+
+      */
+      try {
 
         var itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
 
@@ -259,14 +263,19 @@ async function streamProducts() {
 
         currentPage += 1;
 
+
+      } catch (error) {
+
+        if ( !isTimeout(error.status) ) {
+          reject();
+        }
+
       }
 
-      resolve(itemsToAdd);
-      return;
-
-    } catch (error) {
-      reject(error);
     }
+
+    resolve(itemsToAdd);
+    return;
 
   });
 

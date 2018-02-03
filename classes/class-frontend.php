@@ -423,6 +423,7 @@ if (!class_exists('Frontend')) {
 				$refinedVariants = array();
 				$refinedVariantsOptions = array();
 
+
 				foreach ($variantData as $key => $variant) {
 
 					$refinedVariantsOptions = array_filter_key($variant, function($key) {
@@ -436,6 +437,8 @@ if (!class_exists('Frontend')) {
 
 				}
 
+
+
 				$constructedOptions = Utils::construct_option_selections($selectedOptions);
 
 				// TODO -- Breakout into own function
@@ -445,6 +448,7 @@ if (!class_exists('Frontend')) {
 
 					$cleanVariants = array_filter($variant['options']);
 
+
 					if ( $cleanVariants === $constructedOptions ) {
 
 						$variantObj = $DB_Variants->get_by('id', $variant['id']);
@@ -453,6 +457,7 @@ if (!class_exists('Frontend')) {
 						$productWithVariants['variants'] = (array) Utils::wps_convert_object_to_array($variantData);
 
 						if (Utils::product_inventory($productWithVariants, [(array) $variantObj])) {
+
 							$found = true;
 							$this->ws->send_success($variant['id']);
 
@@ -509,8 +514,7 @@ if (!class_exists('Frontend')) {
 
 			$result = $DB_Settings_General->get_column_single('price_with_currency');
 
-			if (isset($result[0]) && $result[0]->price_with_currency) {
-
+			if (isset($result[0]) && isset($result[0]->price_with_currency)) {
 				$this->ws->send_success($result[0]->price_with_currency);
 
 			} else {
@@ -519,6 +523,69 @@ if (!class_exists('Frontend')) {
 			}
 
 		}
+
+
+
+
+
+
+
+
+		public function wps_get_currency_formats() {
+
+			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_currency_formats)');
+			}
+
+			$DB_Settings_General = new Settings_General();
+			$DB_Shop = new Shop();
+
+			$priceWithCurrency = $DB_Settings_General->get_column_single('price_with_currency');
+			$moneyFormat = $DB_Shop->get_shop('money_format');
+			$moneyFormatWithCurrency = $DB_Shop->get_shop('money_with_currency_format');
+
+
+			if (isset($priceWithCurrency[0]) && isset($priceWithCurrency[0]->price_with_currency)) {
+				$priceWithCurrency = $priceWithCurrency[0]->price_with_currency;
+
+			} else {
+				$priceWithCurrency = false;
+			}
+
+
+			if (isset($moneyFormat[0]) && $moneyFormat[0]->money_format) {
+				$moneyFormat = (string)$moneyFormat[0]->money_format;
+
+			} else {
+				$moneyFormat = false;
+			}
+
+
+			if (isset($moneyFormatWithCurrency[0]) && $moneyFormatWithCurrency[0]->money_with_currency_format) {
+				$moneyFormatWithCurrency = (string)$moneyFormatWithCurrency[0]->money_with_currency_format;
+
+			} else {
+				$moneyFormatWithCurrency = false;
+			}
+
+
+			$this->ws->send_success([
+				'priceWithCurrency'	=>	$priceWithCurrency,
+				'moneyFormat'	=>	$moneyFormat,
+				'moneyFormatWithCurrency'	=>	$moneyFormatWithCurrency
+			]);
+
+
+		}
+
+
+
+
+
+
+
+
+
 
 
 		/*
@@ -737,6 +804,12 @@ if (!class_exists('Frontend')) {
 
 			add_action( 'wp_ajax_wps_get_currency_format', array($this, 'wps_get_currency_format') );
 			add_action( 'wp_ajax_nopriv_wps_get_currency_format', array($this, 'wps_get_currency_format') );
+
+			add_action( 'wp_ajax_wps_get_currency_formats', array($this, 'wps_get_currency_formats') );
+			add_action( 'wp_ajax_nopriv_wps_get_currency_formats', array($this, 'wps_get_currency_formats') );
+
+
+
 
 			add_action( 'wp_ajax_wps_has_money_format_changed', array($this, 'wps_has_money_format_changed') );
 			add_action( 'wp_ajax_nopriv_wps_has_money_format_changed', array($this, 'wps_has_money_format_changed') );

@@ -159,7 +159,7 @@ echo 'WP Max Upload Size: ';
 echo esc_html( size_format( wp_max_upload_size() ) );
 echo "\r\n";
 
-echo 'PHP Post Max Size: ';
+// echo 'PHP Post Max Size: ';
 // echo esc_html( size_format( $this->get_post_max_size() ) );
 // echo "\r\n";
 
@@ -243,10 +243,10 @@ echo "Active Plugins:\r\n";
 
 $active_plugins = (array) get_option( 'active_plugins', array() );
 
-if ( is_multisite() ) {
-  $network_active_plugins = wp_get_active_network_plugins();
-  $active_plugins         = array_map( array( $this, 'remove_wp_plugin_dir' ), $network_active_plugins );
-}
+// if ( is_multisite() ) {
+//   $network_active_plugins = wp_get_active_network_plugins();
+//   $active_plugins         = array_map( array( $this, 'remove_wp_plugin_dir' ), $network_active_plugins );
+// }
 
 foreach ( $active_plugins as $plugin ) {
   $suffix = ( isset( $blacklist[ $plugin ] ) ) ? '*' : '';

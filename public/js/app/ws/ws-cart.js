@@ -1,4 +1,4 @@
-import { needsCacheFlush, flushCache } from '../utils/utils-cart';
+import { needsCacheFlush, flushCache, emptyCartID } from '../utils/utils-cart';
 import { getCartID } from './ws-products';
 import { setCartCache } from './ws-settings';
 import { renderCartItems, renderSingleCartItem, updateTotalCartPricing } from '../cart/cart-ui';
@@ -9,30 +9,61 @@ Fetch Cart
 Returns: Promise
 
 */
-async function fetchCart(shopify) {
+function fetchCart(shopify) {
 
-  if (!shopify) {
-    return false;
-  }
+  return new Promise( async (resolve, reject) => {
 
-  // Either get the current cart instance or create a new one
-  try {
+    if (!shopify) {
 
-    var cartID = getCartID();
+      reject({
+        type: 'error',
+        message: 'Shopify instance not found. Please clear your browser cache and reload.'
+      });
 
-    if (!cartID) {
-      throw new Error('Cart is null');
+      return;
+
     }
 
-    var cart = await shopify.fetchCart( getCartID() );
+    // Either get the current cart instance or create a new one
 
-  } catch(e) {
+    // Calls LS
+    var cartID = getCartID();
 
-    var cart = await createCart(shopify);
 
-  }
+    if ( emptyCartID(cartID) ) {
 
-  return cart ? cart : false;
+      try {
+
+        // Calls LS
+        var cart = await createCart(shopify);
+
+      } catch (error) {
+
+        reject(error);
+        return;
+
+      }
+
+    } else {
+
+      try {
+
+        // Calls LS
+        var cart = await shopify.fetchCart(cartID);
+
+      } catch (error) {
+
+        reject(error);
+        return;
+
+      }
+
+    }
+
+    resolve(cart);
+    return;
+
+  });
 
 };
 
@@ -68,6 +99,7 @@ function createLineItemsFromVariants(options, shopify) {
   return new Promise(async function(resolve, reject) {
 
     try {
+
       var cart = await fetchCart(shopify);
 
     } catch(error) {
@@ -102,6 +134,7 @@ function updateCart(variant, quantity, shopify) {
 
     } catch(error) {
       reject(error);
+      return;
     }
 
     try {
@@ -113,6 +146,7 @@ function updateCart(variant, quantity, shopify) {
 
     } catch(error) {
       reject(error);
+      return;
     }
 
 
@@ -122,18 +156,26 @@ function updateCart(variant, quantity, shopify) {
 
     */
     try {
-
       await setCartCache(newCart.id);
 
     } catch (error) {
-      console.error('Cached cart ERROR', error);
       reject(error);
+      return;
     }
 
-
     renderSingleCartItem(shopify, newCart, variant);
-    updateTotalCartPricing(shopify, newCart);
+
+
+    try {
+      await updateTotalCartPricing(shopify, newCart);
+
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
     resolve(newCart);
+
 
   });
 
@@ -151,57 +193,85 @@ The cart will be cleared during any of the following scenarios:
   3. If it's been longer than three days
 
 */
-async function initCart(shopify) {
+function initCart(shopify, cart) {
 
-  const currentCartID = getCartID();
-  var transientFound;
+  return new Promise( async (resolve, reject) => {
 
-  // This only runs if user already has a cart instance. New users skip.
-  if (currentCartID) {
+    /*
 
-    transientFound = await needsCacheFlush(currentCartID);
+    Render the actual cart items (if any). Empty for new users.
 
-    if (!transientFound) {
+    */
+    try {
+      var cart = await renderCartItems(shopify, cart);
+
+    } catch(error) {
+      reject(error);
+      return;
+    }
+
+
+    // Saves cart ID to LS 'wps-last-cart-id' which is used by getCartID
+    // updateTotalCartPricing(shopify);
+
+    resolve(cart);
+    return;
+
+  });
+
+}
+
+
+/*
+
+flushCacheIfNeeded
+
+*/
+function flushCacheIfNeeded(shopify, cart) {
+
+  return new Promise( async (resolve, reject) => {
+
+    // Calls LS
+    const currentCartID = getCartID();
+
+    // This only runs if user already has a cart instance. New users skip.
+    if (currentCartID) {
 
       try {
-        await flushCache(shopify);
+
+        // Calls server
+        var transientFound = await needsCacheFlush(currentCartID);
 
       } catch (error) {
-        console.error("flushCache: ", error);
+        reject(error);
+        return;
+
+      }
+
+
+      if (!transientFound) {
+
+        try {
+
+          // Calls LS
+          await flushCache(shopify);
+
+        } catch (error) {
+          reject(error);
+          return;
+        }
+
       }
 
     }
 
-  }
-
-
-  /*
-
-  Render the actual cart items (if any). Empty for new users.
-
-  */
-  try {
-
-    var cart = await renderCartItems(shopify);
-
-  } catch(error) {
-    console.error("renderCartItems: ", error)
-    return error;
-
-  }
-
-
-  // Save Cart ID to LS if new user
-  if (!currentCartID) {
     saveCartID(cart);
-  }
+    resolve();
 
-  // Saves cart ID to LS 'wps-last-cart-id' which is used by getCartID
-  // updateTotalCartPricing(shopify);
-
-  return cart;
+  });
 
 }
+
 
 
 export {
@@ -210,5 +280,6 @@ export {
   saveCartID,
   updateCart,
   initCart,
+  flushCacheIfNeeded,
   createLineItemsFromVariants
 };

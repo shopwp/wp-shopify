@@ -124,7 +124,7 @@ function resetOptionsSelection() {
 Close Options Modal
 
 */
-function closeOptionsModal() {
+function closeOptionsModal($dropdown = false) {
 
   jQuery('.wps-btn-dropdown').data('open', false);
   jQuery('.wps-btn-dropdown').attr('data-open', false);

@@ -1,4 +1,6 @@
 import bootstrap from "./utils/utils-bootstrap";
+import { showError } from "./utils/utils-common";
+
 
 (function($) {
   "use strict";
@@ -9,7 +11,9 @@ import bootstrap from "./utils/utils-bootstrap";
       await bootstrap();
 
     } catch (error) {
-      console.error("WP Shopify Bootstrap error: ", error);
+      console.error('WP Shopify Error bootstrap: ', error);
+      showError(error);
+
     }
 
   });

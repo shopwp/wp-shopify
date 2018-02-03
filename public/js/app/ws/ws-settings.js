@@ -20,6 +20,42 @@ function getCurrencyFormat() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+function getCurrencyFormats() {
+
+  return jQuery.ajax({
+    method: 'GET',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_get_currency_formats',
+      nonce: wps.nonce
+    }
+  });
+
+};
+
+
+
+
+
+
+
+
+
+
+
 function getMoneyFormat() {
 
   return jQuery.ajax({
@@ -94,6 +130,7 @@ function setCartCache(cartID) {
 
 export {
   getCurrencyFormat,
+  getCurrencyFormats,
   getMoneyFormat,
   getMoneyFormatWithCurrency,
   getCartCache,

@@ -2,6 +2,7 @@ import forOwn from 'lodash/forOwn';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import forEach from 'lodash/forEach';
+import isPlainObject from 'lodash/isPlainObject';
 
 import {
   connectInit
@@ -462,8 +463,23 @@ function resetConnectionDOM() {
 }
 
 
+/*
+
+Appends notice
+TODO: Move the plain object check elsewhere
+
+*/
 function appendNotice(notice) {
+
+  if (!isPlainObject(notice)) {
+    notice = {
+      type: 'warning',
+      message: notice
+    }
+  }
+
   jQuery('.wps-connector-heading').after('<div class="notice notice-' + notice.type + '">' + notice.message + '</div>');
+
 }
 
 

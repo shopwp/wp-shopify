@@ -504,6 +504,23 @@ function getDataFromArray(array) {
 }
 
 
+/*
+
+Did a timeout happen?
+
+*/
+function isTimeout(statusCode) {
+
+  if (statusCode !== 404 || statusCode !== 504 || statusCode !== 408) {
+    return false;
+
+  } else {
+    return true;
+  }
+
+}
+
+
 export {
   getUrlParams,
   showSpinner,
@@ -534,5 +551,6 @@ export {
   hasProp,
   isObject,
   getDataFromArray,
-  isConnected
+  isConnected,
+  isTimeout
 };

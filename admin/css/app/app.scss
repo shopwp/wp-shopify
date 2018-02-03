@@ -762,7 +762,7 @@ Tabs
 
     .spinner {
       position: relative;
-      top: 3px;
+      top: -1px;
     }
   }
 }
@@ -1281,5 +1281,5 @@ input.code {
   &:first-letter {
     text-transform: capitalize;
   }
-  
+
 }

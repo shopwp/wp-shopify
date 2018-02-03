@@ -221,6 +221,7 @@ class Images extends \WPS\DB {
 
           // Calls API asynchronously and returns a Promise
           $response = $WS->wps_ws_get_image_alt($image);
+
           $altText = $this->get_alt_text_from_response($response);
 
           if (is_wp_error($altText)) {
@@ -251,38 +252,6 @@ class Images extends \WPS\DB {
     return $results;
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   /*

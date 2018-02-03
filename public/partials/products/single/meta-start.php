@@ -7,7 +7,7 @@ $filteredOptions = Utils::filter_variants_to_options_values($product['variants']
 ?>
 
 <section
-  class="wps-product-meta"
+  class="wps-product-meta wps-is-disabled wps-is-loading"
   data-product-price="<?php echo $product['variants'][0]['price']; ?>"
   data-product-quantity="1"
   data-product-variants-count="<?php echo count($product['variants']); ?>"

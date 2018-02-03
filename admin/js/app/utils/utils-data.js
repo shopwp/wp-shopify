@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty';
 import isError from 'lodash/isError';
 import isEqual from 'lodash/isEqual';
 import concat from 'lodash/concat';
@@ -11,6 +12,7 @@ import find from 'lodash/find';
 import isArray from 'lodash/isArray';
 import has from 'lodash/has';
 import pickBy from 'lodash/pickBy';
+import omitBy from 'lodash/omitBy';
 
 import {
   getNonce
@@ -493,6 +495,23 @@ function filterOutDeselectedSyncs(syncs) {
 }
 
 
+
+
+
+/*
+
+Filter Out Any Deselected Selective Syncs
+
+*/
+function filterOutEmptySets(syncs) {
+
+  return filter(syncs, (set) => {
+    return !isEmpty( omitBy(set, (value, key) => emptyDataCount(value) ));
+  });
+
+}
+
+
 /*
 
 Filter Out Any Notice
@@ -709,5 +728,6 @@ export {
   filterOutAnyNotice,
   emptyDataCount,
   filterOutSelectiveSync,
-  filterOutSelectedDataForSync
+  filterOutSelectedDataForSync,
+  filterOutEmptySets
 };

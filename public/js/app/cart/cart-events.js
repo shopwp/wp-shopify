@@ -1,8 +1,9 @@
 import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
+import { isEmptyCart } from '../utils/utils-cart';
 import { fetchCart, updateCart } from '../ws/ws-cart';
 import { quantityFinder, convertCustomAttrsToQueryString } from '../utils/utils-common';
-import { updateCartCounter, updateCartVariant, toggleCart, isCartEmpty, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
+import { updateCartCounter, updateCartVariant, toggleCart, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
 
 import { anyCustomAttrs } from '../ws/ws-checkout';
 
@@ -11,13 +12,25 @@ import { anyCustomAttrs } from '../ws/ws-checkout';
 Checkout listener
 
 */
-async function onCheckout(shopify) {
+function onCheckout(shopify) {
 
-  var finalCustomAttrs;
+  return new Promise( async (resolve, reject) => {
 
-  try {
+    var finalCustomAttrs;
 
-    var initialCart = await fetchCart(shopify);
+    /*
+
+    Gets the cart instance ...
+
+    */
+    try {
+      var initialCart = await fetchCart(shopify);
+
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
 
     if (initialCart.lineItemCount === 0) {
       disable(jQuery('.wps-btn-checkout'));
@@ -32,6 +45,11 @@ async function onCheckout(shopify) {
     }
 
 
+    /*
+
+    When the user finally clicks the checkout button ...
+
+    */
     jQuery('.wps-btn-checkout').on('click', async function checkoutHandler(event) {
 
       event.preventDefault();
@@ -40,17 +58,19 @@ async function onCheckout(shopify) {
         return;
       }
 
+
       // Add the linker plugin to the anchor is GA is installed
       if (hasGA) {
         ga('linker:decorate', document.getElementById('wps-btn-checkout'));
       }
 
+
       try {
         var newCart = await fetchCart(shopify);
 
-      } catch(e) {
-        console.error('Error: fetchCart() 1: ', e);
-        return e;
+      } catch(error) {
+        reject(error);
+        return;
       }
 
 
@@ -58,8 +78,9 @@ async function onCheckout(shopify) {
 
         var customAttrs = await anyCustomAttrs();
 
-      } catch (e) {
-        console.error("errrr: ", e);
+      } catch (error) {
+        reject(error);
+        return;
       }
 
 
@@ -70,17 +91,15 @@ async function onCheckout(shopify) {
         finalCustomAttrs = '';
       }
 
-
       window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + finalCustomAttrs, '_self');
+
 
     });
 
+    resolve();
 
-  } catch(e) {
-    console.error('Error: fetchCart() 2:  ', e);
-    return e;
 
-  }
+  });
 
 };
 
@@ -124,7 +143,7 @@ function onManualQuantityChange(shopify) {
       var product = await getProduct(shopify, productId);
 
     } catch(error) {
-      console.error('Error: getProduct() onManualQuantityChange() ', error);
+      console.error('WP Shopify Error: getProduct ', error);
 
     }
 
@@ -134,7 +153,7 @@ function onManualQuantityChange(shopify) {
       var cart = await fetchCart(shopify);
 
     } catch (error) {
-      console.error('Error: fetchCart() onManualQuantityChange()', error);
+      console.error('WP Shopify Error: fetchCart ', error);
 
     }
 
@@ -150,7 +169,7 @@ function onManualQuantityChange(shopify) {
       var newCart = await updateCart(variant, difference, shopify);
 
     } catch (error) {
-      console.error('Error: updateCart() onManualQuantityChange()', error);
+      console.error('WP Shopify Error: updateCart ', error);
 
     }
 
@@ -161,10 +180,12 @@ function onManualQuantityChange(shopify) {
 
     */
     try {
-      await updateCartCounter(shopify, newCart);
+
+      // Calls server if empty cart
+      await updateCartCounter(shopify, newCart); //
 
     } catch (error) {
-      console.error('Error: updateCartCounter() onManualQuantityChange()', error);
+      console.error('WP Shopify Error: updateCartCounter ', error);
     }
 
 
@@ -204,23 +225,34 @@ function onQuantityChange(shopify) {
       quantity = -1;
     }
 
+
+    /*
+
+    Get product
+
+    */
     try {
       var product = await getProduct(shopify, productId);
       var variant = getProductVariantID(product, variantId);
 
     } catch(error) {
-      console.error('EROR getProduct(): ', error);
+      console.error('WP Shopify Error getProduct: ', error);
       return error;
     }
 
 
+    /*
+
+    Update cart variant
+
+    */
     try {
 
       // Updates cart line item
       var newCart = await updateCartVariant(variant, quantity, shopify);
 
     } catch(error) {
-      console.error('EROR updateCartVariant(): ', error);
+      console.error('WP Shopify Error updateCartVariant: ', error);
       return error;
     }
 
@@ -232,12 +264,14 @@ function onQuantityChange(shopify) {
     */
     try {
       var newCart = await fetchCart(shopify);
+
     } catch(error) {
-      console.error("error", error);
+      console.error("WP Shopify Error fetchCart", error);
+      return error;
     }
 
 
-    if (isCartEmpty(newCart)) {
+    if ( isEmptyCart(newCart) ) {
       emptyCartUI(shopify, newCart);
 
     } else {

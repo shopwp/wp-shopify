@@ -235,11 +235,10 @@ class WS {
 					'GET',
 					$this->get_request_url($url, $urlParams),
 					$this->get_request_options(),
-					$async
+					false
 				);
 
 			} catch (RequestException $error) {
-
 				return esc_html__('Shop Product', 'wp-shopify');
 
 			}
@@ -747,7 +746,6 @@ class WS {
 						wp_die();
 					}
 
-
 					// If product is published
 	        if (property_exists($product, 'published_at') && $product->published_at !== null) {
 
@@ -802,7 +800,6 @@ class WS {
 
 					}
 
-
 					$index++;
 					$Progress->increment_current_amount('products');
 
@@ -812,11 +809,13 @@ class WS {
 
 
 			} else {
+
 				$this->send_warning($this->messages->message_products_not_found . ' (wps_insert_products_data)');
 
 			}
 
     } catch (RequestException $error) {
+
       $this->send_error( $this->wps_get_error_message($error) . ' (wps_insert_products_data)');
 
     }
@@ -2415,7 +2414,6 @@ class WS {
 				$webhooksReconnect = $_POST['webhooksReconnect'];
 
 			} else {
-				error_log('---- /22 -----');
 				$webhooksReconnect = true; // Default set to true so we don't have to worry about setting defaults on the front-end
 			}
 
@@ -2619,10 +2617,6 @@ class WS {
     } else {
       $results['transients'] = $response_transients;
     }
-
-		error_log('---- $results -----');
-		error_log(print_r($results, true));
-		error_log('---- /$results -----');
 
 
     if ($ajax) {
@@ -3014,7 +3008,7 @@ class WS {
 
 		} else {
 
-			return $guzzelResponse = $Guzzle->request(
+			return $Guzzle->request(
 				$method,
 				$url,
 				$options
@@ -3023,7 +3017,6 @@ class WS {
 		}
 
 	}
-
 
 
 	/*
