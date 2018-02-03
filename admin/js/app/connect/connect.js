@@ -74,7 +74,8 @@ import {
   addToWarningList,
   filterOutAnyNotice,
   filterOutSelectiveSync,
-  filterOutSelectedDataForSync
+  filterOutSelectedDataForSync,
+  filterOutEmptySets
 } from '../utils/utils-data';
 
 import {
@@ -319,7 +320,7 @@ function connectionFormSubmitHandler(form) {
     try {
 
       var itemCountsResp = await getItemCounts();
-      var allCounts = filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) );
+      var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
 
     } catch (errors) {
 

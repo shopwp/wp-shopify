@@ -8,24 +8,38 @@ Returns: Promise
 */
 function shopifyInit(creds) {
 
-  /*
+  return new Promise( (resolve, reject) => {
 
-  TODO: throw an error if creds are empty. Dont set them
-  to empty strings like this because it fails silently
+    /*
 
-  */
-  if (!creds) {
-    var creds = {
-      accessToken: '',
-      domain: '',
-      appId: ''
+    TODO: throw an error if creds are empty. Dont set them
+    to empty strings like this because it fails silently
+
+    */
+    if (!creds) {
+
+      reject({
+        type: 'error',
+        message: 'Unable to find Shopify credentials. Please clear your browser cache and reload.'
+      });
+
+      return;
+
     }
-  }
 
-  return ShopifyBuy.buildClient({
-    accessToken: creds.js_access_token,
-    domain: creds.domain,
-    appId: creds.app_id
+    try {
+
+      resolve(ShopifyBuy.buildClient({
+        accessToken: creds.js_access_token,
+        domain: creds.domain,
+        appId: creds.app_id
+      }));
+
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
   });
 
 };
@@ -51,7 +65,30 @@ function getShopifyCreds() {
 
 };
 
+
+/*
+
+Get Shopify cart session
+Returns: Promise
+
+*/
+function getCartSession() {
+
+  return jQuery.ajax({
+    method: 'GET',
+    url: wps.ajax,
+    dataType: 'json',
+    data: {
+      action: 'wps_get_cart_session',
+      nonce: wps.nonce
+    }
+  });
+
+};
+
+
 export {
   shopifyInit,
-  getShopifyCreds
+  getShopifyCreds,
+  getCartSession
 }

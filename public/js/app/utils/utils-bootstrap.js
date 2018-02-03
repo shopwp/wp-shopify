@@ -1,93 +1,177 @@
-import {
-  shopifyInit,
-  getShopifyCreds
-} from '../ws/ws-auth';
-
-import { initCart } from '../ws/ws-cart';
+import { shopifyInit, getShopifyCreds } from '../ws/ws-auth';
+import { initCart, fetchCart, flushCacheIfNeeded } from '../ws/ws-cart';
 import { productEvents } from '../products/products-events';
 import { cartEvents } from '../cart/cart-events';
-import { updateCartCounter, updateTotalCartPricing } from '../cart/cart-ui';
+import { updateCartCounter, updateTotalCartPricing, showUIElements, renderCartItems } from '../cart/cart-ui';
 import { isError } from './utils-common';
+import { isEmptyCart } from './utils-cart';
 import { removeProductOptionIds } from '../ws/ws-products';
 
 
 /*
 
-bootstrapEvents
+Bootstrap: Events
 
 */
 function bootstrapEvents(shopify) {
 
-  productEvents(shopify);
-  cartEvents(shopify);
+  return new Promise( (resolve, reject) => {
+
+    productEvents(shopify);
+    cartEvents(shopify);
+    resolve();
+
+  });
 
 }
 
 
 /*
 
-bootstrapUI
+Bootstrap: UI elements
 
 */
 function bootstrapUI(shopify, cart) {
 
-  updateCartCounter(shopify, cart);
-  updateTotalCartPricing(shopify, cart);
-  removeProductOptionIds();
+  return new Promise( async (resolve, reject) => {
+
+    if ( isEmptyCart(cart) ) {
+      resolve();
+    }
+
+    updateCartCounter(shopify, cart);
+    removeProductOptionIds();
+
+    try {
+
+      await updateTotalCartPricing(shopify, cart);
+
+    } catch (error) {
+      reject(error);
+    }
+
+    resolve();
+
+  });
 
 }
 
 
+
 /*
 
-Init Shopify
-TODO: Little bit of duplication happening here. Could be done better.
+Bootstrap front-end app. Runs every page load.
 
 */
-async function bootstrap() {
+function bootstrap() {
 
-  // Get Shopify Credentials
-  try {
+  return new Promise( async (resolve, reject) => {
 
-    var creds = await getShopifyCreds();
 
-    if (isError(creds)) {
-      throw creds.data;
+    /*
+
+    Step 1. Get Shopify Credentials
+
+    */
+    try {
+
+      var creds = await getShopifyCreds(); // wps_get_credentials_frontend
+
+      if (isError(creds)) {
+        throw creds.data;
+      }
+
+    } catch(error) {
+      reject(error);
+      return;
     }
 
-  } catch(error) {
-    console.error('getShopifyCreds error: ', error);
-    return error;
-  }
 
+    /*
 
-  // Shopify Init
-  try {
-    var shopify = await shopifyInit(creds.data);
+    Step 2. Init Shopify lib
 
-  } catch(error) {
-    console.error('shopifyInit error: ', error);
-    return error;
-  }
+    */
+    try {
 
+      // Calls LS
+      var shopify = await shopifyInit(creds.data);
 
-  // Init Cart
-  try {
-    var cart = await initCart(shopify);
+      if (isError(shopify)) {
+        throw shopify.data;
+      }
 
-    if (isError(cart)) {
-      throw cart.data;
+    } catch(error) {
+      reject(error);
+      return;
     }
 
-  } catch(error) {
-    console.error('initCart error: ', error);
-    return error;
-  }
+
+    /*
+
+    Step 3. Get or create cart instance
+
+    */
+    try {
+
+      // Retrieves existing or makes new
+      var cart = await fetchCart(shopify);
+
+    } catch(error) {
+
+      reject(error);
+      return;
+
+    }
 
 
-  // Bootstrap
-  bootstrapEvents(shopify);
-  bootstrapUI(shopify, cart);
+    /*
+
+    Step 4. Flush cache, render cart items, and update DOM
+
+    */
+    try {
+
+      await Promise.all([
+        flushCacheIfNeeded(shopify, cart),
+        renderCartItems(shopify, cart),
+        bootstrapUI(shopify, cart)
+      ]);
+
+    } catch (error) {
+      reject(error);
+      return;
+
+    }
+
+
+    /*
+
+    Step 5. Add event handlers
+
+    */
+    try {
+
+      await bootstrapEvents(shopify);
+
+    } catch(error) {
+
+      reject(error);
+      return;
+
+    }
+
+
+    /*
+
+    Step 6. Enable and show cart icon / add to cart buttons
+
+    */
+    showUIElements();
+
+    resolve();
+
+  });
 
 }
 

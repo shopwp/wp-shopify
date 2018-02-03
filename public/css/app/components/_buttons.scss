@@ -85,6 +85,21 @@
   width: auto;
   height: 30px;
 
+  &.wps-fadeIn {
+    opacity: 1;
+  }
+
+  &.wps-is-loading {
+
+    &:before {
+      top: 14%;
+      left: 100%;
+      width: 20px;
+      height: 20px;
+    }
+
+  }
+
   img {
     height: 30px;
     width: auto;

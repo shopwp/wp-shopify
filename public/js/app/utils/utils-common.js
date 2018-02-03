@@ -1,5 +1,6 @@
 import currencyFormatter from 'currency-formatter';
 import forOwn from 'lodash/forOwn';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   cartIsOpen
@@ -11,6 +12,7 @@ import {
 
 import {
   getCurrencyFormat,
+  getCurrencyFormats,
   getMoneyFormat,
   getMoneyFormatWithCurrency
 } from '../ws/ws-settings';
@@ -34,6 +36,31 @@ Is WordPress Error
 
 */
 function isWordPressError(response) {
+
+  if (isObject(response) && hasProp(response, 'success')) {
+
+    if (response.success) {
+      return false;
+
+    } else {
+      return true;
+
+    }
+
+  } else {
+    return false;
+
+  }
+
+}
+
+
+/*
+
+Checks whether data is a WordPress error
+
+*/
+function isError(response) {
 
   if (isObject(response) && hasProp(response, 'success')) {
 
@@ -111,31 +138,6 @@ function isObject(value) {
 
 /*
 
-Checks whether data is a WordPress error
-
-*/
-function isError(response) {
-
-  if (isObject(response) && hasProp(response, 'success')) {
-
-    if (response.success) {
-      return false;
-
-    } else {
-      return true;
-
-    }
-
-  } else {
-    return false;
-
-  }
-
-}
-
-
-/*
-
 Creates a queryable selector from a space
 seperated list of class names.
 
@@ -195,16 +197,6 @@ Is Animation On?
 function isAnimating() {
   return localStorage.getItem('wps-animating');
 }
-
-
-/*
-
-Response Error
-
-*/
-function throwError(error) {
-  console.info("You died, try again: ", error);
-};
 
 
 /*
@@ -362,7 +354,7 @@ function cacheExpired() {
 
   var cachedTime = getCacheTime();
 
-  if (!cachedTime) {
+  if (isEmpty(cachedTime) || cachedTime === 'undefined') {
     return true;
 
   } else {
@@ -388,6 +380,8 @@ function cacheExpired() {
 
 Format product price into format from Shopify
 
+TODO: Expensive! Figure out how to speed up.
+
 1. Check whether we're using price_with_currency setting
 2. Depending on the result of #1, either query the "money_format" or "money_with_currency_format" value
 3. Once we have the value from #2, check what kind of variable we're using "amount, amount without decimal, etc".
@@ -399,97 +393,69 @@ async function formatAsMoney(amount) {
 
   return new Promise(async function(resolve, reject) {
 
-    var cachedMoneyFormat = getMoneyFormatCache();
+    // Calls LS
+    if (!cacheExpired()) {
 
-    if (!cacheExpired() && cachedMoneyFormat !== 'undefined') {
-
-      var moneyFormat = cachedMoneyFormat;
+      // Get the format from LS
+      var moneyFormat = getMoneyFormatCache();
 
     } else {
 
       try {
-        var moneyFormatUpdated = await moneyFormatChanged();
+
+        // Calls server
+        var formats = await getCurrencyFormats(); // wps_get_currency_formats
+
+        if (isError(formats)) {
+          throw formats.data;
+
+        } else {
+          formats = formats.data;
+        }
 
       } catch (error) {
         reject(error);
 
       }
 
-      if (!moneyFormatUpdated) {
 
-        var moneyFormat = getMoneyFormatCache();
-        setMoneyFormatCache(moneyFormat);
+      var formatWithCurrencySymbol = formats.priceWithCurrency;
+
+      if (formatWithCurrencySymbol) {
+
+        var moneyFormat = formats.moneyFormatWithCurrency;
 
       } else {
-
-        try {
-          var formatWithCurrencySymbol = await getCurrencyFormat();
-
-          if (isError(formatWithCurrencySymbol)) {
-            throw formatWithCurrencySymbol.data;
-
-          } else {
-            formatWithCurrencySymbol = formatWithCurrencySymbol.data;
-          }
-
-        } catch (error) {
-          reject(error);
-
-        }
-
-
-        if (formatWithCurrencySymbol) {
-
-          try {
-            var moneyFormat = await getMoneyFormatWithCurrency();
-
-            if (isError(moneyFormat)) {
-              throw moneyFormat.data;
-
-            } else {
-              moneyFormat = moneyFormat.data;
-            }
-
-          } catch (error) {
-            reject(error);
-
-          }
-
-        } else {
-
-          try {
-
-            var moneyFormat = await getMoneyFormat();
-
-            if (isError(moneyFormat)) {
-              throw moneyFormat.data;
-
-            } else {
-              moneyFormat = moneyFormat.data;
-            }
-
-          } catch (error) {
-            reject(error);
-
-          }
-
-        }
-
-        setMoneyFormatCache(moneyFormat);
-
+        var moneyFormat = formats.moneyFormat;
       }
+
+
+      // Calls LS
+      setMoneyFormatCache(moneyFormat);
 
     }
 
-    var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
-    var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
-    var finalPrice = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
 
-    resolve(finalPrice);
+    resolve( formatTotalAmount(amount, moneyFormat) );
 
   });
 
 };
+
+
+/*
+
+Formats the total amount
+
+*/
+function formatTotalAmount(amount, moneyFormat) {
+
+  var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
+  var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
+
+  return replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
+
+}
 
 
 /*
@@ -639,9 +605,35 @@ function closeCallbackEsc(event) {
 };
 
 
+/*
+
+Show Error
+
+*/
+function showError(error) {
+
+  if (isObject(error) && hasProp(error, 'message') && hasProp(error, 'type')) {
+    var newError = error;
+
+  } else {
+    var newError = {
+      type: 'warning',
+      message: error
+    }
+  }
+
+  jQuery('.wps-btn-cart')
+    .removeClass('wps-is-disabled wps-is-loading');
+
+  jQuery('.wps-product-meta')
+    .html('<p class="wps-notice-inline wps-notice-' + newError.type + '">' + newError.message + '</p>')
+    .removeClass('wps-is-disabled wps-is-loading');
+
+}
+
+
 export {
   createSelector,
-  throwError,
   formatAsMoney,
   listenForClose,
   removeEventHandlers,
@@ -655,5 +647,7 @@ export {
   isAnimating,
   convertCustomAttrsToQueryString,
   update,
-  isWordPressError
+  isWordPressError,
+  showError,
+  formatTotalAmount
 };

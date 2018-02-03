@@ -74,6 +74,7 @@ import {
   addToWarningList,
   filterOutAnyNotice,
   filterOutSelectiveSync,
+  filterOutEmptySets,
   filterOutSelectedDataForSync
 } from '../utils/utils-data';
 
@@ -172,7 +173,7 @@ function onResyncSubmit() {
       try {
 
         var itemCountsResp = await getItemCounts();
-        var allCounts = filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) );
+        var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
 
 
       } catch (errors) {
@@ -271,7 +272,7 @@ function onResyncSubmit() {
       setConnectionStepMessage('Cleaning up ...');
       warningList = addToWarningList(warningList, syncResp);
       forceProgressBarsComplete();
-      
+
 
       /*
 

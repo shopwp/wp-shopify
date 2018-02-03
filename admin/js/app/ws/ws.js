@@ -7,6 +7,10 @@ import {
 } from '../utils/utils-data';
 
 import {
+  isTimeout
+} from '../utils/utils';
+
+import {
   connectionInProgress,
   getWebhooksReconnect
 } from './localstorage';
@@ -532,6 +536,18 @@ function insertProductsData(currentPage = false) {
       action: 'wps_insert_products_data',
       currentPage: currentPage,
       nonce: wps.nonce
+    },
+    error: function(xhr, textStatus, errorThrown ) {
+
+      console.log('ERR textStatus: ', textStatus);
+      console.log('ERR xhr.status: ', xhr.status);
+      console.log('ERR errorThrown: ', errorThrown);
+      
+      // if (isTimeout(xhr.status)) {
+      //   console.log('Retrying ??');
+      //   return controlPromise(options);
+      // }
+
     }
   };
 

@@ -305,8 +305,20 @@ class Backend {
 	*/
  	public function wps_get_credentials_frontend() {
 
-		if (!isset($_GET['nonce']) || !Utils::valid_frontend_nonce($_GET['nonce'])) {
-			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials_frontend)');
+		if (isset($_GET) && isset($_GET['action']) && !empty($_GET)) {
+			$ajax = true;
+
+		} else {
+			$ajax = false;
+		}
+
+
+		if ($ajax) {
+
+			if (!isset($_GET['nonce']) || !Utils::valid_frontend_nonce($_GET['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials_frontend)');
+			}
+
 		}
 
 
@@ -325,7 +337,44 @@ class Backend {
 			$shopifyCreds['domain'] = $connection->domain;
 		}
 
-		$this->ws->send_success($shopifyCreds);
+
+		if ($ajax) {
+			$this->ws->send_success($shopifyCreds);
+
+		} else {
+			return $shopifyCreds;
+		}
+
+
+	}
+
+
+	/*
+
+	Gets the initial cart session
+
+	*/
+	public function wps_get_cart_session() {
+
+		// $cartSession = [];
+
+		// $cartSession['creds'] = $this->wps_get_credentials_frontend(false);
+
+
+		/*
+
+		Cart Session Steps
+
+		1. wps_get_credentials_frontend
+		2. wps_get_cart_cache
+		3. wps_has_money_format_changed -- moneyFormatChanged()
+		4. wps_get_currency_format
+		5. wps_get_money_format_with_currency -- OR -- wps_get_money_format
+
+		*/
+
+		// $this->ws->send_success($shopifyCreds);
+
 
 	}
 
@@ -452,6 +501,9 @@ class Backend {
 
 		add_action( 'wp_ajax_wps_get_credentials_frontend', array($this, 'wps_get_credentials_frontend'));
 		add_action( 'wp_ajax_nopriv_wps_get_credentials_frontend', array($this, 'wps_get_credentials_frontend'));
+
+		add_action( 'wp_ajax_wps_get_cart_session', array($this, 'wps_get_cart_session'));
+		add_action( 'wp_ajax_nopriv_wps_get_cart_session', array($this, 'wps_get_cart_session'));
 
 		// Setup / Events
 		add_action( 'wp_ajax_wps_notice', array($this, 'wps_notice'));

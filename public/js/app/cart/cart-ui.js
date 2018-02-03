@@ -1,7 +1,8 @@
-import { formatAsMoney, isError, turnAnimationFlagOn } from '../utils/utils-common';
-import { fetchCart, createLineItemsFromVariants } from '../ws/ws-cart';
-import { getProduct } from '../ws/ws-products';
+import { formatAsMoney, isError, turnAnimationFlagOn, formatTotalAmount } from '../utils/utils-common';
+import { fetchCart, createCart, createLineItemsFromVariants } from '../ws/ws-cart';
+import { getProduct, getMoneyFormatCache } from '../ws/ws-products';
 import { animate, animateIn, enable, disable } from '../utils/utils-ux';
+import { isEmptyCart } from '../utils/utils-cart';
 
 
 /*
@@ -9,23 +10,38 @@ import { animate, animateIn, enable, disable } from '../utils/utils-ux';
 Update product variant price
 
 */
-async function updateTotalCartPricing(shopify, cart = false) {
+function updateTotalCartPricing(shopify, cart = false) {
 
-  if (!cart) {
-    cart = await fetchCart(shopify);
-  }
+  return new Promise( async (resolve, reject) => {
 
-  try {
+    if (!cart) {
 
-    var formattedSubtotal = await formatAsMoney(cart.subtotal);
+      try {
 
-  } catch(e) {
-    return e;
-  }
+        // Calls LS
+        cart = await fetchCart(shopify);
 
-  jQuery('.wps-cart .wps-pricing').text(formattedSubtotal);
+      } catch (error) {
+        reject(error);
+        return;
+      }
 
-  return formattedSubtotal;
+    }
+
+    try {
+
+      // Calls Server
+      var formattedSubtotal = await formatAsMoney(cart.subtotal);
+
+    } catch(error) {
+      reject(error);
+      return;
+    }
+
+    jQuery('.wps-cart .wps-pricing').text(formattedSubtotal);
+    resolve(formattedSubtotal);
+
+  });
 
 };
 
@@ -58,18 +74,19 @@ Update Cart Icon Amount
 */
 async function updateCartCounter(shopify, cart) {
 
-  if (isCartEmpty(cart)) {
+  if (isEmptyCart(cart)) {
+
+    // Calls Server
     emptyCartUI(shopify, cart);
 
   } else {
-
-    enable(jQuery('.wps-btn-checkout'));
 
     var $cartCounter = jQuery('.wps-cart-counter');
 
     var totalItems = cart.lineItems.reduce(function(total, item) {
       return total + item.quantity;
     }, 0);
+
 
     $cartCounter.html(totalItems);
     $cartCounter.removeClass('wps-is-hidden');
@@ -81,6 +98,9 @@ async function updateCartCounter(shopify, cart) {
       $cartCounter.removeClass('wps-cart-counter-lg');
 
     }
+
+    enable(jQuery('.wps-btn-checkout'));
+
 
     if ($cartCounter.length) {
 
@@ -137,11 +157,7 @@ async function updateSingleProductCartDOM(lineItem, variant) {
 
   return new Promise(async function(resolve, reject) {
 
-    /*
-
-    Remove item if quantity equals 0
-
-    */
+    // Remove item if quantity equals 0
     if (typeof lineItem === "undefined") {
 
       var $foundLineItem = findExistingLineItem(variant.id);
@@ -168,8 +184,7 @@ async function updateSingleProductCartDOM(lineItem, variant) {
         resolve(lineItemHTML);
 
       } catch (error) {
-        console.error(error);
-
+        reject(error);
       }
 
     }
@@ -209,6 +224,7 @@ function renderCartQuantities(lineItem, lineItemHTML, $lineItemTemplate = false)
 /*
 
 Format Line Item Money
+Calls Server
 
 */
 async function formatLineItemMoney(lineItem, lineItemHTML) {
@@ -369,11 +385,14 @@ async function renderLineItem(lineItem, index, shopify) {
   return new Promise(async function(resolve, reject) {
 
     try {
+
+      // Calls LS
       var lineItemDetails = await getProduct(shopify, lineItem.product_id);
       lineItem.superrr = lineItemDetails;
 
     } catch(error) {
-      console.error('getProduct ', error);
+      reject(error);
+      return;
     }
 
     var lineItemHTML = '';
@@ -389,8 +408,8 @@ async function renderLineItem(lineItem, index, shopify) {
       resolve(lineItemHTML);
 
     } catch (error) {
-      console.error(error);
-
+      reject(error);
+      return;
     }
 
   });
@@ -483,23 +502,6 @@ function replaceSingleCartItem($existingItem, itemNewHTML) {
 
 /*
 
-Is Cart Empty
-
-*/
-function isCartEmpty(cart) {
-
-  if (cart === undefined || cart.lineItemCount === 0) {
-    return true;
-
-  } else {
-    return false;
-  }
-
-}
-
-
-/*
-
 Has Existing Cart items
 
 */
@@ -578,26 +580,13 @@ async function renderCartItems(shopify, cart = false, variant = false) {
 
   return new Promise(async function(resolve, reject) {
 
-    /*
+    if ( isEmptyCart(cart) ) {
 
-    Get cart instance if doesnt exist
-
-    */
-    if (!cart) {
-
-      try {
-        cart = await fetchCart(shopify);
-
-      } catch(error) {
-        cart = await createCart(shopify);
-      }
-
-    }
-
-    if ( isCartEmpty(cart) ) {
-
+      // Calls Server
       emptyCartUI(shopify, cart);
+
       resolve(cart);
+      return;
 
     } else {
 
@@ -611,37 +600,40 @@ async function renderCartItems(shopify, cart = false, variant = false) {
         var lineItem = findLineItemByVariantID(cart, variant);
 
         try {
-          var $cartLineItems = await updateSingleProductCartDOM(lineItem, variant);
 
-        } catch(e) {
-          reject(e);
+          var lineItems = await updateSingleProductCartDOM(lineItem, variant);
 
+        } catch(error) {
+          reject(error);
+          return
         }
+
 
       } else {
 
         /*
 
         Updating each line item
-        Need the closer because of the shopify variable
+        Need the closure because of the shopify variable
 
         */
         try {
 
-          var $cartLineItems = await Promise.all( cart.lineItems.map((lineItem, index) => {
+          var lineItems = await Promise.all( cart.lineItems.map( (lineItem, index) => {
             return renderLineItem(lineItem, index, shopify);
           }) );
 
         } catch(error) {
-          console.error(error);
           reject(error);
+          return;
         }
 
-        emptyAndAppendCartItems($cartLineItems);
+        emptyAndAppendCartItems(lineItems);
 
       }
 
-      return resolve(cart);
+      resolve(cart);
+      return;
 
     }
 
@@ -698,8 +690,9 @@ function updateCartVariant(variant, quantity, shopify) {
     The cart should never be empty at this point
 
     */
-    if ( isCartEmpty(newCart) ) {
+    if ( isEmptyCart(newCart) ) {
 
+      // Calls Server
       emptyCartUI(shopify, newCart);
       resolve(cart);
 
@@ -725,6 +718,8 @@ function updateCartVariant(variant, quantity, shopify) {
 
       */
       try {
+
+        // Calls Server
         await updateTotalCartPricing(shopify, newCart);
 
       } catch(error) {
@@ -786,8 +781,21 @@ async function toggleCart() {
     removeVariantSelections();
 
   } catch(error) {
-    console.error("toggleCart", error);
+    return error;
   }
+
+}
+
+
+/*
+
+Empty Cart Total
+
+*/
+function emptyCartTotal(cart) {
+
+  var totalAmount = formatTotalAmount(cart.subtotal, getMoneyFormatCache());
+  jQuery('.wps-cart .wps-pricing').text(totalAmount);
 
 }
 
@@ -802,8 +810,18 @@ function emptyCartUI(shopify, cart) {
   disable(jQuery('.wps-btn-checkout'));
   jQuery('.wps-cart-counter').addClass('wps-is-hidden');
   renderEmptyCartMessage();
-  updateTotalCartPricing();
+  emptyCartTotal(cart);
 
+}
+
+
+/*
+
+Show UI elements after Bootsrap
+
+*/
+function showUIElements() {
+  jQuery('.wps-product-meta, .wps-btn-cart').addClass('wps-fadeIn').removeClass('wps-is-disabled wps-is-loading');
 }
 
 
@@ -816,6 +834,6 @@ export {
   closeCart,
   cartIsOpen,
   renderSingleCartItem,
-  isCartEmpty,
-  emptyCartUI
+  emptyCartUI,
+  showUIElements
 }

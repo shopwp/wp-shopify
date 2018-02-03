@@ -84,6 +84,7 @@ class Options extends \WPS\DB {
     $DB_Settings_Connection = new Settings_Connection();
     $results = [];
 
+
     if (isset($product->options) && $product->options) {
 
       foreach ($product->options as $key => $option) {
@@ -93,9 +94,11 @@ class Options extends \WPS\DB {
           break;
         }
 
-        return $results[] = $this->insert($option, 'option');
+        $results[] = $this->insert($option, 'option');
 
       }
+
+      return $results;
 
     }
 

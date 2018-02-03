@@ -41,8 +41,7 @@ import {
 } from './products-meta';
 
 import {
-  updateCart,
-  fetchCart
+  updateCart
 } from '../ws/ws-cart';
 
 import {
@@ -61,7 +60,7 @@ showProductMetaError
 function showProductMetaError($element, errorMessage) {
 
   // Hides all other error messages
-  hideAllProductMetaErrors();
+  hideAllProductMetaErrors($element);
 
   $element
     .closest('.wps-product-meta')
@@ -81,9 +80,11 @@ function showProductMetaError($element, errorMessage) {
 hideProductMetaErrors
 
 */
-function hideAllProductMetaErrors() {
+function hideAllProductMetaErrors($element) {
 
-  jQuery('.wps-product-notice')
+  $element
+    .closest('.wps-product-meta')
+    .find('.wps-product-notice')
     .html('')
     .removeClass('wps-is-visible wps-notice-error');
 
@@ -110,8 +111,8 @@ function hideProductMetaErrors($element) {
 Remove Inline Notices
 
 */
-function removeInlineNotices() {
-  jQuery('.wps-notice-inline').removeClass('wps-is-visible wps-notice-error').text('');
+function removeInlineNotices($productMetaWrapper) {
+  $productMetaWrapper.find('.wps-notice-inline').removeClass('wps-is-visible wps-notice-error').text('');
 }
 
 
@@ -129,7 +130,7 @@ function resetSingleProductVariantSelector($addToCartButton) {
   var $variantSelectors = $group.find('.wps-modal-trigger');
 
   // Any errors
-  removeInlineNotices();
+  removeInlineNotices($productMetaWrapper);
 
   $variantSelectors.each(function(index, value) {
 
@@ -166,6 +167,10 @@ function onAddProductToCart(shopify) {
         $cartForm = jQuery('.wps-cart-form .wps-cart-item-container'),
         product,
         productVariant;
+
+    if (cartIsOpen()) {
+      toggleCart();
+    }
 
     showLoader($cartForm);
     disable($cartForm);
@@ -696,6 +701,7 @@ function onProductVariantChange() {
 
     closeOptionsModal();
 
+
     /*
 
     If all variants are selected ...
@@ -788,17 +794,23 @@ function onProductDropdown() {
       Hide any visible dropdowns before we show the selected one
 
       */
+      // Closes other dropdowns
+      closeOptionsModal();
+
       if ($dropdown.data('open')) {
+
         $dropdown.data('open', false);
         $dropdown.attr('data-open', false);
 
       } else {
 
-        closeOptionsModal();
+        showHiddenProductVariants();
+
         $dropdown.data('open', true);
         $dropdown.attr('data-open', true);
 
         listenForClose();
+
       }
 
     });
