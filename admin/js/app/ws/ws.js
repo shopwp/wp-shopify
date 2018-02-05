@@ -539,6 +539,8 @@ function insertProductsData(currentPage = false) {
     },
     error: function(xhr, textStatus, errorThrown ) {
 
+      console.error('WP Shopify Error: ', xhr);
+
       if (isTimeout(xhr.status)) {
         return controlPromise(options);
       }
