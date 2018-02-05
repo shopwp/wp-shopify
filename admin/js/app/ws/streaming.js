@@ -151,7 +151,7 @@ async function streamShop() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamShop');
+        reject({ success: false, data: 'Syncing connection not found during getShopData'});
       }
 
       shopData = shopData.data;
@@ -178,7 +178,7 @@ async function streamShop() {
       }
 
       if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing stopped during streamShop'});
+        reject({ success: false, data: 'Syncing connection not found during insertShopData'});
         return;
       }
 
@@ -204,6 +204,7 @@ async function streamProducts() {
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
+    var itemsToAdd = false;
 
     /*
 
@@ -220,7 +221,7 @@ async function streamProducts() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamProducts');
+        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
         return;
       }
 
@@ -236,20 +237,18 @@ async function streamProducts() {
     }
 
 
+    /*
 
+    2. Get all products
 
+    */
     var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-    while(currentPage <= pages) {
+    while (currentPage <= pages) {
 
-      /*
-
-      2. Get all products
-
-      */
       try {
 
-        var itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
+        itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -257,7 +256,7 @@ async function streamProducts() {
         }
 
         if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing stopped during streamProducts'});
+          reject({ success: false, data: 'Syncing connection not found during insertProductsData'});
           break;
         }
 
@@ -268,6 +267,13 @@ async function streamProducts() {
 
         if ( !isTimeout(error.status) ) {
           reject();
+          break;
+
+        } else {
+
+          currentPage += 1;
+          continue;
+
         }
 
       }
@@ -292,6 +298,8 @@ async function streamCollects() {
 
   return new Promise(async function streamCollectsHandler(resolve, reject) {
 
+    var itemsToAdd = false;
+
     /*
 
     1. Get collects count
@@ -307,7 +315,7 @@ async function streamCollects() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during streamCollects');
+        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
         return;
       }
 
@@ -328,14 +336,14 @@ async function streamCollects() {
     2. Insert all collects
 
     */
-    try {
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    // Runs for each page of collects
+    while (currentPage <= pages) {
 
-      // Runs for each page of collects until all done
-      while(currentPage <= pages) {
+      try {
 
-        var itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
+        itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -343,22 +351,32 @@ async function streamCollects() {
         }
 
         if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing stopped during streamCollects'});
+          reject({ success: false, data: 'Syncing connection not found during insertCollects'});
           break;
         }
 
         currentPage += 1;
 
+      } catch(error) {
+
+        if ( !isTimeout(error.status) ) {
+          reject(error);
+          break;
+
+        } else {
+
+          currentPage += 1;
+          continue;
+
+        }
+
       }
 
-      resolve(itemsToAdd);
-      return;
-
-    } catch(error) {
-      reject(error);
-      return;
-
     }
+
+    resolve(itemsToAdd);
+    return;
+
 
   });
 
@@ -375,6 +393,8 @@ function streamSmartCollections() {
 
   return new Promise(async function streamSmartCollectionsHandler(resolve, reject) {
 
+    var itemsToAdd = false;
+
     /*
 
     1. Get Smart Collections Count
@@ -390,7 +410,7 @@ function streamSmartCollections() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during smart_collections getTotalCountsFromSession');
+        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
         return;
       }
 
@@ -413,13 +433,13 @@ function streamSmartCollections() {
     2. Insert all Smart Collections
 
     */
-    try {
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    while (currentPage <= pages) {
 
-      while(currentPage <= pages) {
+      try {
 
-        var itemsToAdd = await insertSmartCollections(currentPage); // wps_insert_smart_collections_data
+        itemsToAdd = await insertSmartCollections(currentPage); // wps_insert_smart_collections_data
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -427,21 +447,33 @@ function streamSmartCollections() {
         }
 
         if (!connectionInProgress()) {
-          reject('Syncing stopped during streamSmartCollections');
+          reject({ success: false, data: 'Syncing connection not found during insertSmartCollections'});
           break;
         }
 
         currentPage += 1;
 
+
+      } catch(error) {
+
+        if ( !isTimeout(error.status) ) {
+          reject(error);
+          break;
+
+        } else {
+
+          currentPage += 1;
+          continue;
+
+        }
+
       }
 
-      resolve(itemsToAdd);
-      return;
-
-    } catch(error) {
-      reject(error);
-      return;
     }
+
+    resolve(itemsToAdd);
+    return;
+
 
   });
 
@@ -458,6 +490,8 @@ async function streamCustomCollections() {
 
   return new Promise(async function streamCustomCollectionsHandler(resolve, reject) {
 
+    var itemsToAdd = false;
+
     /*
 
     1. Get Smart Collections Count
@@ -473,7 +507,7 @@ async function streamCustomCollections() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during custom_collections getTotalCountsFromSession');
+        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
         return;
       }
 
@@ -494,13 +528,14 @@ async function streamCustomCollections() {
     2. Insert all Smart Collections
 
     */
-    try {
 
-      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      while(currentPage <= pages) {
+    while (currentPage <= pages) {
 
-        var itemsToAdd = await insertCustomCollections(currentPage); // wps_insert_custom_collections_data
+      try {
+
+        itemsToAdd = await insertCustomCollections(currentPage); // wps_insert_custom_collections_data
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -508,21 +543,33 @@ async function streamCustomCollections() {
         }
 
         if (!connectionInProgress()) {
-          reject('Syncing stopped during insertCustomCollections');
+          reject({ success: false, data: 'Syncing connection not found during insertCustomCollections'});
           break;
         }
 
         currentPage += 1;
 
+
+      } catch(error) {
+
+        if ( !isTimeout(error.status) ) {
+          reject(error);
+          break;
+
+        } else {
+
+          currentPage += 1;
+          continue;
+
+        }
+
       }
 
-      resolve(itemsToAdd);
-      return;
-
-    } catch(error) {
-      reject(error);
-      return;
     }
+
+    resolve(itemsToAdd);
+    return;
+
 
   });
 
@@ -539,6 +586,8 @@ async function streamOrders() {
 
   return new Promise(async function streamOrdersHandler(resolve, reject) {
 
+    var itemsToAdd;
+
     /*
 
     Step 1. Get Orders count
@@ -554,7 +603,7 @@ async function streamOrders() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during orders getTotalCountsFromSession');
+        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
         return;
       }
 
@@ -565,6 +614,7 @@ async function streamOrders() {
       }
 
     } catch(error) {
+
       reject(error);
       return;
 
@@ -576,13 +626,13 @@ async function streamOrders() {
     Step 2. Insert Orders
 
     */
-    try {
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    while (currentPage <= pages) {
 
-      while(currentPage <= pages) {
+      try {
 
-        var itemsToAdd = await insertOrders(currentPage); // wps_insert_orders
+        itemsToAdd = await insertOrders(currentPage); // wps_insert_orders
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -590,21 +640,32 @@ async function streamOrders() {
         }
 
         if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing stopped during streamOrders'});
+          reject({ success: false, data: 'Syncing connection not found during insertOrders'});
           break;
         }
 
         currentPage += 1;
 
+      } catch(error) {
+
+        if ( !isTimeout(error.status) ) {
+          reject(error);
+          break;
+
+        } else {
+
+          currentPage += 1;
+          continue;
+
+        }
+
       }
 
-      resolve(itemsToAdd);
-      return;
-
-    } catch(error) {
-      reject(error);
-      return;
     }
+
+    resolve(itemsToAdd);
+    return;
+
 
   });
 
@@ -623,6 +684,8 @@ async function streamCustomers() {
 
   return new Promise(async function streamCustomersHandler(resolve, reject) {
 
+    var itemsToAdd = false;
+
     /*
 
     Step 1. Get Customers count
@@ -638,7 +701,7 @@ async function streamCustomers() {
       }
 
       if (!connectionInProgress()) {
-        reject('Syncing stopped during customers streamCustomers');
+        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
         return;
       }
 
@@ -659,13 +722,13 @@ async function streamCustomers() {
     Step 2. Insert Customers
 
     */
-    try {
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
-      var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    while (currentPage <= pages) {
 
-      while(currentPage <= pages) {
+      try {
 
-        var itemsToAdd = await insertCustomers(currentPage); // wps_insert_customers
+        itemsToAdd = await insertCustomers(currentPage); // wps_insert_customers
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
@@ -673,29 +736,32 @@ async function streamCustomers() {
         }
 
         if (!connectionInProgress()) {
-
-          reject({
-            success: false,
-            data: 'Syncing stopped during streamCustomers'
-          });
-
+          reject({ success: false, data: 'Syncing connection not found during insertCustomers'});
           break;
-
         }
 
         currentPage += 1;
 
+      } catch(error) {
+
+        if ( !isTimeout(error.status) ) {
+          reject(error);
+          break;
+
+        } else {
+
+          currentPage += 1;
+          continue;
+
+        }
+
       }
 
-      resolve(itemsToAdd);
-      return;
-
-    } catch(error) {
-
-      reject(error);
-      return;
-
     }
+
+    resolve(itemsToAdd);
+    return;
+
 
   });
 

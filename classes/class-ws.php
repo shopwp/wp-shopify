@@ -210,11 +210,11 @@ class WS {
   public function wps_ws_get_image_alt($image, $async = false) {
 
     if (Utils::emptyConnection($this->connection)) {
-			return false;
+			return esc_html__('Shop Product', 'wp-shopify');
 		}
 
 		if (empty($image)) {
-			return false;
+			return esc_html__('Shop Product', 'wp-shopify');
 
 		} else {
 
