@@ -72,27 +72,38 @@ class Images extends \WPS\DB {
   }
 
 
+  /*
 
+  Get alt text from response
+
+  */
   public function get_alt_text_from_response($imageAltResponse) {
 
-    $data = json_decode($imageAltResponse->getBody()->getContents());
-
-    if (!is_object($data)) {
-      return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if nothing exists
-    }
-
-    if (property_exists($data, 'metafields')) {
-
-      if (is_array($data->metafields) && !empty($data->metafields)) {
-        return $data->metafields[0]->value;
-
-      } else {
-        return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
-      }
+    if (!is_object($imageAltResponse)) {
+      return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
 
     } else {
 
-      return new \WP_Error('error', $data->errors);
+      $data = json_decode( $imageAltResponse->getBody()->getContents() );
+
+      if (!is_object($data)) {
+        return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if nothing exists
+      }
+
+      if (property_exists($data, 'metafields')) {
+
+        if (is_array($data->metafields) && !empty($data->metafields)) {
+          return $data->metafields[0]->value;
+
+        } else {
+          return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
+        }
+
+      } else {
+
+        return new \WP_Error('error', $data->errors);
+
+      }
 
     }
 

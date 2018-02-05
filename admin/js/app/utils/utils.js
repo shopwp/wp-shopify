@@ -28,6 +28,11 @@ function isObject(value) {
 /*
 
 Is WordPress Error
+Returns true only for wp_send_json_error
+
+TRUE  - send_error
+FALSE - send_warning
+FALSE - send_success
 
 */
 function isWordPressError(response) {
@@ -511,7 +516,8 @@ Did a timeout happen?
 */
 function isTimeout(statusCode) {
 
-  if (statusCode !== 404 || statusCode !== 504 || statusCode !== 408) {
+  // isTimeout if any of these codes are present ...
+  if (statusCode !== 404 || statusCode !== 504 || statusCode !== 408 || statusCode !== 502) {
     return false;
 
   } else {

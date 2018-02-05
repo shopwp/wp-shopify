@@ -539,14 +539,9 @@ function insertProductsData(currentPage = false) {
     },
     error: function(xhr, textStatus, errorThrown ) {
 
-      console.log('ERR textStatus: ', textStatus);
-      console.log('ERR xhr.status: ', xhr.status);
-      console.log('ERR errorThrown: ', errorThrown);
-      
-      // if (isTimeout(xhr.status)) {
-      //   console.log('Retrying ??');
-      //   return controlPromise(options);
-      // }
+      if (isTimeout(xhr.status)) {
+        return controlPromise(options);
+      }
 
     }
   };
