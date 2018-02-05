@@ -523,11 +523,32 @@ https://goo.gl/H7w7RU
 - HTTP response missing response headers
 
 
+504 GATEWAY TIMEOUT
+https://httpstatuses.com/504
+-----------------------------
+The server, while acting as a gateway or proxy, did not receive a timely response from an upstream server it needed to access in order to complete the request.
+
+
+CloudFlare status codes:
+https://goo.gl/M1rHHL
+------------------------
+520 Unknown Error
+521 Web Server
+522 Connection Timed
+523 Origin is Unreachable
+524 A timeout Error
+525 SSL handshake failed
+526 Invalid SSL certificate
+527 Railgun Listener to Origin Error
+530 Origin DNS Error
+
+TODO: Handle each error individually
+
 */
 function isTimeout(statusCode) {
 
   // isTimeout if any of these codes are present ...
-  if (statusCode == 404 || statusCode == 504 || statusCode == 408 || statusCode == 502 || statusCode == 520 || statusCode == 522) {
+  if (statusCode == 404 || statusCode == 504 || statusCode == 408 || statusCode == 502 || statusCode == 520 || statusCode == 521 || statusCode == 522 || statusCode == 523 || statusCode == 524 || statusCode == 525 || statusCode == 526 || statusCode == 527 || statusCode == 530) {
     return true;
 
   } else {
