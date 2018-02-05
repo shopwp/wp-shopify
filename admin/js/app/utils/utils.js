@@ -527,11 +527,11 @@ https://goo.gl/H7w7RU
 function isTimeout(statusCode) {
 
   // isTimeout if any of these codes are present ...
-  if (statusCode !== 404 || statusCode !== 504 || statusCode !== 408 || statusCode !== 502 || statusCode !== 520 || statusCode !== 522) {
-    return false;
+  if (statusCode == 404 || statusCode == 504 || statusCode == 408 || statusCode == 502 || statusCode == 520 || statusCode == 522) {
+    return true;
 
   } else {
-    return true;
+    return false;
   }
 
 }

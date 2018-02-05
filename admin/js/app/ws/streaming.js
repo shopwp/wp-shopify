@@ -267,14 +267,15 @@ async function streamProducts() {
 
         console.error('WP Shopify insertProductsData Error: ', error);
 
-        if ( !isTimeout(error.status) ) {
-          reject();
-          break;
-
-        } else {
+        if ( isTimeout(error.status) ) {
 
           currentPage += 1;
           continue;
+
+        } else {
+
+          reject();
+          break;
 
         }
 
@@ -363,14 +364,15 @@ async function streamCollects() {
 
         console.error('WP Shopify insertCollects Error: ', error);
 
-        if ( !isTimeout(error.status) ) {
-          reject(error);
-          break;
-
-        } else {
+        if ( isTimeout(error.status) ) {
 
           currentPage += 1;
           continue;
+
+        } else {
+
+          reject(error);
+          break;
 
         }
 
@@ -462,14 +464,14 @@ function streamSmartCollections() {
 
         console.error('WP Shopify insertSmartCollections Error: ', error);
 
-        if ( !isTimeout(error.status) ) {
-          reject(error);
-          break;
+        if ( isTimeout(error.status) ) {
+          currentPage += 1;
+          continue;
 
         } else {
 
-          currentPage += 1;
-          continue;
+          reject(error);
+          break;
 
         }
 
@@ -560,14 +562,14 @@ async function streamCustomCollections() {
 
         console.error('WP Shopify insertCustomCollections Error: ', error);
 
-        if ( !isTimeout(error.status) ) {
-          reject(error);
-          break;
+        if ( isTimeout(error.status) ) {
+          currentPage += 1;
+          continue;
 
         } else {
 
-          currentPage += 1;
-          continue;
+          reject(error);
+          break;
 
         }
 
@@ -658,14 +660,14 @@ async function streamOrders() {
 
         console.error('WP Shopify insertOrders Error: ', error);
 
-        if ( !isTimeout(error.status) ) {
-          reject(error);
-          break;
+        if ( isTimeout(error.status) ) {
+          currentPage += 1;
+          continue;
 
         } else {
 
-          currentPage += 1;
-          continue;
+          reject(error);
+          break;
 
         }
 
@@ -756,14 +758,14 @@ async function streamCustomers() {
 
         console.error('WP Shopify insertCustomers Error: ', error);
 
-        if ( !isTimeout(error.status) ) {
-          reject(error);
-          break;
+        if ( isTimeout(error.status) ) {
+          currentPage += 1;
+          continue;
 
         } else {
 
-          currentPage += 1;
-          continue;
+          reject(error);
+          break;
 
         }
 
