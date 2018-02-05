@@ -259,6 +259,8 @@ function onResyncSubmit() {
 
       } catch (errors) {
 
+        console.log('errors: ', errors);
+
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
         });
