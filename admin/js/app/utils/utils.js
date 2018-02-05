@@ -511,13 +511,23 @@ function getDataFromArray(array) {
 
 /*
 
-Did a timeout happen?
+Is it a timeout? Should the request be resent?
+
+ERROR 520
+https://goo.gl/H7w7RU
+---------
+- Connection resets (following a successful TCP handshake)
+- Headers exceed Cloudflare’s header size limit (over 8kb)
+- Empty response from origin
+- Invalid HTTP response
+- HTTP response missing response headers
+
 
 */
 function isTimeout(statusCode) {
 
   // isTimeout if any of these codes are present ...
-  if (statusCode !== 404 || statusCode !== 504 || statusCode !== 408 || statusCode !== 502) {
+  if (statusCode !== 404 || statusCode !== 504 || statusCode !== 408 || statusCode !== 502 || statusCode !== 520 || statusCode !== 522) {
     return false;
 
   } else {

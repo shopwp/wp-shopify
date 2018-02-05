@@ -65,7 +65,7 @@ Tab Content: Tools
   <div class="wps-admin-section">
 
     <h3><?php esc_html_e('Remove all data', 'wp-shopify'); ?></h3>
-    <p><?php esc_html_e('This will remove all Shopify data from WordPress. No data will be removed from Shopify. Useful for clearing out any lingering data without reinstalling the plugin.', 'wp-shopify'); ?></p>
+    <p><?php esc_html_e('This will remove all WP Shopify data from within WordPress. Nothing will be changed in Shopify. Useful for clearing out any lingering data without reinstalling the plugin.', 'wp-shopify'); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax wps-is-active">
 

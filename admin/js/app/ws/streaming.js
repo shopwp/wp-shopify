@@ -265,6 +265,8 @@ async function streamProducts() {
 
       } catch (error) {
 
+        console.error('WP Shopify insertProductsData Error: ', error);
+
         if ( !isTimeout(error.status) ) {
           reject();
           break;
@@ -358,6 +360,8 @@ async function streamCollects() {
         currentPage += 1;
 
       } catch(error) {
+
+        console.error('WP Shopify insertCollects Error: ', error);
 
         if ( !isTimeout(error.status) ) {
           reject(error);
@@ -456,6 +460,8 @@ function streamSmartCollections() {
 
       } catch(error) {
 
+        console.error('WP Shopify insertSmartCollections Error: ', error);
+
         if ( !isTimeout(error.status) ) {
           reject(error);
           break;
@@ -551,6 +557,8 @@ async function streamCustomCollections() {
 
 
       } catch(error) {
+
+        console.error('WP Shopify insertCustomCollections Error: ', error);
 
         if ( !isTimeout(error.status) ) {
           reject(error);
@@ -648,6 +656,8 @@ async function streamOrders() {
 
       } catch(error) {
 
+        console.error('WP Shopify insertOrders Error: ', error);
+
         if ( !isTimeout(error.status) ) {
           reject(error);
           break;
@@ -743,6 +753,8 @@ async function streamCustomers() {
         currentPage += 1;
 
       } catch(error) {
+
+        console.error('WP Shopify insertCustomers Error: ', error);
 
         if ( !isTimeout(error.status) ) {
           reject(error);
