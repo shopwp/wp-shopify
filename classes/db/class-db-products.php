@@ -134,7 +134,6 @@ class Products extends \WPS\DB {
   /*
 
   Get Single Product
-  Without: Images, variants
 
   */
   public function get_data($postID = null) {
@@ -142,11 +141,21 @@ class Products extends \WPS\DB {
     $Images = new Images();
     $Variants = new Variants();
     $Options = new Options();
+    $Tags = new Tags();
 
     $results['details'] = $this->get_product($postID);
+
+
+
+
     $results['images'] = $Images->get_product_images($postID);
+    $results['tags'] = $Tags->get_product_tags($postID);
     $results['variants'] = $Variants->get_product_variants($postID);
     $results['options'] = $Options->get_product_options($postID);
+
+
+    $results['details']->tags = $Tags->construct_only_tag_names($results['tags']);
+
 
     return json_decode(json_encode($results), true);
 

@@ -144,6 +144,8 @@ function resetSingleProductVariantSelector($addToCartButton) {
 
   });
 
+  $productMetaWrapper.removeClass('wps-is-selecting');
+
 }
 
 
@@ -172,6 +174,7 @@ function onAddProductToCart(shopify) {
       toggleCart();
     }
 
+
     showLoader($cartForm);
     disable($cartForm);
 
@@ -180,6 +183,7 @@ function onAddProductToCart(shopify) {
       disable($addToCartButton);
       showLoader($addToCartButton);
       showHiddenProductVariants();
+
 
       try {
 
@@ -245,10 +249,12 @@ function onAddProductToCart(shopify) {
       hideLoader($addToCartButton);
       hideLoader($cartForm);
 
+
       if (!cartIsOpen()) {
         toggleCart();
       }
 
+      resetVariantSelectors(); // Resets DOM related to selecting options
       resetSingleProductVariantSelector($addToCartButton);
 
     } else {
@@ -591,6 +597,7 @@ function toggleAvailableVariantSelections(selectedVariant, availableVariants) {
     });
 
     var individualSelection = jQuery($dropdown).find(finalSelector);
+
     individualSelection.addClass('wps-is-hidden');
 
   });
@@ -643,6 +650,9 @@ function onProductVariantChange() {
         dropdownAlreadySelected = $trigger.closest('.wps-btn-dropdown').data('selected'),
         availableVariants = $newProductMetaContainer.data('product-available-variants');
 
+
+    $newProductMetaContainer.addClass('wps-is-selecting');
+
     /*
 
     Resets the selection process if the user picks a variant from an
@@ -652,7 +662,7 @@ function onProductVariantChange() {
 
     */
     if (dropdownAlreadySelected) {
-      resetVariantSelectors($newProductMetaContainer);
+      resetVariantSelectors();
       resetOptionsSelection();
     }
 
@@ -694,12 +704,14 @@ function onProductVariantChange() {
     );
 
 
+
     toggleAvailableVariantSelections(
       constructSelectedVariantOptions($trigger),
       availableVariants
     );
 
     closeOptionsModal();
+
 
 
     /*
@@ -753,7 +765,7 @@ function onProductVariantChange() {
         enable($newProductMetaContainer.find('.wps-btn'));
         shake($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
 
-        resetVariantSelectors($newProductMetaContainer);
+        resetVariantSelectors();
         removeProductOptionIds();
         resetOptionsSelection();
 
@@ -804,7 +816,10 @@ function onProductDropdown() {
 
       } else {
 
-        showHiddenProductVariants();
+
+        if (!$dropdown.closest('.wps-product-meta').hasClass('wps-is-selecting')) {
+          showHiddenProductVariants();
+        }
 
         $dropdown.data('open', true);
         $dropdown.attr('data-open', true);

@@ -714,15 +714,27 @@ class Utils {
 
     $tags = '';
 
-    if (is_array($shortcodeAttrs[$type])) {
+		// if ( !is_array($shortcodeAttrs[$type]) ) {
+		// 	$items = Utils::wps_comma_list_to_array( $shortcodeAttrs[$type] );
+    //
+		// } else {
+		// 	$items = $shortcodeAttrs[$type];
+		// }
 
-      foreach ($shortcodeAttrs[$type] as $key => $tag) {
+		$items = $shortcodeAttrs[$type];
+
+
+    if (is_array($items)) {
+
+      foreach ($items as $key => $tag) {
         $tags .= '"' . $tag . '", ';
       }
 
       $tags = substr($tags, 0, -2);
 
+
     } else {
+
       $tags .= '"' . $shortcodeAttrs[$type] . '"';
 
     }
@@ -834,8 +846,11 @@ class Utils {
 
     $variants_table_name = $DB_Variants->get_table_name();
 
-    $shortcode_query['where'] .= ' AND variantss.title IN (' . $variants . ')';
-    $shortcode_query['join'] .= ' INNER JOIN ' . $variants_table_name . ' variantss ON ' . $table_name . '.product_id = variantss.product_id';
+    $shortcode_query['where'] .= ' AND variants.title IN (' . $variants . ')';
+
+		if (!self::variants_already_joined($shortcode_query['join'])) {
+			$shortcode_query['join'] .= ' INNER JOIN ' . $variants_table_name . ' variants ON ' . $table_name . '.product_id = variants.product_id';
+		}
 
     return $shortcode_query;
 
@@ -869,9 +884,9 @@ class Utils {
   */
   public static function construct_vendors_clauses($shortcode_query, $vendors, $table_name) {
 
-    global $wpdb;
+		global $wpdb;
 
-    $shortcode_query['where'] .= ' AND ' . $table_name . '.vendor IN (' . $vendors . ')';
+		$shortcode_query['where'] .= ' AND ' . $table_name . '.vendor IN (' . $vendors . ')';
 
     return $shortcode_query;
 
@@ -1043,7 +1058,7 @@ class Utils {
 
     global $wpdb;
 
-    $shortcode_query['orderby'] .= $table_name . '.' . $orderby . ' ';
+    $shortcode_query['orderby'] .= $table_name . '.' . $orderby;
 
     return $shortcode_query;
 
@@ -1053,6 +1068,8 @@ class Utils {
   /*
 
   Construct Clauses From Products Shortcode
+
+	-- Called in related products as well
 
   */
   public static function construct_clauses_from_products_shortcode($shortcodeAttrs, $query) {
@@ -1073,13 +1090,13 @@ class Utils {
       $shortcode_query['orderby'] = '';
     }
 
+
     /*
 
     Here we have to loop through all the shortcode attributes that
     were passed in and check if they exist
 
     */
-
     if (array_key_exists('slugs', $shortcodeAttrs)) {
       $slugs = self::construct_in_clause($shortcodeAttrs, 'slugs');
       $shortcode_query = self::construct_slug_clauses($shortcode_query, $slugs, 'products');
@@ -1155,7 +1172,9 @@ class Utils {
       $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
     }
 
+
     return $shortcode_query;
+
 
   }
 
@@ -1211,6 +1230,20 @@ class Utils {
     return $shortcode_query;
 
   }
+
+
+
+	public static function variants_already_joined($joinStatement) {
+
+		if (strpos($joinStatement, 'variants ON products.product_id = variants.product_id') !== false) {
+			return true;
+
+		} else {
+			return false;
+		}
+
+	}
+
 
 
   /*
@@ -1585,7 +1618,7 @@ class Utils {
 
   /*
 
-	Turns comma seperated list into array
+	Removes duplicates
 
 	*/
 	public static function wps_remove_duplicates($collectionIDs) {
@@ -2107,12 +2140,12 @@ class Utils {
     // Set defaults to use
     $defaults = [
       'query'                 => $GLOBALS['wp_query'],
-      'previous_page_text'    => __( apply_filters('wps_products_pagination_prev_page_text', '&laquo;') ),
-      'next_page_text'        => __( apply_filters('wps_products_pagination_next_page_text', '&raquo;') ),
-      'first_page_text'       => __( apply_filters('wps_products_pagination_first_page_text', 'First') ),
-      'last_page_text'        => __( apply_filters('wps_products_pagination_last_page_text', 'Last') ),
-      'next_link_text'        => __( apply_filters('wps_products_pagination_next_link_text', 'Next') ),
-      'previous_link_text'    => __( apply_filters('wps_products_pagination_prev_link_text', 'Prev') ),
+      'previous_page_text'    => __( apply_filters('wps_products_pagination_prev_page_text', '&laquo;'), 'wp-shopify'),
+      'next_page_text'        => __( apply_filters('wps_products_pagination_next_page_text', '&raquo;'), 'wp-shopify'),
+      'first_page_text'       => __( apply_filters('wps_products_pagination_first_page_text', 'First'), 'wp-shopify'),
+      'last_page_text'        => __( apply_filters('wps_products_pagination_last_page_text', 'Last'), 'wp-shopify'),
+      'next_link_text'        => __( apply_filters('wps_products_pagination_next_link_text', 'Next'), 'wp-shopify'),
+      'previous_link_text'    => __( apply_filters('wps_products_pagination_prev_link_text', 'Prev'), 'wp-shopify'),
       'show_posts_links'      => apply_filters('wps_products_pagination_show_as_prev_next', false),
       'range'                 => apply_filters('wps_products_pagination_range', 5),
     ];
@@ -2217,7 +2250,7 @@ class Utils {
             $page_numbers[] = '<span itemprop="identifier" class="wps-products-page-current">' . $v . '</span>';
 
           } else {
-            $page_numbers[] = '<a itemprop="url" href="' . self::wps_get_pagenum_link( $args, $v ) . '" class="wps-products-page-inactive">' . $v . '</a>';
+            $page_numbers[] = '<a itemprop="url" href="' . self::wps_get_pagenum_link( $args, $v ) . '" class="wps-products-page-inactive" itemprop="item">' . $v . '</a>';
 
           }
 
@@ -2232,13 +2265,13 @@ class Utils {
          - $last_page Links to the last page
 
         */
-        $previous_page = ( $current_page !== 1 ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page - 1) . '" class="wps-products-page-previous">' . $args['previous_page_text'] . '</a>' : '';
+        $previous_page = ( $current_page !== 1 ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page - 1) . '" class="wps-products-page-previous" itemprop="item">' . $args['previous_page_text'] . '</a>' : '';
 
-        $next_page = ( $current_page !== $max_pages ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page + 1) . '" class="wps-products-page-next">' . $args['next_page_text'] . '</a>' : '';
+        $next_page = ( $current_page !== $max_pages ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page + 1) . '" class="wps-products-page-next" itemprop="item">' . $args['next_page_text'] . '</a>' : '';
 
-        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, 1) . '" class="wps-products-page-first">' . $args['first_page_text'] . '</a>' : '';
+        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, 1) . '" class="wps-products-page-first" itemprop="item">' . $args['first_page_text'] . '</a>' : '';
 
-        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last">' . $args['last_page_text'] . '</a>' : '';
+        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last" itemprop="item">' . $args['last_page_text'] . '</a>' : '';
 
         // Removes next link on last page of pagination
         if ( $max_pages == $current_page) {
@@ -2324,6 +2357,7 @@ class Utils {
 
     } else {
 
+			// Setting related products count
       $wps_related_products_count = $query->get('wps_related_products_count');
       $limit = 'LIMIT 0, ' . $wps_related_products_count;
 
@@ -2483,6 +2517,247 @@ class Utils {
 		return $currentPage;
 
   }
+
+
+	/*
+
+	Breadcrumbs
+
+	*/
+	public static function wps_breadcrumbs() {
+
+		// Settings
+		$separator          = __( apply_filters('wps_breadcrumbs_separator', '&gt;'), 'wp-shopify');
+		$breadcrums_id      = __( apply_filters('wps_breadcrumbs_id', 'wps-breadcrumbs'), 'wp-shopify');
+		$breadcrums_class   = __( apply_filters('wps_breadcrumbs_inner_class', 'wps-breadcrumbs-inner'), 'wp-shopify');
+		$home_title         = __( apply_filters('wps_breadcrumbs_home_text', 'Home'), 'wp-shopify');
+
+		// If you have any custom post types with custom taxonomies, put the taxonomy name below (e.g. product_cat)
+		$custom_taxonomy    = '';
+
+		// Get the query & post information
+		global $post, $wp_query;
+
+		// Do not display on the homepage
+		if ( !is_front_page() ) {
+
+			// Build the breadcrums
+			echo '<ul id="' . $breadcrums_id . '" class="' . $breadcrums_class . '" itemscope itemtype="http://schema.org/BreadcrumbList">';
+
+			// Home page
+			echo '<li class="wps-breadcrumbs-item-home" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-link wps-breadcrumbs-home" href="' . get_home_url() . '" title="' . $home_title . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $home_title . '</span></a></li>';
+			echo '<li class="wps-breadcrumbs-separator wps-breadcrumbs-separator-home"> ' . $separator . ' </li>';
+
+			if ( is_archive() && !is_tax() && !is_category() && !is_tag() ) {
+
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-archive" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-archive" itemprop="name">' . post_type_archive_title('', false) . '</strong></li>';
+
+			} else if ( is_archive() && is_tax() && !is_category() && !is_tag() ) {
+
+				// If post is a custom post type
+				$post_type = get_post_type();
+
+				// If it is a custom post type display name and link
+				if ($post_type != 'post') {
+
+					$post_type_object = get_post_type_object($post_type);
+					$post_type_archive = get_post_type_archive_link($post_type);
+
+					echo '<li class="wps-breadcrumbs-item-cat wps-breadcrumbs-item-custom-post-type-' . $post_type . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-cat wps-breadcrumbs-custom-post-type-' . $post_type . '" href="' . $post_type_archive . '" title="' . $post_type_object->labels->name . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $post_type_object->labels->name . '</span></a></li>';
+					echo '<li class="wps-breadcrumbs-separator"> ' . $separator . ' </li>';
+
+				}
+
+				$custom_tax_name = get_queried_object()->name;
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-archive"><strong class="wps-breadcrumbs-current wps-breadcrumbs-archive" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">' . $custom_tax_name . '</strong></li>';
+
+			} else if ( is_single() ) {
+
+				// If post is a custom post type
+				$post_type = get_post_type();
+
+				// If it is a custom post type display name and link
+				if ($post_type != 'post') {
+
+					$post_type_object = get_post_type_object($post_type);
+					$post_type_archive = get_post_type_archive_link($post_type);
+
+					echo '<li class="wps-breadcrumbs-item-cat wps-breadcrumbs-item-custom-post-type-' . $post_type . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-cat wps-breadcrumbs-custom-post-type-' . $post_type . '" href="' . $post_type_archive . '" title="' . $post_type_object->labels->name . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $post_type_object->labels->name . '</span></a></li>';
+					echo '<li class="wps-breadcrumbs-separator"> ' . $separator . ' </li>';
+
+				}
+
+				// Get post category info
+				$category = get_the_category();
+
+				if (!empty($category)) {
+
+					// Get last category post is in
+					$last_category = end(array_values($category));
+
+					// Get parent any categories and create array
+					$get_cat_parents = rtrim(get_category_parents($last_category->term_id, true, ','),',');
+					$cat_parents = explode(',',$get_cat_parents);
+
+					// Loop through parent categories and store in variable $cat_display
+					$cat_display = '';
+
+					foreach ($cat_parents as $parents) {
+						$cat_display .= '<li class="wps-breadcrumbs-item-cat" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">'.$parents.'</li>';
+						$cat_display .= '<li class="wps-breadcrumbs-separator"> ' . $separator . ' </li>';
+					}
+
+				}
+
+				// If it's a custom post type within a custom taxonomy
+				$taxonomy_exists = taxonomy_exists($custom_taxonomy);
+
+				if (empty($last_category) && !empty($custom_taxonomy) && $taxonomy_exists) {
+
+					$taxonomy_terms = get_the_terms( $post->ID, $custom_taxonomy );
+					$cat_id         = $taxonomy_terms[0]->term_id;
+					$cat_nicename   = $taxonomy_terms[0]->slug;
+					$cat_link       = get_term_link($taxonomy_terms[0]->term_id, $custom_taxonomy);
+					$cat_name       = $taxonomy_terms[0]->name;
+
+				}
+
+				// Check if the post is in a category
+				if(!empty($last_category)) {
+
+					echo $cat_display;
+					echo '<li class="wps-breadcrumbs-item-current item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
+
+				// Else if post is in a custom taxonomy
+				} else if(!empty($cat_id)) {
+
+					echo '<li class="wps-breadcrumbs-item-cat wps-breadcrumbs-item-cat-' . $cat_id . ' wps-breadcrumbs-item-cat-' . $cat_nicename . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-cat wps-breadcrumbs-cat-' . $cat_id . ' wps-breadcrumbs-cat-' . $cat_nicename . '" href="' . $cat_link . '" title="' . $cat_name . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $cat_name . '</span></a></li>';
+					echo '<li class="wps-breadcrumbs-separator"> ' . $separator . ' </li>';
+					echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
+
+				} else {
+
+					echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
+
+				}
+
+			} else if ( is_category() ) {
+
+				// Category page
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-cat" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-cat" itemprop="name">' . single_cat_title('', false) . '</strong></li>';
+
+			} else if ( is_page() ) {
+
+				// Standard page
+				if ( $post->post_parent ){
+
+					// If child page, get parents
+					$anc = get_post_ancestors( $post->ID );
+
+					// Get parents in the right order
+					$anc = array_reverse($anc);
+
+					// Parent page loop
+					if ( !isset( $parents ) ) $parents = null;
+					foreach ( $anc as $ancestor ) {
+							$parents .= '<li class="wps-breadcrumbs-item-parent wps-breadcrumbs-item-parent-' . $ancestor . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-parent wps-breadcrumbs-parent-' . $ancestor . '" href="' . get_permalink($ancestor) . '" title="' . get_the_title($ancestor) . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . get_the_title($ancestor) . '</span></a></li>';
+							$parents .= '<li class="wps-breadcrumbs-separator wps-breadcrumbs-separator-' . $ancestor . '"> ' . $separator . ' </li>';
+					}
+
+					// Display parent pages
+					echo $parents;
+
+					// Current page
+					echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong title="' . get_the_title() . '" itemprop="name"> ' . get_the_title() . '</strong></li>';
+
+				} else {
+
+					// Just display current page if not parents
+					echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" itemprop="name"> ' . get_the_title() . '</strong></li>';
+
+				}
+
+			} else if ( is_tag() ) {
+
+				// Tag page
+
+				// Get tag information
+				$term_id        = get_query_var('tag_id');
+				$taxonomy       = 'post_tag';
+				$args           = 'include=' . $term_id;
+				$terms          = get_terms( $taxonomy, $args );
+				$get_term_id    = $terms[0]->term_id;
+				$get_term_slug  = $terms[0]->slug;
+				$get_term_name  = $terms[0]->name;
+
+				// Display the tag name
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-tag-' . $get_term_id . ' wps-breadcrumbs-item-tag-' . $get_term_slug . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-tag-' . $get_term_id . ' wps-breadcrumbs-tag-' . $get_term_slug . '" itemprop="name">' . $get_term_name . '</strong></li>';
+
+			} elseif ( is_day() ) {
+
+				// Day archive
+
+				// Year link
+				echo '<li class="wps-breadcrumbs-item-year wps-breadcrumbs-item-year-' . get_the_time('Y') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-year wps-breadcrumbs-year-' . get_the_time('Y') . '" href="' . get_year_link( get_the_time('Y') ) . '" title="' . get_the_time('Y') . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . get_the_time('Y') . ' Archives</span></a></li>';
+				echo '<li class="wps-breadcrumbs-separator wps-breadcrumbs-separator-' . get_the_time('Y') . '"> ' . $separator . ' </li>';
+
+				// Month link
+				echo '<li class="wps-breadcrumbs-item-month wps-breadcrumbs-item-month-' . get_the_time('m') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-month wps-breadcrumbs-month-' . get_the_time('m') . '" href="' . get_month_link( get_the_time('Y'), get_the_time('m') ) . '" title="' . get_the_time('M') . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . get_the_time('M') . ' Archives</span></a></li>';
+				echo '<li class="wps-breadcrumbs-separator wps-breadcrumbs-separator-' . get_the_time('m') . '"> ' . $separator . ' </li>';
+
+				// Day display
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . get_the_time('j') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . get_the_time('j') . '" itemprop="name"> ' . get_the_time('jS') . ' ' . get_the_time('M') . ' Archives</strong></li>';
+
+			} else if ( is_month() ) {
+
+				// Month Archive
+
+				// Year link
+				echo '<li class="wps-breadcrumbs-item-year wps-breadcrumbs-item-year-' . get_the_time('Y') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-year wps-breadcrumbs-year-' . get_the_time('Y') . '" href="' . get_year_link( get_the_time('Y') ) . '" title="' . get_the_time('Y') . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . get_the_time('Y') . ' Archives</span></a></li>';
+				echo '<li class="wps-breadcrumbs-separator wps-breadcrumbs-separator-' . get_the_time('Y') . '"> ' . $separator . ' </li>';
+
+				// Month display
+				echo '<li class="wps-breadcrumbs-item-month wps-breadcrumbs-item-month-' . get_the_time('m') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-month wps-breadcrumbs-month-' . get_the_time('m') . '" title="' . get_the_time('M') . '" itemprop="name">' . get_the_time('M') . ' Archives</strong></li>';
+
+			} else if ( is_year() ) {
+
+				// Display year archive
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-current-' . get_the_time('Y') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-current-' . get_the_time('Y') . '" title="' . get_the_time('Y') . '" itemprop="name">' . get_the_time('Y') . ' Archives</strong></li>';
+
+			} else if ( is_author() ) {
+
+				// Auhor archive
+
+				// Get the author information
+				global $author;
+				$userdata = get_userdata( $author );
+
+				// Display author name
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-current-' . $userdata->user_nicename . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-current-' . $userdata->user_nicename . '" title="' . $userdata->display_name . '" itemprop="name">' . 'Author: ' . $userdata->display_name . '</strong></li>';
+
+			} else if ( get_query_var('paged') ) {
+
+				// Paginated archives
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-current-' . get_query_var('paged') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-current-' . get_query_var('paged') . '" title="Page ' . get_query_var('paged') . '" itemprop="name">'.__('Page') . ' ' . get_query_var('paged') . '</strong></li>';
+
+			} else if ( is_search() ) {
+
+				// Search results page
+				echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-current-' . get_search_query() . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-current-' . get_search_query() . '" title="Search results for: ' . get_search_query() . '" itemprop="name">Search results for: ' . get_search_query() . '</strong></li>';
+
+			} elseif ( is_404() ) {
+
+				// 404 page
+				echo '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">' . 'Error 404' . '</li>';
+
+			}
+
+			echo '</ul>';
+
+		}
+
+	}
+
 
 
 	/*

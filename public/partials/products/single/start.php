@@ -1,3 +1,5 @@
+<?php do_action('wps_breadcrumbs'); ?>
+
 <div
   itemscope
   itemtype="https://schema.org/Product"

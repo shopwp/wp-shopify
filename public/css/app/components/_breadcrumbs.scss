@@ -1,0 +1,21 @@
+.wps-breadcrumbs {
+  @include respond-to(500, 'max') {
+    font-size: 80%;
+  }
+}
+
+.wps-breadcrumbs-inner {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.wps-breadcrumbs-separator {
+  margin: 0 $space-s;
+  color: color(grey);
+}
+
+.wps-breadcrumbs-current {
+  font-weight: 400;
+}

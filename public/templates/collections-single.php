@@ -17,9 +17,11 @@ get_header('wps');
 
 if (is_single()) {
 
+  do_action('wps_breadcrumbs');
+  
   do_action('wps_collection_single_before');
-
   do_action('wps_collection_single_start', $wps_collection);
+
   do_action('wps_collection_single_header', $wps_collection);
 
   do_action('wps_collection_single_content', $wps_collection);

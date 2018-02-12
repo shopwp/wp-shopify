@@ -24,14 +24,6 @@
   &.wps-bounceOutRight {
     animation-duration: 1.6s;
   }
-
-  .wps-is-disabled:before {
-    left: 44%;
-    top: 16%;
-  }
-
-
-
 }
 
 .wps-cart-section {
@@ -88,6 +80,16 @@
 }
 
 
+.wps-btn-checkout {
+  &.wps-is-loading:before {
+    left: 1em;
+    top: calc(50% - 1em);
+    width: 2em;
+    height: 2em;
+  }
+}
+
+
 .wps-cart-item-container {
   margin-top: 0;
   height: 75%;
@@ -103,6 +105,14 @@
   width: auto;
   max-width: auto;
   margin: 0 auto;
+
+  &.wps-is-loading:before {
+    left: calc(50% - 2.5em);
+    top: calc(50% - 2.5em);
+    width: 5em;
+    height: 5em;
+  }
+
 }
 
 .wps-cart-item {

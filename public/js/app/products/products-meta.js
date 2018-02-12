@@ -54,10 +54,10 @@ function showHiddenProductVariants() {
 
 /*
 
-Resets the variant selection based on a parent element
+Resets variant selection of all products
 
 */
-function resetVariantSelectors($parent) {
+function resetVariantSelectors() {
 
   jQuery('.wps-btn-dropdown[data-selected=true]').each(function (index, element) {
 
@@ -67,6 +67,8 @@ function resetVariantSelectors($parent) {
     $dropdown.attr('data-selected', false);
     $dropdown.data('selected', false);
     $dropdownLink.html($dropdownLink.attr("data-option"));
+
+    jQuery('.wps-product-meta.wps-is-selecting').removeClass('wps-is-selecting');
 
   });
 

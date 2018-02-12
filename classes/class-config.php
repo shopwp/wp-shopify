@@ -64,7 +64,7 @@ class Config {
 		$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 		$this->plugin_name = 'wps';
 		$this->plugin_text_domain = 'wp-shopify';
-		$this->plugin_version = '1.0.45';
+		$this->plugin_version = '1.0.46';
 		$this->plugin_author = 'Andrew Robbins';
 
 		self::$plugin_nonce_action_backend = 'wp-shopify-backend';
