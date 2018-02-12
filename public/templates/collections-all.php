@@ -6,6 +6,8 @@ if (empty($is_shortcode)) {
   get_header('wps');
 }
 
+do_action('wps_breadcrumbs');
+
 do_action(
   'wps_collections_display',
   apply_filters('wps_collections_args', $wps_args),

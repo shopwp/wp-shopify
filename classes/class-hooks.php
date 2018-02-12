@@ -587,6 +587,7 @@ if (!class_exists('Hooks')) {
 	    $table_products = $DB_Products->get_table_name();
 			$table_variants = $DB_Variants->get_table_name();
 
+
 			if ($query->get('context') === 'wps_products_query') {
 
 				/*
@@ -651,26 +652,19 @@ if (!class_exists('Hooks')) {
 				$DB_Collections_Custom = new Collections_Custom();
 				$DB = new DB();
 
+
+
 				if ($query->get('context') === 'wps_products_query') {
 
-					// If using Shortcode ...
+					// If using Shortcode or related products ...
 					if ($query->get('custom')) {
 
 						$clauses = Utils::construct_clauses_from_products_shortcode($query->get('custom'), $query);
 
+
 					} else {
 
 						$clauses = $DB_Products->get_default_query();
-
-						/*
-
-						TODO: This seems hard to maintain / remember. These three lines force random
-						on related products. User might not want random ... need ability to customize.
-
-						*/
-						if ($query->get('wps_related_products')) {
-							$clauses['orderby'] = 'RAND()';
-						}
 
 					}
 
@@ -717,9 +711,58 @@ if (!class_exists('Hooks')) {
 
 			}
 
+
+			/*
+
+			This forces the related products to _show_ in random order.
+			TODO: Need the ability to allow customers to change.
+
+			*/
+			if ($query->get('wps_related_products')) {
+
+				$customFilters = $query->get('custom');
+
+				/*
+
+				All we're doing here is adding the order and orderby values to the query again.
+				Since wps_clauses_mod runs last, it will override our previous settings.
+
+				TODO: We should able to restrucutre this so we don't have add it twice
+
+				*/
+				if (isset($customFilters['orderby']) && !empty($customFilters['orderby'])) {
+
+					if ($customFilters['orderby'] === 'price') {
+						$customFilters['orderby'] = 'variants.price';
+					}
+
+					if (isset($customFilters['order']) && $customFilters['order']) {
+						$customFilters['orderby'] = $customFilters['orderby'] . ' ' . $customFilters['order'];
+					}
+
+					$clauses['orderby'] = $customFilters['orderby'];
+
+
+				} else {
+
+					// If the user didn't set a custom orderby then use random by default
+					$clauses['orderby'] = 'RAND()';
+				}
+
+
+			}
+
+
 			return $clauses;
 
 		}
+
+
+
+
+
+
+
 
 
 		/*
@@ -745,16 +788,20 @@ if (!class_exists('Hooks')) {
 
 				}
 
+
+
 				$productQueryHash = md5(serialize($args));
 
 				/*
 
 				Here we're caching an entire WP_Query response by hashing the
 				argument array. We can safely assume that a given set of args
-				will always produce the same list of products assuming the
-				product data doesn't change. Therefore it's important that we clear
-				this cache whenever a product is updated, created, or deleted. OR
-				whenever the plugin settings are updated.
+				will always produce the same list of products if the
+				product data doesn't change.
+
+				Therefore it's important that we clear this cache whenever a
+				product is updated, created, or deleted. OR whenever the plugin
+				settings are updated.
 
 				*/
 		    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
@@ -763,11 +810,12 @@ if (!class_exists('Hooks')) {
 		    } else {
 
 					$productsQuery = new \WP_Query($args);
-		      set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
+
+					if ( $args['orderby'] !== 'rand' ) {
+						set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
+					}
 
 		    }
-
-				// $productsQuery = new \WP_Query($args);
 
 
 				if (Utils::wps_is_manually_sorted($args)) {
@@ -785,8 +833,6 @@ if (!class_exists('Hooks')) {
 
 
 
-
-
 				/*
 
 				Show add to cart button if add to cart is passed in
@@ -797,15 +843,12 @@ if (!class_exists('Hooks')) {
 				}
 
 
-
-
-
-
 				$amountOfProducts = count($wps_products);
 				$settings = $this->config->wps_get_settings_general();
 
 				do_action( 'wps_products_before', $productsQuery );
 				do_action( 'wps_products_header', $productsQuery );
+				do_action( 'wps_products_header_after', $productsQuery );
 
 
 				if ($amountOfProducts > 0) {
@@ -914,6 +957,7 @@ if (!class_exists('Hooks')) {
 				*/
 				do_action( 'wps_collections_before', $collections );
 				do_action( 'wps_collections_header', $collections );
+				do_action( 'wps_collections_header_after', $collections );
 
 				if (count($collections) > 0) {
 
@@ -1076,15 +1120,18 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_products_related_args($defaultArgs, $product) {
 
+			$DB_Products = new Products();
+
 			return array(
-				'post_type' => $product->post_type,
-        'post_status' => 'publish',
-        'posts_per_page' => apply_filters('wps_products_related_args_posts_per_page', 4),
-				'orderby'   => apply_filters('wps_products_related_args_orderby', 'rand'),
-        'paged' => false,
-				'post__not_in' => array($product->ID),
-				'wps_related_products' => true,
-				'wps_related_products_count' => apply_filters('wps_products_related_args_posts_per_page', 4)
+				'post_type' 										=> $product->post_type,
+        'post_status' 									=> 'publish',
+        'posts_per_page' 								=> apply_filters('wps_products_related_args_posts_per_page', 4), // Not currently used
+				'orderby'   										=> apply_filters('wps_products_related_args_orderby', 'rand'),
+        'paged' 												=> false,
+				'post__not_in' 									=> array($product->ID),
+				'wps_related_products' 					=> true,
+				'custom' 												=> apply_filters('wps_products_related_filters', [], $DB_Products->get_data($product->ID)), // Allows for custom filtering of related products
+				'wps_related_products_count' 		=> apply_filters('wps_products_related_args_posts_per_page', 4) // Determines amount of items returned
 			);
 
 		}
@@ -1178,17 +1225,33 @@ if (!class_exists('Hooks')) {
 		*/
 		public function wps_content_pre_loop($query) {
 
-			if (isset($query->query['context']) && isset($query->query['post_type'])) {
+			/*
 
-				if ($query->query['post_type'] === 'wps_products' || $query->query['post_type'] === 'wps_collections') {
+			Ensures our mods will only run during our custom queries
 
-					$DB_Settings_General = new Settings_General();
-
-					$query->set('posts_per_page', $DB_Settings_General->get_num_posts());
-
-				}
-
+			*/
+			if ( is_admin() || $query->get('post_type') !== 'wps_products' && $query->get('post_type') !== 'wps_collections' ) {
+				return;
 			}
+
+
+			/*
+
+			Improves performance of related products query.
+			More here -- https://kinsta.com/blog/wp-query/
+
+			*/
+			if ($query->get('wps_related_products')) {
+				$query->set( 'category_name', 'wp-shopify' );
+				$query->set( 'no_found_rows', true );
+				$query->set( 'update_post_meta_cache', false );
+				$query->set( 'update_post_term_cache', false );
+			}
+
+
+			$DB_Settings_General = new Settings_General();
+			$query->set('posts_per_page', $DB_Settings_General->get_num_posts());
+
 
 			return $query;
 
@@ -1387,6 +1450,15 @@ if (!class_exists('Hooks')) {
 		}
 
 
+		public function wps_breadcrumbs($data) {
+
+			if (apply_filters('wps_breadcrumbs_show', false)) {
+				return include($this->config->plugin_path . "public/partials/pagination/breadcrumbs.php");
+			}
+
+		}
+
+
 
 		public function wps_collection_single_heading_before($collection) {
 			echo 'before';
@@ -1395,6 +1467,7 @@ if (!class_exists('Hooks')) {
 		public function wps_collection_single_heading_after($collection) {
 			echo 'after';
 		}
+
 
 		public function wps_collection_single_sidebar() {
 

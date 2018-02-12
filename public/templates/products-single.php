@@ -12,9 +12,9 @@ get_header('wps');
 
 if ( is_single() ) {
 
+  do_action('wps_product_single_start', $wps_product);
   do_action('wps_product_single_before', $wps_product);
 
-  do_action('wps_product_single_start', $wps_product);
   do_action('wps_product_single_gallery_start', $wps_product);
   do_action('wps_product_imgs_before', $wps_product);
   do_action('wps_product_single_imgs', $wps_product);

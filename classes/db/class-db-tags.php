@@ -91,6 +91,20 @@ class Tags extends \WPS\DB {
 
   /*
 
+  $tags parameter represents an array of arrays modeled from the above 'construct_tag_model'
+
+  */
+  public function construct_only_tag_names($tags) {
+
+    return array_map(function($tagObj) {
+      return $tagObj->tag;
+    }, $tags);
+
+  }
+
+
+  /*
+
   Get single shop info value
 
   */
@@ -187,6 +201,51 @@ class Tags extends \WPS\DB {
     return $results;
 
   }
+
+
+  /*
+
+  Get Product Tags
+
+  */
+  public function get_product_tags($postID = null) {
+
+    global $wpdb;
+
+    if ($postID === null) {
+      $postID = get_the_ID();
+    }
+
+    if (get_transient('wps_product_single_tags_' . $postID)) {
+      $results = get_transient('wps_product_single_tags_' . $postID);
+
+    } else {
+
+      $DB_Products = new Products();
+      $table_products = $DB_Products->get_table_name();
+
+      $query = "SELECT tags.* FROM $table_products as products INNER JOIN $this->table_name as tags ON products.product_id = tags.product_id WHERE products.post_id = %d";
+
+      $results = $wpdb->get_results( $wpdb->prepare($query, $postID) );
+
+      set_transient('wps_product_single_tags_' . $postID, $results);
+
+    }
+
+    return $results;
+
+  }
+
+
+
+
+
+
+
+
+
+
+
 
 
   /*

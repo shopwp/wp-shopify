@@ -744,6 +744,10 @@ if (!class_exists('Frontend')) {
 		}
 
 
+
+
+
+
 		/*
 
 		Before Checkout Hook
@@ -764,6 +768,7 @@ if (!class_exists('Frontend')) {
 			$this->ws->send_success();
 
 		}
+
 
 
 		/*

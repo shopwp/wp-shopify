@@ -58,6 +58,8 @@ function onCheckout(shopify) {
         return;
       }
 
+      jQuery(this).addClass('wps-is-disabled wps-is-loading');
+
 
       // Add the linker plugin to the anchor is GA is installed
       if (hasGA) {
@@ -65,10 +67,17 @@ function onCheckout(shopify) {
       }
 
 
+      /*
+
+      Step 1. Get cart instance
+
+      */
       try {
+
         var newCart = await fetchCart(shopify);
 
       } catch(error) {
+        jQuery(this).removeClass('wps-is-disabled wps-is-loading');
         reject(error);
         return;
       }
@@ -79,6 +88,7 @@ function onCheckout(shopify) {
         var customAttrs = await anyCustomAttrs();
 
       } catch (error) {
+        jQuery(this).removeClass('wps-is-disabled wps-is-loading');
         reject(error);
         return;
       }
@@ -215,8 +225,10 @@ function onQuantityChange(shopify) {
     var variantId = parseInt(jQuery(this).attr('data-variant-id'), 10);
     var productId = parseInt(jQuery(this).attr('data-product-id'), 10);
 
-    showLoader($cartForm);
+    // showLoader($cartForm);
     disable($cartForm);
+
+    $cartForm.addClass('wps-is-disabled wps-is-loading');
 
     if (jQuery(this).hasClass('wps-quantity-increment')) {
       quantity = 1;
@@ -237,6 +249,7 @@ function onQuantityChange(shopify) {
 
     } catch(error) {
       console.error('WP Shopify Error getProduct: ', error);
+      $cartForm.removeClass('wps-is-disabled wps-is-loading');
       return error;
     }
 
@@ -253,6 +266,7 @@ function onQuantityChange(shopify) {
 
     } catch(error) {
       console.error('WP Shopify Error updateCartVariant: ', error);
+      $cartForm.removeClass('wps-is-disabled wps-is-loading');
       return error;
     }
 
@@ -267,6 +281,7 @@ function onQuantityChange(shopify) {
 
     } catch(error) {
       console.error("WP Shopify Error fetchCart", error);
+      $cartForm.removeClass('wps-is-disabled wps-is-loading');
       return error;
     }
 
@@ -281,7 +296,8 @@ function onQuantityChange(shopify) {
 
     }
 
-    enable($cartForm);
+    $cartForm.removeClass('wps-is-disabled wps-is-loading');
+    // enable($cartForm);
 
   });
 
