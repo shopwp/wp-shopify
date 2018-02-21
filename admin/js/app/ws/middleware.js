@@ -48,7 +48,7 @@ Syncing Shopify data with WordPress CPT
 async function syncPluginData() {
 
   // 1. Smart Collections
-  if (wps.selective_sync.all || wps.selective_sync.smart_collections) {
+  if (WP_Shopify.selective_sync.all || WP_Shopify.selective_sync.smart_collections) {
 
     try {
       await syncSmartCollections(); // wps_insert_smart_collections_data
@@ -62,7 +62,7 @@ async function syncPluginData() {
 
 
   // 2. Custom Collections
-  if (wps.selective_sync.all || wps.selective_sync.custom_collections) {
+  if (WP_Shopify.selective_sync.all || WP_Shopify.selective_sync.custom_collections) {
 
     try {
       await syncCustomCollections(); // wps_insert_custom_collections_data

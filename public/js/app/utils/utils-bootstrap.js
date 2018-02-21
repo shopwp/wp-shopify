@@ -65,8 +65,9 @@ Bootstrap front-end app. Runs every page load.
 */
 function bootstrap() {
 
+  jQuery(document).trigger("wpshopify_bootstrap_before");
+  
   return new Promise( async (resolve, reject) => {
-
 
     /*
 
@@ -168,6 +169,8 @@ function bootstrap() {
 
     */
     showUIElements();
+
+    jQuery(document).trigger("wpshopify_bootstrap_after", [cart]);
 
     resolve();
 

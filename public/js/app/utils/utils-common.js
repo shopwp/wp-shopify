@@ -107,7 +107,7 @@ function convertCustomAttrsToQueryString(customAttrs) {
   var finalQueryParam = '';
 
   forOwn(customAttrs, function(value, key) {
-    finalQueryParam += '&attributes[' + key + ']=' + value;
+    finalQueryParam += '&attributes[' + encodeURIComponent(key) + ']=' + encodeURIComponent(value);
   });
 
   return finalQueryParam;

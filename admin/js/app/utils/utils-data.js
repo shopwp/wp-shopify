@@ -451,12 +451,12 @@ Only non notice
 */
 function onlyAvailableSyncOptions(obj) {
 
-  if (wps.selective_sync.all) {
+  if (WP_Shopify.selective_sync.all) {
     return obj;
 
   } else {
 
-    var onlySelectedSyncs = filterOutDeselectedSyncs(wps.selective_sync);
+    var onlySelectedSyncs = filterOutDeselectedSyncs(WP_Shopify.selective_sync);
     var nameOfSync = Object.getOwnPropertyNames(obj)[0];
 
 
