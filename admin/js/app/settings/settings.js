@@ -220,13 +220,13 @@ function onSettingsFormSubmit() {
       }
 
 
-      wps.selective_sync.all = selectiveSyncAll;
-      wps.selective_sync.products = selectiveSyncProducts;
-      wps.selective_sync.custom_collections = selectiveSyncCollections;
-      wps.selective_sync.smart_collections = selectiveSyncCollections;
-      wps.selective_sync.customers = selectiveSyncCustomers;
-      wps.selective_sync.orders = selectiveSyncOrders;
-      wps.selective_sync.shop = selectiveSyncShop;
+      WP_Shopify.selective_sync.all = selectiveSyncAll;
+      WP_Shopify.selective_sync.products = selectiveSyncProducts;
+      WP_Shopify.selective_sync.custom_collections = selectiveSyncCollections;
+      WP_Shopify.selective_sync.smart_collections = selectiveSyncCollections;
+      WP_Shopify.selective_sync.customers = selectiveSyncCustomers;
+      WP_Shopify.selective_sync.orders = selectiveSyncOrders;
+      WP_Shopify.selective_sync.shop = selectiveSyncShop;
 
 
       /*
@@ -320,34 +320,34 @@ function toggleCheckboxes() {
 
 function getSelectiveSyncOptions() {
 
-  if (wps.selective_sync.all) {
+  if (WP_Shopify.selective_sync.all) {
     return [];
 
   } else {
 
     var includes = [];
 
-    if (wps.selective_sync.smart_collections) {
+    if (WP_Shopify.selective_sync.smart_collections) {
       includes.push('smart_collections');
     }
 
-    if (wps.selective_sync.custom_collections) {
+    if (WP_Shopify.selective_sync.custom_collections) {
       includes.push('custom_collections');
     }
 
-    if (wps.selective_sync.customers) {
+    if (WP_Shopify.selective_sync.customers) {
       includes.push('customers');
     }
 
-    if (wps.selective_sync.orders) {
+    if (WP_Shopify.selective_sync.orders) {
       includes.push('orders');
     }
 
-    if (wps.selective_sync.products) {
+    if (WP_Shopify.selective_sync.products) {
       includes.push('products');
     }
 
-    if (wps.selective_sync.shop) {
+    if (WP_Shopify.selective_sync.shop) {
       includes.push('shop');
     }
 

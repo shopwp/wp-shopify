@@ -8,11 +8,11 @@ function getCurrencyFormat() {
 
   return jQuery.ajax({
     method: 'GET',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_currency_format',
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -36,11 +36,11 @@ function getCurrencyFormats() {
 
   return jQuery.ajax({
     method: 'GET',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_currency_formats',
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -60,11 +60,11 @@ function getMoneyFormat() {
 
   return jQuery.ajax({
     method: 'GET',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_money_format',
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -75,11 +75,11 @@ function getMoneyFormatWithCurrency() {
 
   return jQuery.ajax({
     method: 'GET',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_money_format_with_currency',
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -95,12 +95,12 @@ function getCartCache(cartID) {
 
   return jQuery.ajax({
     method: 'POST',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_cart_cache',
       cartID: cartID,
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -116,12 +116,12 @@ function setCartCache(cartID) {
 
   return jQuery.ajax({
     method: 'POST',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_set_cart_cache',
       cartID: cartID,
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 

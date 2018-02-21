@@ -1,8 +1,8 @@
 import bootstrap from "./utils/utils-bootstrap";
 import { showError } from "./utils/utils-common";
 
-
 (function($) {
+
   "use strict";
 
   $(async function() {

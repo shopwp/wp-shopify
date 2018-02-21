@@ -133,7 +133,7 @@ function syncShop() {
 
   return new Promise(async function syncShopHandler(resolve, reject) {
 
-    if (!wps.selective_sync.all && !wps.selective_sync.shop) {
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.shop) {
       resolve();
       return;
     }
@@ -166,7 +166,7 @@ function syncProducts() {
 
   return new Promise(async function syncProductsHandler(resolve, reject) {
 
-    if (!wps.selective_sync.all && !wps.selective_sync.products) {
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.products) {
       resolve();
       return;
     }
@@ -206,7 +206,7 @@ function syncCollects() {
 
   return new Promise(async function syncCollectsHandler(resolve, reject) {
 
-    if (!wps.selective_sync.all && !wps.selective_sync.products) {
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.products) {
       resolve();
       return;
     }
@@ -301,7 +301,7 @@ function syncOrders() {
 
   return new Promise(async function syncOrdersHandler(resolve, reject) {
 
-    if (!wps.selective_sync.all && !wps.selective_sync.orders) {
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.orders) {
       resolve();
       return;
     }
@@ -336,7 +336,7 @@ function syncCustomers() {
 
   return new Promise(async function syncCustomersHandler(resolve, reject) {
 
-    if (!wps.selective_sync.all && !wps.selective_sync.customers) {
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.customers) {
       resolve();
       return;
     }
@@ -370,7 +370,7 @@ function syncImageAlt() {
 
   return new Promise(async function syncImageAltHandler(resolve, reject) {
 
-    if (!wps.selective_sync.all && !wps.selective_sync.products) {
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.products) {
       resolve();
       return;
     }

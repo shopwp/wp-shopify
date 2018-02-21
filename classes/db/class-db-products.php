@@ -60,7 +60,6 @@ class Products extends \WPS\DB {
       'published_at'          => '%s',
       'updated_at'            => '%s',
       'created_at'            => '%s'
-
     );
 
   }
@@ -79,6 +78,7 @@ class Products extends \WPS\DB {
       'title'                 => '',
       'body_html'             => '',
       'handle'                => '',
+      'image'                 => '',
       'vendor'                => '',
       'product_type'          => '',
       'published_scope'       => '',
@@ -145,17 +145,11 @@ class Products extends \WPS\DB {
 
     $results['details'] = $this->get_product($postID);
 
-
-
-
     $results['images'] = $Images->get_product_images($postID);
     $results['tags'] = $Tags->get_product_tags($postID);
     $results['variants'] = $Variants->get_product_variants($postID);
     $results['options'] = $Options->get_product_options($postID);
-
-
     $results['details']->tags = $Tags->construct_only_tag_names($results['tags']);
-
 
     return json_decode(json_encode($results), true);
 
@@ -179,8 +173,6 @@ class Products extends \WPS\DB {
   }
 
 
-
-
   /*
 
   Product Mods Before Insert
@@ -193,7 +185,6 @@ class Products extends \WPS\DB {
     return $product;
 
   }
-
 
 
   /*
@@ -663,7 +654,7 @@ class Products extends \WPS\DB {
     }
 
     return "CREATE TABLE `{$this->table_name}` (
-      `product_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+      `product_id` bigint(255) unsigned DEFAULT NULL AUTO_INCREMENT,
       `post_id` bigint(100) unsigned DEFAULT NULL,
       `title` varchar(255) DEFAULT NULL,
       `body_html` longtext,

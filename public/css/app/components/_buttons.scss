@@ -21,6 +21,7 @@
     color: white;
     background-color: color(linksHover);
     opacity: 1;
+    cursor: pointer;
   }
 
   &.wps-is-disabled {
@@ -89,6 +90,18 @@
     opacity: 1;
   }
 
+  &.wps-is-disabled {
+
+    .wps-icon-cart {
+      opacity: $dimOpacity;  
+    }
+
+    &:after {
+      display: none;
+    }
+
+  }
+
   &.wps-is-loading {
 
     &:before {
@@ -111,6 +124,7 @@
 
   &:hover {
     background: transparent;
+    cursor: pointer;
   }
 
 }

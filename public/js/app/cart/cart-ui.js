@@ -280,7 +280,7 @@ Get Line Item Link
 
 */
 function getLineItemLink(lineItem) {
-  return '/' + wps.productsSlug;
+  return '/' + WP_Shopify.productsSlug;
 }
 
 
@@ -366,7 +366,7 @@ Get Line Item Image
 function getLineItemImage(lineItem) {
 
   if (!lineItem.image) {
-    return wps.pluginsPath + '/wp-shopify/public/imgs/placeholder.png';
+    return WP_Shopify.pluginsPath + '/wp-shopify/public/imgs/placeholder.png';
 
   } else {
     return lineItem.image.src;

@@ -55,11 +55,11 @@ function getShopifyCreds() {
 
   return jQuery.ajax({
     method: 'GET',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_credentials_frontend',
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -76,11 +76,11 @@ function getCartSession() {
 
   return jQuery.ajax({
     method: 'GET',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_cart_session',
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 

@@ -101,7 +101,7 @@ class Backend {
 			wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
 			wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js'), $this->config->plugin_version, true );
 
-			wp_localize_script('wps-admin', 'wps', array(
+			wp_localize_script('wps-admin', $this->config->plugin_name_js, array(
 				'ajax' => __(admin_url('admin-ajax.php')),
 				'pluginsPath' => __(plugins_url()),
 				'siteUrl' => site_url(),

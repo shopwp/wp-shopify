@@ -789,7 +789,6 @@ if (!class_exists('Hooks')) {
 				}
 
 
-
 				$productQueryHash = md5(serialize($args));
 
 				/*
@@ -846,10 +845,11 @@ if (!class_exists('Hooks')) {
 				$amountOfProducts = count($wps_products);
 				$settings = $this->config->wps_get_settings_general();
 
-				do_action( 'wps_products_before', $productsQuery );
 				do_action( 'wps_products_header', $productsQuery );
 				do_action( 'wps_products_header_after', $productsQuery );
 
+
+				do_action( 'wps_products_before', $productsQuery );
 
 				if ($amountOfProducts > 0) {
 
@@ -955,9 +955,11 @@ if (!class_exists('Hooks')) {
 				into a single data set to loop through
 
 				*/
-				do_action( 'wps_collections_before', $collections );
+
 				do_action( 'wps_collections_header', $collections );
 				do_action( 'wps_collections_header_after', $collections );
+
+				do_action( 'wps_collections_before', $collections );
 
 				if (count($collections) > 0) {
 

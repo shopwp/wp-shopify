@@ -52,6 +52,10 @@ import {
 } from '../cart/cart-ui';
 
 
+import {
+  getPluginInstance
+} from "../plugin/plugin";
+
 /*
 
 showProductMetaError
@@ -170,6 +174,7 @@ function onAddProductToCart(shopify) {
         product,
         productVariant;
 
+
     if (cartIsOpen()) {
       toggleCart();
     }
@@ -184,7 +189,6 @@ function onAddProductToCart(shopify) {
       showLoader($addToCartButton);
       showHiddenProductVariants();
 
-
       try {
 
         product = await getProduct(shopify, productID);
@@ -192,6 +196,15 @@ function onAddProductToCart(shopify) {
 
       } catch(error) {
 
+        /*
+
+        Sometimes the plugin will fail here because the productID needed isn't found within the
+        database despite the syncing process finishing successfully. In legacy versions of MySQL
+        the productID will change during the sync and thus the product ID doesn't actually exist.
+
+        Upgrade to MySQL 5.6+ !
+
+        */
         enable($addToCartButton);
         enable($cartForm);
         hideLoader($addToCartButton);
@@ -201,6 +214,8 @@ function onAddProductToCart(shopify) {
         return;
 
       }
+
+      jQuery(document).trigger("wpshopify_add_to_cart_before", [product]);
 
 
       /*
@@ -253,6 +268,8 @@ function onAddProductToCart(shopify) {
       if (!cartIsOpen()) {
         toggleCart();
       }
+
+      jQuery(document).trigger("wpshopify_add_to_cart_after", [product, newCart]);
 
       resetVariantSelectors(); // Resets DOM related to selecting options
       resetSingleProductVariantSelector($addToCartButton);

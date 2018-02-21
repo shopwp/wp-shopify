@@ -17,9 +17,11 @@ Get Product Variant ID
 
 */
 function getProductVariantID(product, productVariantID) {
+
   return product.variants.filter(function productVariantsFilter(variant) {
     return variant.id == productVariantID;
   })[0];
+
 };
 
 
@@ -43,13 +45,13 @@ function getVariantIdFromOptions(productID, selectedOptions) {
 
   return jQuery.ajax({
     method: 'POST',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_get_variant_id',
       productID: productID,
       selectedOptions: selectedOptions,
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 
@@ -158,12 +160,12 @@ function moneyFormatChanged() {
 
   return jQuery.ajax({
     method: 'POST',
-    url: wps.ajax,
+    url: WP_Shopify.ajax,
     dataType: 'json',
     data: {
       action: 'wps_has_money_format_changed',
       format: getMoneyFormatCache(),
-      nonce: wps.nonce
+      nonce: WP_Shopify.nonce
     }
   });
 

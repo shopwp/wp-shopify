@@ -130,16 +130,18 @@ if (!class_exists('Frontend')) {
 				$DB_Settings_General = new Settings_General();
 
 				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
-				wp_enqueue_script('wps-public', $this->config->plugin_url . 'dist/public.min.js', array('jquery', 'promise-polyfill'), $this->config->plugin_version, true);
 
-				wp_localize_script('wps-public', $this->config->plugin_name, array(
+				wp_enqueue_script('wp-shopify', $this->config->plugin_url . 'dist/public.min.js', array('jquery', 'promise-polyfill'), $this->config->plugin_version, true);
+
+				wp_localize_script('wp-shopify', $this->config->plugin_name_js, array(
 						'ajax' => esc_url(admin_url( 'admin-ajax.php' )),
 						'pluginsPath' => esc_url(plugins_url()),
 						'productsSlug' => $DB_Settings_General->products_slug()[0]->url_products,
 						'is_connected' => $connected,
 						'is_recently_connected' => get_transient('wps_recently_connected'),
 						'post_id' => is_object($post) ? $post->ID : false,
-						'nonce'	=> wp_create_nonce('wp-shopify-frontend')
+						'nonce'	=> wp_create_nonce('wp-shopify-frontend'),
+						'note_attributes'	=> ''
 					)
 				);
 
