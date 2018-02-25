@@ -313,13 +313,13 @@ class Backend {
 		}
 
 
-		if ($ajax) {
-
-			if (!isset($_GET['nonce']) || !Utils::valid_frontend_nonce($_GET['nonce'])) {
-				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials_frontend)');
-			}
-
-		}
+		// if ($ajax) {
+		//
+		// 	if (!isset($_GET['nonce']) || !Utils::valid_frontend_nonce($_GET['nonce'])) {
+		// 		$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials_frontend)');
+		// 	}
+		//
+		// }
 
 
 		$shopifyCreds = array();
