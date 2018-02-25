@@ -66,7 +66,7 @@ class Config {
 		$this->plugin_name = 'wps';
 		$this->plugin_text_domain = 'wp-shopify';
 		$this->plugin_name_js = 'WP_Shopify';
-		$this->plugin_version = '1.0.47';
+		$this->plugin_version = '1.0.48';
 		$this->plugin_author = 'Andrew Robbins';
 
 		self::$plugin_nonce_action_backend = 'wp-shopify-backend';
