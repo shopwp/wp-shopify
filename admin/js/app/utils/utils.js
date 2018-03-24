@@ -526,7 +526,8 @@ https://goo.gl/H7w7RU
 504 GATEWAY TIMEOUT
 https://httpstatuses.com/504
 -----------------------------
-The server, while acting as a gateway or proxy, did not receive a timely response from an upstream server it needed to access in order to complete the request.
+The server, while acting as a gateway or proxy, did not receive a timely response
+from an upstream server it needed to access in order to complete the request.
 
 
 CloudFlare status codes:
@@ -558,7 +559,18 @@ function isTimeout(statusCode) {
 }
 
 
+/*
+
+Finds the status code first number e.g, 5xx, 4xx, 3xx ...
+
+*/
+function findStatusCodeFirstNum(statusCode) {
+  return Number( String(statusCode).charAt(0) );
+}
+
+
 export {
+  findStatusCodeFirstNum,
   getUrlParams,
   showSpinner,
   hideSpinner,

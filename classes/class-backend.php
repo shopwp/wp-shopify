@@ -73,9 +73,12 @@ class Backend {
 		if('wp-shopify_page_wps-settings' == get_current_screen()->id || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections' || get_current_screen()->id === 'plugins') {
 
 			wp_enqueue_style('wp-color-picker');
+
 			wp_enqueue_style('animate-css', $this->config->plugin_url . 'admin/css/app/vendor/animate.min.css', array());
+
 			wp_enqueue_style('tooltipster-css', $this->config->plugin_url . 'admin/css/app/vendor/tooltipster.min.css', array());
-			wp_enqueue_style($this->config->plugin_name, $this->config->plugin_url . 'css/admin.min.css', array( 'wp-color-picker', 'animate-css', 'tooltipster-css'), $this->config->plugin_version, 'all');
+
+			wp_enqueue_style($this->config->plugin_name, $this->config->plugin_url . 'dist/admin.min.css', array( 'wp-color-picker', 'animate-css', 'tooltipster-css'), $this->config->plugin_version, 'all');
 
 		}
 
@@ -96,6 +99,13 @@ class Backend {
 
 			$DB_Settings_General = new Settings_General();
 
+			if (is_object($DB_Settings_General) && method_exists($DB_Settings_General, 'selective_sync_status') ) {
+				$selectiveSyncValue = $DB_Settings_General->selective_sync_status();
+
+			} else {
+				$selectiveSyncValue = false;
+			}
+
 			wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 			wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
 			wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
@@ -107,7 +117,7 @@ class Backend {
 				'siteUrl' => site_url(),
 				'pluginsDirURL' => plugin_dir_url(dirname(__FILE__)),
 				'nonce'	=> wp_create_nonce('wp-shopify-backend'),
-				'selective_sync' => $DB_Settings_General->selective_sync_status()
+				'selective_sync' => $selectiveSyncValue
 			));
 
 		}

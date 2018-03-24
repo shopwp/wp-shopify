@@ -64,7 +64,7 @@ Tab Content: Tools
 
   <div class="wps-admin-section">
 
-    <h3><?php esc_html_e('Remove all data', 'wp-shopify'); ?></h3>
+    <h3><?php esc_html_e('Remove all synced data', 'wp-shopify'); ?></h3>
     <p><?php esc_html_e('This will remove all WP Shopify data from within WordPress. Nothing will be changed in Shopify. Useful for clearing out any lingering data without reinstalling the plugin.', 'wp-shopify'); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax wps-is-active">
@@ -75,7 +75,7 @@ Tab Content: Tools
         'id' => 'wps-button-clear-all-data'
       );
 
-      submit_button(esc_html__('Remove all WP Shopify data', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Remove all synced data from WordPress', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
 
       <div class="spinner"></div>
 

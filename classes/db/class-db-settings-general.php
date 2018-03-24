@@ -18,6 +18,7 @@ class Settings_General extends \WPS\DB {
   public $num_posts;
   public $cache_group;
   public $title_as_alt;
+  public $selective_sync_status;
 
 
   /*
@@ -302,7 +303,7 @@ class Settings_General extends \WPS\DB {
 
     if (is_array($setting) && isset($setting)) {
       return $setting[0]->title_as_alt;
-      
+
     } else {
       return false;
     }

@@ -7,7 +7,8 @@ import {
 } from '../utils/utils-data';
 
 import {
-  isTimeout
+  isTimeout,
+  findStatusCodeFirstNum
 } from '../utils/utils';
 
 import {
@@ -352,6 +353,9 @@ function insertCollects(currentPage = false) {
       action: 'wps_insert_collects',
       currentPage: currentPage,
       nonce: WP_Shopify.nonce
+    },
+    error: function(xhr) {
+      console.error("xhr: ", xhr);
     }
   };
 
@@ -536,13 +540,6 @@ function insertProductsData(currentPage = false) {
       action: 'wps_insert_products_data',
       currentPage: currentPage,
       nonce: WP_Shopify.nonce
-    },
-    error: function(xhr, textStatus, errorThrown ) {
-
-      if (isTimeout(xhr.status)) {
-        return controlPromise(options);
-      }
-
     }
   };
 

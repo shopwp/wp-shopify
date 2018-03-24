@@ -3,6 +3,7 @@
   animation-fill-mode: both;
 }
 
+
 /*
 
 Animations
@@ -301,8 +302,6 @@ div[class^="wps-postbox-"] {
 
 .wps-connector-wrapper {
   background-color: rgba(0,0,0,0.5);
-  width: 100%;
-  height: 100%;
   position: fixed;
   top: 0;
   left: 0;
@@ -339,28 +338,9 @@ div[class^="wps-postbox-"] {
   min-height: 300px;
 }
 
+
+
 .wps-is-connected {
-  // position: absolute;
-  // top: 13%;
-  // text-align: left;
-  // min-height: 300px;
-  // overflow: hidden;
-  // z-index: 999999999;
-  // background-color: #eee;
-  // padding: 20px;
-  // box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  // cursor: default;
-  // font-size: 14px;
-  // z-index: 1;
-  // margin: 0 10px;
-  // box-sizing: border-box;
-  // flex-direction: column;
-  // overflow-y: hidden;
-  // transition: opacity .3s ease-out, transform .5s ease-out;
-  // width: 500px;
-  // min-height: 370px;
-  // flex-basis: 500px;
-  // flex: 0 1 0%;
 
   .wps-progress-notice {
     visibility: hidden;
@@ -422,13 +402,14 @@ div[class^="wps-postbox-"] {
 
 /* ANIMATED CHECKMARK */
 @keyframes wpsCheck {
+
   0% {
     height: 0;
     width: 0;
     transform: scale(1);
   }
 
-  33.3333% {
+  33% {
     width: 30px;
     height: 0;
   }
@@ -556,7 +537,6 @@ div[class^="wps-postbox-"] {
   font-size: 23px;
   color: #23282d;
   margin: 1em 0;
-  display: block;
   margin-bottom: 17px;
   font-weight: 400;
   margin-top: 0;
@@ -984,7 +964,6 @@ TODO: Remove for Phase 2
   .wps-admin-notice {
     position: absolute;
     top: 32vh;
-    left: 0;
     background: white;
     left: calc(50% - 300px);
     padding: 1em 2em;
@@ -1029,12 +1008,9 @@ TODO: Remove for Phase 2
   font-size: 1.1em;
   font-style: normal;
   height: 16px;
-  line-height: 16px;
   position: relative;
-  vertical-align: middle;
   width: 16px;
   padding: 0;
-  margin: -4px 0 0 5px;
   vertical-align: middle;
   cursor: help;
   line-height: 1;
@@ -1273,7 +1249,6 @@ input.code {
 
 .wps-progress-step-name {
   position: absolute;
-  top: 0;
   left: 10px;
   top: 4px;
   z-index: 9;

@@ -1,4 +1,3 @@
-import '../../css/app/app.scss';
 import { formEventsInit } from './forms/forms';
 import { vendorInit } from './vendor/vendor';
 import { tabsInit } from './utils/utils-tabs';
@@ -29,7 +28,7 @@ import { menusInit } from './menus/menus';
 		settingsInit();
 		toolsInit();
 		menusInit();
-		
+
 		if ($submitButton.attr('name') === 'submitDisconnect') {
 			disconnectInit();
 

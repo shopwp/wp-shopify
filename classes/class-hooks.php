@@ -1629,34 +1629,28 @@ if (!class_exists('Hooks')) {
 		}
 
 
+
+
+
 		public function wps_on_update() {
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 			$DB_Settings_General = new Settings_General();
-			$pluginVersion = $this->config->plugin_version;
-
-			$pluginVersionCurrent = $DB_Settings_General->get_column_single('plugin_version');
-
-
-			if (isset($pluginVersionCurrent) && $pluginVersionCurrent) {
-				$databaseVersion = $pluginVersionCurrent[0]->plugin_version;
-
-			} else {
-				$databaseVersion = '0.0.0';
-			}
-
+			$currentPluginVersion = $this->config->get_current_plugin_version();
+			$newPluginVersion = $this->config->get_new_plugin_version();
+			$generalSettings = $DB_Settings_General->get_column_single('id');
 
 			/*
 
 			This will run once the plugin updates. It will only run once since we're
 			updating the plugin verison after everything gets executed.
 
-			If current (databaseVersion) is behind new (pluginVersion)
+			If current version is behind new version
 
 			*/
 
-			if (version_compare($databaseVersion, $pluginVersion, '<')) {
+			if (version_compare($currentPluginVersion, $newPluginVersion, '<')) {
 
 				global $wpdb;
 
@@ -1680,11 +1674,16 @@ if (!class_exists('Hooks')) {
 
 				}
 
-				// Now update plugin version to latest
-				$DB_Settings_General->update_column_single(
-					array('plugin_version' => $pluginVersion),
-					array('id' => $DB_Settings_General->get_column_single('id')[0]->id)
-				);
+
+				if ( !empty($generalSettings) ) {
+
+					// Now update plugin version to latest
+					$DB_Settings_General->update_column_single(
+						array('plugin_version' => $newPluginVersion),
+						array('id' => $generalSettings[0]->id)
+					);
+
+				}
 
 
 			}

@@ -6,7 +6,6 @@
   height: 100%;
   right: 0;
   top: 0;
-  z-index: 3;
   background: white;
   border-radius: 1px;
   box-shadow: -17px 0 35px rgba(0,0,0,.1);
@@ -72,7 +71,6 @@
 
 .wps-cart-form {
   margin-top: 0;
-  height: 100%;
   width: 100%;
   top: 0;
   padding: 0;
@@ -165,6 +163,9 @@
 .wps-cart-item__content-row {
   margin-bottom: 0.5em;
   line-height: 1.4;
+  float: left;
+  margin-top: 0;
+  width: 100%;
 }
 
 .wps-cart-item__variant-title {
@@ -219,7 +220,6 @@
 input[type="number"].wps-cart-item__quantity {
   color: black;
   margin-top: 0;
-  padding: 0 5px;
   height: auto;
   font-size: 18px;
   border: none;
@@ -319,7 +319,6 @@ input[type="number"].wps-cart-item__quantity {
   top: -12px;
   right: 0px;
   background-color: #6ae06a;
-  // padding: 1px 8px 8px;
   border-radius: 50%;
   display: inline-block;
   text-align: center;

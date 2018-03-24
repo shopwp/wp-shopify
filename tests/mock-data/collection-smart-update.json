@@ -1,0 +1,19 @@
+{
+  "collection_id": 1111111111111,
+  "post_id": 1111111,
+  "title": "Mock Update Macbooks",
+  "handle": "mock-update-macbooks",
+  "body_html": "mock update body",
+  "image": "",
+  "rules": [
+    {
+      "column": "vendor",
+      "relation": "equals",
+      "condition": "Apple Mock Update"
+    }
+  ],
+  "disjunctive": "",
+  "sort_order": "best-selling",
+  "published_at": "2017-10-16 16:52:33",
+  "updated_at": "2018-02-26 15:16:17"
+}

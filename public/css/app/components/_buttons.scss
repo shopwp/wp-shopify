@@ -93,7 +93,7 @@
   &.wps-is-disabled {
 
     .wps-icon-cart {
-      opacity: $dimOpacity;  
+      opacity: $dimOpacity;
     }
 
     &:after {
@@ -137,7 +137,6 @@
   position: absolute;
   right: 10px;
   top: 20px;
-  font-size: $font-xxl;
   color: color(darkblue);
   border: none;
   background: transparent;

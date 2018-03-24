@@ -153,7 +153,6 @@ class Activator {
 		// Register CPTs upon plugin activation
 		$CPT->init();
 
-
 		flush_rewrite_rules();
 
 	}

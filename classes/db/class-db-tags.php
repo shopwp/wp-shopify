@@ -65,7 +65,7 @@ class Tags extends \WPS\DB {
 	Construct Tag Model
 
 	*/
-  public function construct_tag_model($tag, $product = 0, $cpt_id = 0) {
+  public function construct_tag_model($tag, $product = 0, $cpt_id = 0, $tag_id = 0) {
 
     $product_id = null;
 
@@ -80,7 +80,7 @@ class Tags extends \WPS\DB {
     }
 
     return array(
-      'tag_id' => 0,
+      'tag_id' => $tag_id,
       'product_id' => $product_id,
       'post_id' => $cpt_id,
       'tag' => $tag
@@ -176,8 +176,8 @@ class Tags extends \WPS\DB {
 
       foreach ($tagsToAdd as $key => $newTag) {
 
-        $alrightHereWeGo = $this->construct_tag_model($newTag['tag'], $product, $cpt_id);
-        $results['created'] = $this->insert($alrightHereWeGo, 'tag');
+        $tag = $this->construct_tag_model($newTag['tag'], $product, $cpt_id);
+        $results['created'] = $this->insert($tag, 'tag');
 
       }
 

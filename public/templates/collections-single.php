@@ -11,14 +11,21 @@ $WPS_DB_Products = new Products();
 
 $wps_collection = $WPS_DB->get_collection($post->ID);
 
-$wps_products = $WPS_DB_Products->get_products_by_collection_id($wps_collection[0]->collection_id);
+
+if ( is_object($wps_collection[0]) && property_exists($wps_collection[0], 'collection_id')) {
+  $wps_products = $WPS_DB_Products->get_products_by_collection_id($wps_collection[0]->collection_id);
+
+} else {
+  $wps_products = [];
+}
+
 
 get_header('wps');
 
 if (is_single()) {
 
   do_action('wps_breadcrumbs');
-  
+
   do_action('wps_collection_single_before');
   do_action('wps_collection_single_start', $wps_collection);
 

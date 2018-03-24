@@ -277,8 +277,9 @@ class CPT {
   Called in class-db-products.php
 
   */
-  public static function wps_insert_or_update_product($product, $existingProducts, $index = false) {
+  public static function wps_insert_or_update_product($product, $index = false) {
 
+		$existingProducts = self::wps_get_all_cpt_by_type('wps_products');
     $productModel = self::wps_get_product_cpt_model($product);
     $existing_post_id = Utils::wps_find_post_id_from_new_product_or_collection($product, $existingProducts, 'product');
 

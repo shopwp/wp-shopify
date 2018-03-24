@@ -9,7 +9,6 @@ import {
   isWordPressError
 } from '../utils/utils.js';
 
-
 /*
 
 Deactive License Key
@@ -81,7 +80,7 @@ function deactivateKey() {
     }
 
   });
-
+  
 }
 
 export {

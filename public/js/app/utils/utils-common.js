@@ -398,6 +398,7 @@ async function formatAsMoney(amount) {
 
       // Get the format from LS
       var moneyFormat = getMoneyFormatCache();
+      console.log(111);
 
     } else {
 
@@ -405,6 +406,8 @@ async function formatAsMoney(amount) {
 
         // Calls server
         var formats = await getCurrencyFormats(); // wps_get_currency_formats
+
+        console.log("formats: ", formats);
 
         if (isError(formats)) {
           throw formats.data;
@@ -424,9 +427,12 @@ async function formatAsMoney(amount) {
       if (formatWithCurrencySymbol) {
 
         var moneyFormat = formats.moneyFormatWithCurrency;
+        console.log(222);
 
       } else {
         var moneyFormat = formats.moneyFormat;
+        console.log(333);
+
       }
 
 
@@ -435,6 +441,9 @@ async function formatAsMoney(amount) {
 
     }
 
+    console.log("formatWithCurrencySymbol: ", formatWithCurrencySymbol);
+    console.log("moneyFormat: ", moneyFormat);
+    console.log("amount: ", amount);
 
     resolve( formatTotalAmount(amount, moneyFormat) );
 

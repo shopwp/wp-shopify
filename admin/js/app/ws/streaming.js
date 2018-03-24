@@ -25,6 +25,10 @@ import {
   emptyDataCount
 } from '../utils/utils-data';
 
+import {
+  getMessageError
+} from '../messages/messages';
+
 
 /*
 
@@ -214,6 +218,7 @@ async function streamProducts() {
     try {
 
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
+      console.log("itemCount: ", itemCount);
 
       if (isWordPressError(itemCount)) {
         reject(itemCount);
@@ -228,6 +233,7 @@ async function streamProducts() {
       itemCount = itemCount.data.products;
 
       if (emptyDataCount(itemCount)) {
+        console.log('emptyDataCount ... resolving');
         resolve();
       }
 
@@ -250,6 +256,13 @@ async function streamProducts() {
 
         itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
 
+        console.log("itemsToAdd: ", itemsToAdd);
+
+        // throw {
+        //   status: 504,
+        //   statusText: "Gateway Time-out"
+        // }
+
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
           break;
@@ -265,19 +278,24 @@ async function streamProducts() {
 
       } catch (error) {
 
-        console.error('WP Shopify insertProductsData Error: ', error);
+        console.error('RAW WP Shopify Error: ', error);
 
-        if ( isTimeout(error.status) ) {
+        reject( getMessageError(error) );
+        break;
 
-          currentPage += 1;
-          continue;
-
-        } else {
-
-          reject();
-          break;
-
-        }
+        // if ( isTimeout(error.status) ) {
+        //   console.log('isTimeout ... ', error);
+        //
+        //   // This is an issue ... the program will conitnue syncing with the next page, potentially skipping a bunch of products
+        //   currentPage += 1;
+        //   continue;
+        //
+        // } else {
+        //   console.log('In here??? ', error);
+        //   reject();
+        //   break;
+        //
+        // }
 
       }
 
@@ -348,6 +366,8 @@ async function streamCollects() {
 
         itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
 
+        console.log("itemsToAdd::::::::::", itemsToAdd);
+
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);
           break;
@@ -363,18 +383,20 @@ async function streamCollects() {
       } catch(error) {
 
         console.error('WP Shopify insertCollects Error: ', error);
+        reject(error);
+        break;
 
-        if ( isTimeout(error.status) ) {
-
-          currentPage += 1;
-          continue;
-
-        } else {
-
-          reject(error);
-          break;
-
-        }
+        // if ( isTimeout(error.status) ) {
+        //
+        //   currentPage += 1;
+        //   continue;
+        //
+        // } else {
+        //
+        //   reject(error);
+        //   break;
+        //
+        // }
 
       }
 

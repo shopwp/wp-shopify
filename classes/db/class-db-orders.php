@@ -99,7 +99,7 @@ class Orders extends \WPS\DB {
       'fulfillments'              => '%s',
       'client_details'            => '%s',
       'refunds'                   => '%s',
-      'customer'                  => '%s'
+      'customer'                  => '%s',
     );
 
   }
@@ -260,7 +260,7 @@ class Orders extends \WPS\DB {
 
   /*
 
-  Fired when product is update at Shopify
+  Fired when order is updated at Shopify
 
   */
   public function update_order($product) {
