@@ -81,16 +81,16 @@ if (!class_exists('Frontend')) {
 
 					if ($styles_all[0]->styles_all) {
 
-						wp_enqueue_style( $this->config->plugin_name . '-styles-all', $this->config->plugin_url . 'css/public.min.css', array(), $this->config->plugin_version, 'all' );
+						wp_enqueue_style( $this->config->plugin_name . '-styles-all', $this->config->plugin_url . 'dist/public.min.css', array(), $this->config->plugin_version, 'all' );
 
 					} else {
 
 						if ($styles_core[0]->styles_core) {
-							wp_enqueue_style( $this->config->plugin_name . '-styles-core', $this->config->plugin_url . 'css/core.min.css', array(), $this->config->plugin_version, 'all' );
+							wp_enqueue_style( $this->config->plugin_name . '-styles-core', $this->config->plugin_url . 'dist/core.min.css', array(), $this->config->plugin_version, 'all' );
 						}
 
 						if ($styles_grid[0]->styles_grid) {
-							wp_enqueue_style( $this->config->plugin_name . '-styles-grid', $this->config->plugin_url . 'css/grid.min.css', array(), $this->config->plugin_version, 'all' );
+							wp_enqueue_style( $this->config->plugin_name . '-styles-grid', $this->config->plugin_url . 'dist/grid.min.css', array(), $this->config->plugin_version, 'all' );
 						}
 
 					}
@@ -266,6 +266,8 @@ if (!class_exists('Frontend')) {
 		/*
 
 		WP Shopify cart
+
+		This is slow. We should think of a better way to do this.
 
 		*/
 		public function wps_insert_cart_before_closing_body() {
@@ -492,7 +494,6 @@ if (!class_exists('Frontend')) {
     public function wps_notice() {
 
 			$DB_Settings_General = new Settings_General();
-			$osdkofdk = $DB_Settings_General->get_column_single('cart_loaded');
 
 			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
 				return include_once($this->config->plugin_path . "public/partials/notices/notice.php");

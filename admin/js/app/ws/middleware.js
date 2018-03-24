@@ -60,7 +60,6 @@ async function syncPluginData() {
 
   }
 
-
   // 2. Custom Collections
   if (WP_Shopify.selective_sync.all || WP_Shopify.selective_sync.custom_collections) {
 
@@ -89,6 +88,7 @@ async function syncPluginData() {
     ]);
 
   } catch(errors) {
+    console.log("syncPluginData: ", errors);
     return returnCustomError(errors);
 
   }

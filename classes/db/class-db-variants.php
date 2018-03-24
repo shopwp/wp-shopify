@@ -152,6 +152,7 @@ class Variants extends \WPS\DB {
           }
 
           $results[] = $this->insert($variant, 'variant');
+          
           $progress->increment_current_amount('products');
 
         }

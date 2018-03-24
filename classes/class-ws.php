@@ -151,39 +151,137 @@ class WS {
   }
 
 
-  /*
 
-  Get Error Message
-  TODO: Move to Utils
-  Returns: (string)
 
-  */
-  public function wps_get_error_message($error) {
 
-    if (method_exists($error, 'getResponse') && method_exists($error->getResponse(), 'getBody') && method_exists($error->getResponse()->getBody(), 'getContents')) {
 
-      $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
 
-      if (is_object($responseDecoded) && isset($responseDecoded->errors)) {
-				$errorMessage = $responseDecoded->errors;
 
-      } else {
-        $errorMessage = $error->getMessage();
-      }
 
-			if (property_exists($errorMessage, "id")) {
-				$errorMessage = $errorMessage->id;
-			}
 
-      return esc_html__('Error: ' . ucfirst($errorMessage), 'wp-shopify');
 
-    } else {
+public function wps_get_status_code($response) {
 
-      return esc_html__('Error: ' . ucfirst($error->getMessage()), 'wp-shopify');
+	if (method_exists($response, 'getResponse') && method_exists($response->getResponse(), 'getStatusCode')) {
+		return $response->getResponse()->getStatusCode();
 
-    }
+	} else {
+		return '5xx'; // Generic error response
+	}
 
-  }
+}
+
+
+
+
+
+
+
+public function wps_get_error_message($response) {
+
+	$responseCode = $this->wps_get_status_code($response);
+
+	switch ($responseCode) {
+
+		case 303:
+			return $this->messages->message_shopify_api_303;
+			break;
+
+		case 400:
+			return $this->messages->message_shopify_api_400;
+			break;
+
+		case 401:
+			return $this->messages->message_shopify_api_401;
+			break;
+
+		case 402:
+			return $this->messages->message_shopify_api_402;
+			break;
+
+		case 403:
+			return $this->messages->message_shopify_api_403;
+			break;
+
+		case 404:
+			return $this->messages->message_shopify_api_404;
+			break;
+
+		case 406:
+			return $this->messages->message_shopify_api_406;
+			break;
+
+		case 422:
+			return $this->messages->message_shopify_api_422;
+			break;
+
+		case 429:
+			return $this->messages->message_shopify_api_429;
+			break;
+
+		case 500:
+			return $this->messages->message_shopify_api_500;
+			break;
+
+		case 501:
+			return $this->messages->message_shopify_api_501;
+			break;
+
+		case 503:
+			return $this->messages->message_shopify_api_503;
+			break;
+
+		case 504:
+			return $this->messages->message_shopify_api_504;
+			break;
+
+		default:
+			return $this->messages->message_shopify_api_generic;
+			break;
+
+	}
+
+}
+
+
+
+  // /*
+	//
+  // Get Error Message
+  // TODO: Move to Utils
+  // Returns: (string)
+	//
+  // */
+  // public function wps_get_error_message($error) {
+	//
+	// 	$errorCode = $this->wps_get_status_code($error);
+	//
+	//
+	//
+  //   // if (method_exists($error, 'getResponse') && method_exists($error->getResponse(), 'getBody') && method_exists($error->getResponse()->getBody(), 'getContents')) {
+	// 	//
+  //   //   $responseDecoded = json_decode($error->getResponse()->getBody()->getContents());
+	// 	//
+  //   //   if (is_object($responseDecoded) && isset($responseDecoded->errors)) {
+	// 	// 		$errorMessage = $responseDecoded->errors;
+	// 	//
+  //   //   } else {
+  //   //     $errorMessage = $error->getMessage();
+  //   //   }
+	// 	//
+	// 	// 	if (property_exists($errorMessage, "id")) {
+	// 	// 		$errorMessage = $errorMessage->id;
+	// 	// 	}
+	// 	//
+  //   //   return esc_html__('Error: ' . ucfirst($errorMessage), 'wp-shopify');
+	// 	//
+  //   // } else {
+	// 	//
+  //   //   return esc_html__('Error: ' . ucfirst($error->getMessage()), 'wp-shopify');
+	// 	//
+  //   // }
+	//
+  // }
 
 
   /*
@@ -710,7 +808,7 @@ class WS {
 
 		$index = 1;
 		$insertionResults = [];
-		$existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
+
 		$DB_Settings_General = new Settings_General();
 		$DB_Variants = new Variants();
 		$DB_Products = new Products();
@@ -723,7 +821,9 @@ class WS {
 
     try {
 
+			// This is the network requst
 			$response = $DB_Products->get_products_by_page($currentPage);
+
 			$data = json_decode($response->getBody()->getContents());
 
 			/*
@@ -742,8 +842,10 @@ class WS {
 
 					// Check if still syncing during each interation to ensure proper sync cancelation
 					if (!Utils::isStillSyncing()) {
+
 						$this->send_error($this->messages->message_connection_not_syncing . ': ' . $product->title);
 						wp_die();
+
 					}
 
 					// If product is published
@@ -754,7 +856,7 @@ class WS {
 						Insert CPT ...
 
 						*/
-				    $insertionResults[$product->title]['cpt'] = $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
+				    $insertionResults[$product->title]['cpt'] = $customPostTypeID = CPT::wps_insert_or_update_product($product, $index);
 
 						$product = $DB_Products->modify_product_after_cpt_insert($product, $customPostTypeID);
 						$product = $DB_Products->modify_product_before_insert($product, $customPostTypeID);
@@ -799,6 +901,7 @@ class WS {
 						$insertionResults[$product->title]['images'] = $DB_Images->insert_image($product);
 
 					}
+
 
 					$index++;
 					$Progress->increment_current_amount('products');
@@ -926,6 +1029,7 @@ class WS {
 			);
 
       $data = json_decode($response->getBody()->getContents());
+
 
       if (property_exists($data, "custom_collections")) {
 
@@ -1126,6 +1230,7 @@ class WS {
       }
 
     } catch (RequestException $error) {
+
       $this->send_error( $this->wps_get_error_message($error) . ' (wps_insert_collects)');
 
 		}
@@ -1696,7 +1801,8 @@ class WS {
 
 		$DB_Shop = new Shop();
 		$DB_Settings_General = new Settings_General();
-		$syncStates = $DB_Settings_General->selective_sync_status();
+
+		$syncStates = $DB_Settings_General->selective_sync_status(); // This property was not set for users ...
 
 		if ($syncStates['all']) {
 
@@ -2394,7 +2500,6 @@ class WS {
 
 		$connection = $DB_Settings_Connection->get_column_single('domain');
 
-
     if ($_POST['action'] === 'wps_uninstall_product_data') {
       $ajax = true;
 
@@ -2402,13 +2507,11 @@ class WS {
       $ajax = false;
     }
 
-
     if ($ajax) {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
 				$this->send_error($this->messages->message_nonce_invalid . ' (wps_uninstall_product_data)');
 			}
-
 
 			if (isset($_POST['webhooksReconnect']) && !empty($_POST['webhooksReconnect'])) {
 				$webhooksReconnect = $_POST['webhooksReconnect'];
@@ -2419,9 +2522,7 @@ class WS {
 
     }
 
-
 		Utils::wps_access_session();
-
 
 
     /*
@@ -3098,5 +3199,29 @@ class WS {
 		$this->send_success($_SESSION['wps_syncing_totals']);
 
 	}
+
+
+
+
+	/*
+
+	Mock: Shopify error wrapper
+
+	*/
+	public function mock_shopify_error($status) {
+
+		$mock = new MockHandler([
+			new Response($status, [])
+		]);
+
+		$handler = HandlerStack::create($mock);
+
+		$client = new Guzzle(['handler' => $handler]);
+
+		return $client->request('GET', '/');
+
+	}
+
+
 
 }

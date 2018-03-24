@@ -302,6 +302,9 @@ class DB {
 
   Insert a new row
 
+	Returns false if the row could not be inserted. Otherwise, it returns the number of affected rows (which will always be 1).
+	https://codex.wordpress.org/Class_Reference/wpdb
+
   */
   public function insert($data, $type = '') {
 
@@ -315,7 +318,7 @@ class DB {
 
 	    do_action('wps_pre_insert_' . $type, $data);
 
-			// Sanitizing nested arrays
+			// Sanitizing nested arrays (serializes nested arrays and objects)
 			$data = Utils::wps_serialize_data_for_db($data);
 
 	    // Initialise column format array
@@ -335,7 +338,7 @@ class DB {
 
 			/*
 
-			TODO: We should probably check whether the item we're inserting into the DB
+			Checks whether the item we're inserting into the DB
 			already exists to avoid errors. We can do this by first running $wpdb->get_results
 			and then cheking the num rows like below:
 
@@ -348,15 +351,16 @@ class DB {
 
 			} else {
 				$result = false;
-
 			}
+
 
 		} else {
 			$result = false;
 
 		}
 
-    return $result;
+		return $result === 1 ? true : false;
+
 
   }
 
@@ -373,6 +377,7 @@ class DB {
     // Row ID must be positive integer
     $row_id = absint($row_id);
 
+		// Record must already exist already to update
     if (empty($row_id)) {
       return false;
     }
@@ -411,6 +416,7 @@ class DB {
 			Transients::delete_cached_settings();
 		}
 
+		// Need a strict equality check since $wpdb->update can return 0 if nothing was updated
 	  if ($results === false) {
 	    return false;
 
@@ -425,6 +431,7 @@ class DB {
 	/*
 
   Update a new row
+	Returns boolean
 
   */
 	public function update_column_single($data = '', $where, $formats = false) {
@@ -588,13 +595,31 @@ class DB {
 	public function delete_rows($column, $column_value) {
 
 		global $wpdb;
-
 		$column = esc_sql($column);
-		$query = "DELETE FROM $this->table_name WHERE $column = %s";
 
-		return $wpdb->get_results(
+
+		if (gettype($column_value) === 'integer') {
+			$query = "DELETE FROM $this->table_name WHERE $column = %d";
+
+		} else if (gettype($column_value) === 'double') {
+			$query = "DELETE FROM $this->table_name WHERE $column = %f";
+
+		} else {
+			$query = "DELETE FROM $this->table_name WHERE $column = %s";
+		}
+
+
+		$results = $wpdb->query(
 			$wpdb->prepare($query, $column_value)
 		);
+
+
+		if ($results === false) {
+			return false;
+
+		} else {
+			return true;
+		}
 
 	}
 
@@ -610,13 +635,24 @@ class DB {
 	public function delete_rows_in($column, $ids) {
 
 		global $wpdb;
-
 		$column = esc_sql($column);
-		$query = "DELETE FROM $this->table_name WHERE $column IN (%s)";
+
+
+		if (gettype($ids) === 'integer') {
+			$query = "DELETE FROM $this->table_name WHERE $column IN (%d)";
+
+		} else if (gettype($ids) === 'double') {
+			$query = "DELETE FROM $this->table_name WHERE $column IN (%f)";
+
+		} else {
+			$query = "DELETE FROM $this->table_name WHERE $column IN (%s)";
+		}
+
 
 		return $wpdb->get_results(
 			$wpdb->prepare($query, $ids)
 		);
+		
 
 	}
 

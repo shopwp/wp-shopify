@@ -19,19 +19,6 @@ function getCurrencyFormat() {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 function getCurrencyFormats() {
 
   return jQuery.ajax({
@@ -45,15 +32,6 @@ function getCurrencyFormats() {
   });
 
 };
-
-
-
-
-
-
-
-
-
 
 
 function getMoneyFormat() {

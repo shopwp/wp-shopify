@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "domain": "mock.wpslitetest10.myshopify.com",
+  "js_access_token": "mock-9db68be3e95e8024d54243cf75343de6",
+  "access_token": "mock-access-token",
+  "app_id": 6,
+  "webhook_id": "",
+  "nonce": "mock_56e9ecf34b",
+  "is_syncing": 0,
+  "api_key": "mock_5026bdda6b2ecdf9606b81d847dd042a",
+  "password": "mock_dfa9cd622f48f38280fd733eb57a93d3",
+  "shared_secret": "mock_64168c096accdb3ce5df3c1d35291c12",
+  "syncing_step_total": null,
+  "syncing_step_current": null
+}

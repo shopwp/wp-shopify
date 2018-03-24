@@ -1,0 +1,23 @@
+{
+  "id": 1,
+  "url_products": "mock-products",
+  "url_collections": "mock-collections",
+  "url_webhooks": "https://mock.ngrok.io",
+  "num_posts": 100,
+  "styles_all": 1,
+  "styles_core": 0,
+  "styles_grid": 0,
+  "plugin_name": "Mock General Update WP Shopify",
+  "plugin_textdomain": "wps",
+  "plugin_version": "1.0.49",
+  "plugin_author": "Mock General Update Andrew Robbins",
+  "price_with_currency": 0,
+  "cart_loaded": 1,
+  "title_as_alt": 0,
+  "selective_sync_all": 1,
+  "selective_sync_products": 0,
+  "selective_sync_collections": 0,
+  "selective_sync_customers": 0,
+  "selective_sync_orders": 0,
+  "selective_sync_shop": 0
+}

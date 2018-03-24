@@ -66,7 +66,7 @@ class Config {
 		$this->plugin_name = 'wps';
 		$this->plugin_text_domain = 'wp-shopify';
 		$this->plugin_name_js = 'WP_Shopify';
-		$this->plugin_version = '1.0.48';
+		$this->plugin_version = '1.0.49';
 		$this->plugin_author = 'Andrew Robbins';
 
 		self::$plugin_nonce_action_backend = 'wp-shopify-backend';
@@ -184,6 +184,38 @@ class Config {
 		$DB_Settings_License = new Settings_License();
 		return $DB_Settings_License->get();
 
+	}
+
+
+	/*
+
+	Gets the current plugin version number
+
+	*/
+	public function get_current_plugin_version() {
+
+		$DB_Settings_General = new Settings_General();
+		$currentPluginVersion = $DB_Settings_General->get_column_single('plugin_version');
+
+		if (isset($currentPluginVersion) && $currentPluginVersion) {
+			$databaseVersion = $currentPluginVersion[0]->plugin_version;
+
+		} else {
+			$databaseVersion = '0.0.0'; // If code falls here, the version will always force an update
+		}
+
+		return $databaseVersion;
+
+	}
+
+
+	/*
+
+	Gets the current plugin version number
+
+	*/
+	public function get_new_plugin_version() {
+		return $this->plugin_version;
 	}
 
 

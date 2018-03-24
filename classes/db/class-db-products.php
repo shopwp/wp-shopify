@@ -16,13 +16,23 @@ use WPS\Transients;
 use WPS\DB\Settings_Connection;
 use WPS\Progress_Bar;
 
+
+// Used for mocking HTTP requests
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\RequestException;
+
+
+
 class Products extends \WPS\DB {
 
   public $table_name;
 	public $version;
 	public $primary_key;
   public $product_data;
-
 
   /*
 
@@ -203,6 +213,35 @@ class Products extends \WPS\DB {
   }
 
 
+  /*
+
+  Insert Product
+
+  */
+  public function insert_product($product, $customPostTypeID) {
+
+    // If product has an image
+    if (property_exists($product, 'image') && is_object($product->image)) {
+      $product->image = $product->image->src;
+    }
+
+    // If product is published
+    if (property_exists($product, 'published_at') && $product->published_at !== null) {
+
+      // Modify's the products model with CPT foreign key
+      $product = $this->assign_foreign_key($product, $customPostTypeID);
+      $product = $this->rename_primary_key($product);
+
+      return $this->insert($product, 'product');
+
+    } else {
+
+      return false;
+
+    }
+
+  }
+
 
   /*
 
@@ -211,9 +250,9 @@ class Products extends \WPS\DB {
   */
 	public function insert_products($products) {
 
-    $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
-    $DB_Settings_Connection = new Settings_Connection();
     $DB_Tags = new Tags();
+    $DB_Settings_Connection = new Settings_Connection();
+
     $progress = new Progress_Bar(new Config());
     $results = array();
     $index = 1;
@@ -226,26 +265,14 @@ class Products extends \WPS\DB {
         break;
       }
 
-      // If product has an image
-      if (property_exists($product, 'image') && is_object($product->image)) {
-        $product->image = $product->image->src;
-      }
 
-      // If product is published
-      if (property_exists($product, 'published_at') && $product->published_at !== null) {
+      // Inserts CPT
+      $customPostTypeID = CPT::wps_insert_or_update_product($product, $index);
 
-        // Inserts CPT
-        $customPostTypeID = CPT::wps_insert_or_update_product($product, $existingProducts, $index);
+      $DB_Tags->insert_tags($product, $customPostTypeID);
 
-        // Modify's the products model with CPT foreign key
-        $product = $this->assign_foreign_key($product, $customPostTypeID);
-        $product = $this->rename_primary_key($product);
-
-        $DB_Tags->insert_tags($product, $customPostTypeID);
-
-        $results[] = $this->insert($product, 'product');
-
-      }
+      // Tested and passed by - test-sync-products.php
+      $results[] = $this->insert_product($product, $customPostTypeID);
 
 
       $progress->increment_current_amount('products');
@@ -266,7 +293,6 @@ class Products extends \WPS\DB {
   public function update_product($product) {
 
     $newProductID = Utils::wps_find_product_id($product);
-    $existingProducts = CPT::wps_get_all_cpt_by_type('wps_products');
     $results = [];
 
     /*
@@ -301,7 +327,7 @@ class Products extends \WPS\DB {
       $results['product']     = $this->update($newProductID, $product);
       $results['image']       = $DB_Images->update_image($product);
       $results['collects']    = $DB_Collects->update_collects($product);
-      $results['product_cpt'] = CPT::wps_insert_or_update_product($product, $existingProducts);
+      $results['product_cpt'] = CPT::wps_insert_or_update_product($product);
       $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
 
     } else {
@@ -601,6 +627,19 @@ class Products extends \WPS\DB {
   */
   public function get_products_by_page($currentPage) {
 
+    // Create a mock and queue two responses.
+
+    // $mock = new MockHandler([
+    //   new Response(504, ['X-Foo' => 'Bar'])
+    // ]);
+    //
+    // $handler = HandlerStack::create($mock);
+    // $client = new Client(['handler' => $handler]);
+    //
+    // return $client->request('GET', '/');
+
+
+
     $WS = new WS(new Config());
 
     return $WS->wps_request(
@@ -608,6 +647,7 @@ class Products extends \WPS\DB {
       $WS->get_request_url("/admin/products.json", "?limit=250&page=" . $currentPage),
       $WS->get_request_options()
     );
+
 
   }
 

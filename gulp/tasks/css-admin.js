@@ -1,31 +1,20 @@
-/////////
-// CSS //
-/////////
+///////////////
+// CSS Admin //
+///////////////
 
 import gulp from 'gulp';
 import config from '../config';
-import sourcemaps from 'gulp-sourcemaps';
 import sass from 'gulp-sass';
-import pleeease from 'gulp-pleeease';
 import rename from "gulp-rename";
+import postcss from 'gulp-postcss';
+import gulpStylelint from 'gulp-stylelint';
 
 gulp.task('css-admin', () => {
   return gulp.src(config.files.cssEntryAdmin)
-    .pipe(sourcemaps.init())
       .pipe(sass())
-      .pipe(pleeease({
-        "autoprefixer": true,
-        "filters": true,
-        "rem": true,
-        "pseudoElements": true,
-        "opacity": true,
-        "import": true,
-        "minifier": true,
-        "mqpacker": false,
-        "sourcemaps": false
-      }))
+      .pipe(gulpStylelint( config.stylelintConfig() ))
+      .pipe(postcss( config.postCSSPlugins() ))
       .pipe(rename(config.names.cssAdmin))
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest(config.folders.cssAdmin))
+    .pipe(gulp.dest(config.folders.dist))
     .pipe(config.bs.stream());
 });

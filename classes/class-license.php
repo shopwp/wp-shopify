@@ -70,7 +70,7 @@ class License {
 	*/
 	public function wps_license_has_existing($newKey) {
 
-    if(isset($this->license['key']) && $this->license['key'] === $newKey) {
+    if (isset($this->license['key']) && $this->license['key'] === $newKey) {
       return true;
 
     } else {
@@ -208,57 +208,6 @@ class License {
 
 		}
 
-
-	}
-
-
-	/*
-
-  Save License Key
-	TODO: Not used?
-
-  */
-  public function wps_license_check_valid() {
-
-		$Settings_License = new Settings_License();
-
-		$license = $Settings_License->get();
-		$key = $license->key;
-
-		$url = $this->plugin_env . '/edd-sl?edd_action=check_license&item_name=' . $this->plugin_name_full_encoded . '&license=' . $key . '&url=' . home_url();
-
-		try {
-
-			$response = $this->ws->wps_request(
-				'GET',
-				$url,
-				[]
-			);
-
-			$data = json_decode($response->getBody()->getContents());
-
-			if ($data->license === 'valid') {
-				$this->wps_activate_plugin_license($license);
-			}
-
-			return $data->license;
-
-		} catch (\Exception $e) {
-
-			return $e->getMessage() . ' (wps_license_check_valid)';
-
-		}
-
-
-  }
-
-
-	/*
-
-	wps_activate_plugin_license
-
-	*/
-	public function wps_activate_plugin_license() {
 
 	}
 

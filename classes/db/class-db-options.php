@@ -164,39 +164,40 @@ class Options extends \WPS\DB {
     $newProductID = Utils::wps_find_product_id($product);
     $currentOptions = $this->get_rows('product_id', $newProductID);
 
-    // If the product doesn't exist, insert it instead
-    if (is_array($currentOptions) && empty($currentOptions)) {
 
-      $results = $Products->create_product($product);
+    // // If the product doesn't exist, insert it instead
+    // if (is_array($currentOptions) && empty($currentOptions)) {
+    //
+    //   // Breaks the test because it refers to insert_products which calls the isSyncing function
+    //   $results = $Products->create_product($product);
+    //
+    // } else {
+    //
+    //
+    //
+    // }
 
-    } else {
+    $optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
+    $optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
 
-      // $currentOptionsArray = Utils::wps_convert_object_to_array($currentOptions);
-      // $optionsFromShopify = Utils::wps_convert_object_to_array($optionsFromShopify);
+    if (count($optionsToAdd) > 0) {
 
-      $optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
-      $optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
-
-      if (count($optionsToAdd) > 0) {
-
-        foreach ($optionsToAdd as $key => $newOption) {
-          $results['created'][] = $this->insert($newOption, 'option');
-        }
-
+      foreach ($optionsToAdd as $key => $newOption) {
+        $results['created'][] = $this->insert($newOption, 'option');
       }
 
-      if (count($optionsToDelete) > 0) {
+    }
 
-        foreach ($optionsToDelete as $key => $oldOption) {
-          $results['deleted'][] = $this->delete($oldOption->id);
-        }
+    if (count($optionsToDelete) > 0) {
 
+      foreach ($optionsToDelete as $key => $oldOption) {
+        $results['deleted'][] = $this->delete($oldOption->id);
       }
 
-      foreach ($product->options as $key => $option) {
-        $results['updated'] = $this->update($option->id, $option);
-      }
+    }
 
+    foreach ($product->options as $key => $option) {
+      $results['updated'] = $this->update($option->id, $option);
     }
 
     return $results;

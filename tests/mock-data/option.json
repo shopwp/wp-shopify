@@ -1,0 +1,11 @@
+{
+  "id": 222222,
+  "product_id": 475317501975,
+  "name": "Mock Option Title",
+  "position": 1,
+  "values": [
+    "Mock Option Value 1",
+    "Mock Option Value 2",
+    "Mock Option Value 3"
+  ]
+}

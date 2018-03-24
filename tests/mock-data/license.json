@@ -1,0 +1,16 @@
+{
+  "key": "82800d32c9514256e9564462e1728553",
+  "is_local": 0,
+  "expires": "1970-01-01 06:00:00",
+  "site_count": 8,
+  "checksum": "e13ba986a7b7e0c995613332a74c91bd",
+  "customer_email": "hello@wpshop.io",
+  "customer_name": "Trial License",
+  "item_name": "WP Shopify Original",
+  "license": "valid",
+  "license_limit": 20,
+  "payment_id": 193540,
+  "success": 1,
+  "nonce": "",
+  "activations_left": "12"
+}

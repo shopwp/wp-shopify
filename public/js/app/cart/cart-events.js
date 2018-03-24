@@ -30,7 +30,6 @@ function onCheckout(shopify) {
       return;
     }
 
-
     if (initialCart.lineItemCount === 0) {
       disable(jQuery('.wps-btn-checkout'));
     }

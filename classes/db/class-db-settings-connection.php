@@ -87,7 +87,7 @@ class Settings_Connection extends \WPS\DB {
     if (!Utils::isStillSyncing()) {
       wp_die();
     }
-    
+
     if (isset($connectionData['domain']) && $connectionData['domain']) {
 
       if ($this->get_by('domain', $connectionData['domain'])) {
@@ -211,6 +211,7 @@ class Settings_Connection extends \WPS\DB {
 
     if (is_array($setting) && isset($setting)) {
       return $setting[0]->shared_secret;
+      
     } else {
       return false;
     }

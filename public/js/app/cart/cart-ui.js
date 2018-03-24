@@ -4,7 +4,6 @@ import { getProduct, getMoneyFormatCache } from '../ws/ws-products';
 import { animate, animateIn, enable, disable } from '../utils/utils-ux';
 import { isEmptyCart } from '../utils/utils-cart';
 
-
 /*
 
 Update product variant price
@@ -102,9 +101,8 @@ async function updateCartCounter(shopify, cart) {
     enable(jQuery('.wps-btn-checkout'));
 
 
-    if ($cartCounter.length) {
 
-      // turnAnimationFlagOn();
+    if ($cartCounter.length) {
 
       animate({
         element: $cartCounter,
@@ -256,6 +254,8 @@ function renderCartItemPrice(price, lineItemHTML) {
 
   var $lineItem = jQuery(lineItemHTML);
   var $price = $lineItem.find('.wps-cart-item__price');
+
+console.log("price:", price);
 
   $price.text(price);
 

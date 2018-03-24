@@ -125,7 +125,7 @@ function onResyncSubmit() {
       */
       try {
         var syncOnResponse = await syncOn();
-
+console.log("syncOnResponse: ", syncOnResponse);
       } catch (errors) {
 
         updateDomAfterSync({
@@ -140,7 +140,7 @@ function onResyncSubmit() {
       insertCheckmark();
       setConnectionStepMessage('Starting re-sync ...');
       warningList = addToWarningList(warningList, syncOnResponse);
-
+console.log("warningList: ", warningList);
       /*
 
       2. Start progress bar
@@ -222,9 +222,9 @@ function onResyncSubmit() {
       */
       try {
         var removeExistingDataResponse = await removeExistingData();
-
+console.log("removeExistingDataResponse: ", removeExistingDataResponse);
       } catch (errors) {
-
+console.log("removeExistingDataResponse errors: ", errors);
         updateDomAfterSync({
           noticeList: returnOnlyFailedRequests(errors)
         });
@@ -271,6 +271,8 @@ function onResyncSubmit() {
       insertCheckmark();
       setConnectionStepMessage('Cleaning up ...');
       warningList = addToWarningList(warningList, syncResp);
+      console.log("syncResp: ", syncResp);
+      console.log("warningList: ", warningList);
       forceProgressBarsComplete();
 
 

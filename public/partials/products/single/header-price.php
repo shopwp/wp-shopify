@@ -9,6 +9,7 @@
   <?php
 
   $amountOfVariantPrices = count($product['variants']);
+  $amountOfVariantPrices = 1;
 
   usort($product['variants'], function ($a, $b) {
     return $a['price'] - $b['price'];
@@ -23,7 +24,6 @@
     if ($lastVariantPrice === $firstVariantPrice) {
 
       $price = Utils::wps_format_money($firstVariantPrice, $product);
-
       echo apply_filters('wps_product_single_price', $price, $price, $price, $product);
 
     } else {
@@ -39,7 +39,9 @@
 
   } else {
 
-    $price = Utils::wps_format_money($product['variants'][0]['price'], $product);
+    if (is_array($product['variants']) && !empty($product['variants'])) {
+      $price = Utils::wps_format_money($product['variants'][0]['price'], $product);
+    }
 
     echo apply_filters('wps_product_single_price', $price, $price, $price, $product);
 

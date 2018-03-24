@@ -65,6 +65,22 @@ class Messages {
 	public $message_message_variants_not_found;
 	public $message_products_from_collection_not_found;
 
+	public $message_shopify_api_303;
+	public $message_shopify_api_400;
+	public $message_shopify_api_401;
+	public $message_shopify_api_402;
+	public $message_shopify_api_403;
+	public $message_shopify_api_404;
+	public $message_shopify_api_406;
+	public $message_shopify_api_422;
+	public $message_shopify_api_429;
+	public $message_shopify_api_500;
+	public $message_shopify_api_501;
+	public $message_shopify_api_503;
+	public $message_shopify_api_504;
+	public $message_shopify_api_generic;
+
+
 	public function __construct() {
 
 		$this->message_nonce_invalid = esc_html__('Error: Your request has been rejected for security reasons. Please clear your browser cache and try again.', 'wp-shopify');
@@ -130,7 +146,26 @@ class Messages {
 		$this->message_orders_insert_error = esc_html__('Warning: Unable to sync 1 or more orders.', 'wp-shopify');
 
 
+		/*
 
+		Shopify API Errors
+
+		*/
+		$this->message_shopify_api_303 = esc_html__('Error: The response to the request is found under a different URI in the Location header and can be retrieved using a GET method on that resource.', 'wp-shopify');
+		$this->message_shopify_api_400 = esc_html__('Error: The request was not understood by the server, generally due to bad syntax or because the Content-Type header was not correctly set to application/json.', 'wp-shopify');
+		$this->message_shopify_api_401 = esc_html__('Error: The necessary authentication credentials are not present in the request or are incorrect.', 'wp-shopify');
+		$this->message_shopify_api_402 = esc_html__('Error: The requested shop is currently frozen.', 'wp-shopify');
+		$this->message_shopify_api_403 = esc_html__('Error: The server is refusing to respond to the request. This is generally because you have not requested the appropriate scope for this action.', 'wp-shopify');
+		$this->message_shopify_api_404 = esc_html__('Error: The requested resource was not found but could be available again in the future.', 'wp-shopify');
+		$this->message_shopify_api_406 = esc_html__('Error: The requested resource is only capable of generating content not acceptable according to the Accept headers sent in the request.', 'wp-shopify');
+		$this->message_shopify_api_422 = esc_html__('Error: The request body was well-formed but contains semantical errors. The response body will provide more details in the errors parameter.', 'wp-shopify');
+		$this->message_shopify_api_429 = esc_html__('Error: The request was not accepted because the application has exceeded the rate limit. See the API Call Limit documentation for a breakdown of Shopify\'s rate-limiting mechanism.', 'wp-shopify');
+		$this->message_shopify_api_500 = esc_html__('Error: An internal error occurred in Shopify. Please post to the API & Technology forum so that Shopify staff can investigate.', 'wp-shopify');
+		$this->message_shopify_api_501 = esc_html__('Error: The requested endpoint is not available on that particular shop, e.g. requesting access to a Plus-specific API on a non-Plus shop. This response may also indicate that this endpoint is reserved for future use.', 'wp-shopify');
+		$this->message_shopify_api_503 = esc_html__('Error: The server is currently unavailable. Check the status page for reported service outages.', 'wp-shopify');
+		$this->message_shopify_api_504 = esc_html__('Error: The request could not complete in time. Try breaking it down in multiple smaller requests.', 'wp-shopify');
+
+		$this->message_shopify_api_generic = esc_html__('Error: An unkown Shopify API response was received during syncing. Please try disconnecting and reconnecting your store.', 'wp-shopify');
 
 	}
 

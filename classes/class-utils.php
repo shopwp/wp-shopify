@@ -373,7 +373,11 @@ class Utils {
     $typeKey = $type . '_id';
 
     $foundItem = array_filter($existingItems, function($existingItem) use ($newItemID, $typeKey) {
-      return $existingItem['post_meta'][$typeKey][0] == $newItemID;
+
+			if (isset($existingItem['post_meta'][$typeKey]) && is_array($existingItem['post_meta'][$typeKey])) {
+				return $existingItem['post_meta'][$typeKey][0] == $newItemID;
+			}
+
     });
 
     if (is_array($foundItem) && !empty($foundItem)) {
@@ -656,7 +660,15 @@ class Utils {
 
     foreach ($data as $key => $value) {
 
-      if (is_array($value)) {
+			/*
+
+			IMPORTANT -- Need to check for both Array and Objects
+			otherwise the following error is thrown and data not saved:
+
+			mysqli_real_escape_string() expects parameter 2 to be string, object given 
+
+			*/
+      if (is_array($value) || is_object($value)) {
         $value = maybe_serialize($value);
       }
 
@@ -2781,6 +2793,15 @@ class Utils {
 
 	}
 
+
+
+	/*
+
+	0 ----> PHP_SESSION_DISABLED ----> if sessions are disabled.
+	1 ----> PHP_SESSION_NONE ----> if sessions are enabled, but none exists.
+	2 ----> PHP_SESSION_ACTIVE ----> if sessions are enabled, and one exists.
+
+	*/
 	public static function wps_access_session() {
 
 		if (session_status() == PHP_SESSION_NONE) {
@@ -2789,10 +2810,14 @@ class Utils {
 
 	}
 
+
+	/*
+
+	Close session
+
+	*/
 	public static function wps_close_session_write() {
-
 		session_write_close();
-
 	}
 
 
