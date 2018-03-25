@@ -18,10 +18,7 @@ env:
 - WP_VERSION=latest WP_MULTISITE=0
 - WP_VERSION=4.4 WP_MULTISITE=0
 - WP_VERSION=4.9.2 WP_MULTISITE=0
-matrix:
-  include:
-  - php: 5.3
-    env: WP_VERSION=latest WP_MULTISITE=1
 before_script:
 - bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION
+- mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql
 script: phpunit
