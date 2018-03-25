@@ -21,6 +21,8 @@ env:
 before_script:
 - bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION
 - mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql
-- mkdir /tmp/wordpress-tests-lib/data/ && svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/themedir1/ /tmp/wordpress-tests-lib/data
-- chmod -R +r /tmp/wordpress-tests-lib/data
+- mkdir /tmp/wordpress-tests-lib/data/
+- find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
+- svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/themedir1/ /tmp/wordpress-tests-lib/data
+- find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
 script: phpunit
