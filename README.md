@@ -4,7 +4,9 @@
   </a>
 </p>
 
-> _Sell your Shopify products on WordPress. A plugin designed to be extensible, seamless, and powerful_
+[![Build Status](https://travis-ci.org/arobbins/wp-shopify.svg?branch=master)](https://travis-ci.org/arobbins/wp-shopify)
+
+> Sell and build custom Shopify experiences on WordPress
 
 
 ## Links
