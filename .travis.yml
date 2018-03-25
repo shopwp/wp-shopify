@@ -21,4 +21,5 @@ env:
 before_script:
 - bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION
 - mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql
+- mkdir /tmp/wordpress-tests-lib/data/ && svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/themedir1/
 script: phpunit
