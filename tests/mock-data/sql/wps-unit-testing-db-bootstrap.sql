@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.14)
 # Database: wps_unit_testing
-# Generation Time: 2018-03-24 00:34:27 +0000
+# Generation Time: 2018-03-25 04:17:13 +0000
 # ************************************************************
 
 
@@ -66,15 +66,6 @@ CREATE TABLE `wptests_comments` (
   KEY `comment_author_email` (`comment_author_email`(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-LOCK TABLES `wptests_comments` WRITE;
-/*!40000 ALTER TABLE `wptests_comments` DISABLE KEYS */;
-
-INSERT INTO `wptests_comments` (`comment_ID`, `comment_post_ID`, `comment_author`, `comment_author_email`, `comment_author_url`, `comment_author_IP`, `comment_date`, `comment_date_gmt`, `comment_content`, `comment_karma`, `comment_approved`, `comment_agent`, `comment_type`, `comment_parent`, `user_id`)
-VALUES
-	(1,1,'A WordPress Commenter','wapuu@wordpress.example','https://wordpress.org/','','2018-03-24 00:33:48','2018-03-24 00:33:48','Hi, this is a comment.\nTo get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.\nCommenter avatars come from <a href=\"https://gravatar.com\">Gravatar</a>.',0,'1','','',0,0);
-
-/*!40000 ALTER TABLE `wptests_comments` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table wptests_links
@@ -121,7 +112,7 @@ LOCK TABLES `wptests_options` WRITE;
 
 INSERT INTO `wptests_options` (`option_id`, `option_name`, `option_value`, `autoload`)
 VALUES
-	(2,'_site_transient_timeout_theme_roots','1521853427','no'),
+	(2,'_site_transient_timeout_theme_roots','1521953219','no'),
 	(3,'_site_transient_theme_roots','a:16:{s:12:\"broken-theme\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:9:\"camelCase\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:19:\"child-parent-itself\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:7:\"default\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:23:\"internationalized-theme\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:20:\"page-templates-child\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:14:\"page-templates\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:7:\"sandbox\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:14:\"stylesheetonly\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:24:\"subdir/theme with spaces\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:13:\"subdir/theme2\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:11:\"theme1-dupe\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:6:\"theme1\";s:59:\"/private/tmp/wordpress-tests-lib/includes/../data/themedir1\";s:13:\"twentyfifteen\";s:7:\"/themes\";s:15:\"twentyseventeen\";s:7:\"/themes\";s:13:\"twentysixteen\";s:7:\"/themes\";}','no'),
 	(4,'siteurl','http://example.org','yes'),
 	(5,'home','http://example.org','yes'),
@@ -221,9 +212,23 @@ VALUES
 	(99,'widget_archives','a:2:{i:2;a:3:{s:5:\"title\";s:0:\"\";s:5:\"count\";i:0;s:8:\"dropdown\";i:0;}s:12:\"_multiwidget\";i:1;}','yes'),
 	(100,'widget_meta','a:2:{i:2;a:1:{s:5:\"title\";s:0:\"\";}s:12:\"_multiwidget\";i:1;}','yes'),
 	(101,'sidebars_widgets','a:5:{s:19:\"wp_inactive_widgets\";a:0:{}s:9:\"sidebar-1\";a:6:{i:0;s:8:\"search-2\";i:1;s:14:\"recent-posts-2\";i:2;s:17:\"recent-comments-2\";i:3;s:10:\"archives-2\";i:4;s:12:\"categories-2\";i:5;s:6:\"meta-2\";}s:9:\"sidebar-2\";a:0:{}s:9:\"sidebar-3\";a:0:{}s:13:\"array_version\";i:3;}','yes'),
-	(102,'_transient_wps_table_exists_wptests_wps_settings_connection','','yes'),
-	(104,'_transient_wps_table_exists_wptests_wps_settings_general','','yes'),
-	(109,'_transient_wps_table_exists_wptests_wps_settings_license','','yes');
+	(102,'_transient_wps_table_exists_wptests_wps_settings_connection','1','yes'),
+	(103,'_transient_wps_table_exists_wptests_wps_settings_general','1','yes'),
+	(104,'_transient_wps_table_exists_wptests_wps_settings_license','1','yes'),
+	(105,'widget_pages','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(106,'widget_calendar','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(107,'widget_media_audio','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(108,'widget_media_image','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(109,'widget_media_gallery','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(110,'widget_media_video','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(111,'nonce_key','1O>&QXSS=0LRl(4+75g*wt=!_M`[lHa{cFSfE51zpFi{GqmWU5HJSAW5R3<Lr~@w','no'),
+	(112,'nonce_salt','o>TtT2_LOeH|1D?G0EsR,>O:[@vy*BdKL |0g/0C6uJH@_p_x#(0? =3g~h`N$&(','no'),
+	(113,'widget_tag_cloud','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(114,'widget_nav_menu','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(115,'widget_custom_html','a:1:{s:12:\"_multiwidget\";i:1;}','yes'),
+	(116,'cron','a:2:{i:1521951420;a:3:{s:16:\"wp_version_check\";a:1:{s:32:\"40cd750bba9870f18aada2478b24840a\";a:3:{s:8:\"schedule\";s:10:\"twicedaily\";s:4:\"args\";a:0:{}s:8:\"interval\";i:43200;}}s:17:\"wp_update_plugins\";a:1:{s:32:\"40cd750bba9870f18aada2478b24840a\";a:3:{s:8:\"schedule\";s:10:\"twicedaily\";s:4:\"args\";a:0:{}s:8:\"interval\";i:43200;}}s:16:\"wp_update_themes\";a:1:{s:32:\"40cd750bba9870f18aada2478b24840a\";a:3:{s:8:\"schedule\";s:10:\"twicedaily\";s:4:\"args\";a:0:{}s:8:\"interval\";i:43200;}}}s:7:\"version\";i:2;}','yes'),
+	(129,'_transient_wps_table_exists_wptests_wps_products','1','yes'),
+	(134,'_transient_wps_table_exists_wptests_wps_variants','1','yes');
 
 /*!40000 ALTER TABLE `wptests_options` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -244,15 +249,6 @@ CREATE TABLE `wptests_postmeta` (
   KEY `meta_key` (`meta_key`(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-LOCK TABLES `wptests_postmeta` WRITE;
-/*!40000 ALTER TABLE `wptests_postmeta` DISABLE KEYS */;
-
-INSERT INTO `wptests_postmeta` (`meta_id`, `post_id`, `meta_key`, `meta_value`)
-VALUES
-	(1,2,'_wp_page_template','default');
-
-/*!40000 ALTER TABLE `wptests_postmeta` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table wptests_posts
@@ -291,16 +287,6 @@ CREATE TABLE `wptests_posts` (
   KEY `post_author` (`post_author`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-LOCK TABLES `wptests_posts` WRITE;
-/*!40000 ALTER TABLE `wptests_posts` DISABLE KEYS */;
-
-INSERT INTO `wptests_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`)
-VALUES
-	(1,1,'2018-03-24 00:33:48','2018-03-24 00:33:48','Welcome to WordPress. This is your first post. Edit or delete it, then start writing!','Hello world!','','publish','open','open','','hello-world','','','2018-03-24 00:33:48','2018-03-24 00:33:48','',0,'http://example.org/?p=1',0,'post','',1),
-	(2,1,'2018-03-24 00:33:48','2018-03-24 00:33:48','This is an example page. It\'s different from a blog post because it will stay in one place and will show up in your site navigation (in most themes). Most people start with an About page that introduces them to potential site visitors. It might say something like this:\n\n<blockquote>Hi there! I\'m a bike messenger by day, aspiring actor by night, and this is my website. I live in Los Angeles, have a great dog named Jack, and I like pi&#241;a coladas. (And gettin\' caught in the rain.)</blockquote>\n\n...or something like this:\n\n<blockquote>The XYZ Doohickey Company was founded in 1971, and has been providing quality doohickeys to the public ever since. Located in Gotham City, XYZ employs over 2,000 people and does all kinds of awesome things for the Gotham community.</blockquote>\n\nAs a new WordPress user, you should go to <a href=\"http://example.org/wp-admin/\">your dashboard</a> to delete this page and create new pages for your content. Have fun!','Sample Page','','publish','closed','open','','sample-page','','','2018-03-24 00:33:48','2018-03-24 00:33:48','',0,'http://example.org/?page_id=2',0,'page','',0);
-
-/*!40000 ALTER TABLE `wptests_posts` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table wptests_term_relationships
@@ -316,15 +302,6 @@ CREATE TABLE `wptests_term_relationships` (
   KEY `term_taxonomy_id` (`term_taxonomy_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-LOCK TABLES `wptests_term_relationships` WRITE;
-/*!40000 ALTER TABLE `wptests_term_relationships` DISABLE KEYS */;
-
-INSERT INTO `wptests_term_relationships` (`object_id`, `term_taxonomy_id`, `term_order`)
-VALUES
-	(1,1,0);
-
-/*!40000 ALTER TABLE `wptests_term_relationships` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table wptests_term_taxonomy
@@ -349,7 +326,7 @@ LOCK TABLES `wptests_term_taxonomy` WRITE;
 
 INSERT INTO `wptests_term_taxonomy` (`term_taxonomy_id`, `term_id`, `taxonomy`, `description`, `parent`, `count`)
 VALUES
-	(1,1,'category','',0,1);
+	(1,1,'category','',0,0);
 
 /*!40000 ALTER TABLE `wptests_term_taxonomy` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -465,7 +442,7 @@ LOCK TABLES `wptests_users` WRITE;
 
 INSERT INTO `wptests_users` (`ID`, `user_login`, `user_pass`, `user_nicename`, `user_email`, `user_url`, `user_registered`, `user_activation_key`, `user_status`, `display_name`)
 VALUES
-	(1,'admin','$P$BvbAUVIIhWkUyWRSPegosNNiE1cWQB/','admin','admin@example.org','','2018-03-24 00:33:48','',0,'admin');
+	(1,'admin','$P$B3l.1P/I/2FqaqhyqADrLl.EvlYGK71','admin','admin@example.org','','2018-03-25 04:16:59','',0,'admin');
 
 /*!40000 ALTER TABLE `wptests_users` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -4128,7 +4105,12 @@ VALUES
 	(475317403671,298006,'Enormous Granite Chair','<p>Error minus unde.</p>','enormous-granite-chair','https://cdn.shopify.com/s/files/1/2400/7681/products/ipsumcorruptidolores.png?v=1513755704','Stracke, Rice and Crooks','Books','global','2017-12-20 01:41:43','2018-01-21 17:16:06','2017-12-20 01:41:44'),
 	(475317436439,298012,'Enormous Leather Hat','<p>Tempora velit quisquam aliquam recusandae qui voluptates. Id non illum quod cumque.</p>','enormous-leather-hat','https://cdn.shopify.com/s/files/1/2400/7681/products/doloresmaximeducimus.png?v=1513755706','Barrows, Jast and Effertz','Grocery','global','2017-12-20 01:41:44','2018-01-21 17:16:06','2017-12-20 01:41:45'),
 	(475317469207,298046,'Ergonomic Concrete Knife','<p>Est debitis omnis ipsum quia assumenda. Et tempore nemo recusandae autem ut rem.</p>','ergonomic-concrete-knife','https://cdn.shopify.com/s/files/1/2400/7681/products/autemrerumreiciendis.png?v=1513755707','O\'Connell, Moen and Schultz','Computers','global','2017-12-20 01:41:46','2018-01-21 17:16:06','2017-12-20 01:41:47'),
-	(475317501975,298199,'Heavy Duty Wooden Plate','<p>Est maxime explicabo ea nam aut.</p>','heavy-duty-wooden-plate','https://cdn.shopify.com/s/files/1/2400/7681/products/rerummolestiaeest.png?v=1513755709','Kozey-Kunde','Baby','global','2017-12-20 01:41:47','2018-01-21 17:16:06','2017-12-20 01:41:48');
+	(475317501975,298199,'Heavy Duty Wooden Plate','<p>Est maxime explicabo ea nam aut.</p>','heavy-duty-wooden-plate','https://cdn.shopify.com/s/files/1/2400/7681/products/rerummolestiaeest.png?v=1513755709','Kozey-Kunde','Baby','global','2017-12-20 01:41:47','2018-01-21 17:16:06','2017-12-20 01:41:48'),
+	(475317501976,0,'Example T-Shirt',NULL,'example-t-shirt',NULL,'Acme','Shirts','global','2018-03-21 11:38:01',NULL,NULL),
+	(475317501977,0,'Example T-Shirt',NULL,'example-t-shirt',NULL,'Acme','Shirts','global','2018-03-21 11:38:01',NULL,NULL),
+	(475317501978,0,'Example T-Shirt',NULL,'example-t-shirt',NULL,'Acme','Shirts','global','2018-03-21 11:38:01',NULL,NULL),
+	(475317501979,0,'Example T-Shirt',NULL,'example-t-shirt',NULL,'Acme','Shirts','global','2018-03-21 11:38:01',NULL,NULL),
+	(475317501980,0,'Example T-Shirt',NULL,'example-t-shirt',NULL,'Acme','Shirts','global','2018-03-21 11:38:01',NULL,NULL);
 
 /*!40000 ALTER TABLE `wptests_wps_products` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -4156,15 +4138,6 @@ CREATE TABLE `wptests_wps_settings_connection` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-LOCK TABLES `wptests_wps_settings_connection` WRITE;
-/*!40000 ALTER TABLE `wptests_wps_settings_connection` DISABLE KEYS */;
-
-INSERT INTO `wptests_wps_settings_connection` (`id`, `domain`, `js_access_token`, `access_token`, `app_id`, `webhook_id`, `nonce`, `is_syncing`, `api_key`, `password`, `shared_secret`, `syncing_step_total`, `syncing_step_current`)
-VALUES
-	(1,'wpslitetest10.myshopify.com','9db68be3e95e8024d54243cf75343de6','',6,'','56e9ecf34b',0,'5026bdda6b2ecdf9606b81d847dd042a','dfa9cd622f48f38280fd733eb57a93d3','64168c096accdb3ce5df3c1d35291c12',NULL,NULL);
-
-/*!40000 ALTER TABLE `wptests_wps_settings_connection` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table wptests_wps_settings_general
@@ -4202,7 +4175,7 @@ LOCK TABLES `wptests_wps_settings_general` WRITE;
 
 INSERT INTO `wptests_wps_settings_general` (`id`, `url_products`, `url_collections`, `url_webhooks`, `num_posts`, `styles_all`, `styles_core`, `styles_grid`, `plugin_name`, `plugin_textdomain`, `plugin_version`, `plugin_author`, `price_with_currency`, `cart_loaded`, `title_as_alt`, `selective_sync_all`, `selective_sync_products`, `selective_sync_collections`, `selective_sync_customers`, `selective_sync_orders`, `selective_sync_shop`)
 VALUES
-	(1,'products','collections','https://c4458fb9.ngrok.io',10,1,0,0,'WP Shopify','wps','1.0.48','Andrew Robbins',0,1,0,1,0,0,0,0,0);
+	(1,'products','collections','https://c4458fb9.ngrok.io',10,1,0,0,'WP Shopify','wps','1.0.49','Andrew Robbins',0,1,0,1,0,0,0,0,0);
 
 /*!40000 ALTER TABLE `wptests_wps_settings_general` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -4231,15 +4204,6 @@ CREATE TABLE `wptests_wps_settings_license` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-LOCK TABLES `wptests_wps_settings_license` WRITE;
-/*!40000 ALTER TABLE `wptests_wps_settings_license` DISABLE KEYS */;
-
-INSERT INTO `wptests_wps_settings_license` (`key`, `is_local`, `expires`, `site_count`, `checksum`, `customer_email`, `customer_name`, `item_name`, `license`, `license_limit`, `payment_id`, `success`, `nonce`, `activations_left`)
-VALUES
-	('82800d32c9514256e9564462e1728553',0,'1970-01-01 06:00:00',8,'e13ba986a7b7e0c995613332a74c91bd','hello@wpshop.io','Trial License','WP Shopify','valid',20,193540,1,'','12');
-
-/*!40000 ALTER TABLE `wptests_wps_settings_license` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table wptests_wps_shop
@@ -6501,6 +6465,40 @@ VALUES
 
 /*!40000 ALTER TABLE `wptests_wps_tags` ENABLE KEYS */;
 UNLOCK TABLES;
+
+
+# Dump of table wptests_wps_variants
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wptests_wps_variants`;
+
+CREATE TABLE `wptests_wps_variants` (
+  `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` bigint(100) DEFAULT NULL,
+  `image_id` bigint(100) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `compare_at_price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `position` int(20) DEFAULT NULL,
+  `option1` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `option2` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `option3` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `taxable` tinyint(1) DEFAULT NULL,
+  `sku` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `inventory_policy` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `inventory_quantity` bigint(20) DEFAULT NULL,
+  `old_inventory_quantity` bigint(20) DEFAULT NULL,
+  `inventory_management` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `fulfillment_service` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `barcode` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `weight` int(20) DEFAULT NULL,
+  `weight_unit` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `requires_shipping` tinyint(1) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+
 
 
 
