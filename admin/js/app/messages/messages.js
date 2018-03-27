@@ -9,19 +9,18 @@ Get message error network
 
 */
 function messageErrorNetwork() {
-  return 'Error: The syncing process timed out or ended abruptly. Please check our documentation for a potential solution.';
+  return '504 Error: The syncing process timed out or exceeded its allocated memory. <a href="https://wpshop.io/docs/syncing-errors">Please check our documentation</a> for a potential solution.';
 }
 
 
 /*
 
-Get message error client
+4xx level errors
 
 */
 function messageErrorClient() {
-  return 'Error: The client died';
+  return '400 Error: The request sent to Shopify was either malformed or corrupt. <a href="https://wpshop.io/docs/syncing-errors">Please check our documentation</a> for a potential solution.';
 }
-
 
 /*
 
@@ -39,11 +38,7 @@ function getMessageError(error) {
       break;
 
     case 4:
-      return messageErrorNetwork();
-      break;
-
-    case 3:
-      return messageErrorNetwork();
+      return messageErrorClient();
       break;
 
     default:
