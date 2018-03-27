@@ -150,20 +150,20 @@ class Messages {
 		Shopify API Errors
 
 		*/
-		$this->message_shopify_api_400 = esc_html__('400 Error: The request was not understood by the server.', 'wp-shopify');
-		$this->message_shopify_api_401 = esc_html__('401 Error: The necessary authentication credentials are not present in the request or are incorrect.', 'wp-shopify');
-		$this->message_shopify_api_402 = esc_html__('402 Error: The requested shop is currently frozen.', 'wp-shopify');
-		$this->message_shopify_api_403 = esc_html__('403 Error: The server is refusing to respond to the request. This is generally because you have not requested the appropriate scope for this action.', 'wp-shopify');
-		$this->message_shopify_api_404 = esc_html__('404 Error: The requested resource was not found.', 'wp-shopify');
-		$this->message_shopify_api_406 = esc_html__('406 Error: The requested resource contained the wrong HTTP method or an invalid URL.', 'wp-shopify');
-		$this->message_shopify_api_422 = esc_html__('422 Error: The request body was well-formed but contains semantical errors.', 'wp-shopify');
-		$this->message_shopify_api_429 = esc_html__('429 Error: The request was not accepted because the application has exceeded the rate limit. See the API Call Limit documentation for a breakdown of Shopify\'s rate-limiting mechanism.', 'wp-shopify');
-		$this->message_shopify_api_500 = esc_html__('500 Error: An internal error occurred at Shopify.', 'wp-shopify');
-		$this->message_shopify_api_501 = esc_html__('501 Error: The requested endpoint is not available on that particular shop.', 'wp-shopify');
-		$this->message_shopify_api_503 = esc_html__('503 Error: The server is currently unavailable. Check the Shopify <a href="https://status.shopify.com/" target="_blank">status page</a> for reported service outages.', 'wp-shopify');
-		$this->message_shopify_api_504 = esc_html__('504 Error: The request could not complete in time.', 'wp-shopify');
+		$this->message_shopify_api_400 = esc_html__('400 Error: The request was not understood by the server. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_401 = esc_html__('401 Error: The necessary authentication credentials are not present in the request or are incorrect. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_402 = esc_html__('402 Error: The requested shop is currently frozen. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_403 = esc_html__('403 Error: The server is refusing to respond to the request. This is generally because you have not requested the appropriate scope for this action. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_404 = esc_html__('404 Error: The requested resource was not found. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_406 = esc_html__('406 Error: The requested resource contained the wrong HTTP method or an invalid URL. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_422 = esc_html__('422 Error: The request body was well-formed but contains semantical errors. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_429 = esc_html__('429 Error: The request was not accepted because the application has exceeded the rate limit. See the API Call Limit documentation for a breakdown of Shopify\'s rate-limiting mechanism. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_500 = esc_html__('500 Error: An internal error occurred at Shopify. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_501 = esc_html__('501 Error: The requested endpoint is not available on that particular shop. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_503 = esc_html__('503 Error: The server is currently unavailable. Check the Shopify <a href="https://status.shopify.com/" target="_blank">status page</a> for reported service outages. Also please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
+		$this->message_shopify_api_504 = esc_html__('504 Error: The request could not complete in time. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
 
-		$this->message_shopify_api_generic = esc_html__('Error: An unknown Shopify API response was received during syncing. Please try disconnecting and reconnecting your store.', 'wp-shopify');
+		$this->message_shopify_api_generic = esc_html__('Error: An unknown Shopify API response was received during syncing. Please try disconnecting and reconnecting your store. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.', 'wp-shopify');
 
 	}
 
