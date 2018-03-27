@@ -9,7 +9,7 @@ Get message error network
 
 */
 function messageErrorNetwork() {
-  return '504 Error: The syncing process timed out or exceeded its allocated memory. <a href="https://wpshop.io/docs/syncing-errors">Please check our documentation</a> for a potential solution.';
+  return '504 Error: The syncing process timed out or exceeded its allocated memory. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.';
 }
 
 
@@ -19,7 +19,7 @@ function messageErrorNetwork() {
 
 */
 function messageErrorClient() {
-  return '400 Error: The request sent to Shopify was either malformed or corrupt. <a href="https://wpshop.io/docs/syncing-errors">Please check our documentation</a> for a potential solution.';
+  return '400 Error: The request sent to Shopify was either malformed or corrupt. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.';
 }
 
 /*
