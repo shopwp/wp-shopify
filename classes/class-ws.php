@@ -183,10 +183,6 @@ public function wps_get_error_message($response) {
 
 	switch ($responseCode) {
 
-		case 303:
-			return $this->messages->message_shopify_api_303;
-			break;
-
 		case 400:
 			return $this->messages->message_shopify_api_400;
 			break;
