@@ -12,6 +12,32 @@
     "prod": "NODE_ENV=prod webpack --config webpack.config.babel.js --p --progress",
     "build": "NODE_ENV=dev ./build.sh"
   },
+  "jest": {
+    "testURL": "http://wpstest.test",
+    "testEnvironment": "node",
+    "verbose": true,
+    "roots": [
+      "<rootDir>/admin/js/app",
+      "<rootDir>/public/js/app"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/admin/js/app/vendor/",
+      "<rootDir>/public/js/dist/",
+      "<rootDir>/dist/",
+      "<rootDir>/bin/",
+      "<rootDir>/classes/",
+      "<rootDir>/lib/",
+      "<rootDir>/tests/",
+      "<rootDir>/temapltes/",
+      "<rootDir>/vendor/",
+      "<rootDir>/webhooks/",
+      "<rootDir>/gulp/"
+    ],
+    "setupFiles": [
+      "jest-localstorage-mock"
+    ]
+  },
   "author": "WP Shopify https://wpshop.io",
   "license": "MIT",
   "browserslist": [
@@ -26,6 +52,7 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
+    "babel-jest": "^22.4.3",
     "babel-loader": "^7.1.4",
     "babel-minify": "^0.3.0",
     "babel-plugin-lodash": "^3.3.2",
@@ -99,6 +126,9 @@
     "imagemin-webpack-plugin": "^2.1.0",
     "imagesloaded": "^4.1.4",
     "imports-loader": "^0.8.0",
+    "jest": "^22.4.3",
+    "jest-localstorage-mock": "^2.2.0",
+    "jest-tobetype": "^1.1.0",
     "jquery": "^3.3.1",
     "jquery-validation": "^1.17.0",
     "json-loader": "^0.5.7",
@@ -126,6 +156,7 @@
     "promise": "^8.0.1",
     "promise-throttle": "^0.4.0",
     "ramda": "^0.25.0",
+    "regenerator-runtime": "^0.11.1",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "resolve-url-loader": "^2.3.0",

@@ -1,6 +1,6 @@
 import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
-import { isEmptyCart } from '../utils/utils-cart';
+import { isEmptyCart, flushCache } from '../utils/utils-cart';
 import { fetchCart, updateCart } from '../ws/ws-cart';
 import { quantityFinder, convertCustomAttrsToQueryString } from '../utils/utils-common';
 import { updateCartCounter, updateCartVariant, toggleCart, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
@@ -84,14 +84,19 @@ function onCheckout(shopify) {
       }
 
 
-      try {
-         var customAttrs = await anyCustomAttrs();
+      /*
 
-       } catch (error) {
-         jQuery(this).removeClass('wps-is-disabled wps-is-loading');
-         reject(error);
-         return;
-       }
+      Gets any customer note attributes for order
+
+      */
+      try {
+        var customAttrs = await anyCustomAttrs();
+
+      } catch (error) {
+        jQuery(this).removeClass('wps-is-disabled wps-is-loading');
+        reject(error);
+        return;
+      }
 
 
        if (customAttrs.success) {
@@ -101,6 +106,14 @@ function onCheckout(shopify) {
          finalCustomAttrs = '';
        }
 
+
+       /*
+
+       Flushes the LS cache
+
+       */
+
+       console.log("newCart.checkoutUrl: ", newCart.checkoutUrl);
 
        window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + finalCustomAttrs, '_self');
 

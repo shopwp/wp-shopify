@@ -92,6 +92,19 @@ class WS {
 	}
 
 
+	/*
+
+	Always returns a JSON object to the client in this format:
+
+	{
+		success: false,
+		data: {
+			type: 'error',
+			message: <message>
+		}
+	}
+
+	*/
 	public function send_error($message = '') {
 
 		wp_send_json_error([
@@ -103,6 +116,20 @@ class WS {
 
 	}
 
+
+	/*
+
+	Always returns a JSON object to the client in this format:
+
+	{
+		success: true,
+		data: {
+			type: 'warning',
+			message: <message>
+		}
+	}
+
+	*/
 	public function send_warning($message = '') {
 
 		wp_send_json_success([
@@ -114,7 +141,18 @@ class WS {
 
 	}
 
-	public function send_success($data = '') {
+
+	/*
+
+	Always returns a JSON object to the client in this format:
+
+	{
+		success: true,
+		data: $data
+	}
+
+	*/
+	public function send_success($data = false) {
 
 		wp_send_json_success($data);
 		wp_die();
@@ -3185,6 +3223,8 @@ public function wps_get_error_message($response) {
 
 	*/
 	public function get_total_counts() {
+
+		error_log('---- debug hi -----');
 
 		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
 			$this->send_error($this->messages->message_nonce_invalid . ' (get_total_counts)');

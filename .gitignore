@@ -3,3 +3,4 @@ node_modules
 .happypack
 *.log
 dist/stats.html
+stats.html

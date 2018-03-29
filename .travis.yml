@@ -23,4 +23,6 @@ before_script:
 - find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
 - svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/themedir1/ /tmp/wordpress-tests-lib/data
 - find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
-script: phpunit
+script:
+- phpunit
+- jest --runInBand

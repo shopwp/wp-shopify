@@ -246,7 +246,7 @@ class Progress_Bar {
 		];
 
 		if ($ajax) {
-			$this->ws->send_error('DIED');
+			$this->ws->send_success($_SESSION);
 
 		} else {
 			return $_SESSION;

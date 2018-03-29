@@ -1,4 +1,5 @@
 import ShopifyBuy from 'shopify-buy';
+import { isError } from '../utils/utils-common';
 
 /*
 
@@ -87,8 +88,86 @@ function getCartSession() {
 };
 
 
+
+
+
+/*
+
+Get Product Option IDs
+
+*/
+function getStorefrontCreds() {
+  return JSON.parse( localStorage.getItem('wps-storefront-creds') );
+};
+
+
+/*
+
+Set Product Option IDs
+
+*/
+function setStorefrontCreds(creds) {
+  console.log('Setting ... ', creds);
+  localStorage.setItem('wps-storefront-creds', JSON.stringify(creds));
+};
+
+
+/*
+
+Finds the Shopify Storefront credentials to use
+
+First we check whether the credentials are cached, if they are, return them.
+If they aren't cached (first page load) -- go to the server and get them
+
+*/
+function findShopifyCreds() {
+
+  return new Promise( async (resolve, reject) => {
+console.log('A');
+    var existingCreds = getStorefrontCreds();
+console.log('B', existingCreds);
+    if (existingCreds) {
+      console.log('C');
+      resolve(existingCreds);
+
+    } else {
+console.log('D');
+      /*
+
+      Step 1. Get Shopify Credentials
+
+      */
+      try {
+
+        var creds = await getShopifyCreds(); // wps_get_credentials_frontend
+console.log('E');
+        if (isError(creds)) {
+          reject(creds.data);
+          return;
+        }
+console.log('F');
+        setStorefrontCreds(creds.data);
+        console.log('G');
+        resolve(creds);
+
+      } catch(error) {
+        reject(error);
+        return;
+      }
+
+    }
+
+  });
+
+
+
+
+}
+
+
 export {
   shopifyInit,
   getShopifyCreds,
-  getCartSession
+  getCartSession,
+  findShopifyCreds
 }

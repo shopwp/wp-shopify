@@ -604,7 +604,6 @@ function syncData() {
 
 }
 
-
 export {
   syncConnection,
   syncShop,

@@ -698,9 +698,10 @@ if (!class_exists('Frontend')) {
 				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_cart_cache)');
 			}
 
-			$cartName = 'wps_cart_' . $_POST['cartID'];
 
-			if (isset($cartName) && $cartName) {
+			if (isset($_POST['cartID']) && $_POST['cartID']) {
+
+				$cartName = 'wps_cart_' . $_POST['cartID'];
 
 				if (Transients::get($cartName)) {
 					$this->ws->send_success();
@@ -711,7 +712,6 @@ if (!class_exists('Frontend')) {
 
 			} else {
 				$this->ws->send_error();
-
 			}
 
 		}
