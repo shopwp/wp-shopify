@@ -407,7 +407,7 @@ async function formatAsMoney(amount) {
         // Calls server
         var formats = await getCurrencyFormats(); // wps_get_currency_formats
 
-        console.log("formats: ", formats);
+        console.log("formatssssssssss: ", formats);
 
         if (isError(formats)) {
           throw formats.data;
@@ -424,7 +424,7 @@ async function formatAsMoney(amount) {
 
       var formatWithCurrencySymbol = formats.priceWithCurrency;
 
-      if (formatWithCurrencySymbol) {
+      if (formatWithCurrencySymbol === '1') {
 
         var moneyFormat = formats.moneyFormatWithCurrency;
         console.log(222);

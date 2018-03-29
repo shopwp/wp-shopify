@@ -1,4 +1,4 @@
-import { shopifyInit, getShopifyCreds } from '../ws/ws-auth';
+import { shopifyInit, getShopifyCreds, findShopifyCreds } from '../ws/ws-auth';
 import { initCart, fetchCart, flushCacheIfNeeded } from '../ws/ws-cart';
 import { productEvents } from '../products/products-events';
 import { cartEvents } from '../cart/cart-events';
@@ -66,25 +66,22 @@ Bootstrap front-end app. Runs every page load.
 function bootstrap() {
 
   jQuery(document).trigger("wpshopify_bootstrap_before");
-  
+
   return new Promise( async (resolve, reject) => {
 
     /*
 
-    Step 1. Get Shopify Credentials
+    Step 1. Find the Storefront credentials
 
     */
     try {
-
-      var creds = await getShopifyCreds(); // wps_get_credentials_frontend
-
-      if (isError(creds)) {
-        throw creds.data;
-      }
+      console.log(1);
+      var creds = await findShopifyCreds(); // LS || wps_get_credentials_frontend
 
     } catch(error) {
       reject(error);
       return;
+
     }
 
 
@@ -94,9 +91,9 @@ function bootstrap() {
 
     */
     try {
-
+      console.log(2);
       // Calls LS
-      var shopify = await shopifyInit(creds.data);
+      var shopify = await shopifyInit(creds);
 
       if (isError(shopify)) {
         throw shopify.data;
@@ -114,7 +111,7 @@ function bootstrap() {
 
     */
     try {
-
+      console.log(3);
       // Retrieves existing or makes new
       var cart = await fetchCart(shopify);
 
@@ -128,31 +125,11 @@ function bootstrap() {
 
     /*
 
-    Step 4. Flush cache, render cart items, and update DOM
+    Step 4. Add event handlers
 
     */
     try {
-
-      await Promise.all([
-        flushCacheIfNeeded(shopify, cart),
-        renderCartItems(shopify, cart),
-        bootstrapUI(shopify, cart)
-      ]);
-
-    } catch (error) {
-      reject(error);
-      return;
-
-    }
-
-
-    /*
-
-    Step 5. Add event handlers
-
-    */
-    try {
-
+      console.log(4);
       await bootstrapEvents(shopify);
 
     } catch(error) {
@@ -165,10 +142,39 @@ function bootstrap() {
 
     /*
 
-    Step 6. Enable and show cart icon / add to cart buttons
+    Step 5. Enable and show cart icon / add to cart buttons
 
     */
     showUIElements();
+
+
+    console.log('---------- READY FOR USER ----------');
+
+
+    /*
+
+    Step 6. Flush cache, render cart items, and update DOM
+
+    */
+    try {
+      console.log(5);
+
+      await Promise.all([
+        // flushCacheIfNeeded(shopify, cart),
+        renderCartItems(shopify, cart),
+        bootstrapUI(shopify, cart)
+      ]);
+
+      console.log('---------- EVERYTHING IS DONE ----------');
+
+    } catch (error) {
+      reject(error);
+      return;
+
+    }
+
+
+
 
     jQuery(document).trigger("wpshopify_bootstrap_after", [cart]);
 

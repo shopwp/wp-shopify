@@ -310,7 +310,9 @@ class Backend {
 	/*
 
 	Getting and sending application credentials to front-end.
-	TODO: Limit what values get sent over the wire. Less is more secure :)
+
+	These credentials do not need to be secured and can be stored on the client-side to
+	improve performance.
 
 	*/
  	public function wps_get_credentials_frontend() {
@@ -321,15 +323,6 @@ class Backend {
 		} else {
 			$ajax = false;
 		}
-
-
-		// if ($ajax) {
-		//
-		// 	if (!isset($_GET['nonce']) || !Utils::valid_frontend_nonce($_GET['nonce'])) {
-		// 		$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_credentials_frontend)');
-		// 	}
-		//
-		// }
 
 
 		$shopifyCreds = array();

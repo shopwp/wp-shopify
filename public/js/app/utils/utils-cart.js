@@ -21,6 +21,13 @@ async function needsCacheFlush(cartID) {
 
     var cacheFlushStatus = await getCartCache(cartID);
 
+    /*
+
+    If cacheFlushStatus.success is true, then the cart ID already exists
+    in the DB
+
+    */
+
     // True if found, false if not
     return cacheFlushStatus.success;
 
@@ -37,25 +44,26 @@ async function needsCacheFlush(cartID) {
 Flush cache
 
 */
-function flushCache(shopify) {
+function flushCache(shopify, cart) {
 
   return new Promise( async (resolve, reject) => {
 
     // Get the current cart
-    try {
-
-      // Calls LS
-      var cart = await fetchCart(shopify);
-
-    } catch(error) {
-      reject(error);
-      return;
-    }
+    // try {
+    //
+    //   // Calls LS
+    //   var cart = await fetchCart(shopify);
+    //
+    // } catch(error) {
+    //   reject(error);
+    //   return;
+    // }
 
     localStorage.removeItem('wps-cache-expiration'); // Used for money format
     localStorage.removeItem('wps-animating');
     localStorage.removeItem('wps-connection-in-progress');
     localStorage.removeItem('wps-product-selection-id');
+    localStorage.removeItem('wps-storefront-creds');
 
     if (cart.lineItemCount > 0) {
 

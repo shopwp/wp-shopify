@@ -191,7 +191,9 @@ async function streamShop() {
       return;
     }
 
+
     resolve(shop);
+    
 
   });
 

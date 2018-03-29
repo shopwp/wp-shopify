@@ -25,7 +25,7 @@ Tab Content: Connect
 
   <div class="wps-admin-section">
 
-    <p><?php printf(__('Enter your Shopify API keys below. Need help creating a Shopify private app? Watch the <a href="%s" target="_blank"> video tutorial</a>.', 'wp-shopify'), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
+    <p><?php printf(__('Enter your Shopify API keys below. Need help creating a Shopify private app? Watch our <a href="%s" target="_blank"> video tutorial</a>!', 'wp-shopify'), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
 
     <form method="post" name="cleanup_options" action="options.php" id="wps-connect" class="wps-admin-form">
 
@@ -62,7 +62,7 @@ Tab Content: Connect
 
         <h4><?php esc_attr_e('API Password', 'wp-shopify'); ?></h4>
 
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_connection_option_name; ?>_password" name="password" value="<?php if(!empty($connection->password)) echo $connection->password; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API Password you must create a "Private App" within your Shopify account.', 'wp-shopify' ); ?>"></span> <div class="wps-form-icon wps-animated"></div>
+        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?php echo $this->config->settings_connection_option_name; ?>_password" name="password" autocomplete="off" value="<?php if(!empty($connection->password)) echo $connection->password; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API Password you must create a "Private App" within your Shopify account.', 'wp-shopify' ); ?>"></span> <div class="wps-form-icon wps-animated"></div>
 
       </div>
 

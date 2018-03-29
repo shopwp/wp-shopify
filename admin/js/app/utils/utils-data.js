@@ -30,7 +30,7 @@ import {
 
 /*
 
-Control promise
+Always returns a Promise
 
 */
 function controlPromise(options) {

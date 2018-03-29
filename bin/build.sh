@@ -25,7 +25,7 @@ printf "${GREEN}Success: ${NC}Created build folder\n"
 #
 # Copy all the files and folders to our temp build folder
 #
-rsync -ar --exclude=node_modules --exclude=.happypack --exclude=.git --exclude=.gitignore $PLUGIN_PATH $BUILD_FOLDER
+rsync -ar --exclude=node_modules --exclude=.happypack --exclude=stats.html --exclude=.git --exclude=.gitignore $PLUGIN_PATH $BUILD_FOLDER
 printf "${GREEN}Success: ${NC}Copied plugin to build folder\n"
 
 #
