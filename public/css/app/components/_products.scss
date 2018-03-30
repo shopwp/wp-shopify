@@ -85,9 +85,14 @@ label[for="wps-product-quantity"] {
 .wps-add-to-cart,
 .wps-modal-trigger {
 
+  &:before {
+    transform: rotate(0deg) scale(3);
+  }
+
   &.wps-is-disabled {
     position: relative;
-
+    transition: transform;
+    
     &:after {
       content: '';
       width: 100%;
@@ -103,7 +108,6 @@ label[for="wps-product-quantity"] {
     }
 
     &:before {
-
       content: '';
       position: absolute;
       z-index: 9;
@@ -115,7 +119,6 @@ label[for="wps-product-quantity"] {
       background-repeat: no-repeat;
       background-size: contain;
       background-image: url('../public/imgs/icon-spinner.svg');
-
     }
 
     &:hover {

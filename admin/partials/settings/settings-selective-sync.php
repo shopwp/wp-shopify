@@ -35,9 +35,9 @@ Load default styles
             <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_selective_sync_orders]" id="<?php echo $this->config->settings_general_option_name; ?>_selective_sync_orders" type="checkbox" <?php echo $general->selective_sync_orders ? 'checked' : ''; ?> <?php echo $general->selective_sync_all ? 'disabled' : ''; ?> class="wps-checkbox"> <?php esc_html_e( 'Orders', 'wp-shopify' ); ?>
           </label>
 
-          <label for="<?php echo $this->config->settings_general_option_name; ?>_selective_sync_shop" class="wps-label-block">
-            <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_selective_sync_shop]" id="<?php echo $this->config->settings_general_option_name; ?>_selective_sync_shop" type="checkbox" <?php echo $general->selective_sync_shop ? 'checked' : ''; ?> <?php echo $general->selective_sync_all ? 'disabled' : ''; ?> class="wps-checkbox"> <?php printf(__('Shop <small>(includes store name, location, phone number, etc)</small>', 'wp-shopify')); ?>
-          </label>
+          <!-- <label for="<?php echo $this->config->settings_general_option_name; ?>_selective_sync_shop" class="wps-label-block">
+            <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_selective_sync_shop]" id="<?php echo $this->config->settings_general_option_name; ?>_selective_sync_shop" type="checkbox" <?php echo $general->selective_sync_shop ? 'checked' : ''; ?> <?php echo $general->selective_sync_all ? 'disabled' : ''; ?> class="wps-checkbox"> <?php printf(__('Shop <small>(Includes store name, location, phone number, etc. Warning: Choosing not to sync shop data will default money format to US Dollars.)</small>', 'wp-shopify')); ?>
+          </label> -->
 
         </td>
 

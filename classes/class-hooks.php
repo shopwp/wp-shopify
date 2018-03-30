@@ -5,6 +5,8 @@ namespace WPS;
 use WPS\Utils;
 use WPS\DB;
 use WPS\Transients;
+use WPS\Template_Loader;
+
 use WPS\DB\Products;
 use WPS\DB\Variants;
 use WPS\DB\Collections_Smart;
@@ -19,14 +21,12 @@ if (!defined('ABSPATH')) {
 
 /*
 
-Public Class
+Hooks Class
 
 */
-
 if (!class_exists('Hooks')) {
 
 	class Hooks {
-
 
 		protected static $instantiated = null;
 		private $Config;
@@ -38,6 +38,7 @@ if (!class_exists('Hooks')) {
     */
     public function __construct($Config) {
       $this->config = $Config;
+			$this->template_loader = new Template_Loader;
     }
 
 
@@ -55,246 +56,6 @@ if (!class_exists('Hooks')) {
 
 			return self::$instantiated;
 
-		}
-
-
-    /*
-
-    Products Loop - Before Products Loop
-
-    */
-		public function wps_products_loop_start($query) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/loop-start.php');
-		}
-
-
-    /*
-
-    Products Loop - After Products Loop
-
-    */
-		public function wps_products_loop_end($products) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/loop-end.php');
-		}
-
-
-    /*
-
-    Products Loop - Products List Opening Tag
-
-    */
-		public function wps_products_item_start($product, $args, $customArgs) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-start.php');
-		}
-
-
-    /*
-
-    Products Loop - Products List Closing Tag
-
-    */
-		public function wps_products_item_end($product) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-end.php');
-		}
-
-
-    /*
-
-    Products Loop - Product
-
-    */
-		public function wps_products_item($product, $args, $settings) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item.php');
-		}
-
-
-    /*
-
-    Products Loop - Before Product
-
-    */
-		public function wps_products_item_before($product) {
-			// return include($this->config->plugin_path . 'public/partials/products/loop/item-link-start.php');
-		}
-
-
-		/*
-
-    Products Loop - After Product
-
-    */
-		public function wps_products_item_after($product) {
-			// return include($this->config->plugin_path . 'public/partials/products/loop/item-link-end.php');
-		}
-
-
-		/*
-
-    Products Loop - Link Start
-
-    */
-		public function wps_products_item_link_start($product, $settings) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-link-start.php');
-		}
-
-
-		/*
-
-		Products Loop - Link End
-
-		*/
-		public function wps_products_item_link_end($product) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-link-end.php');
-		}
-
-
-    /*
-
-    Products Loop - Image
-
-    */
-		public function wps_products_img($product) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-img.php');
-		}
-
-
-    /*
-
-    Products Loop - Title
-
-    */
-		public function wps_products_title($product) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-title.php');
-		}
-
-
-		/*
-
-		Products Loop - Add to cart
-
-		*/
-		public function wps_products_add_to_cart($productWithVariants) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-add-to-cart.php');
-		}
-
-
-    /*
-
-    Products Loop - Price
-
-    */
-		public function wps_products_price($product) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/item-price.php');
-		}
-
-
-		/*
-
-		Products Loop - Header
-
-		*/
-		public function wps_products_header($query) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/header.php');
-		}
-
-
-		/*
-
-		Products Loop - Meta Start
-
-		*/
-		public function wps_products_meta_start($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/meta-start.php');
-		}
-
-
-		/*
-
-		Products Loop - Quantity
-
-		*/
-		public function wps_products_quantity($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/quantity.php');
-		}
-
-
-		/*
-
-		Products Loop - Actions Group Start
-
-		*/
-		public function wps_products_actions_group_start($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/action-groups-start.php');
-		}
-
-
-		/*
-
-		Products Loop - Options
-
-		*/
-		public function wps_products_options($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/options.php');
-		}
-
-
-		/*
-
-		Products Loop - Button add to cart
-
-		*/
-		public function wps_products_button_add_to_cart($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/button-add-to-cart.php');
-		}
-
-
-		/*
-
-		Products Loop - Actions Groups End
-
-		*/
-		public function wps_products_actions_group_end($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/action-groups-end.php');
-		}
-
-
-		/*
-
-		Products Loop - Notice
-
-		*/
-		public function wps_products_notice_inline($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/notice-inline.php');
-		}
-
-
-		/*
-
-		Products Loop - Meta end
-
-		*/
-		public function wps_products_meta_end($product) {
-			return include($this->config->plugin_path . 'public/partials/products/add-to-cart/meta-end.php');
-		}
-
-
-		/*
-
-		Products Loop - After
-
-		*/
-		public function wps_products_after($products) {
-
-		}
-
-
-		/*
-
-		Products Loop - No Results
-
-		*/
-		public function wps_products_no_results($args) {
-			return include($this->config->plugin_path . 'public/partials/products/loop/no-results.php');
 		}
 
 
@@ -345,12 +106,6 @@ if (!class_exists('Hooks')) {
 
 		}
 
-
-		/*
-
-		wps_collections_custom_args
-
-		*/
 		public function wps_collections_custom_args() {
 
 			return array(
@@ -359,26 +114,6 @@ if (!class_exists('Hooks')) {
 
 		}
 
-
-		/*
-
-		OWN HOOKS
-
-		*/
-		public function wps_products_custom_args_items_per_row($items_per_row) {
-			return 3;
-		}
-
-		public function wps_collections_custom_args_items_per_row($items_per_row) {
-			return 4;
-		}
-
-
-		/*
-
-		Related Products Config
-
-		*/
 		public function wps_products_related_custom_args() {
 
 			return array(
@@ -387,180 +122,68 @@ if (!class_exists('Hooks')) {
 
 		}
 
+		public function wps_products_custom_args_items_per_row($items_per_row) {
+			return 3;
+		}
 
-		/*
+		public function wps_collections_custom_args_items_per_row($items_per_row) {
+			return 4;
+		}
 
-		wps_products_related_custom_items_per_row
-
-		*/
 		public function wps_products_related_custom_items_per_row($items_per_row) {
 			return 4;
 		}
 
-
-		/*
-
-		Before Products Pagination Counter
-
-		*/
-		public function wps_products_pagination_start() {
-			ob_start();
-			include($this->config->plugin_path . 'public/partials/pagination/start.php');
-			$output = ob_get_clean();
-			return $output;
-		}
-
-
-		/*
-
-		wps_products_related_start
-
-		*/
-		public function wps_products_related_start() {
-			return include($this->config->plugin_path . 'public/partials/products/related/start.php');
-		}
-
-
-		/*
-
-		wps_products_related_end
-
-		*/
-		public function wps_products_related_end() {
-			return include($this->config->plugin_path . 'public/partials/products/related/end.php');
-		}
-
-
-		/*
-
-		wps_products_related_heading_start
-
-		*/
-		public function wps_products_related_heading_start() {
-			return include($this->config->plugin_path . 'public/partials/products/related/heading-start.php');
-		}
-
-
-		/*
-
-		wps_products_related_heading_end
-
-		*/
-		public function wps_products_related_heading_end() {
-			return include($this->config->plugin_path . 'public/partials/products/related/heading-end.php');
-		}
-
-
-		/*
-
-		After Products Pagination Counter
-
-		*/
-		public function wps_products_pagination_end() {
-			ob_start();
-			include($this->config->plugin_path . 'public/partials/pagination/end.php');
-			$output = ob_get_clean();
-			return $output;
-		}
-
-
-		/*
-
-		After Products Pagination Counter
-
-		*/
 		public function wps_products_pagination_first_page_text() {
 			return 'First';
 		}
 
-
-		/*
-
-		wps_products_pagination_next_link_text
-
-		*/
 		public function wps_products_pagination_next_link_text() {
-			return 'Next YO';
+			return '';
 		}
 
-
-		/*
-
-		wps_products_pagination_prev_link_text
-
-		*/
 		public function wps_products_pagination_prev_link_text() {
-			return 'Prev YO';
+			return '';
 		}
 
-
-		/*
-
-		wps_products_pagination_prev_page_text
-
-		*/
 		public function wps_products_pagination_prev_page_text() {
 			return '<<';
 		}
 
-
-		/*
-
-		wps_products_pagination_next_page_text
-
-		*/
 		public function wps_products_pagination_next_page_text() {
 			return '>>';
 		}
 
-
-		/*
-
-		wps_products_pagination_next_page_text
-
-		*/
 		public function wps_products_pagination_show_as_prev_next() {
 			return false;
 		}
 
-
-		/*
-
-		wps_products_pagination_next_page_text
-
-		*/
 		public function wps_products_pagination_range() {
 			return 5;
 		}
 
+		public function wps_collection_single_heading_before($collection) {
+			echo '';
+		}
 
-		/*
+		public function wps_collection_single_heading_after($collection) {
+			echo '';
+		}
 
-		Single Tempt after stuffz
-
-		*/
-		public function wps_related_products() {
-
-			if (!is_single()) {
-				return;
-
-			} else {
-				include($this->config->plugin_path . "public/templates/products-related.php");
-
-			}
-
+		public function wps_product_single_thumbs_class() {
+			return;
 		}
 
 		public function wps_products_related_before() {
-			echo 'wps_products_related_before';
+			echo '';
 		}
 
 		public function wps_products_related_after() {
-			echo 'wps_products_related_after';
+			echo '';
 		}
 
 		public function wps_products_related_heading_before() {
-			echo 'wps_products_related_heading_before';
+			echo '';
 		}
 
 		public function wps_products_related_heading() {
@@ -568,7 +191,165 @@ if (!class_exists('Hooks')) {
 		}
 
 		public function wps_products_related_heading_end_after() {
-			echo 'wps_products_related_heading_end_after';
+			echo '';
+		}
+
+		public function wps_collection_single_products_heading_class() {
+			return '';
+		}
+
+		public function wps_collections_heading_class($collections) {
+			return '';
+		}
+
+		public function wps_collections_heading($collections) {
+			return '';
+		}
+
+		public function wps_products_title_class() {
+			return '';
+		}
+
+		public function wps_collections_title_class() {
+			return '';
+		}
+		public function wps_collections_img_class() {
+			return '';
+		}
+
+		public function wps_products_img_class() {
+			return '';
+		}
+
+		public function wps_collections_link_class() {
+			return '';
+		}
+
+		public function wps_products_link_class() {
+			return '';
+		}
+
+		public function wps_product_class() {
+			return '';
+		}
+		public function wps_products_class() {
+			return '';
+		}
+
+		public function wps_collections_class() {
+			return '';
+		}
+
+		public function wps_collection_class() {
+			return '';
+		}
+
+		public function wps_products_heading_class() {
+			return '';
+		}
+
+		public function wps_collection_single_products_heading() {
+			return 'Products';
+		}
+
+		public function wps_cart_before() {
+			echo '';
+		}
+
+		public function wps_cart_after() {
+			echo '';
+		}
+
+		public function wps_cart_title_text() {
+			return 'Shopping cart';
+		}
+
+		public function wps_cart_close_icon() {
+			return '&times;';
+		}
+
+		public function wps_cart_total_text() {
+			return 'Total';
+		}
+
+		public function wps_cart_checkout_text() {
+			return 'Checkout';
+		}
+
+		public function wps_cart_shipping_text() {
+			return '';
+		}
+
+		public function wps_cart_item_class() {
+			return '';
+		}
+
+		public function wps_cart_class() {
+			return '';
+		}
+
+		public function wps_cart_counter_class() {
+			return '';
+		}
+
+		public function wps_cart_icon_class() {
+			return '';
+		}
+
+		public function wps_cart_btn_class() {
+			return '';
+		}
+
+		public function wps_collections_after($collections) {
+			echo '';
+		}
+
+		public function wps_products_related_args_posts_per_page($posts_per_page) {
+			return $posts_per_page;
+		}
+
+		public function wps_products_related_args_orderby($orderby) {
+			return $orderby;
+		}
+
+		public function wps_products_price_multi($defaultPrice, $priceFirst, $priceLast, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_products_price_one($defaultPrice, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_product_single_price_multi($defaultPrice, $priceFirst, $priceLast, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_product_single_price_one($defaultPrice, $finalPrice, $product) {
+			return $defaultPrice;
+		}
+
+		public function wps_products_args_posts_per_page($posts_per_page) {
+			return $posts_per_page;
+		}
+
+		public function wps_products_args_orderby($orderby) {
+			return $orderby;
+		}
+
+		public function wps_products_args_paged($paged) {
+			return $paged;
+		}
+
+		public function wps_products_item_before($product) {
+
+		}
+
+		public function wps_products_item_after($product) {
+
+		}
+
+		public function wps_products_after($products) {
+
 		}
 
 
@@ -758,11 +539,68 @@ if (!class_exists('Hooks')) {
 		}
 
 
+		/*
+
+		Sidebar: Collections Single
+
+		*/
+		public function wps_collection_single_sidebar() {
+
+			$sidebar = apply_filters('wps_collection_single_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
+		}
 
 
+		/*
+
+		Sidebar: Collections
+
+		*/
+		public function wps_collections_sidebar() {
+
+			$sidebar = apply_filters('wps_collections_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
+		}
 
 
+		/*
 
+		Sidebar: Products Single
+
+		*/
+		public function wps_product_single_sidebar() {
+
+			$sidebar = apply_filters('wps_product_single_show_sidebar', false);
+
+			if ($sidebar) {
+				get_sidebar('wps');
+			}
+
+		}
+
+
+		/*
+
+		Sidebar: Products
+
+		*/
+		public function wps_products_sidebar() {
+
+			$showSidebar = apply_filters('wps_products_show_sidebar', false);
+
+			if ($showSidebar) {
+				get_sidebar('wps');
+			}
+
+		}
 
 
 		/*
@@ -997,126 +835,6 @@ if (!class_exists('Hooks')) {
 
 		/*
 
-		Collections Loop - Before Collections Loop
-
-		*/
-		public function wps_collections_loop_start() {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/loop-start.php');
-		}
-
-
-		/*
-
-		Collections Loop - After Collections Loop
-
-		*/
-		public function wps_collections_loop_end() {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/loop-end.php');
-		}
-
-
-		/*
-
-		Collections Loop - Products List Opening Tag
-
-		*/
-		public function wps_collections_item_start($collection, $args, $customArgs) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item-start.php');
-		}
-
-
-		/*
-
-		Collections Loop - Products List Closing Tag
-
-		*/
-		public function wps_collections_item_end($collection) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item-end.php');
-		}
-
-
-		/*
-
-		Collections Loop - Product
-
-		*/
-		public function wps_collections_item($collection) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item.php');
-		}
-
-
-		/*
-
-		Collections Loop - Before Product
-
-		*/
-		public function wps_collections_item_before($collection) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item-link-start.php');
-		}
-
-
-		/*
-
-		Collections Loop - After Product
-
-		*/
-		public function wps_collections_item_after($collection) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item-link-end.php');
-		}
-
-
-		/*
-
-		Collections Loop - Image
-
-		*/
-		public function wps_collections_img($collection) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item-img.php');
-		}
-
-
-		/*
-
-		Collections Loop - Title
-
-		*/
-		public function wps_collections_title($collection) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/item-title.php');
-		}
-
-
-		/*
-
-		Collections Loop - No Results
-
-		*/
-		public function wps_collections_no_results($args) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/no-results.php');
-		}
-
-
-		/*
-
-		Collections Loop - Before
-
-		*/
-		public function wps_collections_header($collections) {
-			return include($this->config->plugin_path . 'public/partials/collections/loop/header.php');
-		}
-
-
-		/*
-
-		Collections Loop - After
-
-		*/
-		public function wps_collections_after($collections) {
-			echo 'after collections loop';
-		}
-
-
-		/*
-
 		Related Products Config
 
 		*/
@@ -1137,25 +855,6 @@ if (!class_exists('Hooks')) {
 			);
 
 		}
-
-		public function wps_products_related_args_posts_per_page($posts_per_page) {
-			return $posts_per_page;
-		}
-
-		public function wps_products_related_args_orderby($orderby) {
-			return $orderby;
-		}
-
-
-
-
-		// public function wps_collections_heading_class($collections) {
-		// 	return 'SEE';
-		// }
-		//
-		// public function wps_collections_heading($collections) {
-		// 	return 'Collections';
-		// }
 
 
 		/*
@@ -1262,257 +961,9 @@ if (!class_exists('Hooks')) {
 
 		/*
 
-		Hooks: Products
+		Product single price
 
 		*/
-		public function wps_products_args_posts_per_page($posts_per_page) {
-			return $posts_per_page;
-		}
-
-		public function wps_products_args_orderby($orderby) {
-			return $orderby;
-		}
-
-		public function wps_products_args_paged($paged) {
-			return $paged;
-		}
-
-		public function wps_product_single_notice_inline($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/notice-inline.php");
-		}
-
-		public function wps_product_single_button_add_to_cart($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/button-add-to-cart.php");
-		}
-
-		public function wps_product_single_actions_group_start($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/action-groups-start.php");
-		}
-
-		public function wps_product_single_content($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/content.php");
-		}
-
-		public function wps_product_single_header($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/header.php");
-		}
-
-		public function wps_product_single_header_before($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/header-before.php");
-		}
-
-		public function wps_product_single_header_after($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/header-after.php");
-		}
-
-		public function wps_product_single_header_price($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/header-price.php");
-		}
-
-		public function wps_product_single_header_price_before($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/header-price-before.php");
-		}
-
-		public function wps_product_single_header_price_after($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/header-price-after.php");
-		}
-
-		public function wps_product_single_quantity($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/quantity.php");
-		}
-
-		public function wps_product_single_imgs($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/imgs.php");
-		}
-
-		public function wps_product_single_options($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/options.php");
-		}
-
-		public function wps_product_single_meta_start($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/meta-start.php");
-		}
-
-		public function wps_product_single_meta_end($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/meta-end.php");
-		}
-
-		public function wps_product_single_info_start($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/info-start.php");
-		}
-
-		public function wps_product_single_info_end($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/info-end.php");
-		}
-
-		public function wps_product_single_gallery_start($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/gallery-start.php");
-		}
-
-		public function wps_product_single_gallery_end($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/gallery-end.php");
-		}
-
-		public function wps_product_single_start($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/start.php");
-		}
-
-		public function wps_product_single_end($product) {
-			return include($this->config->plugin_path . "public/partials/products/single/end.php");
-		}
-
-		public function wps_products_notice_out_of_stock($product) {
-			return include($this->config->plugin_path . "public/partials/notices/out-of-stock.php");
-		}
-
-		// public function wps_products_title_class() {
-		// 	return 'hey';
-		// }
-		//
-		// public function wps_collections_title_class() {
-		// 	return 'yo';
-		// }
-		// public function wps_collections_img_class() {
-		// 	return 'ppppp';
-		// }
-		//
-		// public function wps_products_img_class() {
-		// 	return '11111';
-		// }
-		//
-		// public function wps_collections_link_class() {
-		// 	return 'hhh';
-		// }
-		//
-		// public function wps_products_link_class() {
-		// 	return 'ooo';
-		// }
-		//
-		// public function wps_product_class() {
-		// 	return 'weee';
-		// }
-		// public function wps_products_class() {
-		// 	return 'weeesss';
-		// }
-		//
-		// public function wps_collections_class() {
-		// 	return 'yyyy';
-		// }
-		//
-		// public function wps_collection_class() {
-		// 	return 'yyyyzzz';
-		// }
-
-
-		// public function wps_products_heading_class() {
-		// 	return 'sdfsdf';
-		// }
-
-
-
-		/*
-
-		Hooks: Collections
-
-		*/
-		public function wps_collection_single_start($collection) {
-			return include($this->config->plugin_path . "public/partials/collections/single/start.php");
-		}
-
-		public function wps_collection_single_header($collection) {
-			return include($this->config->plugin_path . "public/partials/collections/single/header.php");
-		}
-
-		public function wps_collection_single_img($collection) {
-			return include($this->config->plugin_path . "public/partials/collections/single/img.php");
-		}
-
-		public function wps_collection_single_content($collection) {
-			return include($this->config->plugin_path . "public/partials/collections/single/content.php");
-		}
-
-		public function wps_collection_single_products($collection, $products) {
-			return include($this->config->plugin_path . "public/partials/collections/single/products.php");
-		}
-
-		public function wps_collection_single_end($collection) {
-			return include($this->config->plugin_path . "public/partials/collections/single/end.php");
-		}
-
-		public function wps_collection_single_heading($collection, $products) {
-			return include($this->config->plugin_path . "public/partials/collections/single/products-before.php");
-		}
-
-		public function wps_collection_single_product($product) {
-			return include($this->config->plugin_path . "public/partials/collections/single/product.php");
-		}
-
-		public function wps_collection_single_products_list($collection, $products) {
-			return include($this->config->plugin_path . "public/partials/collections/single/products-list.php");
-		}
-
-
-		public function wps_breadcrumbs($data) {
-
-			if (apply_filters('wps_breadcrumbs_show', false)) {
-				return include($this->config->plugin_path . "public/partials/pagination/breadcrumbs.php");
-			}
-
-		}
-
-
-
-		public function wps_collection_single_heading_before($collection) {
-			echo 'before';
-		}
-
-		public function wps_collection_single_heading_after($collection) {
-			echo 'after';
-		}
-
-
-		public function wps_collection_single_sidebar() {
-
-			$sidebar = apply_filters('wps_collection_single_show_sidebar', false);
-
-			if ($sidebar) {
-				get_sidebar('wps');
-			}
-
-		}
-
-		public function wps_collections_sidebar() {
-
-			$sidebar = apply_filters('wps_collections_show_sidebar', false);
-
-			if ($sidebar) {
-				get_sidebar('wps');
-			}
-
-		}
-
-		public function wps_product_single_thumbs_start() {
-			return include($this->config->plugin_path . 'public/partials/products/single/thumbs-start.php');
-		}
-
-		public function wps_product_single_thumbs_end() {
-			return include($this->config->plugin_path . 'public/partials/products/single/thumbs-end.php');
-		}
-
-		public function wps_product_single_thumbs_class() {
-			return;
-		}
-
-		public function wps_product_single_sidebar() {
-
-			$sidebar = apply_filters('wps_product_single_show_sidebar', false);
-
-			if ($sidebar) {
-				get_sidebar('wps');
-			}
-
-		}
-
 		public function wps_product_single_price($default, $priceFirst, $priceLast, $product) {
 
 			$finalPrice = '';
@@ -1535,103 +986,9 @@ if (!class_exists('Hooks')) {
 
 		/*
 
-		Product pricing fitlers. Need to return defaults.
+		Fired on plugin update
 
 		*/
-		public function wps_products_price_multi($defaultPrice, $priceFirst, $priceLast, $product) {
-			return $defaultPrice;
-		}
-
-		public function wps_products_price_one($defaultPrice, $product) {
-			return $defaultPrice;
-		}
-
-		public function wps_product_single_price_multi($defaultPrice, $priceFirst, $priceLast, $product) {
-			return $defaultPrice;
-		}
-
-		public function wps_product_single_price_one($defaultPrice, $finalPrice, $product) {
-			return $defaultPrice;
-		}
-
-		public function wps_products_sidebar() {
-
-			$showSidebar = apply_filters('wps_products_show_sidebar', false);
-
-			if ($showSidebar) {
-				get_sidebar('wps');
-			}
-
-		}
-
-		public function wps_collection_single_products_heading_class() {
-			return '';
-		}
-
-		public function wps_collection_single_products_heading() {
-			return 'Products';
-		}
-
-		public function wps_cart_before() {
-			echo 'Cart before';
-		}
-
-		public function wps_cart_after() {
-			echo '<div>Cart after</div>';
-		}
-
-		public function wps_cart_title_text() {
-			return 'Shopping cart';
-		}
-
-		public function wps_cart_close_icon() {
-			return '&times;';
-		}
-
-		public function wps_cart_total_text() {
-			return 'Total';
-		}
-
-		public function wps_cart_checkout_text() {
-			return 'Checkout';
-		}
-
-		public function wps_cart_shipping_text() {
-			return 'Hello hello hello';
-		}
-
-		public function wps_cart_item_class() {
-			return 'Cddddheckout';
-		}
-
-		public function wps_cart_class() {
-			return 'hey';
-		}
-
-		public function wps_cart_counter_class() {
-			return 'counterr';
-		}
-
-		public function wps_cart_icon_class() {
-			return 'iconn';
-		}
-
-		public function wps_cart_btn_class() {
-			return 'btttnt';
-		}
-
-		public function wps_cart_counter() {
-			return include($this->config->plugin_path . "public/partials/cart/cart-counter.php");
-		}
-
-		public function wps_cart_icon() {
-			return include($this->config->plugin_path . "public/partials/cart/cart-icon.php");
-		}
-
-
-
-
-
 		public function wps_on_update() {
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );

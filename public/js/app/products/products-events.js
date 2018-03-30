@@ -225,8 +225,9 @@ function onAddProductToCart(shopify) {
 
       */
       try {
+        console.log('--- COULD USE ---');
         var newCart = await updateCart(productVariant, productQuantity, shopify);
-
+        console.log('--- IMPROVEMENT ---');
       } catch(error) {
 
         enable($addToCartButton);

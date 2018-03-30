@@ -1,6 +1,6 @@
 import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
 import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
-import { isEmptyCart, flushCache } from '../utils/utils-cart';
+import { isEmptyCart } from '../utils/utils-cart';
 import { fetchCart, updateCart } from '../ws/ws-cart';
 import { quantityFinder, convertCustomAttrsToQueryString } from '../utils/utils-common';
 import { updateCartCounter, updateCartVariant, toggleCart, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
@@ -11,26 +11,14 @@ import { anyCustomAttrs } from '../ws/ws-checkout';
 Checkout listener
 
 */
-function onCheckout(shopify) {
+function onCheckout(shopify, cart) {
 
   return new Promise( async (resolve, reject) => {
 
     var finalCustomAttrs;
 
-    /*
 
-    Gets the cart instance ...
-
-    */
-    try {
-      var initialCart = await fetchCart(shopify);
-
-    } catch (error) {
-      reject(error);
-      return;
-    }
-
-    if (initialCart.lineItemCount === 0) {
+    if (cart.lineItemCount === 0) {
       disable(jQuery('.wps-btn-checkout'));
     }
 
@@ -105,15 +93,6 @@ function onCheckout(shopify) {
        } else {
          finalCustomAttrs = '';
        }
-
-
-       /*
-
-       Flushes the LS cache
-
-       */
-
-       console.log("newCart.checkoutUrl: ", newCart.checkoutUrl);
 
        window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + finalCustomAttrs, '_self');
 
@@ -285,21 +264,6 @@ function onQuantityChange(shopify) {
     }
 
 
-    /*
-
-    Get cart instance
-
-    */
-    try {
-      var newCart = await fetchCart(shopify);
-
-    } catch(error) {
-      console.error("WP Shopify Error fetchCart", error);
-      $cartForm.removeClass('wps-is-disabled wps-is-loading');
-      return error;
-    }
-
-
     if ( isEmptyCart(newCart) ) {
       emptyCartUI(shopify, newCart);
 
@@ -323,8 +287,8 @@ function onQuantityChange(shopify) {
 Initialize Cart Events
 
 */
-function cartEvents(shopify) {
-  onCheckout(shopify);
+function cartEvents(shopify, cart) {
+  onCheckout(shopify, cart);
   onToggleCart();
   onQuantityChange(shopify);
   onManualQuantityChange(shopify);

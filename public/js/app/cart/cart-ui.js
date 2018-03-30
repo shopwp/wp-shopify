@@ -255,8 +255,6 @@ function renderCartItemPrice(price, lineItemHTML) {
   var $lineItem = jQuery(lineItemHTML);
   var $price = $lineItem.find('.wps-cart-item__price');
 
-console.log("price:", price);
-
   $price.text(price);
 
   return $lineItem.prop('outerHTML');
@@ -654,19 +652,6 @@ function updateCartVariant(variant, quantity, shopify) {
 
     /*
 
-    Grab the cart instance
-
-    */
-    try {
-      var cart = await fetchCart(shopify);
-
-    } catch(error) {
-      reject(error);
-    }
-
-
-    /*
-
     This takes care of adding the line item data to the Shopify
     cart model. If ensures the data persists across the cart and checkout.
 
@@ -694,7 +679,7 @@ function updateCartVariant(variant, quantity, shopify) {
 
       // Calls Server
       emptyCartUI(shopify, newCart);
-      resolve(cart);
+      resolve(newCart);
 
     } else {
 
@@ -704,7 +689,6 @@ function updateCartVariant(variant, quantity, shopify) {
 
       */
       try {
-
         await renderSingleCartItem(shopify, newCart, variant);
 
       } catch(error) {

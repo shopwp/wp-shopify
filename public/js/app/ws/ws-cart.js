@@ -28,7 +28,7 @@ function fetchCart(shopify) {
 
     // Calls LS
     var cartID = getCartID();
-
+    console.log("fetchCart cartID: ", cartID);
 
     if ( emptyCartID(cartID) ) {
 
@@ -36,6 +36,8 @@ function fetchCart(shopify) {
 
         // Calls LS
         var cart = await createCart(shopify);
+
+        saveCartID(cart);
 
       } catch (error) {
 
@@ -128,14 +130,6 @@ Returns a promise that resolves to an updated Cart instance
 function updateCart(variant, quantity, shopify) {
 
   return new Promise(async function(resolve, reject) {
-
-    try {
-      var cart = await fetchCart(shopify);
-
-    } catch(error) {
-      reject(error);
-      return;
-    }
 
     try {
 
@@ -234,33 +228,32 @@ function flushCacheIfNeeded(shopify, cart) {
     // Calls LS
     const currentCartID = getCartID();
 
-console.log(11, currentCartID);
     // This only runs if user already has a cart instance. New users skip.
     if (currentCartID) {
-console.log(22);
+
       try {
 
         // Calls server
         var transientFound = await needsCacheFlush(currentCartID); // only called here
-console.log(33, transientFound);
+
       } catch (error) {
-        console.log(44);
+
         reject(error);
         return;
 
       }
-console.log(55);
+
 
       // If a new cart exists (user cleared cache or went to checkout page)
       if (!transientFound) {
-console.log(66);
+
         try {
-console.log(77);
+
           // Calls LS
           await flushCache(shopify); // only called here
-console.log(88);
+
         } catch (error) {
-          console.log(99);
+
           reject(error);
           return;
         }
@@ -268,9 +261,8 @@ console.log(88);
       }
 
     }
-console.log(1010);
+
     saveCartID(cart);
-    console.log(1111);
     resolve();
 
   });

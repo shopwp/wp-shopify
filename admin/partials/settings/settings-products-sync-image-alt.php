@@ -12,7 +12,7 @@ Load cart
 
         <th scope="row" class="titledesc">
           <?php esc_html_e( 'Use titles for alt attributes', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'If you have hundreds of products you can check this to drastically speed up the syncing process', 'wp-shopify' ); ?>"></span>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'This will use the product or collection title as the alt attribute value for all images. If you have hundreds or thousands of products, enabling this will drastically speed up the syncing process', 'wp-shopify' ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">

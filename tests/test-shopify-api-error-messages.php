@@ -17,7 +17,6 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 
-
 /*
 
 Tests that the correct error message is sent back to the client when a specific error occurs.
