@@ -5,7 +5,7 @@
 </p>
 
 <div style="text-align: center;">
-[![Build Status](https://travis-ci.org/arobbins/wp-shopify.svg?branch=master)](https://travis-ci.org/arobbins/wp-shopify)
+[![Build Status](https://travis-ci.org/wpshopify/wp-shopify.svg?branch=master)](https://travis-ci.org/wpshopify/wp-shopify)
 </div>
 
 > Sell and build custom Shopify experiences on WordPress
