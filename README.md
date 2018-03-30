@@ -5,7 +5,9 @@
 </p>
 
 <div style="text-align: center;">
-[![Build Status](https://travis-ci.org/wpshopify/wp-shopify.svg?branch=master)](https://travis-ci.org/wpshopify/wp-shopify)
+  <a href="https://travis-ci.org/wpshopify/wp-shopify">
+    <img src="https://travis-ci.org/wpshopify/wp-shopify.svg?branch=master" alt="WP Shopify Travis CI Build Status">
+  </a>
 </div>
 
 > Sell and build custom Shopify experiences on WordPress
