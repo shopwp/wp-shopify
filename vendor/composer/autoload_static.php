@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
 {
     public static $files = array (
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '5a29f2abde115bb0e1aa502d691e2e50' => __DIR__ . '/..' . '/gerardojbaez/money/src/helpers.php',
@@ -14,9 +15,21 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
     );
 
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Component\\Finder\\' => 25,
+            'Symfony\\Component\\Debug\\' => 24,
+            'Symfony\\Component\\Console\\' => 26,
+        ),
         'P' => 
         array (
+            'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
+        ),
+        'L' => 
+        array (
+            'League\\Flysystem\\' => 17,
         ),
         'G' => 
         array (
@@ -25,12 +38,40 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
             'GuzzleHttp\\' => 11,
             'Gerardojbaez\\Money\\' => 19,
         ),
+        'C' => 
+        array (
+            'CoenJacobs\\Mozart\\' => 18,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Symfony\\Polyfill\\Mbstring\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Component\\Finder\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/finder',
+        ),
+        'Symfony\\Component\\Debug\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/debug',
+        ),
+        'Symfony\\Component\\Console\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/console',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'League\\Flysystem\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/flysystem/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -48,16 +89,14 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
         array (
             0 => __DIR__ . '/..' . '/gerardojbaez/money/src',
         ),
+        'CoenJacobs\\Mozart\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/coenjacobs/mozart/src',
+        ),
     );
 
-    public static $prefixesPsr0 = array (
-        'R' => 
-        array (
-            'Requests' => 
-            array (
-                0 => __DIR__ . '/..' . '/rmccue/requests/library',
-            ),
-        ),
+    public static $classMap = array (
+        'Gamajo_Template_Loader' => __DIR__ . '/..' . '/gamajo/template-loader/class-gamajo-template-loader.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -65,7 +104,7 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb::$classMap;
 
         }, null, ClassLoader::class);
     }

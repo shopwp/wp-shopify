@@ -7,284 +7,304 @@ use WPS\Utils;
 use WPS\Progress_Bar;
 use WPS\Config;
 
-class Shop extends \WPS\DB {
 
-	public $table_name;
-	public $version;
-	public $primary_key;
-
-  /*
-
-  Construct
-
-  */
-	public function __construct() {
-
-    global $wpdb;
-    $this->table_name  		 = $wpdb->prefix . 'wps_shop';
-    $this->primary_key 		 = 'id';
-    $this->version     		 = '1.0';
-		$this->cache_group     = 'wps_db_shop';
-
-  }
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 
-  /*
+/*
 
-  Get Columns
+Database class for Shop
 
-  */
-	public function get_columns() {
-    return array(
-      'id'                          => '%d',
-      'name'                        => '%s',
-			'myshopify_domain'            => '%s',
-      'shop_owner'                  => '%s',
-      'phone'                       => '%s',
-      'email'                       => '%s',
-      'address1'                    => '%s',
-      'address2'                    => '%s',
-      'city'                        => '%s',
-      'zip'                         => '%s',
-      'country'                     => '%s',
-      'country_code'                => '%s',
-      'country_name'                => '%s',
-      'currency'                    => '%s',
-      'latitude'                    => '%f',
-      'longitude'                   => '%f',
-      'money_format'                => '%s',
-      'money_with_currency_format'  => '%s',
-      'weight_unit'                 => '%s',
-      'primary_locale'              => '%s',
-      'province'                    => '%s',
-      'province_code'               => '%s',
-      'timezone'                    => '%s',
-			'created_at'                  => '%s',
-      'updated_at'                  => '%s'
-    );
-  }
+*/
+if (!class_exists('Shop')) {
+
+	class Shop extends \WPS\DB {
+
+		public $table_name;
+		public $version;
+		public $primary_key;
+
+	  /*
+
+	  Construct
+
+	  */
+		public function __construct() {
+
+	    global $wpdb;
+	    $this->table_name  		 = $wpdb->prefix . 'wps_shop';
+	    $this->primary_key 		 = 'id';
+	    $this->version     		 = '1.0';
+			$this->cache_group     = 'wps_db_shop';
+
+	  }
 
 
-  /*
+	  /*
 
-  Get Column Defaults
+	  Get Columns
 
-  */
-	public function get_column_defaults() {
-    return array(
-      'id'                          => 0,
-      'name'                        => '',
-			'myshopify_domain'            => '',
-      'shop_owner'                  => '',
-      'phone'                       => '',
-      'email'                       => '',
-      'address1'                    => '',
-      'address2'                    => '',
-      'city'                        => '',
-      'zip'                         => '',
-      'country'                     => '',
-      'country_code'                => '',
-      'country_name'                => '',
-      'currency'                    => '',
-      'latitude'                    => '',
-      'longitude'                   => '',
-      'money_format'                => '',
-      'money_with_currency_format'  => '',
-      'weight_unit'                 => '',
-      'primary_locale'              => '',
-      'province'                    => '',
-      'province_code'               => '',
-      'timezone'                    => '',
-			'created_at'                  => date_i18n( 'Y-m-d H:i:s' ),
-      'updated_at'                  => date_i18n( 'Y-m-d H:i:s' )
-    );
-  }
-
-
-  /*
-
-  Get single shop info value
-
-  */
-	public function get_shop($column) {
-
-    global $wpdb;
-
-    // If not a string ...
-    if (!is_string($column)) {
-      return;
-    }
-
-    // If argument not apart of schema ...
-    if (!array_key_exists($column, $this->get_columns()) ) {
-      return;
-    }
-
-    $data = wp_cache_get($column, $this->cache_group);
-
-    if (!$data) {
-
-      $query = "SELECT $column FROM {$this->table_name};";
-      $data = $wpdb->get_results($query);
-
-      // Cache for 1 hour
-      wp_cache_add($column, $data, $this->cache_group, 3600);
-
-    }
-
-    return $data;
-
-  }
+	  */
+		public function get_columns() {
+	    return array(
+	      'id'                          => '%d',
+	      'name'                        => '%s',
+				'myshopify_domain'            => '%s',
+	      'shop_owner'                  => '%s',
+	      'phone'                       => '%s',
+	      'email'                       => '%s',
+	      'address1'                    => '%s',
+	      'address2'                    => '%s',
+	      'city'                        => '%s',
+	      'zip'                         => '%s',
+	      'country'                     => '%s',
+	      'country_code'                => '%s',
+	      'country_name'                => '%s',
+	      'currency'                    => '%s',
+	      'latitude'                    => '%f',
+	      'longitude'                   => '%f',
+	      'money_format'                => '%s',
+	      'money_with_currency_format'  => '%s',
+	      'weight_unit'                 => '%s',
+	      'primary_locale'              => '%s',
+	      'province'                    => '%s',
+	      'province_code'               => '%s',
+	      'timezone'                    => '%s',
+				'created_at'                  => '%s',
+	      'updated_at'                  => '%s'
+	    );
+	  }
 
 
-	/*
+	  /*
 
-	insert_shop
+	  Get Column Defaults
 
-	*/
-	public function insert_shop($shopData) {
+	  */
+		public function get_column_defaults() {
+	    return array(
+	      'id'                          => 0,
+	      'name'                        => '',
+				'myshopify_domain'            => '',
+	      'shop_owner'                  => '',
+	      'phone'                       => '',
+	      'email'                       => '',
+	      'address1'                    => '',
+	      'address2'                    => '',
+	      'city'                        => '',
+	      'zip'                         => '',
+	      'country'                     => '',
+	      'country_code'                => '',
+	      'country_name'                => '',
+	      'currency'                    => '',
+	      'latitude'                    => '',
+	      'longitude'                   => '',
+	      'money_format'                => '',
+	      'money_with_currency_format'  => '',
+	      'weight_unit'                 => '',
+	      'primary_locale'              => '',
+	      'province'                    => '',
+	      'province_code'               => '',
+	      'timezone'                    => '',
+				'created_at'                  => date_i18n( 'Y-m-d H:i:s' ),
+	      'updated_at'                  => date_i18n( 'Y-m-d H:i:s' )
+	    );
+	  }
 
-		global $wpdb;
-		$progress = new Progress_Bar(new Config());
 
-		if (!Utils::isStillSyncing()) {
-			wp_die();
-		}
-		
-		if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
+	  /*
 
-			if ($this->get_by('id', $shopData['shop']['id'])) {
+	  Get single shop info value
 
-				$rowID = $this->get_by('id', $shopData['shop']['id']);
-				$results = $this->update($rowID, $shopData['shop']);
+	  */
+		public function get_shop($column) {
 
-			} else {
-				$results = $this->insert($shopData['shop'], 'shop');
+	    global $wpdb;
+
+	    // If not a string ...
+	    if (!is_string($column)) {
+	      return;
+	    }
+
+	    // If argument not apart of schema ...
+	    if (!array_key_exists($column, $this->get_columns()) ) {
+	      return;
+	    }
+
+	    $data = wp_cache_get($column, $this->cache_group);
+
+	    if (!$data) {
+
+	      $query = "SELECT $column FROM {$this->table_name};";
+	      $data = $wpdb->get_results($query);
+
+	      // Cache for 1 hour
+	      wp_cache_add($column, $data, $this->cache_group, 3600);
+
+	    }
+
+	    return $data;
+
+	  }
+
+
+		/*
+
+		insert_shop
+
+		*/
+		public function insert_shop($shopData) {
+
+			global $wpdb;
+			$progress = new Progress_Bar(new Config());
+
+			if (!Utils::isStillSyncing()) {
+				wp_die();
 			}
 
-		} else {
-			$results = false;
+			if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
+
+				if ($this->get_by('id', $shopData['shop']['id'])) {
+
+					$rowID = $this->get_by('id', $shopData['shop']['id']);
+					$results = $this->update($rowID, $shopData['shop']);
+
+				} else {
+					$results = $this->insert($shopData['shop'], 'shop');
+				}
+
+			} else {
+				$results = false;
+
+			}
+
+			$progress->increment_current_amount('shop');
+
+			return $results;
 
 		}
 
-		$progress->increment_current_amount('shop');
 
-		return $results;
+		/*
+
+		Get Money Format
+
+		*/
+		public function get_money_format() {
+
+	    $money_format = $this->get_shop('money_format');
+
+			if (empty($money_format)) {
+				return '${{amount}}'; // Default fallback
+
+			} else {
+				return $money_format[0]->money_format;
+			}
+
+	  }
+
+
+		/*
+
+		Get Money With Currency Format
+
+		*/
+		public function get_money_with_currency_format() {
+
+	    $money_with_currency_format = $this->get_shop('money_with_currency_format');
+	    $money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
+
+	    return $money_with_currency_format;
+
+	  }
+
+
+		/*
+
+	  Insert connection data
+
+	  */
+	  public function update_shop($shopData) {
+
+			if ($shopData->money_format !== $this->get_money_format()) {
+				Transients::delete_cached_prices();
+			}
+
+			if ($shopData->money_with_currency_format !== $this->get_money_with_currency_format()) {
+				Transients::delete_cached_prices();
+			}
+
+	    return $this->update($this->get_shop('id')[0]->id, $shopData);
+
+	  }
+
+
+		/*
+
+	  Creates a table query string
+
+	  */
+	  public function create_table_query() {
+
+			global $wpdb;
+
+			$collate = '';
+
+			if ( $wpdb->has_cap( 'collation' ) ) {
+				$collate = $wpdb->get_charset_collate();
+			}
+
+			return "CREATE TABLE {$this->table_name} (
+				`id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+				`name` varchar(255) DEFAULT NULL,
+				`myshopify_domain` varchar(255) DEFAULT NULL,
+				`shop_owner` varchar(100) DEFAULT NULL,
+				`phone` varchar(100) DEFAULT NULL,
+				`email` varchar(100) DEFAULT NULL,
+				`address1` varchar(100) DEFAULT NULL,
+				`address2` varchar(100) DEFAULT NULL,
+				`city` varchar(50) DEFAULT NULL,
+				`zip` varchar(50) DEFAULT NULL,
+				`country` varchar(50) DEFAULT NULL,
+				`country_code` varchar(50) DEFAULT NULL,
+				`country_name` varchar(50) DEFAULT NULL,
+				`currency` varchar(50) DEFAULT NULL,
+				`latitude` smallint(20) DEFAULT NULL,
+				`longitude` smallint(20) DEFAULT NULL,
+				`money_format` varchar(200) DEFAULT NULL,
+				`money_with_currency_format` varchar(200) DEFAULT NULL,
+				`weight_unit` varchar(20) DEFAULT NULL,
+				`primary_locale` varchar(20) DEFAULT NULL,
+				`province` varchar(20) DEFAULT NULL,
+				`province_code` varchar(20) DEFAULT NULL,
+				`timezone` varchar(200) DEFAULT NULL,
+				`created_at` datetime,
+				`updated_at` datetime,
+				PRIMARY KEY  (`{$this->primary_key}`)
+			) ENGINE=InnoDB $collate";
+
+		}
+
+
+	  /*
+
+	  Creates database table
+
+	  */
+		public function create_table() {
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+			if ( !$this->table_exists($this->table_name) ) {
+				dbDelta( $this->create_table_query() );
+			}
+
+	  }
+
 
 	}
-
-
-	/*
-
-	Get Money Format
-
-	*/
-	public function get_money_format() {
-
-    $money_format = $this->get_shop('money_format');
-    $money_format = $money_format[0]->money_format;
-
-    return $money_format;
-
-  }
-
-
-	/*
-
-	Get Money With Currency Format
-
-	*/
-	public function get_money_with_currency_format() {
-
-    $money_with_currency_format = $this->get_shop('money_with_currency_format');
-    $money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
-
-    return $money_with_currency_format;
-
-  }
-
-
-	/*
-
-  Insert connection data
-
-  */
-  public function update_shop($shopData) {
-
-		if ($shopData->money_format !== $this->get_money_format()) {
-			Transients::delete_cached_prices();
-		}
-
-		if ($shopData->money_with_currency_format !== $this->get_money_with_currency_format()) {
-			Transients::delete_cached_prices();
-		}
-
-    return $this->update($this->get_shop('id')[0]->id, $shopData);
-
-  }
-
-
-	/*
-
-  Creates a table query string
-
-  */
-  public function create_table_query() {
-
-		global $wpdb;
-
-		$collate = '';
-
-		if ( $wpdb->has_cap( 'collation' ) ) {
-			$collate = $wpdb->get_charset_collate();
-		}
-
-		return "CREATE TABLE {$this->table_name} (
-			`id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-			`name` varchar(255) DEFAULT NULL,
-			`myshopify_domain` varchar(255) DEFAULT NULL,
-			`shop_owner` varchar(100) DEFAULT NULL,
-			`phone` varchar(100) DEFAULT NULL,
-			`email` varchar(100) DEFAULT NULL,
-			`address1` varchar(100) DEFAULT NULL,
-			`address2` varchar(100) DEFAULT NULL,
-			`city` varchar(50) DEFAULT NULL,
-			`zip` varchar(50) DEFAULT NULL,
-			`country` varchar(50) DEFAULT NULL,
-			`country_code` varchar(50) DEFAULT NULL,
-			`country_name` varchar(50) DEFAULT NULL,
-			`currency` varchar(50) DEFAULT NULL,
-			`latitude` smallint(20) DEFAULT NULL,
-			`longitude` smallint(20) DEFAULT NULL,
-			`money_format` varchar(200) DEFAULT NULL,
-			`money_with_currency_format` varchar(200) DEFAULT NULL,
-			`weight_unit` varchar(20) DEFAULT NULL,
-			`primary_locale` varchar(20) DEFAULT NULL,
-			`province` varchar(20) DEFAULT NULL,
-			`province_code` varchar(20) DEFAULT NULL,
-			`timezone` varchar(200) DEFAULT NULL,
-			`created_at` datetime,
-			`updated_at` datetime,
-			PRIMARY KEY  (`{$this->primary_key}`)
-		) ENGINE=InnoDB $collate";
-
-	}
-
-
-  /*
-
-  Creates database table
-
-  */
-	public function create_table() {
-
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-		if ( !$this->table_exists($this->table_name) ) {
-			dbDelta( $this->create_table_query() );
-		}
-
-  }
-
 
 }

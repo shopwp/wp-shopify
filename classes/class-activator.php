@@ -19,6 +19,7 @@ use WPS\DB\Orders;
 use WPS\CPT;
 use WPS\Utils;
 
+
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
@@ -30,143 +31,147 @@ if (!defined('ABSPATH')) {
 Fired during plugin install / activate
 
 */
-class Activator {
+if ( !class_exists('Activator') ) {
 
-	protected static $instantiated = null;
-	private $Config;
-	public $plugin_basename;
-	public $config;
+	class Activator {
 
-	/*
+		protected static $instantiated = null;
+		private $Config;
+		public $plugin_basename;
+		public $config;
 
-	Initialize the class and set its properties.
+		/*
 
-	*/
-	public function __construct($Config) {
-		$this->plugin_basename = $Config->plugin_basename;
-		$this->config = $Config;
-	}
+		Initialize the class and set its properties.
 
-
-	/*
-
-	Creates a new class if one hasn't already been created.
-	Ensures only one instance is used.
-
-	*/
-	public static function instance($Config) {
-
-		if (is_null(self::$instantiated)) {
-			self::$instantiated = new self($Config);
+		*/
+		public function __construct($Config) {
+			$this->plugin_basename = $Config->plugin_basename;
+			$this->config = $Config;
 		}
-
-		return self::$instantiated;
-
-	}
-
-
-	/*
-
-	init_settings
-
-	*/
-	public function init_settings() {
-
-	}
-
-
-	/*
-
-	Create DB Tables
-
-	*/
-	public function create_db_tables() {
-
-		global $wpdb;
-
-		$DB_Settings_Connection = new Settings_Connection();
-		$DB_Settings_General = new Settings_General();
-		$DB_Settings_License = new Settings_License();
-		$DB_Shop = new Shop();
-		$DB_Products = new Products();
-		$DB_Variants = new Variants();
-		$DB_Collects = new Collects();
-		$DB_Options = new Options();
-		$DB_Collections_Custom = new Collections_Custom();
-		$DB_Collections_Smart = new Collections_Smart();
-		$DB_Images = new Images();
-		$DB_Tags = new Tags();
-		$DB_Customers = new Customers();
-		$DB_Orders = new Orders();
 
 
 		/*
 
-		Create Tables
+		Creates a new class if one hasn't already been created.
+		Ensures only one instance is used.
 
 		*/
-		$DB_Settings_Connection->create_table();
-		$DB_Settings_General->create_table();
-		$DB_Settings_License->create_table();
-		$DB_Shop->create_table();
-		$DB_Products->create_table();
-		$DB_Variants->create_table();
-		$DB_Collects->create_table();
-		$DB_Options->create_table();
-		$DB_Collections_Custom->create_table();
-		$DB_Collections_Smart->create_table();
-		$DB_Images->create_table();
-		$DB_Tags->create_table();
-		$DB_Customers->create_table();
-		$DB_Orders->create_table();
+		public static function instance($Config) {
+
+			if (is_null(self::$instantiated)) {
+				self::$instantiated = new self($Config);
+			}
+
+			return self::$instantiated;
+
+		}
 
 
 		/*
 
-		Set any default plugin settings
+		init_settings
 
 		*/
-		$DB_Settings_General->init_general();
+		public function init_settings() {
 
-	}
-
-
-	/*
-
-	Things to do on plugin activate
-
-	*/
-	public function activate() {
-
-		$CPT = new CPT($this->config);
-
-		if (!current_user_can('activate_plugins')) {
-			return;
-
-		} else {
-			$this->init_settings();
-			$this->create_db_tables();
 		}
 
-		delete_option('_site_transient_update_plugins');
 
-		// Register CPTs upon plugin activation
-		$CPT->init();
+		/*
 
-		flush_rewrite_rules();
+		Create DB Tables
+
+		*/
+		public function create_db_tables() {
+
+			global $wpdb;
+
+			$DB_Settings_Connection = new Settings_Connection();
+			$DB_Settings_General = new Settings_General();
+			$DB_Settings_License = new Settings_License();
+			$DB_Shop = new Shop();
+			$DB_Products = new Products();
+			$DB_Variants = new Variants();
+			$DB_Collects = new Collects();
+			$DB_Options = new Options();
+			$DB_Collections_Custom = new Collections_Custom();
+			$DB_Collections_Smart = new Collections_Smart();
+			$DB_Images = new Images();
+			$DB_Tags = new Tags();
+			$DB_Customers = new Customers();
+			$DB_Orders = new Orders();
+
+
+			/*
+
+			Create Tables
+
+			*/
+			$DB_Settings_Connection->create_table();
+			$DB_Settings_General->create_table();
+			$DB_Settings_License->create_table();
+			$DB_Shop->create_table();
+			$DB_Products->create_table();
+			$DB_Variants->create_table();
+			$DB_Collects->create_table();
+			$DB_Options->create_table();
+			$DB_Collections_Custom->create_table();
+			$DB_Collections_Smart->create_table();
+			$DB_Images->create_table();
+			$DB_Tags->create_table();
+			$DB_Customers->create_table();
+			$DB_Orders->create_table();
+
+
+			/*
+
+			Set any default plugin settings
+
+			*/
+			$DB_Settings_General->init_general();
+
+		}
+
+
+		/*
+
+		Things to do on plugin activate
+
+		*/
+		public function activate() {
+
+			$CPT = new CPT($this->config);
+
+			if (!current_user_can('activate_plugins')) {
+				return;
+
+			} else {
+				$this->init_settings();
+				$this->create_db_tables();
+			}
+
+			delete_option('_site_transient_update_plugins');
+
+			// Register CPTs upon plugin activation
+			$CPT->init();
+
+			flush_rewrite_rules();
+
+		}
+
+
+		/*
+
+		Init
+
+		*/
+		public function init() {
+			register_activation_hook($this->plugin_basename, [$this, 'activate']);
+		}
+
+
 
 	}
-
-
-	/*
-
-	Init
-
-	*/
-	public function init() {
-		register_activation_hook($this->plugin_basename, [$this, 'activate']);
-	}
-
-
 
 }

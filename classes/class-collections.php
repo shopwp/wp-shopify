@@ -10,185 +10,190 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+
 /*
 
 Class Collections
 
 */
-class Collections {
+if ( !class_exists('Collections') ) {
 
-  protected static $instantiated = null;
-  private $Config;
-  private $messages;
+	class Collections {
 
-	/*
+	  protected static $instantiated = null;
+	  private $Config;
+	  private $messages;
 
-	Initialize the class and set its properties.
+		/*
 
-	*/
-	public function __construct($Config) {
-		$this->config = $Config;
-    $this->messages = new Messages();
-		$this->ws = new WS($this->config);
-	}
+		Initialize the class and set its properties.
 
-  /*
-
-	Creates a new class if one hasn't already been created.
-	Ensures only one instance is used.
-
-	*/
-	public static function instance() {
-
-		if (is_null(self::$instantiated)) {
-			self::$instantiated = new self();
+		*/
+		public function __construct($Config) {
+			$this->config = $Config;
+	    $this->messages = new Messages();
+			$this->ws = new WS($this->config);
 		}
 
-		return self::$instantiated;
+	  /*
 
-	}
+		Creates a new class if one hasn't already been created.
+		Ensures only one instance is used.
 
+		*/
+		public static function instance() {
 
-  /*
+			if (is_null(self::$instantiated)) {
+				self::$instantiated = new self();
+			}
 
-  Used to check the type of collection
-  - Predicate Function (returns boolean)
-
-  */
-  public function wps_is_smart_collection($collection) {
-
-    if (property_exists($collection, "rules") && isset($collection->rules)) {
-      return true;
-
-    } else {
-      return false;
-
-    }
-
-  }
-
-
-  /*
-
-	Returns an array of all product data based on ID
-	TODO: Move to Util? Look through all functions to determine where they should go.
-
-	*/
-	public static function wps_get_collection_data($id = false) {
-
-		if(isset($id) && $id) {
-			$collectionId = $id;
-
-		} else {
-			$collectionId = get_the_ID();
+			return self::$instantiated;
 
 		}
 
-    //
-    // Removing nested arrays created by update_post_meta()
-    //
-    if($collectionId) {
-      $meta = get_post_meta($collectionId);
 
-      foreach ($meta as $meta_key => $meta_val) {
-        $meta[$meta_key] = array_shift($meta_val);
-      }
+	  /*
 
-      foreach ($meta as $meta_key => $meta_val) {
-        if(is_serialized($meta_val)) {
-          $meta[$meta_key] = unserialize($meta_val);
-        }
-      }
+	  Used to check the type of collection
+	  - Predicate Function (returns boolean)
 
-      return $meta;
+	  */
+	  public function wps_is_smart_collection($collection) {
 
-    } else {
-      return false;
+	    if (property_exists($collection, "rules") && isset($collection->rules)) {
+	      return true;
 
-    }
+	    } else {
+	      return false;
 
-	}
+	    }
+
+	  }
 
 
-  /*
+	  /*
 
-  Inserting collections into database
+		Returns an array of all product data based on ID
+		TODO: Move to Util? Look through all functions to determine where they should go.
 
-  */
-  public function wps_insert_collections() {
+		*/
+		public static function wps_get_collection_data($id = false) {
 
-		if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-			$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_insert_collections)');
+			if(isset($id) && $id) {
+				$collectionId = $id;
+
+			} else {
+				$collectionId = get_the_ID();
+
+			}
+
+	    //
+	    // Removing nested arrays created by update_post_meta()
+	    //
+	    if($collectionId) {
+	      $meta = get_post_meta($collectionId);
+
+	      foreach ($meta as $meta_key => $meta_val) {
+	        $meta[$meta_key] = array_shift($meta_val);
+	      }
+
+	      foreach ($meta as $meta_key => $meta_val) {
+	        if(is_serialized($meta_val)) {
+	          $meta[$meta_key] = unserialize($meta_val);
+	        }
+	      }
+
+	      return $meta;
+
+	    } else {
+	      return false;
+
+	    }
+
 		}
 
 
-    $results = [];
-    $results['added'] = [];
-    $results['updated'] = [];
+	  /*
 
-    $existingCollections = [];
-    $newCollections = $_POST['collections'];
+	  Inserting collections into database
 
-    $args = array(
-     'posts_per_page'   => -1,
-     'post_type'        => 'wps_collections',
-     'post_status'      => 'publish'
-    );
+	  */
+	  public function wps_insert_collections() {
 
-    $posts = get_posts($args);
+			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_insert_collections)');
+			}
 
-    foreach ($posts as $post) {
-      $existingCollections[$post->ID] = $post->ID;
-    }
 
-    foreach ($newCollections as $key => $collection) {
+	    $results = [];
+	    $results['added'] = [];
+	    $results['updated'] = [];
 
-     if(!in_array($collection['collectionId'], $existingCollections)) {
+	    $existingCollections = [];
+	    $newCollections = $_POST['collections'];
 
-       $newCollectionModel = array(
-         'post_title'    => array_key_exists('collectionTitle', $collection) ? $collection['collectionTitle'] : '',
-         'post_content'  => array_key_exists('collectionDescription', $collection) ? $collection['collectionDescription'] : '',
-         'post_status'   => 'publish',
-         'post_type'     => 'wps_collections',
-         'post_name'		 => array_key_exists('collectionHandle', $collection) ? $collection['collectionHandle'] : '',
-         'meta_input'		 => array(
-           "wps_collection_id" => array_key_exists('collectionId', $collection) ? $collection['collectionId'] : ''
-         )
-       );
+	    $args = array(
+	     'posts_per_page'   => -1,
+	     'post_type'        => 'wps_collections',
+	     'post_status'      => 'publish'
+	    );
 
-       // Insert the post into the database
-       $postID = wp_insert_post($newCollectionModel);
+	    $posts = get_posts($args);
 
-       $results['added'][] = $collection['collectionTitle'];
+	    foreach ($posts as $post) {
+	      $existingCollections[$post->ID] = $post->ID;
+	    }
 
-     } else {
+	    foreach ($newCollections as $key => $collection) {
 
-       // TODO: do something here to notify user of duplicates
-       // TODO: only update post if content has changed
+	     if(!in_array($collection['collectionId'], $existingCollections)) {
 
-       $existingPostId = array_search($collection['collectionId'], $existingCollections);
+	       $newCollectionModel = array(
+	         'post_title'    => array_key_exists('collectionTitle', $collection) ? $collection['collectionTitle'] : '',
+	         'post_content'  => array_key_exists('collectionDescription', $collection) ? $collection['collectionDescription'] : '',
+	         'post_status'   => 'publish',
+	         'post_type'     => 'wps_collections',
+	         'post_name'		 => array_key_exists('collectionHandle', $collection) ? $collection['collectionHandle'] : '',
+	         'meta_input'		 => array(
+	           "wps_collection_id" => array_key_exists('collectionId', $collection) ? $collection['collectionId'] : ''
+	         )
+	       );
 
-       $existingProductModel = array(
-         'ID'                           => $existingPostId,
-         'post_title'                   => array_key_exists('collectionTitle', $collection) ? $collection['collectionTitle'] : '',
-         'post_content'                 => array_key_exists('collectionDescription', $collection) ? $collection['collectionDescription'] : '',
-         'post_name'		                => array_key_exists('collectionHandle', $collection) ? $collection['collectionHandle'] : '',
-         'meta_input'		                => array(
-           "wps_collection_id"          => array_key_exists('collectionId', $collection) ? $collection['collectionId'] : ''
-         )
-       );
+	       // Insert the post into the database
+	       $postID = wp_insert_post($newCollectionModel);
 
-       // Update the post into the database
-       $postID = wp_update_post($existingProductModel);
+	       $results['added'][] = $collection['collectionTitle'];
 
-       $results['updated'][] = $collection['collectionTitle'];
+	     } else {
 
-     }
+	       // TODO: do something here to notify user of duplicates
+	       // TODO: only update post if content has changed
 
-    }
+	       $existingPostId = array_search($collection['collectionId'], $existingCollections);
 
-		$this->ws->send_success($results);
+	       $existingProductModel = array(
+	         'ID'                           => $existingPostId,
+	         'post_title'                   => array_key_exists('collectionTitle', $collection) ? $collection['collectionTitle'] : '',
+	         'post_content'                 => array_key_exists('collectionDescription', $collection) ? $collection['collectionDescription'] : '',
+	         'post_name'		                => array_key_exists('collectionHandle', $collection) ? $collection['collectionHandle'] : '',
+	         'meta_input'		                => array(
+	           "wps_collection_id"          => array_key_exists('collectionId', $collection) ? $collection['collectionId'] : ''
+	         )
+	       );
 
-  }
+	       // Update the post into the database
+	       $postID = wp_update_post($existingProductModel);
+
+	       $results['updated'][] = $collection['collectionTitle'];
+
+	     }
+
+	    }
+
+			$this->ws->send_success($results);
+
+	  }
+
+	}
 
 }

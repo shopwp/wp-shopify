@@ -1,5 +1,5 @@
 import { shopifyInit, getShopifyCreds, findShopifyCreds } from '../ws/ws-auth';
-import { initCart, fetchCart, flushCacheIfNeeded } from '../ws/ws-cart';
+import { initCart, fetchCart } from '../ws/ws-cart';
 import { productEvents } from '../products/products-events';
 import { cartEvents } from '../cart/cart-events';
 import { updateCartCounter, updateTotalCartPricing, showUIElements, renderCartItems } from '../cart/cart-ui';
@@ -13,12 +13,13 @@ import { removeProductOptionIds } from '../ws/ws-products';
 Bootstrap: Events
 
 */
-function bootstrapEvents(shopify) {
+function bootstrapEvents(shopify, cart) {
 
   return new Promise( (resolve, reject) => {
 
     productEvents(shopify);
-    cartEvents(shopify);
+    cartEvents(shopify, cart);
+
     resolve();
 
   });
@@ -75,7 +76,6 @@ function bootstrap() {
 
     */
     try {
-      console.log(1);
       var creds = await findShopifyCreds(); // LS || wps_get_credentials_frontend
 
     } catch(error) {
@@ -91,7 +91,7 @@ function bootstrap() {
 
     */
     try {
-      console.log(2);
+
       // Calls LS
       var shopify = await shopifyInit(creds);
 
@@ -111,7 +111,7 @@ function bootstrap() {
 
     */
     try {
-      console.log(3);
+
       // Retrieves existing or makes new
       var cart = await fetchCart(shopify);
 
@@ -129,8 +129,7 @@ function bootstrap() {
 
     */
     try {
-      console.log(4);
-      await bootstrapEvents(shopify);
+      await bootstrapEvents(shopify, cart);
 
     } catch(error) {
 
@@ -147,7 +146,6 @@ function bootstrap() {
     */
     showUIElements();
 
-
     console.log('---------- READY FOR USER ----------');
 
 
@@ -157,10 +155,8 @@ function bootstrap() {
 
     */
     try {
-      console.log(5);
 
       await Promise.all([
-        // flushCacheIfNeeded(shopify, cart),
         renderCartItems(shopify, cart),
         bootstrapUI(shopify, cart)
       ]);

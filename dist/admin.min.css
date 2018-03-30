@@ -863,6 +863,10 @@ TODO: Remove for Phase 2
   float: none;
   top: -4px; }
 
+.wps-help-tip-inline-checkbox {
+  left: -30px;
+  top: -2px; }
+
 .wps-help-tip-inline-no-position {
   float: none; }
 

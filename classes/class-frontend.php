@@ -9,7 +9,7 @@ use WPS\DB\Settings_Connection;
 use WPS\DB\Shop;
 use WPS\Messages;
 use WPS\WS;
-
+use WPS\Utils;
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -19,10 +19,9 @@ if (!defined('ABSPATH')) {
 
 /*
 
-Public Class
+Frontend Class
 
 */
-
 if (!class_exists('Frontend')) {
 
 	class Frontend {
@@ -159,136 +158,6 @@ if (!class_exists('Frontend')) {
 
 		/*
 
-		[wps_products] Shortcode
-
-		There's a few things going on here.
-
-		1. 'wps_format_products_shortcode_args' formats the provided shortcode args
-				by taking the comma seperated list of values in each attribute and constructing
-				an array. It also uses the attribute name as the array key. For example"
-
-			 	array(
-					'title' => array(
-						'Sale', 'Featured'
-					)
-				)''
-
-		2. Next, it passes the array of args to 'wps_map_products_args_to_query'
-			 which is the main function that constructs our custom SQL query. This is where
-			 the "custom" property is set that we eventually check for within 'wps_clauses_mod'.
-
-		3. At this point in the execution we load our template by pulling in our
-			 products-all.php. This template then calls our custom action 'wps_products_display'
-
-		4. 'wps_products_display' then calls 'wps_clauses_mod' when it invokes WP_Query. The
-			 execution order looks like this:
-
-		5. Because 'wps_clauses_mod' will get fired for both products and collections, we then
-			 need to fork where the execution goes by calling one of two functions depending
-			 on what we're dealing with. They are:
-
-			 construct_clauses_from_products_shortcode
-			 construct_clauses_from_collections_shortcode
-
-			 ================================================================
-			 wps_products_shortcode ->
-			 wps_format_products_shortcode_args ->
-			 wps_map_products_args_to_query ->
-			 wps_products_display -> (via WP_Query) -> wps_clauses_mod
-					either a. construct_clauses_from_products_shortcode
-					either b. construct_clauses_from_collections_shortcode
-			 ================================================================
-
-		*/
-		public function wps_products_shortcode($atts) {
-
-			$shortcode_output = '';
-			$shortcodeArgs = Utils::wps_format_products_shortcode_args($atts);
-			$is_shortcode = true;
-
-			ob_start();
-			include($this->config->plugin_path . "public/templates/products-all.php");
-			$products = ob_get_contents();
-			ob_end_clean();
-
-     	$shortcode_output .= $products;
-
-     	return $shortcode_output;
-
-		}
-
-
-		/*
-
-		[wps_collections] Shortcode
-
-		*/
-		public function wps_collections_shortcode($atts) {
-
-			$shortcode_output = '';
-			$shortcodeArgs = Utils::wps_format_collections_shortcode_args($atts);
-			$is_shortcode = true;
-
-			ob_start();
-			include($this->config->plugin_path . "public/templates/collections-all.php");
-			$collections = ob_get_contents();
-			ob_end_clean();
-
-		 $shortcode_output .= $collections;
-
-		 return $shortcode_output;
-
-		}
-
-
-		/*
-
-		WP Shopify shortcode
-
-		*/
-		public function wps_cart_shortcode($atts) {
-
-			$shortcode_output = '';
-			$shortcodeArgs = Utils::wps_format_collections_shortcode_args($atts);
-
-			ob_start();
-			include($this->config->plugin_path . "public/partials/cart/button.php");
-			$cart = ob_get_contents();
-			ob_end_clean();
-
-			$shortcode_output .= $cart;
-
-			return $shortcode_output;
-
-		}
-
-
-		/*
-
-		WP Shopify cart
-
-		This is slow. We should think of a better way to do this.
-
-		*/
-		public function wps_insert_cart_before_closing_body() {
-
-			$DB_Settings_General = new Settings_General();
-
-			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
-
-				ob_start();
-				include_once($this->config->plugin_path . "public/partials/cart/cart.php");
-				$content = ob_get_contents();
-				ob_end_clean();
-				echo $content;
-
-			}
-
-		}
-
-
-		/*
-
 		Get plugin settings
 
 		*/
@@ -307,85 +176,7 @@ if (!class_exists('Frontend')) {
 		}
 
 
-		/*
 
-		Single Template
-		TODO: Combine with products template function below
-
-		*/
-		public function wps_product_single_template($template) {
-
-			global $wp_query, $post;
-
-			if (isset($post) && $post) {
-
-				if ($post->post_type == "wps_products") {
-
-					// echo $post->ID;
-
-					$templateFile = $this->config->plugin_path . "public/templates/products-single.php";
-
-					if(file_exists($templateFile)) {
-						$template = $templateFile;
-					}
-
-				} else if($post->post_type == "wps_collections") {
-
-					$templateFile = $this->config->plugin_path . "public/templates/collections-single.php";
-
-					if(file_exists($templateFile)) {
-						$template = $templateFile;
-					}
-
-				}
-
-			} else {
-				$template = false;
-
-			}
-
-			return $template;
-
-		}
-
-
-		/*
-
-		Single Product Template
-
-		*/
-		public function wps_products_template($template) {
-
-			global $wp_query, $post;
-
-			if (isset($post) && $post) {
-
-				if ($post->post_type == "wps_products") {
-
-					$templateFile = $this->config->plugin_path . "public/templates/products-all.php";
-
-					if(file_exists($templateFile)) {
-						$template = $templateFile;
-					}
-
-				} else if($post->post_type == "wps_collections") {
-
-					$templateFile = $this->config->plugin_path . "public/templates/collections-all.php";
-
-					if (file_exists($templateFile)) {
-						$template = $templateFile;
-					}
-
-				}
-
-			} else {
-				$template = false;
-
-			}
-
-			return $template;
-
-		}
 
 
 		/*
@@ -486,20 +277,7 @@ if (!class_exists('Frontend')) {
 		}
 
 
-    /*
 
-    Notice view. TODO: Remove ob?
-
-    */
-    public function wps_notice() {
-
-			$DB_Settings_General = new Settings_General();
-
-			if ($DB_Settings_General->get_column_single('cart_loaded')[0]->cart_loaded) {
-				return include_once($this->config->plugin_path . "public/partials/notices/notice.php");
- 			}
-
-    }
 
 
 		/*
@@ -714,6 +492,7 @@ if (!class_exists('Frontend')) {
 				$this->ws->send_error();
 			}
 
+
 		}
 
 
@@ -748,9 +527,6 @@ if (!class_exists('Frontend')) {
 
 
 
-
-
-
 		/*
 
 		Before Checkout Hook
@@ -781,20 +557,20 @@ if (!class_exists('Frontend')) {
 		*/
 		public function init() {
 
+			/*
+
+			Styles / Scripts
+
+			*/
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_styles') );
 			add_action( 'wp_enqueue_scripts', array($this, 'wps_public_scripts') );
 
-			add_filter( 'single_template', array($this, 'wps_product_single_template') );
-			add_filter( 'archive_template', array($this, 'wps_products_template') );
 
-			add_shortcode( 'wps_products', array($this, 'wps_products_shortcode') );
-			add_shortcode( 'wps_collections', array($this, 'wps_collections_shortcode') );
+			/*
 
+			AJAX Callbacks
 
-			// Cart Button Shortcode
-			add_shortcode('wps_cart', array($this, 'wps_cart_shortcode'));
-
-			// AJAX
+			*/
 			add_action( 'wp_ajax_wps_update_cache_flush_status', array($this, 'wps_update_cache_flush_status') );
 			add_action( 'wp_ajax_nopriv_wps_update_cache_flush_status', array($this, 'wps_update_cache_flush_status') );
 
@@ -816,9 +592,6 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_ajax_wps_get_currency_formats', array($this, 'wps_get_currency_formats') );
 			add_action( 'wp_ajax_nopriv_wps_get_currency_formats', array($this, 'wps_get_currency_formats') );
 
-
-
-
 			add_action( 'wp_ajax_wps_has_money_format_changed', array($this, 'wps_has_money_format_changed') );
 			add_action( 'wp_ajax_nopriv_wps_has_money_format_changed', array($this, 'wps_has_money_format_changed') );
 
@@ -828,11 +601,7 @@ if (!class_exists('Frontend')) {
 			add_action( 'wp_ajax_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 			add_action( 'wp_ajax_nopriv_wps_get_money_format_with_currency', array($this, 'wps_get_money_format_with_currency') );
 
-			/*
-
-			Checkout Hook
-
-			*/
+			// Before Checkout Hook
 			add_action( 'wp_ajax_wps_add_checkout_before_hook', array($this, 'wps_add_checkout_before_hook') );
 			add_action( 'wp_ajax_nopriv_wps_add_checkout_before_hook', array($this, 'wps_add_checkout_before_hook') );
 

@@ -1,7 +1,7 @@
 {
-    "require": {
-        "rmccue/Requests" : "dev-master#c887fdbbee5e012ae642eb2e0560b5a42fb4782e as 1.6.1",
-        "guzzlehttp/guzzle": "~6.0",
-        "gerardojbaez/money": "0.*"
-    }
+  "require": {
+    "guzzlehttp/guzzle": "~6.0",
+    "gerardojbaez/money": "0.*",
+    "gamajo/template-loader": "^1.3"
+  }
 }

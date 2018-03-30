@@ -12,43 +12,49 @@ use WPS\WS;
 use WPS\Messages;
 use GuzzleHttp\Client as Guzzle;
 
+
 /*
 
 Class Waypoint
+TODO: Is this calss still used?
 
 */
-class Waypoints {
+if (!class_exists('Waypoints')) {
 
-  protected static $instantiated = null;
-  private $Config;
-  private $WS;
-  private $messages;
+	class Waypoints {
 
-	/*
+	  protected static $instantiated = null;
+	  private $Config;
+	  private $WS;
+	  private $messages;
 
-	Initialize the class and set its properties.
+		/*
 
-	*/
-	public function __construct($Config) {
-		$this->config = $Config;
-    $this->ws = new WS($this->config);
-    $this->messages = new Messages();
-	}
+		Initialize the class and set its properties.
 
-
-  /*
-
-	Creates a new class if one hasn't already been created.
-	Ensures only one instance is used.
-
-	*/
-	public static function instance() {
-
-		if (is_null(self::$instantiated)) {
-			self::$instantiated = new self();
+		*/
+		public function __construct($Config) {
+			$this->config = $Config;
+	    $this->ws = new WS($this->config);
+	    $this->messages = new Messages();
 		}
 
-		return self::$instantiated;
+
+	  /*
+
+		Creates a new class if one hasn't already been created.
+		Ensures only one instance is used.
+
+		*/
+		public static function instance() {
+
+			if (is_null(self::$instantiated)) {
+				self::$instantiated = new self();
+			}
+
+			return self::$instantiated;
+
+		}
 
 	}
 
