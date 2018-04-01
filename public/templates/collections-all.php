@@ -1,34 +1,64 @@
 <?php
 
+use WPS\Templates;
+$Templates = new Templates();
+
+
+/*
+
+The $data variable is passed to this file if called by a shortcode
+and if present, contains the list of parameters.
+
+*/
 if (empty($data)) {
+  $data = false;
 
-  $data = [
-    'shortcodeArgs' => [],
-    'is_shortcode' 	=> false
-  ];
-
-  $data = (object) $data;
+} else {
+  $data = $Templates->get_shortcode_data($data);
 
 }
 
-$data->shortcodeArgs = !empty($data->shortcodeArgs) ? $data->shortcodeArgs : [];
+
+/*
+
+Determines whether to call get_header('wps'). Will not execute if called via shortcode.
+
+*/
+$Templates->show_header($data);
 
 
-if (empty($data->is_shortcode)) {
-  get_header('wps');
-}
+/*
 
+We should eventually wrap this around a conditional. Will show twice if
+user outputs two shortcodes on the same page while breadcrumbs is turned on.
+
+*/
 do_action('wps_breadcrumbs');
 
+
+/*
+
+Kicks off the main template rendering—begins in products/main.php
+
+*/
 do_action(
   'wps_collections_display',
-  apply_filters('wps_collections_args', $data->shortcodeArgs),
-  apply_filters('wps_collections_custom_args', array())
+  apply_filters('wps_collections_args', $data),
+  apply_filters('wps_collections_custom_args', [])
 );
 
-if (empty($data->is_shortcode)) {
 
-  do_action('wps_collections_sidebar');
-  get_footer('wps');
+/*
 
-}
+Determines whether to call get_footer('wps'). Will not execute if called via shortcode.
+
+*/
+$Templates->show_footer($data);
+
+
+/*
+
+Calls the filter 'wps_collections_show_sidebar' which allows to show / hide the sidebar
+
+*/
+do_action('wps_collections_sidebar');

@@ -1,15 +1,16 @@
 <?php
 
-use WPS\DB\Products;
 use WPS\Utils;
 
 do_action('wps_products_item_before', $data->product);
 do_action('wps_products_img_before', $data->product);
 do_action('wps_products_item_link_start', $data->product, $data->settings);
 do_action('wps_products_img', $data->product);
+
 do_action('wps_products_title_before', $data->product);
 do_action('wps_products_title', $data->product);
 do_action('wps_products_item_link_end', $data->product);
+
 do_action('wps_products_price_before', $data->product);
 do_action('wps_products_price', $data->product);
 do_action('wps_products_price_after', $data->product);
@@ -24,8 +25,7 @@ if (is_single()) {
 
     } else {
 
-      $DB_Products = new Products();
-      $productWithVariants = $DB_Products->get_data($data->product->post_id);
+      $productWithVariants = $data->product_details;
       set_transient('wps_product_with_variants_' . $data->product->product_id, $productWithVariants);
 
     }
@@ -43,8 +43,7 @@ if (is_single()) {
 
     } else {
 
-      $DB_Products = new Products();
-      $productWithVariants = $DB_Products->get_data($data->product->post_id);
+      $productWithVariants = $data->product_details;
 
       set_transient('wps_product_with_variants_' . $data->product->product_id, $productWithVariants);
 

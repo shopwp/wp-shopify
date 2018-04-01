@@ -294,15 +294,6 @@ if ( !class_exists('WP_Shopify') ) {
 
 			/*
 
-			Convenience Hooks
-
-			*/
-			add_action('wps_products_item_before', [$Hooks, 'wps_products_item_before'], 10);
-			add_action('wps_products_item_after', [$Hooks, 'wps_products_item_after']);
-
-
-			/*
-
 			Filters
 
 			*/

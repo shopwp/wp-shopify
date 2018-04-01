@@ -4,10 +4,12 @@ namespace WPS;
 
 use WPS\Template_Loader;
 use WPS\Utils;
+use WPS\Config;
 use WPS\DB\Settings_General;
 use WPS\DB\Images;
 use WPS\DB\Variants;
-use WPS\Utils;
+use WPS\DB\Products;
+
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -32,9 +34,8 @@ if (!class_exists('Templates')) {
     Initialize the class and set its properties.
 
     */
-    public function __construct($Config) {
+    public function __construct() {
 			$this->template_loader = new Template_Loader;
-			$this->config = $Config;
     }
 
 
@@ -44,10 +45,10 @@ if (!class_exists('Templates')) {
 		Ensures only one instance is used.
 
 		*/
-		public static function instance($Config) {
+		public static function instance() {
 
 			if (is_null(self::$instantiated)) {
-				self::$instantiated = new self($Config);
+				self::$instantiated = new self();
 			}
 
 			return self::$instantiated;
@@ -128,10 +129,13 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_products_item($product, $args, $settings) {
 
+			$Products = new Products();
+
 			$data = [
-				'product' 		=> 	$product,
-				'args'				=>	$args,
-				'settings'		=>	$settings
+				'product' 					=> 	$product,
+				'product_details'		=>	$Products->get_data($product->post_id),
+				'args'							=>	$args,
+				'settings'					=>	$settings
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/item' );
@@ -231,26 +235,45 @@ if (!class_exists('Templates')) {
 		public function wps_products_price($product) {
 
 			$DB_Variants = new Variants();
+			$product = Utils::wps_convert_array_to_object($product);
+
+			/*
+
+			Only needed because the data structure coming from the product single template is
+			different from the other templates. We should standardize but need to do it in such
+			a way that nothing breaks.
+
+			*/
+			if ( isset($product->details->post_id) && !isset($product->post_id) ) {
+				$product->post_id = $product->details->post_id;
+			}
 
 			$variants = $DB_Variants->get_product_variants($product->post_id);
-			$variants = json_decode(json_encode($variants), true);
 
-			$productNew = array(
-				'variants' => $variants
-			);
+
+			// $variants = json_decode(json_encode($variants), true);
+
+			// $productNew = array(
+			// 	'variants' => $variants
+			// );
+
 
 			$amountOfVariantPrices = count($variants);
 
 			usort($variants, function ($a, $b) {
-				return $a['price'] - $b['price'];
+
+				$result = $a->price - $b->price;
+
+				return $result;
+
 			});
 
 
 			if ($amountOfVariantPrices > 1) {
 
 				$lastVariantIndex = $amountOfVariantPrices - 1;
-				$lastVariantPrice = $variants[$lastVariantIndex]['price'];
-				$firstVariantPrice = $variants[0]['price'];
+				$lastVariantPrice = $variants[$lastVariantIndex]->price;
+				$firstVariantPrice = $variants[0]->price;
 
 				if ($lastVariantPrice === $firstVariantPrice) {
 
@@ -271,7 +294,7 @@ if (!class_exists('Templates')) {
 					$data = [
 						'price'				=> $price,
 						'price_first' => $priceFirst,
-						'price_Last' 	=> $priceLast,
+						'price_last' 	=> $priceLast,
 						'product' 		=> $product
 					];
 
@@ -282,7 +305,7 @@ if (!class_exists('Templates')) {
 			} else {
 
 				$data = [
-					'price'		=> Utils::wps_format_money($variants[0]['price'], $data->product),
+					'price'		=> Utils::wps_format_money($variants[0]->price, $product),
 					'product' => $product
 				];
 
@@ -318,7 +341,8 @@ if (!class_exists('Templates')) {
 		public function wps_products_meta_start($product) {
 
 			$data = [
-				'product' => $product
+				'product' 					=> $product,
+				'filtered_options'	=> Utils::filter_variants_to_options_values($product->variants)
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/meta', 'start' );
@@ -381,8 +405,21 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_products_options($product) {
 
+
+			if (count($product->options) === 1) {
+			  $button_width = 2;
+
+			} else {
+			  $button_width = count($product->options);
+			}
+
+
 			$data = [
-				'product' => $product
+				'product' 									=> $product,
+				'button_width'							=> $button_width,
+				'sorted_options'						=> Utils::wps_sort_by($product->options, 'position'),
+				'option_number'							=> 1,
+				'variant_number'						=> 0
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/options' );
@@ -397,8 +434,11 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_products_button_add_to_cart($product) {
 
+			$button_width = Utils::get_product_button_width($product);
+
 			$data = [
-				'product' => $product
+				'product' 			=> $product,
+				'button_width'	=> $button_width
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/button-add-to', 'cart' );
@@ -651,7 +691,8 @@ if (!class_exists('Templates')) {
 		public function wps_collections_item_before($collection) {
 
 			$data = [
-				'collection' 	=> $collection
+				'collection' 	=> $collection,
+				'settings'		=> (new Config())->wps_get_settings_general()
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/item-link', 'start' );
@@ -683,7 +724,8 @@ if (!class_exists('Templates')) {
 		public function wps_collections_img($collection) {
 
 			$data = [
-				'collection' 	=> $collection
+				'collection' 	=> $collection,
+				'image'				=> Images::get_image_details_from_collection($collection)
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/item', 'img' );
@@ -741,22 +783,6 @@ if (!class_exists('Templates')) {
 
 		/*
 
-		Template: partials/products/add-to-cart/button-add-to-cart
-
-		*/
-		public function wps_product_single_button_add_to_cart($product) {
-
-			$data = [
-				'product' 	=> $product
-			];
-
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/button-add-to', 'cart' );
-
-		}
-
-
-		/*
-
 		Template: partials/products/action-groups/action-groups-start
 
 		*/
@@ -805,38 +831,6 @@ if (!class_exists('Templates')) {
 
 		/*
 
-		Template: partials/products/single/header-before
-
-		*/
-		public function wps_product_single_header_before($product) {
-
-			$data = [
-				'product' 	=> $product
-			];
-
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/header', 'before' );
-
-		}
-
-
-		/*
-
-		Template: partials/products/single/header-after
-
-		*/
-		public function wps_product_single_header_after($product) {
-
-			$data = [
-				'product' 	=> $product
-			];
-
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/header', 'after' );
-
-		}
-
-
-		/*
-
 		Template: partials/products/single/header-price
 
 		*/
@@ -853,32 +847,22 @@ if (!class_exists('Templates')) {
 
 		/*
 
-		Template: partials/products/single/header-price-before
+		Template: partials/products/single/imgs
 
 		*/
-		public function wps_product_single_header_price_before($product) {
+		public function wps_product_single_imgs($product) {
+
+			$product->images = Utils::sort_product_images_by_position($product->images);
 
 			$data = [
-				'product' 	=> $product
+				'product' 					=> $product,
+				'settings' 					=> (new Config())->wps_get_settings_general(),
+				'images'						=> $product->images,
+				'index'							=> 0,
+				'amount_of_thumbs'	=> count($product->images)
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/header-price', 'before' );
-
-		}
-
-
-		/*
-
-		Template: partials/products/single/header-price-after
-
-		*/
-		public function wps_product_single_header_price_after($product) {
-
-			$data = [
-				'product' 	=> $product
-			];
-
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/header-price', 'after' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/imgs' );
 
 		}
 
@@ -888,13 +872,51 @@ if (!class_exists('Templates')) {
 		Template: partials/products/single/imgs
 
 		*/
-		public function wps_product_single_imgs($product) {
+		public function wps_product_single_img($data, $image) {
 
-			$data = [
-				'product' 	=> $product
-			];
+			$data->image_type_class = 'wps-product-gallery-img-thumb';
+			$data->image_details = Images::get_image_details_from_image($image, $data->product);
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/imgs' );
+			if ($data->amount_of_thumbs === 1) {
+				$data->amount_of_thumbs = 3;
+			}
+
+			if ($data->amount_of_thumbs > 8) {
+				$data->amount_of_thumbs = 6;
+			}
+
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/img' );
+
+		}
+
+
+		/*
+
+		Template: partials/products/single/imgs-feat
+
+		*/
+		public function wps_product_single_imgs_feat_placeholder($data) {
+
+			$data->image_type_class = 'wps-product-gallery-img-feat';
+
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/imgs-feat', 'placeholder' );
+
+		}
+
+
+		/*
+
+		Template: partials/products/single/imgs-feat
+
+		*/
+		public function wps_product_single_imgs_feat($data, $image) {
+
+			$image_details = Images::get_image_details_from_image($image, $data->product);
+			$data->image_details = $image_details;
+			$data->image_type_class = 'wps-product-gallery-img-feat';
+			$data->variant_ids = Images::get_variants_from_image($image);
+
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/imgs-feat' );
 
 		}
 
@@ -1051,7 +1073,8 @@ if (!class_exists('Templates')) {
 		public function wps_collection_single_img($collection) {
 
 			$data = [
-				'collection' 	=> $collection
+				'collection' 	=> $collection,
+				'image'				=> Images::get_image_details_from_collection($collection)
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/single/img' );
@@ -1162,13 +1185,22 @@ if (!class_exists('Templates')) {
 		Template: partials/pagination/breadcrumbs
 
 		*/
-		public function wps_breadcrumbs($data) {
+		public function wps_breadcrumbs($shortcodeData) {
 
 			if (apply_filters('wps_breadcrumbs_show', false)) {
 
 				$data = [];
 
-				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/pagination/breadcrumbs' );
+				if ( empty($shortcodeData) ) {
+					return $this->template_loader->set_template_data($data)->get_template_part( 'partials/pagination/breadcrumbs' );
+
+				} else {
+
+					if (isset($shortcodeData->shortcodeArgs['custom']['breadcrumbs']) && $shortcodeData->shortcodeArgs['custom']['breadcrumbs'] === 'true') {
+						return $this->template_loader->set_template_data($data)->get_template_part( 'partials/pagination/breadcrumbs' );
+					}
+
+				}
 
 			}
 
@@ -1439,7 +1471,9 @@ if (!class_exists('Templates')) {
 		public function wps_all_template($template) {
 
 			if ( is_post_type_archive('wps_products') ) {
-				$template = $this->template_loader->get_template_part( 'products', 'all', false ); // passing false will return string and not load template
+
+				// Passing false will return string and not template contents
+				$template = $this->template_loader->get_template_part( 'products', 'all', false );
 
 			} else if (is_post_type_archive('wps_collections')) {
 				$template = $this->template_loader->get_template_part( 'collections', 'all', false );
@@ -1447,6 +1481,50 @@ if (!class_exists('Templates')) {
 			}
 
 			return $template;
+
+		}
+
+
+
+		public function get_shortcode_data($data) {
+
+			if (empty($data)) {
+
+			  $data = new \stdClass;
+			  $data->shortcodeArgs = [];
+			  $data->is_shortcode = false;
+
+			} else {
+
+			  $data->shortcodeArgs = !empty($data->shortcodeArgs) ? $data->shortcodeArgs : [];
+				$data->is_shortcode = isset($data->is_shortcode) && $data->is_shortcode ? $data->is_shortcode : false;
+
+			}
+
+			return $data;
+
+		}
+
+
+		/*
+
+		Show / Hide Header
+
+		*/
+		public function show_header($shortcodeData = false) {
+
+			if (empty($shortcodeData) || empty($shortcodeData->is_shortcode)) {
+				get_header('wps');
+			}
+
+		}
+
+
+		public function show_footer($shortcodeData = false) {
+
+			if (empty($shortcodeData) || empty($shortcodeData->is_shortcode)) {
+				get_footer('wps');
+			}
 
 		}
 
@@ -1548,16 +1626,16 @@ if (!class_exists('Templates')) {
 
 			add_action('wps_product_single_after', [$this, 'wps_related_products']);
 
-			add_action('wps_product_single_button_add_to_cart', [$this, 'wps_product_single_button_add_to_cart']);
+
 			add_action('wps_product_single_actions_group_start', [$this, 'wps_product_single_actions_group_start']);
 			add_action('wps_product_single_content', [$this, 'wps_product_single_content']);
-			add_action('wps_product_single_header_before', [$this, 'wps_product_single_header_before']);
+
 			add_action('wps_product_single_header', [$this, 'wps_product_single_header']);
-			add_action('wps_product_single_header_after', [$this, 'wps_product_single_header_after']);
-			add_action('wps_product_single_header_price_before', [$this, 'wps_product_single_header_price_before']);
-			add_action('wps_product_single_header_price', [$this, 'wps_product_single_header_price']);
-			add_action('wps_product_single_header_price_after', [$this, 'wps_product_single_header_price_after']);
+
+			add_action('wps_product_single_img', [$this, 'wps_product_single_img'], 10, 2);
 			add_action('wps_product_single_imgs', [$this, 'wps_product_single_imgs']);
+			add_action('wps_product_single_imgs_feat_placeholder', [$this, 'wps_product_single_imgs_feat_placeholder']);
+			add_action('wps_product_single_imgs_feat', [$this, 'wps_product_single_imgs_feat'], 10, 2);
 
 			add_action('wps_product_single_info_start', [$this, 'wps_product_single_info_start']);
 			add_action('wps_product_single_info_end', [$this, 'wps_product_single_info_end']);

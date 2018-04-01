@@ -248,10 +248,10 @@ if (!class_exists('Frontend')) {
 
 						$variantObj = $DB_Variants->get_by('id', $variant['id']);
 
-						$productWithVariants = (array) $productData;
-						$productWithVariants['variants'] = (array) Utils::wps_convert_object_to_array($variantData);
+						$productData->variants = $variantData;
 
-						if (Utils::product_inventory($productWithVariants, [(array) $variantObj])) {
+
+						if (Utils::product_inventory($productData, [(array) $variantObj])) {
 
 							$found = true;
 							$this->ws->send_success($variant['id']);

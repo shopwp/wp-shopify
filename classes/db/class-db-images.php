@@ -434,25 +434,26 @@ if (!class_exists('Images')) {
     public static function get_image_details_from_image($image, $product) {
 
       $Config = new Config();
+			$result = new \stdClass;
 
-      if (empty($image['alt'])) {
-        $alt = $product['details']['title'];
+      if (empty($image->alt)) {
+        $alt = $product->details->title;
 
       } else {
-        $alt = $image['alt'];
+        $alt = $image->alt;
       }
 
-      if (empty($image['src'])) {
+      if (empty($image->src)) {
         $src = $Config->plugin_url . 'public/imgs/placeholder.png';
 
       } else {
-        $src = $image['src'];
+        $src = $image->src;
       }
 
-      return array(
-        'src' => $src,
-        'alt' => $alt
-      );
+			$result->src = $src;
+			$result->alt = $alt;
+
+      return $result;
 
     }
 

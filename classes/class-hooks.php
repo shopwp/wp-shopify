@@ -340,18 +340,6 @@ if (!class_exists('Hooks')) {
 			return $paged;
 		}
 
-		public function wps_products_item_before($product) {
-
-		}
-
-		public function wps_products_item_after($product) {
-
-		}
-
-		public function wps_products_after($products) {
-
-		}
-
 
 		/*
 
@@ -614,8 +602,6 @@ if (!class_exists('Hooks')) {
 
 				global $wpdb;
 
-				$Utils = new Utils();
-
 				$args['context'] = 'wps_products_query';
 
 				if (is_single()) {
@@ -648,7 +634,19 @@ if (!class_exists('Hooks')) {
 
 					$productsQuery = new \WP_Query($args);
 
-					if ( $args['orderby'] !== 'rand' ) {
+
+					if ( isset($args['orderby']) ) {
+						$custom_order_by = $args['orderby'];
+
+					} else if (isset($args['custom']['orderby'])) {
+						$custom_order_by = $args['custom']['orderby'];
+
+					} else {
+						$custom_order_by = false;
+					}
+
+
+					if ( $custom_order_by !== 'rand' ) {
 						set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
 					}
 
@@ -665,7 +663,7 @@ if (!class_exists('Hooks')) {
 
 				// Adding feature imaged to object
 				foreach ($wps_products as $wps_product) {
-		      $wps_product->feat_image = $Utils->get_feat_image_by_id($wps_product->post_id);
+		      $wps_product->feat_image = Utils::get_feat_image_by_id($wps_product->post_id);
 		    }
 
 
@@ -685,7 +683,6 @@ if (!class_exists('Hooks')) {
 
 				do_action( 'wps_products_header', $productsQuery );
 				do_action( 'wps_products_header_after', $productsQuery );
-
 
 				do_action( 'wps_products_before', $productsQuery );
 
@@ -737,8 +734,6 @@ if (!class_exists('Hooks')) {
 
 			if (!is_admin()) {
 
-				$Utils = new Utils();
-
 				$args['context'] = 'wps_collections_query';
 
 				if (is_single()) {
@@ -783,7 +778,7 @@ if (!class_exists('Hooks')) {
 
 				// Adding feature imaged to object
 				foreach ($collections as $collection) {
-					$collection->feat_image = $Utils->get_feat_image_by_id($collection->post_id);
+					$collection->feat_image = Utils::get_feat_image_by_id($collection->post_id);
 				}
 
 
@@ -893,18 +888,14 @@ if (!class_exists('Hooks')) {
 		Main Products Config
 
 		*/
-		public function wps_products_args($shortcodeArgs) {
+		public function wps_products_args($shortcodeData) {
 
 			$DB_Settings_General = new Settings_General();
 			$settingsNumPosts = $DB_Settings_General->get_num_posts();
 
 			$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
-			if( !empty($shortcodeArgs) ) {
-				$shortcodeArgs['paged'] = $paged;
-				return $shortcodeArgs;
-
-			} else {
+			if ( empty($shortcodeData->shortcodeArgs) ) {
 
 				return array(
 					'post_type' => 'wps_products',
@@ -913,6 +904,11 @@ if (!class_exists('Hooks')) {
 					'orderby'   => apply_filters('wps_products_args_orderby', 'desc'),
 					'paged' => apply_filters('wps_products_args_paged', $paged)
 				);
+
+			} else {
+
+				$shortcodeData->shortcodeArgs['paged'] = $paged;
+				return $shortcodeData->shortcodeArgs;
 
 			}
 
