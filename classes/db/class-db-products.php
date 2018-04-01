@@ -164,15 +164,19 @@ if (!class_exists('Products')) {
       $Options = new Options();
       $Tags = new Tags();
 
-      $results['details'] = $this->get_product($postID);
+			$results = new \stdClass;
 
-      $results['images'] = $Images->get_product_images($postID);
-      $results['tags'] = $Tags->get_product_tags($postID);
-      $results['variants'] = $Variants->get_product_variants($postID);
-      $results['options'] = $Options->get_product_options($postID);
-      $results['details']->tags = $Tags->construct_only_tag_names($results['tags']);
+      $results->details = $this->get_product($postID);
+      $results->images = $Images->get_product_images($postID);
+      $results->tags = $Tags->get_product_tags($postID);
+      $results->variants = $Variants->get_product_variants($postID);
+      $results->options = $Options->get_product_options($postID);
+      $results->details->tags = $Tags->construct_only_tag_names($results->tags);
 
-      return json_decode(json_encode($results), true);
+			$results->product_id = $results->details->product_id;
+			$results->post_id = $results->details->post_id;
+
+      return $results;
 
     }
 
@@ -600,7 +604,6 @@ if (!class_exists('Products')) {
 
       $DB_Collects = new Collects();
       $DB_Variants = new Variants();
-      $Utils = new Utils();
 
       $collects_table_name = $DB_Collects->get_table_name();
       $products_table_name = $this->get_table_name();
@@ -623,7 +626,7 @@ if (!class_exists('Products')) {
       */
       foreach ($products as $key => $product) {
         $product->variants = $DB_Variants->get_product_variants($product->post_id);
-        $product->feat_image = $Utils->get_feat_image_by_id($product->post_id);
+        $product->feat_image = Utils::get_feat_image_by_id($product->post_id);
       }
 
       return $products;

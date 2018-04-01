@@ -137,7 +137,7 @@ if (!class_exists('Utils')) {
 	  equality check
 
 	  */
-	  public function get_featured_image_by_position($image) {
+	  public static function get_featured_image_by_position($image) {
 	    return $image->position == 1;
 	  }
 
@@ -147,11 +147,11 @@ if (!class_exists('Utils')) {
 	  Get feat image by id
 
 	  */
-	  public function get_feat_image_by_id($productID) {
+	  public static function get_feat_image_by_id($productID) {
 
 	    $Images = new Images();
 
-	    $feat_image = array_filter($Images->get_product_images($productID), array($this, "get_featured_image_by_position"));
+	    $feat_image = array_filter( $Images->get_product_images($productID), [__CLASS__, "get_featured_image_by_position"] );
 
 	    return array_values($feat_image);
 
@@ -163,16 +163,34 @@ if (!class_exists('Utils')) {
 	  Sort Product Images
 
 	  */
-	  public function sort_product_images($a, $b) {
+	  public static function sort_product_images($a, $b) {
 
-	    $a = (int) $a['position'];
-	    $b = (int) $b['position'];
+			$a = self::wps_convert_array_to_object($a);
+			$b = self::wps_convert_array_to_object($b);
+
+	    $a = (int) $a->position;
+	    $b = (int) $b->position;
 
 	    if ($a == $b) {
 	      return 0;
 	    }
 
 	    return ($a < $b) ? -1 : 1;
+
+	  }
+
+
+		/*
+
+	  Sort Product Images By Position
+
+	  */
+	  public static function sort_product_images_by_position($images) {
+
+			// TODO: Need to check if this passes or fails
+			usort($images, array(__CLASS__, "sort_product_images"));
+
+			return $images;
 
 	  }
 
@@ -650,6 +668,23 @@ if (!class_exists('Utils')) {
 	    }
 
 	    return $array;
+
+	  }
+
+
+		/*
+
+	  wps_convert_object_to_array
+
+	  */
+	  public static function wps_convert_array_to_object($maybeArray) {
+
+			// If non-array was passed in just return it
+			if (!is_array($maybeArray)) {
+				return $maybeArray;
+			}
+
+			return json_decode(json_encode($maybeArray), false);
 
 	  }
 
@@ -1474,6 +1509,13 @@ if (!class_exists('Utils')) {
 	      $shortcode_args['custom']['add-to-cart'] = $shortcodeArgs['add-to-cart'];
 	    }
 
+			//
+	    // Breadcrumbs
+	    //
+	    if (isset($shortcodeArgs['breadcrumbs']) && $shortcodeArgs['breadcrumbs']) {
+	      $shortcode_args['custom']['breadcrumbs'] = $shortcodeArgs['breadcrumbs'];
+	    }
+
 	    return $shortcode_args;
 
 	  }
@@ -1998,7 +2040,9 @@ if (!class_exists('Utils')) {
 	        $productID = $matchedVariant['id'];
 
 	      } else {
-	        $productID = $product->product_id;
+
+					$productID = $product->product_id;
+
 	      }
 
 	    }
@@ -2398,6 +2442,51 @@ if (!class_exists('Utils')) {
 	  }
 
 
+		/*
+
+		Responsible for checking whether a variant is available for
+		purchase.  must be an (object)
+
+		$variant is expected to have the following properties:
+
+		$variant->inventory_management
+		$variant->inventory_quantity
+		$variant->inventory_policy
+
+		*/
+		public static function is_available_to_buy($variant) {
+
+			if ( !is_object($variant) ) {
+				$variant = self::wps_convert_array_to_object($variant);
+			}
+
+			// User has set Shopify to track the product's inventory
+			if ($variant->inventory_management === 'shopify') {
+
+				// If the product's inventory is 0 or less than 0
+				if ($variant->inventory_quantity <= 0) {
+
+					// If 'Allow customers to purchase this product when it's out of stock' is unchecked
+					if ($variant->inventory_policy === 'deny') {
+						return false;
+
+					} else {
+						return true;
+					}
+
+				} else {
+					return true;
+				}
+
+			// User has set product to "do not track inventory" (always able to purchase)
+			} else {
+				return true;
+
+			}
+
+		}
+
+
 	  /*
 
 	  Product Inventory
@@ -2406,38 +2495,16 @@ if (!class_exists('Utils')) {
 	  */
 	  public static function product_inventory($product, $variant = false) {
 
+			$product = self::wps_convert_array_to_object($product);
+
 			if ($variant) {
-				$vairantsToCheck = $variant;
+				$variantsToCheck = $variant;
 
 			} else {
-				$vairantsToCheck = $product['variants'];
+				$variantsToCheck = $product->variants;
 			}
 
-	    return array_filter($vairantsToCheck, function($productVariant) {
-
-				// User has set Shopify to track the product's inventory
-				if ($productVariant['inventory_management'] === 'shopify') {
-
-					if ($productVariant['inventory_quantity'] <= 0) {
-
-						if ($productVariant['inventory_policy'] === 'deny') {
-							return false;
-
-						} else {
-							return true;
-						}
-
-					} else {
-						return true;
-					}
-
-				// User has set product to do not track inventory (always able to purchase)
-				} else {
-					return true;
-
-				}
-
-	    });
+	    return array_filter($variantsToCheck, [__CLASS__, 'is_available_to_buy']);
 
 	  }
 
@@ -2473,6 +2540,8 @@ if (!class_exists('Utils')) {
 	  */
 	  public static function filter_variants_to_options_values($variants) {
 
+			$variants = self::wps_convert_object_to_array($variants);
+
 	    return array_map(function($variant) {
 
 	      return array_filter($variant, function($k, $v) {
@@ -2493,6 +2562,8 @@ if (!class_exists('Utils')) {
 	  */
 	  public static function wps_sort_by($array, $key) {
 
+			$array = self::wps_convert_object_to_array($array);
+
 	    usort($array, function($a, $b) use (&$key) {
 
 	      $a = $a[$key];
@@ -2503,7 +2574,7 @@ if (!class_exists('Utils')) {
 
 	    });
 
-	    return $array;
+			return self::wps_convert_array_to_object($array);
 
 	  }
 
@@ -2547,6 +2618,37 @@ if (!class_exists('Utils')) {
 			return $currentPage;
 
 	  }
+
+
+		/*
+
+		Gets the number of button columns per product
+
+		*/
+		public static function get_product_button_width($product) {
+
+			if (count($product->options) === 1) {
+
+			  if (count($product->variants) > 1) {
+			    $col = 2;
+
+			  } else {
+			    $col = 1;
+			  }
+
+			} else if (count($product->options) === 2) {
+			  $col = 1;
+
+			} else if (count($product->options) === 3) {
+			  $col = 1;
+
+			} else {
+			  $col = 1;
+			}
+
+			return $col;
+
+		}
 
 
 		/*

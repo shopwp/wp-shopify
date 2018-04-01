@@ -4,7 +4,7 @@ do_action('wps_products_meta_start', $data->product);
 do_action('wps_products_quantity', $data->product);
 do_action('wps_products_actions_group_start', $data->product);
 
-if (count($data->product['variants']) > 1) {
+if (count($data->product->variants) > 1) {
   do_action('wps_products_options', $data->product);
 }
 

@@ -1,4 +1,4 @@
-<?php do_action('wps_breadcrumbs'); ?>
+<?php // do_action('wps_breadcrumbs'); ?>
 
 <div
   itemscope
