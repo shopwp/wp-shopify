@@ -18,7 +18,6 @@ php:
 
 env:
   - "WP_VERSION=latest WP_MULTISITE=0"
-  - NODE_ENV=PRODUCTION
 
 before_install:
   - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
@@ -29,7 +28,7 @@ before_install:
   - "find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +"
 
 install:
-  - npm install
+  - npm install --no-optional
 
 script:
   - phpunit
