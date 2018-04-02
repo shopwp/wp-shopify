@@ -12,6 +12,8 @@ notifications:
 php:
   - "5.6"
   - "7.0.0"
+  - "7.1.0"
+  - "7.2.0"
 
 matrix:
   include:
@@ -30,6 +32,32 @@ matrix:
         - phpunit
     - language: php
       php: "7.0.0"
+      env:
+        - "WP_VERSION=latest WP_MULTISITE=0"
+      before_script:
+        - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
+        - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
+        - "mkdir /tmp/wordpress-tests-lib/data/"
+        - "find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +"
+        - "svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/ /tmp/wordpress-tests-lib/data/"
+        - "find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +"
+      script:
+        - phpunit
+    - language: php
+      php: "7.1.0"
+      env:
+        - "WP_VERSION=latest WP_MULTISITE=0"
+      before_script:
+        - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
+        - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
+        - "mkdir /tmp/wordpress-tests-lib/data/"
+        - "find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +"
+        - "svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/ /tmp/wordpress-tests-lib/data/"
+        - "find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +"
+      script:
+        - phpunit
+    - language: php
+      php: "7.2.0"
       env:
         - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
