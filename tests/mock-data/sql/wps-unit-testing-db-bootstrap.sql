@@ -28,12 +28,12 @@ DROP TABLE IF EXISTS `wptests_commentmeta`;
 CREATE TABLE `wptests_commentmeta` (
   `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `comment_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `meta_key` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `meta_value` longtext COLLATE utf8mb4_unicode_520_ci,
+  `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_value` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`meta_id`),
   KEY `comment_id` (`comment_id`),
   KEY `meta_key` (`meta_key`(191))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -45,17 +45,17 @@ DROP TABLE IF EXISTS `wptests_comments`;
 CREATE TABLE `wptests_comments` (
   `comment_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `comment_post_ID` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `comment_author` tinytext COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `comment_author_email` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `comment_author_url` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `comment_author_IP` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `comment_author` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `comment_author_email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment_author_url` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment_author_IP` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `comment_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `comment_date_gmt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `comment_content` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `comment_content` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `comment_karma` int(11) NOT NULL DEFAULT '0',
-  `comment_approved` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '1',
-  `comment_agent` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `comment_type` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `comment_approved` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
+  `comment_agent` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `comment_parent` bigint(20) unsigned NOT NULL DEFAULT '0',
   `user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`comment_ID`),
@@ -64,7 +64,7 @@ CREATE TABLE `wptests_comments` (
   KEY `comment_date_gmt` (`comment_date_gmt`),
   KEY `comment_parent` (`comment_parent`),
   KEY `comment_author_email` (`comment_author_email`(10))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -75,21 +75,21 @@ DROP TABLE IF EXISTS `wptests_links`;
 
 CREATE TABLE `wptests_links` (
   `link_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `link_url` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `link_name` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `link_image` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `link_target` varchar(25) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `link_description` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `link_visible` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'Y',
+  `link_url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_image` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_target` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_visible` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Y',
   `link_owner` bigint(20) unsigned NOT NULL DEFAULT '1',
   `link_rating` int(11) NOT NULL DEFAULT '0',
   `link_updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `link_rel` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `link_notes` mediumtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `link_rss` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `link_rel` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_notes` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `link_rss` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`link_id`),
   KEY `link_visible` (`link_visible`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -100,12 +100,12 @@ DROP TABLE IF EXISTS `wptests_options`;
 
 CREATE TABLE `wptests_options` (
   `option_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `option_name` varchar(191) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `option_value` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `autoload` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'yes',
+  `option_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `option_value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `autoload` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'yes',
   PRIMARY KEY (`option_id`),
   UNIQUE KEY `option_name` (`option_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_options` WRITE;
 /*!40000 ALTER TABLE `wptests_options` DISABLE KEYS */;
@@ -242,12 +242,12 @@ DROP TABLE IF EXISTS `wptests_postmeta`;
 CREATE TABLE `wptests_postmeta` (
   `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `post_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `meta_key` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `meta_value` longtext COLLATE utf8mb4_unicode_520_ci,
+  `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_value` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`meta_id`),
   KEY `post_id` (`post_id`),
   KEY `meta_key` (`meta_key`(191))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -261,31 +261,31 @@ CREATE TABLE `wptests_posts` (
   `post_author` bigint(20) unsigned NOT NULL DEFAULT '0',
   `post_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `post_date_gmt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `post_content` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `post_title` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `post_excerpt` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `post_status` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'publish',
-  `comment_status` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'open',
-  `ping_status` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'open',
-  `post_password` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `post_name` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `to_ping` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `pinged` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `post_content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_title` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_excerpt` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'publish',
+  `comment_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'open',
+  `ping_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'open',
+  `post_password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `post_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `to_ping` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pinged` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `post_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `post_modified_gmt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `post_content_filtered` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `post_content_filtered` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `post_parent` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `guid` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `guid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `menu_order` int(11) NOT NULL DEFAULT '0',
-  `post_type` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'post',
-  `post_mime_type` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `post_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'post',
+  `post_mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `comment_count` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
   KEY `post_name` (`post_name`(191)),
   KEY `type_status_date` (`post_type`,`post_status`,`post_date`,`ID`),
   KEY `post_parent` (`post_parent`),
   KEY `post_author` (`post_author`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -300,7 +300,7 @@ CREATE TABLE `wptests_term_relationships` (
   `term_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`,`term_taxonomy_id`),
   KEY `term_taxonomy_id` (`term_taxonomy_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -312,14 +312,14 @@ DROP TABLE IF EXISTS `wptests_term_taxonomy`;
 CREATE TABLE `wptests_term_taxonomy` (
   `term_taxonomy_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `term_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `taxonomy` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `description` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `taxonomy` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `description` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `parent` bigint(20) unsigned NOT NULL DEFAULT '0',
   `count` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`term_taxonomy_id`),
   UNIQUE KEY `term_id_taxonomy` (`term_id`,`taxonomy`),
   KEY `taxonomy` (`taxonomy`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_term_taxonomy` WRITE;
 /*!40000 ALTER TABLE `wptests_term_taxonomy` DISABLE KEYS */;
@@ -340,12 +340,12 @@ DROP TABLE IF EXISTS `wptests_termmeta`;
 CREATE TABLE `wptests_termmeta` (
   `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `term_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `meta_key` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `meta_value` longtext COLLATE utf8mb4_unicode_520_ci,
+  `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_value` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`meta_id`),
   KEY `term_id` (`term_id`),
   KEY `meta_key` (`meta_key`(191))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -356,13 +356,13 @@ DROP TABLE IF EXISTS `wptests_terms`;
 
 CREATE TABLE `wptests_terms` (
   `term_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `slug` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `slug` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `term_group` bigint(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`term_id`),
   KEY `slug` (`slug`(191)),
   KEY `name` (`name`(191))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_terms` WRITE;
 /*!40000 ALTER TABLE `wptests_terms` DISABLE KEYS */;
@@ -383,12 +383,12 @@ DROP TABLE IF EXISTS `wptests_usermeta`;
 CREATE TABLE `wptests_usermeta` (
   `umeta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `meta_key` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `meta_value` longtext COLLATE utf8mb4_unicode_520_ci,
+  `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_value` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`umeta_id`),
   KEY `user_id` (`user_id`),
   KEY `meta_key` (`meta_key`(191))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_usermeta` WRITE;
 /*!40000 ALTER TABLE `wptests_usermeta` DISABLE KEYS */;
@@ -422,20 +422,20 @@ DROP TABLE IF EXISTS `wptests_users`;
 
 CREATE TABLE `wptests_users` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_login` varchar(60) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `user_pass` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `user_nicename` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `user_email` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `user_url` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `user_login` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `user_pass` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `user_nicename` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `user_email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `user_url` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `user_registered` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `user_activation_key` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `user_activation_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `user_status` int(11) NOT NULL DEFAULT '0',
-  `display_name` varchar(250) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `display_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`ID`),
   KEY `user_login_key` (`user_login`),
   KEY `user_nicename` (`user_nicename`),
   KEY `user_email` (`user_email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_users` WRITE;
 /*!40000 ALTER TABLE `wptests_users` DISABLE KEYS */;
@@ -456,18 +456,18 @@ DROP TABLE IF EXISTS `wptests_wps_collections_custom`;
 CREATE TABLE `wptests_wps_collections_custom` (
   `collection_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `post_id` bigint(100) unsigned DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `handle` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `body_html` longtext COLLATE utf8mb4_unicode_520_ci,
-  `image` longtext COLLATE utf8mb4_unicode_520_ci,
-  `metafield` longtext COLLATE utf8mb4_unicode_520_ci,
-  `published` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `published_scope` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `sort_order` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `handle` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `body_html` longtext COLLATE utf8mb4_unicode_ci,
+  `image` longtext COLLATE utf8mb4_unicode_ci,
+  `metafield` longtext COLLATE utf8mb4_unicode_ci,
+  `published` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `published_scope` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sort_order` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `published_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`collection_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_collections_custom` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_collections_custom` DISABLE KEYS */;
@@ -500,17 +500,17 @@ DROP TABLE IF EXISTS `wptests_wps_collections_smart`;
 CREATE TABLE `wptests_wps_collections_smart` (
   `collection_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `post_id` bigint(100) unsigned DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `handle` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `body_html` longtext COLLATE utf8mb4_unicode_520_ci,
-  `image` longtext COLLATE utf8mb4_unicode_520_ci,
-  `rules` longtext COLLATE utf8mb4_unicode_520_ci,
-  `disjunctive` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `sort_order` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `handle` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `body_html` longtext COLLATE utf8mb4_unicode_ci,
+  `image` longtext COLLATE utf8mb4_unicode_ci,
+  `rules` longtext COLLATE utf8mb4_unicode_ci,
+  `disjunctive` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sort_order` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `published_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`collection_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_collections_smart` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_collections_smart` DISABLE KEYS */;
@@ -569,7 +569,7 @@ CREATE TABLE `wptests_wps_collects` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_collects` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_collects` DISABLE KEYS */;
@@ -1635,27 +1635,27 @@ DROP TABLE IF EXISTS `wptests_wps_customers`;
 
 CREATE TABLE `wptests_wps_customers` (
   `id` bigint(100) unsigned NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `accepts_marketing` tinyint(1) DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `first_name` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `last_name` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `first_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `orders_count` tinyint(1) DEFAULT '0',
-  `state` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `total_spent` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_spent` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_order_id` bigint(100) unsigned DEFAULT NULL,
-  `note` longtext COLLATE utf8mb4_unicode_520_ci,
+  `note` longtext COLLATE utf8mb4_unicode_ci,
   `verified_email` tinyint(1) DEFAULT '0',
-  `multipass_identifier` longtext COLLATE utf8mb4_unicode_520_ci,
+  `multipass_identifier` longtext COLLATE utf8mb4_unicode_ci,
   `tax_exempt` tinyint(1) DEFAULT '0',
-  `phone` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `tags` longtext COLLATE utf8mb4_unicode_520_ci,
-  `last_order_name` longtext COLLATE utf8mb4_unicode_520_ci,
-  `default_address` longtext COLLATE utf8mb4_unicode_520_ci,
-  `addresses` longtext COLLATE utf8mb4_unicode_520_ci,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tags` longtext COLLATE utf8mb4_unicode_ci,
+  `last_order_name` longtext COLLATE utf8mb4_unicode_ci,
+  `default_address` longtext COLLATE utf8mb4_unicode_ci,
+  `addresses` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_customers` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_customers` DISABLE KEYS */;
@@ -1689,14 +1689,14 @@ DROP TABLE IF EXISTS `wptests_wps_images`;
 CREATE TABLE `wptests_wps_images` (
   `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` bigint(100) DEFAULT NULL,
-  `variant_ids` longtext COLLATE utf8mb4_unicode_520_ci,
-  `src` longtext COLLATE utf8mb4_unicode_520_ci,
-  `alt` longtext COLLATE utf8mb4_unicode_520_ci,
+  `variant_ids` longtext COLLATE utf8mb4_unicode_ci,
+  `src` longtext COLLATE utf8mb4_unicode_ci,
+  `alt` longtext COLLATE utf8mb4_unicode_ci,
   `position` int(20) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_images` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_images` DISABLE KEYS */;
@@ -2462,11 +2462,11 @@ DROP TABLE IF EXISTS `wptests_wps_options`;
 CREATE TABLE `wptests_wps_options` (
   `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` bigint(100) DEFAULT NULL,
-  `name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `position` int(20) DEFAULT NULL,
-  `values` longtext COLLATE utf8mb4_unicode_520_ci,
+  `values` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_options` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_options` DISABLE KEYS */;
@@ -3222,68 +3222,68 @@ DROP TABLE IF EXISTS `wptests_wps_orders`;
 CREATE TABLE `wptests_wps_orders` (
   `id` bigint(100) unsigned NOT NULL,
   `customer_id` bigint(100) unsigned DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `closed_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `number` bigint(100) unsigned DEFAULT NULL,
-  `note` longtext COLLATE utf8mb4_unicode_520_ci,
-  `token` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `gateway` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `test` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `total_price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `subtotal_price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `note` longtext COLLATE utf8mb4_unicode_ci,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gateway` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `test` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_price` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subtotal_price` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `total_weight` bigint(100) unsigned DEFAULT NULL,
-  `total_tax` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `total_tax` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `taxes_included` tinyint(1) DEFAULT '0',
-  `currency` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `financial_status` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `currency` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `financial_status` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `confirmed` tinyint(1) DEFAULT '0',
-  `total_discounts` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `total_line_items_price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `cart_token` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `total_discounts` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_line_items_price` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cart_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `buyer_accepts_marketing` tinyint(1) DEFAULT '0',
-  `name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `referring_site` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `landing_site` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `referring_site` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `landing_site` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cancelled_at` datetime DEFAULT NULL,
-  `cancel_reason` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `total_price_usd` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `checkout_token` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `reference` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `cancel_reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_price_usd` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `checkout_token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reference` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `user_id` bigint(100) unsigned DEFAULT NULL,
   `location_id` bigint(100) unsigned DEFAULT NULL,
-  `source_identifier` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `source_url` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `source_identifier` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `source_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `processed_at` datetime DEFAULT NULL,
   `device_id` bigint(100) unsigned DEFAULT NULL,
-  `phone` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `customer_locale` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_locale` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `app_id` bigint(100) unsigned DEFAULT NULL,
-  `browser_ip` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `landing_site_ref` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `browser_ip` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `landing_site_ref` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `order_number` bigint(100) unsigned DEFAULT NULL,
-  `discount_codes` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `note_attributes` longtext COLLATE utf8mb4_unicode_520_ci,
-  `payment_gateway_names` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `processing_method` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `discount_codes` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `note_attributes` longtext COLLATE utf8mb4_unicode_ci,
+  `payment_gateway_names` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `processing_method` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `checkout_id` bigint(100) unsigned DEFAULT NULL,
-  `source_name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `fulfillment_status` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `tax_lines` longtext COLLATE utf8mb4_unicode_520_ci,
-  `tags` longtext COLLATE utf8mb4_unicode_520_ci,
-  `contact_email` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `order_status_url` longtext COLLATE utf8mb4_unicode_520_ci,
-  `line_items` longtext COLLATE utf8mb4_unicode_520_ci,
-  `shipping_lines` longtext COLLATE utf8mb4_unicode_520_ci,
-  `billing_address` longtext COLLATE utf8mb4_unicode_520_ci,
-  `shipping_address` longtext COLLATE utf8mb4_unicode_520_ci,
-  `fulfillments` longtext COLLATE utf8mb4_unicode_520_ci,
-  `client_details` longtext COLLATE utf8mb4_unicode_520_ci,
-  `refunds` longtext COLLATE utf8mb4_unicode_520_ci,
-  `customer` longtext COLLATE utf8mb4_unicode_520_ci,
+  `source_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fulfillment_status` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_lines` longtext COLLATE utf8mb4_unicode_ci,
+  `tags` longtext COLLATE utf8mb4_unicode_ci,
+  `contact_email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `order_status_url` longtext COLLATE utf8mb4_unicode_ci,
+  `line_items` longtext COLLATE utf8mb4_unicode_ci,
+  `shipping_lines` longtext COLLATE utf8mb4_unicode_ci,
+  `billing_address` longtext COLLATE utf8mb4_unicode_ci,
+  `shipping_address` longtext COLLATE utf8mb4_unicode_ci,
+  `fulfillments` longtext COLLATE utf8mb4_unicode_ci,
+  `client_details` longtext COLLATE utf8mb4_unicode_ci,
+  `refunds` longtext COLLATE utf8mb4_unicode_ci,
+  `customer` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_orders` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_orders` DISABLE KEYS */;
@@ -3351,18 +3351,18 @@ DROP TABLE IF EXISTS `wptests_wps_products`;
 CREATE TABLE `wptests_wps_products` (
   `product_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `post_id` bigint(100) unsigned DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `body_html` longtext COLLATE utf8mb4_unicode_520_ci,
-  `handle` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `image` longtext COLLATE utf8mb4_unicode_520_ci,
-  `vendor` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `product_type` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `published_scope` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `body_html` longtext COLLATE utf8mb4_unicode_ci,
+  `handle` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `image` longtext COLLATE utf8mb4_unicode_ci,
+  `vendor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `published_scope` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `published_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_products` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_products` DISABLE KEYS */;
@@ -4123,20 +4123,20 @@ DROP TABLE IF EXISTS `wptests_wps_settings_connection`;
 
 CREATE TABLE `wptests_wps_settings_connection` (
   `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-  `domain` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `js_access_token` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
-  `access_token` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `domain` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `js_access_token` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `access_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `app_id` int(20) unsigned DEFAULT NULL,
-  `webhook_id` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `nonce` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `webhook_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nonce` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_syncing` tinyint(1) DEFAULT '0',
-  `api_key` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `password` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `shared_secret` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `api_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shared_secret` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `syncing_step_total` bigint(100) unsigned DEFAULT NULL,
   `syncing_step_current` bigint(100) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -4147,17 +4147,17 @@ DROP TABLE IF EXISTS `wptests_wps_settings_general`;
 
 CREATE TABLE `wptests_wps_settings_general` (
   `id` bigint(100) NOT NULL AUTO_INCREMENT,
-  `url_products` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'products',
-  `url_collections` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'collections',
-  `url_webhooks` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'http://wpstest.test',
+  `url_products` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'products',
+  `url_collections` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'collections',
+  `url_webhooks` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'http://wpstest.test',
   `num_posts` bigint(100) DEFAULT NULL,
   `styles_all` tinyint(1) DEFAULT '1',
   `styles_core` tinyint(1) DEFAULT '0',
   `styles_grid` tinyint(1) DEFAULT '0',
-  `plugin_name` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'WP Shopify',
-  `plugin_textdomain` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'wps',
-  `plugin_version` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '1.0.36',
-  `plugin_author` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'Andrew Robbins',
+  `plugin_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'WP Shopify',
+  `plugin_textdomain` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'wps',
+  `plugin_version` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1.0.36',
+  `plugin_author` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Andrew Robbins',
   `price_with_currency` tinyint(1) DEFAULT '0',
   `cart_loaded` tinyint(1) DEFAULT '1',
   `title_as_alt` tinyint(1) DEFAULT '0',
@@ -4168,7 +4168,7 @@ CREATE TABLE `wptests_wps_settings_general` (
   `selective_sync_orders` tinyint(1) DEFAULT '0',
   `selective_sync_shop` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_settings_general` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_settings_general` DISABLE KEYS */;
@@ -4187,22 +4187,22 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `wptests_wps_settings_license`;
 
 CREATE TABLE `wptests_wps_settings_license` (
-  `key` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT '',
+  `key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `is_local` tinyint(1) unsigned NOT NULL,
   `expires` datetime DEFAULT NULL,
   `site_count` int(20) unsigned DEFAULT NULL,
-  `checksum` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `customer_email` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `customer_name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `item_name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `license` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `checksum` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `item_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `license` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `license_limit` int(20) DEFAULT NULL,
   `payment_id` int(20) DEFAULT NULL,
   `success` tinyint(1) DEFAULT NULL,
-  `nonce` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `activations_left` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT '1',
+  `nonce` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `activations_left` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '1',
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -4213,32 +4213,32 @@ DROP TABLE IF EXISTS `wptests_wps_shop`;
 
 CREATE TABLE `wptests_wps_shop` (
   `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `myshopify_domain` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `shop_owner` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `phone` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `address1` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `address2` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `city` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `zip` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `country` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `country_code` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `country_name` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `currency` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `myshopify_domain` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shop_owner` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address1` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `zip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `latitude` smallint(20) DEFAULT NULL,
   `longitude` smallint(20) DEFAULT NULL,
-  `money_format` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `money_with_currency_format` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `weight_unit` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `primary_locale` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `province` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `province_code` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `timezone` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `money_format` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `money_with_currency_format` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `weight_unit` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `primary_locale` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `province` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `province_code` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `timezone` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_shop` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_shop` DISABLE KEYS */;
@@ -4260,9 +4260,9 @@ CREATE TABLE `wptests_wps_tags` (
   `tag_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` bigint(100) DEFAULT NULL,
   `post_id` bigint(100) DEFAULT NULL,
-  `tag` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `tag` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `wptests_wps_tags` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_tags` DISABLE KEYS */;
@@ -6476,28 +6476,28 @@ CREATE TABLE `wptests_wps_variants` (
   `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` bigint(100) DEFAULT NULL,
   `image_id` bigint(100) DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `compare_at_price` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `price` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `compare_at_price` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `position` int(20) DEFAULT NULL,
-  `option1` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `option2` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `option3` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `option1` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `option2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `option3` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `taxable` tinyint(1) DEFAULT NULL,
-  `sku` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `inventory_policy` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `sku` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `inventory_policy` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `inventory_quantity` bigint(20) DEFAULT NULL,
   `old_inventory_quantity` bigint(20) DEFAULT NULL,
-  `inventory_management` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `fulfillment_service` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `barcode` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `inventory_management` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fulfillment_service` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `barcode` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `weight` int(20) DEFAULT NULL,
-  `weight_unit` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `weight_unit` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `requires_shipping` tinyint(1) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
