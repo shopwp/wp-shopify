@@ -14,6 +14,9 @@ php:
 - 7.0.0
 - 7.1.0
 - 7.2.0
+cache:
+  directories:
+    - "node_modules"
 env:
 - WP_VERSION=latest WP_MULTISITE=0
 before_script:
@@ -23,6 +26,7 @@ before_script:
 - find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
 - svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/ /tmp/wordpress-tests-lib/data/
 - find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
+- npm install
 script:
 - phpunit
-- jest
+- jest --runInBand
