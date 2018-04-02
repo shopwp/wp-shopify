@@ -25,4 +25,4 @@ before_script:
 - find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +
 script:
 - phpunit
-- jest --runInBand
+- jest
