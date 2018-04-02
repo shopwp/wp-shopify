@@ -9,6 +9,8 @@ matrix:
         - "7.0.0"
         - "7.1.0"
         - "7.2.0"
+      env:
+        - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
         - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
         - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
@@ -19,12 +21,8 @@ matrix:
       script:
         - phpunit
     - language: node_js
-      env:
-        - NODE_ENV=PRODUCTION
       node_js:
         - "node"
-      before_script:
-        - npm install
       cache:
         directories:
           - "node_modules"
