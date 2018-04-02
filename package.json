@@ -190,5 +190,10 @@
     "whatwg-fetch": "^2.0.3",
     "write-file-webpack-plugin": "^4.2.0",
     "yargs": "^11.0.0"
+  },
+  "dependencies": {
+    "jest": "^22.4.3",
+    "jest-localstorage-mock": "^2.2.0",
+    "jest-tobetype": "^1.1.0"
   }
 }
