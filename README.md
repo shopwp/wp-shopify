@@ -4,19 +4,18 @@
   </a>
 </p>
 
+<p style="text-align:center;font-size:18px;">Sell and build custom Shopify experiences on WordPress.</p>
+
 <div style="text-align: center;">
-  <a href="https://travis-ci.org/wpshopify/wp-shopify">
-    <img src="https://travis-ci.org/wpshopify/wp-shopify.svg?branch=master" alt="WP Shopify Travis CI Build Status">
+  <a href="https://travis-ci.org/wpshopify/wp-shopify" style="text-align: center;">
+    <img src="https://travis-ci.org/wpshopify/wp-shopify.svg?branch=master" alt="WP Shopify Travis CI Build Status" style="text-align: center;display:inline-block;margin: 0 auto;">
   </a>
 </div>
 
-> Sell and build custom Shopify experiences on WordPress
 
-
-## Links
+### Links
 - Website: https://wpshop.io
 - Documentation: https://wpshop.io/docs
 - Installation: https://wpshop.io/docs/installation
 - Syncing: https://wpshop.io/docs/syncing
 - Configuration: https://wpshop.io/docs/configuration
-- Gotchas: https://wpshop.io/docs/gotchas
