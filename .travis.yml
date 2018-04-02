@@ -9,16 +9,14 @@ notifications:
   slack:
     secure: M3p6Vzckpq2URi5bowaxHzHlhnU6RsFAQG6eGZPsZJUwWJ0lJfnnbY84aJyxqJOKkQF3rV6+aR8j9GLFuQ1NDmhUS4lhM0O3FL5jHSKXMrsSDtjjRGGCiB1a0EoE6oAHbGL38Y9Tk4pSTz7PyI+KoVIBP0yjokWYlvD/UMAwAMpTHiYe1gRku41fCDyZy6MeDfcgHohlz7K9pRvSlxkUkFYfn2FFA+JmpKe+Xj4bx2dowMcPYVqzuBEv/10/nvEOcW7vuy+0QDvNzbQ5eqA69m17J91psMTCAOT3xoECqfuEcOM//JeDhcl94U9lVtDrRShJVjUFQ4NzLj0+NID1d2h1Fk2FpigO2zs/jeanF5Hf4LOzvhl12fCJpz+C/7uaEzBrpXLR2OeFjEYR5YzRoE4IRGqprKl0XkhYfrU5DVknXYfEyMjMQ2ZTITjOoqoT9Yaro8ygA+mijOfJ8lEWdg6Q1beLoK38poIKhT4qhpHDHyBU+njCcFLVJ2uzn8Wb7Qrzk8nRgwbxqGagYSL9E/FtpebFo+bwfrTyYe2l7DSyAejEc0QhHE50+IPZ8tNneOjk26a3BaW8PF02SBm3kaNssw/RdYMKvU+j8aNjItmHZIecCkla/tvYOH5ESaBFBI2MtGSF95sSkq0GNdEMZs1/8+Wg1e7g90n4Ov8ScD0=
 
-env:
-  - PHP_VERSION=5.6
-  - PHP_VERSION=7.0.0
-  - PHP_VERSION=7.1.0
-  - PHP_VERSION=7.2.0
-
 matrix:
   include:
     - language: php
-      php: $PHP_VERSION
+      php:
+        - "5.6"
+        - "7.0.0"
+        - "7.1.0"
+        - "7.2.0"
       env:
         - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
