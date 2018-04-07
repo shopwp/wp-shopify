@@ -2,6 +2,10 @@
 
 use WPS\DB\Images;
 
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
 $image = Images::get_image_details_from_product($data->product);
 
 ?>

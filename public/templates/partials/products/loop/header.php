@@ -1,15 +1,31 @@
-<?php if (!is_single()) { ?>
+<?php
 
-  <header class="wps-products-header wps-contain wps-row <?php echo apply_filters('wps_products_header_class', ''); ?>">
+/*
 
-    <?php do_action('wps_products_heading_before', $data->query); ?>
+@description   Product header within loop
 
-    <h1 class="wps-products-heading <?php echo apply_filters('wps_products_heading_class', ''); ?>">
-      <?php echo apply_filters('wps_products_heading', esc_html__('Products', 'wp-shopify')); ?>
-    </h1>
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/loop/header.php
 
-    <?php do_action('wps_products_heading_after', $data->query); ?>
+@docs          https://wpshop.io/docs/templates/partials/products/loop/header
 
-  </header>
+*/
 
-<?php } ?>
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
+<header class="wps-products-header wps-contain wps-row <?php echo apply_filters('wps_products_header_class', ''); ?>">
+
+  <?php do_action('wps_products_heading_before', $data->query); ?>
+
+  <h1 class="wps-products-heading <?php echo apply_filters('wps_products_heading_class', ''); ?>">
+    <?php echo apply_filters('wps_products_heading', esc_html__('Products', 'wp-shopify')); ?>
+  </h1>
+
+  <?php do_action('wps_products_heading_after', $data->query); ?>
+
+</header>

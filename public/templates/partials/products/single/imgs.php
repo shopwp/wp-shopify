@@ -1,5 +1,10 @@
 <?php
 
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+
 if ($data->amount_of_thumbs < 1) {
 
   do_action('wps_product_single_imgs_feat_placeholder', $data);

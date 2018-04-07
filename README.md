@@ -8,10 +8,10 @@
 
 <p align="center">
  <br>
-  <a href="https://wpshop.io">Website</a> |
-  <a href="https://wpshop.io/docs">Documentation</a> |
-  <a href="https://wpshop.io/docs/installation">Installation</a> |
-  <a href="https://wpshop.io/docs/syncing">Syncing</a>
+  <a href="https://wpshop.io" target="_blank">Website</a> |
+  <a href="https://wpshop.io/docs" target="_blank">Documentation</a> |
+  <a href="https://wpshop.io/docs/installation" target="_blank">Installation</a> |
+  <a href="https://wpshop.io/docs/syncing" target="_blank">Syncing</a>
 </p>
 
 <div align="center">

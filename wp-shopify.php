@@ -323,7 +323,7 @@ if ( !class_exists('WP_Shopify') ) {
 			add_filter('wps_products_price_multi', [$Hooks, 'wps_products_price_multi'], 10, 4);
 			add_filter('wps_products_price_one', [$Hooks, 'wps_products_price_one'], 10, 2);
 			add_action('wps_products_pagination', [$Hooks, 'wps_products_pagination']);
-			add_filter('wps_products_related_args', [$Hooks, 'wps_products_related_args'], 10, 2);
+			add_filter('wps_products_related_args', [$Hooks, 'wps_products_related_args']);
 			add_filter('wps_products_related_args_posts_per_page', [$Hooks, 'wps_products_related_args_posts_per_page']);
 			add_filter('wps_products_related_args_orderby', [$Hooks, 'wps_products_related_args_orderby']);
 			add_filter('wps_products_related_custom_args', [$Hooks, 'wps_products_related_custom_args']);

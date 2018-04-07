@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <div class="<?php echo apply_filters( 'wps_cart_class', '' ); ?> wps-cart">
 
   <?php do_action('wps_cart_before'); ?>

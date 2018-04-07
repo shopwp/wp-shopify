@@ -1,3 +1,23 @@
+<?php
+
+/*
+
+@description   Multi-price component. Used when product has a range of prices, e.g., Small: $1, Medium: $3, Large: $5 -- $1-5
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/add-to-cart/price-multi.php
+
+@docs          https://wpshop.io/docs/templates/partials/products/add-to-cart/price-multi
+
+*/
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <h3
   itemprop="offers"
   itemscope

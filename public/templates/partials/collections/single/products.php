@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <section class="wps-collections-products <?php echo apply_filters('wps_collection_single_products_class', ''); ?>">
 
   <?php

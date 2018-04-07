@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <div
   itemprop="description"
   class="wps-product-content">

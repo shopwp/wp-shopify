@@ -1,6 +1,22 @@
 <?php
 
+/*
+
+@description   Runs for each item (product) within the main products loop
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/loop/item.php
+
+@docs          https://wpshop.io/docs/templates/partials/products/loop/item
+
+*/
+
 use WPS\Utils;
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
 
 do_action('wps_products_item_before', $data->product);
 do_action('wps_products_img_before', $data->product);

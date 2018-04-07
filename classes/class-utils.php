@@ -6,6 +6,7 @@ require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
 use WPS\DB;
 use WPS\Config;
+use WPS\Templates;
 use WPS\DB\Products;
 use WPS\DB\Collects;
 use WPS\DB\Images;
@@ -2205,6 +2206,7 @@ if (!class_exists('Utils')) {
 
 	    $Config = new Config();
 	    $DB_Settings_General = new Settings_General();
+			$Templates = new Templates();
 
 	    // Exit if not enough posts to show pagination
 	    if ($args['query']->found_posts <= $DB_Settings_General->get_num_posts()) {
@@ -2318,13 +2320,32 @@ if (!class_exists('Utils')) {
 	        gets the class 'current' assigned to it. All the other pages get the class 'inactive' assigned to it
 
 	        */
-	        foreach ($range_numbers as $v) {
+	        foreach ($range_numbers as $page_number) {
 
-	          if ($v == $current_page) {
-	            $page_numbers[] = '<span itemprop="identifier" class="wps-products-page-current">' . $v . '</span>';
+	          if ($page_number == $current_page) {
+
+							ob_start();
+
+							$Templates->template_loader->set_template_data([
+								'page_number' => $page_number
+							])->get_template_part( 'partials/pagination/page-number', 'current');
+
+							$page_numbers[] = ob_get_contents();
+							ob_end_clean();
 
 	          } else {
-	            $page_numbers[] = '<a itemprop="url" href="' . self::wps_get_pagenum_link( $args, $v ) . '" class="wps-products-page-inactive" itemprop="item">' . $v . '</a>';
+
+							$page_href = self::wps_get_pagenum_link($args, $page_number);
+
+							ob_start();
+
+							$Templates->template_loader->set_template_data([
+								'page_number' => $page_number,
+								'page_href' 	=> $page_href
+							])->get_template_part( 'partials/pagination/page', 'number');
+
+							$page_numbers[] = ob_get_contents();
+							ob_end_clean();
 
 	          }
 
@@ -2339,13 +2360,111 @@ if (!class_exists('Utils')) {
 	         - $last_page Links to the last page
 
 	        */
-	        $previous_page = ( $current_page !== 1 ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page - 1) . '" class="wps-products-page-previous" itemprop="item">' . $args['previous_page_text'] . '</a>' : '';
 
-	        $next_page = ( $current_page !== $max_pages ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $current_page + 1) . '" class="wps-products-page-next" itemprop="item">' . $args['next_page_text'] . '</a>' : '';
 
-	        $first_page = ( !in_array( 1, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, 1) . '" class="wps-products-page-first" itemprop="item">' . $args['first_page_text'] . '</a>' : '';
 
-	        $last_page = ( !in_array( $max_pages, $range_numbers ) ) ? '<a itemprop="url" href="' . self::wps_get_pagenum_link($args, $max_pages) . '" class="wps-products-page-last" itemprop="item">' . $args['last_page_text'] . '</a>' : '';
+					/*
+
+					Previous page
+
+					*/
+					if ($current_page !== 1) {
+
+						$page_href_previous = self::wps_get_pagenum_link($args, $current_page - 1);
+
+						ob_start();
+
+						$Templates->template_loader->set_template_data([
+							'page_previous_text'		=> $args['previous_page_text'],
+							'page_number' 					=> $current_page - 1,
+							'page_href' 						=> $page_href_previous
+						])->get_template_part( 'partials/pagination/page', 'previous');
+
+						$previous_page = ob_get_contents();
+						ob_end_clean();
+
+
+					} else {
+						$previous_page = '';
+					}
+
+
+					/*
+
+					Next page
+
+					*/
+					if ($current_page !== $max_pages) {
+
+						$page_href_next = self::wps_get_pagenum_link($args, $current_page + 1);
+
+						ob_start();
+
+						$Templates->template_loader->set_template_data([
+							'page_next_text'		=> $args['next_page_text'],
+							'page_number' 			=> $current_page - 1,
+							'page_href' 				=> $page_href_next
+						])->get_template_part( 'partials/pagination/page', 'next');
+
+						$next_page = ob_get_contents();
+						ob_end_clean();
+
+
+					} else {
+						$next_page = '';
+					}
+
+
+					/*
+
+					First page
+
+					*/
+					if (!in_array( 1, $range_numbers)) {
+
+						$page_href_first = self::wps_get_pagenum_link($args, 1);
+
+						ob_start();
+
+						$Templates->template_loader->set_template_data([
+							'page_first_text'		=> $args['first_page_text'],
+							'page_number' 			=> $current_page - 1,
+							'page_href' 				=> $page_href_first
+						])->get_template_part( 'partials/pagination/page', 'first');
+
+						$first_page = ob_get_contents();
+						ob_end_clean();
+
+					} else {
+						$first_page = '';
+					}
+
+
+					/*
+
+					Last page
+
+					*/
+					if (!in_array($max_pages, $range_numbers)) {
+
+						$page_href_last = self::wps_get_pagenum_link($args, $max_pages);
+
+						ob_start();
+
+						$Templates->template_loader->set_template_data([
+							'page_last_text'		=> $args['last_page_text'],
+							'page_number' 			=> $current_page - 1,
+							'page_href' 				=> $page_href_last
+						])->get_template_part( 'partials/pagination/page', 'last');
+
+						$last_page = ob_get_contents();
+						ob_end_clean();
+
+
+					} else {
+						$last_page = '';
+					}
+
 
 	        // Removes next link on last page of pagination
 	        if ( $max_pages == $current_page) {
@@ -2353,15 +2472,35 @@ if (!class_exists('Utils')) {
 	        }
 
 
-	        /*
 
-	        Text to display before the page numbers
-	        This is set to the following structure:
-	          - Page X of Y
 
-	        */
 
-	        $page_text = '<div itemprop="description" class="wps-products-page-counter">' . sprintf( __( 'Page %s of %s' ), $current_page, $max_pages ) . '</div>';
+					// error_log('---- $previous_page -----');
+					// error_log(print_r($previous_page, true));
+					// error_log('---- /$previous_page -----');
+					//
+					// error_log('---- $next_page -----');
+					// error_log(print_r($next_page, true));
+					// error_log('---- /$next_page -----');
+					//
+					// error_log('---- $first_page -----');
+					// error_log(print_r($first_page, true));
+					// error_log('---- /$first_page -----');
+					//
+					// error_log('---- $last_page -----');
+					// error_log(print_r($last_page, true));
+					// error_log('---- /$last_page -----');
+
+					ob_start();
+
+					$Templates->template_loader->set_template_data([
+						'page_number' 			=> $current_page,
+						'max_pages' 				=> $max_pages
+					])->get_template_part( 'partials/pagination/counter' );
+
+					$page_text = ob_get_contents();
+					ob_end_clean();
+
 
 	        // Turn the array of page numbers into a string
 	        $numbers_string = implode( ' ', $page_numbers );

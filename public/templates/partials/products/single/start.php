@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <?php // do_action('wps_breadcrumbs'); ?>
 
 <div

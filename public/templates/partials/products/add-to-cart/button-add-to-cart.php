@@ -1,3 +1,24 @@
+<?php
+
+/*
+
+@description   Contains the actual add to cart button used for products. This is a global partial used by
+               the shortcode, single page, and listing page.
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/add-to-cart/button-add-to-cart.php
+
+@docs          https://wpshop.io/docs/templates/products/add-to-cart/button-add-to-cart
+
+*/
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <div class="wps-btn-wrapper wps-col wps-col-<?php echo $data->button_width; ?> <?php echo apply_filters('wps_add_to_cart_wrapper_class', ''); ?>">
 
   <button

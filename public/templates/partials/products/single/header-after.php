@@ -1,3 +1,0 @@
-<?php
-
-// After Header
