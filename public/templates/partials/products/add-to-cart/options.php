@@ -1,3 +1,23 @@
+<?php
+
+/*
+
+@description   Product options with dropdown modal
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/add-to-cart/options.php
+
+@docs          https://wpshop.io/docs/templates/partials/products/add-to-cart/options
+
+*/
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <?php foreach ($data->sorted_options as $option) { ?>
 
   <div

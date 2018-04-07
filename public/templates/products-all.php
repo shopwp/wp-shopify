@@ -1,6 +1,25 @@
 <?php
 
+/*
+
+@description   The main entry point for the 'products all' page. Used internally by the custom post type archive
+               template as well as the [wps_products] shortcode
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/collections-single.php
+@partials      templates/partials/products
+
+@docs          https://wpshop.io/docs/templates/collections-single
+
+*/
+
 use WPS\Templates;
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
 $Templates = new Templates();
 
 /*

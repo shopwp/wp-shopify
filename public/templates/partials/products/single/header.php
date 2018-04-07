@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <header class="wps-product-header">
 
   <h1

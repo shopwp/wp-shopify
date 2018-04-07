@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <h2
   itemprop="category"
   class="wps-collections-title <?php echo apply_filters( 'wps_collections_title_class', '' ); ?>">

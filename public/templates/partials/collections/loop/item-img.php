@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <img
   itemprop="image"
   src="<?php echo esc_url($data->image->src); ?>"

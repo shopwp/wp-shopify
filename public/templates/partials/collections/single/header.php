@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <header class="wps-collection-header <?php echo apply_filters('wps_collections_single_header_class', ''); ?>">
 
   <?php

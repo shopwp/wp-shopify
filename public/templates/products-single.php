@@ -1,7 +1,24 @@
 <?php
 
+/*
+
+@description   The main entry point for the 'products single' page. Used internally by the custom post type single template
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/products-single.php
+@partials      templates/partials/products/single
+
+@docs          https://wpshop.io/docs/templates/products-single
+
+*/
+
 use WPS\DB\Products;
 use WPS\Utils;
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
 
 $DB_Products = new Products();
 $product = $DB_Products->get_data();

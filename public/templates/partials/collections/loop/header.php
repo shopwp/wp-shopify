@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <?php if (!is_single()) { ?>
 
   <header class="wps-collections-header wps-contain wps-row <?php echo apply_filters('wps_collections_header_class', '', $data->collections); ?>">

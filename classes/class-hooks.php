@@ -678,44 +678,17 @@ if (!class_exists('Hooks')) {
 				}
 
 
-				$amountOfProducts = count($wps_products);
-				$settings = $this->config->wps_get_settings_general();
+				$data = [
+					'query'								=>	$productsQuery,
+					'args'								=>	Utils::wps_convert_array_to_object($args),
+					'custom_args'					=>	isset($args['custom']) ? $args['custom'] : [],
+					'amount_of_products'	=>	count($wps_products),
+					'products'						=>	$wps_products,
+					'settings'						=>  $this->config->wps_get_settings_general()
+				];
 
-				do_action( 'wps_products_header', $productsQuery );
-				do_action( 'wps_products_header_after', $productsQuery );
+				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/all', 'display' );
 
-				do_action( 'wps_products_before', $productsQuery );
-
-				if ($amountOfProducts > 0) {
-
-					do_action( 'wps_products_loop_start', $productsQuery );
-
-					foreach ($wps_products as $wps_product) {
-
-						do_action( 'wps_products_item_start', $wps_product, $args, $customArgs );
-						do_action( 'wps_products_item', $wps_product, $args, $settings );
-						do_action( 'wps_products_item_end', $wps_product );
-
-					}
-
-					wp_reset_postdata();
-
-					do_action( 'wps_products_loop_end', $productsQuery );
-					do_action( 'wps_before_products_pagination', $productsQuery );
-
-					if (isset($args['paged']) && $args['paged']) {
-						do_action( 'wps_products_pagination', $productsQuery );
-					}
-
-					do_action( 'wps_after_products_pagination', $productsQuery );
-
-				} else {
-
-					do_action( 'wps_products_no_results', $args );
-
-				}
-
-				do_action( 'wps_products_after', $productsQuery );
 
 			}
 
@@ -833,19 +806,20 @@ if (!class_exists('Hooks')) {
 		Related Products Config
 
 		*/
-		public function wps_products_related_args($defaultArgs, $product) {
+		public function wps_products_related_args($defaultArgs) {
 
+			global $post;
 			$DB_Products = new Products();
 
 			return array(
-				'post_type' 										=> $product->post_type,
+				'post_type' 										=> $post->post_type,
         'post_status' 									=> 'publish',
         'posts_per_page' 								=> apply_filters('wps_products_related_args_posts_per_page', 4), // Not currently used
 				'orderby'   										=> apply_filters('wps_products_related_args_orderby', 'rand'),
         'paged' 												=> false,
-				'post__not_in' 									=> array($product->ID),
+				'post__not_in' 									=> array($post->ID),
 				'wps_related_products' 					=> true,
-				'custom' 												=> apply_filters('wps_products_related_filters', [], $DB_Products->get_data($product->ID)), // Allows for custom filtering of related products
+				'custom' 												=> apply_filters('wps_products_related_filters', [], $DB_Products->get_data($post->ID)), // Allows for custom filtering of related products
 				'wps_related_products_count' 		=> apply_filters('wps_products_related_args_posts_per_page', 4) // Determines amount of items returned
 			);
 

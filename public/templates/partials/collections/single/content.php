@@ -1,3 +1,11 @@
+<?php
+
+if ( !defined('ABSPATH') ) {
+	exit;
+}
+
+?>
+
 <?php if (is_object($data->collection) && property_exists($data->collection, 'body_html')) { ?>
 
   <div
