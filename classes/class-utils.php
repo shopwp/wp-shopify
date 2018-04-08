@@ -1390,7 +1390,6 @@ if (!class_exists('Utils')) {
 	      'paged'             => 1
 	    );
 
-
 	    //
 	    // Order
 	    //
@@ -1496,8 +1495,22 @@ if (!class_exists('Utils')) {
 	      $shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
 	    }
 
+			//
+			// Items per row
+			//
+			if (isset($shortcodeArgs['items-per-row']) && $shortcodeArgs['items-per-row']) {
+				$shortcode_args['custom']['items-per-row'] = $shortcodeArgs['items-per-row'];
+			}
+
+			//
+			// Pagination
+			//
+			if (isset($shortcodeArgs['pagination'])) {
+				$shortcode_args['custom']['pagination'] = false;
+			}
+
 	    //
-	    // Pagination
+	    // Page
 	    //
 	    if (isset($shortcodeArgs['page']) && $shortcodeArgs['page']) {
 	      $shortcode_args['paged'] = $shortcodeArgs['page'];
@@ -1587,6 +1600,27 @@ if (!class_exists('Utils')) {
 	    //
 	    if (isset($shortcodeArgs['limit']) && $shortcodeArgs['limit']) {
 	      $shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
+	    }
+
+			//
+	    // Items per row
+	    //
+	    if (isset($shortcodeArgs['items-per-row']) && $shortcodeArgs['items-per-row']) {
+	      $shortcode_args['custom']['items-per-row'] = $shortcodeArgs['items-per-row'];
+	    }
+
+			//
+			// Pagination
+			//
+			if (isset($shortcodeArgs['pagination'])) {
+				$shortcode_args['custom']['pagination'] = false;
+			}
+
+			//
+	    // Breadcrumbs
+	    //
+	    if (isset($shortcodeArgs['breadcrumbs']) && $shortcodeArgs['breadcrumbs']) {
+	      $shortcode_args['custom']['breadcrumbs'] = $shortcodeArgs['breadcrumbs'];
 	    }
 
 	    return $shortcode_args;
@@ -2182,7 +2216,17 @@ if (!class_exists('Utils')) {
 	    $generalSettings = $Config->wps_get_settings_general();
 	    $link = '';
 	    $homeURL = get_home_url();
-	    $post_type = $args['query']->query['post_type'];
+
+			if (!isset($args['query']->query['post_type'])) {
+				$post_type = explode("_query", $args['query']->query['context'])[0];
+
+			} else {
+				$post_type = $args['query']->query['post_type'];
+			}
+
+
+
+
 
 	    if ($post_type === 'wps_products') {
 	      $slug = $generalSettings->url_products;
@@ -2472,27 +2516,7 @@ if (!class_exists('Utils')) {
 	        }
 
 
-
-
-
-					// error_log('---- $previous_page -----');
-					// error_log(print_r($previous_page, true));
-					// error_log('---- /$previous_page -----');
-					//
-					// error_log('---- $next_page -----');
-					// error_log(print_r($next_page, true));
-					// error_log('---- /$next_page -----');
-					//
-					// error_log('---- $first_page -----');
-					// error_log(print_r($first_page, true));
-					// error_log('---- /$first_page -----');
-					//
-					// error_log('---- $last_page -----');
-					// error_log(print_r($last_page, true));
-					// error_log('---- /$last_page -----');
-
 					ob_start();
-
 					$Templates->template_loader->set_template_data([
 						'page_number' 			=> $current_page,
 						'max_pages' 				=> $max_pages

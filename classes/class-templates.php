@@ -95,11 +95,30 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_products_item_start($product, $args, $customArgs) {
 
+
+			// Related products will always override
+			if (isset($args->wps_related_products_items_per_row) && $args->wps_related_products_items_per_row !== false ) {
+				$items_per_row = $args->wps_related_products_items_per_row;
+
+			} else {
+				$items_per_row = apply_filters('wps_products_items_per_row', 3);
+			}
+
+
+			// Shortcode will always override wps_related_products_items_per_row filter
+			if (isset($customArgs['items-per-row']) && $customArgs['items-per-row'] !== false ) {
+				$items_per_row = $customArgs['items-per-row'];
+
+			} else {
+				$items_per_row = apply_filters('wps_products_items_per_row', 3);
+			}
+
+
 			$data = [
 				'product' 			=> $product,
 				'args' 					=> $args,
 				'custom_args' 	=> $customArgs,
-				'items_per_row' => apply_filters('wps_products_items_per_row', 3)
+				'items_per_row' => $items_per_row
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/item', 'start' );
@@ -550,25 +569,11 @@ if (!class_exists('Templates')) {
 		Template: partials/products/related/heading-start
 
 		*/
-		public function wps_products_related_heading_start() {
+		public function wps_products_related_heading() {
 
 			$data = [];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/related/heading', 'start' );
-
-		}
-
-
-		/*
-
-		Template: partials/products/related/heading-end
-
-		*/
-		public function wps_products_related_heading_end() {
-
-			$data = [];
-
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/related/heading', 'end' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/related/heading' );
 
 		}
 
@@ -653,10 +658,19 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_collections_item_start($collection, $args, $customArgs) {
 
+			// Shortcode will always override wps_related_products_items_per_row filter
+			if (isset($customArgs['items-per-row']) && $customArgs['items-per-row'] !== false ) {
+				$items_per_row = $customArgs['items-per-row'];
+
+			} else {
+				$items_per_row = apply_filters('wps_collections_items_per_row', 3);
+			}
+
 			$data = [
 				'collection' 		=> $collection,
 				'args' 					=> $args,
-				'custom_args' 	=> $customArgs
+				'custom_args' 	=> $customArgs,
+				'items_per_row' => $items_per_row
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/item', 'start' );
@@ -770,10 +784,10 @@ if (!class_exists('Templates')) {
 		public function wps_collections_no_results($args) {
 
 			$data = [
-				'args' 	=> $args
+				'args' => $args
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/no', 'results' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/notices/no', 'results' );
 
 		}
 
@@ -817,11 +831,23 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_product_single_content($product) {
 
-			$data = [
-				'product' 	=> $product
-			];
+			if (is_object($product) && property_exists($product, 'body_html') && !empty($product->body_html) ) {
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/content' );
+				$data = [
+					'product' 	=> $product
+				];
+
+				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/content' );
+
+			} else {
+
+				$data = [
+					'type' 	=> 'product'
+				];
+
+				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/notices/no', 'description' );
+
+			}
 
 		}
 
@@ -844,16 +870,16 @@ if (!class_exists('Templates')) {
 
 		/*
 
-		Template: partials/products/single/header-price
+		Template: partials/products/single/header
 
 		*/
-		public function wps_product_single_header_price($product) {
+		public function wps_product_single_heading($product) {
 
 			$data = [
 				'product' 	=> $product
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/header', 'price' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/heading' );
 
 		}
 
@@ -1102,11 +1128,23 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_collection_single_content($collection) {
 
-			$data = [
-				'collection' 	=> $collection
-			];
+			if (is_object($collection) && property_exists($collection, 'body_html') && !empty($collection->body_html) ) {
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/single/content' );
+				$data = [
+					'collection' 	=> $collection
+				];
+
+				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/single/content' );
+
+			} else {
+
+				$data = [
+					'type' 	=> 'collection'
+				];
+
+				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/notices/no', 'description' );
+
+			}
 
 		}
 
@@ -1124,6 +1162,20 @@ if (!class_exists('Templates')) {
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/single/products' );
+
+		}
+
+
+		/*
+
+		Template: partials/collections/single/products
+
+		*/
+		public function wps_collection_single_products_heading() {
+
+			$data = [];
+
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/single/products', 'heading' );
 
 		}
 
@@ -1183,6 +1235,10 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_collection_single_products_list($collection, $products) {
 
+			if (!is_array($products) || empty($products)) {
+				return $this->template_loader->get_template_part( 'partials/notices/no', 'results' );
+			}
+
 			$data = [
 				'products'			=> $products,
 				'collection'		=> $collection
@@ -1204,7 +1260,8 @@ if (!class_exists('Templates')) {
 
 				$data = [];
 
-				if ( empty($shortcodeData) ) {
+				if ( empty($shortcodeData->shortcodeArgs) || empty($shortcodeData->shortcodeArgs['custom'])|| empty($shortcodeData->shortcodeArgs['custom']['breadcrumbs']) ) {
+
 					return $this->template_loader->set_template_data($data)->get_template_part( 'partials/pagination/breadcrumbs' );
 
 				} else {
@@ -1283,7 +1340,9 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_cart_button_checkout() {
 
-			$data = [];
+			$data = [
+				'checkout_base_url' => WPS_CHECKOUT_BASE_URL
+			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/cart/cart-button', 'checkout' );
 
@@ -1306,7 +1365,7 @@ if (!class_exists('Templates')) {
 			];
 
 			ob_start();
-			$this->template_loader->set_template_data($data)->get_template_part( 'partials/cart/button' );
+			$this->template_loader->set_template_data($data)->get_template_part( 'partials/cart/cart-icon', 'wrapper' );
 			$cart = ob_get_contents();
 			ob_end_clean();
 
@@ -1607,9 +1666,10 @@ if (!class_exists('Templates')) {
 			add_action('wps_collection_single_img', [$this, 'wps_collection_single_img']);
 			add_action('wps_collection_single_content', [$this, 'wps_collection_single_content']);
 			add_action('wps_collection_single_products', [$this, 'wps_collection_single_products'],  10, 3);
+			add_action('wps_collection_single_products_list', [$this, 'wps_collection_single_products_list'], 10, 3);
+			add_action('wps_collection_single_products_heading', [$this, 'wps_collection_single_products_heading']);
 			add_action('wps_collection_single_end', [$this, 'wps_collection_single_end']);
 			add_action('wps_collection_single_product', [$this, 'wps_collection_single_product']);
-			add_action('wps_collection_single_products_list', [$this, 'wps_collection_single_products_list'], 10, 3);
 			add_action('wps_collection_single_heading', [$this, 'wps_collection_single_heading'], 10);
 
 			add_action('wps_products_header', [$this, 'wps_products_header']);
@@ -1635,8 +1695,7 @@ if (!class_exists('Templates')) {
 			add_action('wps_products_meta_end', [$this, 'wps_products_meta_end']);
 			add_action('wps_products_related_start', [$this, 'wps_products_related_start']);
 			add_action('wps_products_related_end', [$this, 'wps_products_related_end']);
-			add_action('wps_products_related_heading_start', [$this, 'wps_products_related_heading_start']);
-			add_action('wps_products_related_heading_end', [$this, 'wps_products_related_heading_end']);
+			add_action('wps_products_related_heading', [$this, 'wps_products_related_heading']);
 			add_action('wps_products_notice_out_of_stock', [$this, 'wps_products_notice_out_of_stock']);
 			add_filter('wps_products_pagination_start', [$this, 'wps_products_pagination_start']);
 			add_filter('wps_products_pagination_end', [$this, 'wps_products_pagination_end']);
@@ -1648,6 +1707,7 @@ if (!class_exists('Templates')) {
 			add_action('wps_product_single_content', [$this, 'wps_product_single_content']);
 
 			add_action('wps_product_single_header', [$this, 'wps_product_single_header']);
+			add_action('wps_product_single_heading', [$this, 'wps_product_single_heading']);
 
 			add_action('wps_product_single_img', [$this, 'wps_product_single_img'], 10, 2);
 			add_action('wps_product_single_imgs', [$this, 'wps_product_single_imgs']);

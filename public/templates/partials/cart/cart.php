@@ -1,24 +1,36 @@
 <?php
 
+/*
+
+@description   Cart template. The actual markup that appears when opening the cart.
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/cart/cart.php
+
+@docs          https://wpshop.io/docs/templates/cart/cart
+
+*/
+
 if ( !defined('ABSPATH') ) {
 	exit;
 }
 
 ?>
 
-<div class="<?php echo apply_filters( 'wps_cart_class', '' ); ?> wps-cart">
+<div class="<?= apply_filters( 'wps_cart_class', '' ); ?> wps-cart">
 
   <?php do_action('wps_cart_before'); ?>
 
   <div class="wps-cart-section wps-cart-section--top">
 
     <h2 class="wps-cart-title">
-      <?php echo apply_filters('wps_cart_title_text', 'Shopping cart'); ?>
+      <?= apply_filters('wps_cart_title_text', 'Shopping cart'); ?>
     </h2>
 
     <button class="wps-btn-close wps-modal-close-trigger" title="Open Cart">
       <span aria-role="hidden" class="wps-modal-close-trigger">
-        <?php echo apply_filters('wps_cart_close_icon', '&times;'); ?>
+        <?= apply_filters('wps_cart_close_icon', '&times;'); ?>
       </span>
     </button>
 
@@ -35,7 +47,7 @@ if ( !defined('ABSPATH') ) {
       <div class="wps-cart-info wps-clearfix wps-cart-section">
 
         <div class="wps-type--caps wps-cart-info__total">
-          <?php echo apply_filters('wps_cart_total_text', esc_html__('Total', 'wp-shopify')); ?>
+          <?= apply_filters('wps_cart_total_text', esc_html__('Total', 'wp-shopify')); ?>
         </div>
 
         <div class="wps-cart-info__pricing">
@@ -46,7 +58,7 @@ if ( !defined('ABSPATH') ) {
       <div class="wps-cart-actions-container wps-cart-section type--center">
 
         <div class="wps-cart-discount-notice wps-cart-info__small">
-          <?php echo apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', 'wp-shopify')); ?>
+          <?= apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', 'wp-shopify')); ?>
         </div>
 
         <?php
@@ -65,7 +77,7 @@ if ( !defined('ABSPATH') ) {
 
   <script id="wps-cart-item-template" type="text/template">
 
-    <div class="wps-cart-item <?php echo apply_filters( 'wps_cart_item_class', '' ); ?>">
+    <div class="wps-cart-item <?= apply_filters( 'wps_cart_item_class', '' ); ?>">
 
       <a href="#!" class="wps-cart-item-img-link">
         <div class="wps-cart-item__img"></div>

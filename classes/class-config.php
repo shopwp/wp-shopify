@@ -73,6 +73,9 @@ if ( !class_exists('Config') ) {
 				define('WPS_RELATIVE_TEMPLATE_DIR', 'public/templates');
 			}
 
+			if ( !defined('WPS_CHECKOUT_BASE_URL') ) {
+				define('WPS_CHECKOUT_BASE_URL', 'https://checkout.shopify.com');
+			}
 
 			$this->plugin_name_full = 'WP Shopify';
 			$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);

@@ -53,7 +53,7 @@ We should eventually wrap this around a conditional. Will show twice if
 user outputs two shortcodes on the same page while breadcrumbs is turned on.
 
 */
-do_action('wps_breadcrumbs');
+do_action('wps_breadcrumbs', $data);
 
 
 /*

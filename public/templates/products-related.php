@@ -19,12 +19,10 @@ if ( !defined('ABSPATH') ) {
 
 do_action('wps_products_related_before');
 do_action('wps_products_related_start');
-do_action('wps_products_related_heading_before');
 
-do_action('wps_products_related_heading_start');
-echo apply_filters('wps_products_related_heading', 'Related Products');
-do_action('wps_products_related_heading_end');
-do_action('wps_products_related_heading_end_after');
+do_action('wps_products_related_heading_before');
+do_action('wps_products_related_heading');
+do_action('wps_products_related_heading_after');
 
 /*
 

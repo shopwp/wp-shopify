@@ -18,9 +18,9 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<div class="wps-form-control wps-row wps-row-center wps-col-center wps-product-quantity-wrapper <?php echo apply_filters('wps_products_quantity_class', ''); ?>">
+<div class="wps-form-control wps-row wps-row-center wps-col-center wps-product-quantity-wrapper <?= apply_filters('wps_products_quantity_class', ''); ?>">
   <label for="wps-product-quantity">
-    <?php echo apply_filters('wps_products_quantity_label', esc_html__('Quantity', 'wp-shopify')); ?>
+    <?= apply_filters('wps_products_quantity_label', esc_html__('Quantity', 'wp-shopify')); ?>
   </label>
   <input type="number" name="wps-product-quantity" class="wps-product-quantity wps-form-input" value="1" min="0">
 </div>
