@@ -38,13 +38,10 @@ if ($data->amount_of_products > 0) {
   wp_reset_postdata();
 
   do_action( 'wps_products_loop_end', $data->query ); // partials/products/loop/loop-end
-  do_action( 'wps_before_products_pagination', $data->query );
 
-  if (isset($data->args->paged) && $data->args->paged) {
-    do_action( 'wps_products_pagination', $data->query );
-  }
-
-  do_action( 'wps_after_products_pagination', $data->query );
+	do_action( 'wps_products_pagination_before', $data->query );
+	do_action( 'wps_products_pagination', $data->query );
+  do_action( 'wps_products_pagination_after', $data->query );
 
 } else {
 

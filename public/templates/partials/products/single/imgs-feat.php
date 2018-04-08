@@ -1,5 +1,17 @@
 <?php
 
+/*
+
+@description   Featured image used within the image gallery on product single pages
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/single/img-feat.php
+
+@docs          https://wpshop.io/docs/templates/products/single/img-feat
+
+*/
+
 if ( !defined('ABSPATH') ) {
 	exit;
 }

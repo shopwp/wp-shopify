@@ -18,4 +18,4 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<a itemprop="url" href="<?php echo $data->page_href; ?>" class="wps-products-page-previous" itemprop="item"><?php echo $data->page_previous_text; ?></a>
+<a itemprop="url" href="<?= $data->page_href; ?>" class="wps-products-page-previous" itemprop="item"><?= $data->page_previous_text; ?></a>

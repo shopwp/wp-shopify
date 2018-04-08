@@ -18,4 +18,4 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<div itemprop="description" class="wps-products-page-counter"><?php echo sprintf( __( 'Page %s of %s' ), $data->page_number, $data->max_pages ); ?></div>
+<div itemprop="description" class="wps-products-page-counter"><?= sprintf( __( 'Page %s of %s' ), $data->page_number, $data->max_pages ); ?></div>

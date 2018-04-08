@@ -1,5 +1,17 @@
 <?php
 
+/*
+
+@description   Placeholder used for the image gallery's feature image on product single pages
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/single/img-feat-placeholder.php
+
+@docs          https://wpshop.io/docs/templates/products/single/img-feat-placeholder
+
+*/
+
 if ( !defined('ABSPATH') ) {
 	exit;
 }

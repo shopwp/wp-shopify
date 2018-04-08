@@ -18,4 +18,4 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<div class="wps-notice <?php echo apply_filters('wps_notice_class', ''); ?>"></div>
+<div class="wps-notice <?= apply_filters('wps_notice_class', ''); ?>"></div>

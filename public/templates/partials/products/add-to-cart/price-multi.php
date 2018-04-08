@@ -2,8 +2,9 @@
 
 /*
 
-@description   Multi-price component. Used when product has a range of prices, e.g., Small: $1, Medium: $3, Large: $5 -- $1-5
-
+@description   Multi-price component. Used when product has a range of prices, e.g., Small: $1, Medium: $3, Large: $5 -- $1-5.
+							 Used on both product single and product listing pages.
+							 
 @version       1.0.0
 @since         1.0.49
 @path          templates/partials/products/add-to-cart/price-multi.php
@@ -22,7 +23,7 @@ if ( !defined('ABSPATH') ) {
   itemprop="offers"
   itemscope
   itemtype="https://schema.org/Offer"
-  class="wps-products-price wps-products-price-multi <?php echo apply_filters( 'wps_products_price_class', '' ); ?>">
+  class="wps-products-price wps-products-price-multi <?= apply_filters( 'wps_products_price_class', '' ); ?>">
 
   <?php
 

@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\Template_Loader;
+
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
@@ -27,6 +29,7 @@ if ( !class_exists('Admin_Menus') ) {
 	  */
 	  public function __construct($Config) {
 	    $this->config = $Config;
+			$this->template_loader = new Template_Loader;
 	  }
 
 
@@ -113,14 +116,18 @@ if ( !class_exists('Admin_Menus') ) {
 
 	    if ($item->description === 'WP Shopify Cart Icon') {
 
-	      ob_start();
-				include($this->config->plugin_path . "public/templates/partials/cart/button.php");
+				$data = [];
+
+				ob_start();
+				$this->template_loader->set_template_data($data)->get_template_part( 'partials/cart/cart-icon', 'wrapper' );
 				$item_output = ob_get_contents();
 				ob_end_clean();
 
-	  		return $item_output;
+				return $item_output;
 
 	    }
+
+
 
 	    return $item_output;
 

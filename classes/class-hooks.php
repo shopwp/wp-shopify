@@ -67,11 +67,19 @@ if (!class_exists('Hooks')) {
 		public function wps_products_pagination($productsQuery) {
 
 			$Utils = new Utils();
-			$args = array(
-				'query' => $productsQuery
-			);
 
-			echo $Utils->wps_get_paginated_numbers($args);
+			$args = [
+				'query' => $productsQuery
+			];
+
+			// If user turns pagination off via shortcode just exit
+			if (isset($args['query']->query['custom']['pagination'])) {
+				return;
+			}
+
+			if (isset($args['query']->query['paged']) && $args['query']->query['paged'] ) {
+				echo $Utils->wps_get_paginated_numbers($args);
+			}
 
 		}
 
@@ -88,7 +96,16 @@ if (!class_exists('Hooks')) {
 				'query' => $collectionsQuery
 			);
 
-			echo $Utils->wps_get_paginated_numbers($args);
+
+			// If user turns pagination off via shortcode just exit
+			if (isset($args['query']->query['custom']['pagination'])) {
+				return;
+			}
+
+			if (isset($args['query']->query['paged']) && $args['query']->query['paged'] ) {
+				echo $Utils->wps_get_paginated_numbers($args);
+			}
+			
 
 		}
 
@@ -182,11 +199,7 @@ if (!class_exists('Hooks')) {
 			echo '';
 		}
 
-		public function wps_products_related_heading_before() {
-			echo '';
-		}
-
-		public function wps_products_related_heading() {
+		public function wps_products_related_heading_text() {
 			echo 'Related';
 		}
 
@@ -755,46 +768,18 @@ if (!class_exists('Hooks')) {
 				}
 
 
-				/*
 
-				Now that we've queried both collections tables, we can combine them
-				into a single data set to loop through
+				$data = [
+					'query'									=>	$collectionsQuery,
+					'args'									=>	Utils::wps_convert_array_to_object($args),
+					'custom_args'						=>	isset($args['custom']) ? $args['custom'] : [],
+					'amount_of_collections'	=>	count($collections),
+					'collections'						=>	$collections,
+					'settings'							=>  $this->config->wps_get_settings_general()
+				];
 
-				*/
+				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/all', 'display' );
 
-				do_action( 'wps_collections_header', $collections );
-				do_action( 'wps_collections_header_after', $collections );
-
-				do_action( 'wps_collections_before', $collections );
-
-				if (count($collections) > 0) {
-
-					do_action( 'wps_collections_loop_start', $collections );
-
-					foreach ($collections as $collection) {
-
-						do_action( 'wps_collections_item_start', $collection, $args, $customArgs );
-						do_action( 'wps_collections_item', $collection, $args );
-						do_action( 'wps_collections_item_end', $collection );
-
-					}
-
-					do_action( 'wps_collections_loop_end', $collections );
-					do_action( 'wps_before_collections_pagination', $collections );
-
-					if ( isset($args['paged']) && $args['paged']) {
-						do_action( 'wps_collections_pagination', $collectionsQuery );
-					}
-
-					do_action( 'wps_after_collections_pagination', $collections );
-
-
-				} else {
-					do_action( 'wps_collections_no_results', $args );
-
-				}
-
-				do_action( 'wps_collections_after', $collections );
 
 			}
 
@@ -814,13 +799,23 @@ if (!class_exists('Hooks')) {
 			return array(
 				'post_type' 										=> $post->post_type,
         'post_status' 									=> 'publish',
-        'posts_per_page' 								=> apply_filters('wps_products_related_args_posts_per_page', 4), // Not currently used
+
+				// Not currently used
+        'posts_per_page' 								=> apply_filters('wps_products_related_args_posts_per_page', 4),
 				'orderby'   										=> apply_filters('wps_products_related_args_orderby', 'rand'),
         'paged' 												=> false,
 				'post__not_in' 									=> array($post->ID),
 				'wps_related_products' 					=> true,
-				'custom' 												=> apply_filters('wps_products_related_filters', [], $DB_Products->get_data($post->ID)), // Allows for custom filtering of related products
-				'wps_related_products_count' 		=> apply_filters('wps_products_related_args_posts_per_page', 4) // Determines amount of items returned
+
+				// Allows for custom filtering of related products
+				'custom' 												=> apply_filters('wps_products_related_filters', [], $DB_Products->get_data($post->ID)),
+
+				// Allows for customing how many related products show
+				'wps_related_products_count' 		=> apply_filters('wps_products_related_args_posts_per_page', 4),
+
+				// Allows for customing how many related products per row
+				'wps_related_products_items_per_row' => apply_filters('wps_products_related_args_items_per_row', false)
+
 			);
 
 		}
@@ -829,20 +824,18 @@ if (!class_exists('Hooks')) {
 		/*
 
 		Main Collections Config
+		TODO: Think about combining with wps_products_args
 
 		*/
-		public function wps_collections_args($shortcodeArgs) {
+		public function wps_collections_args($shortcodeData) {
 
 			$DB_Settings_General = new Settings_General();
 			$settingsNumPosts = $DB_Settings_General->get_num_posts();
 
 			$paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
-			if( !empty($shortcodeArgs) ) {
-				$shortcodeArgs['paged'] = $paged;
-				return $shortcodeArgs;
 
-			} else {
+			if ( empty($shortcodeData->shortcodeArgs) ) {
 
 				return [
 					'post_type' 			=> 'wps_collections',
@@ -851,6 +844,11 @@ if (!class_exists('Hooks')) {
 					'orderby'   			=> apply_filters('wps_collections_args_orderby', 'desc'),
 					'paged' 					=> apply_filters('wps_collections_args_paged', $paged)
 				];
+
+			} else {
+
+				$shortcodeData->shortcodeArgs['paged'] = $paged;
+				return $shortcodeData->shortcodeArgs;
 
 			}
 
@@ -871,13 +869,13 @@ if (!class_exists('Hooks')) {
 
 			if ( empty($shortcodeData->shortcodeArgs) ) {
 
-				return array(
+				return [
 					'post_type' => 'wps_products',
 					'post_status' => 'publish',
 					'posts_per_page' => apply_filters('wps_products_args_posts_per_page', $settingsNumPosts),
 					'orderby'   => apply_filters('wps_products_args_orderby', 'desc'),
 					'paged' => apply_filters('wps_products_args_paged', $paged)
-				);
+				];
 
 			} else {
 

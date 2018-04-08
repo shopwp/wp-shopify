@@ -21,17 +21,17 @@ if ( !defined('ABSPATH') ) {
 <?php foreach ($data->sorted_options as $option) { ?>
 
   <div
-    class="wps-btn-dropdown wps-col wps-col-<?php echo $data->button_width; ?> <?php echo apply_filters('wps_options_class', ''); ?>"
+    class="wps-btn-dropdown wps-col wps-col-<?= $data->button_width; ?> <?= apply_filters('wps_options_class', ''); ?>"
     data-selected="false"
     data-open="false"
     data-selected-val=""
-    data-option="<?php echo $data->option_number; ?>">
+    data-option="<?= $data->option_number; ?>">
 
     <a
       href="#!"
       class="wps-btn wps-icon wps-icon-dropdown wps-modal-trigger"
       data-option="<?php esc_attr_e($option->name, 'wp-shopify'); ?>"
-      data-option-id="<?php echo $option->id; ?>">
+      data-option-id="<?= $option->id; ?>">
       <?php esc_html_e($option->name, 'wp-shopify'); ?>
     </a>
 
@@ -42,9 +42,9 @@ if ( !defined('ABSPATH') ) {
         <li
           itemprop="category"
           class="wps-product-style wps-modal-close-trigger"
-          data-option-id="<?php echo $data->variant_number; ?>"
+          data-option-id="<?= $data->variant_number; ?>"
           data-variant-title="<?php esc_attr_e($variant, 'wp-shopify'); ?>"
-          data-option-position="<?php echo $option->position; ?>">
+          data-option-position="<?= $option->position; ?>">
             <?php esc_html_e($variant, 'wp-shopify'); ?>
         </li>
 

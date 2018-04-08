@@ -18,4 +18,4 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<span itemprop="identifier" class="wps-products-page-current"><?php echo $data->page_number; ?></span>
+<span itemprop="identifier" class="wps-products-page-current"><?= $data->page_number; ?></span>

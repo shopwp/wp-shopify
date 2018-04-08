@@ -1,12 +1,24 @@
 <?php
 
+/*
+
+@description   Header for single collection
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/collections/single/header.php
+
+@docs          https://wpshop.io/docs/templates/collections/single/header
+
+*/
+
 if ( !defined('ABSPATH') ) {
 	exit;
 }
 
 ?>
 
-<header class="wps-collection-header <?php echo apply_filters('wps_collections_single_header_class', ''); ?>">
+<header class="wps-collection-header <?= apply_filters('wps_collections_single_header_class', ''); ?>">
 
   <?php
 

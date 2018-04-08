@@ -1,5 +1,17 @@
 <?php
 
+/*
+
+@description   Collection image within loop
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/collections/loop/item-img.php
+
+@docs          https://wpshop.io/docs/templates/collections/loop/item-img
+
+*/
+
 if ( !defined('ABSPATH') ) {
 	exit;
 }
@@ -8,6 +20,6 @@ if ( !defined('ABSPATH') ) {
 
 <img
   itemprop="image"
-  src="<?php echo esc_url($data->image->src); ?>"
+  src="<?= esc_url($data->image->src); ?>"
   alt="<?php esc_attr_e($data->image->alt); ?>"
-  class="<?php echo apply_filters( 'wps_collections_img_class', '' ); ?>" />
+  class="<?= apply_filters( 'wps_collections_img_class', '' ); ?>" />

@@ -1,5 +1,17 @@
 <?php
 
+/*
+
+@description   Individual image used for the image gallery on product single pages
+
+@version       1.0.0
+@since         1.0.49
+@path          templates/partials/products/single/img.php
+
+@docs          https://wpshop.io/docs/templates/products/single/img
+
+*/
+
 if ( !defined('ABSPATH') ) {
 	exit;
 }

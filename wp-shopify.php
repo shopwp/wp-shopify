@@ -303,7 +303,6 @@ if ( !class_exists('WP_Shopify') ) {
 			add_filter('wps_collections_custom_args', [$Hooks, 'wps_collections_custom_args']);
 			add_filter('wps_collections_custom_args_items_per_row', [$Hooks, 'wps_collections_custom_args_items_per_row']);
 			add_filter('wps_collection_single_products_heading_class', [$Hooks, 'wps_collection_single_products_heading_class']);
-			add_filter('wps_collection_single_products_heading', [$Hooks, 'wps_collection_single_products_heading']);
 
 			add_action('wps_products_display', [$Hooks, 'wps_products_display'], 10, 2);
 			add_filter('wps_products_pagination_range', [$Hooks, 'wps_products_pagination_range']);
