@@ -67,7 +67,7 @@ if (!class_exists('Templates')) {
 				'query' => $query
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/loop', 'start' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/start' );
 
 		}
 
@@ -83,7 +83,7 @@ if (!class_exists('Templates')) {
 				'products' => $products
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/loop', 'end' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/end' );
 
 		}
 
@@ -415,7 +415,7 @@ if (!class_exists('Templates')) {
 				'product' => $product
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/action-groups/action-groups', 'start' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/action-groups/start' );
 
 		}
 
@@ -482,7 +482,7 @@ if (!class_exists('Templates')) {
 				'product' => $product
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/action-groups/action-groups', 'end' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/action-groups/end' );
 
 		}
 
@@ -632,7 +632,7 @@ if (!class_exists('Templates')) {
 
 			$data = [];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/loop', 'start' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/start' );
 
 		}
 
@@ -646,7 +646,7 @@ if (!class_exists('Templates')) {
 
 			$data = [];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/loop', 'end' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/loop/end' );
 
 		}
 
@@ -819,7 +819,7 @@ if (!class_exists('Templates')) {
 				'product' 	=> $product
 			];
 
-			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/action-groups/action-groups', 'start' );
+			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/action-groups/start' );
 
 		}
 
@@ -1442,8 +1442,7 @@ if (!class_exists('Templates')) {
 		3. At this point in the execution we load our template by pulling in our
 			 products-all.php. This template then calls our custom action 'wps_products_display'
 
-		4. 'wps_products_display' then calls 'wps_clauses_mod' when it invokes WP_Query. The
-			 execution order looks like this:
+		4. 'wps_products_display' then calls 'wps_clauses_mod' when it invokes WP_Query.
 
 		5. Because 'wps_clauses_mod' will get fired for both products and collections, we then
 			 need to fork where the execution goes by calling one of two functions depending
@@ -1456,7 +1455,7 @@ if (!class_exists('Templates')) {
 			 wps_products_shortcode ->
 			 wps_format_products_shortcode_args ->
 			 wps_map_products_args_to_query ->
-			 wps_products_display -> (via WP_Query) -> wps_clauses_mod
+			 wps_products_display -> wps_clauses_mod (via WP_Query)
 					either a. construct_clauses_from_products_shortcode
 					either b. construct_clauses_from_collections_shortcode
 			 ================================================================
@@ -1596,6 +1595,11 @@ if (!class_exists('Templates')) {
 		}
 
 
+		/*
+
+		Show / Hide Footer
+
+		*/
 		public function show_footer($shortcodeData = false) {
 
 			if (empty($shortcodeData) || empty($shortcodeData->is_shortcode)) {
@@ -1611,6 +1615,7 @@ if (!class_exists('Templates')) {
 
 		*/
 		public function init() {
+
 
 			/*
 

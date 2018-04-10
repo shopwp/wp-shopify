@@ -83,10 +83,9 @@ if ( !class_exists('CPT') ) {
 	  */
 	  public function wps_post_type_products() {
 
-	    if ( post_type_exists( 'wps_products' ) ) {
+	    if (post_type_exists('wps_products')) {
 	      return;
 	    }
-
 
 	    // If falsey or not an object ...
 	    if (empty($this->general) || !is_object($this->general)) {
@@ -244,8 +243,6 @@ if ( !class_exists('CPT') ) {
 	  }
 
 
-
-
 	  /*
 
 	  Find Latest Menu Order
@@ -390,26 +387,6 @@ if ( !class_exists('CPT') ) {
 
 	    // Insert post and return the ID or error object if fail
 	    return wp_insert_post($collection_args, true);
-
-	  }
-
-
-	  /*
-
-	  wps_plugin_name_add_rewrite_rules
-
-	  TODO: Optimize, ensure not conflicting with other plugins
-
-	  */
-	  function wps_plugin_name_add_rewrite_rules() {
-	    add_rewrite_rule('page/([0-9]+)?$', 'index.php?post_type=wps_products&paged=$matches[1]', 'top');
-	  }
-
-
-	  function wps_custom_query_vars_filter($vars) {
-
-	    $vars[] = 'wps_related_products';
-	    return $vars;
 
 	  }
 

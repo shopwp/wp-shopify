@@ -930,6 +930,43 @@ if (!class_exists('Utils')) {
 	  }
 
 
+		/*
+
+	  Construct ids Clauses
+
+	  */
+	  public static function construct_ids_clauses($shortcode_query, $ids, $table_name) {
+
+			global $wpdb;
+
+	    if (is_array($table_name)) {
+
+	      $counter = 0;
+
+	      foreach ($table_name as $key => $table) {
+
+	        if ($counter === 0) {
+	          $shortcode_query['where'] .= ' AND ' . $table . '.collection_id IN (' . $ids . ')';
+
+	        } else {
+	          $shortcode_query['where'] .= ' OR ' . $table . '.collection_id IN (' . $ids . ')';
+						$shortcode_query['where'] .= ' OR ' . $table . '.post_id IN (' . $ids . ')';
+	        }
+
+	        $counter++;
+
+	      }
+
+	    } else {
+	      $shortcode_query['where'] .= ' AND ' . $table_name . '.collection_id IN (' . $ids . ')';
+				$shortcode_query['where'] .= ' OR ' . $table_name . '.post_id IN (' . $ids . ')';
+	    }
+
+	    return $shortcode_query;
+
+	  }
+
+
 	  /*
 
 	  Construct Vendors Clauses
@@ -1199,6 +1236,11 @@ if (!class_exists('Utils')) {
 	      $shortcode_query = self::construct_options_clauses($shortcode_query, $options, 'products');
 	    }
 
+			if (array_key_exists('ids', $shortcodeAttrs)) {
+	      $ids = self::construct_in_clause($shortcodeAttrs, 'ids');
+	      $shortcode_query = self::construct_ids_clauses($shortcode_query, $ids, 'products');
+	    }
+
 	    if (array_key_exists('orderby', $shortcodeAttrs)) {
 
 	      // Default to products table
@@ -1280,7 +1322,14 @@ if (!class_exists('Utils')) {
 	      $shortcode_query = self::construct_limit_clauses($shortcode_query, $shortcodeAttrs['limit']);
 	    }
 
+
+			if (array_key_exists('ids', $shortcodeAttrs)) {
+				$ids = self::construct_in_clause($shortcodeAttrs, 'ids');
+				$shortcode_query = self::construct_ids_clauses($shortcode_query, $ids, 'collections');
+			}
+
 	    return $shortcode_query;
+
 
 	  }
 
@@ -1530,6 +1579,13 @@ if (!class_exists('Utils')) {
 	      $shortcode_args['custom']['breadcrumbs'] = $shortcodeArgs['breadcrumbs'];
 	    }
 
+			//
+			// Keep permalinks
+			//
+			if (isset($shortcodeArgs['keep-permalinks']) && $shortcodeArgs['keep-permalinks']) {
+				$shortcode_args['custom']['keep-permalinks'] = $shortcodeArgs['keep-permalinks'];
+			}
+
 	    return $shortcode_args;
 
 	  }
@@ -1623,6 +1679,13 @@ if (!class_exists('Utils')) {
 	      $shortcode_args['custom']['breadcrumbs'] = $shortcodeArgs['breadcrumbs'];
 	    }
 
+			//
+			// Keep permalinks
+			//
+			if (isset($shortcodeArgs['keep-permalinks']) && $shortcodeArgs['keep-permalinks']) {
+				$shortcode_args['custom']['keep-permalinks'] = $shortcodeArgs['keep-permalinks'];
+			}
+
 	    return $shortcode_args;
 
 	  }
@@ -1655,6 +1718,7 @@ if (!class_exists('Utils')) {
 	      $productsQuery = Utils::wps_map_products_args_to_query($shortcodeArgs);
 
 	      return $productsQuery;
+
 
 	    } else {
 	      return array();
@@ -2212,11 +2276,19 @@ if (!class_exists('Utils')) {
 	  */
 	  public function wps_get_pagenum_link($args, $page) {
 
+			global $post;
+
 	    $Config = new Config();
 	    $generalSettings = $Config->wps_get_settings_general();
-	    $link = '';
+
 	    $homeURL = get_home_url();
 
+
+			/*
+
+			Check for the post type
+
+			*/
 			if (!isset($args['query']->query['post_type'])) {
 				$post_type = explode("_query", $args['query']->query['context'])[0];
 
@@ -2225,18 +2297,32 @@ if (!class_exists('Utils')) {
 			}
 
 
+			/*
 
+			By default, use the permalink URLs set within plugin settings
 
-
+			*/
 	    if ($post_type === 'wps_products') {
-	      $slug = $generalSettings->url_products;
+				$urlPrefix = $homeURL . '/' . $generalSettings->url_products . '/';
+
 	    } else {
-	      $slug = $generalSettings->url_collections;
+				$urlPrefix = $homeURL . '/' . $generalSettings->url_collections . '/';
 	    }
 
-	    $link = $homeURL . '/' . $slug . '/page/' . $page;
 
-	    return esc_url($link);
+			/*
+
+			If user wants to override the default permalinks for a cerain page
+			while using the shortcode, they can pass in keep-permalinks="true"
+
+			Will always override settings permalinks when passed in.
+
+			*/
+			if ( isset($args['query']->query['custom']['keep-permalinks']) ) {
+				$urlPrefix = get_permalink($post->ID);
+			}
+
+	    return esc_url($urlPrefix . 'page/' . $page);
 
 	  }
 
