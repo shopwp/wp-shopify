@@ -42,7 +42,7 @@ Tab Content: Tools
 
   <div class="wps-admin-section">
 
-    <h3><?php esc_html_e('Clear Cache', 'wp-shopify'); ?></h3>
+    <h3><?php esc_html_e('Clear Transients', 'wp-shopify'); ?></h3>
     <p><?php esc_html_e('If you\'re noticing various changes not appearing, try clearing the WP Shopify transient cache here.', 'wp-shopify'); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax wps-is-active">
@@ -53,7 +53,7 @@ Tab Content: Tools
         'id' => 'wps-button-clear-cache'
       );
 
-      submit_button(esc_html__('Clear WP Shopify Cache', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Clear WP Shopify Transient Cache', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
 
       <div class="spinner"></div>
 

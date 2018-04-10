@@ -105,7 +105,7 @@ if (!class_exists('Hooks')) {
 			if (isset($args['query']->query['paged']) && $args['query']->query['paged'] ) {
 				echo $Utils->wps_get_paginated_numbers($args);
 			}
-			
+
 
 		}
 
@@ -434,14 +434,16 @@ if (!class_exists('Hooks')) {
 				$DB_Collections_Custom = new Collections_Custom();
 				$DB = new DB();
 
-
-
 				if ($query->get('context') === 'wps_products_query') {
 
 					// If using Shortcode or related products ...
 					if ($query->get('custom')) {
 
 						$clauses = Utils::construct_clauses_from_products_shortcode($query->get('custom'), $query);
+
+						error_log('=============== wps_clauses_mod =================');
+						error_log(print_r($clauses, true));
+						error_log('/================================');
 
 
 					} else {
@@ -534,7 +536,6 @@ if (!class_exists('Hooks')) {
 
 			}
 
-
 			return $clauses;
 
 		}
@@ -626,6 +627,11 @@ if (!class_exists('Hooks')) {
 				}
 
 
+				error_log('---- wps_products_display -----');
+				error_log(print_r($args, true));
+				error_log('---- /wps_products_display -----');
+
+
 				$productQueryHash = md5(serialize($args));
 
 				/*
@@ -700,7 +706,7 @@ if (!class_exists('Hooks')) {
 					'settings'						=>  $this->config->wps_get_settings_general()
 				];
 
-				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/all', 'display' );
+				return $this->template_loader->set_template_data($data)->get_template_part( 'products-all', 'display' );
 
 
 			}
@@ -778,7 +784,7 @@ if (!class_exists('Hooks')) {
 					'settings'							=>  $this->config->wps_get_settings_general()
 				];
 
-				return $this->template_loader->set_template_data($data)->get_template_part( 'partials/collections/all', 'display' );
+				return $this->template_loader->set_template_data($data)->get_template_part( 'collections-all', 'display' );
 
 
 			}
