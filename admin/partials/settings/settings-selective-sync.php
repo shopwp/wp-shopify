@@ -10,7 +10,7 @@ Load default styles
       <tr valign="top">
 
         <th scope="row" class="titledesc">
-          <?php esc_attr_e( 'Selective Sync', 'wp-shopify' ); ?>
+          <?php esc_attr_e( 'Selective sync', 'wp-shopify' ); ?>
         </th>
 
         <td class="forminp forminp-text wps-checkbox-wrapper">

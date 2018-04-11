@@ -22,7 +22,10 @@ if ( !defined('ABSPATH') ) {
 
   <?php
 
-  do_action('wps_cart_counter');
+	if ($data->counter) {
+		do_action('wps_cart_counter');
+	}
+
   do_action('wps_cart_icon');
 
   ?>

@@ -116,7 +116,10 @@ if ( !class_exists('Admin_Menus') ) {
 
 	    if ($item->description === 'WP Shopify Cart Icon') {
 
-				$data = [];
+				// If we add additional wps_cart attributes we need to add the defaults here as well
+				$data = [
+					'counter' => true
+				];
 
 				ob_start();
 				$this->template_loader->set_template_data($data)->get_template_part( 'partials/cart/cart-icon', 'wrapper' );

@@ -1354,18 +1354,24 @@ if (!class_exists('Templates')) {
 		Template - partials/cart/button
 		Shortcode [wps_cart]
 
+		TODO: Think about using shortcode_atts for [wps_products] and [wps_collections] as well.
+
 		*/
 		public function wps_cart_shortcode($atts) {
 
 			$shortcode_output = '';
-			$shortcodeArgs = Utils::wps_format_collections_shortcode_args($atts);
 
-			$data = [
-				'shortcodeArgs' => $shortcodeArgs
-			];
+			// Need to cast string to proper boolean
+			if (is_array($atts) && isset($atts['counter']) && $atts['counter'] === 'false') {
+				$atts['counter'] = false;
+			}
+
+			$atts = shortcode_atts([
+				'counter' => true
+			], $atts, 'wps_cart');
 
 			ob_start();
-			$this->template_loader->set_template_data($data)->get_template_part( 'partials/cart/cart-icon', 'wrapper' );
+			$this->template_loader->set_template_data($atts)->get_template_part( 'partials/cart/cart-icon', 'wrapper' );
 			$cart = ob_get_contents();
 			ob_end_clean();
 
