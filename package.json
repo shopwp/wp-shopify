@@ -10,7 +10,6 @@
   "scripts": {
     "dev": "NODE_ENV=dev webpack --config webpack.config.babel.js --p --progress",
     "prod": "NODE_ENV=prod webpack --config webpack.config.babel.js --p --progress",
-    "build": "NODE_ENV=dev ./build.sh",
     "test": "jest --runInBand"
   },
   "jest": {

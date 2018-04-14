@@ -63,10 +63,14 @@ if ( !class_exists('Config') ) {
 
 			$this->plugin_path = plugin_dir_path( __DIR__ );
 			$this->plugin_url = plugin_dir_url( __DIR__ );
-
+			
 
 			if ( !defined('WPS_PLUGIN_DIR') ) {
 				define('WPS_PLUGIN_DIR', $this->plugin_path);
+			}
+
+			if ( !defined('WPS_PLUGIN_URL') ) {
+				define('WPS_PLUGIN_URL', $this->plugin_url);
 			}
 
 			if ( !defined('WPS_RELATIVE_TEMPLATE_DIR') ) {

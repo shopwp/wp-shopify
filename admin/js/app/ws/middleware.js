@@ -88,7 +88,7 @@ async function syncPluginData() {
     ]);
 
   } catch(errors) {
-    console.log("syncPluginData: ", errors);
+
     return returnCustomError(errors);
 
   }

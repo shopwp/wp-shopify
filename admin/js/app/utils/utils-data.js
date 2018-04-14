@@ -386,8 +386,6 @@ Only Failed Requests
 */
 function onlyFailedRequests(request) {
 
-  console.log("request: ", request);
-
   if (request) {
     return !request.success;
   }
@@ -401,8 +399,6 @@ Return Only Failed Requests
 
 */
 function returnOnlyFailedRequests(noticeList) {
-
-  console.log("noticeList: ", noticeList);
 
   if (noticeList.hasOwnProperty('statusText')) {
     return [{

@@ -146,9 +146,6 @@ function bootstrap() {
     */
     showUIElements();
 
-    console.log('---------- READY FOR USER ----------');
-
-
     /*
 
     Step 6. Flush cache, render cart items, and update DOM
@@ -161,7 +158,6 @@ function bootstrap() {
         bootstrapUI(shopify, cart)
       ]);
 
-      console.log('---------- EVERYTHING IS DONE ----------');
 
     } catch (error) {
       reject(error);

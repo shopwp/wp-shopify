@@ -27,6 +27,9 @@ get_header('wps');
 
 if ( is_single() ) {
 
+
+	do_action('wps_breadcrumbs');
+	
   do_action('wps_product_single_start', $product);
 
   do_action('wps_product_single_before', $product);

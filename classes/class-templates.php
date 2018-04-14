@@ -77,10 +77,10 @@ if (!class_exists('Templates')) {
 		Template: partials/products/loop/loop-end
 
 		*/
-		public function wps_products_loop_end($products) {
+		public function wps_products_loop_end($query) {
 
 			$data = [
-				'products' => $products
+				'query' => $query
 			];
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/loop/end' );
@@ -937,6 +937,7 @@ if (!class_exists('Templates')) {
 		public function wps_product_single_imgs_feat_placeholder($data) {
 
 			$data->image_type_class = 'wps-product-gallery-img-feat';
+			$data->settings->plugin_url = WPS_PLUGIN_URL;
 
 			return $this->template_loader->set_template_data($data)->get_template_part( 'partials/products/single/imgs-feat', 'placeholder' );
 
