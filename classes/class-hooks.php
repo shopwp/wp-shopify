@@ -441,10 +441,6 @@ if (!class_exists('Hooks')) {
 
 						$clauses = Utils::construct_clauses_from_products_shortcode($query->get('custom'), $query);
 
-						error_log('=============== wps_clauses_mod =================');
-						error_log(print_r($clauses, true));
-						error_log('/================================');
-
 
 					} else {
 
@@ -625,11 +621,6 @@ if (!class_exists('Hooks')) {
 					$args['is_single'] = false;
 
 				}
-
-
-				error_log('---- wps_products_display -----');
-				error_log(print_r($args, true));
-				error_log('---- /wps_products_display -----');
 
 
 				$productQueryHash = md5(serialize($args));

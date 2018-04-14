@@ -28,7 +28,6 @@ function fetchCart(shopify) {
 
     // Calls LS
     var cartID = getCartID();
-    console.log("fetchCart cartID: ", cartID);
 
     if ( emptyCartID(cartID) ) {
 

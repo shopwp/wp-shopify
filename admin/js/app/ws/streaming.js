@@ -193,7 +193,7 @@ async function streamShop() {
 
 
     resolve(shop);
-    
+
 
   });
 
@@ -220,7 +220,6 @@ async function streamProducts() {
     try {
 
       var itemCount = await getTotalCountsFromSession(); // get_total_counts
-      console.log("itemCount: ", itemCount);
 
       if (isWordPressError(itemCount)) {
         reject(itemCount);
@@ -235,7 +234,6 @@ async function streamProducts() {
       itemCount = itemCount.data.products;
 
       if (emptyDataCount(itemCount)) {
-        console.log('emptyDataCount ... resolving');
         resolve();
       }
 
@@ -257,8 +255,6 @@ async function streamProducts() {
       try {
 
         itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
-
-        console.log("itemsToAdd: ", itemsToAdd);
 
         // throw {
         //   status: 504,
@@ -284,20 +280,6 @@ async function streamProducts() {
 
         reject( getMessageError(error) );
         break;
-
-        // if ( isTimeout(error.status) ) {
-        //   console.log('isTimeout ... ', error);
-        //
-        //   // This is an issue ... the program will conitnue syncing with the next page, potentially skipping a bunch of products
-        //   currentPage += 1;
-        //   continue;
-        //
-        // } else {
-        //   console.log('In here??? ', error);
-        //   reject();
-        //   break;
-        //
-        // }
 
       }
 
@@ -367,8 +349,6 @@ async function streamCollects() {
       try {
 
         itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
-
-        console.log("itemsToAdd::::::::::", itemsToAdd);
 
         if (isWordPressError(itemsToAdd)) {
           reject(itemsToAdd);

@@ -29,8 +29,6 @@ Get message error
 */
 function getMessageError(error) {
 
-  console.log("error: ", error);
-
   switch ( findStatusCodeFirstNum(error.status) ) {
 
     case 5:
