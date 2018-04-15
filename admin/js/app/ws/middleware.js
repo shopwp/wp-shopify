@@ -88,7 +88,6 @@ async function syncPluginData() {
     ]);
 
   } catch(errors) {
-
     return returnCustomError(errors);
 
   }

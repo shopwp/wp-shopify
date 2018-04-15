@@ -115,6 +115,7 @@ if (!class_exists('Settings_General')) {
 
     */
   	public function get_column_defaults() {
+
       return array(
         'id'                            => 1,
         'url_products'                  => 'products',
@@ -138,6 +139,7 @@ if (!class_exists('Settings_General')) {
         'selective_sync_orders'         => $this->selective_sync_orders,
         'selective_sync_shop'           => $this->selective_sync_shop
       );
+
     }
 
 

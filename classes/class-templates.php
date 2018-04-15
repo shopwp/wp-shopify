@@ -1339,7 +1339,7 @@ if (!class_exists('Templates')) {
 		Template - cart-button-checkout
 
 		*/
-		public function wps_cart_button_checkout() {
+		public function wps_cart_checkout_btn() {
 
 			$data = [
 				'checkout_base_url' => WPS_CHECKOUT_BASE_URL
@@ -1644,7 +1644,7 @@ if (!class_exists('Templates')) {
 			add_action('wp_footer', [$this, 'wps_cart']);
 			add_action('wps_cart_icon', [$this, 'wps_cart_icon']);
 			add_action('wps_cart_counter', [$this, 'wps_cart_counter']);
-			add_action('wps_cart_checkout_btn', [$this, 'wps_cart_button_checkout']);
+			add_action('wps_cart_checkout_btn', [$this, 'wps_cart_checkout_btn']);
 
 
 			/*

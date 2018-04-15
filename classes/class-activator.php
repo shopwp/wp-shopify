@@ -123,7 +123,6 @@ if ( !class_exists('Activator') ) {
 			$DB_Customers->create_table();
 			$DB_Orders->create_table();
 
-
 			/*
 
 			Set any default plugin settings
@@ -169,7 +168,6 @@ if ( !class_exists('Activator') ) {
 		public function init() {
 			register_activation_hook($this->plugin_basename, [$this, 'activate']);
 		}
-
 
 
 	}
