@@ -32,14 +32,17 @@ function getMessageError(error) {
   switch ( findStatusCodeFirstNum(error.status) ) {
 
     case 5:
+
       return messageErrorNetwork();
       break;
 
     case 4:
+
       return messageErrorClient();
       break;
 
     default:
+
       return messageErrorNetwork();
       break;
 

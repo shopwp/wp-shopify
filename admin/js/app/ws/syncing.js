@@ -12,10 +12,6 @@ import {
 } from './streaming';
 
 import {
-  returnCustomError
-} from '../utils/utils-data';
-
-import {
   isWordPressError
 } from '../utils/utils';
 

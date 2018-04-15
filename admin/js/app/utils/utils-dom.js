@@ -18,10 +18,6 @@ import {
 } from './utils';
 
 import {
-  syncPluginData
-} from '../forms/forms';
-
-import {
   getModalCache,
   connectionInProgress,
   removeModalCache,

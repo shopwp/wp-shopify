@@ -229,6 +229,10 @@ if (!class_exists('DB')) {
 
 			global $wpdb;
 
+			if (!$this->table_exists($this->table_name)) {
+				return;
+			}
+
 			// If not a string ...
 			if (!is_string($column)) {
 				return;

@@ -63,7 +63,7 @@ if ( !class_exists('Config') ) {
 
 			$this->plugin_path = plugin_dir_path( __DIR__ );
 			$this->plugin_url = plugin_dir_url( __DIR__ );
-			
+
 
 			if ( !defined('WPS_PLUGIN_DIR') ) {
 				define('WPS_PLUGIN_DIR', $this->plugin_path);
@@ -81,12 +81,13 @@ if ( !class_exists('Config') ) {
 				define('WPS_CHECKOUT_BASE_URL', 'https://checkout.shopify.com');
 			}
 
+
 			$this->plugin_name_full = 'WP Shopify';
 			$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 			$this->plugin_name = 'wps';
 			$this->plugin_text_domain = 'wp-shopify';
 			$this->plugin_name_js = 'WP_Shopify';
-			$this->plugin_version = '1.0.49';
+			$this->plugin_version = '1.1.0';
 			$this->plugin_author = 'Andrew Robbins';
 
 			self::$plugin_nonce_action_backend = 'wp-shopify-backend';
@@ -94,10 +95,10 @@ if ( !class_exists('Config') ) {
 			self::$plugin_nonce_action_uninstall = 'wp-shopify-uninstall';
 			self::$plugin_nonce_action_cache = 'wp-shopify-cache';
 
-			$this->plugin_root_file = $this->plugin_path . $this->plugin_name . '.php';
+			$this->plugin_root_file = $this->plugin_path . $this->plugin_text_domain . '.php';
 			$this->plugin_file = plugin_basename($this->plugin_root_file);
 
-			$this->plugin_basename = plugin_basename( $this->plugin_path . $this->plugin_name . '.php' );
+			$this->plugin_basename = plugin_basename( $this->plugin_path . $this->plugin_text_domain . '.php' );
 			$this->plugin_env = 'https://wpshop.io';
 
 			// Don't clear cart cache for three days 259200
