@@ -13,6 +13,8 @@ import cssPublicGrid from "./gulp/tasks/css-public-grid";
 import imagesPublic from "./gulp/tasks/images-public";
 import imagesAdmin from "./gulp/tasks/images-admin";
 
+import build from "./gulp/tasks/build";
+
 import server from "./gulp/tasks/server";
 import watch from "./gulp/tasks/watch";
 import init from "./gulp/tasks/init";
