@@ -27,7 +27,11 @@ Main Config Object
 var config = {
 
   files: {
-    php: ["./*/**.php"],
+    buildEntry: [
+      './admin/js/app/tools/tools.js',
+      './admin/partials/wps-tab-content-tools.php'
+    ],
+    php: ["./**/*.php"],
     jsPublic: [
       './public/js/app/**/*.js',
       '!./public/js/app.min.js',
@@ -53,6 +57,8 @@ var config = {
   },
   folders: {
     dist: './dist',
+    pro: '../../../../assets/wp-shopify-pro',
+    free: '../../../../assets/wp-shopify',
     svgsPublic: './public/imgs',
     svgsAdmin: './admin/imgs',
     cssPublic: './public/css/dist',
@@ -75,7 +81,8 @@ var config = {
   },
   bs: browserSync.create(),
   serverName: 'wpstest.test',
-  isBuilding: argvs.argv.build ? argvs.argv.build : false
+  isBuilding: argvs.argv.build ? argvs.argv.build : false,
+  buildTier: argvs.argv.tier ? argvs.argv.tier : false // Build type can be either 'free' or 'pro'
 };
 
 

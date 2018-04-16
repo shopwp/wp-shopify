@@ -7,6 +7,7 @@ Tab Content: Tools
 
   <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e('Tools', 'wp-shopify'); ?></h3>
 
+  <?php /* @if NODE_ENV='pro' */ ?>
   <div class="wps-admin-section">
 
     <h3><?php esc_attr_e('Resync Shopify', 'wp-shopify'); ?> <span class="wps-help-tip wps-help-tip-inline" title="<?php esc_attr_e("Note: To fix syncing issues you may want to ensure that the 'Webhooks callback URL' located on the Settings tab is set to a publicly accessible URL. Also be aware that this does not delete the custom post types or any custom fields you\'ve added."); ?>"></span></h3>
@@ -38,6 +39,8 @@ Tab Content: Tools
     </div>
 
   </div>
+  <?php /* @endif */ ?>
+
 
 
   <div class="wps-admin-section">
