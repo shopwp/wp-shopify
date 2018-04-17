@@ -154,7 +154,7 @@ function postCSSPlugins() {
 
   // Only run if npm run gulp --build
   if (config.isBuilding) {
-    plugins.push(cssnano());
+    plugins.push(cssnano({zindex: false}));
   }
 
   return plugins;

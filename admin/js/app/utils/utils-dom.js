@@ -473,7 +473,7 @@ function appendNotice(notice) {
       message: notice
     }
   }
-
+  
   jQuery('.wps-connector-heading').after('<div class="notice notice-' + notice.type + '">' + notice.message + '</div>');
 
 }
