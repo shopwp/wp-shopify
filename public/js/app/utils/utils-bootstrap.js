@@ -165,11 +165,7 @@ function bootstrap() {
 
     }
 
-
-
-
     jQuery(document).trigger("wpshopify_bootstrap_after", [cart]);
-
     resolve();
 
   });
