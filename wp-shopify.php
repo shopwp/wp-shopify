@@ -5,14 +5,14 @@
 WP Shopify
 
 @link              https://wpshop.io
-@since             1.1.0
+@since             1.1.1
 @package           wp-shopify
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress
-Version:           1.1.0
+Version:           1.1.1
 Author:            Andrew Robbins
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
