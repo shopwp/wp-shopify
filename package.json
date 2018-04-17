@@ -159,7 +159,7 @@
     "rx-dom": "^7.0.3",
     "sass-loader": "^6.0.7",
     "scrollmagic": "^2.0.5",
-    "shopify-buy": "^1.2.0",
+    "shopify-buy": "0.7.1",
     "slick-carousel": "^1.8.1",
     "style-loader": "^0.20.3",
     "stylelint": "^9.1.3",

@@ -831,7 +831,7 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_product_single_content($product) {
 
-			if (is_object($product) && property_exists($product, 'body_html') && !empty($product->body_html) ) {
+			if (is_object($product) && property_exists($product, 'details') && !empty($product->details->body_html) ) {
 
 				$data = [
 					'product' 	=> $product
