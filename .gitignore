@@ -4,3 +4,4 @@ node_modules
 *.log
 dist/stats.html
 stats.html
+_tmp

@@ -22,6 +22,8 @@ function onCheckout(shopify, cart) {
       disable(jQuery('.wps-btn-checkout'));
     }
 
+
+    /* @if NODE_ENV='pro' */
     // Checks to see if Google Analytics is installed
     if (window.ga === undefined) {
       var hasGA = false;
@@ -29,6 +31,7 @@ function onCheckout(shopify, cart) {
     } else {
       var hasGA = true;
     }
+    /* @endif */
 
 
     /*
@@ -49,11 +52,12 @@ function onCheckout(shopify, cart) {
 
       jQuery(this).addClass('wps-is-disabled wps-is-loading');
 
-
-      // Add the linker plugin to the anchor if GA is installed
+      /* @if NODE_ENV='pro' */
       if (hasGA) {
+        // Add the linker plugin to the anchor if GA is installed
         ga('linker:decorate', document.getElementById('wps-btn-checkout'));
       }
+      /* @endif */
 
 
       /*

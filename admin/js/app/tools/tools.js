@@ -11,10 +11,7 @@ Tools Init
 */
 function toolsInit() {
 
-  /* @if NODE_ENV='pro' */
   onResyncSubmit();
-  /* @endif */
-
   onCacheClear();
   onClearSubmit();
   onWebhooksSubmit();
