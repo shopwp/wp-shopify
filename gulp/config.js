@@ -27,46 +27,71 @@ Main Config Object
 var config = {
 
   files: {
+    toBeProcessed: [
+      './_tmp/public/js/app/cart/cart-events.js',
+      './_tmp/public/js/app/cart/cart-ui.js',
+      './_tmp/wp-shopify.php'
+    ],
+    tmp: './_tmp/**/*',
+    all: [
+      './**/*',
+      '!./node_modules/**',
+      '!./bin/**',
+      '!./.git/**',
+      '!./tests/**',
+      '!./gulp/**',
+      '!./stats.html',
+      '!./.travis.yml',
+      '!./.eslintrc',
+      '!./**/*.DS_Store',
+      '!./**/*.babelrc',
+      '!./admin.min.js',
+      '!./package.json',
+      '!./phpunit.xml.dist',
+      '!./postcss.config.js',
+      '!./public.min.js',
+      '!./gulpfile.babel.js'
+    ],
+    build: './**/*',
+    buildProContent: '../../../../assets/wp-shopify-pro/**/*',
+    buildFreeContent: '../../../../assets/wp-shopify/**/*',
+    buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify/wp-shopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
+    buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
     buildEntry: [
       './admin/js/app/tools/tools.js',
       './admin/partials/wps-tab-content-tools.php'
     ],
-    php: ["./**/*.php"],
-    jsPublic: [
+    jsPublic: [ // doesnt need tmp check
       './public/js/app/**/*.js',
       '!./public/js/app.min.js',
       '!./public/js/vendor.min.js',
       '!./public/js/app.min.js.map'
     ],
-    jsAdmin: [
+    jsAdmin: [ // doesnt need tmp check
       './admin/js/app/**/*.js',
       '!./admin/js/app.min.js',
       '!./admin/js/vendor.min.js',
       '!./admin/js/app.min.js.map'
     ],
-    jsEntryPublic: './public/js/app/app.js',
-    jsEntryAdmin: './admin/js/app/app.js',
-    cssPublic: './public/css/**/*.scss',
-    cssEntryPublic: './public/css/app/app.scss',
-    cssEntryPublicCore: './public/css/app/core.scss',
-    cssEntryPublicGrid: './public/css/app/grid.scss',
-    cssAdmin: './admin/css/**/*.scss',
-    cssEntryAdmin: './admin/css/app/app.scss',
-    svgsPublic: './public/imgs/**/*.svg',
-    svgsAdmin: './admin/imgs/**/*.svg'
+    jsEntryPublic: argvs.argv.tier ? './_tmp/public/js/app/app.js' : './public/js/app/app.js',
+    jsEntryAdmin: argvs.argv.tier ? './_tmp/admin/js/app/app.js' : './admin/js/app/app.js',
+    cssPublic: './public/css/**/*.scss', // doesnt need tmp check
+    cssEntryPublic: argvs.argv.tier ? './_tmp/public/css/app/app.scss' : './public/css/app/app.scss',
+    cssEntryPublicCore: argvs.argv.tier ? './_tmp/public/css/app/core.scss' : './public/css/app/core.scss',
+    cssEntryPublicGrid: argvs.argv.tier ? './_tmp/public/css/app/grid.scss' : './public/css/app/grid.scss',
+    cssAdmin: './admin/css/**/*.scss', // doesnt need tmp check
+    cssEntryAdmin: argvs.argv.tier ? './_tmp/admin/css/app/app.scss' : './admin/css/app/app.scss',
+    svgsPublic: argvs.argv.tier ? './_tmp/public/imgs/**/*.svg' : './public/imgs/**/*.svg',
+    svgsAdmin: argvs.argv.tier ? './_tmp/admin/imgs/**/*.svg' : './admin/imgs/**/*.svg'
   },
   folders: {
-    dist: './dist',
+    tmp: './_tmp',
+    plugin: './',
+    dist: argvs.argv.tier ? './_tmp/dist' : './dist',
     pro: '../../../../assets/wp-shopify-pro',
     free: '../../../../assets/wp-shopify',
-    svgsPublic: './public/imgs',
-    svgsAdmin: './admin/imgs',
-    cssPublic: './public/css/dist',
-    jsPublic: './public/js/dist',
-    jsPublicSource: path.resolve('./public/js/app/'),
-    cssAdmin: './admin/css/dist',
-    jsAdmin: './admin/js/dist',
-    jsAdminSource: path.resolve('./admin/js/app/'),
+    svgsPublic: argvs.argv.tier ? './_tmp/public/imgs' : './public/imgs',
+    svgsAdmin: argvs.argv.tier ? './_tmp/admin/imgs' : './admin/imgs',
     cache: './node_modules/.cache'
   },
   names: {
@@ -84,6 +109,43 @@ var config = {
   isBuilding: argvs.argv.build ? argvs.argv.build : false,
   buildTier: argvs.argv.tier ? argvs.argv.tier : false // Build type can be either 'free' or 'pro'
 };
+
+
+/*
+
+Jest Config
+
+*/
+function jestConfig() {
+
+  return {
+    "testURL": "http://wpstest.test",
+    "testEnvironment": "node",
+    "verbose": true,
+    "roots": [
+      "<rootDir>/admin/js/app",
+      "<rootDir>/public/js/app"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/admin/js/app/vendor/",
+      "<rootDir>/public/js/dist/",
+      "<rootDir>/dist/",
+      "<rootDir>/bin/",
+      "<rootDir>/classes/",
+      "<rootDir>/lib/",
+      "<rootDir>/tests/",
+      "<rootDir>/temapltes/",
+      "<rootDir>/vendor/",
+      "<rootDir>/webhooks/",
+      "<rootDir>/gulp/"
+    ],
+    "setupFiles": [
+      "jest-localstorage-mock"
+    ]
+  }
+
+}
 
 
 /*
@@ -113,9 +175,9 @@ function webpackConfig(outputFinalname) {
           parallel: true,
           cache: true,
           parallel: true,
-          extractComments: true,
+          extractComments: false,
           uglifyOptions: {
-            compress: true,
+            compress: false,
             ecma: 6,
             mangle: true,
             safari10: true
@@ -192,5 +254,6 @@ function stylelintConfig() {
 config.postCSSPlugins = postCSSPlugins;
 config.webpackConfig = webpackConfig;
 config.stylelintConfig = stylelintConfig;
+config.jestConfig = jestConfig;
 
 export default config;
