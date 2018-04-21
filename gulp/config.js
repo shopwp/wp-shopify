@@ -107,7 +107,8 @@ var config = {
   bs: browserSync.create(),
   serverName: 'wpstest.test',
   isBuilding: argvs.argv.build ? argvs.argv.build : false,
-  buildTier: argvs.argv.tier ? argvs.argv.tier : false // Build type can be either 'free' or 'pro'
+  buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
+  buildRelease: argvs.argv.release ? argvs.argv.release : false // Build type can be either 'free' or 'pro'
 };
 
 

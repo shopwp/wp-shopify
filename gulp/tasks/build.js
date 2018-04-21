@@ -11,7 +11,7 @@ import replace from 'gulp-replace';
 import zip from 'gulp-zip';
 import flatten from 'gulp-flatten';
 import rsync from 'gulp-rsync';
-
+import childProcess from 'child_process';
 
 /*
 
@@ -95,6 +95,9 @@ gulp.task('tests', done => {
 /*
 
 Zip up files in _tmp folder
+Requires:
+--tier=""
+--release=""
 
 */
 gulp.task('build:zip', done => {
@@ -113,22 +116,62 @@ gulp.task('build:zip', done => {
 
 Zip up files in _tmp folder
 
+Requires:
+--tier=""
+--release=""
+
 */
 gulp.task('build:zip:deploy', done => {
 
-  return gulp
-    .src('/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip')
-    .pipe(flatten())
-    .pipe( rsync({
-      root: config.buildRoot,
-      hostname: '162.243.170.76',
-      username: 'arobbins',
-      destination: '~',
-      archive: true,
-      silent: false,
-      compress: true,
-      progress: true
-    }) );
+  return childProcess.exec('rsync -avz /Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip arobbins@162.243.170.76:~', function (err, stdout, stderr) {
+
+    if (err !== null) {
+      console.log('Error build:zip:deploy: ', err);
+      return;
+    }
+
+  });
+
+});
+
+
+/*
+
+Zip up files in _tmp folder
+
+Requires:
+--tier=""
+--release=""
+
+*/
+gulp.task('build:zip:move', done => {
+
+  return childProcess.exec('ssh -tt arobbins@162.243.170.76 "rm -rf /var/www/prod/html/pro/releases/' + config.buildRelease + ' && mkdir /var/www/prod/html/pro/releases/' + config.buildRelease + ' && mv wp-shopify-pro.zip /var/www/prod/html/pro/releases/' + config.buildRelease + ' && chmod 755 /var/www/prod/html/pro/releases/' + config.buildRelease + '/wp-shopify-pro.zip"', function (err, stdout, stderr) {
+
+    if (err !== null) {
+      console.log('Error build:zip:move: ', err);
+      return;
+    }
+
+  });
+
+});
+
+
+/*
+
+Requires:
+--tier=""
+--release=""
+
+*/
+gulp.task('build:dist', done => {
+
+  return gulp.series(
+    'build:zip',
+    'build:zip:deploy',
+    'build:zip:move'
+  )(done);
 
 });
 
@@ -137,29 +180,17 @@ gulp.task('build:zip:deploy', done => {
 
 Runs all build tasks
 
+Requires:
+--tier=""
+--release=""
+
 */
 gulp.task('build', done => {
 
   return gulp.series(
     'tests', 'clean:tmp', 'build:copy', 'build:preprocess',
     gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
-    'build:zip'
+    'build:dist'
   )(done);
-
-  // gulp.series(
-  //   'tests',
-  //   'clean:tmp',
-  //   'build:copy',
-  //   'build:preprocess',
-  //   'js-admin',
-  //   'js-public',
-  //   'css-admin',
-  //   'css-public',
-  //   'css-public-core',
-  //   'css-public-grid',
-  //   'images-public',
-  //   'images-admin',
-  //   'build:zip'
-  // )(done);
 
 });

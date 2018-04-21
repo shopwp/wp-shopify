@@ -24,13 +24,13 @@ printf "${GREEN}Success: ${NC}Removed testing database\n"
 #
 # Create the testing database
 #
-bash ./install-wp-tests.sh wps_unit_testing root 'qp05ofilterZ!@' localhost latest
+bash ./bin/install-wp-tests.sh wps_unit_testing root 'qp05ofilterZ!@' localhost latest
 printf "${GREEN}Success: ${NC}Installed testing database\n"
 
 #
 # Import the test sql data
 #
-mysql -u root -p wps_unit_testing < ../tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql
+mysql -u root -p wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql
 printf "${GREEN}Success: ${NC}Imported test data\n"
 
 #
