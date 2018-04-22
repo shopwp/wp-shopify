@@ -22,7 +22,12 @@
 
 WP Shopify allows you to sell your Shopify products on any WordPress site. Your store data is synced as custom post types giving you the ability to utilize the full power of native WordPress functionality while maintaining complete control over the layout of your store.
 
-### Features
+## Screenshots
+![Easy and fast Shopify syncing process](https://wpshop.io/screenshots/1-syncing-cropped.jpg)
+![Sync your store as native WordPress posts](https://wpshop.io/screenshots/3-posts-cropped.jpg)
+![Many settings and options to choose from](https://wpshop.io/screenshots/2-settings-cropped.jpg)
+
+## Features
 * Sync your products and collections as native WordPress posts
 * No iFrames
 * Over 100+ actions and filters allowing you to customize any part of the storefront
@@ -36,8 +41,7 @@ See the [full list of features here](https://wpshop.io/how/)
 ##### WP Shopify Pro
 WP Shopify is also available in a professional version which includes automatic syncing, cross domain tracking, live support, and much more functionality! [Learn more](https://wpshop.io/)
 
-
-### Installation
+## Installation
 From your WordPress dashboard
 
 1. Visit Plugins -> Add New
@@ -47,12 +51,7 @@ From your WordPress dashboard
 5. Back in WordPress, click on the menu item __WP Shopify__ and begin syncing your Shopify store to WordPress.
 6. We've created a [guide](https://wpshop.io/docs) if you need help during the syncing process
 
-### Screenshots
-![Easy and fast Shopify syncing process](https://wpshop.io/screenshots/1-syncing-cropped.jpg)
-![Sync your store as native WordPress posts](https://wpshop.io/screenshots/3-posts-cropped.jpg)
-![Many settings and options to choose from](https://wpshop.io/screenshots/2-settings-cropped.jpg)
-
-### FAQ
+## FAQ
 
 Read the [full list of FAQ](https://wpshop.io/faq/)
 
@@ -97,5 +96,5 @@ __Does this work with Shopify's Lite plan?__
 
 Absolutely! In fact this is our recommendation if you intend to only sell on WordPress. More information on Shopify's [Lite plan](https://www.shopify.com/lite)
 
-### Changelog
+## Changelog
 Our changelog can be [found here](https://wpshop.io/changelog/)
