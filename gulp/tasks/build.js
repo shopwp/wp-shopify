@@ -164,9 +164,6 @@ gulp.task('build:zip:move', done => {
 
   var command = 'ssh -tt arobbins@162.243.170.76 "rm -rf /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + ' && mkdir  -p /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + ' && mv ' + zipName + ' /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + ' && chmod 755 /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + '/' + zipName + '"';
 
-  console.log("command: ", command);
-
-
   return childProcess.exec(command, function (err, stdout, stderr) {
 
     if (err !== null) {
@@ -199,6 +196,31 @@ gulp.task('build:dist', done => {
 
 /*
 
+Zip up files in _tmp folder
+
+Requires:
+--tier=""
+--release=""
+
+*/
+gulp.task('build:update:edd', done => {
+
+  var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + '"';
+
+  return childProcess.exec(command, function (err, stdout, stderr) {
+
+    if (err !== null) {
+      console.log('Error build:zip:move: ', err);
+      return;
+    }
+
+  });
+
+});
+
+
+/*
+
 Runs all build tasks
 
 Requires:
@@ -211,7 +233,8 @@ gulp.task('build', done => {
   return gulp.series(
     'tests', 'clean:tmp', 'build:copy', 'build:preprocess',
     gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
-    'build:dist'
+    'build:dist',
+    'build:update:edd'
   )(done);
 
 });
