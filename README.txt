@@ -44,9 +44,9 @@ From your WordPress dashboard
 1. Visit Plugins > Add New
 2. Search for *WP Shopify*
 3. Activate WP Shopify from your Plugins page
-4. Click on the new menu item, *WP Shopify* and begin syncing your Shopify store to WordPress. Watch our [video tutorial](https://wpshop.io/docs).
-5. Read the documentation to [get started](https://wpshop.io/docs)
-
+4. Create a [Shopify private app](https://wpshop.io/docs). More [info here](https://help.shopify.com/manual/apps/private-apps)
+5. Back in WordPress, click on the menu item __WP Shopify__ and begin syncing your Shopify store to WordPress.
+6. We've created a [guide](https://wpshop.io/docs) if you need help during the syncing process
 
 == Screenshots ==
 [https://wpshop.io/screenshots/1-syncing-cropped.jpg  Easy and fast syncing process]
@@ -78,6 +78,9 @@ WP Shopify instead uses a combination of the Buy Button and Shopify API to creat
 = Is this SEO friendly? =
 We’ve gone to great lengths to ensure we’ve conformed to all the SEO best practices including semantic alt text, Structured Data, and indexable content.
 
+= Does this work with third party Shopify apps? =
+Unfortunately no. We rely on the main Shopify API which doesn’t expose third-party app data. However the functionality found in many of the Shopify apps can be reproduced by other WordPress plugins.
+
 = How do I display my products? =
 Documentation on how to display your products can be [found here](https://wpshop.io/docs/displaying).
 
@@ -86,5 +89,9 @@ WP Shopify does not handle any portion of the checkout process. When a customer 
 
 More information on the Shopify checkout process can be [found here](https://help.shopify.com/manual/sell-online/checkout-settings).
 
+= Does this work with Shopify's Lite plan? =
+Absolutely! In fact this is our recommendation if you intend to only sell on WordPress. More information on Shopify's [Lite plan](https://www.shopify.com/lite)
+
+
 == Changelog ==
-Read our [changelog](https://wpshop.io/changelog/)
+Our changelog can be [found here](https://wpshop.io/changelog/)
