@@ -123,7 +123,15 @@ Requires:
 */
 gulp.task('build:zip:deploy', done => {
 
-  return childProcess.exec('rsync -avz /Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip arobbins@162.243.170.76:~', function (err, stdout, stderr) {
+  var tier = '';
+
+  if (config.buildTier === 'pro') {
+    tier = '-pro';
+  }
+
+  var command = 'rsync -avz /Users/arobbins/www/wpstest/assets/wp-shopify' + tier + '/wp-shopify' + tier + '.zip arobbins@162.243.170.76:~';
+
+  return childProcess.exec(command, function (err, stdout, stderr) {
 
     if (err !== null) {
       console.log('Error build:zip:deploy: ', err);
@@ -146,7 +154,20 @@ Requires:
 */
 gulp.task('build:zip:move', done => {
 
-  return childProcess.exec('ssh -tt arobbins@162.243.170.76 "rm -rf /var/www/prod/html/pro/releases/' + config.buildRelease + ' && mkdir /var/www/prod/html/pro/releases/' + config.buildRelease + ' && mv wp-shopify-pro.zip /var/www/prod/html/pro/releases/' + config.buildRelease + ' && chmod 755 /var/www/prod/html/pro/releases/' + config.buildRelease + '/wp-shopify-pro.zip"', function (err, stdout, stderr) {
+  var zipName = 'wp-shopify.zip';
+  var tier = 'free';
+
+  if (config.buildTier === 'pro') {
+    tier = 'pro';
+    zipName = 'wp-shopify-pro.zip';
+  }
+
+  var command = 'ssh -tt arobbins@162.243.170.76 "rm -rf /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + ' && mkdir  -p /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + ' && mv ' + zipName + ' /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + ' && chmod 755 /var/www/prod/html/' + tier + '/releases/' + config.buildRelease + '/' + zipName + '"';
+
+  console.log("command: ", command);
+
+
+  return childProcess.exec(command, function (err, stdout, stderr) {
 
     if (err !== null) {
       console.log('Error build:zip:move: ', err);
