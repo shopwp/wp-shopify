@@ -12,6 +12,7 @@ import zip from 'gulp-zip';
 import flatten from 'gulp-flatten';
 import rsync from 'gulp-rsync';
 import childProcess from 'child_process';
+import del from 'del';
 
 /*
 
@@ -114,6 +115,22 @@ gulp.task('build:zip', done => {
 
 /*
 
+Removes various files / folders from free verson
+
+*/
+gulp.task('build:clear', done => {
+
+  if (config.buildTier !== 'free') {
+    return;
+  }
+
+  return del(config.files.buildFreeClear, { force: true });
+
+});
+
+
+/*
+
 Zip up files in _tmp folder
 
 Requires:
@@ -186,6 +203,7 @@ Requires:
 gulp.task('build:dist', done => {
 
   return gulp.series(
+    'build:clear',
     'build:zip',
     'build:zip:deploy',
     'build:zip:move'
@@ -205,16 +223,18 @@ Requires:
 */
 gulp.task('build:update:edd', done => {
 
-  var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + '"';
+  // return done;
 
-  return childProcess.exec(command, function (err, stdout, stderr) {
-
-    if (err !== null) {
-      console.log('Error build:zip:move: ', err);
-      return;
-    }
-
-  });
+  // var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + '"';
+  //
+  // return childProcess.exec(command, function (err, stdout, stderr) {
+  //
+  //   if (err !== null) {
+  //     console.log('Error build:zip:move: ', err);
+  //     return;
+  //   }
+  //
+  // });
 
 });
 

@@ -116,7 +116,9 @@ function onResyncSubmit() {
       prepareBeforeSync();
       updateModalHeadingText('Re-syncing ...');
       setConnectionStepMessage('Preparing re-sync ...');
+      /* @if NODE_ENV='pro' */
       setWebhooksReconnect(false);
+      /* @endif */
 
       /*
 

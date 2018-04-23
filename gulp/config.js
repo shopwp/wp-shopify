@@ -28,9 +28,18 @@ var config = {
 
   files: {
     toBeProcessed: [
+      './_tmp/admin/js/app/disconnect/disconnect.js',
+      './_tmp/admin/js/app/settings/settings.js',
+      './_tmp/admin/js/app/tools/resync.js',
+      './_tmp/admin/js/app/tools/tools.js',
+      './_tmp/admin/js/app/ws/middleware.js',
+      './_tmp/admin/partials/wps-tab-content-settings.php',
+      './_tmp/admin/partials/wps-tab-content-tools.php',
+      './_tmp/classes/class-backend.php',
+      './_tmp/classes/class-progress-bar.php',
+      './_tmp/classes/class-ws.php',
       './_tmp/public/js/app/cart/cart-events.js',
-      './_tmp/public/js/app/cart/cart-ui.js',
-      './_tmp/wp-shopify.php'
+      './_tmp/public/js/app/cart/cart-ui.js'
     ],
     tmp: './_tmp/**/*',
     all: [
@@ -55,6 +64,10 @@ var config = {
     build: './**/*',
     buildProContent: '../../../../assets/wp-shopify-pro/**/*',
     buildFreeContent: '../../../../assets/wp-shopify/**/*',
+    buildFreeClear: [
+      './_tmp/webhooks',
+      './_tmp/classes/class-webhooks.php'
+    ],
     buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify/wp-shopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
     buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
     buildEntry: [
@@ -106,7 +119,7 @@ var config = {
   },
   bs: browserSync.create(),
   serverName: 'wpstest.test',
-  isBuilding: argvs.argv.build ? argvs.argv.build : false,
+  isBuilding: argvs.argv.tier ? true : false,
   buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
   buildRelease: argvs.argv.release ? argvs.argv.release : false // Build type can be either 'free' or 'pro'
 };

@@ -11,8 +11,6 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  delWebhooks,
-  getWebhooks,
   addWebhook,
   getProductVariants,
   getProducts,
@@ -43,71 +41,6 @@ function onInputBlur() {
 
     }
 
-  });
-
-}
-
-
-/*
-
-On Sync Data ...
-
-*/
-function onSyncData() {
-
-  jQuery('.wps-btn-sync-data').on('click', async function syncDataHandler() {
-    var data = await syncPluginData();
-  });
-
-};
-
-
-/*
-
-On Webhook Add ...
-
-*/
-function onWebhookAdd() {
-
-  jQuery('.wps-btn-wh-add').on('click', async function webhookAddHandler() {
-    var resp = await addWebhook();
-  });
-
-}
-
-
-/*
-
-On Webhook Get ...
-
-*/
-function onWebhookGet() {
-
-  jQuery('.wps-btn-wh-get').on('click', async function webhookGetHandler() {
-
-    try {
-
-      var resp = await getWebhooks();
-
-    } catch(error) {
-
-
-    }
-
-  });
-
-}
-
-
-/*
-
-On Webhook Del ...
-
-*/
-function onWebhookDelete() {
-
-  jQuery('.wps-btn-wh-del').on('click', async function webhookDeleteHandler() {
-    var resp = await delWebhooks();
   });
 
 }
@@ -220,14 +153,7 @@ Form Events Init
 
 */
 function formEventsInit() {
-
-  // onInputBlur();
-  onSyncData();
-  onWebhookAdd();
-  onWebhookGet();
-  onWebhookDelete();
   onUninstall();
-
 }
 
 export {
