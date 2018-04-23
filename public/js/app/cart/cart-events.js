@@ -17,7 +17,6 @@ function onCheckout(shopify, cart) {
 
     var finalCustomAttrs;
 
-
     if (cart.lineItemCount === 0) {
       disable(jQuery('.wps-btn-checkout'));
     }

@@ -83,7 +83,7 @@ Tab Content: Tools
 
   </div>
 
-
+  <?php /* @if NODE_ENV='pro' */ ?>
   <div class="wps-admin-section">
 
     <h3><?php esc_html_e('Reconnect Webhooks', 'wp-shopify'); ?></h3>
@@ -115,6 +115,6 @@ Tab Content: Tools
     </div>
 
   </div>
-
+  <?php /* @endif */ ?>
 
 </div>

@@ -30,6 +30,7 @@ WP Shopify allows you to sell your Shopify products on any WordPress site. Your 
 ## Features
 * Sync your products and collections as native WordPress posts
 * No iFrames
+* Templates
 * Over 100+ actions and filters allowing you to customize any part of the storefront
 * Display your products using custom pages and shortcodes
 * Built-in cart experience using [Shopify's Buy Button](https://www.shopify.com/buy-button)
@@ -39,7 +40,7 @@ WP Shopify allows you to sell your Shopify products on any WordPress site. Your 
 See the [full list of features here](https://wpshop.io/how/)
 
 ##### WP Shopify Pro
-WP Shopify is also available in a professional version which includes automatic syncing, cross domain tracking, live support, and much more functionality! [Learn more](https://wpshop.io/)
+WP Shopify is also available in a professional version which includes automatic syncing, templates, cross domain tracking, live support, and much more functionality! [Learn more](https://wpshop.io/)
 
 ## Installation
 From your WordPress dashboard

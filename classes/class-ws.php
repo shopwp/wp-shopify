@@ -22,7 +22,9 @@ use WPS\DB\Customers;
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Messages;
+/* @if NODE_ENV='pro' */
 use WPS\Webhooks;
+/* @endif */
 use WPS\Utils;
 use WPS\License;
 use WPS\Progress_Bar;
@@ -695,8 +697,10 @@ if (!class_exists('WS')) {
 		/*
 
 		Get Webhooks Count
+		Pro only: true
 
 		*/
+		/* @if NODE_ENV='pro' */
 		public function wps_ws_get_webhooks_count() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
@@ -714,6 +718,7 @@ if (!class_exists('WS')) {
 			$this->send_success(['webhooks' => 27]);
 
 		}
+		/* @endif */
 
 
 	  /*
@@ -1499,8 +1504,11 @@ if (!class_exists('WS')) {
 		/*
 
 		Attaches all webhooks
+		Pro only: true
 
 		*/
+
+		/* @if NODE_ENV='pro' */
 		public function wps_ws_register_all_webhooks() {
 
 			if (isset($_POST['webhooksReconnect']) && !$_POST['webhooksReconnect']) {
@@ -1546,13 +1554,16 @@ if (!class_exists('WS')) {
 			}
 
 		}
+		/* @endif */
 
 
 	  /*
 
 		Get Webhooks
+		Pro only: true
 
 		*/
+		/* @if NODE_ENV='pro' */
 		public function wps_ws_get_webhooks() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
@@ -1562,7 +1573,6 @@ if (!class_exists('WS')) {
 			if (Utils::emptyConnection($this->connection)) {
 			  $this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_webhooks)');
 			}
-
 
 	    try {
 
@@ -1583,6 +1593,7 @@ if (!class_exists('WS')) {
 	    }
 
 		}
+		/* @endif */
 
 
 	  /*
@@ -1620,9 +1631,11 @@ if (!class_exists('WS')) {
 	      $newGeneralSettings['url_collections'] = $_POST['wps_settings_general_collections_url'];
 	    }
 
+			/* @if NODE_ENV='pro' */
 	    if (isset($_POST['wps_settings_general_url_webhooks']) && $_POST['wps_settings_general_url_webhooks']) {
 	      $newGeneralSettings['url_webhooks'] = $_POST['wps_settings_general_url_webhooks'];
 	    }
+			/* @endif */
 
 	    if (isset($_POST['wps_settings_general_num_posts'])) {
 
@@ -2414,10 +2427,12 @@ if (!class_exists('WS')) {
 	    $results = array();
 			$License = new License($this->config);
 	    $Transients = new Transients();
-			$Webhooks = new Webhooks($this->config);
 	    $DB_Settings_Connection = new Settings_Connection();
 	    $connection = $DB_Settings_Connection->get_column_single('api_key');
 
+			/* @if NODE_ENV='pro' */
+			$Webhooks = new Webhooks($this->config);
+			/* @endif */
 
 			/*
 
@@ -2443,14 +2458,8 @@ if (!class_exists('WS')) {
 					$results['connection_settings'] = $response_license;
 				}
 
-
-				/*
-
-				Step 3. Remove Webhooks
-
-				*/
+				/* @if NODE_ENV='pro' */
 				$response_webhooks = $Webhooks->remove_webhooks(false, $async);
-
 
 				if (is_wp_error($response_webhooks)) {
 					$results['connection_api'] = $response_webhooks->get_error_message()  . ' (wps_uninstall_consumer)';
@@ -2458,7 +2467,7 @@ if (!class_exists('WS')) {
 				} else {
 					$results['connection_api'] = 1;
 				}
-
+				/* @endif */
 
 	    }
 
@@ -2529,12 +2538,14 @@ if (!class_exists('WS')) {
 	  public function wps_uninstall_product_data($ajax = true) {
 
 			$results = array();
-			$webhooksReconnect = true;
 			$Transients = new Transients();
-			$Webhooks = new Webhooks($this->config);
 			$DB_Settings_Connection = new Settings_Connection();
-
 			$connection = $DB_Settings_Connection->get_column_single('domain');
+
+			/* @if NODE_ENV='pro' */
+			$webhooksReconnect = true;
+			$Webhooks = new Webhooks($this->config);
+			/* @endif */
 
 	    if ($_POST['action'] === 'wps_uninstall_product_data') {
 	      $ajax = true;
@@ -2549,12 +2560,14 @@ if (!class_exists('WS')) {
 					$this->send_error($this->messages->message_nonce_invalid . ' (wps_uninstall_product_data)');
 				}
 
+				/* @if NODE_ENV='pro' */
 				if (isset($_POST['webhooksReconnect']) && !empty($_POST['webhooksReconnect'])) {
 					$webhooksReconnect = $_POST['webhooksReconnect'];
 
 				} else {
 					$webhooksReconnect = true; // Default set to true so we don't have to worry about setting defaults on the front-end
 				}
+				/* @endif */
 
 	    }
 
@@ -2581,6 +2594,7 @@ if (!class_exists('WS')) {
 			Remove Webhooks
 
 			*/
+			/* @if NODE_ENV='pro' */
 			$response_webhooks = $Webhooks->remove_webhooks(false, true, $webhooksReconnect);
 
 			if (is_wp_error($response_webhooks)) {
@@ -2589,7 +2603,7 @@ if (!class_exists('WS')) {
 			} else {
 				$results['connection_api'] = 1;
 			}
-
+			/* @endif */
 
 	    /*
 
@@ -3208,7 +3222,9 @@ if (!class_exists('WS')) {
 					$_SESSION['wps_syncing_totals']['customers'] = $counts['customers'];
 				}
 
+				/* @if NODE_ENV='pro' */
 				$counts['webhooks'] = 27;
+				/* @endif */
 
 				Utils::wps_close_session_write();
 

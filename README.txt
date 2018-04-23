@@ -16,7 +16,8 @@ Sell and build custom Shopify experiences on WordPress.
 WP Shopify allows you to sell your Shopify products on any WordPress site. Your store data is synced as custom post types giving you the ability to utilize the full power of native WordPress functionality while maintaining complete control over the layout of your store.
 
 = Features =
-* Sync your products and collections as native WordPress posts
+* Sync your products and collections as native WordPress post
+* Templates
 * No iFrames
 * Over 100+ actions and filters allowing you to customize any part of the storefront
 * Display your products using custom pages and shortcodes
@@ -29,7 +30,7 @@ See the [full list of features here](https://wpshop.io/how/)
 https://www.youtube.com/watch?v=lYm6G35e8sI
 
 = PRO =
-WP Shopify is also available in a professional version which includes automatic syncing, cross domain tracking, live support, and much more functionality! [Learn more](https://wpshop.io/)
+WP Shopify is also available in a professional version which includes automatic syncing, templates, cross domain tracking, live support, and much more functionality! [Learn more](https://wpshop.io/)
 
 = Links =
 * [Website](https://wpshop.io/)

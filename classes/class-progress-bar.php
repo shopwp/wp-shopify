@@ -102,9 +102,11 @@ if (!class_exists('Progress_Bar')) {
 				$_SESSION['wps_syncing_totals']['customers'] = 0;
 			}
 
+			/* @if NODE_ENV='pro' */
 			if (!isset($_SESSION['wps_syncing_totals']['webhooks'])) {
 				$_SESSION['wps_syncing_totals']['webhooks'] = 27; // TODO: Make dynamic
 			}
+			/* @endif */
 
 
 			/*
@@ -143,10 +145,11 @@ if (!class_exists('Progress_Bar')) {
 			if (!isset($_SESSION['wps_syncing_current_amounts']['customers'])) {
 				$_SESSION['wps_syncing_current_amounts']['customers'] = 0;
 			}
-
+			/* @if NODE_ENV='pro' */
 			if (!isset($_SESSION['wps_syncing_current_amounts']['webhooks'])) {
 				$_SESSION['wps_syncing_current_amounts']['webhooks'] = 0;
 			}
+			/* @endif */
 
 			$sessionVariables = $_SESSION;
 			$sessionVariablesFiltered = $this->filter_session_variables_by_includes($sessionVariables, $includes);

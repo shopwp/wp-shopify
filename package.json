@@ -12,32 +12,6 @@
     "prod": "NODE_ENV=prod webpack --config webpack.config.babel.js --p --progress",
     "test": "jest --runInBand"
   },
-  "jest": {
-    "testURL": "http://wpstest.test",
-    "testEnvironment": "node",
-    "verbose": true,
-    "roots": [
-      "<rootDir>/admin/js/app",
-      "<rootDir>/public/js/app"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/admin/js/app/vendor/",
-      "<rootDir>/public/js/dist/",
-      "<rootDir>/dist/",
-      "<rootDir>/bin/",
-      "<rootDir>/classes/",
-      "<rootDir>/lib/",
-      "<rootDir>/tests/",
-      "<rootDir>/temapltes/",
-      "<rootDir>/vendor/",
-      "<rootDir>/webhooks/",
-      "<rootDir>/gulp/"
-    ],
-    "setupFiles": [
-      "jest-localstorage-mock"
-    ]
-  },
   "author": "WP Shopify https://wpshop.io",
   "license": "MIT",
   "browserslist": [
