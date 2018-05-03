@@ -215,7 +215,7 @@ Set canceling indicator
 */
 function getWebhooksReconnect() {
 
-  if (localStorage.getItem('wps-webhooks-reconnect') === 'false') {
+  if (localStorage.getItem('wps-webhooks-reconnect') === 'false' || localStorage.getItem('wps-webhooks-reconnect') === null) {
     return 0;
 
   } else {

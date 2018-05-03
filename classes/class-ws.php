@@ -17,13 +17,13 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Images;
 use WPS\DB\Tags;
-use WPS\DB\Orders;
-use WPS\DB\Customers;
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Messages;
 /* @if NODE_ENV='pro' */
 use WPS\Webhooks;
+use WPS\DB\Orders;
+use WPS\DB\Customers;
 /* @endif */
 use WPS\Utils;
 use WPS\License;
@@ -587,6 +587,7 @@ if (!class_exists('WS')) {
 	  TODO: Combine with other count functions to be more generalized
 
 	  */
+		/* @if NODE_ENV='pro' */
 	  public function wps_ws_get_orders_count() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
@@ -626,6 +627,7 @@ if (!class_exists('WS')) {
 	    }
 
 	  }
+		/* @endif */
 
 
 	  /*
@@ -634,6 +636,7 @@ if (!class_exists('WS')) {
 	  TODO: Combine with other count functions to be more generalized
 
 	  */
+		/* @if NODE_ENV='pro' */
 	  public function wps_ws_get_customers_count() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
@@ -672,6 +675,7 @@ if (!class_exists('WS')) {
 	    }
 
 	  }
+		/* @endif */
 
 
 		/*
@@ -832,6 +836,8 @@ if (!class_exists('WS')) {
 	  Get Products + Variants
 	  Here we make our requests to the API to insert products and variants
 
+		Runs for each "page" of the Shopify API (250 per page)
+
 	  */
 	  public function wps_insert_products_data() {
 
@@ -859,12 +865,10 @@ if (!class_exists('WS')) {
 			$Progress = new Progress_Bar(new Config());
 			$currentPage = Utils::get_current_page($_POST);
 
-
 	    try {
 
 				// This is the network requst
 				$response = $DB_Products->get_products_by_page($currentPage);
-
 				$data = json_decode($response->getBody()->getContents());
 
 				/*
@@ -915,7 +919,7 @@ if (!class_exists('WS')) {
 							Insert tags ...
 
 							*/
-							$insertionResults[$product->title]['tags'] = $DB_Tags->insert_tags($product, $customPostTypeID);
+							$insertionResults[$product->title]['tags'] = $DB_Tags->insert_product_tags($product, $customPostTypeID);
 
 
 							/*
@@ -1237,7 +1241,7 @@ if (!class_exists('WS')) {
 
 	      $DB_Collects = new Collects();
 
-	      if(!isset($_POST['currentPage']) || !$_POST['currentPage']) {
+	      if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
 	        $currentPage = 1;
 
 	      } else {
@@ -1255,12 +1259,15 @@ if (!class_exists('WS')) {
 
 	      if (property_exists($data, "collects")) {
 
+					error_log('---- $DB_Collects->insert_collects -----');
+
 					$resultCollects = $DB_Collects->insert_collects($data->collects);
 
 					if (empty($resultCollects)) {
 						$this->send_error($this->messages->message_insert_collects_error . ' (wps_insert_collects)');
 
 					} else {
+
 						$this->send_success($resultCollects);
 					}
 
@@ -1653,6 +1660,19 @@ if (!class_exists('WS')) {
 				$newGeneralSettings['title_as_alt'] = (int)$_POST['wps_settings_general_title_as_alt'];
 			}
 
+			if (isset($_POST['wps_settings_general_products_link_to_shopify'])) {
+				$newGeneralSettings['products_link_to_shopify'] = (int)$_POST['wps_settings_general_products_link_to_shopify'];
+			}
+
+			if (isset($_POST['wps_settings_general_show_breadcrumbs'])) {
+				$newGeneralSettings['show_breadcrumbs'] = (int)$_POST['wps_settings_general_show_breadcrumbs'];
+			}
+
+			if (isset($_POST['wps_settings_general_hide_pagination'])) {
+				$newGeneralSettings['hide_pagination'] = (int)$_POST['wps_settings_general_hide_pagination'];
+			}
+
+
 	    if (isset($_POST['wps_settings_general_styles_all'])) {
 	      $newGeneralSettings['styles_all'] = (int)$_POST['wps_settings_general_styles_all'];
 	    }
@@ -1687,6 +1707,7 @@ if (!class_exists('WS')) {
 				$newGeneralSettings['selective_sync_collections'] = (int)$_POST['wps_settings_general_selective_sync_collections'];
 			}
 
+			/* @if NODE_ENV='pro' */
 			if (isset($_POST['wps_settings_general_selective_sync_customers'])) {
 				$newGeneralSettings['selective_sync_customers'] = (int)$_POST['wps_settings_general_selective_sync_customers'];
 			}
@@ -1694,6 +1715,7 @@ if (!class_exists('WS')) {
 			if (isset($_POST['wps_settings_general_selective_sync_orders'])) {
 				$newGeneralSettings['selective_sync_orders'] = (int)$_POST['wps_settings_general_selective_sync_orders'];
 			}
+			/* @endif */
 
 			if (isset($_POST['wps_settings_general_selective_sync_tags'])) {
 				$newGeneralSettings['selective_sync_tags'] = (int)$_POST['wps_settings_general_selective_sync_tags'];
@@ -1913,6 +1935,11 @@ if (!class_exists('WS')) {
 
 	    $result = true;
 	    $Backend = new Backend($this->config);
+
+
+			if (!$Backend->wps_delete_taxonomies('wps_tags')) {
+				$result = new \WP_Error('error', $this->messages->message_delete_cpt_products_error . ' (wps_delete_synced_data_tagggs)');
+			}
 
 	    if (!$Backend->wps_delete_posts('wps_products')) {
 	      $result = new \WP_Error('error', $this->messages->message_delete_cpt_products_error . ' (wps_delete_synced_data)');
@@ -2271,6 +2298,7 @@ if (!class_exists('WS')) {
 	  wps_delete_orders
 
 	  */
+		/* @if NODE_ENV='pro' */
 	  public function wps_delete_orders() {
 
 			$Orders = new Orders();
@@ -2304,6 +2332,7 @@ if (!class_exists('WS')) {
 			}
 
 	  }
+		/* @endif */
 
 
 	  /*
@@ -2311,6 +2340,7 @@ if (!class_exists('WS')) {
 	  wps_delete_customers
 
 	  */
+		/* @if NODE_ENV='pro' */
 	  public function wps_delete_customers() {
 
 			$Customers = new Customers();
@@ -2344,6 +2374,7 @@ if (!class_exists('WS')) {
 			}
 
 	  }
+		/* @endif */
 
 
 	  /*
@@ -2366,8 +2397,11 @@ if (!class_exists('WS')) {
 	    $Collects = new Collects();
 	    $Images = new Images();
 	    $Transients = new Transients();
+
+			/* @if NODE_ENV='pro' */
 	    $Orders = new Orders();
 	    $Customers = new Customers();
+			/* @endif */
 
 	    $results['shop'] = $DB_Shop->delete_table();
 	    $results['settings_general'] = $DB_Settings_General->delete_table();
@@ -2381,9 +2415,12 @@ if (!class_exists('WS')) {
 	    $results['tags'] = $Tags->delete_table();
 	    $results['collects'] = $Collects->delete_table();
 	    $results['images'] = $Images->delete_table();
-	    $results['orders'] = $Orders->delete_table();
-	    $results['customers'] = $Customers->delete_table();
 	    $results['transients'] = $Transients->delete_all_cache();
+
+			/* @if NODE_ENV='pro' */
+			$results['orders'] = $Orders->delete_table();
+			$results['customers'] = $Customers->delete_table();
+			/* @endif */
 
 	    return $results;
 
@@ -2499,7 +2536,6 @@ if (!class_exists('WS')) {
 				}
 
 			}
-
 
 			$results = $this->wps_uninstall_product_data(false);
 
@@ -2730,6 +2766,7 @@ if (!class_exists('WS')) {
 	    Remove Orders
 
 	    */
+			/* @if NODE_ENV='pro' */
 	    $response_orders = $this->wps_delete_orders();
 
 	    if (is_wp_error($response_orders)) {
@@ -2738,13 +2775,14 @@ if (!class_exists('WS')) {
 	    } else {
 	      $results['orders'] = $response_orders;
 	    }
-
+			/* @endif */
 
 	    /*
 
 	    Remove Customers
 
 	    */
+			/* @if NODE_ENV='pro' */
 	    $response_customers = $this->wps_delete_customers();
 
 	    if (is_wp_error($response_customers)) {
@@ -2753,7 +2791,7 @@ if (!class_exists('WS')) {
 	    } else {
 	      $results['customers'] = $response_customers;
 	    }
-
+			/* @endif */
 
 	    /*
 
@@ -2913,6 +2951,7 @@ if (!class_exists('WS')) {
 	  Insert Orders
 
 	  */
+		/* @if NODE_ENV='pro' */
 	  public function wps_insert_orders() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
@@ -2977,6 +3016,7 @@ if (!class_exists('WS')) {
 	    }
 
 	  }
+		/* @endif */
 
 
 	  /*
@@ -2984,6 +3024,7 @@ if (!class_exists('WS')) {
 	  Insert Customers
 
 	  */
+		/* @if NODE_ENV='pro' */
 	  public function wps_insert_customers() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
@@ -3037,6 +3078,7 @@ if (!class_exists('WS')) {
 	        $this->send_success();
 
 	      } else {
+
 	        $this->send_error($data->errors);
 
 	      }
@@ -3049,6 +3091,7 @@ if (!class_exists('WS')) {
 	    }
 
 	  }
+		/* @endif */
 
 
 		/*
@@ -3214,6 +3257,7 @@ if (!class_exists('WS')) {
 					$_SESSION['wps_syncing_totals']['collects'] = $counts['collects'];
 				}
 
+				/* @if NODE_ENV='pro' */
 				if (isset($counts['orders'])) {
 					$_SESSION['wps_syncing_totals']['orders'] = $counts['orders'];
 				}
@@ -3222,7 +3266,6 @@ if (!class_exists('WS')) {
 					$_SESSION['wps_syncing_totals']['customers'] = $counts['customers'];
 				}
 
-				/* @if NODE_ENV='pro' */
 				$counts['webhooks'] = 27;
 				/* @endif */
 
@@ -3230,6 +3273,8 @@ if (!class_exists('WS')) {
 
 				$this->send_success($counts);
 
+			} else {
+				$this->send_error('Nothing to sync!');
 			}
 
 		}

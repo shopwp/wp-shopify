@@ -3,6 +3,10 @@
 namespace WPS;
 
 use WPS\Template_Loader;
+use WPS\DB;
+use WPS\DB\Products;
+use WPS\DB\Tags;
+use WPS\Utils;
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -21,6 +25,7 @@ if ( !class_exists('Admin_Menus') ) {
 
 	  protected static $instantiated = null;
 	  private $Config;
+		public $DB;
 
 	  /*
 
@@ -30,6 +35,9 @@ if ( !class_exists('Admin_Menus') ) {
 	  public function __construct($Config) {
 	    $this->config = $Config;
 			$this->template_loader = new Template_Loader;
+			$this->DB = new DB();
+			$this->Products = new Products();
+			$this->Tags = new Tags();
 	  }
 
 
@@ -50,6 +58,109 @@ if ( !class_exists('Admin_Menus') ) {
 	  }
 
 
+		/*
+
+		Add posts meta boxes
+
+		*/
+		public function wps_add_posts_meta_boxes() {
+
+			// Collections
+	    add_meta_box(
+	      'wps_products_meta_box_collections',
+	      __('Collections', 'wp-shopify'),
+	      [ $this, 'products_meta_box_collections' ],
+	      'wps_products',
+	      'side',
+	      'low'
+	    );
+
+			// Tags
+			add_meta_box(
+	      'wps_products_meta_box_tags',
+	      __('Tags', 'wp-shopify'),
+	      [ $this, 'wps_products_meta_box_tags' ],
+	      'wps_products',
+	      'side',
+	      'low'
+	    );
+
+	  }
+
+
+		/*
+
+		Products meta box: Collections
+
+		*/
+		public function products_meta_box_collections($post) {
+
+			$collections = $this->DB->get_collections();
+			$name = '';
+
+			$product = $this->Products->get_product($post->ID);
+			$collectionsCurrent = $this->DB->get_collections_by_product_id($product->product_id);
+
+			?>
+
+			<ul id="categorychecklist" data-wp-lists="list:category" class="categorychecklist form-no-clear">
+
+			<?php foreach ( $collections as $collection ) {
+
+				$selectedCollection = in_array($collection->collection_id, array_column($collectionsCurrent, 'collection_id'));
+
+				?>
+
+				<li id="category-<?= $collection->collection_id; ?>" class="popular-category">
+					<label class="selectit" for="collection-<?= $collection->collection_id; ?>">
+						<input <?= $selectedCollection ? 'checked="checked"' : ''; ?> value="16" type="checkbox" name="collections[<?= $collection->collection_id; ?>]" id="collection-<?= $collection->collection_id; ?>"> <?php esc_html_e( $collection->title ); ?>
+					</label>
+				</li>
+
+			<?php } ?>
+
+			</ul>
+
+		<?php }
+
+
+		/*
+
+		Products meta box: Tags
+
+		*/
+		public function wps_products_meta_box_tags($post) {
+
+			$allTags = $this->Tags->get_unique_tags();
+			$currentTags = $this->Tags->get_product_tags($post->ID);
+
+			error_log('---- $currentTags -----');
+			error_log(print_r($currentTags, true));
+			error_log('---- /$currentTags -----');
+
+			?>
+
+			<ul id="categorychecklist" data-wp-lists="list:category" class="categorychecklist form-no-clear">
+
+			<?php foreach ($allTags as $tag) {
+
+				$selectedTag = in_array($tag, array_column($currentTags, 'tag'));
+
+				?>
+
+				<li id="tag-wrapper-<?= $tag; ?>" class="popular-tag">
+					<label class="selectit" for="tag-<?= $tag; ?>">
+						<input <?= $selectedTag ? 'checked="checked"' : ''; ?> value="16" type="checkbox" name="tags[<?= $tag; ?>]" id="tag-<?= $tag; ?>"> <?php esc_html_e( $tag ); ?>
+					</label>
+				</li>
+
+			<?php } ?>
+
+			</ul>
+
+		<?php }
+
+
 	  /*
 
 	  Add nav menu meta box
@@ -58,7 +169,7 @@ if ( !class_exists('Admin_Menus') ) {
 	  public function wps_add_nav_menu_meta_boxes() {
 
 	    add_meta_box(
-	      'wl_login_nav_link',
+	      'wps_nav_cart_icon',
 	      __('Cart', 'wp-shopify'),
 	      array( $this, 'nav_menu_link'),
 	      'nav-menus',
@@ -162,6 +273,9 @@ if ( !class_exists('Admin_Menus') ) {
 
 	    add_filter('wp_setup_nav_menu_item', [$this, 'wps_add_custom_nav_fields'] );
 	    add_action('admin_init', [$this, 'wps_add_nav_menu_meta_boxes']);
+
+			add_action('admin_init', [$this, 'wps_add_posts_meta_boxes']);
+
 	    add_filter('walker_nav_menu_start_el', [$this, 'wps_walker_nav_menu_start_el_callback'], 10, 2);
 
 

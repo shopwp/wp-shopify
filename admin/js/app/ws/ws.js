@@ -64,6 +64,30 @@ function getProductsCount() {
 
 /*
 
+Get all products from Shopify
+Returns: Promise
+
+*/
+function cacheNoticeDismissal(dismiss_name) {
+
+  var options = {
+    method: 'POST',
+    url: WP_Shopify.ajax,
+    dataType: 'json',
+    data: {
+      action: 'cache_admin_notice_dismissal',
+      nonce: WP_Shopify.nonce,
+      dismiss_name: dismiss_name
+    }
+  };
+
+  return controlPromise(options);
+
+};
+
+
+/*
+
 Syncs Alt Text
 Returns: Promise
 
@@ -355,7 +379,7 @@ function insertCollects(currentPage = false) {
       nonce: WP_Shopify.nonce
     },
     error: function(xhr) {
-      console.error("xhr: ", xhr);
+      console.error("WP Shopify insert collects error: ", xhr);
     }
   };
 
@@ -1365,5 +1389,6 @@ export {
   getTotalCountsFromSession,
   removeConnectionData,
   getWebhooksCount,
-  getShopCount
+  getShopCount,
+  cacheNoticeDismissal
 };

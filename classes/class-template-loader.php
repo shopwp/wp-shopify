@@ -78,6 +78,65 @@ if ( !class_exists('Template_Loader') ) {
     */
     protected $plugin_template_directory = WPS_RELATIVE_TEMPLATE_DIR;
 
+
+
+		/* @if NODE_ENV='free' */
+		public function locate_template( $template_names, $load = false, $require_once = true ) {
+
+			// Use $template_names as a cache key - either first element of array or the variable itself if it's a string
+			$cache_key = is_array( $template_names ) ? $template_names[0] : $template_names;
+
+			// If the key is in the cache array, we've already located this file.
+			if ( isset( $this->template_path_cache[$cache_key] ) ) {
+
+				$located = $this->template_path_cache[$cache_key];
+
+			} else {
+
+				// No file found yet.
+				$located = false;
+
+				// Remove empty entries.
+				$template_names = array_filter( (array) $template_names );
+				$template_paths = $this->get_template_paths();
+
+				// Try to find a template file.
+				foreach ( $template_names as $template_name ) {
+
+					// Trim off any slashes from the template name.
+					$template_name = ltrim( $template_name, '/' );
+
+					/*
+
+					Only looks inside the plugin folder
+
+					*/
+					$newTemplatePaths = [end($template_paths)];
+
+
+					foreach ( $newTemplatePaths as $template_path ) {
+
+						if ( file_exists( $template_path . $template_name ) ) {
+
+							$located = $template_path . $template_name;
+							// Store the template path in the cache
+							$this->template_path_cache[$cache_key] = $located;
+							break 2;
+						}
+					}
+				}
+			}
+
+			if ( $load && $located ) {
+				load_template( $located, $require_once );
+			}
+
+			return $located;
+
+		}
+		/* @endif */
+
+
   }
 
 }

@@ -13,7 +13,7 @@ Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress
 Version:           1.1.1
-Author:            Andrew Robbins
+Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
 License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -46,6 +46,7 @@ use WPS\I18N;
 use WPS\License;
 use WPS\Checkouts;
 use WPS\Admin_Menus;
+use WPS\Admin_Notices;
 use WPS\Deactivator;
 use WPS\Activator;
 use WPS\Templates;
@@ -211,11 +212,21 @@ if ( !class_exists('WP_Shopify') ) {
 
 		/*
 
-		Get Checkouts Class
+		Get Admin Menus Class
 
 		*/
 		public static function Admin_Menus() {
 			return Admin_Menus::instance(new Config());
+		}
+
+
+		/*
+
+		Get Admin Notices Class
+
+		*/
+		public static function Admin_Notices() {
+			return Admin_Notices::instance();
 		}
 
 
@@ -246,6 +257,7 @@ if ( !class_exists('WP_Shopify') ) {
 			$I18N = self::I18N();
 			$Checkouts = self::Checkouts();
 			$Admin_Menus = self::Admin_Menus();
+			$Admin_Notices = self::Admin_Notices();
 			$Templates = self::Templates();
 
 			$Activator->init();
@@ -256,81 +268,13 @@ if ( !class_exists('WP_Shopify') ) {
 			$Frontend->init();
 			$Checkouts->init();
 			$Admin_Menus->init();
+			$Admin_Notices->init();
 
 			// Establishes all of our template hooks
 			$Templates->init();
 
-
-			/*
-
-			Custom Post Types
-
-			*/
-			add_action('init', [$CPT, 'wps_post_type_products']);
-			add_action('init', [$CPT, 'wps_post_type_collections']);
-
-
-			/*
-
-			Misc
-
-			*/
-			add_action('plugins_loaded', [$Hooks, 'wps_on_update']);
-			add_action('pre_get_posts',  [$Hooks, 'wps_content_pre_loop']);
-			add_filter('posts_clauses', [$Hooks, 'wps_clauses_mod'], 10, 2);
-
-
-			/*
-
-			Sidebars
-
-			*/
-			add_action('wps_products_sidebar', [$Hooks, 'wps_products_sidebar']);
-			add_action('wps_product_single_sidebar', [$Hooks, 'wps_product_single_sidebar']);
-			add_action('wps_collections_sidebar', [$Hooks, 'wps_collections_sidebar']);
-			add_action('wps_collection_single_sidebar', [$Hooks, 'wps_collection_single_sidebar']);
-
-
-			/*
-
-			Filters
-
-			*/
-			add_action('wps_collections_display', [$Hooks, 'wps_collections_display'], 10, 2);
-			add_action('wps_collections_pagination', [$Hooks, 'wps_collections_pagination']);
-			add_filter('wps_collections_args', [$Hooks, 'wps_collections_args']);
-			add_filter('wps_collections_custom_args', [$Hooks, 'wps_collections_custom_args']);
-			add_filter('wps_collections_custom_args_items_per_row', [$Hooks, 'wps_collections_custom_args_items_per_row']);
-			add_filter('wps_collection_single_products_heading_class', [$Hooks, 'wps_collection_single_products_heading_class']);
-
-			add_action('wps_products_display', [$Hooks, 'wps_products_display'], 10, 2);
-			add_filter('wps_products_pagination_range', [$Hooks, 'wps_products_pagination_range']);
-			add_filter('wps_products_pagination_next_link_text', [$Hooks, 'wps_products_pagination_next_link_text']);
-			add_filter('wps_products_pagination_prev_link_text', [$Hooks, 'wps_products_pagination_prev_link_text']);
-
-			add_filter('wps_products_pagination_first_page_text', [$Hooks, 'wps_products_pagination_first_page_text']);
-			add_filter('wps_products_pagination_show_as_prev_next', [$Hooks, 'wps_products_pagination_show_as_prev_next']);
-			add_filter('wps_products_pagination_prev_page_text', [$Hooks, 'wps_products_pagination_prev_page_text']);
-			add_filter('wps_products_pagination_next_page_text', [$Hooks, 'wps_products_pagination_next_page_text']);
-			add_filter('wps_products_args', [$Hooks, 'wps_products_args']);
-			add_filter('wps_products_args_posts_per_page', [$Hooks, 'wps_products_args_posts_per_page']);
-			add_filter('wps_products_args_orderby', [$Hooks, 'wps_products_args_orderby']);
-			add_filter('wps_products_args_paged', [$Hooks, 'wps_products_args_paged']);
-			add_filter('wps_products_custom_args', [$Hooks, 'wps_products_custom_args']);
-			add_filter('wps_products_custom_args_items_per_row', [$Hooks, 'wps_products_custom_args_items_per_row']);
-			add_filter('wps_products_price_multi', [$Hooks, 'wps_products_price_multi'], 10, 4);
-			add_filter('wps_products_price_one', [$Hooks, 'wps_products_price_one'], 10, 2);
-			add_action('wps_products_pagination', [$Hooks, 'wps_products_pagination']);
-			add_filter('wps_products_related_args', [$Hooks, 'wps_products_related_args']);
-			add_filter('wps_products_related_args_posts_per_page', [$Hooks, 'wps_products_related_args_posts_per_page']);
-			add_filter('wps_products_related_args_orderby', [$Hooks, 'wps_products_related_args_orderby']);
-			add_filter('wps_products_related_custom_args', [$Hooks, 'wps_products_related_custom_args']);
-			add_filter('wps_products_related_custom_items_per_row', [$Hooks, 'wps_products_related_custom_items_per_row']);
-
-			add_filter('wps_product_single_thumbs_class', [$Hooks, 'wps_product_single_thumbs_class'], 10, 2);
-			add_filter('wps_product_single_price', [$Hooks, 'wps_product_single_price'], 10, 4);
-			add_filter('wps_product_single_price_multi', [$Hooks, 'wps_product_single_price_multi'], 10, 4);
-			add_filter('wps_product_single_price_one', [$Hooks, 'wps_product_single_price_one'], 10, 3);
+			$CPT->init();
+			$Hooks->init();			
 
 		}
 

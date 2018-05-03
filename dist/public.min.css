@@ -1775,7 +1775,8 @@ input[type="number"].wps-cart-item__quantity {
   width: calc(100% - 40px); }
   .wps-cart-empty-notice h2 {
     font-size: 1.5em;
-    margin: 0; }
+    margin: 0;
+    text-align: center; }
 
 .wps-cart-counter-lg {
   padding: 0;

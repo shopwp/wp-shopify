@@ -19,5 +19,5 @@ if ( !defined('ABSPATH') ) {
 ?>
 
 <h1 itemprop="name" class="entry-title wps-product-heading">
-  <?php esc_html_e($data->product->details->title, 'wp-shopify'); ?>
+  <?php esc_html_e($data->product->details->title, 'wp-shopify'); ?> From Plugin
 </h1>

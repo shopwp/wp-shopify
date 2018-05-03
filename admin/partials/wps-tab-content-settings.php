@@ -41,6 +41,10 @@ Tab Content: Settings
 
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-price-formatter.php';
 
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-link-products-to-shopify.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-show-breadcrumbs.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-hide-pagination.php';
+
       ?>
 
       <!-- Nonce -->

@@ -213,6 +213,7 @@ function syncCollects() {
     }
 
     try {
+
       var collects = await streamCollects(); // wps_insert_collects
       resolve(collects);
 
@@ -577,7 +578,6 @@ function syncData() {
       setConnectionProgress("true");
 
       var syncPluginDataResp = await syncPluginData();
-
 
       if (isWordPressError(syncPluginDataResp)) {
         throw syncPluginDataResp;

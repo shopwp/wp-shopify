@@ -39,6 +39,9 @@ function constructStreamingOptions(itemCount) {
 
   var pageSize = 250;
 
+  // Important to coerce ... can sometimes be a string
+  itemCount = parseInt(itemCount);
+
   return {
     currentPage: 1,
     pages: Math.ceil(itemCount / pageSize),
@@ -345,7 +348,6 @@ async function streamCollects() {
     while (currentPage <= pages) {
 
       try {
-
         itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
 
         if (isWordPressError(itemsToAdd)) {

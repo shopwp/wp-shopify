@@ -468,20 +468,27 @@ function onlyAvailableSyncOptions(obj) {
     var onlySelectedSyncs = filterOutDeselectedSyncs(WP_Shopify.selective_sync);
     var nameOfSync = Object.getOwnPropertyNames(obj)[0];
 
+    /*
 
+    Falls into this conditional when the loop comes across the name of a selected sync
+
+    */
     if (onlySelectedSyncs.hasOwnProperty(nameOfSync)) {
-
       return obj;
 
     } else {
 
-      if (nameOfSync === 'products') {
+      /*
 
-        if ( has(onlySelectedSyncs, 'tags') ) {
-          return obj;
-        }
+      Falls into this conditional when the loop doesn't find the name of a selected sync.
 
-        if ( has(onlySelectedSyncs, 'images') ) {
+      At this point we still need to check for the collects when the user has selected
+      to sync only products.
+
+      */
+      if (has(onlySelectedSyncs, 'products')) {
+
+        if ( has(obj, 'collects') ) {
           return obj;
         }
 
@@ -497,6 +504,8 @@ function onlyAvailableSyncOptions(obj) {
 /*
 
 Filter Out Any Deselected Selective Syncs
+
+Only returns selected syncs
 
 */
 function filterOutDeselectedSyncs(syncs) {
@@ -537,11 +546,7 @@ Filter Out Any Notice
 
 */
 function filterOutSelectiveSync(array) {
-
-  var filteredSyncs = filter(array, onlyAvailableSyncOptions);
-
-  return filteredSyncs;
-
+  return filter(array, onlyAvailableSyncOptions);
 }
 
 
@@ -702,6 +707,7 @@ function emptyDataCount(count) {
 
   if (count === 0 || count === '0') {
     return true;
+
   } else {
     return false;
   }
