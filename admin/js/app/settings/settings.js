@@ -100,8 +100,18 @@ function onSettingsFormSubmit() {
       var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
       var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
       var titlesAsAltAttr = jQuery(form).find("#wps_settings_general_title_as_alt").attr("checked");
+      var productsLinkToShopifyAttr = jQuery(form).find("#wps_settings_general_products_link_to_shopify").attr("checked");
+      var showBreadcrumbsAttr = jQuery(form).find("#wps_settings_general_show_breadcrumbs").attr("checked");
+      var hidePaginationAttr = jQuery(form).find("#wps_settings_general_hide_pagination").attr("checked");
 
-      var selectiveSyncAllAttr = jQuery(form).find("#wps_settings_general_selective_sync_all").attr("checked");
+      var $selectiveSyncAll = jQuery(form).find("#wps_settings_general_selective_sync_all");
+
+      if ($selectiveSyncAll !== undefined) {
+        var selectiveSyncAllAttr = jQuery(form).find("#wps_settings_general_selective_sync_all").attr("checked");
+      } else {
+        var selectiveSyncAllAttr = false;
+      }
+
       var selectiveSyncProductsAttr = jQuery(form).find("#wps_settings_general_selective_sync_products").attr("checked");
       var selectiveSyncCollectionsAttr = jQuery(form).find("#wps_settings_general_selective_sync_collections").attr("checked");
       var selectiveSyncCustomersAttr = jQuery(form).find("#wps_settings_general_selective_sync_customers").attr("checked");
@@ -109,7 +119,7 @@ function onSettingsFormSubmit() {
       var selectiveSyncShopAttr = jQuery(form).find("#wps_settings_general_selective_sync_shop").attr("checked");
 
 
-      if (typeof selectiveSyncAllAttr !== typeof undefined && selectiveSyncAllAttr !== false) {
+      if ($selectiveSyncAll === undefined || typeof selectiveSyncAllAttr !== typeof undefined && selectiveSyncAllAttr !== false) {
         var selectiveSyncAll = 1;
 
       } else {
@@ -151,6 +161,31 @@ function onSettingsFormSubmit() {
         var selectiveSyncShop = 0;
       }
 
+
+
+
+      if (typeof productsLinkToShopifyAttr !== typeof undefined && productsLinkToShopifyAttr !== false) {
+        var productsLinkToShopify = 1;
+
+      } else {
+        var productsLinkToShopify = 0;
+      }
+
+
+      if (typeof showBreadcrumbsAttr !== typeof undefined && showBreadcrumbsAttr !== false) {
+        var showBreadcrumbs = 1;
+
+      } else {
+        var showBreadcrumbs = 0;
+      }
+
+
+      if (typeof hidePaginationAttr !== typeof undefined && hidePaginationAttr !== false) {
+        var hidePagination = 1;
+
+      } else {
+        var hidePagination = 0;
+      }
 
 
 
@@ -210,9 +245,15 @@ function onSettingsFormSubmit() {
         wps_settings_general_collections_url: collectionsURL,
         /* @if NODE_ENV='pro' */
         wps_settings_general_url_webhooks: webhooksURL,
+        wps_settings_general_selective_sync_customers: selectiveSyncCustomers,
+        wps_settings_general_selective_sync_orders: selectiveSyncOrders,
         /* @endif */
         wps_settings_general_num_posts: numPosts,
         wps_settings_general_title_as_alt: titlesAsAlt,
+        wps_settings_general_products_link_to_shopify: productsLinkToShopify,
+        wps_settings_general_show_breadcrumbs: showBreadcrumbs,
+        wps_settings_general_hide_pagination: hidePagination,
+
         wps_settings_general_styles_all: stylesAll,
         wps_settings_general_styles_core: stylesCore,
         wps_settings_general_styles_grid: stylesGrid,
@@ -221,8 +262,6 @@ function onSettingsFormSubmit() {
         wps_settings_general_selective_sync_all: selectiveSyncAll,
         wps_settings_general_selective_sync_products: selectiveSyncProducts,
         wps_settings_general_selective_sync_collections: selectiveSyncCollections,
-        wps_settings_general_selective_sync_customers: selectiveSyncCustomers,
-        wps_settings_general_selective_sync_orders: selectiveSyncOrders,
         wps_settings_general_selective_sync_shop: selectiveSyncShop,
 
       }
@@ -232,8 +271,10 @@ function onSettingsFormSubmit() {
       WP_Shopify.selective_sync.products = selectiveSyncProducts;
       WP_Shopify.selective_sync.custom_collections = selectiveSyncCollections;
       WP_Shopify.selective_sync.smart_collections = selectiveSyncCollections;
+      /* @if NODE_ENV='pro' */
       WP_Shopify.selective_sync.customers = selectiveSyncCustomers;
       WP_Shopify.selective_sync.orders = selectiveSyncOrders;
+      /* @endif */
       WP_Shopify.selective_sync.shop = selectiveSyncShop;
 
 
@@ -343,6 +384,7 @@ function getSelectiveSyncOptions() {
       includes.push('custom_collections');
     }
 
+    /* @if NODE_ENV='pro' */
     if (WP_Shopify.selective_sync.customers) {
       includes.push('customers');
     }
@@ -350,9 +392,11 @@ function getSelectiveSyncOptions() {
     if (WP_Shopify.selective_sync.orders) {
       includes.push('orders');
     }
+    /* @endif */
 
     if (WP_Shopify.selective_sync.products) {
       includes.push('products');
+      includes.push('collects');
     }
 
     if (WP_Shopify.selective_sync.shop) {

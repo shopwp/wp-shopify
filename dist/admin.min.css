@@ -889,9 +889,6 @@ input.code {
   border-radius: 5px;
   border: 1px solid #ccc; }
 
-#wpbody-content #post-body-content .postarea.wp-editor-expand {
-  display: none; }
-
 #wps-plugin-info,
 #wps-license {
   min-height: 80px; }
@@ -927,6 +924,7 @@ input.code {
 
 .wps-progress-bar-wrapper {
   position: relative;
+  overflow: hidden;
   height: 28px;
   width: 100%;
   background-color: #f3f3f3;
@@ -1028,3 +1026,9 @@ input.code {
   z-index: 9; }
   .wps-progress-step-name:first-letter {
     text-transform: capitalize; }
+
+#wps_products_meta_box_tags .inside,
+#wps_products_meta_box_collections .inside {
+  max-height: 167px;
+  overflow-y: scroll;
+  border-bottom: 12px solid #fff; }

@@ -68,6 +68,12 @@ if (!class_exists('Messages')) {
 		public $message_message_variants_not_found;
 		public $message_products_from_collection_not_found;
 
+
+		/*
+
+		API errors
+
+		*/
 		public $message_shopify_api_400;
 		public $message_shopify_api_401;
 		public $message_shopify_api_402;
@@ -83,7 +89,55 @@ if (!class_exists('Messages')) {
 		public $message_shopify_api_generic;
 
 
+		/*
+
+		Cache
+
+		*/
+		public $message_delete_single_product_cache;
+		public $message_delete_product_prices;
+		public $message_delete_cached_products_queries;
+		public $message_delete_single_product_images_cache;
+		public $message_delete_single_product_tags_cache;
+		public $message_delete_single_product_variants_cache;
+		public $message_delete_single_product_options_cache;
+		public $message_delete_cached_admin_notices;
+		public $message_delete_cached_connection;
+		public $message_delete_cached_settings;
+		public $message_delete_cached_collection_queries;
+		public $message_delete_single_collection_cache;
+		public $message_delete_single_collections_cache;
+		public $message_delete_all_cache;
+
+
+		public $message_saving_native_cpt_data;
+
+
 		public function __construct() {
+
+
+			$this->message_saving_native_cpt_data = esc_html__('Warning: Any custom changes made to the post title or content could potentially be erased. This might happen as a result of re-syncing or when the product / collection is changed within Shopify. Consider making these changes within Shopify instead. Custom fields added either natively by WordPress or through plugins like ACF will NOT be erased upon re-sync.', 'wp-shopify');
+
+
+			/*
+
+			Cache
+
+			*/
+			$this->message_delete_single_product_cache = esc_html__('WP Shopify Warning: Unable to delete single product cache.', 'wp-shopify');
+			$this->message_delete_single_product_images_cache = esc_html__('WP Shopify Warning: Unable to delete single product images cache.', 'wp-shopify');
+			$this->message_delete_single_product_tags_cache = esc_html__('WP Shopify Warning: Unable to delete single product tags cache.', 'wp-shopify');
+			$this->message_delete_single_product_variants_cache = esc_html__('WP Shopify Warning: Unable to delete single product variants cache.', 'wp-shopify');
+			$this->message_delete_single_product_options_cache = esc_html__('WP Shopify Warning: Unable to delete single product options cache.', 'wp-shopify');
+			$this->message_delete_product_prices = esc_html__('WP Shopify Warning: Unable to delete cached product prices.', 'wp-shopify');
+			$this->message_delete_cached_settings = esc_html__('WP Shopify Warning: Unable to delete cached settings.', 'wp-shopify');
+			$this->message_delete_cached_admin_notices = esc_html__('WP Shopify Warning: Unable to delete cached admin notices.', 'wp-shopify');
+			$this->message_delete_cached_connection = esc_html__('WP Shopify Warning: Unable to delete cached connection.', 'wp-shopify');
+			$this->message_delete_cached_collection_queries = esc_html__('WP Shopify Warning: Unable to delete cached collection queries.', 'wp-shopify');
+			$this->message_delete_single_collection_cache = esc_html__('WP Shopify Warning: Unable to delete single cached collection.', 'wp-shopify');
+			$this->message_delete_single_collections_cache = esc_html__('WP Shopify Warning: Unable to delete all cached single collections.', 'wp-shopify');
+			$this->message_delete_cached_products_queries = esc_html__('WP Shopify Warning: Unable to delete cached product queries.', 'wp-shopify');
+			$this->message_delete_all_cache = esc_html__('WP Shopify Warning: Unable to delete all cache, please try again.', 'wp-shopify');
 
 			$this->message_nonce_invalid = esc_html__('Error: Your request has been rejected for security reasons. Please clear your browser cache and try again.', 'wp-shopify');
 

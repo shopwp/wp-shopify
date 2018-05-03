@@ -44,69 +44,73 @@ function onClearSubmit() {
 
   jQuery("#wps-button-clear-all-data").unbind().on('click', async function(e) {
 
-    e.preventDefault();
-
-    var $button = jQuery(this);
-    var $spinner = $button.parent().find('.spinner');
-
-    disable($button);
-    toggleActive($spinner);
-    showLoader($button);
+    if (window.confirm("Warning: This will delete all WordPress posts created from your Shopify data. Do you really want to remove?")) {
 
 
-    /*
+      e.preventDefault();
 
-    Step 1. Clearing current data
+      var $button = jQuery(this);
+      var $spinner = $button.parent().find('.spinner');
 
-    */
-    try {
-
-      var removedResponse = await removeAllData();
-
-      if (isWordPressError(removedResponse)) {
-        throw removedResponse.data;
-
-      } else if (isError(removedResponse)) {
-        throw removedResponse;
-      }
-
-    } catch(errors) {
-
-      showAdminNotice(errors, 'error');
-
-    }
+      disable($button);
+      toggleActive($spinner);
+      showLoader($button);
 
 
-    /*
+      /*
 
-    Step 2. Clear all plugin cache
+      Step 1. Clearing current data
 
-    */
-    try {
+      */
+      try {
 
-      var clearAllCacheResponse = await clearAllCache();
+        var removedResponse = await removeAllData();
 
-      if (isWordPressError(clearAllCacheResponse)) {
-        throw clearAllCacheResponse.data;
+        if (isWordPressError(removedResponse)) {
+          throw removedResponse.data;
 
-      } else if (isError(clearAllCacheResponse)) {
-        throw clearAllCacheResponse;
+        } else if (isError(removedResponse)) {
+          throw removedResponse;
+        }
 
-      } else {
-        showAdminNotice('Successfully removed all data', 'updated');
+      } catch(errors) {
+
+        showAdminNotice(errors, 'error');
 
       }
 
 
-    } catch(errors) {
+      /*
 
-      showAdminNotice(errors, 'error');
+      Step 2. Clear all plugin cache
+
+      */
+      try {
+
+        var clearAllCacheResponse = await clearAllCache();
+
+        if (isWordPressError(clearAllCacheResponse)) {
+          throw clearAllCacheResponse.data;
+
+        } else if (isError(clearAllCacheResponse)) {
+          throw clearAllCacheResponse;
+
+        } else {
+          showAdminNotice('Successfully removed all data', 'updated');
+
+        }
+
+
+      } catch(errors) {
+
+        showAdminNotice(errors, 'error');
+
+      }
+
+      hideLoader($button);
+      enable($button);
 
     }
-
-    hideLoader($button);
-    enable($button);
-
 
   });
 

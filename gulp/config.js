@@ -28,18 +28,13 @@ var config = {
 
   files: {
     toBeProcessed: [
-      './_tmp/admin/js/app/disconnect/disconnect.js',
-      './_tmp/admin/js/app/settings/settings.js',
-      './_tmp/admin/js/app/tools/resync.js',
-      './_tmp/admin/js/app/tools/tools.js',
-      './_tmp/admin/js/app/ws/middleware.js',
-      './_tmp/admin/partials/wps-tab-content-settings.php',
-      './_tmp/admin/partials/wps-tab-content-tools.php',
-      './_tmp/classes/class-backend.php',
-      './_tmp/classes/class-progress-bar.php',
-      './_tmp/classes/class-ws.php',
-      './_tmp/public/js/app/cart/cart-events.js',
-      './_tmp/public/js/app/cart/cart-ui.js'
+      './_tmp/admin/js/**/*',
+      './_tmp/admin/partials/**/*',
+      './_tmp/public/js/**/*',
+      './_tmp/public/templates/**/*',
+      './_tmp/classes/**/*',
+      './_tmp/wp-shopify.php',
+      './_tmp/uninstall.php'
     ],
     tmp: './_tmp/**/*',
     all: [
@@ -66,7 +61,9 @@ var config = {
     buildFreeContent: '../../../../assets/wp-shopify/**/*',
     buildFreeClear: [
       './_tmp/webhooks',
-      './_tmp/classes/class-webhooks.php'
+      './_tmp/classes/class-webhooks.php',
+      './_tmp/classes/class-orders.php',
+      './_tmp/classes/class-customers.php'
     ],
     buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify/wp-shopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
     buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
@@ -119,7 +116,7 @@ var config = {
   },
   bs: browserSync.create(),
   serverName: 'wpstest.test',
-  isBuilding: argvs.argv.tier ? true : false,
+  isBuilding: argvs.argv.tier ? false : false,
   buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
   buildRelease: argvs.argv.release ? argvs.argv.release : false // Build type can be either 'free' or 'pro'
 };
@@ -189,11 +186,11 @@ function webpackConfig(outputFinalname) {
           parallel: true,
           cache: true,
           parallel: true,
-          extractComments: false,
+          extractComments: config.isBuilding ? true : false,
           uglifyOptions: {
-            compress: false,
+            compress: config.isBuilding ? true : false,
             ecma: 6,
-            mangle: true,
+            mangle: config.isBuilding ? true : false,
             safari10: true
           },
           sourceMap: config.isBuilding ? false : true,

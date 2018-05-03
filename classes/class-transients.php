@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\Messages;
+
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
@@ -95,22 +97,47 @@ if (!class_exists('Transients')) {
 	  /*
 
 	  Delete cached prices
-
+		TODO: Currently not used
+		
 	  */
-	  public static function delete_cached_prices() {
+	  public static function delete_cached_single_product_prices_by_id($productID) {
 
 	    global $wpdb;
+			$messages = new Messages();
 
-	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_price\_id\_%'");
+
+	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_price_id_ " . $productID . "'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached product prices.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_product_prices);
 
 	    } else {
 	      return true;
 	    }
 
 	  }
+
+
+		/*
+
+		Deletes single product cached prices
+
+		*/
+		public static function delete_cached_prices() {
+
+			global $wpdb;
+			$messages = new Messages();
+
+			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_price\_id\_%'");
+
+			if ($results === false) {
+				return new \WP_Error('error', $messages->message_delete_product_prices);
+
+			} else {
+				return true;
+			}
+
+		}
 
 
 	  /*
@@ -121,11 +148,12 @@ if (!class_exists('Transients')) {
 	  public static function delete_all_cache() {
 
 	    global $wpdb;
+			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cache, please try again.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_all_cache);
 
 	    } else {
 	      return true;
@@ -142,11 +170,12 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_variants() {
 
 	    global $wpdb;
+			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_with\_variants\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached variants.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_single_product_variants_cache);
 
 	    } else {
 	      return true;
@@ -163,11 +192,12 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_settings() {
 
 	    global $wpdb;
+			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%' OR `option_name` LIKE '%\_transient\_wps\_table\_single\_row\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached settings.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_cached_settings);
 
 	    } else {
 	      return true;
@@ -184,11 +214,12 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_product_queries() {
 
 	    global $wpdb;
+			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_products\_query\_hash\_cache\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached product queries.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_cached_products_queries);
 
 	    } else {
 	      return true;
@@ -205,17 +236,104 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_product_single() {
 
 	    global $wpdb;
+			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_single\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached single product.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_single_product_cache);
 
 	    } else {
 	      return true;
 	    }
 
 	  }
+
+
+		/*
+
+		Delete all cached single collections
+		TODO: Currently not used
+
+		*/
+		public static function delete_cached_single_collections() {
+
+			global $wpdb;
+			$messages = new Messages();
+
+			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collection\_single\_%'");
+
+			if ($results === false) {
+				return new \WP_Error('error', $messages->message_delete_single_collections_cache);
+
+			} else {
+				return true;
+			}
+
+		}
+
+
+		/*
+
+		Delete all cached single collections
+
+		*/
+		public static function delete_cached_single_collection_by_id($postID) {
+
+			global $wpdb;
+			$messages = new Messages();
+
+			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_collection_single_" . $postID . "'");
+
+			if ($results === false) {
+				return new \WP_Error('error', $messages->message_delete_single_collection_cache);
+
+			} else {
+				return true;
+			}
+
+		}
+
+
+		/*
+
+		Delete cached single product options / variants
+
+		*/
+		public static function delete_cached_single_product_by_id($postID) {
+
+			global $wpdb;
+			$messages = new Messages();
+
+			$resultsSingle = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_" . $postID . "'");
+			$resultsImages = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_images_" . $postID . "'");
+			$resultsTags = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_tags_" . $postID . "'");
+			$resultsVariants = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_variants_" . $postID . "'");
+			$resultsOptions = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_options_" . $postID . "'");
+
+			if ($resultsSingle === false) {
+				return new \WP_Error('error', $messages->message_delete_single_product_cache);
+			}
+
+			if ($resultsImages === false) {
+				return new \WP_Error('error', $messages->message_delete_single_product_images_cache);
+			}
+
+			if ($resultsTags === false) {
+				return new \WP_Error('error', $messages->message_delete_single_product_tags_cache);
+			}
+
+			if ($resultsVariants === false) {
+				return new \WP_Error('error', $messages->message_delete_single_product_variants_cache);
+			}
+
+			if ($resultsOptions === false) {
+				return new \WP_Error('error', $messages->message_delete_single_product_options_cache);
+			}
+
+			return true;
+
+		}
 
 
 	  /*
@@ -226,11 +344,12 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_collection_queries() {
 
 	    global $wpdb;
+			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collections\_query\_hash\_cache\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached collection queries.', 'wp-shopify'));
+	      return new \WP_Error('error', $messages->message_delete_cached_collection_queries);
 
 	    } else {
 	      return true;
@@ -239,22 +358,50 @@ if (!class_exists('Transients')) {
 	  }
 
 
-	  /*
+		/*
 
-	  Delete cached connection
+		Delete cached settings
 
-	  */
-	  public static function delete_cached_connection() {
+		TODO: Currently not used
 
-	    // global $wpdb;
-	    //
-	    // $string = '%\_transient\_wps\_table\_single\_row\_' . $wpdb->prefix . 'wps\_settings\_connection\_%';
-	    //
-	    // $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE $string");
-	    //
-	    // return $results;
+		*/
+		public static function delete_cached_connections() {
 
-	  }
+			global $wpdb;
+			$messages = new Messages();
+
+			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_connection\_%'");
+
+			if ($results === false) {
+				return new \WP_Error('error', $messages->message_delete_cached_connection);
+
+			} else {
+				return true;
+			}
+
+		}
+
+
+		/*
+
+		Delete cached admin notices
+
+		*/
+		public static function delete_cached_notices() {
+
+			global $wpdb;
+			$messages = new Messages();
+
+			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_admin\_dismissed\_notice\_%'");
+
+			if ($results === false) {
+				return new \WP_Error('error', $messages->message_delete_cached_admin_notices);
+
+			} else {
+				return true;
+			}
+
+		}
 
 
 	  /*
@@ -284,27 +431,6 @@ if (!class_exists('Transients')) {
 	  */
 	  public static function get($transientName) {
 	    return get_transient($transientName);
-	  }
-
-
-	  /*
-
-	  Delete cached settings
-
-	  */
-	  public static function delete_cached_connections() {
-
-	    global $wpdb;
-
-	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_connection\_%'");
-
-	    if ($results === false) {
-	      return new \WP_Error('error', esc_html__('Warning: Unable to delete cached connection.', 'wp-shopify'));
-
-	    } else {
-	      return true;
-	    }
-
 	  }
 
 

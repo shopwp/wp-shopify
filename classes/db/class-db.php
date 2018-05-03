@@ -17,8 +17,10 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Settings_General;
 use WPS\DB\Settings_License;
 use WPS\DB\Settings_Connection;
+/* @if NODE_ENV='pro' */
 use WPS\DB\Orders;
 use WPS\DB\Customers;
+/* @endif */
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Config;
@@ -452,7 +454,7 @@ if (!class_exists('DB')) {
 		Returns boolean
 
 	  */
-		public function update_column_single($data = '', $where, $formats = false) {
+		public function update_column_single($data = [], $where = [], $formats = false) {
 
 	    global $wpdb;
 
@@ -573,9 +575,11 @@ if (!class_exists('DB')) {
 			$tables[] = new Settings_License();
 			$tables[] = new Settings_Connection();
 			$tables[] = new Settings_General();
+
+			/* @if NODE_ENV='pro' */
 			$tables[] = new Orders();
 			$tables[] = new Customers();
-
+			/* @endif */
 
 			foreach ($tables as $key => $table) {
 
@@ -666,11 +670,20 @@ if (!class_exists('DB')) {
 				$query = "DELETE FROM $this->table_name WHERE $column IN (%s)";
 			}
 
+			$wpdb->show_errors();
 
-			return $wpdb->get_results(
+			$result = $wpdb->get_results(
 				$wpdb->prepare($query, $ids)
 			);
 
+
+			if ($wpdb->last_error) {
+			  error_log('WP Shopify delete_rows_in Error - ' . $wpdb->last_error);
+				return false;
+
+			} else {
+				return true;
+			}
 
 		}
 
@@ -864,6 +877,40 @@ if (!class_exists('DB')) {
 	  }
 
 
+		/*
+
+		Inserts a single custom term. Used by "wps_tags"
+
+		*/
+		public function insert_single_term($cpt_id, $term, $taxonomy_name) {
+
+			$results = [];
+
+			if (taxonomy_exists($taxonomy_name)) {
+
+				// Sets the tag to our custom $taxonomy_name taxonomy
+				$tagTaxSetResult = wp_set_object_terms($cpt_id, $term, $taxonomy_name, true);
+
+				if ( !is_array($tagTaxSetResult) ) {
+
+					if (is_wp_error($tagTaxSetResult)) {
+						$results[] = $tagTaxSetResult->get_error_message();
+
+					} else {
+						$results[] = $tagTaxSetResult;
+					}
+
+				} else {
+					$results = $tagTaxSetResult;
+				}
+
+				return $results;
+
+			}
+
+		}
+
+
 	  /*
 
 	  Get Collection
@@ -912,8 +959,22 @@ if (!class_exists('DB')) {
 			NULL as rules
 			FROM $collections_custom_table custom WHERE custom.post_id = $postID;";
 
-	    return $wpdb->get_results($query);
 
+			/*
+
+			Caching mecahnism for collections. Used also by products
+
+			*/
+			if (get_transient('wps_collection_single_' . $postID)) {
+				$results = get_transient('wps_collection_single_' . $postID);
+
+			} else {
+				$results = $wpdb->get_results($query);
+				set_transient('wps_collection_single_' . $postID, $results);
+
+			}
+
+			return $results;
 
 	  }
 
@@ -964,6 +1025,58 @@ if (!class_exists('DB')) {
 			return $wpdb->get_results($query);
 
 		}
+
+
+		public function get_collections_by_product_id($productID) {
+
+			global $wpdb;
+
+			$DB_Products = new Products();
+			$DB_Collects = new Collects();
+			$DB_Collections_Smart = new Collections_Smart();
+			$DB_Collections_Custom = new Collections_Custom();
+
+			$collections_custom_table = $DB_Collections_Custom->get_table_name();
+			$collections_smart_table = $DB_Collections_Smart->get_table_name();
+			$collects_table_name = $DB_Collects->get_table_name();
+			$products_table_name = $DB_Products->get_table_name();
+
+			// $query = "SELECT
+			// smart.collection_id,
+			// smart.post_id,
+			// smart.title,
+			// smart.handle
+			// FROM '7b3ca31e_wps_collections_smart' smart
+			//
+			// UNION
+			//
+			// SELECT
+			// custom.collection_id,
+			// custom.post_id,
+			// custom.title,
+			// custom.handle
+			// FROM '7b3ca31e_wps_collections_custom' custom
+			//
+			// INNER JOIN '7b3ca31e_wps_collects' collects
+			//
+			// WHERE collects.product_id = 475291811863";
+
+			$query = "SELECT * FROM $collects_table_name collects WHERE collects.product_id = %d;";
+
+			/*
+
+      Get the products
+
+      */
+      $collections = $wpdb->get_results(
+        $wpdb->prepare($query, $productID)
+      );
+
+			return $collections;
+
+		}
+
+
 
 
 		/*

@@ -33,6 +33,9 @@ if (!class_exists('Settings_General')) {
     public $cache_group;
     public $title_as_alt;
     public $selective_sync_status;
+		public $products_link_to_shopify;
+		public $show_breadcrumbs;
+		public $hide_pagination;
 
 
     /*
@@ -72,6 +75,10 @@ if (!class_exists('Settings_General')) {
       $this->selective_sync_orders          = 0;
       $this->selective_sync_shop            = 0;
 
+			$this->products_link_to_shopify       = 0;
+			$this->show_breadcrumbs       				= 0;
+			$this->hide_pagination       					= 0;
+
     }
 
 
@@ -103,7 +110,10 @@ if (!class_exists('Settings_General')) {
         'selective_sync_collections'    => '%d',
         'selective_sync_customers'      => '%d',
         'selective_sync_orders'         => '%d',
-        'selective_sync_shop'           => '%d'
+        'selective_sync_shop'           => '%d',
+				'products_link_to_shopify'      => '%d',
+				'show_breadcrumbs'      				=> '%d',
+				'hide_pagination'      					=> '%d'
       );
 
     }
@@ -137,7 +147,10 @@ if (!class_exists('Settings_General')) {
         'selective_sync_collections'    => $this->selective_sync_collections,
         'selective_sync_customers'      => $this->selective_sync_customers,
         'selective_sync_orders'         => $this->selective_sync_orders,
-        'selective_sync_shop'           => $this->selective_sync_shop
+        'selective_sync_shop'           => $this->selective_sync_shop,
+				'products_link_to_shopify'      => $this->products_link_to_shopify,
+				'show_breadcrumbs'      				=> $this->show_breadcrumbs,
+				'hide_pagination'      					=> $this->hide_pagination
       );
 
     }
@@ -173,7 +186,10 @@ if (!class_exists('Settings_General')) {
         'selective_sync_collections'    => $this->selective_sync_collections,
         'selective_sync_customers'      => $this->selective_sync_customers,
         'selective_sync_orders'         => $this->selective_sync_orders,
-        'selective_sync_shop'           => $this->selective_sync_shop
+        'selective_sync_shop'           => $this->selective_sync_shop,
+				'products_link_to_shopify'      => $this->products_link_to_shopify,
+				'show_breadcrumbs'      				=> $this->show_breadcrumbs,
+				'hide_pagination'      					=> $this->hide_pagination
       );
 
       $row = $this->get_rows('id', 1);
@@ -273,6 +289,9 @@ if (!class_exists('Settings_General')) {
         `selective_sync_customers` tinyint(1) DEFAULT '{$this->selective_sync_customers}',
         `selective_sync_orders` tinyint(1) DEFAULT '{$this->selective_sync_orders}',
         `selective_sync_shop` tinyint(1) DEFAULT '{$this->selective_sync_shop}',
+				`products_link_to_shopify` tinyint(1) DEFAULT '{$this->products_link_to_shopify}',
+				`show_breadcrumbs` tinyint(1) DEFAULT '{$this->show_breadcrumbs}',
+				`hide_pagination` tinyint(1) DEFAULT '{$this->hide_pagination}',
   		  PRIMARY KEY  (`{$this->primary_key}`)
   		) ENGINE=InnoDB $collate";
 
@@ -303,6 +322,16 @@ if (!class_exists('Settings_General')) {
   	public function products_slug() {
       return $this->get_column_single('url_products');
     }
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+
+		*/
+		public function products_link_to_shopify() {
+			return $this->get_column_single('products_link_to_shopify')[0]->products_link_to_shopify;
+		}
 
 
     /*

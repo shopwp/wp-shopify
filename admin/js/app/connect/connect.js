@@ -239,8 +239,10 @@ function connectionFormSubmitHandler(form) {
 
     prepareBeforeSync();
     setConnectionStepMessage('Preparing connection ...');
-    setWebhooksReconnect(true);
 
+    /* @if NODE_ENV='pro' */
+    setWebhooksReconnect(true);
+    /* @endif */
 
     /*
 
@@ -401,6 +403,7 @@ function connectionFormSubmitHandler(form) {
 
     */
     try {
+
       var syncResp = await syncData();
 
     } catch (errors) {

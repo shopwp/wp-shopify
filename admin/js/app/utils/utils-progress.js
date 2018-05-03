@@ -174,7 +174,7 @@ function createProgressBar(stepName, stepTotal) {
   var stepNamePretty = stepName.split('_').join(' ');
 
   if (stepNamePretty === 'products') {
-    stepNamePretty = 'Products (includes images, tags, variant data, etc)'
+    stepNamePretty = 'Products (includes images, tags, variants, etc)'
   }
 
   if (stepNamePretty === 'shop') {

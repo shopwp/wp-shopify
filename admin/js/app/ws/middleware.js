@@ -73,7 +73,6 @@ async function syncPluginData() {
 
   }
 
-
   // 3. Remaining data
   try {
 
@@ -82,10 +81,10 @@ async function syncPluginData() {
       syncShop(), // wps_insert_shop
       syncProducts(), // wps_insert_products_data
       syncCollects(), // wps_insert_collects
+      /* @if NODE_ENV='pro' */
       syncOrders(), // wps_insert_orders
       syncCustomers(), // wps_insert_customers
-      /* @if NODE_ENV='pro' */
-      syncWebhooks() // wps_ws_register_all_webhooks
+      syncWebhooks()
       /* @endif */
     ]);
 
@@ -113,13 +112,13 @@ function getItemCounts() {
       var counts = await Promise.all([
         /* @if NODE_ENV='pro' */
         getWebhooksCount(), // wps_ws_get_webhooks_count
+        getOrdersCount(), // wps_ws_get_orders_count
+        getCustomersCount(), // wps_ws_get_customers_count
         /* @endif */
         getSmartCollectionsCount(), // wps_ws_get_smart_collections_count
         getCustomCollectionsCount(), // wps_ws_get_custom_collections_count
         getProductsCount(), // wps_ws_get_products_count
         getCollectsCount(), // wps_ws_get_collects_count
-        getOrdersCount(), // wps_ws_get_orders_count
-        getCustomersCount(), // wps_ws_get_customers_count
         getShopCount() // wps_ws_get_shop_count
       ]);
 

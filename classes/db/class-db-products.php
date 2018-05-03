@@ -176,6 +176,8 @@ if (!class_exists('Products')) {
 			$results->product_id = $results->details->product_id;
 			$results->post_id = $results->details->post_id;
 
+			$sodkfosdkf = get_post($results->post_id);
+
       return $results;
 
     }
@@ -284,7 +286,7 @@ if (!class_exists('Products')) {
         // Inserts CPT
         $customPostTypeID = CPT::wps_insert_or_update_product($product, $index);
 
-        $DB_Tags->insert_tags($product, $customPostTypeID);
+        $DB_Tags->insert_product_tags($product, $customPostTypeID);
 
         // Tested and passed by - test-sync-products.php
         $results[] = $this->insert_product($product, $customPostTypeID);
@@ -351,10 +353,10 @@ if (!class_exists('Products')) {
 
       }
 
+
+			Transients::delete_cached_single_product_by_id($results['product_cpt']);
+			Transients::delete_cached_product_queries();
       Transients::delete_cached_prices();
-      Transients::delete_cached_variants();
-      Transients::delete_cached_product_single();
-      Transients::delete_cached_product_queries();
 
       return $results;
 

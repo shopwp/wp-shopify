@@ -122,7 +122,7 @@ if (!class_exists('Tags')) {
     Get single shop info value
 
     */
-  	public function insert_tags($product, $cpt_id) {
+  	public function insert_product_tags($product, $cpt_id) {
 
       $results = [];
 
@@ -139,6 +139,7 @@ if (!class_exists('Tags')) {
 
           $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
           $results[] = $this->insert($tagData, 'tag');
+					// $results[] = $this->insert_single_term($cpt_id, $tag, 'wps_tags');
 
         }
 
@@ -251,15 +252,34 @@ if (!class_exists('Tags')) {
     }
 
 
+		/*
+
+		Gets all unique tags
+
+		*/
+		public function get_unique_tags() {
+
+			$tags = $this->get_all_rows();
+
+			return array_values(
+				array_unique(
+					array_map(function ($tag) {
+						return $tag->tag;
+					}, $tags)
+				)
+			);
+
+		}
 
 
+		/*
 
+    Get Tags
 
-
-
-
-
-
+    */
+    public function get_tags() {
+      return $this->get_all_rows();
+    }
 
 
     /*

@@ -2156,7 +2156,6 @@ if (!class_exists('Utils')) {
 	      $shop_currency = $DB_Shop->get_shop('currency');
 
 
-
 				if (empty($shop_currency)) {
 					$shop_currency = 'USD'; // default fallback incase user doesn't sync shop data
 
@@ -2642,6 +2641,30 @@ if (!class_exists('Utils')) {
 	  }
 
 
+		/*
+
+		Checks if needle exists in associative array
+
+		*/
+		public static function in_assoc($needle, $array) {
+
+			$key = array_keys($array);
+	    $value = array_values($array);
+
+	    if (in_array($needle,$key)) {
+				return true;
+
+			} elseif (in_array($needle,$value)) {
+				return true;
+
+			} else {
+				return false;
+
+			}
+
+		}
+
+
 	  /*
 
 	  Returns a string to be used within posts_clauses. E.g., "LIMIT 0, 10"
@@ -2968,59 +2991,7 @@ if (!class_exists('Utils')) {
 
 					}
 
-					// Get post category info
-					$category = get_the_category();
-
-					if (!empty($category)) {
-
-						// Get last category post is in
-						$last_category = end(array_values($category));
-
-						// Get parent any categories and create array
-						$get_cat_parents = rtrim(get_category_parents($last_category->term_id, true, ','),',');
-						$cat_parents = explode(',',$get_cat_parents);
-
-						// Loop through parent categories and store in variable $cat_display
-						$cat_display = '';
-
-						foreach ($cat_parents as $parents) {
-							$cat_display .= '<li class="wps-breadcrumbs-item-cat" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">'.$parents.'</li>';
-							$cat_display .= '<li class="wps-breadcrumbs-separator"> ' . $separator . ' </li>';
-						}
-
-					}
-
-					// If it's a custom post type within a custom taxonomy
-					$taxonomy_exists = taxonomy_exists($custom_taxonomy);
-
-					if (empty($last_category) && !empty($custom_taxonomy) && $taxonomy_exists) {
-
-						$taxonomy_terms = get_the_terms( $post->ID, $custom_taxonomy );
-						$cat_id         = $taxonomy_terms[0]->term_id;
-						$cat_nicename   = $taxonomy_terms[0]->slug;
-						$cat_link       = get_term_link($taxonomy_terms[0]->term_id, $custom_taxonomy);
-						$cat_name       = $taxonomy_terms[0]->name;
-
-					}
-
-					// Check if the post is in a category
-					if(!empty($last_category)) {
-
-						echo $cat_display;
-						echo '<li class="wps-breadcrumbs-item-current item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
-
-					// Else if post is in a custom taxonomy
-					} else if(!empty($cat_id)) {
-
-						echo '<li class="wps-breadcrumbs-item-cat wps-breadcrumbs-item-cat-' . $cat_id . ' wps-breadcrumbs-item-cat-' . $cat_nicename . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-cat wps-breadcrumbs-cat-' . $cat_id . ' wps-breadcrumbs-cat-' . $cat_nicename . '" href="' . $cat_link . '" title="' . $cat_name . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $cat_name . '</span></a></li>';
-						echo '<li class="wps-breadcrumbs-separator"> ' . $separator . ' </li>';
-						echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
-
-					} else {
-
-						echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
-
-					}
+					echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-' . $post->ID . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-' . $post->ID . '" title="' . get_the_title() . '" itemprop="name">' . get_the_title() . '</strong></li>';
 
 				} else if ( is_category() ) {
 

@@ -94,6 +94,7 @@ if (!class_exists('Progress_Bar')) {
 				$_SESSION['wps_syncing_totals']['collects'] = 0;
 			}
 
+			/* @if NODE_ENV='pro' */
 			if (!isset($_SESSION['wps_syncing_totals']['orders'])) {
 				$_SESSION['wps_syncing_totals']['orders'] = 0;
 			}
@@ -102,12 +103,10 @@ if (!class_exists('Progress_Bar')) {
 				$_SESSION['wps_syncing_totals']['customers'] = 0;
 			}
 
-			/* @if NODE_ENV='pro' */
 			if (!isset($_SESSION['wps_syncing_totals']['webhooks'])) {
 				$_SESSION['wps_syncing_totals']['webhooks'] = 27; // TODO: Make dynamic
 			}
 			/* @endif */
-
 
 			/*
 
@@ -138,6 +137,7 @@ if (!class_exists('Progress_Bar')) {
 				$_SESSION['wps_syncing_current_amounts']['collects'] = 0;
 			}
 
+			/* @if NODE_ENV='pro' */
 			if (!isset($_SESSION['wps_syncing_current_amounts']['orders'])) {
 				$_SESSION['wps_syncing_current_amounts']['orders'] = 0;
 			}
@@ -145,7 +145,7 @@ if (!class_exists('Progress_Bar')) {
 			if (!isset($_SESSION['wps_syncing_current_amounts']['customers'])) {
 				$_SESSION['wps_syncing_current_amounts']['customers'] = 0;
 			}
-			/* @if NODE_ENV='pro' */
+
 			if (!isset($_SESSION['wps_syncing_current_amounts']['webhooks'])) {
 				$_SESSION['wps_syncing_current_amounts']['webhooks'] = 0;
 			}

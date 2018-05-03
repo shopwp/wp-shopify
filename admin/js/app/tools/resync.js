@@ -149,6 +149,7 @@ function onResyncSubmit() {
 
       */
       try {
+
         var startProgressBarResponse = await startProgressBar( true, getSelectiveSyncOptions() );
 
       } catch (errors) {
@@ -176,7 +177,6 @@ function onResyncSubmit() {
 
         var itemCountsResp = await getItemCounts();
         var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
-
 
       } catch (errors) {
 

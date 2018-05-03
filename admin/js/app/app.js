@@ -9,6 +9,7 @@ import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
 import { toolsInit } from './tools/tools';
 import { menusInit } from './menus/menus';
+import { noticesInit } from './notices/notices';
 
 (function($) {
 
@@ -28,6 +29,8 @@ import { menusInit } from './menus/menus';
 		settingsInit();
 		toolsInit();
 		menusInit();
+		noticesInit();
+		
 
 		if ($submitButton.attr('name') === 'submitDisconnect') {
 			disconnectInit();

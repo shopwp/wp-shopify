@@ -107,12 +107,12 @@ if ( !class_exists('CPT') ) {
 	      'not_found_in_trash'  => __('No Products found in trash', 'wp-shopify')
 	    );
 
-
 	    $args = array(
 	      'label'               => __('Products', 'wp-shopify'),
 	      'description'         => __('Custom Post Type for Products', 'wp-shopify'),
 	      'labels'              => $labels,
 	      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
+				'taxonomies'					=> ['category'],
 	      'hierarchical'        => false,
 	      'public'              => true,
 	      'show_ui'             => true,
@@ -131,9 +131,9 @@ if ( !class_exists('CPT') ) {
 	      )
 	    );
 
-	    // Transients::check_rewrite_rules();
-
 	    register_post_type('wps_products', $args);
+
+			// Transients::check_rewrite_rules();
 
 	  }
 
@@ -398,8 +398,8 @@ if ( !class_exists('CPT') ) {
 	  */
 	  public function init() {
 
-	    $this->wps_post_type_products();
-	    $this->wps_post_type_collections();
+			add_action('init', [$this, 'wps_post_type_products']);
+			add_action('init', [$this, 'wps_post_type_collections']);
 
 	  }
 

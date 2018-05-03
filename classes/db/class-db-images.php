@@ -126,7 +126,7 @@ if (!class_exists('Images')) {
 
     /*
 
-    Get single shop info value
+    Insert images
     TODO: Create a map function for insert_product instead of nested loops
 
     */
@@ -149,6 +149,7 @@ if (!class_exists('Images')) {
               wp_die();
               break 2;
             }
+
 
             /*
 
@@ -193,24 +194,6 @@ if (!class_exists('Images')) {
       return $results;
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /*

@@ -6,12 +6,16 @@ use WPS\Utils;
 use WPS\DB;
 use WPS\Transients;
 use WPS\Template_Loader;
+use WPS\Admin_Notices;
 
+use WPS\DB\Tags;
 use WPS\DB\Products;
 use WPS\DB\Variants;
 use WPS\DB\Collections_Smart;
 use WPS\DB\Collections_Custom;
 use WPS\DB\Settings_General;
+use WPS\DB\Shop;
+use WPS\DB\Collects;
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -30,6 +34,8 @@ if (!class_exists('Hooks')) {
 
 		protected static $instantiated = null;
 		private $Config;
+		public $plugin_settings;
+
 
     /*
 
@@ -39,6 +45,12 @@ if (!class_exists('Hooks')) {
     public function __construct($Config) {
       $this->config = $Config;
 			$this->template_loader = new Template_Loader;
+			$this->plugin_settings = new Settings_General();
+			$this->shop_settings = new Shop();
+			$this->notices = new Admin_Notices();
+			$this->DB = new DB();
+			$this->Collects = new Collects();
+			$this->Tags = new Tags();
     }
 
 
@@ -55,6 +67,359 @@ if (!class_exists('Hooks')) {
 			}
 
 			return self::$instantiated;
+
+		}
+
+
+
+
+
+
+
+		/*
+
+		Creating array of collects to potentially remove
+
+		*/
+		public function find_items_to_add($currentItems, $savedItems) {
+
+			foreach ($currentItems as $key => $currentItem) {
+
+
+				if (isset($currentItem->collection_id) && $currentItem->collection_id) {
+
+					if (isset($savedItems[$currentItem->collection_id])) {
+						unset($savedItems[$currentItem->collection_id]);
+					}
+
+				}
+
+
+				if (isset($currentItem->tag_id) && $currentItem->tag_id) {
+
+					if (isset($savedItems[$currentItem->tag_id])) {
+						unset($savedItems[$currentItem->tag_id]);
+					}
+
+				}
+
+
+			}
+
+			return $savedItems;
+
+		}
+
+
+		/*
+
+		Creating array of collects to potentially remove
+
+		*/
+		public function find_items_to_remove($currentItems, $savedItemsOrig) {
+
+			$currentItemsOrig = json_decode(json_encode($currentItems), true);
+			$itemsToRemove = [];
+
+			foreach ($currentItemsOrig as $item) {
+
+				if (isset($item['collection_id']) && $item['collection_id']) {
+					if (!array_key_exists($item['collection_id'], $savedItemsOrig)) {
+						$itemsToRemove[] = $item['id'];
+					}
+				}
+
+				if (isset($item['tag_id']) && $item['tag_id']) {
+					if (!array_key_exists($item['tag_id'], $savedItemsOrig)) {
+						$itemsToRemove[] = $item['tag_id'];
+					}
+				}
+
+			}
+
+			return $itemsToRemove;
+
+		}
+
+
+
+		/*
+
+		At this point the $savedCollections contains only collection IDs that are NEW.
+		We need to now create the proper collects row connection
+
+		*/
+		public function add_collects_to_post($savedCollections, $product) {
+
+			$insertionResults = [];
+
+			foreach ($savedCollections as $newSavedCollectionID => $value) {
+
+				$productID = (int) $product->product_id;
+				$numberString1 = (int) substr(strval($newSavedCollectionID), 0, -4);
+				$numberString2 = (int) substr(strval($productID), 0, -4);
+
+				$newCollect = [
+					'id'                   => $numberString1 . $numberString2 . 1111,
+					'product_id'           => $product->product_id,
+					'collection_id'        => $newSavedCollectionID,
+					'featured'             => '',
+					'position'             => '',
+					'sort_value'           => '',
+					'created_at'           => date_i18n( 'Y-m-d H:i:s' ),
+					'updated_at'           => date_i18n( 'Y-m-d H:i:s' )
+				];
+
+				// Inserts any new collects
+				$insertionResults[] = $this->Collects->insert($newCollect, 'collect');
+
+			}
+
+			return $insertionResults;
+
+		}
+
+
+
+		/*
+
+		At this point the $savedCollections contains only collection IDs that are NEW.
+		We need to now create the proper collects row connection
+
+		*/
+		public function add_tags_to_post($savedTags, $product) {
+
+			$insertionResults = [];
+
+			foreach ($savedTags as $savedTag => $savedTagValue) {
+
+				$productID = (int) $product->product_id;
+				$numberString1 = (int) ord($savedTag);
+				$numberString2 = (int) substr(strval($productID), 0, -4);
+
+				$newTag = [
+					'tag_id'               => $numberString1 . $numberString2 . 1111,
+					'product_id'           => $product->product_id,
+					'post_id'              => $product->post_id,
+					'tag'             		 => $savedTag
+				];
+
+				error_log('---- $newTag -----');
+				error_log(print_r($newTag, true));
+				error_log('---- /$newTag -----');
+
+				// Inserts any new collects
+				$insertionResults[] = $this->Tags->insert($newTag, 'tag');
+
+			}
+
+			return $insertionResults;
+
+		}
+
+
+
+		/*
+
+		Removing collects row from post
+
+		*/
+		public function remove_collects_from_post($collectsToRemove) {
+
+			$removalResult = [];
+
+			foreach ($collectsToRemove as $collectID) {
+				$removalResult[] = $this->Collects->delete_rows_in('id', $collectID);
+			}
+
+			return $removalResult;
+
+		}
+
+
+		/*
+
+		Removing tags row from post
+
+		*/
+		public function remove_tags_from_post($tagsToRemove) {
+
+			$removalResult = [];
+
+			error_log('---- $tagsToRemove -----');
+			error_log(print_r($tagsToRemove, true));
+			error_log('---- /$tagsToRemove -----');
+
+			foreach ($tagsToRemove as $tagID) {
+				$removalResult[] = $this->Tags->delete_rows_in('tag_id', $tagID);
+			}
+
+			return $removalResult;
+
+		}
+
+
+		/*
+
+		Gathering the nessesary collections data to work with
+
+		*/
+		public function establish_items_for_post($type) {
+
+			if (isset($_POST[$type]) && $_POST[$type]) {
+				$savedItems = $_POST[$type];
+				$savedItemsOrig = $_POST[$type];
+
+			} else {
+
+				// Should never be empty, but just incase ...
+				$savedItems = [];
+				$savedItemsOrig = [];
+
+			}
+
+			return [
+				'saved' 			=> $savedItems,
+				'saved_orig'	=> $savedItemsOrig
+			];
+
+		}
+
+
+		/*
+
+		Save collects to post
+
+		*/
+		public function save_collects_to_post($product) {
+
+			$currentCollections = $this->DB->get_collections_by_product_id($product->product_id);
+			$collections = $this->establish_items_for_post('collections');
+
+			$collectsAdded = $this->add_collects_to_post( $this->find_items_to_add($currentCollections, $collections['saved']), $product);
+			$collectsRemoved = $this->remove_collects_from_post( $this->find_items_to_remove($currentCollections, $collections['saved_orig']) );
+
+			return [
+				'collects_added' => $collectsAdded,
+				'collects_removed' => $collectsRemoved
+			];
+
+		}
+
+
+		/*
+
+		Save tags to post
+
+		*/
+		public function save_tags_to_post($product) {
+
+			$currentTags = $this->Tags->get_product_tags($product->post_id);
+			$savedTags = $this->establish_items_for_post('tags');
+
+
+			error_log('---- $currentTags -----');
+			error_log(print_r($currentTags, true));
+			error_log('---- /$currentTags -----');
+
+			error_log('---- $savedTags[saved_orig] -----');
+			error_log(print_r($savedTags['saved_orig'], true));
+			error_log('---- /$savedTags[saved_orig] -----');
+			
+
+
+			$tagsAdded = $this->add_tags_to_post( $this->find_items_to_add($currentTags, $savedTags['saved']), $product);
+			$tagsRemoved = $this->remove_tags_from_post( $this->find_items_to_remove($currentTags, $savedTags['saved_orig']) );
+
+			return [
+				'tags_added' => $tagsAdded,
+				'tags_removed' => $tagsRemoved
+			];
+
+		}
+
+
+		/*
+
+		Fires when custom post type `wps_products` is updated
+
+		*/
+		public function wps_save_post_products($postID, $post, $update) {
+
+
+			if (!empty(get_current_screen()) && get_current_screen()->id === 'wps_products') {
+
+				$DB_Products = new Products();
+				$product = $DB_Products->get_product($postID);
+
+				$collectsResults = $this->save_collects_to_post($product);
+				$tagsResults = $this->save_tags_to_post($product);
+				//
+				// error_log('---- $collectsResults -----');
+				// error_log(print_r($collectsResults, true));
+				// error_log('---- /$collectsResults -----');
+				//
+				// error_log('---- $tagsResults -----');
+				// error_log(print_r($tagsResults, true));
+				// error_log('---- /$tagsResults -----');
+
+
+				/*
+
+				Updates the product title and post content
+
+				*/
+				$title = $DB_Products->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
+				$body_content = $DB_Products->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+
+
+				/*
+
+				Clear product cache
+
+				*/
+				$transientsDeletion = Transients::delete_cached_single_product_by_id($postID);
+
+				// Log error if one exists
+				if (is_wp_error($transientsDeletion)) {
+					error_log($transientsDeletion->get_error_message());
+				}
+
+			}
+
+
+		}
+
+
+		/*
+
+		Fires when custom post type `wps_collections` is updated
+
+		*/
+		public function wps_save_post_collections($postID, $post, $update) {
+
+			if (!empty(get_current_screen()) && get_current_screen()->id === 'wps_collections') {
+
+				$DB_Collections_Custom = new Collections_Custom();
+				$DB_Collections_Smart = new Collections_Smart();
+
+				// Update custom product table data
+				$customTitle = $DB_Collections_Custom->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
+				$customBodyContent = $DB_Collections_Custom->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+
+				$smartTitle = $DB_Collections_Smart->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
+				$smartBodyContent = $DB_Collections_Smart->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+
+				// Clear product cache
+				$transientsDeletion = Transients::delete_cached_single_collection_by_id($postID);
+
+				// Log error if one exists
+				if (is_wp_error($transientsDeletion)) {
+					error_log($transientsDeletion->get_error_message());
+				}
+
+			}
+
 
 		}
 
@@ -356,6 +721,24 @@ if (!class_exists('Hooks')) {
 
 		/*
 
+		Setting: Products link to Shopify
+
+		*/
+		public function wps_products_link($wp_shopify_link, $product) {
+
+			if ($this->plugin_settings->products_link_to_shopify()) {
+
+				return 'https://' . $this->shop_settings->domain() . '/products/' . $product->handle;
+
+			} else {
+				return $wp_shopify_link;
+			}
+
+		}
+
+
+		/*
+
 		wps_products_join
 
 		*/
@@ -432,7 +815,6 @@ if (!class_exists('Hooks')) {
 				$DB_Products = new Products();
 				$DB_Collections_Smart = new Collections_Smart();
 				$DB_Collections_Custom = new Collections_Custom();
-				$DB = new DB();
 
 				if ($query->get('context') === 'wps_products_query') {
 
@@ -456,7 +838,7 @@ if (!class_exists('Hooks')) {
 
 					} else {
 
-						$clauses = $DB->get_default_collections_query($clauses);
+						$clauses = $this->DB->get_default_collections_query($clauses);
 
 					}
 
@@ -963,6 +1345,8 @@ if (!class_exists('Hooks')) {
 			$newPluginVersion = $this->config->get_new_plugin_version();
 			$generalSettings = $DB_Settings_General->get_column_single('id');
 
+			$newPluginVersion = '1.3.6';
+
 			/*
 
 			This will run once the plugin updates. It will only run once since we're
@@ -985,8 +1369,7 @@ if (!class_exists('Hooks')) {
 				$DB_Transients->delete_cached_prices();
 
 				// Next get all tables
-				$DB = new DB();
-				$tables = $DB->get_table_delta();
+				$tables = $this->DB->get_table_delta();
 
 				if (is_array($tables) && !empty($tables)) {
 
@@ -1011,6 +1394,80 @@ if (!class_exists('Hooks')) {
 			}
 
 		}
+
+
+		public function init() {
+
+
+			/*
+
+			Misc
+
+			*/
+			add_action('plugins_loaded', [$this, 'wps_on_update']);
+			add_action('pre_get_posts',  [$this, 'wps_content_pre_loop']);
+			add_filter('posts_clauses', [$this, 'wps_clauses_mod'], 10, 2);
+
+			add_action('save_post_wps_products', [$this, 'wps_save_post_products'], 10, 3);
+			add_action('save_post_wps_collections', [$this, 'wps_save_post_collections'], 10, 3);
+
+
+			/*
+
+			Sidebars
+
+			*/
+			add_action('wps_products_sidebar', [$this, 'wps_products_sidebar']);
+			add_action('wps_product_single_sidebar', [$this, 'wps_product_single_sidebar']);
+			add_action('wps_collections_sidebar', [$this, 'wps_collections_sidebar']);
+			add_action('wps_collection_single_sidebar', [$this, 'wps_collection_single_sidebar']);
+
+
+			/*
+
+			Filters
+
+			*/
+			add_action('wps_collections_display', [$this, 'wps_collections_display'], 10, 2);
+			add_action('wps_collections_pagination', [$this, 'wps_collections_pagination']);
+			add_filter('wps_collections_args', [$this, 'wps_collections_args']);
+			add_filter('wps_collections_custom_args', [$this, 'wps_collections_custom_args']);
+			add_filter('wps_collections_custom_args_items_per_row', [$this, 'wps_collections_custom_args_items_per_row']);
+			add_filter('wps_collection_single_products_heading_class', [$this, 'wps_collection_single_products_heading_class']);
+
+			add_action('wps_products_display', [$this, 'wps_products_display'], 10, 2);
+			add_filter('wps_products_pagination_range', [$this, 'wps_products_pagination_range']);
+			add_filter('wps_products_pagination_next_link_text', [$this, 'wps_products_pagination_next_link_text']);
+			add_filter('wps_products_pagination_prev_link_text', [$this, 'wps_products_pagination_prev_link_text']);
+
+			add_filter('wps_products_pagination_first_page_text', [$this, 'wps_products_pagination_first_page_text']);
+			add_filter('wps_products_pagination_show_as_prev_next', [$this, 'wps_products_pagination_show_as_prev_next']);
+			add_filter('wps_products_pagination_prev_page_text', [$this, 'wps_products_pagination_prev_page_text']);
+			add_filter('wps_products_pagination_next_page_text', [$this, 'wps_products_pagination_next_page_text']);
+			add_filter('wps_products_args', [$this, 'wps_products_args']);
+			add_filter('wps_products_args_posts_per_page', [$this, 'wps_products_args_posts_per_page']);
+			add_filter('wps_products_args_orderby', [$this, 'wps_products_args_orderby']);
+			add_filter('wps_products_args_paged', [$this, 'wps_products_args_paged']);
+			add_filter('wps_products_custom_args', [$this, 'wps_products_custom_args']);
+			add_filter('wps_products_custom_args_items_per_row', [$this, 'wps_products_custom_args_items_per_row']);
+			add_filter('wps_products_price_multi', [$this, 'wps_products_price_multi'], 10, 4);
+			add_filter('wps_products_price_one', [$this, 'wps_products_price_one'], 10, 2);
+			add_action('wps_products_pagination', [$this, 'wps_products_pagination']);
+			add_filter('wps_products_related_args', [$this, 'wps_products_related_args']);
+			add_filter('wps_products_related_args_posts_per_page', [$this, 'wps_products_related_args_posts_per_page']);
+			add_filter('wps_products_related_args_orderby', [$this, 'wps_products_related_args_orderby']);
+			add_filter('wps_products_related_custom_args', [$this, 'wps_products_related_custom_args']);
+			add_filter('wps_products_related_custom_items_per_row', [$this, 'wps_products_related_custom_items_per_row']);
+
+			add_filter('wps_product_single_thumbs_class', [$this, 'wps_product_single_thumbs_class'], 10, 2);
+			add_filter('wps_product_single_price', [$this, 'wps_product_single_price'], 10, 4);
+			add_filter('wps_product_single_price_multi', [$this, 'wps_product_single_price_multi'], 10, 4);
+			add_filter('wps_product_single_price_one', [$this, 'wps_product_single_price_one'], 10, 3);
+
+			add_filter('wps_products_link', [$this, 'wps_products_link'], 10, 3);
+
+		}
+
 
 	}
 
