@@ -354,9 +354,28 @@ if (!class_exists('Products')) {
       }
 
 
-			Transients::delete_cached_single_product_by_id($results['product_cpt']);
-			Transients::delete_cached_product_queries();
-      Transients::delete_cached_prices();
+
+			/*
+
+			*Important* Clear product cache and log errors if present
+
+			*/
+			$transientSingleProductDeletion = Transients::delete_cached_single_product_by_id($results['product_cpt']);
+			$transientProductQueriesDeletion = Transients::delete_cached_product_queries();
+			$transientProductPricesDeletion = Transients::delete_cached_prices();
+
+			if (is_wp_error($transientSingleProductDeletion)) {
+				error_log($transientSingleProductDeletion->get_error_message());
+			}
+
+			if (is_wp_error($transientProductQueriesDeletion)) {
+				error_log($transientProductQueriesDeletion->get_error_message());
+			}
+
+			if (is_wp_error($transientProductPricesDeletion)) {
+				error_log($transientProductPricesDeletion->get_error_message());
+			}
+
 
       return $results;
 

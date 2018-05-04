@@ -97,8 +97,8 @@ if (!class_exists('Hooks')) {
 
 				if (isset($currentItem->tag_id) && $currentItem->tag_id) {
 
-					if (isset($savedItems[$currentItem->tag_id])) {
-						unset($savedItems[$currentItem->tag_id]);
+					if (isset($savedItems[$currentItem->tag])) {
+						unset($savedItems[$currentItem->tag]);
 					}
 
 				}
@@ -130,7 +130,7 @@ if (!class_exists('Hooks')) {
 				}
 
 				if (isset($item['tag_id']) && $item['tag_id']) {
-					if (!array_key_exists($item['tag_id'], $savedItemsOrig)) {
+					if (!array_key_exists($item['tag'], $savedItemsOrig)) {
 						$itemsToRemove[] = $item['tag_id'];
 					}
 				}
@@ -204,10 +204,6 @@ if (!class_exists('Hooks')) {
 					'tag'             		 => $savedTag
 				];
 
-				error_log('---- $newTag -----');
-				error_log(print_r($newTag, true));
-				error_log('---- /$newTag -----');
-
 				// Inserts any new collects
 				$insertionResults[] = $this->Tags->insert($newTag, 'tag');
 
@@ -246,11 +242,7 @@ if (!class_exists('Hooks')) {
 
 			$removalResult = [];
 
-			error_log('---- $tagsToRemove -----');
-			error_log(print_r($tagsToRemove, true));
-			error_log('---- /$tagsToRemove -----');
-
-			foreach ($tagsToRemove as $tagID) {
+			foreach ($tagsToRemove as $key => $tagID) {
 				$removalResult[] = $this->Tags->delete_rows_in('tag_id', $tagID);
 			}
 
@@ -318,16 +310,6 @@ if (!class_exists('Hooks')) {
 			$savedTags = $this->establish_items_for_post('tags');
 
 
-			error_log('---- $currentTags -----');
-			error_log(print_r($currentTags, true));
-			error_log('---- /$currentTags -----');
-
-			error_log('---- $savedTags[saved_orig] -----');
-			error_log(print_r($savedTags['saved_orig'], true));
-			error_log('---- /$savedTags[saved_orig] -----');
-			
-
-
 			$tagsAdded = $this->add_tags_to_post( $this->find_items_to_add($currentTags, $savedTags['saved']), $product);
 			$tagsRemoved = $this->remove_tags_from_post( $this->find_items_to_remove($currentTags, $savedTags['saved_orig']) );
 
@@ -341,7 +323,7 @@ if (!class_exists('Hooks')) {
 
 		/*
 
-		Fires when custom post type `wps_products` is updated
+		Fires when custom post type `wps_products` is saved / updated
 
 		*/
 		public function wps_save_post_products($postID, $post, $update) {
@@ -354,14 +336,6 @@ if (!class_exists('Hooks')) {
 
 				$collectsResults = $this->save_collects_to_post($product);
 				$tagsResults = $this->save_tags_to_post($product);
-				//
-				// error_log('---- $collectsResults -----');
-				// error_log(print_r($collectsResults, true));
-				// error_log('---- /$collectsResults -----');
-				//
-				// error_log('---- $tagsResults -----');
-				// error_log(print_r($tagsResults, true));
-				// error_log('---- /$tagsResults -----');
 
 
 				/*
@@ -375,13 +349,17 @@ if (!class_exists('Hooks')) {
 
 				/*
 
-				Clear product cache
+				Clear product cache and log errors if present
 
 				*/
-				$transientsDeletion = Transients::delete_cached_single_product_by_id($postID);
+				$transientSingleProductDeletion = Transients::delete_cached_single_product_by_id($postID);
+				$transientProductQueriesDeletion = Transients::delete_cached_product_queries();
 
-				// Log error if one exists
-				if (is_wp_error($transientsDeletion)) {
+				if (is_wp_error($transientSingleProductDeletion)) {
+					error_log($transientSingleProductDeletion->get_error_message());
+				}
+
+				if (is_wp_error($transientProductQueriesDeletion)) {
 					error_log($transientsDeletion->get_error_message());
 				}
 

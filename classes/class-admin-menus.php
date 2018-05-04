@@ -134,10 +134,6 @@ if ( !class_exists('Admin_Menus') ) {
 			$allTags = $this->Tags->get_unique_tags();
 			$currentTags = $this->Tags->get_product_tags($post->ID);
 
-			error_log('---- $currentTags -----');
-			error_log(print_r($currentTags, true));
-			error_log('---- /$currentTags -----');
-
 			?>
 
 			<ul id="categorychecklist" data-wp-lists="list:category" class="categorychecklist form-no-clear">
