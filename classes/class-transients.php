@@ -98,7 +98,7 @@ if (!class_exists('Transients')) {
 
 	  Delete cached prices
 		TODO: Currently not used
-		
+
 	  */
 	  public static function delete_cached_single_product_prices_by_id($productID) {
 
@@ -311,6 +311,11 @@ if (!class_exists('Transients')) {
 			$resultsVariants = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_variants_" . $postID . "'");
 			$resultsOptions = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_options_" . $postID . "'");
 
+			/*
+
+			Need to strictly check false for errors. 0 is returned when no rows were affected
+
+			*/
 			if ($resultsSingle === false) {
 				return new \WP_Error('error', $messages->message_delete_single_product_cache);
 			}
