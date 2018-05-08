@@ -128,7 +128,7 @@ if (!class_exists('Frontend')) {
 				global $post;
 				$DB_Settings_General = new Settings_General();
 
-				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
+				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 
 				wp_enqueue_script('wp-shopify', $this->config->plugin_url . 'dist/public.min.js', array('jquery', 'promise-polyfill'), $this->config->plugin_version, true);
 

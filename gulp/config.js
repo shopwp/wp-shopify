@@ -32,6 +32,7 @@ var config = {
       './_tmp/wp-shopify.php',
       './_tmp/classes/class-config.php'
     ],
+    // Manually setting files for now to improve performance
     toBeProcessed: [
       './_tmp/admin/js/**/*',
       './_tmp/admin/partials/**/*',
@@ -61,6 +62,18 @@ var config = {
       '!./public.min.js',
       '!./gulpfile.babel.js'
     ],
+    // Represents all the files needed for other developers to work with. What gets commited to the free repo.
+    onlyWorking: [
+      './**/*',
+      '!./node_modules/**',
+      '!./dist/**',
+      '!./bin/**',
+      '!./stats.html',
+      '!./.travis.yml',
+      '!./**/*.DS_Store',
+      '!./admin.min.js',
+      '!./public.min.js'
+    ],
     build: './**/*',
     buildProContent: '../../../../assets/wp-shopify-pro/**/*',
     buildFreeContent: '../../../../assets/wp-shopify/**/*',
@@ -68,7 +81,15 @@ var config = {
       './_tmp/webhooks',
       './_tmp/classes/class-webhooks.php',
       './_tmp/classes/class-orders.php',
-      './_tmp/classes/class-customers.php'
+      './_tmp/classes/class-customers.php',
+      './_tmp/.travis.yml'
+    ],
+    buildSuperfluousClear: [
+      './_tmp/admin/js/app',
+      './_tmp/public/js/app',
+      './_tmp/admin/css/app',
+      './_tmp/public/css/app',
+      './_tmp/dist/public.min.js.LICENSE'
     ],
     buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify/wp-shopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
     buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
@@ -123,7 +144,8 @@ var config = {
   serverName: 'wpstest.test',
   isBuilding: argvs.argv.tier ? false : false,
   buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
-  buildRelease: argvs.argv.release ? argvs.argv.release : false // Build type can be either 'free' or 'pro'
+  buildRelease: argvs.argv.release ? argvs.argv.release : false, // Plugin version number
+  currentRelease: argvs.argv.current ? argvs.argv.current : false // Plugin version number
 };
 
 
@@ -144,8 +166,9 @@ function jestConfig() {
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules",
-      "<rootDir>/admin/js/app/vendor/",
+      "<rootDir>/admin/js/vendor/",
       "<rootDir>/public/js/dist/",
+      "<rootDir>/public/js/vendor/",
       "<rootDir>/dist/",
       "<rootDir>/bin/",
       "<rootDir>/classes/",

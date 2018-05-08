@@ -14,12 +14,22 @@ import rsync from 'gulp-rsync';
 import childProcess from 'child_process';
 import del from 'del';
 
+
 /*
 
-Copies all files and folders to _tmp dir
+Copies all files and folders assigned to `config.files.all` to the _tmp dir
+
+This does _not_ carry over the node_modules folder. The reason is becauase node
+will resolve the nessesary dependencies by looking to the parent folder (which in
+our case is the main plugin folder that _does_ have node_modules.
+
+More info on node dependency resolution: https://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
 
 */
 gulp.task('build:copy', () => {
+
+  // config.files.onlyWorking
+  // config.files.all
 
   return gulp
     .src( config.files.all )
@@ -68,11 +78,11 @@ gulp.task('build:rename:plugin', done => {
         NODE_ENV: config.buildTier
       }
     }))
-    .pipe(replace('Plugin Name:       WP Shopify', function(match, p1, offset, string) {
+    .pipe(replace('WP Shopify Pro', function(match, p1, offset, string) {
 
-      if (config.buildTier === 'pro') {
-        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' in file: ' + this.file.relative);
-        return 'Plugin Name:       WP Shopify Pro';
+      if (config.buildTier === 'free') {
+        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with WP Shopify in file: ' + this.file.relative);
+        return 'WP Shopify';
 
       } else {
         return match;
@@ -92,25 +102,21 @@ Changes Plugin version
 */
 gulp.task('build:rename:version', done => {
 
-  // return gulp
-  //   .src( config.files.versionLocations, { base: "./" } )
-  //   .pipe(preprocess({
-  //     context: {
-  //       NODE_ENV: config.buildTier
-  //     }
-  //   }))
-  //   .pipe(replace('Plugin Name:       WP Shopify', function(match, p1, offset, string) {
-  //
-  //     if (config.buildTier === 'pro') {
-  //       console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' in file: ' + this.file.relative);
-  //       return 'Plugin Name:       WP Shopify Pro';
-  //
-  //     } else {
-  //       return match;
-  //     }
-  //
-  //   }))
-  //   .pipe( gulp.dest("./") );
+  return gulp
+    .src( config.files.versionLocations, { base: "./" } )
+    .pipe(preprocess({
+      context: {
+        NODE_ENV: config.buildTier
+      }
+    }))
+    .pipe(replace(config.currentRelease, function(match, p1, offset, string) {
+
+      console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with ' + config.buildRelease + ' in file: ' + this.file.relative);
+      return config.buildRelease;
+
+
+    }))
+    .pipe( gulp.dest("./") );
 
 });
 
@@ -177,16 +183,31 @@ gulp.task('build:zip', done => {
 
 /*
 
-Removes various files / folders from free verson
+Removes various files / folders from free verson. At this point preprocessing has finished.
+We're simply cleaning up files that the free version won't ever use.
 
 */
-gulp.task('build:clear', done => {
+gulp.task('build:clear:free', done => {
 
   if (config.buildTier !== 'free') {
     return done();
   }
 
   return del(config.files.buildFreeClear, { force: true });
+
+});
+
+
+/*
+
+Removes superfluous files / folders from dist copy
+
+Currently only removes admin and public JavaScript app code -- leaves vendor files
+
+*/
+gulp.task('build:clear:superfluous', done => {
+
+  return del(config.files.buildSuperfluousClear, { force: true });
 
 });
 
@@ -265,7 +286,8 @@ Requires:
 gulp.task('build:dist', done => {
 
   return gulp.series(
-    'build:clear',
+    'build:clear:free',
+    'build:clear:superfluous',
     'build:zip',
     'build:zip:deploy',
     'build:zip:move'
@@ -326,11 +348,11 @@ Requires:
 gulp.task('build', done => {
 
   return gulp.series(
-    'tests', 'clean:tmp', 'build:copy', 'build:preprocess',
-    gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
-    'build:dist',
-    'build:update:edd',
-    'clean:tmp'
+    'tests', 'clean:tmp', 'build:copy', 'build:preprocess', 'build:rename:plugin', 'build:rename:version',
+    // gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    // 'build:dist',
+    // 'build:update:edd',
+    // 'clean:tmp'
   )(done);
 
 });
