@@ -5,7 +5,6 @@ use WPS\WS;
 
 $jsonData = file_get_contents('php://input');
 
-
 if (Webhooks::webhook_verified($jsonData, WS::get_header_hmac())) {
 
   $app = json_decode($jsonData);
