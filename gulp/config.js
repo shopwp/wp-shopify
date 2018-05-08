@@ -27,6 +27,11 @@ Main Config Object
 var config = {
 
   files: {
+    entry: './_tmp/wp-shopify.php',
+    versionLocations: [
+      './_tmp/wp-shopify.php',
+      './_tmp/classes/class-config.php'
+    ],
     toBeProcessed: [
       './_tmp/admin/js/**/*',
       './_tmp/admin/partials/**/*',

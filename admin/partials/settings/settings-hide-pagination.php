@@ -12,7 +12,7 @@ Load cart
 
         <th scope="row" class="titledesc">
           <?php esc_html_e( 'Hide pagination', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'Hide pagination', 'wp-shopify' ); ?>"></span>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'Hides pagination', 'wp-shopify' ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">

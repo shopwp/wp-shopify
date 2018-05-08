@@ -1259,8 +1259,6 @@ if (!class_exists('WS')) {
 
 	      if (property_exists($data, "collects")) {
 
-					error_log('---- $DB_Collects->insert_collects -----');
-
 					$resultCollects = $DB_Collects->insert_collects($data->collects);
 
 					if (empty($resultCollects)) {
@@ -1694,10 +1692,14 @@ if (!class_exists('WS')) {
 	    }
 
 
-
+			// Always 1 if free version
 			if (isset($_POST['wps_settings_general_selective_sync_all'])) {
 				$newGeneralSettings['selective_sync_all'] = (int)$_POST['wps_settings_general_selective_sync_all'];
+
+			} else {
+				$newGeneralSettings['selective_sync_all'] = 1;
 			}
+
 
 			if (isset($_POST['wps_settings_general_selective_sync_products'])) {
 				$newGeneralSettings['selective_sync_products'] = (int)$_POST['wps_settings_general_selective_sync_products'];
@@ -1727,6 +1729,29 @@ if (!class_exists('WS')) {
 
 			if (isset($_POST['wps_settings_general_selective_sync_shop'])) {
 				$newGeneralSettings['selective_sync_shop'] = (int)$_POST['wps_settings_general_selective_sync_shop'];
+			}
+
+
+
+			/*
+
+			If user keeps all selective sync fields empty, default to all styles.
+			TODO: Handle on front-end instead
+
+			*/
+			if ($newGeneralSettings['selective_sync_all'] === 0 && $newGeneralSettings['selective_sync_products'] === 0 && $newGeneralSettings['selective_sync_collections'] === 0 && $newGeneralSettings['selective_sync_customers'] === 0 && $newGeneralSettings['selective_sync_orders'] === 0 && $newGeneralSettings['selective_sync_shop'] === 0) {
+				$newGeneralSettings['selective_sync_all'] = 1;
+			}
+
+
+			/*
+
+			If user keeps all stylesheet fields empty, default to all styles.
+			TODO: Handle on front-end instead
+
+			*/
+			if ($newGeneralSettings['styles_all'] === 0 && $newGeneralSettings['styles_core'] === 0 && $newGeneralSettings['styles_grid'] === 0) {
+				$newGeneralSettings['styles_all'] = 1;
 			}
 
 

@@ -88,7 +88,6 @@ import {
   getConnectionData,
   setSyncingIndicator,
   syncWithCPT,
-  saveCountsToSession,
   endProgress
 } from '../ws/ws';
 

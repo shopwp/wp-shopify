@@ -108,6 +108,7 @@ function onSettingsFormSubmit() {
 
       if ($selectiveSyncAll !== undefined) {
         var selectiveSyncAllAttr = jQuery(form).find("#wps_settings_general_selective_sync_all").attr("checked");
+
       } else {
         var selectiveSyncAllAttr = false;
       }
@@ -119,12 +120,13 @@ function onSettingsFormSubmit() {
       var selectiveSyncShopAttr = jQuery(form).find("#wps_settings_general_selective_sync_shop").attr("checked");
 
 
-      if ($selectiveSyncAll === undefined || typeof selectiveSyncAllAttr !== typeof undefined && selectiveSyncAllAttr !== false) {
+      if ($selectiveSyncAll === undefined || selectiveSyncAllAttr !== undefined && selectiveSyncAllAttr !== false) {
         var selectiveSyncAll = 1;
 
       } else {
         var selectiveSyncAll = 0;
       }
+
 
       if (typeof selectiveSyncProductsAttr !== typeof undefined && selectiveSyncProductsAttr !== false) {
         var selectiveSyncProducts = 1;
@@ -259,18 +261,19 @@ function onSettingsFormSubmit() {
         wps_settings_general_styles_grid: stylesGrid,
         wps_settings_general_price_with_currency: priceFormat,
         wps_settings_general_cart_loaded: cartLoaded,
+        /* @if NODE_ENV='pro' */
         wps_settings_general_selective_sync_all: selectiveSyncAll,
+        /* @endif */
         wps_settings_general_selective_sync_products: selectiveSyncProducts,
         wps_settings_general_selective_sync_collections: selectiveSyncCollections,
         wps_settings_general_selective_sync_shop: selectiveSyncShop,
-
       }
-
 
       WP_Shopify.selective_sync.all = selectiveSyncAll;
       WP_Shopify.selective_sync.products = selectiveSyncProducts;
       WP_Shopify.selective_sync.custom_collections = selectiveSyncCollections;
       WP_Shopify.selective_sync.smart_collections = selectiveSyncCollections;
+
       /* @if NODE_ENV='pro' */
       WP_Shopify.selective_sync.customers = selectiveSyncCustomers;
       WP_Shopify.selective_sync.orders = selectiveSyncOrders;
@@ -348,6 +351,7 @@ function toggleCheckboxes() {
       $clicked.closest('.wps-checkbox-wrapper')
         .find('.wps-checkbox')
         .attr('checked', false)
+        .prop('checked', false)
         .attr('disabled', true)
         .parent()
         .addClass('wps-is-disabled');
@@ -363,6 +367,7 @@ function toggleCheckboxes() {
     }
 
   });
+
 
 }
 

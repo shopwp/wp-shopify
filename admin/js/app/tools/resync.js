@@ -27,8 +27,7 @@ import {
 
 import {
   setSyncingIndicator,
-  syncWithCPT,
-  saveCountsToSession
+  syncWithCPT
 } from '../ws/ws.js';
 
 import {
@@ -198,6 +197,7 @@ function onResyncSubmit() {
 
       */
       try {
+
         var saveCountsResponse = await saveCounts(allCounts); // save_counts
 
       } catch (errors) {

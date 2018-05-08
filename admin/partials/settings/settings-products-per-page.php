@@ -9,7 +9,7 @@
 
         <th scope="row" class="titledesc">
           <?php esc_html_e( 'Products per page', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'Defaults to standard WordPress post count set in Settings - Reading', 'wp-shopify' ); ?>"></span>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'Defaults to the standard WordPress post count set within Settings - Reading. Can be overwritten here.', 'wp-shopify' ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">

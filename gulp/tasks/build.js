@@ -55,6 +55,68 @@ gulp.task('build:preprocess', () => {
 
 /*
 
+Changes Plugin name
+- gulp.src always refers to files within _tmp folder
+
+*/
+gulp.task('build:rename:plugin', done => {
+
+  return gulp
+    .src( config.files.entry, { base: "./" } )
+    .pipe(preprocess({
+      context: {
+        NODE_ENV: config.buildTier
+      }
+    }))
+    .pipe(replace('Plugin Name:       WP Shopify', function(match, p1, offset, string) {
+
+      if (config.buildTier === 'pro') {
+        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' in file: ' + this.file.relative);
+        return 'Plugin Name:       WP Shopify Pro';
+
+      } else {
+        return match;
+      }
+
+    }))
+    .pipe( gulp.dest("./") );
+
+});
+
+
+/*
+
+Changes Plugin version
+- gulp.src always refers to files within _tmp folder
+
+*/
+gulp.task('build:rename:version', done => {
+
+  // return gulp
+  //   .src( config.files.versionLocations, { base: "./" } )
+  //   .pipe(preprocess({
+  //     context: {
+  //       NODE_ENV: config.buildTier
+  //     }
+  //   }))
+  //   .pipe(replace('Plugin Name:       WP Shopify', function(match, p1, offset, string) {
+  //
+  //     if (config.buildTier === 'pro') {
+  //       console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' in file: ' + this.file.relative);
+  //       return 'Plugin Name:       WP Shopify Pro';
+  //
+  //     } else {
+  //       return match;
+  //     }
+  //
+  //   }))
+  //   .pipe( gulp.dest("./") );
+
+});
+
+
+/*
+
 Runs tests for php via PHPUnit
 
 */
@@ -121,7 +183,7 @@ Removes various files / folders from free verson
 gulp.task('build:clear', done => {
 
   if (config.buildTier !== 'free') {
-    return;
+    return done();
   }
 
   return del(config.files.buildFreeClear, { force: true });
@@ -223,18 +285,31 @@ Requires:
 */
 gulp.task('build:update:edd', done => {
 
+  var tier = 'free';
+
+  if (config.buildTier === 'pro') {
+    tier = 'pro';
+  }
+
+
   // return done;
 
-  // var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + '"';
-  //
-  // return childProcess.exec(command, function (err, stdout, stderr) {
-  //
-  //   if (err !== null) {
-  //     console.log('Error build:zip:move: ', err);
-  //     return;
-  //   }
-  //
-  // });
+  // var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier +' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier + '"';
+
+  // Staging build test
+  var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier + '"';
+
+  // console.log("command: ", command);
+
+  return childProcess.exec(command, function (err, stdout, stderr) {
+
+    if (err !== null) {
+      console.log('Error build:zip:move: ', err);
+      return;
+    }
+
+  });
+
 
 });
 
@@ -254,7 +329,8 @@ gulp.task('build', done => {
     'tests', 'clean:tmp', 'build:copy', 'build:preprocess',
     gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:dist',
-    'build:update:edd'
+    'build:update:edd',
+    'clean:tmp'
   )(done);
 
 });

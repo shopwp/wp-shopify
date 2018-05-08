@@ -150,7 +150,7 @@ if (!class_exists('Transients')) {
 	    global $wpdb;
 			$messages = new Messages();
 
-	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%'");
+	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%' OR `option_name` LIKE '%\_transient\_timeout_\wps\_%'");
 
 	    if ($results === false) {
 	      return new \WP_Error('error', $messages->message_delete_all_cache);

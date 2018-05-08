@@ -12,7 +12,7 @@ Load cart
 
         <th scope="row" class="titledesc">
           <?php esc_html_e( 'Show breadcrumbs', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'Show breadcrumbs', 'wp-shopify' ); ?>"></span>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'Shows breadcrumbs', 'wp-shopify' ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">
