@@ -18,7 +18,6 @@ use WPS\DB\Tags;
 use WPS\DB\Variants;
 use WPS\DB\Options;
 
-// WPS namespace added to these deps through Mozart
 use Gerardojbaez\Money\Money;
 use Gerardojbaez\Money\Currency;
 

@@ -13,6 +13,7 @@ import flatten from 'gulp-flatten';
 import rsync from 'gulp-rsync';
 import childProcess from 'child_process';
 import del from 'del';
+import git from 'gulp-git';
 
 
 /*
@@ -28,12 +29,36 @@ More info on node dependency resolution: https://nodejs.org/api/modules.html#mod
 */
 gulp.task('build:copy', () => {
 
-  // config.files.onlyWorking
-  // config.files.all
-
   return gulp
     .src( config.files.all )
     .pipe( gulp.dest(config.folders.tmp) );
+
+});
+
+
+gulp.task('build:free:copy', () => {
+
+  return gulp
+    .src( config.files.onlyWorking )
+    .pipe( gulp.dest(config.folders.tmp) );
+
+});
+
+
+gulp.task('build:free:repo', () => {
+
+  return git.clone('git@github.com:wpshopify/wp-shopify.git', { args: './_free' }, function(err) {
+    console.log("err: ", err);
+  });
+
+});
+
+
+gulp.task('build:free:repo:copy', () => {
+
+  return gulp
+    .src(config.files.tmpAll)
+    .pipe(gulp.dest(config.folders.freeRepo));
 
 });
 
@@ -113,7 +138,6 @@ gulp.task('build:rename:version', done => {
 
       console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with ' + config.buildRelease + ' in file: ' + this.file.relative);
       return config.buildRelease;
-
 
     }))
     .pipe( gulp.dest("./") );
@@ -360,13 +384,30 @@ gulp.task('build', done => {
 
 
 
+
+gulp.task('build:free', done => {
+
+  return gulp.series(
+    'clean:tmp', 'build:free:copy', 'build:preprocess', 'build:rename:plugin', 'build:rename:version', 'build:clear:free', 'build:free:repo', 'build:free:repo:copy', 'clean:tmp'
+  )(done);
+
+});
+
+
 /*
 
+- Make new _tmp dir
+- Move everything into new _tmp folder besides node_modules
+- preprocess _tmp folder (gulp build:preprocess)
+- remove all pro-related files (gulp build:clear:free)
+- Make new _free dir
+- Clone the free repo
 
-- build new _tmp folder + .git
-- preprocess _tmp folder
-- remove all pro-related files
+
 - commit?
 
+
+----- Tasks to run ------
+gulp build:free:copy && gulp build:preprocess --tier="free" --current="1.1.1" --release="1.1.2" && gulp build:rename:plugin --tier="free" --current="1.1.1" --release="1.1.2" && gulp build:rename:version --tier="free" --current="1.1.1" --release="1.1.2" && gulp build:clear:free --tier="free" --current="1.1.1" --release="1.1.2"
 
 */

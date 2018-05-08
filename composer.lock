@@ -322,51 +322,6 @@
     ],
     "packages-dev": [
         {
-            "name": "coenjacobs/mozart",
-            "version": "0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/coenjacobs/mozart.git",
-                "reference": "6c217eec3c5be6a51925e137db15b0745b473f13"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/coenjacobs/mozart/zipball/6c217eec3c5be6a51925e137db15b0745b473f13",
-                "reference": "6c217eec3c5be6a51925e137db15b0745b473f13",
-                "shasum": ""
-            },
-            "require": {
-                "league/flysystem": "^1.0",
-                "php": ">=5.5.0",
-                "symfony/console": "^3.2",
-                "symfony/finder": "^3.2"
-            },
-            "require-dev": {
-                "coenjacobs/php-composter-phpcs": "^0.1.0",
-                "phpunit/phpunit": "^4.0"
-            },
-            "bin": [
-                "bin/mozart"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "CoenJacobs\\Mozart\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Coen Jacobs",
-                    "email": "coenjacobs@gmail.com"
-                }
-            ],
-            "time": "2017-12-04 10:28:32"
-        },
-        {
             "name": "league/flysystem",
             "version": "1.0.43",
             "source": {

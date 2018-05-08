@@ -43,6 +43,10 @@ var config = {
       './_tmp/uninstall.php'
     ],
     tmp: './_tmp/**/*',
+    tmpAll: [
+      './_tmp/**/*',
+      './_tmp/**/.*'
+    ],
     all: [
       './**/*',
       '!./node_modules/**',
@@ -65,14 +69,13 @@ var config = {
     // Represents all the files needed for other developers to work with. What gets commited to the free repo.
     onlyWorking: [
       './**/*',
+      './**/.*',
+      './**/.**/**',
       '!./node_modules/**',
-      '!./dist/**',
-      '!./bin/**',
-      '!./stats.html',
-      '!./.travis.yml',
-      '!./**/*.DS_Store',
-      '!./admin.min.js',
-      '!./public.min.js'
+      '!./.git/**',
+      '!./_tmp/**',
+      '!./_free/**',
+      '!./.gitignore'
     ],
     build: './**/*',
     buildProContent: '../../../../assets/wp-shopify-pro/**/*',
@@ -83,7 +86,8 @@ var config = {
       './_tmp/classes/class-webhooks.php',
       './_tmp/classes/class-orders.php',
       './_tmp/classes/class-customers.php',
-      './_tmp/.travis.yml'
+      './_tmp/.git/**',
+      './_tmp/.gitignore'
     ],
     buildSuperfluousClear: [
       './_tmp/admin/js/app',
@@ -123,6 +127,7 @@ var config = {
   },
   folders: {
     tmp: './_tmp',
+    freeRepo: './_free',
     plugin: './',
     dist: argvs.argv.tier ? './_tmp/dist' : './dist',
     pro: '../../../../assets/wp-shopify-pro',
