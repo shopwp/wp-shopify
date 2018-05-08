@@ -81,11 +81,6 @@ async function syncPluginData() {
       syncShop(), // wps_insert_shop
       syncProducts(), // wps_insert_products_data
       syncCollects(), // wps_insert_collects
-      /* @if NODE_ENV='pro' */
-      syncOrders(), // wps_insert_orders
-      syncCustomers(), // wps_insert_customers
-      syncWebhooks()
-      /* @endif */
     ]);
 
   } catch(errors) {
@@ -110,11 +105,6 @@ function getItemCounts() {
     try {
 
       var counts = await Promise.all([
-        /* @if NODE_ENV='pro' */
-        getWebhooksCount(), // wps_ws_get_webhooks_count
-        getOrdersCount(), // wps_ws_get_orders_count
-        getCustomersCount(), // wps_ws_get_customers_count
-        /* @endif */
         getSmartCollectionsCount(), // wps_ws_get_smart_collections_count
         getCustomCollectionsCount(), // wps_ws_get_custom_collections_count
         getProductsCount(), // wps_ws_get_products_count

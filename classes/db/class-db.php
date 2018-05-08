@@ -17,10 +17,6 @@ use WPS\DB\Collections_Custom;
 use WPS\DB\Settings_General;
 use WPS\DB\Settings_License;
 use WPS\DB\Settings_Connection;
-/* @if NODE_ENV='pro' */
-use WPS\DB\Orders;
-use WPS\DB\Customers;
-/* @endif */
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Config;
@@ -576,10 +572,6 @@ if (!class_exists('DB')) {
 			$tables[] = new Settings_Connection();
 			$tables[] = new Settings_General();
 
-			/* @if NODE_ENV='pro' */
-			$tables[] = new Orders();
-			$tables[] = new Customers();
-			/* @endif */
 
 			foreach ($tables as $key => $table) {
 

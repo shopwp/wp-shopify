@@ -16,10 +16,6 @@ use WPS\DB\Images;
 use WPS\DB\Tags;
 use WPS\CPT;
 use WPS\Utils;
-/* @if NODE_ENV='pro' */
-use WPS\DB\Customers;
-use WPS\DB\Orders;
-/* @endif */
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -101,10 +97,6 @@ if ( !class_exists('Activator') ) {
 			$DB_Images = new Images();
 			$DB_Tags = new Tags();
 
-			/* @if NODE_ENV='pro' */
-			$DB_Customers = new Customers();
-			$DB_Orders = new Orders();
-			/* @endif */
 
 
 			/*
@@ -125,10 +117,6 @@ if ( !class_exists('Activator') ) {
 			$DB_Images->create_table();
 			$DB_Tags->create_table();
 
-			/* @if NODE_ENV='pro' */
-			$DB_Customers->create_table();
-			$DB_Orders->create_table();
-			/* @endif */
 
 
 			/*

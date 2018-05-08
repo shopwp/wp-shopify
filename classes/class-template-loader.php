@@ -80,7 +80,6 @@ if ( !class_exists('Template_Loader') ) {
 
 
 
-		/* @if NODE_ENV='free' */
 		public function locate_template( $template_names, $load = false, $require_once = true ) {
 
 			// Use $template_names as a cache key - either first element of array or the variable itself if it's a string
@@ -134,7 +133,6 @@ if ( !class_exists('Template_Loader') ) {
 			return $located;
 
 		}
-		/* @endif */
 
 
   }

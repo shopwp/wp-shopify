@@ -27,17 +27,11 @@ Tab Content: Settings
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-collections-urls.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
 
-      /* @if NODE_ENV='pro' */
-      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-webhooks-urls.php';
-      /* @endif */
 
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-sync-image-alt.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
 
-      /* @if NODE_ENV='pro' */
-      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-selective-sync.php';
-      /* @endif */
 
       require_once plugin_dir_path( __FILE__ ) . 'settings/settings-price-formatter.php';
 

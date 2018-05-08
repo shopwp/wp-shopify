@@ -20,11 +20,6 @@ use WPS\DB\Tags;
 use WPS\CPT;
 use WPS\Transients;
 use WPS\Messages;
-/* @if NODE_ENV='pro' */
-use WPS\Webhooks;
-use WPS\DB\Orders;
-use WPS\DB\Customers;
-/* @endif */
 use WPS\Utils;
 use WPS\License;
 use WPS\Progress_Bar;
@@ -587,47 +582,6 @@ if (!class_exists('WS')) {
 	  TODO: Combine with other count functions to be more generalized
 
 	  */
-		/* @if NODE_ENV='pro' */
-	  public function wps_ws_get_orders_count() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->messages->message_nonce_invalid . ' (wps_ws_get_orders_count)');
-			}
-
-			if (Utils::emptyConnection($this->connection)) {
-				$this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_orders_count)');
-			}
-
-
-			Utils::wps_access_session();
-
-
-	    try {
-
-				$response = $this->wps_request(
-					'GET',
-					$this->get_request_url("/admin/orders/count.json?status=any"),
-					$this->get_request_options()
-				);
-
-	      $data = json_decode($response->getBody()->getContents());
-
-	      if (is_object($data) && property_exists($data, 'count')) {
-	        $this->send_success(['orders' => $data->count]);
-
-	      } else {
-					$this->send_warning($this->messages->message_orders_not_found . ' (wps_ws_get_orders_count)');
-
-	      }
-
-	    } catch (RequestException $error) {
-
-				$this->send_error($this->wps_get_error_message($error) . ' (wps_ws_get_orders_count)');
-
-	    }
-
-	  }
-		/* @endif */
 
 
 	  /*
@@ -636,46 +590,6 @@ if (!class_exists('WS')) {
 	  TODO: Combine with other count functions to be more generalized
 
 	  */
-		/* @if NODE_ENV='pro' */
-	  public function wps_ws_get_customers_count() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->messages->message_nonce_invalid . ' (wps_ws_get_customers_count)');
-			}
-
-			if (Utils::emptyConnection($this->connection)) {
-				$this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_customers_count)');
-			}
-
-
-			Utils::wps_access_session();
-
-	    try {
-
-				$response = $this->wps_request(
-					'GET',
-					$this->get_request_url("/admin/customers/count.json"),
-					$this->get_request_options()
-				);
-
-	      $data = json_decode($response->getBody()->getContents());
-
-	      if (is_object($data) && property_exists($data, 'count')) {
-	        $this->send_success(['customers' => $data->count]);
-
-	      } else {
-	        $this->send_warning($this->messages->message_customers_not_found . ' (wps_ws_get_customers_count)');
-
-	      }
-
-	    } catch (RequestException $error) {
-
-	      $this->send_error( $this->wps_get_error_message($error) . ' (wps_ws_get_customers_count)');
-
-	    }
-
-	  }
-		/* @endif */
 
 
 		/*
@@ -704,25 +618,6 @@ if (!class_exists('WS')) {
 		Pro only: true
 
 		*/
-		/* @if NODE_ENV='pro' */
-		public function wps_ws_get_webhooks_count() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->messages->message_nonce_invalid . ' (wps_ws_get_webhooks_count)');
-			}
-
-			if (Utils::emptyConnection($this->connection)) {
-				$this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_webhooks_count)');
-			}
-
-			if (!Utils::isStillSyncing()) {
-				$this->send_error($this->messages->message_connection_not_syncing . ' (wps_ws_get_webhooks_count)');
-			}
-
-			$this->send_success(['webhooks' => 27]);
-
-		}
-		/* @endif */
 
 
 	  /*
@@ -1513,53 +1408,6 @@ if (!class_exists('WS')) {
 
 		*/
 
-		/* @if NODE_ENV='pro' */
-		public function wps_ws_register_all_webhooks() {
-
-			if (isset($_POST['webhooksReconnect']) && !$_POST['webhooksReconnect']) {
-				$this->send_success();
-
-			} else {
-
-				$Webhooks = new Webhooks($this->config);
-
-				if (isset($_POST['removalErrors']) && $_POST['removalErrors']) {
-					$webhooksErrorList = $_POST['removalErrors'];
-
-				} else {
-					$webhooksErrorList = [];
-				}
-
-
-				$webhooksDefaultList = $Webhooks->default_topics();
-
-				$webhooksToRegister = array_diff_key($webhooksDefaultList, $webhooksErrorList);
-
-				$registerResults = $Webhooks->wps_webhooks_register($webhooksToRegister);
-
-
-				if (is_array($registerResults)) {
-
-					// Contains an array of topics and webhook IDs on success or false on error
-					$finalWebhooksResult = array_merge($webhooksErrorList, $registerResults);
-					$registerErrors = $Webhooks->filter_for_register_errors($finalWebhooksResult);
-
-					if (empty($registerErrors)) {
-						$this->send_success();
-
-					} else {
-						$this->send_warning( $Webhooks->construct_warning_messages($registerErrors) );
-
-					}
-
-				} else {
-					$this->send_warning();
-				}
-
-			}
-
-		}
-		/* @endif */
 
 
 	  /*
@@ -1568,37 +1416,6 @@ if (!class_exists('WS')) {
 		Pro only: true
 
 		*/
-		/* @if NODE_ENV='pro' */
-		public function wps_ws_get_webhooks() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-			  $this->send_error($this->messages->message_nonce_invalid . ' (wps_ws_get_webhooks)');
-			}
-
-			if (Utils::emptyConnection($this->connection)) {
-			  $this->send_error($this->messages->message_connection_not_found . ' (wps_ws_get_webhooks)');
-			}
-
-	    try {
-
-				$response = $this->wps_request(
-					'GET',
-					$this->get_request_url("/admin/webhooks.json"),
-					$this->get_request_options()
-				);
-
-	      $data = $response->getBody()->getContents();
-
-	      $this->send_success($data);
-
-	    } catch (RequestException $error) {
-
-	      $this->send_error( $this->wps_get_error_message($error) . ' (wps_ws_get_webhooks)');
-
-	    }
-
-		}
-		/* @endif */
 
 
 	  /*
@@ -1636,11 +1453,6 @@ if (!class_exists('WS')) {
 	      $newGeneralSettings['url_collections'] = $_POST['wps_settings_general_collections_url'];
 	    }
 
-			/* @if NODE_ENV='pro' */
-	    if (isset($_POST['wps_settings_general_url_webhooks']) && $_POST['wps_settings_general_url_webhooks']) {
-	      $newGeneralSettings['url_webhooks'] = $_POST['wps_settings_general_url_webhooks'];
-	    }
-			/* @endif */
 
 	    if (isset($_POST['wps_settings_general_num_posts'])) {
 
@@ -1709,15 +1521,6 @@ if (!class_exists('WS')) {
 				$newGeneralSettings['selective_sync_collections'] = (int)$_POST['wps_settings_general_selective_sync_collections'];
 			}
 
-			/* @if NODE_ENV='pro' */
-			if (isset($_POST['wps_settings_general_selective_sync_customers'])) {
-				$newGeneralSettings['selective_sync_customers'] = (int)$_POST['wps_settings_general_selective_sync_customers'];
-			}
-
-			if (isset($_POST['wps_settings_general_selective_sync_orders'])) {
-				$newGeneralSettings['selective_sync_orders'] = (int)$_POST['wps_settings_general_selective_sync_orders'];
-			}
-			/* @endif */
 
 			if (isset($_POST['wps_settings_general_selective_sync_tags'])) {
 				$newGeneralSettings['selective_sync_tags'] = (int)$_POST['wps_settings_general_selective_sync_tags'];
@@ -2323,41 +2126,6 @@ if (!class_exists('WS')) {
 	  wps_delete_orders
 
 	  */
-		/* @if NODE_ENV='pro' */
-	  public function wps_delete_orders() {
-
-			$Orders = new Orders();
-			$DB_Settings_General = new Settings_General();
-			$syncStates = $DB_Settings_General->selective_sync_status();
-
-			if ($syncStates['all']) {
-
-				if (!$Orders->delete()) {
-					return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (wps_delete_orders)');
-
-				} else {
-					return true;
-				}
-
-			} else {
-
-				if ($syncStates['orders']) {
-
-					if (!$Orders->delete()) {
-						return new \WP_Error('error', $this->messages->message_delete_orders_error . ' (wps_delete_orders 2)');
-
-					} else {
-						return true;
-					}
-
-				} else {
-					return true;
-				}
-
-			}
-
-	  }
-		/* @endif */
 
 
 	  /*
@@ -2365,41 +2133,6 @@ if (!class_exists('WS')) {
 	  wps_delete_customers
 
 	  */
-		/* @if NODE_ENV='pro' */
-	  public function wps_delete_customers() {
-
-			$Customers = new Customers();
-			$DB_Settings_General = new Settings_General();
-			$syncStates = $DB_Settings_General->selective_sync_status();
-
-			if ($syncStates['all']) {
-
-				if (!$Customers->delete()) {
-					return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (wps_delete_customers)');
-
-				} else {
-					return true;
-				}
-
-			} else {
-
-				if ($syncStates['customers']) {
-
-					if (!$Customers->delete()) {
-						return new \WP_Error('error', $this->messages->message_delete_customers_error . ' (wps_delete_customers 2)');
-
-					} else {
-						return true;
-					}
-
-				} else {
-					return true;
-				}
-
-			}
-
-	  }
-		/* @endif */
 
 
 	  /*
@@ -2423,10 +2156,6 @@ if (!class_exists('WS')) {
 	    $Images = new Images();
 	    $Transients = new Transients();
 
-			/* @if NODE_ENV='pro' */
-	    $Orders = new Orders();
-	    $Customers = new Customers();
-			/* @endif */
 
 	    $results['shop'] = $DB_Shop->delete_table();
 	    $results['settings_general'] = $DB_Settings_General->delete_table();
@@ -2442,10 +2171,6 @@ if (!class_exists('WS')) {
 	    $results['images'] = $Images->delete_table();
 	    $results['transients'] = $Transients->delete_all_cache();
 
-			/* @if NODE_ENV='pro' */
-			$results['orders'] = $Orders->delete_table();
-			$results['customers'] = $Customers->delete_table();
-			/* @endif */
 
 	    return $results;
 
@@ -2492,9 +2217,6 @@ if (!class_exists('WS')) {
 	    $DB_Settings_Connection = new Settings_Connection();
 	    $connection = $DB_Settings_Connection->get_column_single('api_key');
 
-			/* @if NODE_ENV='pro' */
-			$Webhooks = new Webhooks($this->config);
-			/* @endif */
 
 			/*
 
@@ -2520,16 +2242,6 @@ if (!class_exists('WS')) {
 					$results['connection_settings'] = $response_license;
 				}
 
-				/* @if NODE_ENV='pro' */
-				$response_webhooks = $Webhooks->remove_webhooks(false, $async);
-
-				if (is_wp_error($response_webhooks)) {
-					$results['connection_api'] = $response_webhooks->get_error_message()  . ' (wps_uninstall_consumer)';
-
-				} else {
-					$results['connection_api'] = 1;
-				}
-				/* @endif */
 
 	    }
 
@@ -2603,10 +2315,6 @@ if (!class_exists('WS')) {
 			$DB_Settings_Connection = new Settings_Connection();
 			$connection = $DB_Settings_Connection->get_column_single('domain');
 
-			/* @if NODE_ENV='pro' */
-			$webhooksReconnect = true;
-			$Webhooks = new Webhooks($this->config);
-			/* @endif */
 
 	    if ($_POST['action'] === 'wps_uninstall_product_data') {
 	      $ajax = true;
@@ -2621,14 +2329,6 @@ if (!class_exists('WS')) {
 					$this->send_error($this->messages->message_nonce_invalid . ' (wps_uninstall_product_data)');
 				}
 
-				/* @if NODE_ENV='pro' */
-				if (isset($_POST['webhooksReconnect']) && !empty($_POST['webhooksReconnect'])) {
-					$webhooksReconnect = $_POST['webhooksReconnect'];
-
-				} else {
-					$webhooksReconnect = true; // Default set to true so we don't have to worry about setting defaults on the front-end
-				}
-				/* @endif */
 
 	    }
 
@@ -2655,16 +2355,6 @@ if (!class_exists('WS')) {
 			Remove Webhooks
 
 			*/
-			/* @if NODE_ENV='pro' */
-			$response_webhooks = $Webhooks->remove_webhooks(false, true, $webhooksReconnect);
-
-			if (is_wp_error($response_webhooks)) {
-				$results['connection_api'] = $response_webhooks->get_error_message()  . ' (wps_uninstall_product_data)';
-
-			} else {
-				$results['connection_api'] = 1;
-			}
-			/* @endif */
 
 	    /*
 
@@ -2791,32 +2481,12 @@ if (!class_exists('WS')) {
 	    Remove Orders
 
 	    */
-			/* @if NODE_ENV='pro' */
-	    $response_orders = $this->wps_delete_orders();
-
-	    if (is_wp_error($response_orders)) {
-	      $results['orders'] = $response_orders->get_error_message()  . ' (wps_uninstall_product_data)';
-
-	    } else {
-	      $results['orders'] = $response_orders;
-	    }
-			/* @endif */
 
 	    /*
 
 	    Remove Customers
 
 	    */
-			/* @if NODE_ENV='pro' */
-	    $response_customers = $this->wps_delete_customers();
-
-	    if (is_wp_error($response_customers)) {
-	      $results['customers'] = $response_customers->get_error_message()  . ' (wps_uninstall_product_data)';
-
-	    } else {
-	      $results['customers'] = $response_customers;
-	    }
-			/* @endif */
 
 	    /*
 
@@ -2976,72 +2646,6 @@ if (!class_exists('WS')) {
 	  Insert Orders
 
 	  */
-		/* @if NODE_ENV='pro' */
-	  public function wps_insert_orders() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->messages->message_nonce_invalid . ' (wps_insert_orders)');
-			}
-
-			if (Utils::emptyConnection($this->connection)) {
-				$this->send_error($this->messages->message_connection_not_found . ' (wps_insert_orders)');
-			}
-
-			if (!Utils::isStillSyncing()) {
-				$this->send_error($this->messages->message_connection_not_syncing . ' (wps_insert_orders)');
-			}
-
-
-			if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-				$currentPage = 1;
-
-			} else {
-				$currentPage = $_POST['currentPage'];
-			}
-
-
-	    try {
-
-	      $DB_Orders = new Orders();
-
-				$response = $this->wps_request(
-					'GET',
-					$this->get_request_url("/admin/orders.json", "?limit=250&status=any&page=" . $currentPage),
-					$this->get_request_options()
-				);
-
-	      $data = json_decode($response->getBody()->getContents());
-
-
-	      if (is_object($data) && property_exists($data, 'orders')) {
-
-	        /*
-
-	        This is where the bulk of product data is inserted into the database. The
-	        "insert_products" method inserts both the CPT's and custom WPS table data.
-
-	        */
-	        $resultOrders = $DB_Orders->insert_orders($data->orders);
-
-	        if (empty($resultOrders)) {
-	          $this->send_warning($this->messages->message_orders_insert_error  . ' (wps_insert_orders)');
-	        }
-
-	        $this->send_success($resultOrders);
-
-	      } else {
-	        $this->send_error($data->errors);
-
-	      }
-
-	    } catch (RequestException $error) {
-
-	      $this->send_error( $this->wps_get_error_message($error)  . ' (wps_insert_orders)');
-
-	    }
-
-	  }
-		/* @endif */
 
 
 	  /*
@@ -3049,74 +2653,6 @@ if (!class_exists('WS')) {
 	  Insert Customers
 
 	  */
-		/* @if NODE_ENV='pro' */
-	  public function wps_insert_customers() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->messages->message_nonce_invalid . ' (wps_insert_customers)');
-			}
-
-			if (Utils::emptyConnection($this->connection)) {
-				$this->send_error($this->messages->message_connection_not_found . ' (wps_insert_customers)');
-			}
-
-			if (!Utils::isStillSyncing()) {
-				$this->send_error($this->messages->message_connection_not_syncing . ' (wps_insert_customers)');
-			}
-
-
-			if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-				$currentPage = 1;
-
-			} else {
-				$currentPage = $_POST['currentPage'];
-			}
-
-
-	    try {
-
-	      $Utils = new Utils();
-	      $DB_Customers = new Customers();
-
-				$response = $this->wps_request(
-					'GET',
-					$this->get_request_url("/admin/customers.json", "?limit=250&page=" . $currentPage),
-					$this->get_request_options()
-				);
-
-	      $data = json_decode($response->getBody()->getContents());
-
-	      if (is_object($data) && property_exists($data, 'customers')) {
-
-	        /*
-
-	        This is where the bulk of product data is inserted into the database. The
-	        "insert_products" method inserts both the CPT's and custom WPS table data.
-
-	        */
-	        $results = $DB_Customers->insert_customers( $data->customers );
-
-	        if (empty($results)) {
-	          $this->send_warning($this->messages->message_syncing_customers_error  . ' (wps_insert_customers)');
-	        }
-
-	        $this->send_success();
-
-	      } else {
-
-	        $this->send_error($data->errors);
-
-	      }
-
-
-	    } catch (RequestException $error) {
-
-	      $this->send_error( $this->wps_get_error_message($error)  . ' (wps_insert_customers)');
-
-	    }
-
-	  }
-		/* @endif */
 
 
 		/*
@@ -3282,17 +2818,6 @@ if (!class_exists('WS')) {
 					$_SESSION['wps_syncing_totals']['collects'] = $counts['collects'];
 				}
 
-				/* @if NODE_ENV='pro' */
-				if (isset($counts['orders'])) {
-					$_SESSION['wps_syncing_totals']['orders'] = $counts['orders'];
-				}
-
-				if (isset($counts['customers'])) {
-					$_SESSION['wps_syncing_totals']['customers'] = $counts['customers'];
-				}
-
-				$counts['webhooks'] = 27;
-				/* @endif */
 
 				Utils::wps_close_session_write();
 

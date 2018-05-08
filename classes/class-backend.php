@@ -13,9 +13,6 @@ use WPS\DB\Shop;
 use WPS\DB\Settings_Connection;
 use WPS\DB\Settings_General;
 
-/* @if NODE_ENV='pro' */
-use WPS\Webhooks;
-/* @endif */
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
@@ -520,9 +517,6 @@ if ( !class_exists('Backend') ) {
 			$Collections = new Collections($this->config);
 			$Products_General = new Products_General($this->config);
 
-			/* @if NODE_ENV='pro' */
-			$Webhooks = new Webhooks($this->config);
-			/* @endif */
 
 			$WS = new WS($this->config);
 			$ProgressBar = new Progress_Bar($this->config);
@@ -669,116 +663,6 @@ if ( !class_exists('Backend') ) {
 			add_action( 'wp_ajax_nopriv_get_total_counts', array($WS, 'get_total_counts'));
 
 
-			/* @if NODE_ENV='pro' */
-
-			add_action( 'wp_ajax_wps_ws_get_webhooks_count', array($WS, 'wps_ws_get_webhooks_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_webhooks_count', array($WS, 'wps_ws_get_webhooks_count'));
-
-			add_action( 'wp_ajax_remove_webhooks', array($Webhooks, 'remove_webhooks'));
-			add_action( 'wp_ajax_nopriv_remove_webhooks', array($Webhooks, 'remove_webhooks'));
-
-			add_action( 'wp_ajax_wps_webhooks_register_single', array($Webhooks, 'wps_webhooks_register_single'));
-			add_action( 'wp_ajax_nopriv_wps_webhooks_register_single', array($Webhooks, 'wps_webhooks_register_single'));
-
-			add_action( 'wp_ajax_products_create_callback', array($Webhooks, 'products_create_callback'));
-			add_action( 'wp_ajax_nopriv_products_create_callback', array($Webhooks, 'products_create_callback'));
-
-			add_action( 'wp_ajax_products_update_callback', array($Webhooks, 'products_update_callback'));
-			add_action( 'wp_ajax_nopriv_products_update_callback', array($Webhooks, 'products_update_callback'));
-
-			add_action( 'wp_ajax_products_delete_callback', array($Webhooks, 'products_delete_callback'));
-			add_action( 'wp_ajax_nopriv_products_delete_callback', array($Webhooks, 'products_delete_callback'));
-
-			add_action( 'wp_ajax_collections_create_callback', array($Webhooks, 'collections_create_callback'));
-			add_action( 'wp_ajax_nopriv_collections_create_callback', array($Webhooks, 'collections_create_callback'));
-
-			add_action( 'wp_ajax_collections_update_callback', array($Webhooks, 'collections_update_callback'));
-			add_action( 'wp_ajax_nopriv_collections_update_callback', array($Webhooks, 'collections_update_callback'));
-
-			add_action( 'wp_ajax_collections_delete_callback', array($Webhooks, 'collections_delete_callback'));
-			add_action( 'wp_ajax_nopriv_collections_delete_callback', array($Webhooks, 'collections_delete_callback'));
-
-			add_action( 'wp_ajax_shop_update_callback', array($Webhooks, 'shop_update_callback'));
-			add_action( 'wp_ajax_nopriv_shop_update_callback', array($Webhooks, 'shop_update_callback'));
-
-			add_action( 'wp_ajax_app_uninstalled_callback', array($Webhooks, 'app_uninstalled_callback'));
-			add_action( 'wp_ajax_nopriv_app_uninstalled_callback', array($Webhooks, 'app_uninstalled_callback'));
-
-			add_action( 'wp_ajax_checkouts_create_callback', array($Webhooks, 'checkouts_create_callback'));
-			add_action( 'wp_ajax_nopriv_checkouts_create_callback', array($Webhooks, 'checkouts_create_callback'));
-
-			add_action( 'wp_ajax_checkouts_delete_callback', array($Webhooks, 'checkouts_delete_callback'));
-			add_action( 'wp_ajax_nopriv_checkouts_delete_callback', array($Webhooks, 'checkouts_delete_callback'));
-
-			add_action( 'wp_ajax_checkouts_update_callback', array($Webhooks, 'checkouts_update_callback'));
-			add_action( 'wp_ajax_nopriv_checkouts_update_callback', array($Webhooks, 'checkouts_update_callback'));
-
-			// Orders
-			add_action( 'wp_ajax_wps_insert_orders', array($WS, 'wps_insert_orders'));
-			add_action( 'wp_ajax_nopriv_wps_insert_orders', array($WS, 'wps_insert_orders'));
-
-			add_action( 'wp_ajax_wps_ws_get_orders_count', array($WS, 'wps_ws_get_orders_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_orders_count', array($WS, 'wps_ws_get_orders_count'));
-
-			add_action( 'wp_ajax_orders_create_callback', array($Webhooks, 'orders_create_callback'));
-			add_action( 'wp_ajax_nopriv_orders_create_callback', array($Webhooks, 'orders_create_callback'));
-
-			add_action( 'wp_ajax_orders_paid_callback', array($Webhooks, 'orders_paid_callback'));
-			add_action( 'wp_ajax_nopriv_orders_paid_callback', array($Webhooks, 'orders_paid_callback'));
-
-			add_action( 'wp_ajax_orders_cancelled_callback', array($Webhooks, 'orders_cancelled_callback'));
-			add_action( 'wp_ajax_nopriv_orders_cancelled_callback', array($Webhooks, 'orders_cancelled_callback'));
-
-			add_action( 'wp_ajax_orders_delete_callback', array($Webhooks, 'orders_delete_callback'));
-			add_action( 'wp_ajax_nopriv_orders_delete_callback', array($Webhooks, 'orders_delete_callback'));
-
-			add_action( 'wp_ajax_orders_fulfilled_callback', array($Webhooks, 'orders_fulfilled_callback'));
-			add_action( 'wp_ajax_nopriv_orders_fulfilled_callback', array($Webhooks, 'orders_fulfilled_callback'));
-
-			add_action( 'wp_ajax_orders_partially_fulfilled_callback', array($Webhooks, 'orders_partially_fulfilled_callback'));
-			add_action( 'wp_ajax_nopriv_orders_partially_fulfilled_callback', array($Webhooks, 'orders_partially_fulfilled_callback'));
-
-			add_action( 'wp_ajax_orders_updated_callback', array($Webhooks, 'orders_updated_callback'));
-			add_action( 'wp_ajax_nopriv_orders_updated_callback', array($Webhooks, 'orders_updated_callback'));
-
-			add_action( 'wp_ajax_draft_orders_create_callback', array($Webhooks, 'draft_orders_create_callback'));
-			add_action( 'wp_ajax_nopriv_draft_orders_create_callback', array($Webhooks, 'draft_orders_create_callback'));
-
-			add_action( 'wp_ajax_draft_orders_delete_callback', array($Webhooks, 'draft_orders_delete_callback'));
-			add_action( 'wp_ajax_nopriv_draft_orders_delete_callback', array($Webhooks, 'draft_orders_delete_callback'));
-
-			add_action( 'wp_ajax_draft_orders_update_callback', array($Webhooks, 'draft_orders_update_callback'));
-			add_action( 'wp_ajax_nopriv_draft_orders_update_callback', array($Webhooks, 'draft_orders_update_callback'));
-
-			add_action( 'wp_ajax_order_transactions_create_callback', array($Webhooks, 'order_transactions_create_callback'));
-			add_action( 'wp_ajax_nopriv_order_transactions_create_callback', array($Webhooks, 'order_transactions_create_callback'));
-
-			// Customers
-			add_action( 'wp_ajax_wps_insert_customers', array($WS, 'wps_insert_customers'));
-			add_action( 'wp_ajax_nopriv_wps_insert_customers', array($WS, 'wps_insert_customers'));
-
-			add_action( 'wp_ajax_wps_ws_get_customers_count', array($WS, 'wps_ws_get_customers_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_customers_count', array($WS, 'wps_ws_get_customers_count'));
-
-			add_action( 'wp_ajax_customers_create_callback', array($Webhooks, 'customers_create_callback'));
-			add_action( 'wp_ajax_nopriv_customers_create_callback', array($Webhooks, 'customers_create_callback'));
-
-			add_action( 'wp_ajax_customers_delete_callback', array($Webhooks, 'customers_delete_callback'));
-			add_action( 'wp_ajax_nopriv_customers_delete_callback', array($Webhooks, 'customers_delete_callback'));
-
-			add_action( 'wp_ajax_customers_disable_callback', array($Webhooks, 'customers_disable_callback'));
-			add_action( 'wp_ajax_nopriv_customers_disable_callback', array($Webhooks, 'customers_disable_callback'));
-
-			add_action( 'wp_ajax_customers_enable_callback', array($Webhooks, 'customers_enable_callback'));
-			add_action( 'wp_ajax_nopriv_customers_enable_callback', array($Webhooks, 'customers_enable_callback'));
-
-			add_action( 'wp_ajax_customers_update_callback', array($Webhooks, 'customers_update_callback'));
-			add_action( 'wp_ajax_nopriv_customers_update_callback', array($Webhooks, 'customers_update_callback'));
-
-			add_action( 'wp_ajax_wps_ws_register_all_webhooks', array($WS, 'wps_ws_register_all_webhooks'));
-			add_action( 'wp_ajax_nopriv_wps_ws_register_all_webhooks', array($WS, 'wps_ws_register_all_webhooks'));
-
-			/* @endif */
 
 
 			// License Key

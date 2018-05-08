@@ -11,9 +11,6 @@ Update product variant price
 */
 function updateTotalCartPricing(shopify, cart = false) {
 
-  /* @if NODE_ENV='pro' */
-  var imsure = 10;
-  /* @endif */
 
 
   return new Promise( async (resolve, reject) => {

@@ -54,11 +54,6 @@ function onSettingsFormSubmit() {
       "wps_settings_general[wps_general_num_posts]": {
         number: true
       },
-      /* @if NODE_ENV='pro' */
-      "wps_settings_general[wps_general_webhooks_products]": {
-        urlRule: true
-      }
-      /* @endif */
     },
     errorPlacement: function(error) {
       showAdminNotice(error.text(), 'error');
@@ -71,9 +66,6 @@ function onSettingsFormSubmit() {
       var nonce = jQuery("#wps_settings_general_urls_nonce_id").val();
       var productsURL = jQuery(form).find("#wps_settings_general_url_products").val();
       var collectionsURL = jQuery(form).find("#wps_settings_general_url_collections").val();
-      /* @if NODE_ENV='pro' */
-      var webhooksURL = jQuery(form).find("#wps_settings_general_url_webhooks").val();
-      /* @endif */
       var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
 
       // var styles = jQuery(form).find("#wps_settings_general_styles").val();
@@ -83,16 +75,6 @@ function onSettingsFormSubmit() {
 
 
       // If URL contains a trailing forward slash
-      /* @if NODE_ENV='pro' */
-      if (containsTrailingForwardSlash(webhooksURL)) {
-
-        webhooksURL = removeTrailingForwardSlash(webhooksURL);
-
-        // Reset the modified string val in form field
-        jQuery(form).find("#wps_settings_general_url_webhooks").val(webhooksURL);
-
-      }
-      /* @endif */
 
       var stylesAllAttr = jQuery(form).find("#wps_settings_general_styles_all").attr("checked");
       var stylesCoreAttr = jQuery(form).find("#wps_settings_general_styles_core").attr("checked");
@@ -245,11 +227,6 @@ function onSettingsFormSubmit() {
 
         wps_settings_general_products_url: productsURL,
         wps_settings_general_collections_url: collectionsURL,
-        /* @if NODE_ENV='pro' */
-        wps_settings_general_url_webhooks: webhooksURL,
-        wps_settings_general_selective_sync_customers: selectiveSyncCustomers,
-        wps_settings_general_selective_sync_orders: selectiveSyncOrders,
-        /* @endif */
         wps_settings_general_num_posts: numPosts,
         wps_settings_general_title_as_alt: titlesAsAlt,
         wps_settings_general_products_link_to_shopify: productsLinkToShopify,
@@ -261,9 +238,6 @@ function onSettingsFormSubmit() {
         wps_settings_general_styles_grid: stylesGrid,
         wps_settings_general_price_with_currency: priceFormat,
         wps_settings_general_cart_loaded: cartLoaded,
-        /* @if NODE_ENV='pro' */
-        wps_settings_general_selective_sync_all: selectiveSyncAll,
-        /* @endif */
         wps_settings_general_selective_sync_products: selectiveSyncProducts,
         wps_settings_general_selective_sync_collections: selectiveSyncCollections,
         wps_settings_general_selective_sync_shop: selectiveSyncShop,
@@ -274,10 +248,6 @@ function onSettingsFormSubmit() {
       WP_Shopify.selective_sync.custom_collections = selectiveSyncCollections;
       WP_Shopify.selective_sync.smart_collections = selectiveSyncCollections;
 
-      /* @if NODE_ENV='pro' */
-      WP_Shopify.selective_sync.customers = selectiveSyncCustomers;
-      WP_Shopify.selective_sync.orders = selectiveSyncOrders;
-      /* @endif */
       WP_Shopify.selective_sync.shop = selectiveSyncShop;
 
 
@@ -389,15 +359,6 @@ function getSelectiveSyncOptions() {
       includes.push('custom_collections');
     }
 
-    /* @if NODE_ENV='pro' */
-    if (WP_Shopify.selective_sync.customers) {
-      includes.push('customers');
-    }
-
-    if (WP_Shopify.selective_sync.orders) {
-      includes.push('orders');
-    }
-    /* @endif */
 
     if (WP_Shopify.selective_sync.products) {
       includes.push('products');

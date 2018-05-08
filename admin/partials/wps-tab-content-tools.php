@@ -83,38 +83,6 @@ Tab Content: Tools
 
   </div>
 
-  <?php /* @if NODE_ENV='pro' */ ?>
-  <div class="wps-admin-section">
-
-    <h3><?php esc_html_e('Reconnect Webhooks', 'wp-shopify'); ?></h3>
-    <p><?php esc_html_e('This will attempt to reconnect all Shopify webhooks. Useful if you notice your data not auto syncing correctly.', 'wp-shopify'); ?></p>
-
-    <div class="wps-button-group button-group button-group-ajax <?php echo $connected ? 'wps-is-active' : 'wps-is-not-active'; ?>">
-
-      <?php
-
-      if ($connected) {
-
-        $props = array(
-          'id'        => 'wps-button-webhooks'
-        );
-
-      } else {
-
-        $props = array(
-          'disabled'  => 'disabled',
-          'id'        => 'wps-button-webhooks'
-        );
-
-      }
-
-      submit_button(esc_html__('Reconnect Webhooks', 'wp-shopify'), 'primary', 'submitURLs', false, $props); ?>
-
-      <div class="spinner"></div>
-
-    </div>
-
-  </div>
-  <?php /* @endif */ ?>
+  
 
 </div>

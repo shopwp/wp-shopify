@@ -239,9 +239,6 @@ function connectionFormSubmitHandler(form) {
     prepareBeforeSync();
     setConnectionStepMessage('Preparing connection ...');
 
-    /* @if NODE_ENV='pro' */
-    setWebhooksReconnect(true);
-    /* @endif */
 
     /*
 

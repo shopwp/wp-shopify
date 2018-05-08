@@ -156,9 +156,6 @@ function disconnectionFormSubmitHandler(e) {
     updateModalHeadingText('Disconnecting ...');
     updateModalButtonText('Cancel disconnecting');
     setConnectionStepMessage('Preparing to disconnect ...');
-    /* @if NODE_ENV='pro' */
-    setWebhooksReconnect(true);
-    /* @endif */
 
     /*
 
