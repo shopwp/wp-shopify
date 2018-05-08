@@ -15,8 +15,8 @@
 </p>
 
 <div align="center">
-  <a href="https://travis-ci.org/wpshopify/wp-shopify" style="text-align: center;">
-    <img src="https://travis-ci.org/wpshopify/wp-shopify.svg?branch=master" alt="WP Shopify Travis CI Build Status" style="text-align: center;display:inline-block;margin: 0 auto;">
+  <a href="https://travis-ci.com/arobbins/wp-shopify-pro" style="text-align: center;">
+    <img src="https://api.travis-ci.com/arobbins/wp-shopify-pro.svg?token=FmC2p6cxqRrxLpZfViYm&branch=master" alt="WP Shopify Travis CI Build Status" style="text-align: center;display:inline-block;margin: 0 auto;">
   </a>
 </div><br>
 
