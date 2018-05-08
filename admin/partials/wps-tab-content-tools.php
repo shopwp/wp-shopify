@@ -65,7 +65,7 @@ Tab Content: Tools
   <div class="wps-admin-section">
 
     <h3><?php esc_html_e('Remove all synced data', 'wp-shopify'); ?></h3>
-    <p><?php esc_html_e('This will remove all WP Shopify data from within WordPress. Nothing will be changed in Shopify. Useful for clearing out any lingering data without reinstalling the plugin. (Note: this can take awhile if you have a lot of products).', 'wp-shopify'); ?></p>
+    <p><?php esc_html_e('This will remove all WP Shopify data from within WordPress. Nothing will be changed in Shopify. Useful for clearing out any lingering data without reinstalling the plugin. (Note: this can take up to 60 seconds if you have many products).', 'wp-shopify'); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax wps-is-active">
 
@@ -87,7 +87,7 @@ Tab Content: Tools
   <div class="wps-admin-section">
 
     <h3><?php esc_html_e('Reconnect Webhooks', 'wp-shopify'); ?></h3>
-    <p><?php esc_html_e('This will attempt to reconnect all the needed Shopify webhooks. Useful if data stops syncing.', 'wp-shopify'); ?></p>
+    <p><?php esc_html_e('This will attempt to reconnect all Shopify webhooks. Useful if you notice your data not auto syncing correctly.', 'wp-shopify'); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax <?php echo $connected ? 'wps-is-active' : 'wps-is-not-active'; ?>">
 

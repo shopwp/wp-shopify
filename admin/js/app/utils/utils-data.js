@@ -682,7 +682,7 @@ function addSuccessNotice() {
 
   return [{
     type: 'success',
-    message: 'Success! You\'re now connected and syncing with Shopify.'
+    message: 'Success! You\'ve finished syncing your Shopify store with WordPress.'
   }];
 
 }

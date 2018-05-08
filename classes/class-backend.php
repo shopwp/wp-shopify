@@ -107,6 +107,7 @@ if ( !class_exists('Backend') ) {
 					$selectiveSyncValue = false;
 				}
 
+
 				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
 				wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
 				wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
@@ -180,7 +181,7 @@ if ( !class_exists('Backend') ) {
 					'edit.php?post_type=wps_collections',
 					null
 				);
-				// 
+				//
 				// // Submenu: Tags
 				// add_submenu_page(
 				// 	'wpshopify',

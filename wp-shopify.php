@@ -9,7 +9,7 @@ WP Shopify
 @package           wp-shopify
 
 @wordpress-plugin
-Plugin Name:       WP Shopify
+Plugin Name:       WP Shopify Pro
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress
 Version:           1.1.1
@@ -274,7 +274,7 @@ if ( !class_exists('WP_Shopify') ) {
 			$Templates->init();
 
 			$CPT->init();
-			$Hooks->init();			
+			$Hooks->init();
 
 		}
 
