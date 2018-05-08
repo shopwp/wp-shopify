@@ -77,6 +77,7 @@ var config = {
     build: './**/*',
     buildProContent: '../../../../assets/wp-shopify-pro/**/*',
     buildFreeContent: '../../../../assets/wp-shopify/**/*',
+    // Files / folders that DONT exist in the free version
     buildFreeClear: [
       './_tmp/webhooks',
       './_tmp/classes/class-webhooks.php',

@@ -356,3 +356,17 @@ gulp.task('build', done => {
   )(done);
 
 });
+
+
+
+
+/*
+
+
+- build new _tmp folder + .git
+- preprocess _tmp folder
+- remove all pro-related files
+- commit?
+
+
+*/
