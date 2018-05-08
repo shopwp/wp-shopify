@@ -2,8 +2,6 @@
 
 /*
 
-WP Shopify
-
 @link              https://wpshop.io
 @since             1.1.1
 @package           wp-shopify

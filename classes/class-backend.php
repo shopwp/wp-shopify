@@ -77,8 +77,8 @@ if ( !class_exists('Backend') ) {
 			if ( !empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings' || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections' || get_current_screen()->id === 'plugins') {
 
 				wp_enqueue_style('wp-color-picker');
-				wp_enqueue_style('animate-css', $this->config->plugin_url . 'admin/css/app/vendor/animate.min.css', array());
-				wp_enqueue_style('tooltipster-css', $this->config->plugin_url . 'admin/css/app/vendor/tooltipster.min.css', array());
+				wp_enqueue_style('animate-css', $this->config->plugin_url . 'admin/css/vendor/animate.min.css', array());
+				wp_enqueue_style('tooltipster-css', $this->config->plugin_url . 'admin/css/vendor/tooltipster.min.css', array());
 				wp_enqueue_style($this->config->plugin_name, $this->config->plugin_url . 'dist/admin.min.css', array( 'wp-color-picker', 'animate-css', 'tooltipster-css'), $this->config->plugin_version, 'all');
 
 			}
@@ -108,9 +108,9 @@ if ( !class_exists('Backend') ) {
 				}
 
 
-				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'public/js/app/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
-				wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
-				wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/app/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
+				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'admin/js/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
+				wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
+				wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
 				wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js'), $this->config->plugin_version, true );
 
 				wp_localize_script('wps-admin', $this->config->plugin_name_js, array(

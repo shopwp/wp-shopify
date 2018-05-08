@@ -13,7 +13,7 @@ Sell and build custom Shopify experiences on WordPress.
 
 == Description ==
 
-WP Shopify allows you to sell your Shopify products on any WordPress site. Your store data is synced as custom post types giving you the ability to utilize the full power of native WordPress functionality while maintaining complete control over the layout of your store.
+WP Shopify allows you to sell your Shopify products on any WordPress site. Your store data is synced as custom post types giving you the ability to utilize the full power of native WordPress functionality. On the front-end we use the [Shopify Buy Button](https://www.shopify.com/buy-button) to create an easy to use cart experience without the use of any iFrames.
 
 = Features =
 * Sync your products and collections as native WordPress post
