@@ -454,6 +454,12 @@ if (!class_exists('DB')) {
 
 	    global $wpdb;
 
+			/*
+
+			TODO: Currently not working. Will fail silently. The correct where format needs to be:
+			['primary_key_col', 'primary_key_value']
+
+			*/
 	    if (empty($where)) {
 	      $where = $this->primary_key;
 	    }

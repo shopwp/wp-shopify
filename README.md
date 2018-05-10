@@ -44,7 +44,7 @@ From your WordPress dashboard
 See the [full list of features here](https://wpshop.io/how/)
 
 ### WP Shopify Pro
-WP Shopify is also available in a professional version which includes automatic syncing, templates, cross domain tracking, live support, and much more functionality! [Learn more](https://wpshop.io/)
+WP Shopify is also available in a Pro version which includes 80+ Templates, Automatic Syncing, Order and Customer Data, Cross-domain Tracking, Live Support, and much more functionality! [Learn more](https://wpshop.io/purchase)
 
 ## Screenshots
 ![Easy and fast Shopify syncing process](https://wpshop.io/screenshots/1-syncing-cropped.jpg)

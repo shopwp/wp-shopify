@@ -507,6 +507,7 @@ if ( !class_exists('Backend') ) {
 		}
 
 
+	
 		public function init() {
 
 			// $this->config = new Config();
@@ -523,6 +524,7 @@ if ( !class_exists('Backend') ) {
 
 			$DB_Shop = new Shop();
 			$DB_Settings_Connection = new Settings_Connection();
+
 
 
 			/*

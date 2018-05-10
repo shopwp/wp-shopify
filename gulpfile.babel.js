@@ -18,6 +18,8 @@ import watch from "./gulp/tasks/watch";
 import init from "./gulp/tasks/init";
 
 import cleanTmp from "./gulp/tasks/clean-tmp";
+import cleanFreeRepo from "./gulp/tasks/clean-free-repo";
+
 import build from "./gulp/tasks/build";
 
 // Clean builds

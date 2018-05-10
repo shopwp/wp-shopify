@@ -6,7 +6,7 @@ Automatically loads the specified file.
 @package WACATL\Lib
 
 */
-namespace WP_Shopify\Lib;
+namespace WPS\Lib;
 
 /*
 

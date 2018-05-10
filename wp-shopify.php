@@ -3,14 +3,14 @@
 /*
 
 @link              https://wpshop.io
-@since             1.1.1
+@since             1.1.2
 @package           wp-shopify
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress
-Version:           1.1.1
+Version:           1.1.2
 Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
@@ -49,7 +49,6 @@ use WPS\Deactivator;
 use WPS\Activator;
 use WPS\Templates;
 
-
 /*
 
 Begins execution of the plugin.
@@ -64,6 +63,7 @@ if ( !class_exists('WP_Shopify') ) {
 	final class WP_Shopify {
 
 		protected static $instantiated = null;
+
 
 		/*
 
@@ -245,11 +245,13 @@ if ( !class_exists('WP_Shopify') ) {
 		*/
 		public function init_hooks() {
 
+			register_activation_hook(__FILE__, [self::Activator(), 'on_activation']);
+
 			$Hooks = self::Hooks();
 			$Frontend = self::Frontend();
 			$Backend = self::Backend();
 			$CPT = self::CPT();
-			$Activator = self::Activator();
+
 			$Deactivator = self::Deactivator();
 			$License = self::License();
 			$I18N = self::I18N();
@@ -258,7 +260,7 @@ if ( !class_exists('WP_Shopify') ) {
 			$Admin_Notices = self::Admin_Notices();
 			$Templates = self::Templates();
 
-			$Activator->init();
+
 			$Deactivator->init();
 			$License->init();
 			$I18N->init();
@@ -284,10 +286,15 @@ if ( !class_exists('WP_Shopify') ) {
 /*
 
 Let's go!
+Wrapping this in a conditional will prevent fatal error on plugin activation
 
 */
-function WP_Shopify_Init() {
-	return WP_Shopify::instance();
+if (!function_exists("WP_Shopify_Bootstrap")) {
+
+	function WP_Shopify_Bootstrap() {
+		return WP_Shopify::instance();
+	}
+
 }
 
-$GLOBALS['WP_Shopify'] = WP_Shopify_Init();
+$GLOBALS['WP_Shopify'] = WP_Shopify_Bootstrap();

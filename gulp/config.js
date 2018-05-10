@@ -148,7 +148,7 @@ var config = {
   },
   bs: browserSync.create(),
   serverName: 'wpstest.test',
-  isBuilding: argvs.argv.tier ? false : false,
+  isBuilding: argvs.argv.tier ? true : false,
   buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
   buildRelease: argvs.argv.release ? argvs.argv.release : false, // Plugin version number
   currentRelease: argvs.argv.current ? argvs.argv.current : false // Plugin version number

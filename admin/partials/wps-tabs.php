@@ -38,11 +38,11 @@ if ('wp-shopify_page_wps-settings' == get_current_screen()->id ) {
   </a>
 
   <a href="#!" class="nav-tab <?php echo $tab === 'updates' ? 'nav-tab-active' : ''; ?>" data-tab="tab-updates">
-    <?php esc_html_e('License / Updates', 'wp-shopify'); ?>
+    <?php esc_html_e('Updates', 'wp-shopify'); ?>
   </a>
 
   <a href="#!" class="nav-tab <?php echo $tab === 'help' ? 'nav-tab-active' : ''; ?>" data-tab="tab-help">
-    <?php esc_html_e('Help / Debug', 'wp-shopify'); ?>
+    <?php esc_html_e('Debug', 'wp-shopify'); ?>
   </a>
 
 </h2>

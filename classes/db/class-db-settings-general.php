@@ -36,6 +36,8 @@ if (!class_exists('Settings_General')) {
 		public $products_link_to_shopify;
 		public $show_breadcrumbs;
 		public $hide_pagination;
+		public $is_pro;
+		public $is_free;
 
 
     /*
@@ -61,7 +63,7 @@ if (!class_exists('Settings_General')) {
       $this->num_posts                      = get_option('posts_per_page');
 
       $this->cart_loaded                    = 1;
-      $this->title_as_alt                   = 0;
+      $this->title_as_alt                   = 1;
       $this->price_with_currency            = 0;
 
       $this->styles_all                     = 1;
@@ -78,6 +80,9 @@ if (!class_exists('Settings_General')) {
 			$this->products_link_to_shopify       = 0;
 			$this->show_breadcrumbs       				= 0;
 			$this->hide_pagination       					= 0;
+
+			$this->is_free        								= 0;
+			$this->is_pro        									= 0;
 
     }
 
@@ -113,7 +118,9 @@ if (!class_exists('Settings_General')) {
         'selective_sync_shop'           => '%d',
 				'products_link_to_shopify'      => '%d',
 				'show_breadcrumbs'      				=> '%d',
-				'hide_pagination'      					=> '%d'
+				'hide_pagination'      					=> '%d',
+				'is_free'              					=> '%d',
+				'is_pro'              					=> '%d',
       );
 
     }
@@ -150,7 +157,9 @@ if (!class_exists('Settings_General')) {
         'selective_sync_shop'           => $this->selective_sync_shop,
 				'products_link_to_shopify'      => $this->products_link_to_shopify,
 				'show_breadcrumbs'      				=> $this->show_breadcrumbs,
-				'hide_pagination'      					=> $this->hide_pagination
+				'hide_pagination'      					=> $this->hide_pagination,
+				'is_free'      									=> $this->is_free,
+				'is_pro'      									=> $this->is_pro
       );
 
     }
@@ -189,7 +198,9 @@ if (!class_exists('Settings_General')) {
         'selective_sync_shop'           => $this->selective_sync_shop,
 				'products_link_to_shopify'      => $this->products_link_to_shopify,
 				'show_breadcrumbs'      				=> $this->show_breadcrumbs,
-				'hide_pagination'      					=> $this->hide_pagination
+				'hide_pagination'      					=> $this->hide_pagination,
+				'is_free'      									=> $this->is_free,
+				'is_pro'      									=> $this->is_pro
       );
 
       $row = $this->get_rows('id', 1);
@@ -292,6 +303,8 @@ if (!class_exists('Settings_General')) {
 				`products_link_to_shopify` tinyint(1) DEFAULT '{$this->products_link_to_shopify}',
 				`show_breadcrumbs` tinyint(1) DEFAULT '{$this->show_breadcrumbs}',
 				`hide_pagination` tinyint(1) DEFAULT '{$this->hide_pagination}',
+				`is_free` tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_free}',
+				`is_pro` tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_pro}',
   		  PRIMARY KEY  (`{$this->primary_key}`)
   		) ENGINE=InnoDB $collate";
 
@@ -331,6 +344,59 @@ if (!class_exists('Settings_General')) {
 		*/
 		public function products_link_to_shopify() {
 			return $this->get_column_single('products_link_to_shopify')[0]->products_link_to_shopify;
+		}
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+
+		*/
+		public function hide_pagination() {
+			return $this->get_column_single('hide_pagination')[0]->hide_pagination;
+		}
+
+
+		/*
+
+		Gets free tier status
+
+		*/
+		public function is_free_tier() {
+			return $this->get_column_single('is_free')[0]->is_free;
+		}
+
+
+		/*
+
+		Gets pro tier status
+
+		*/
+		public function is_pro_tier() {
+			return $this->get_column_single('is_pro')[0]->is_pro;
+		}
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+		IMPORTANT: Must pass second param: ['id' => 1]
+
+		Defaults to true
+
+		*/
+		public function set_free_tier($value = 1) {
+			return $this->update_column_single(['is_free' => $value], ['id' => 1]);
+		}
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+
+		*/
+		public function set_pro_tier($value = 1) {
+			return $this->update_column_single(['is_pro' => $value], ['id' => 1]);
 		}
 
 

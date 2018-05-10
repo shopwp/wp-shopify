@@ -64,30 +64,12 @@ if ( !class_exists('Config') ) {
 			$this->plugin_path = plugin_dir_path( __DIR__ );
 			$this->plugin_url = plugin_dir_url( __DIR__ );
 
-
-			if ( !defined('WPS_PLUGIN_DIR') ) {
-				define('WPS_PLUGIN_DIR', $this->plugin_path);
-			}
-
-			if ( !defined('WPS_PLUGIN_URL') ) {
-				define('WPS_PLUGIN_URL', $this->plugin_url);
-			}
-
-			if ( !defined('WPS_RELATIVE_TEMPLATE_DIR') ) {
-				define('WPS_RELATIVE_TEMPLATE_DIR', 'public/templates');
-			}
-
-			if ( !defined('WPS_CHECKOUT_BASE_URL') ) {
-				define('WPS_CHECKOUT_BASE_URL', 'https://checkout.shopify.com');
-			}
-
-
 			$this->plugin_name_full = 'WP Shopify';
 			$this->plugin_name_full_encoded = urlencode($this->plugin_name_full);
 			$this->plugin_name = 'wps';
 			$this->plugin_text_domain = 'wp-shopify';
 			$this->plugin_name_js = 'WP_Shopify';
-			$this->plugin_version = '1.1.1';
+			$this->plugin_version = '1.1.2';
 			$this->plugin_author = 'WP Shopify';
 
 			self::$plugin_nonce_action_backend = 'wp-shopify-backend';
@@ -108,6 +90,32 @@ if ( !class_exists('Config') ) {
 			$this->settings_connection_option_name = $this->plugin_name . '_settings_connection';
 			$this->settings_general_option_name = $this->plugin_name . '_settings_general';
 			$this->settings_license_option_name = $this->plugin_name . '_settings_license';
+
+
+			if ( !defined('WPS_PLUGIN_ROOT_PATH') ) {
+				define('WPS_PLUGIN_ROOT_PATH', $this->plugin_root_file);
+			}
+
+			if ( !defined('WPS_FREE_FILE_ROOT') ) {
+				define('WPS_FREE_FILE_ROOT', 'wp-shopify/wp-shopify.php');
+			}
+
+			if ( !defined('WPS_PLUGIN_DIR') ) {
+				define('WPS_PLUGIN_DIR', $this->plugin_path);
+			}
+
+			if ( !defined('WPS_PLUGIN_URL') ) {
+				define('WPS_PLUGIN_URL', $this->plugin_url);
+			}
+
+			if ( !defined('WPS_RELATIVE_TEMPLATE_DIR') ) {
+				define('WPS_RELATIVE_TEMPLATE_DIR', 'public/templates');
+			}
+
+			if ( !defined('WPS_CHECKOUT_BASE_URL') ) {
+				define('WPS_CHECKOUT_BASE_URL', 'https://checkout.shopify.com');
+			}
+
 
 		}
 

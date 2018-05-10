@@ -34,7 +34,6 @@ if ( !class_exists('Activator') ) {
 
 		protected static $instantiated = null;
 		private $Config;
-		public $plugin_basename;
 		public $config;
 
 		/*
@@ -43,7 +42,6 @@ if ( !class_exists('Activator') ) {
 
 		*/
 		public function __construct($Config) {
-			$this->plugin_basename = $Config->plugin_basename;
 			$this->config = $Config;
 		}
 
@@ -131,38 +129,39 @@ if ( !class_exists('Activator') ) {
 
 		/*
 
-		Things to do on plugin activate
+		Runs when the plugin is activated as a result of register_activation_hook. Runs for both Free and Pro versions
 
 		*/
-		public function activate() {
-
-			$CPT = new CPT($this->config);
+		public function on_activation() {
 
 			if (!current_user_can('activate_plugins')) {
 				return;
-
-			} else {
-				$this->init_settings();
-				$this->create_db_tables();
 			}
+
+			$plugin_settings = new Settings_General();
+			$CPT = new CPT($this->config);
+			$this->init_settings();
+			$this->create_db_tables();
+			$CPT->init();
 
 			delete_option('_site_transient_update_plugins');
 
-			// Register CPTs upon plugin activation
-			$CPT->init();
+			require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+
+			if (is_plugin_active(WPS_FREE_FILE_ROOT) ) {
+
+				\deactivate_plugins(WPS_FREE_FILE_ROOT);
+
+				$plugin_settings->set_pro_tier();
+
+			} else {
+
+				$plugin_settings->set_free_tier();
+
+			}
 
 			flush_rewrite_rules();
 
-		}
-
-
-		/*
-
-		Init
-
-		*/
-		public function init() {
-			register_activation_hook($this->plugin_basename, [$this, 'activate']);
 		}
 
 

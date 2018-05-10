@@ -46,11 +46,7 @@ gulp.task('build:free:copy', () => {
 
 
 gulp.task('build:free:repo', () => {
-
-  return git.clone('git@github.com:wpshopify/wp-shopify.git', { args: './_free' }, function(err) {
-    console.log("err: ", err);
-  });
-
+  return git.clone('git@github.com:wpshopify/wp-shopify.git', { args: './_free' });
 });
 
 
@@ -138,6 +134,36 @@ gulp.task('build:rename:version', done => {
 
       console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with ' + config.buildRelease + ' in file: ' + this.file.relative);
       return config.buildRelease;
+
+    }))
+    .pipe( gulp.dest("./") );
+
+});
+
+
+/*
+
+Changes the main plugin Class. Allows both plugins to be loaded simultanously
+
+*/
+gulp.task('build:rename:class', done => {
+
+  return gulp
+    .src( config.files.entry, { base: "./" } )
+    .pipe(preprocess({
+      context: {
+        NODE_ENV: config.buildTier
+      }
+    }))
+    .pipe(replace('WP_Shopify_Pro', function(match, p1, offset, string) {
+
+      if (config.buildTier === 'free') {
+        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with WP_Shopify in file: ' + this.file.relative);
+        return 'WP_Shopify';
+
+      } else {
+        return match;
+      }
 
     }))
     .pipe( gulp.dest("./") );
@@ -372,11 +398,11 @@ Requires:
 gulp.task('build', done => {
 
   return gulp.series(
-    'tests', 'clean:tmp', 'build:copy', 'build:preprocess', 'build:rename:plugin', 'build:rename:version',
-    // gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
-    // 'build:dist',
-    // 'build:update:edd',
-    // 'clean:tmp'
+    'tests', 'clean:tmp', 'clean:free:repo', 'build:copy', 'build:preprocess', 'build:rename:plugin', 'build:rename:version', 'build:rename:class',
+    gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    'build:dist',
+    'build:update:edd',
+    'clean:tmp'
   )(done);
 
 });
@@ -388,26 +414,18 @@ gulp.task('build', done => {
 gulp.task('build:free', done => {
 
   return gulp.series(
-    'clean:tmp', 'build:free:copy', 'build:preprocess', 'build:rename:plugin', 'build:rename:version', 'build:clear:free', 'build:free:repo', 'build:free:repo:copy', 'clean:tmp'
+    'clean:tmp',
+    'clean:free:repo',
+    'build:free:copy',
+    'build:preprocess',
+    'build:rename:plugin',
+    'build:rename:version',
+    'build:rename:class',
+    'build:clear:free',
+    gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    'build:free:repo',
+    'build:free:repo:copy',
+    'clean:tmp'
   )(done);
 
 });
-
-
-/*
-
-- Make new _tmp dir
-- Move everything into new _tmp folder besides node_modules
-- preprocess _tmp folder (gulp build:preprocess)
-- remove all pro-related files (gulp build:clear:free)
-- Make new _free dir
-- Clone the free repo
-
-
-- commit?
-
-
------ Tasks to run ------
-gulp build:free:copy && gulp build:preprocess --tier="free" --current="1.1.1" --release="1.1.2" && gulp build:rename:plugin --tier="free" --current="1.1.1" --release="1.1.2" && gulp build:rename:version --tier="free" --current="1.1.1" --release="1.1.2" && gulp build:clear:free --tier="free" --current="1.1.1" --release="1.1.2"
-
-*/

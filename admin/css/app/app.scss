@@ -994,7 +994,9 @@ TODO: Remove for Phase 2
 
   .wp-list-table.plugins {
     tr.active[data-slug="wp-shopify"] td,
-    tr.active[data-slug="wp-shopify"] th {
+    tr.active[data-slug="wp-shopify-pro"] td,
+    tr.active[data-slug="wp-shopify"] th,
+    tr.active[data-slug="wp-shopify-pro"] th {
       box-shadow: none;
     }
   }
@@ -1265,4 +1267,10 @@ input.code {
     border-bottom: 12px solid white;
   }
 
+}
+
+
+
+tr.active[data-slug="wp-shopify"] + .plugin-update-tr {
+  display: none;
 }

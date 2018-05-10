@@ -140,10 +140,14 @@ If URL contains a trailing forward slash
 */
 function containsTrailingForwardSlash(url) {
 
+  if (url === undefined) {
+    return false;
+  }
+
   if(url[url.length - 1] === '/') {
     return true;
   }
-
+  
 }
 
 

@@ -405,6 +405,7 @@ if (!class_exists('Hooks')) {
     /*
 
     Products Pagination
+		TODO: Combine with wps_collections_pagination
 
     */
 		public function wps_products_pagination($productsQuery) {
@@ -414,6 +415,11 @@ if (!class_exists('Hooks')) {
 			$args = [
 				'query' => $productsQuery
 			];
+
+			// If user turns pagination off via WPS settings just exit
+			if ($this->plugin_settings->hide_pagination()) {
+				return;
+			}
 
 			// If user turns pagination off via shortcode just exit
 			if (isset($args['query']->query['custom']['pagination'])) {
@@ -439,6 +445,10 @@ if (!class_exists('Hooks')) {
 				'query' => $collectionsQuery
 			);
 
+			// If user turns pagination off via WPS settings just exit
+			if ($this->plugin_settings->hide_pagination()) {
+				return;
+			}
 
 			// If user turns pagination off via shortcode just exit
 			if (isset($args['query']->query['custom']['pagination'])) {
@@ -1323,7 +1333,7 @@ if (!class_exists('Hooks')) {
 			$newPluginVersion = $this->config->get_new_plugin_version();
 			$generalSettings = $DB_Settings_General->get_column_single('id');
 
-			$newPluginVersion = '1.3.6';
+			// $newPluginVersion = '1.5.6';
 
 			/*
 

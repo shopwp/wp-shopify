@@ -11,8 +11,8 @@ Load cart
       <tr valign="top">
 
         <th scope="row" class="titledesc">
-          <?php esc_html_e( 'Hide pagination', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'Hides pagination', 'wp-shopify' ); ?>"></span>
+          <?php esc_html_e( 'Hide all pagination', 'wp-shopify' ); ?>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'Checking this will hide all pagination for products and collections. Will also override any shortcode pagination settings. If you want to keep pagination but hide it for a specific shortcode, use the "pagination" shortcode attribute instead.', 'wp-shopify' ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">
