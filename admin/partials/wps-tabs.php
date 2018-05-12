@@ -18,8 +18,6 @@ if ('wp-shopify_page_wps-settings' == get_current_screen()->id ) {
 
 }
 
-// $tab = 'updates';
-
 ?>
 
 

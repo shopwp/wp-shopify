@@ -99,7 +99,7 @@ if ( !class_exists('Admin_Menus') ) {
 			$name = '';
 
 			$product = $this->Products->get_product($post->ID);
-			$collectionsCurrent = $this->DB->get_collections_by_product_id($product->product_id);
+			$collectionsCurrent = $this->DB->get_collects_by_product_id($product->product_id);
 
 			?>
 

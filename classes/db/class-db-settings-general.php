@@ -39,6 +39,10 @@ if (!class_exists('Settings_General')) {
 		public $is_pro;
 		public $is_free;
 
+		public $related_products_show;
+		public $related_products_sort;
+		public $related_products_amount;
+
 
     /*
 
@@ -84,6 +88,10 @@ if (!class_exists('Settings_General')) {
 			$this->is_free        								= 0;
 			$this->is_pro        									= 0;
 
+			$this->related_products_show        	= 1;
+			$this->related_products_sort        	= 'random';
+			$this->related_products_amount        = 4;
+
     }
 
 
@@ -121,6 +129,9 @@ if (!class_exists('Settings_General')) {
 				'hide_pagination'      					=> '%d',
 				'is_free'              					=> '%d',
 				'is_pro'              					=> '%d',
+				'related_products_show'					=> '%d',
+				'related_products_sort'					=> '%s',
+				'related_products_amount'       => '%d',
       );
 
     }
@@ -159,7 +170,10 @@ if (!class_exists('Settings_General')) {
 				'show_breadcrumbs'      				=> $this->show_breadcrumbs,
 				'hide_pagination'      					=> $this->hide_pagination,
 				'is_free'      									=> $this->is_free,
-				'is_pro'      									=> $this->is_pro
+				'is_pro'      									=> $this->is_pro,
+				'related_products_show'					=> $this->related_products_show,
+				'related_products_sort'					=> $this->related_products_sort,
+				'related_products_amount'       => $this->related_products_amount,
       );
 
     }
@@ -200,7 +214,10 @@ if (!class_exists('Settings_General')) {
 				'show_breadcrumbs'      				=> $this->show_breadcrumbs,
 				'hide_pagination'      					=> $this->hide_pagination,
 				'is_free'      									=> $this->is_free,
-				'is_pro'      									=> $this->is_pro
+				'is_pro'      									=> $this->is_pro,
+				'related_products_show'					=> $this->related_products_show,
+				'related_products_sort'					=> $this->related_products_sort,
+				'related_products_amount'       => $this->related_products_amount
       );
 
       $row = $this->get_rows('id', 1);
@@ -305,6 +322,9 @@ if (!class_exists('Settings_General')) {
 				`hide_pagination` tinyint(1) DEFAULT '{$this->hide_pagination}',
 				`is_free` tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_free}',
 				`is_pro` tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_pro}',
+				`related_products_show` tinyint(1) unsigned NOT NULL DEFAULT '{$this->related_products_show}',
+				`related_products_sort` varchar(100) NOT NULL DEFAULT '{$this->related_products_sort}',
+				`related_products_amount` tinyint(1) unsigned NOT NULL DEFAULT '{$this->related_products_amount}',
   		  PRIMARY KEY  (`{$this->primary_key}`)
   		) ENGINE=InnoDB $collate";
 
@@ -397,6 +417,36 @@ if (!class_exists('Settings_General')) {
 		*/
 		public function set_pro_tier($value = 1) {
 			return $this->update_column_single(['is_pro' => $value], ['id' => 1]);
+		}
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+
+		*/
+		public function related_products_amount() {
+			return $this->get_column_single('related_products_amount')[0]->related_products_amount;
+		}
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+
+		*/
+		public function related_products_show() {
+			return $this->get_column_single('related_products_show')[0]->related_products_show;
+		}
+
+
+		/*
+
+		Get the value for whether products link to Shopify or not
+
+		*/
+		public function related_products_sort() {
+			return $this->get_column_single('related_products_sort')[0]->related_products_sort;
 		}
 
 

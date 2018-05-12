@@ -979,7 +979,7 @@ if (!class_exists('DB')) {
 
 		/*
 
-		Get Collection
+		Gets all collections
 
 		*/
 		public function get_collections() {
@@ -1025,7 +1025,36 @@ if (!class_exists('DB')) {
 		}
 
 
+		/*
+
+		Get collections by product ID
+
+		*/
 		public function get_collections_by_product_id($productID) {
+
+			$productCollects = $this->get_collects_by_product_id($productID);
+			$allCollections = $this->get_collections();
+			$results = [];
+
+			foreach ( $allCollections as $collection ) {
+
+				if (in_array($collection->collection_id, array_column($productCollects, 'collection_id'))) {
+					$results[] = $collection;
+				}
+
+			}
+
+			return $results;
+
+		}
+
+
+		/*
+
+		Gets collects by product ID
+
+		*/
+		public function get_collects_by_product_id($productID) {
 
 			global $wpdb;
 

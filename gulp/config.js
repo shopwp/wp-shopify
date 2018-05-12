@@ -42,6 +42,9 @@ var config = {
       './_tmp/wp-shopify.php',
       './_tmp/uninstall.php'
     ],
+    pluginTitleSettings: [
+      './_tmp/admin/partials/wps-admin-display.php'
+    ],
     tmp: './_tmp/**/*',
     tmpAll: [
       './_tmp/**/*',
@@ -86,6 +89,8 @@ var config = {
       './_tmp/classes/class-webhooks.php',
       './_tmp/classes/class-orders.php',
       './_tmp/classes/class-customers.php',
+      './_tmp/admin/partials/settings/settings-webhooks-urls.php',
+      './_tmp/admin/partials/settings/settings-selective-sync.php',
       './_tmp/.git/**',
       './_tmp/.gitignore'
     ],

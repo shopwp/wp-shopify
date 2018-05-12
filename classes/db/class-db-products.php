@@ -3,6 +3,7 @@
 namespace WPS\DB;
 
 use WPS\Utils;
+use WPS\DB;
 use WPS\DB\Variants;
 use WPS\DB\Options;
 use WPS\DB\Images;
@@ -163,10 +164,12 @@ if (!class_exists('Products')) {
       $Variants = new Variants();
       $Options = new Options();
       $Tags = new Tags();
+			$DB = new DB();
 
 			$results = new \stdClass;
 
       $results->details = $this->get_product($postID);
+
       $results->images = $Images->get_product_images($postID);
       $results->tags = $Tags->get_product_tags($postID);
       $results->variants = $Variants->get_product_variants($postID);
@@ -176,7 +179,7 @@ if (!class_exists('Products')) {
 			$results->product_id = $results->details->product_id;
 			$results->post_id = $results->details->post_id;
 
-			$sodkfosdkf = get_post($results->post_id);
+			$results->collections = $DB->get_collections_by_product_id($results->details->product_id);
 
       return $results;
 

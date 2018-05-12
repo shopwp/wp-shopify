@@ -285,7 +285,7 @@ if (!class_exists('Hooks')) {
 		*/
 		public function save_collects_to_post($product) {
 
-			$currentCollections = $this->DB->get_collections_by_product_id($product->product_id);
+			$currentCollections = $this->DB->get_collects_by_product_id($product->product_id);
 			$collections = $this->establish_items_for_post('collections');
 
 			$collectsAdded = $this->add_collects_to_post( $this->find_items_to_add($currentCollections, $collections['saved']), $product);
@@ -670,9 +670,129 @@ if (!class_exists('Hooks')) {
 			echo '';
 		}
 
+
+		/*
+
+		Related products amount to show
+
+		*/
 		public function wps_products_related_args_posts_per_page($posts_per_page) {
-			return $posts_per_page;
+
+			$related_products_amount = $this->plugin_settings->related_products_amount();
+
+			if (isset($related_products_amount)) {
+				return $related_products_amount;
+
+			} else {
+				return $posts_per_page;
+			}
+
 		}
+
+
+		/*
+
+		Related products show
+
+		*/
+		public function wps_products_related_show($show) {
+
+			$related_products_show = $this->plugin_settings->related_products_show();
+
+			if (isset($related_products_show)) {
+				return $related_products_show;
+
+			} else {
+				return $show;
+			}
+
+		}
+
+
+		/*
+
+		Related products filter
+
+		*/
+		public function wps_products_related_filters($defaultFilters, $product) {
+
+			$related_products_sort = $this->plugin_settings->related_products_sort();
+
+
+			if (!isset($related_products_sort)) {
+				return [];
+			}
+
+			if (isset($related_products_sort) && $related_products_sort === 'random') {
+				return [];
+			}
+
+
+			/*
+
+			If filtering related products by collections...
+
+			*/
+			if ($related_products_sort === 'collections') {
+
+				$collectionsNew = [];
+
+				$collectionsNew = array_map(function($collection) {
+					return $collection->title;
+				}, $product->collections);
+
+				return [
+					'collections' => $collectionsNew
+				];
+
+			}
+
+
+			/*
+
+			If filtering related products by tags...
+
+			*/
+			if ($related_products_sort === 'tags') {
+
+				return [
+					'tags' => $product->details->tags
+				];
+			}
+
+
+			/*
+
+			If filtering related products by vendors...
+
+			*/
+			if ($related_products_sort === 'vendors') {
+
+				return [
+					'vendors' => $product->details->vendor
+				];
+
+			}
+
+
+			/*
+
+			If filtering related products by types...
+
+			*/
+			if ($related_products_sort === 'types') {
+
+				return [
+					'types' => $product->details->product_type
+				];
+
+			}
+
+
+		}
+
+
+
 
 		public function wps_products_related_args_orderby($orderby) {
 			return $orderby;
@@ -981,6 +1101,7 @@ if (!class_exists('Hooks')) {
 			if (!is_admin()) {
 
 				global $wpdb;
+				global $post;
 
 				$args['context'] = 'wps_products_query';
 
@@ -1041,11 +1162,26 @@ if (!class_exists('Hooks')) {
 				}
 
 
+
 				// Adding feature imaged to object
 				foreach ($wps_products as $wps_product) {
 		      $wps_product->feat_image = Utils::get_feat_image_by_id($wps_product->post_id);
 		    }
 
+
+
+				/*
+
+				Used for related products only. Filters products array to exclude the currently shown single product
+
+				*/
+				if (is_single()) {
+
+					$wps_products = array_filter($wps_products, function($value, $key) use ($post) {
+					    return (int) $value->post_id !== $post->ID;
+					}, ARRAY_FILTER_USE_BOTH);
+
+				}
 
 
 				/*
@@ -1172,7 +1308,7 @@ if (!class_exists('Hooks')) {
 				'orderby'   										=> apply_filters('wps_products_related_args_orderby', 'rand'),
         'paged' 												=> false,
 				'post__not_in' 									=> array($post->ID),
-				'wps_related_products' 					=> true,
+				'wps_related_products' 					=> apply_filters('wps_products_related_show', true),
 
 				// Allows for custom filtering of related products
 				'custom' 												=> apply_filters('wps_products_related_filters', [], $DB_Products->get_data($post->ID)),
@@ -1333,7 +1469,7 @@ if (!class_exists('Hooks')) {
 			$newPluginVersion = $this->config->get_new_plugin_version();
 			$generalSettings = $DB_Settings_General->get_column_single('id');
 
-			// $newPluginVersion = '1.5.6';
+			$newPluginVersion = '2.3.6';
 
 			/*
 
@@ -1443,6 +1579,12 @@ if (!class_exists('Hooks')) {
 			add_action('wps_products_pagination', [$this, 'wps_products_pagination']);
 			add_filter('wps_products_related_args', [$this, 'wps_products_related_args']);
 			add_filter('wps_products_related_args_posts_per_page', [$this, 'wps_products_related_args_posts_per_page']);
+			add_filter('wps_products_related_show', [$this, 'wps_products_related_show']);
+
+			add_filter('wps_products_related_filters', [$this, 'wps_products_related_filters'], 10, 2);
+
+
+
 			add_filter('wps_products_related_args_orderby', [$this, 'wps_products_related_args_orderby']);
 			add_filter('wps_products_related_custom_args', [$this, 'wps_products_related_custom_args']);
 			add_filter('wps_products_related_custom_items_per_row', [$this, 'wps_products_related_custom_items_per_row']);

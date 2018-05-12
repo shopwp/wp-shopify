@@ -1536,9 +1536,24 @@ if (!class_exists('WS')) {
 
 
 
+
+			if (isset($_POST['wps_settings_general_related_products_show'])) {
+				$newGeneralSettings['related_products_show'] = (int)$_POST['wps_settings_general_related_products_show'];
+			}
+
+			if (isset($_POST['wps_settings_general_related_products_sort'])) {
+				$newGeneralSettings['related_products_sort'] = $_POST['wps_settings_general_related_products_sort'];
+			}
+
+			if (isset($_POST['wps_settings_general_related_products_amount'])) {
+				$newGeneralSettings['related_products_amount'] = (int)$_POST['wps_settings_general_related_products_amount'];
+			}
+
+
+
 			/*
 
-			If user keeps all selective sync fields empty, default to all styles.
+			If user keeps all selective sync fields empty, default to sync all.
 			TODO: Handle on front-end instead
 
 			*/

@@ -38,9 +38,7 @@ if (is_object($license)) {
         <?php esc_html_e('License Key Information', 'wp-shopify'); ?>
       </th>
 
-      <th>
-        <?php esc_html_e('', 'wp-shopify' ); ?>
-      </th>
+      <th></th>
 
     </tr>
 

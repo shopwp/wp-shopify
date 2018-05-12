@@ -11,6 +11,7 @@ Price Formatter
 
         <th scope="row" class="titledesc">
           <?php esc_attr_e( 'Price formatting', 'wp-shopify' ); ?>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'For example, enabling would make the price output look like this: $19.99 USD. (Adding USD in this example).', 'wp-shopify' ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">

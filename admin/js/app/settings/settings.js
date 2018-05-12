@@ -87,6 +87,18 @@ function onSettingsFormSubmit() {
       var showBreadcrumbsAttr = jQuery(form).find("#wps_settings_general_show_breadcrumbs").attr("checked");
       var hidePaginationAttr = jQuery(form).find("#wps_settings_general_hide_pagination").attr("checked");
 
+
+      var $relatedProductsShow = jQuery(form).find("#wps_settings_general_related_products_show");
+      var $relatedProductsSortRandom = jQuery(form).find("#wps_settings_general_related_products_sort_random");
+      var $relatedProductsSortCollections = jQuery(form).find("#wps_settings_general_related_products_sort_collections");
+      var $relatedProductsSortTags = jQuery(form).find("#wps_settings_general_related_products_sort_tags");
+      var $relatedProductsSortVendors = jQuery(form).find("#wps_settings_general_related_products_sort_vendors");
+      var $relatedProductsSortTypes = jQuery(form).find("#wps_settings_general_related_products_sort_types");
+      var relatedProductsAmount = jQuery(form).find("#wps_settings_general_related_products_amount").val();
+      var relatedProductsSort;
+      var relatedProductsShow = 0;
+
+
       var $selectiveSyncAll = jQuery(form).find("#wps_settings_general_selective_sync_all");
 
       if ($selectiveSyncAll !== undefined) {
@@ -101,6 +113,82 @@ function onSettingsFormSubmit() {
       var selectiveSyncCustomersAttr = jQuery(form).find("#wps_settings_general_selective_sync_customers").attr("checked");
       var selectiveSyncOrdersAttr = jQuery(form).find("#wps_settings_general_selective_sync_orders").attr("checked");
       var selectiveSyncShopAttr = jQuery(form).find("#wps_settings_general_selective_sync_shop").attr("checked");
+
+
+
+
+
+      /*
+
+      Related Products: Show
+
+      */
+      if ($relatedProductsShow.is(':checked')) {
+        relatedProductsShow = 1;
+      }
+
+
+      /*
+
+      Related Products Sort: Random
+
+      */
+      if ($relatedProductsSortRandom.is(':checked')) {
+        relatedProductsSort = $relatedProductsSortRandom.val();
+      }
+
+
+      /*
+
+      Related Products Sort: Collection
+
+      */
+      if ($relatedProductsSortCollections.is(':checked')) {
+        relatedProductsSort = $relatedProductsSortCollections.val();
+      }
+
+
+      /*
+
+      Related Products Sort: Tag
+
+      */
+      if ($relatedProductsSortTags.is(':checked')) {
+        relatedProductsSort = $relatedProductsSortTags.val();
+      }
+
+
+      /*
+
+      Related Products Sort: Vendor
+
+      */
+      if ($relatedProductsSortVendors.is(':checked')) {
+        relatedProductsSort = $relatedProductsSortVendors.val();
+      }
+
+
+      /*
+
+      Related Products Sort: Type
+
+      */
+      if ($relatedProductsSortTypes.is(':checked')) {
+        relatedProductsSort = $relatedProductsSortTypes.val();
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       if ($selectiveSyncAll === undefined || selectiveSyncAllAttr !== undefined && selectiveSyncAllAttr !== false) {
@@ -242,6 +330,9 @@ function onSettingsFormSubmit() {
         wps_settings_general_selective_sync_products: selectiveSyncProducts,
         wps_settings_general_selective_sync_collections: selectiveSyncCollections,
         wps_settings_general_selective_sync_shop: selectiveSyncShop,
+        wps_settings_general_related_products_show: relatedProductsShow,
+        wps_settings_general_related_products_sort: relatedProductsSort,
+        wps_settings_general_related_products_amount: relatedProductsAmount
       }
 
       WP_Shopify.selective_sync.all = selectiveSyncAll;

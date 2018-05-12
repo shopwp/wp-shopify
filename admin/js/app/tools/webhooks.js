@@ -236,7 +236,7 @@ async function webhooksSubmitCallback(e) {
 
     */
     updateDomAfterSync({
-      headingText: 'Finish syncing Webhooks',
+      headingText: 'Finished syncing Webhooks',
       buttonText: 'Ok, let\'s go!',
       status: 'is-connected',
       stepText: 'Finished syncing webhooks',

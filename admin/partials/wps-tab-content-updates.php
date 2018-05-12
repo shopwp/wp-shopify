@@ -18,9 +18,8 @@ Tab Content: Updates
 
         <?php
 
-        require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-updates-license-activation.php';
-        require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-updates-license-info.php';
-        require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-updates-plugin-info.php';
+
+        require_once plugin_dir_path( __FILE__ ) . 'wps-tab-content-updates-pro.php';
 
         ?>
 

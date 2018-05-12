@@ -173,6 +173,36 @@ gulp.task('build:rename:class', done => {
 
 /*
 
+Changes the main plugin Class. Allows both plugins to be loaded simultanously
+
+*/
+gulp.task('build:rename:misc', done => {
+
+  return gulp
+    .src( config.files.pluginTitleSettings, { base: "./" } )
+    .pipe(preprocess({
+      context: {
+        NODE_ENV: config.buildTier
+      }
+    }))
+    .pipe(replace("esc_attr_e('WP Shopify Pro', 'wp-shopify' )", function(match, p1, offset, string) {
+
+      if (config.buildTier === 'free') {
+        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with WP_Shopify in file: ' + this.file.relative);
+        return "esc_attr_e('WP Shopify', 'wp-shopify' )";
+
+      } else {
+        return match;
+      }
+
+    }))
+    .pipe( gulp.dest("./") );
+
+});
+
+
+/*
+
 Runs tests for php via PHPUnit
 
 */
@@ -363,15 +393,15 @@ gulp.task('build:update:edd', done => {
     tier = 'pro';
   }
 
+  //
+  // Prod build
+  //
+  var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier +' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier + '"';
 
-  // return done;
-
-  // var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier +' && php -f /var/www/prod/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier + '"';
-
-  // Staging build test
-  var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier + '"';
-
-  // console.log("command: ", command);
+  //
+  // Staging build
+  //
+  // var command = 'ssh -tt arobbins@162.243.170.76 "php -f /var/www/staging/html/wp-content/themes/wpshop/lib/updates/update-product-info.php ' + config.buildRelease + ' ' + tier + '"';
 
   return childProcess.exec(command, function (err, stdout, stderr) {
 
@@ -398,7 +428,15 @@ Requires:
 gulp.task('build', done => {
 
   return gulp.series(
-    'tests', 'clean:tmp', 'clean:free:repo', 'build:copy', 'build:preprocess', 'build:rename:plugin', 'build:rename:version', 'build:rename:class',
+    'tests',
+    'clean:tmp',
+    'clean:free:repo',
+    'build:copy',
+    'build:preprocess',
+    'build:rename:plugin',
+    'build:rename:version',
+    'build:rename:class',
+    'build:rename:misc',
     gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:dist',
     'build:update:edd',
@@ -406,9 +444,6 @@ gulp.task('build', done => {
   )(done);
 
 });
-
-
-
 
 
 gulp.task('build:free', done => {
@@ -421,6 +456,7 @@ gulp.task('build:free', done => {
     'build:rename:plugin',
     'build:rename:version',
     'build:rename:class',
+    'build:rename:misc',
     'build:clear:free',
     gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:free:repo',

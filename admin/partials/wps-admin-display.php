@@ -96,11 +96,3 @@ $tab = null;
   <input type="hidden" name="wp-shopify-cache-nonce" id="wp-shopify-cache-nonce" value="<?php echo wp_create_nonce('wp-shopify-cache'); ?>">
 
 </div>
-
-<!-- <progress max="100" value="10" class="wps-loader">
-  <div class="wps-loader-body">
-    <span style="width: 10%;">Progress: 10%</span>
-  </div>
-</progress> -->
-
-<?php // echo do_action('wps_after_settings_form'); ?>
