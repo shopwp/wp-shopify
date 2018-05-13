@@ -64,7 +64,6 @@ if ( !class_exists('WP_Shopify') ) {
 
 		protected static $instantiated = null;
 
-
 		/*
 
 		Initialize the class

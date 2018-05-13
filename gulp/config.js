@@ -50,6 +50,7 @@ var config = {
       './_tmp/**/*',
       './_tmp/**/.*'
     ],
+    test: 'hello/*',
     all: [
       './**/*',
       '!./node_modules/**',
