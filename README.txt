@@ -35,7 +35,6 @@ WP Shopify is also available in a Pro version which includes 80+ Templates, Auto
 = Links =
 * [Website](https://wpshop.io/)
 * [Documentation](https://wpshop.io/docs)
-* [Live Support via Slack](https://join.slack.com/t/wpshopify/shared_invite/enQtMTg5OTQxODEwOTM1LTkxOTE5OWFiOTJmYTY3NTliMDUxMmNkN2Y2MzliZjdjMjA4ODA0YzU4ODIwZGRhNWIyMjkyYjg1MTc5YTc5MjM)
 * [WP Shopify Pro](https://wpshop.io/)
 
 

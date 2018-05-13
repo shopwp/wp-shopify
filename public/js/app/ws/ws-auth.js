@@ -1,5 +1,5 @@
 import ShopifyBuy from 'shopify-buy';
-import { isError } from '../utils/utils-common';
+import { isError, hasProp } from '../utils/utils-common';
 
 /*
 
@@ -29,6 +29,10 @@ function shopifyInit(creds) {
     }
 
     try {
+
+      if (hasProp(creds, 'data')) {
+        creds = creds.data;
+      }
 
       resolve(ShopifyBuy.buildClient({
         accessToken: creds.js_access_token,

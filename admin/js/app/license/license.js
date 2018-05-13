@@ -242,8 +242,8 @@ function isLicenseKeyValid(key) {
 
   return new Promise(async (resolve, reject) => {
 
-    if (key.license === 'invalid' || key.license === 'inactive') {
-      return reject('This license key is inactive or disabled. Please double check your key and try again.');
+    if (key.license === 'invalid') {
+      return reject('This license key is invalid or disabled. Please double check your key and try again.');
     }
 
     if (key.license === 'expired') {

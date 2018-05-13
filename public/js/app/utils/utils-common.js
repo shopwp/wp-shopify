@@ -614,10 +614,12 @@ function showError(error) {
     var newError = error;
 
   } else {
+
     var newError = {
       type: 'warning',
       message: error
     }
+    
   }
 
   jQuery('.wps-btn-cart')

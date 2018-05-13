@@ -24,7 +24,6 @@ function activateKey(key) {
     var licenseKeyInfo = {};
     var licenseKeyActivatedResp = {};
 
-
     /*
 
     Get License Key Status
@@ -39,6 +38,7 @@ function activateKey(key) {
 
     }
 
+    console.log("licenseKeyInfo: ", licenseKeyInfo);
 
     /*
 
@@ -54,6 +54,7 @@ function activateKey(key) {
 
     }
 
+    console.log("validKey: ", validKey);
 
     /*
 
@@ -65,6 +66,8 @@ function activateKey(key) {
       try {
 
         licenseKeyActivatedResp = await activateLicenseKey(key);
+
+        console.log("licenseKeyActivatedResp: ", licenseKeyActivatedResp);
 
         if (!isObject(licenseKeyActivatedResp)) {
           return reject('Error: invalid license key format. Please try again.');
@@ -84,7 +87,11 @@ function activateKey(key) {
       try {
 
         var newLicenseKeyInfo = constructLicenseInfoForSaving(licenseKeyActivatedResp, key);
+        console.log("newLicenseKeyInfo: ", newLicenseKeyInfo);
+
         var savedKeyResponse = await saveLicenseKey(newLicenseKeyInfo);
+        console.log("savedKeyResponse: ", savedKeyResponse);
+
 
         if (isWordPressError(savedKeyResponse)) {
           throw savedKeyResponse.data;

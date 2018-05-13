@@ -57,6 +57,7 @@
     "css-mqpacker": "^6.0.2",
     "cssnano": "^3.10.0",
     "currency-formatter": "^1.4.2",
+    "dateformat": "^3.0.3",
     "del": "^3.0.0",
     "es6-promise": "^4.2.4",
     "eslint": "^4.18.2",

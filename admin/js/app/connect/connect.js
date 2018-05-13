@@ -80,9 +80,7 @@ import {
 
 import {
   setPluginSettings,
-  getAuthToken,
   getShopifyURL,
-  getAuthUser,
   uninstallPlugin,
   insertConnectionData,
   getConnectionData,

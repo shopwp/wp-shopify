@@ -1,5 +1,6 @@
 import forEach from 'lodash/forEach';
 import isURL from 'validator/lib/isURL';
+import dateFormat from 'dateformat';
 
 import { stopSpinner } from './utils-dom';
 
@@ -147,7 +148,7 @@ function containsTrailingForwardSlash(url) {
   if(url[url.length - 1] === '/') {
     return true;
   }
-  
+
 }
 
 
@@ -500,7 +501,6 @@ function formatExpireDate(dateString) {
     var date = new Date(timestamp);
     return dateFormat(date, "mmmm d, yyyy");
   }
-
 
 }
 

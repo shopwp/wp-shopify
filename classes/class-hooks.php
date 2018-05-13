@@ -1469,7 +1469,8 @@ if (!class_exists('Hooks')) {
 			$newPluginVersion = $this->config->get_new_plugin_version();
 			$generalSettings = $DB_Settings_General->get_column_single('id');
 
-			$newPluginVersion = '2.3.6';
+			// $newPluginVersion = '2.3.6';
+			
 
 			/*
 

@@ -934,80 +934,6 @@ function getAllProducts(shopify) {
 
 /*
 
-Get auth token from WP Shopify server:
-Returns: Promise
-
-*/
-function getAuthToken() {
-
-  var options = {
-    method: 'POST',
-    url: 'https://wpshop.io/wp-json/jwt-auth/v1/token',
-    dataType: "json",
-    data: {
-      username: 'wp-shopify-auth-user', // TODO: make dynamic?
-      password: '' // TODO: make dynamic?
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Get auth user from WP Shopify server
-Returns: Promise
-
-*/
-function getAuthUser(token) {
-
-  var options = {
-    url: 'https://wpshop.io/wp-json/wp/v2/users/2',
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + token
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Sending new auth data to WP Shopify server
-Returns: Promise
-
-*/
-function updateAuthUser(authToken, authUserData) {
-
-  var newAuthData = createNewAuthData(),
-      currentAuthData = convertAuthDataToJSON(authUserData.description);
-
-  var finalData = mergeNewDataIntoCurrent(newAuthData, currentAuthData),
-      sendable = convertAuthDataToString(finalData);
-
-  var options = {
-    url: 'https://wpshop.io/wp-json/wp/v2/users/2', // TODO: Make this dynamic?
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + authToken
-    },
-    data: {
-      "description":  sendable
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
 Get Progress Count
 
 */
@@ -1347,9 +1273,6 @@ export {
   setPluginSettings,
   addWebhook,
   delWebhooks,
-  getAuthToken,
-  getAuthUser,
-  updateAuthUser,
   getSingleCollection,
   deactivateLicenseKey,
   activateLicenseKey,

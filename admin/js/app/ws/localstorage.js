@@ -235,8 +235,6 @@ function removeWebhooksReconnect() {
 }
 
 
-
-
 /*
 
 Set canceling indicator
@@ -264,17 +262,18 @@ Clears all localstorage cache
 
 */
 function clearLocalstorageCache() {
-  removeModalCache();
-  removeConnectionProgress();
-  removeConnectionNonce();
-  removeCacheExpiration();
-  removeAnimating();
-  removeLastCartID();
-  removeProductSelection();
-  removeMoneyFormat();
-  removeStartingURL();
-  removeCancelSync();
-  removeWebhooksReconnect();
+  // removeModalCache();
+  // removeConnectionProgress();
+  // removeConnectionNonce();
+  // removeCacheExpiration();
+  // removeAnimating();
+  // removeLastCartID();
+  // removeProductSelection();
+  // removeMoneyFormat();
+  // removeStartingURL();
+  // removeCancelSync();
+  // removeWebhooksReconnect();
+  localStorage.clear();
 }
 
 
