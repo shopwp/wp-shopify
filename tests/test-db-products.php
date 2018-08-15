@@ -1,8 +1,6 @@
 <?php
 
-use WPS\DB\Products;
-use WPS\Config;
-use WPS\Utils;
+use WPS\Factories\DB_Products_Factory;
 
 /*
 
@@ -16,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Products extends WP_UnitTestCase {
 
-  protected static $Products;
+  protected static $DB_Products;
   protected static $mockDataProduct;
   protected static $mockDataProductForUpdate;
   protected static $mockDataProductID;
@@ -25,10 +23,10 @@ class Test_Sync_Products extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Products                    = new Products( new Config() );
+    self::$DB_Products                 = DB_Products_Factory::build();
     self::$mockDataProduct             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product.json") );
     self::$mockDataProductForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-update.json") );
-    self::$mockDataProductID           = Utils::wps_find_product_id(self::$mockDataProductForUpdate);
+    self::$mockDataProductID           = self::$mockDataProductForUpdate->id;
 
   }
 
@@ -45,9 +43,9 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_create() {
 
-    $result = self::$Products->insert( self::$mockDataProduct, 'product' );
+    $result = self::$DB_Products->insert( self::$mockDataProduct, 'product' );
 
-    $this->assertTrue($result);
+    $this->assertEquals(1, $result);
 
   }
 
@@ -60,9 +58,9 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_update() {
 
-    $results = self::$Products->update( self::$mockDataProductID, self::$mockDataProductForUpdate );
+    $results = self::$DB_Products->update( self::$mockDataProductID, self::$mockDataProductForUpdate );
 
-    $this->assertTrue($results);
+    $this->assertEquals(1, $results);
 
   }
 
@@ -74,9 +72,9 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_delete() {
 
-    $results = self::$Products->delete( self::$mockDataProductID );
+    $results = self::$DB_Products->delete( self::$mockDataProductID );
 
-    $this->assertTrue($results);
+    $this->assertEquals(1, $results);
 
   }
 

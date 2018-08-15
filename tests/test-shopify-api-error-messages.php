@@ -2,9 +2,8 @@
 
 require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 
-use WPS\Config;
-use WPS\Messages;
-use WPS\WS;
+use WPS\Factories\Messages_Factory;
+use WPS\Factories\WS_Factory;
 
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Pool;
@@ -16,6 +15,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+
 
 /*
 
@@ -33,10 +33,30 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$WS = new WS( new Config() );
-    self::$Messages = new Messages();
+    self::$WS = WS_Factory::build();
+    self::$Messages = Messages_Factory::build();
 
   }
+
+
+	/*
+
+	Mock: Shopify error wrapper
+
+	*/
+	function mock_shopify_error($status) {
+
+		$mock = new MockHandler([
+			new Response($status, [])
+		]);
+
+		$handler = HandlerStack::create($mock);
+
+		$client = new Guzzle(['handler' => $handler]);
+
+		return $client->request('GET', '/');
+
+	}
 
 
   /*
@@ -48,11 +68,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(400);
+      $mockResponse = $this->mock_shopify_error(400);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_400, $errorMessage);
@@ -71,11 +91,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(401);
+      $mockResponse = $this->mock_shopify_error(401);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_401, $errorMessage);
@@ -94,11 +114,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(402);
+      $mockResponse = $this->mock_shopify_error(402);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_402, $errorMessage);
@@ -117,11 +137,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(403);
+      $mockResponse = $this->mock_shopify_error(403);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_403, $errorMessage);
@@ -140,11 +160,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(404);
+      $mockResponse = $this->mock_shopify_error(404);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_404, $errorMessage);
@@ -163,11 +183,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(406);
+      $mockResponse = $this->mock_shopify_error(406);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_406, $errorMessage);
@@ -186,11 +206,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(422);
+      $mockResponse = $this->mock_shopify_error(422);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_422, $errorMessage);
@@ -209,11 +229,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(429);
+      $mockResponse = $this->mock_shopify_error(429);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_429, $errorMessage);
@@ -232,11 +252,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(500);
+      $mockResponse = $this->mock_shopify_error(500);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_500, $errorMessage);
@@ -255,11 +275,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(501);
+      $mockResponse = $this->mock_shopify_error(501);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_501, $errorMessage);
@@ -278,11 +298,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(503);
+      $mockResponse = $this->mock_shopify_error(503);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_503, $errorMessage);
@@ -301,11 +321,11 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     try {
-      $mockResponse = self::$WS->mock_shopify_error(504);
+      $mockResponse = $this->mock_shopify_error(504);
 
     } catch (\Exception $mockErrorResponse) {
 
-      $errorMessage = self::$WS->wps_get_error_message($mockErrorResponse);
+      $errorMessage = self::$WS->get_error_message($mockErrorResponse);
 
       // Assert
       $this->assertEquals(self::$Messages->message_shopify_api_504, $errorMessage);

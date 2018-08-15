@@ -1,13 +1,15 @@
+import to from 'await-to-js';
+
 import {
-  initCloseModalEvents,
   updateModalHeadingText,
-  updateCurrentConnectionStepText
+  updateCurrentConnectionStepText,
+  updateDomAfterSync,
+  enableConnectionSubmit
 } from '../utils/utils-dom';
 
 import {
-  connectionInProgress,
-  setConnectionProgress,
-  setCancelSync
+  setCancelSync,
+  clearLocalstorageCache
 } from '../ws/localstorage';
 
 import {
@@ -15,7 +17,16 @@ import {
 } from '../utils/utils';
 
 import {
-  setSyncingIndicator
+  cleanUpAfterSync
+} from '../utils/utils-progress';
+
+import {
+  constructFinalNoticeList
+} from '../utils/utils-data';
+
+import {
+  setSyncingIndicator,
+  killSyncing
 } from '../ws/ws';
 
 import {
@@ -27,9 +38,11 @@ import {
 /*
 
 When the user closes any modal
-Returns: undefined
 
-TODO: Add try catch to clearSync?
+All this does is clear the syncing cache, status, and runs wp_die().
+The clean up happens within the progressStatus
+
+Returns: undefined
 
 */
 function onModalClose() {
@@ -37,32 +50,13 @@ function onModalClose() {
   // Cancel request when user clicks cancel button
   jQuery('.wps-btn-cancel').unbind().on('click', async function(e) {
 
-    await clearSync();
+    clearSync();
+    enableConnectionSubmit();
+    WP_Shopify.manuallyCanceled = true;
 
-  });
+    if (WP_Shopify.isSyncing) {
 
-  // Cancel request when user clicks outside modal ...
-  jQuery(document).on('click', function(event) {
-
-    // if (!jQuery(event.target).closest('.wps-connector-progress').length) {
-    //   initCloseModalEvents();
-    //   resetProgressIndicators();
-    //   setConnectionProgress('false');
-    // }
-
-  });
-
-  // Cancel request when user hits escape ...
-  jQuery(document).keyup(function(e) {
-
-    if (e.keyCode == 27) {
-
-      jQuery('.wps-btn-cancel').prop("disabled", true);
-      resetProgressIndicators();
-      setConnectionProgress('false');
-      updateModalHeadingText('Canceling ...');
-      updateCurrentConnectionStepText('Canceling sync ...');
-      setSyncingIndicator(0);
+      var [killSyncingError, killSyncingData] = await to( killSyncing() );
 
     }
 
@@ -72,4 +66,4 @@ function onModalClose() {
 
 export {
   onModalClose
-};
+}

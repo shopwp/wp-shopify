@@ -141,8 +141,7 @@ class ClassNotFoundFatalErrorHandler implements FatalErrorHandlerInterface
         return $classes;
     }
 
-    private function convertFileToClass(string $path, string $file, string $prefix): ?string
-    {
+    private function convertFileToClass(string $path, string $file, string $prefix) {
         $candidates = array(
             // namespaced class
             $namespacedClass = str_replace(array($path.DIRECTORY_SEPARATOR, '.php', '/'), array('', '', '\\'), $file),

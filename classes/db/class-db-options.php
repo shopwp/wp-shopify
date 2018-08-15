@@ -3,89 +3,61 @@
 namespace WPS\DB;
 
 use WPS\Utils;
-use WPS\DB\Products;
-use WPS\DB\Settings_Connection;
-use WPS\Progress_Bar;
-use WPS\Config;
 
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for Options
-
-*/
 if (!class_exists('Options')) {
 
   class Options extends \WPS\DB {
 
     public $table_name;
+		public $primary_key;
   	public $version;
-  	public $primary_key;
+		public $cache_group;
 
-    /*
 
-    Construct
-
-    */
   	public function __construct() {
 
-      global $wpdb;
-      $this->table_name         = $wpdb->prefix . 'wps_options';
-      $this->primary_key        = 'id';
-      $this->version            = '1.0';
-      $this->cache_group        = 'wps_db_options';
+      $this->table_name         				= WPS_TABLE_NAME_OPTIONS;
+      $this->primary_key        				= 'id';
+      $this->version            				= '1.0';
+      $this->cache_group        				= 'wps_db_options';
 
     }
 
 
-    /*
+		/*
 
-    Get Columns
+		Important: Used to determine when new columns are added
 
-    */
+		*/
   	public function get_columns() {
-      return array(
+
+      return [
         'id'                        => '%d',
         'product_id'                => '%d',
         'name'                      => '%s',
         'position'                  => '%d',
         'values'                    => '%s'
-      );
+      ];
+
     }
 
 
-    /*
-
-    Get Column Defaults
-
-    */
   	public function get_column_defaults() {
-      return array(
+
+			return [
         'id'                        => 0,
         'product_id'                => 0,
         'name'                      => '',
         'position'                  => 0,
         'values'                    => ''
-      );
+      ];
+
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /*
@@ -95,36 +67,28 @@ if (!class_exists('Options')) {
     */
   	public function insert_option($product) {
 
-      $DB_Settings_Connection = new Settings_Connection();
       $results = [];
-
+			$product = Utils::convert_array_to_object($product);
 
       if (isset($product->options) && $product->options) {
 
         foreach ($product->options as $key => $option) {
 
-          if (!Utils::isStillSyncing()) {
-            wp_die();
-            break;
-          }
+					$result = $this->insert($option, 'option');
 
-          $results[] = $this->insert($option, 'option');
+					if (is_wp_error($result)) {
+						return $result;
+					}
+
+					$results[] = $result;
 
         }
 
-        return $results;
-
       }
 
+			return $results;
+
     }
-
-
-
-
-
-
-
-
 
 
     /*
@@ -134,28 +98,12 @@ if (!class_exists('Options')) {
     */
   	public function insert_options($products) {
 
-      $DB_Settings_Connection = new Settings_Connection();
-      $progress = new Progress_Bar(new Config());
-      $results = array();
+      $results = [];
+
+			$products = Utils::wrap_in_array($products);
 
       foreach ($products as $key => $product) {
-
-        if (isset($product->options) && $product->options) {
-
-          foreach ($product->options as $key => $option) {
-
-            if (!Utils::isStillSyncing()) {
-              wp_die();
-              break 2;
-            }
-
-            $results[] = $this->insert($option, 'option');
-            $progress->increment_current_amount('products');
-
-          }
-
-        }
-
+				$results[] = $this->insert_option($product);
       }
 
       return $results;
@@ -165,68 +113,12 @@ if (!class_exists('Options')) {
 
     /*
 
-    update_option
-
-    */
-  	public function update_option($product) {
-
-
-      $results = array();
-      $Products = new Products();
-      $optionsFromShopify = $product->options;
-
-      $newProductID = Utils::wps_find_product_id($product);
-      $currentOptions = $this->get_rows('product_id', $newProductID);
-
-
-      // // If the product doesn't exist, insert it instead
-      // if (is_array($currentOptions) && empty($currentOptions)) {
-      //
-      //   // Breaks the test because it refers to insert_products which calls the isSyncing function
-      //   $results = $Products->create_product($product);
-      //
-      // } else {
-      //
-      //
-      //
-      // }
-
-      $optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
-      $optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
-
-      if (count($optionsToAdd) > 0) {
-
-        foreach ($optionsToAdd as $key => $newOption) {
-          $results['created'][] = $this->insert($newOption, 'option');
-        }
-
-      }
-
-      if (count($optionsToDelete) > 0) {
-
-        foreach ($optionsToDelete as $key => $oldOption) {
-          $results['deleted'][] = $this->delete($oldOption->id);
-        }
-
-      }
-
-      foreach ($product->options as $key => $option) {
-        $results['updated'] = $this->update($option->id, $option);
-      }
-
-      return $results;
-
-    }
-
-
-    /*
-
-    update_option
+    Delete Option
 
     */
   	public function delete_option($product) {
 
-      $results = array();
+      $results = [];
 
       if (count($product->options) > 0) {
 
@@ -246,10 +138,10 @@ if (!class_exists('Options')) {
 
     /*
 
-    Get Product Variants
+    Get Product Options
 
     */
-    public function get_product_options($postID = null) {
+    public function get_options_from_post_id($postID = null) {
 
       global $wpdb;
 
@@ -262,10 +154,7 @@ if (!class_exists('Options')) {
 
       } else {
 
-        $DB_Products = new Products();
-        $table_products = $DB_Products->get_table_name();
-
-        $query = "SELECT options.* FROM $table_products as products INNER JOIN $this->table_name as options ON products.product_id = options.product_id WHERE products.post_id = %d";
+        $query = "SELECT options.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_OPTIONS . " as options ON products.product_id = options.product_id WHERE products.post_id = %d";
 
         $results = $wpdb->get_results( $wpdb->prepare($query, $postID) );
 
@@ -278,14 +167,74 @@ if (!class_exists('Options')) {
     }
 
 
+		/*
+
+		Delete options from product ID
+
+		*/
+		public function delete_options_from_product_id($product_id) {
+			return $this->delete_rows('product_id', $product_id);
+		}
+
+
+
+
+
+
+
+
+
+		/*
+
+		update_option
+
+		*/
+		public function update_options_from_product($product) {
+
+			$results = [];
+			$optionsFromShopify = $product->options;
+			$currentOptions = $this->get_rows('product_id', $product->id);
+
+			$optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
+			$optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
+
+			if (count($optionsToAdd) > 0) {
+
+				foreach ($optionsToAdd as $key => $newOption) {
+					$results['created'][] = $this->insert($newOption, 'option');
+				}
+
+			}
+
+			if (count($optionsToDelete) > 0) {
+
+				foreach ($optionsToDelete as $key => $oldOption) {
+					$results['deleted'][] = $this->delete($oldOption->id);
+				}
+
+			}
+
+			foreach ($product->options as $key => $option) {
+				$results['updated'] = $this->update($option->id, $option);
+			}
+
+			return $results;
+
+		}
+
+
     /*
 
     Creates a table query string
 
     */
-    public function create_table_query() {
+    public function create_table_query($table_name = false) {
 
       global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
       $collate = '';
 
@@ -293,16 +242,28 @@ if (!class_exists('Options')) {
         $collate = $wpdb->get_charset_collate();
       }
 
-      return "CREATE TABLE `{$this->table_name}` (
-        `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-        `product_id` bigint(100) DEFAULT NULL,
-        `name` varchar(100) DEFAULT NULL,
-        `position` int(20) DEFAULT NULL,
+      return "CREATE TABLE $table_name (
+        id bigint(100) unsigned NOT NULL DEFAULT 0,
+        product_id bigint(100) DEFAULT NULL,
+        name varchar(100) DEFAULT NULL,
+        position int(20) DEFAULT NULL,
         `values` longtext DEFAULT NULL,
-        PRIMARY KEY  (`{$this->primary_key}`)
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
     }
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `name`, `position`, `values`) SELECT `id`, `product_id`, `name`, `position`, `values` FROM ' . $this->table_name);
+
+		}
 
 
     /*
@@ -315,7 +276,8 @@ if (!class_exists('Options')) {
       require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
       if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query() );
+        dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
       }
 
     }

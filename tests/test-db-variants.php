@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Variants;
+use WPS\Factories\DB_Variants_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Variants extends WP_UnitTestCase {
 
-  protected static $Variants;
+  protected static $DB_Variants;
   protected static $mockDataVariant;
   protected static $mockDataVariantForUpdate;
   protected static $mockDataVariantID;
@@ -23,7 +23,7 @@ class Test_Sync_Variants extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Variants                    = new Variants();
+    self::$DB_Variants                 = DB_Variants_Factory::build();
     self::$mockDataVariant             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/variant.json") );
     self::$mockDataVariantForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/variant-update.json") );
     self::$mockDataVariantID           = self::$mockDataVariant->id;
@@ -43,9 +43,8 @@ class Test_Sync_Variants extends WP_UnitTestCase {
   */
   function test_variant_create() {
 
-    $result = self::$Variants->insert(self::$mockDataVariant, 'variant');
-
-    $this->assertTrue($result);
+    $result = self::$DB_Variants->insert(self::$mockDataVariant, 'variant');
+    $this->assertEquals(1, $result);
 
   }
 
@@ -57,9 +56,8 @@ class Test_Sync_Variants extends WP_UnitTestCase {
   */
   function test_variant_update() {
 
-    $results = self::$Variants->update( self::$mockDataVariantID, self::$mockDataVariantForUpdate );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Variants->update( self::$mockDataVariantID, self::$mockDataVariantForUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -71,9 +69,8 @@ class Test_Sync_Variants extends WP_UnitTestCase {
   */
   function test_variant_delete() {
 
-    $results = self::$Variants->delete( self::$mockDataVariantID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Variants->delete( self::$mockDataVariantID );
+    $this->assertEquals(1, $results);
 
   }
 

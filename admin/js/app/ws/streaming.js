@@ -1,20 +1,18 @@
-import {
-  getConnectionData,
-  getShopData,
-  getTotalCountsFromSession,
-  insertConnectionData,
-  insertShopData,
-  insertProductsData,
-  insertCollects,
-  insertCustomCollections,
-  insertSmartCollections,
-  insertOrders,
-  insertCustomers
-} from '../ws/ws';
+import to from 'await-to-js';
 
 import {
-  connectionInProgress
-} from '../ws/localstorage';
+  getShopData,
+  getTotalCountsFromSession,
+  insertShopData,
+  insertOrders,
+  insertCustomers,
+  getBulkProducts,
+  getBulkCollects,
+  getBulkOrders,
+  getBulkCustomers,
+  getBulkSmartCollections,
+  getBulkCustomCollections
+} from '../ws/ws';
 
 import {
   isWordPressError,
@@ -26,13 +24,24 @@ import {
 } from '../utils/utils-data';
 
 import {
+  cleanUpAfterSync
+} from '../utils/utils-progress';
+
+import {
   getMessageError
 } from '../messages/messages';
+
+import {
+  syncingConfigJavascriptError,
+  syncingConfigErrorBeforeSync
+} from './syncing-config';
 
 
 /*
 
 Construct Streaming Options
+
+itemCount = (int)
 
 */
 function constructStreamingOptions(itemCount) {
@@ -48,154 +57,65 @@ function constructStreamingOptions(itemCount) {
     items: []
   }
 
-};
-
-
-/*
-
-Stream Connection
-Returns: Connection
-
-*/
-async function streamConnection() {
-
-  return new Promise(async function streamConnectionHandler(resolve, reject) {
-
-
-    /*
-
-    1. Get Shop Data
-
-    */
-    try {
-
-      var connectionData = await getConnectionData();
-
-      if (isWordPressError(connectionData)) {
-        reject(connectionData);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject('Syncing stopped during streamConnection');
-        return;
-      }
-
-      // If we already have an active connection ...
-      if (connectionData.data.api_key) {
-        resolve(connectionData);
-      }
-
-    } catch(error) {
-      reject(error);
-      return;
-    }
-
-
-    /*
-
-    2. Send to server
-
-    */
-    try {
-
-      var connection = await insertConnectionData(connectionData); // wps_insert_connection
-
-      if (isWordPressError(connection)) {
-        reject(connection);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject('Syncing stopped during streamConnection');
-        return;
-      }
-
-    } catch(error) {
-      reject(error);
-      return;
-
-    }
-
-    resolve(connection);
-
-  });
-
 }
 
 
 /*
 
-Stream Shop
-Returns Shop
+Stream Shop: get_shop, insert_shop
+
+Calls Shopify at /admin/shop.json
+
+Doesn't save error to DB -- returns to client instead
 
 */
 async function streamShop() {
 
-  return new Promise(async function streamShopHandler(resolve, reject) {
+  return new Promise(async (resolve, reject) => {
 
     /*
 
     1. Get Shop Data from Shopify
 
-    TODO: It's hard to tell at first glance whether we're making a call
-    to Shopify or our internal DB. We should prefix the function to
-    ensure this is clear. Phase 2.
-
     */
-    try {
+    var [shopError, shopData] = await to( getShopData() ); // get_shop
 
-      var shopData = await getShopData();
-
-      if (typeof shopData === 'string') {
-        reject(shopData);
-        return;
-      }
-
-      if (isWordPressError(shopData)) {
-        reject(shopData);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getShopData'});
-      }
-
-      shopData = shopData.data;
-
-    } catch(error) {
-      reject(error);
+    if (shopError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(shopError) );
+      reject();
       return;
-
     }
+
+    if (isWordPressError(shopData)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync(shopData) );
+      resolve();
+      return;
+    }
+
+    shopData = shopData.data;
 
 
     /*
 
-    2. Send shop data to server
+    2. Save shop data to plugin DB
 
     */
-    try {
+    var [insertShopError, insertShopDataResponse] = await to( insertShopData(shopData) ); // insert_shop
 
-      var shop = await insertShopData(shopData); // wps_insert_shop
-
-      if (isWordPressError(shop)) {
-        reject(shop);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during insertShopData'});
-        return;
-      }
-
-    } catch(error) {
-      reject(error);
+    if (insertShopError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(insertShopError) );
+      reject();
       return;
     }
 
+    if (isWordPressError(insertShopDataResponse)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync(insertShopDataResponse) );
+      resolve();
+      return;
+    }
 
-    resolve(shop);
+    // If everything went smoothly, return!
+    resolve(insertShopDataResponse);
 
 
   });
@@ -205,91 +125,53 @@ async function streamShop() {
 
 /*
 
-Stream Products
-Returns products
+Stream Products: get_bulk_products
+
+Begins the Products background syncing process
+
+Returns error to client
 
 */
-async function streamProducts() {
+async function streamProducts(itemCount) {
 
   return new Promise(async function streamProductsHandler(resolve, reject) {
 
-    var itemsToAdd = false;
-
-    /*
-
-    1. Get products count
-
-    */
-    try {
-
-      var itemCount = await getTotalCountsFromSession(); // get_total_counts
-
-      if (isWordPressError(itemCount)) {
-        reject(itemCount);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
-        return;
-      }
-
-      itemCount = itemCount.data.products;
-
-      if (emptyDataCount(itemCount)) {
-        resolve();
-      }
-
-    } catch(error) {
-      reject(error);
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.products) {
+      resolve();
       return;
     }
 
 
-    /*
-
-    2. Get all products
-
-    */
     var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    var productsList = [];
 
     while (currentPage <= pages) {
 
-      try {
+      var [productsError, productsData] = await to( getBulkProducts(currentPage) ); // get_bulk_products
 
-        itemsToAdd = await insertProductsData(currentPage); // wps_insert_products_data
-
-        // throw {
-        //   status: 504,
-        //   statusText: "Gateway Time-out"
-        // }
-
-        if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd);
-          break;
-        }
-
-        if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing connection not found during insertProductsData'});
-          break;
-        }
-
-        currentPage += 1;
-
-
-      } catch (error) {
-
-        reject( getMessageError(error) );
+      if (productsError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(productsError) );
+        resolve();
         break;
-
       }
+
+      if (isWordPressError(productsData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(productsData) );
+        resolve();
+        break;
+      }
+
+      productsList.push(productsData);
+      currentPage += 1;
 
     }
 
-    resolve(itemsToAdd);
-    return;
+    // If everything went smoothly, return!
+    resolve(productsList);
+
 
   });
+
 
 }
 
@@ -297,83 +179,45 @@ async function streamProducts() {
 /*
 
 Stream Collects
-Returns Collects
+- Begins the Collects background syncing process
 
 */
-async function streamCollects() {
+function streamCollects(itemCount) {
 
   return new Promise(async function streamCollectsHandler(resolve, reject) {
 
-    var itemsToAdd = false;
-
-    /*
-
-    1. Get collects count
-
-    */
-    try {
-
-      var itemCount = await getTotalCountsFromSession(); // get_total_counts
-
-      if (isWordPressError(itemCount)) {
-        reject(itemCount);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
-        return;
-      }
-
-      itemCount = itemCount.data.collects;
-
-      if (emptyDataCount(itemCount)) {
-        resolve();
-      }
-
-    } catch(error) {
-      reject(error);
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.products) {
+      resolve();
       return;
     }
 
 
-    /*
-
-    2. Insert all collects
-
-    */
     var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    var collectsList = [];
 
-    // Runs for each page of collects
     while (currentPage <= pages) {
 
-      try {
-        itemsToAdd = await insertCollects(currentPage); // wps_insert_collects
+      var [collectsError, collectsData] = await to( getBulkCollects(currentPage) ); // get_bulk_collects
 
-        if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd);
-          break;
-        }
-
-        if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing connection not found during insertCollects'});
-          break;
-        }
-
-        currentPage += 1;
-
-      } catch(error) {
-
-        reject(error);
+      if (collectsError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(collectsError) );
+        resolve();
         break;
-
       }
+
+      if (isWordPressError(collectsData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(collectsData) );
+        resolve();
+        break;
+      }
+
+      collectsList.push(collectsData);
+      currentPage += 1;
 
     }
 
-    resolve(itemsToAdd);
-    return;
-
+    // If everything went smoothly, return!
+    resolve(collectsList);
 
   });
 
@@ -382,93 +226,133 @@ async function streamCollects() {
 
 /*
 
-Stream Smart Collections
-Returns Smart Collections
+Stream Orders: get_bulk_orders
+- Begins the Orders background syncing process
 
 */
-function streamSmartCollections() {
+async function streamOrders(itemCount) {
 
-  return new Promise(async function streamSmartCollectionsHandler(resolve, reject) {
+  return new Promise(async function streamOrdersHandler(resolve, reject) {
 
-    var itemsToAdd = false;
-
-    /*
-
-    1. Get Smart Collections Count
-
-    */
-    try {
-
-      var itemCount = await getTotalCountsFromSession(); // get_total_counts
-
-      if (isWordPressError(itemCount)) {
-        reject(itemCount);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
-        return;
-      }
-
-      itemCount = itemCount.data.smart_collections;
-
-      if (emptyDataCount(itemCount)) {
-        resolve();
-      }
-
-    } catch(error) {
-
-      reject(error);
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.orders) {
+      resolve();
       return;
-
     }
 
 
-    /*
-
-    2. Insert all Smart Collections
-
-    */
     var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    var ordersList = [];
 
     while (currentPage <= pages) {
 
-      try {
+      var [ordersError, ordersData] = await to( getBulkOrders(currentPage) ); // get_bulk_orders
 
-        itemsToAdd = await insertSmartCollections(currentPage); // wps_insert_smart_collections_data
-
-        if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd);
-          break;
-        }
-
-        if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing connection not found during insertSmartCollections'});
-          break;
-        }
-
-        currentPage += 1;
-
-
-      } catch(error) {
-
-        if ( isTimeout(error.status) ) {
-          currentPage += 1;
-          continue;
-
-        } else {
-
-          reject(error);
-          break;
-
-        }
-
+      if (ordersError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(ordersError) );
+        resolve();
+        break;
       }
+
+      if (isWordPressError(ordersData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(ordersData) );
+        resolve();
+        break;
+      }
+
+      ordersList.push(ordersData);
+      currentPage += 1;
 
     }
 
-    resolve(itemsToAdd);
+    resolve(ordersList);
+
+  });
+
+}
+
+
+/*
+
+Stream Customers: get_bulk_customers
+- Begins the Customers background syncing process
+
+*/
+async function streamCustomers(itemCount) {
+
+  return new Promise(async function streamCustomersHandler(resolve, reject) {
+
+    if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.customers) {
+      resolve();
+      return;
+    }
+
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    var customersList = [];
+
+
+    while (currentPage <= pages) {
+
+      var [customersError, customersData] = await to( getBulkCustomers(currentPage) ); // get_bulk_customers
+
+      if (customersError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(customersError) );
+        resolve();
+        break;
+      }
+
+      if (isWordPressError(customersData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(customersData) );
+        resolve();
+        break;
+      }
+
+      customersList.push(customersData);
+      currentPage += 1;
+
+    }
+
+    resolve(customersList);
+
+  });
+
+}
+
+
+/*
+
+Stream Smart Collections: get_bulk_smart_collections
+Returns Smart Collections
+
+*/
+function streamSmartCollections(itemCount) {
+
+  return new Promise(async function streamSmartCollectionsHandler(resolve, reject) {
+
+    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
+    var collectionsList = [];
+
+    while (currentPage <= pages) {
+
+      var [smartCollectionsError, smartCollectionsData] = await to( getBulkSmartCollections(currentPage) ); // get_bulk_smart_collections
+
+      if (smartCollectionsError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(smartCollectionsError) );
+        resolve();
+        break;
+      }
+
+      if (isWordPressError(smartCollectionsData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(smartCollectionsData) );
+        resolve();
+        break;
+      }
+
+      collectionsList.push(smartCollectionsData);
+      currentPage += 1;
+
+    }
+
+    resolve(collectionsList);
     return;
 
 
@@ -483,282 +367,35 @@ Stream Custom Collections
 Returns Smart Collections
 
 */
-async function streamCustomCollections() {
+async function streamCustomCollections(itemCount) {
 
   return new Promise(async function streamCustomCollectionsHandler(resolve, reject) {
 
-    var itemsToAdd = false;
-
-    /*
-
-    1. Get Smart Collections Count
-
-    */
-    try {
-
-      var itemCount = await getTotalCountsFromSession(); // get_total_counts
-
-      if (isWordPressError(itemCount)) {
-        reject(itemCount);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
-        return;
-      }
-
-      itemCount = itemCount.data.custom_collections;
-
-      if (emptyDataCount(itemCount)) {
-        resolve();
-      }
-
-    } catch(error) {
-      reject(error);
-      return;
-    }
-
-
-    /*
-
-    2. Insert all Smart Collections
-
-    */
-
+    var collectionsList = [];
     var { currentPage, pages, items } = constructStreamingOptions(itemCount);
 
     while (currentPage <= pages) {
 
-      try {
+      var [customCollectionsError, customCollectionsData] = await to( getBulkCustomCollections(currentPage) ); // get_bulk_custom_collections
 
-        itemsToAdd = await insertCustomCollections(currentPage); // wps_insert_custom_collections_data
-
-        if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd);
-          break;
-        }
-
-        if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing connection not found during insertCustomCollections'});
-          break;
-        }
-
-        currentPage += 1;
-
-
-      } catch(error) {
-
-        if ( isTimeout(error.status) ) {
-          currentPage += 1;
-          continue;
-
-        } else {
-
-          reject(error);
-          break;
-
-        }
-
-      }
-
-    }
-
-    resolve(itemsToAdd);
-    return;
-
-
-  });
-
-}
-
-
-/*
-
-Stream Orders
-Returns Orders
-
-*/
-async function streamOrders() {
-
-  return new Promise(async function streamOrdersHandler(resolve, reject) {
-
-    var itemsToAdd;
-
-    /*
-
-    Step 1. Get Orders count
-
-    */
-    try {
-
-      var itemCount = await getTotalCountsFromSession(); // get_total_counts
-
-      if (isWordPressError(itemCount)) {
-        reject(itemCount);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
-        return;
-      }
-
-      itemCount = itemCount.data.orders;
-
-      if (emptyDataCount(itemCount)) {
+      if (customCollectionsError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(customCollectionsError) );
         resolve();
+        break;
       }
 
-    } catch(error) {
-
-      reject(error);
-      return;
-
-    }
-
-
-    /*
-
-    Step 2. Insert Orders
-
-    */
-    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
-
-    while (currentPage <= pages) {
-
-      try {
-
-        itemsToAdd = await insertOrders(currentPage); // wps_insert_orders
-
-        if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd);
-          break;
-        }
-
-        if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing connection not found during insertOrders'});
-          break;
-        }
-
-        currentPage += 1;
-
-      } catch(error) {
-
-        if ( isTimeout(error.status) ) {
-          currentPage += 1;
-          continue;
-
-        } else {
-
-          reject(error);
-          break;
-
-        }
-
-      }
-
-    }
-
-    resolve(itemsToAdd);
-    return;
-
-
-  });
-
-}
-
-
-/*
-
-Stream Customers
-Returns Customers
-
-TODO: Combine with streamCustomers into a more generalized function
-
-*/
-async function streamCustomers() {
-
-  return new Promise(async function streamCustomersHandler(resolve, reject) {
-
-    var itemsToAdd = false;
-
-    /*
-
-    Step 1. Get Customers count
-
-    */
-    try {
-
-      var itemCount = await getTotalCountsFromSession(); // get_total_counts
-
-      if (isWordPressError(itemCount)) {
-        reject(itemCount);
-        return;
-      }
-
-      if (!connectionInProgress()) {
-        reject({ success: false, data: 'Syncing connection not found during getTotalCountsFromSession'});
-        return;
-      }
-
-      itemCount = itemCount.data.customers;
-
-      if (emptyDataCount(itemCount)) {
+      if (isWordPressError(customCollectionsData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(customCollectionsData) );
         resolve();
+        break;
       }
 
-    } catch(error) {
-      reject(error);
-      return;
-    }
-
-
-    /*
-
-    Step 2. Insert Customers
-
-    */
-    var { currentPage, pages, items } = constructStreamingOptions(itemCount);
-
-    while (currentPage <= pages) {
-
-      try {
-
-        itemsToAdd = await insertCustomers(currentPage); // wps_insert_customers
-
-        if (isWordPressError(itemsToAdd)) {
-          reject(itemsToAdd);
-          break;
-        }
-
-        if (!connectionInProgress()) {
-          reject({ success: false, data: 'Syncing connection not found during insertCustomers'});
-          break;
-        }
-
-        currentPage += 1;
-
-      } catch(error) {
-
-        if ( isTimeout(error.status) ) {
-          currentPage += 1;
-          continue;
-
-        } else {
-
-          reject(error);
-          break;
-
-        }
-
-      }
+      collectionsList.push(customCollectionsData);
+      currentPage += 1;
 
     }
 
-    resolve(itemsToAdd);
-    return;
-
+    resolve(collectionsList);
 
   });
 
@@ -766,12 +403,12 @@ async function streamCustomers() {
 
 
 export {
-  streamConnection,
   streamShop,
   streamProducts,
   streamCollects,
   streamSmartCollections,
   streamCustomCollections,
   streamOrders,
-  streamCustomers
+  streamCustomers,
+  constructStreamingOptions
 }

@@ -1,5 +1,29 @@
-import ShopifyBuy from 'shopify-buy';
-import { isError, hasProp } from '../utils/utils-common';
+import has from 'lodash/has';
+import isObject from 'lodash/isObject';
+import to from 'await-to-js';
+import { getErrorContents, isWordPressError, noticeConfigBadCredentials } from '../utils/utils-notices';
+import { clientActive, getClient, setClient } from '../utils/utils-client';
+import { buildClient } from './ws-client';
+
+
+
+function formatCredsFromServer(credsResponse) {
+
+  if (!isObject(credsResponse)) {
+    return false;
+  }
+
+  if (has(credsResponse, 'data') && has(credsResponse.data, 'js_access_token')) {
+    return credsResponse.data;
+  }
+
+  if (has(credsResponse, 'js_access_token')) {
+    return credsResponse;
+  }
+
+}
+
+
 
 /*
 
@@ -9,41 +33,23 @@ Returns: Promise
 */
 function shopifyInit(creds) {
 
-  return new Promise( (resolve, reject) => {
+  return new Promise( async (resolve, reject) => {
 
-    /*
+    // If client cached, just return it
+    if ( clientActive() ) {
+      return resolve( getClient() );
+    }
 
-    TODO: throw an error if creds are empty. Dont set them
-    to empty strings like this because it fails silently
-
-    */
     if (!creds) {
-
-      reject({
-        type: 'error',
-        message: 'Unable to find Shopify credentials. Please clear your browser cache and reload.'
-      });
-
-      return;
-
+      return reject( noticeConfigBadCredentials() );
     }
 
-    try {
+    // If creds look good, build the Client!
+    var client = buildClient(creds);
 
-      if (hasProp(creds, 'data')) {
-        creds = creds.data;
-      }
+    setClient(client);
 
-      resolve(ShopifyBuy.buildClient({
-        accessToken: creds.js_access_token,
-        domain: creds.domain,
-        appId: creds.app_id
-      }));
-
-    } catch (error) {
-      reject(error);
-      return;
-    }
+    resolve(client);
 
   });
 
@@ -58,41 +64,27 @@ Returns: Promise
 */
 function getShopifyCreds() {
 
-  return jQuery.ajax({
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_get_credentials_frontend',
-      nonce: WP_Shopify.nonce
-    }
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_shopify_creds';
+
+    jQuery.ajax({
+      method: 'GET',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
   });
 
 };
-
-
-/*
-
-Get Shopify cart session
-Returns: Promise
-
-*/
-function getCartSession() {
-
-  return jQuery.ajax({
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_get_cart_session',
-      nonce: WP_Shopify.nonce
-    }
-  });
-
-};
-
-
-
 
 
 /*
@@ -130,31 +122,25 @@ function findShopifyCreds() {
     var existingCreds = getStorefrontCreds();
 
     if (existingCreds) {
+
       resolve(existingCreds);
 
     } else {
 
-      /*
+      localStorage.clear();
 
-      Step 1. Get Shopify Credentials
+      var [credsError, creds] = await to( getShopifyCreds() ); // get_shopify_creds
 
-      */
-      try {
-
-        var creds = await getShopifyCreds(); // wps_get_credentials_frontend
-
-        if (isError(creds)) {
-          reject(creds.data);
-          return;
-        }
-
-        setStorefrontCreds(creds.data);
-        resolve(creds);
-
-      } catch(error) {
-        reject(error);
-        return;
+      if (credsError) {
+        return reject(credsError);
       }
+
+      if (isWordPressError(creds)) {
+        return reject(creds);
+      }
+
+      setStorefrontCreds(creds.data);
+      return resolve(creds);
 
     }
 
@@ -166,6 +152,6 @@ function findShopifyCreds() {
 export {
   shopifyInit,
   getShopifyCreds,
-  getCartSession,
-  findShopifyCreds
+  findShopifyCreds,
+  formatCredsFromServer
 }

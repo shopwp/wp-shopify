@@ -1,4 +1,3 @@
-// import { getTotalCountsFromSession } from '../ws';
 // import { requestSuccess } from '__mock__/requests';
 
 it('Generic Request Success', async () => {

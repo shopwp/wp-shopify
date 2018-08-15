@@ -5,7 +5,7 @@
 @description   Contains the actual add to cart button used for products. This is a global partial used by
                the shortcode, single page, and listing page.
 
-@version       1.0.0
+@version       1.0.1
 @since         1.0.49
 @path          templates/partials/products/add-to-cart/button-add-to-cart.php
 
@@ -27,8 +27,8 @@ if ( !defined('ABSPATH') ) {
     itemtype="https://schema.org/BuyAction"
     href="#!"
     class="wps-btn wps-col-1 wps-btn-secondary wps-add-to-cart <?= apply_filters('wps_add_to_cart_class', ''); ?>"
-    title="<?php esc_attr_e('Add to cart', 'wp-shopify'); ?>">
-    <?php esc_html_e('Add to cart', 'wp-shopify'); ?>
+    title="<?php esc_attr_e('Add to cart', WPS_PLUGIN_TEXT_DOMAIN); ?>">
+    <?php esc_html_e('Add to cart', WPS_PLUGIN_TEXT_DOMAIN); ?>
   </button>
 
 </div>

@@ -1,13 +1,10 @@
-import {
-  getCartCache
-} from '../ws/ws-settings';
-
-import {
-  fetchCart
-} from '../ws/ws-cart';
-
+import to from 'await-to-js';
+import { getCheckoutCache } from '../ws/ws-settings';
+import { removeAllLineItems } from '../ws/ws-cart';
+import { logNotice } from './utils-notices';
 import isObject from 'lodash/isObject';
 import isEmpty from 'lodash/isEmpty';
+import size from 'lodash/size';
 
 
 /*
@@ -16,26 +13,97 @@ Needs Cache Flush
 Calls Server
 
 */
-async function needsCacheFlush(cartID) {
+function needsCacheFlush(cartID) {
 
-  try {
+  return new Promise(async function (resolve, reject) {
 
-    var cacheFlushStatus = await getCartCache(cartID);
+    var [cartCacheError, cartCache] = await to( getCheckoutCache(cartID) );
 
-    /*
+    if (cartCacheError) {
+      return reject();
+    }
 
-    If cacheFlushStatus.success is true, then the cart ID already exists
-    in the DB
+    if (isWordPressError(cartCache)) {
+      return reject();
+    }
 
-    */
+    resolve();
 
-    // True if found, false if not
-    return cacheFlushStatus.success;
+  });
 
-  } catch(errors) {
+}
+
+
+/*
+
+Checks whether the cart is empty or not
+
+*/
+function isCheckoutEmpty(checkout) {
+
+  if (size(checkout.lineItems) > 0) {
     return false;
 
+  } else {
+    return true;
   }
+
+}
+
+
+/*
+
+Checks whether a line item exists or not
+
+*/
+function lineItemExists(lineItem) {
+
+  if (!lineItem || !lineItem.variant) {
+    return false;
+
+  } else {
+    return true;
+  }
+
+}
+
+
+/*
+
+Complete empty a checkout
+
+*/
+function clearCheckout(client, checkout) {
+
+  return new Promise( async (resolve, reject) => {
+
+    if ( !isCheckoutEmpty(checkout) ) {
+
+      var [checkoutError, checkoutData] = await to( removeAllLineItems(client, checkout) );
+
+      if (checkoutError) {
+        logNotice('removeAllLineItems', checkoutError, 'error');
+        reject(checkoutError);
+      }
+
+      resolve(checkoutData);
+
+    }
+
+  });
+
+}
+
+
+function clearLS() {
+
+  return new Promise( (resolve, reject) => {
+
+    localStorage.clear();
+
+    resolve();
+
+  });
 
 }
 
@@ -45,43 +113,12 @@ async function needsCacheFlush(cartID) {
 Flush cache
 
 */
-function flushCache(shopify, cart) {
+function flushCache(client, checkout) {
 
-  return new Promise( async (resolve, reject) => {
-
-    // Get the current cart
-    // try {
-    //
-    //   // Calls LS
-    //   var cart = await fetchCart(shopify);
-    //
-    // } catch(error) {
-    //   reject(error);
-    //   return;
-    // }
-
-    localStorage.removeItem('wps-cache-expiration'); // Used for money format
-    localStorage.removeItem('wps-animating');
-    localStorage.removeItem('wps-connection-in-progress');
-    localStorage.removeItem('wps-product-selection-id');
-    localStorage.removeItem('wps-storefront-creds');
-
-    if (cart.lineItemCount > 0) {
-
-      // Clearing the cart
-      try {
-        await cart.clearLineItems();
-
-      } catch(error) {
-        reject(error);
-        return;
-      }
-
-    }
-
-    resolve();
-
-  });
+  return Promise.all([
+    clearLS(),
+    clearCheckout(client, checkout)
+  ]);
 
 }
 
@@ -103,23 +140,11 @@ function emptyCartID(cartID) {
 }
 
 
-/*
-
-Predicate function that checks whether the current cart is empty or not
-
-*/
-function isEmptyCart(cart) {
-
-  if ( isObject(cart) && !isEmpty(cart) ) {
-    return cart.lineItemCount === 0;
-  }
-
-}
-
-
 export {
   needsCacheFlush,
   flushCache,
+  clearLS,
   emptyCartID,
-  isEmptyCart
+  isCheckoutEmpty,
+  lineItemExists
 }

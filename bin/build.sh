@@ -33,21 +33,21 @@ printf "${GREEN}Success: ${NC}Copied plugin to build folder\n"
 #
 cd $BUILD_FOLDER
 cd ..
-zip -rq $BUILD_FOLDER/wp-shopify.zip ./wp-shopify
+zip -rq $BUILD_FOLDER/wpshopify.zip ./wp-shopify
 printf "${GREEN}Success: ${NC}Created .zip\n"
 
 #
 # Delete all files and folders inside _build except our new .zip
 #
-find $BUILD_FOLDER/* ! -name 'wp-shopify.zip' -type f -exec rm -f {} +
-find $BUILD_FOLDER/* ! -name 'wp-shopify.zip' -type d -exec rm -rf {} +
+find $BUILD_FOLDER/* ! -name 'wpshopify.zip' -type f -exec rm -f {} +
+find $BUILD_FOLDER/* ! -name 'wpshopify.zip' -type d -exec rm -rf {} +
 printf "${GREEN}Success: ${NC}Isolated .zip\n"
 
 #
 # Copy new .zip to server
 #
-scp $BUILD_FOLDER/wp-shopify.zip arobbins@162.243.170.76:~
-ssh -t arobbins@162.243.170.76 "sudo rm /var/www/$ENV/html/live/latest/wp-shopify.zip && sudo mv wp-shopify.zip /var/www/$ENV/html/live/latest/"
+scp $BUILD_FOLDER/wpshopify.zip arobbins@162.243.170.76:~
+ssh -t arobbins@162.243.170.76 "sudo rm /var/www/$ENV/html/live/latest/wpshopify.zip && sudo mv wpshopify.zip /var/www/$ENV/html/live/latest/"
 printf "${GREEN}Success: ${NC}Transfered new .zip to server\n"
 
 #

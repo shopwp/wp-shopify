@@ -1,12 +1,12 @@
+import to from 'await-to-js';
 import isError from 'lodash/isError';
 
 import {
-  syncPluginData,
-  getItemCounts
+  getItemCounts,
+  syncPluginData
 } from '../ws/middleware';
 
 import {
-  createConnectorModal,
   injectConnectorModal,
   showConnectorModal,
   setConnectionStepMessage,
@@ -15,44 +15,46 @@ import {
   updateModalHeadingText,
   updateCurrentConnectionStepText,
   insertXMark,
-  initCloseModalEvents,
   insertCheckmark,
   setConnectionNotice,
-  updateDomAfterSync
+  updateDomAfterSync,
+  createModal
 } from '../utils/utils-dom';
 
 import {
   setWebhooksReconnect
-} from '../ws/localstorage.js';
+} from '../ws/localstorage';
 
 import {
   setSyncingIndicator,
-  syncWithCPT
-} from '../ws/ws.js';
+  checkForValidServerConnection
+} from '../ws/ws';
 
 import {
-  syncOff,
-  clearSync
-} from '../ws/wrappers.js';
+  syncOff
+} from '../ws/wrappers';
 
 import {
   syncOn,
-  saveConnection,
   saveCounts,
-  removeExistingData,
-  syncData
+  removeExistingData
 } from '../ws/syncing';
 
 import {
-  onModalClose
-} from '../forms/events';
+  syncingConfigErrorBeforeSync,
+  syncingConfigManualCancel,
+  syncingConfigJavascriptError
+} from '../ws/syncing-config';
 
 import {
   enable,
   disable,
-  showSpinner,
   isWordPressError,
-  getDataFromArray
+  isJavascriptError,
+  getDataFromArray,
+  getWordPressErrorMessage,
+  getJavascriptErrorMessage,
+  getWordPressErrorType
 } from '../utils/utils';
 
 import {
@@ -64,7 +66,9 @@ import {
   mapProgressDataFromSessionValues,
   appendProgressBars,
   progressStatus,
-  forceProgressBarsComplete
+  cleanUpAfterSync,
+  manuallyCanceled,
+  afterDataRemoval
 } from '../utils/utils-progress';
 
 import {
@@ -82,16 +86,8 @@ import {
 } from '../tools/cache';
 
 import {
-  activateToolButtons
-} from './tools';
-
-import {
-  prepareBeforeSync
-} from '../connect/connect';
-
-import {
   disconnectInit
-} from '../disconnect/disconnect.js';
+} from '../disconnect/disconnect';
 
 
 /*
@@ -104,213 +100,273 @@ checksum comparisons. Look into this.
 */
 function onResyncSubmit() {
 
-  jQuery(".wps-is-active #wps-button-sync").unbind().on('click', function(e) {
+
+  jQuery("#wps-button-sync").off().on('click', function(e) {
 
     e.preventDefault();
 
+    createModal('Resyncing', 'Cancel resync');
+
+
     return new Promise(async (resolve, reject) => {
 
-      var warningList = [];
-
-      prepareBeforeSync();
-      updateModalHeadingText('Re-syncing ...');
-      setConnectionStepMessage('Preparing re-sync ...');
 
       /*
 
-      1. Turn sync on
+      Clear all plugin cache
 
       */
-      try {
-        var syncOnResponse = await syncOn();
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
-        resolve();
-        return;
-
-      }
 
       insertCheckmark();
-      setConnectionStepMessage('Starting re-sync ...');
-      warningList = addToWarningList(warningList, syncOnResponse);
+      setConnectionStepMessage('Preparing for sync ...');
+
+      var [clearAllCacheError, clearAllCacheData] = await to( clearAllCache() );
+
+      if (clearAllCacheError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(clearAllCacheError) );
+        resolve();
+        return;
+      }
+
+      if (isWordPressError(clearAllCacheData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(clearAllCacheData) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
+
 
       /*
 
-      2. Start progress bar
+      Checks for an open connection to the server ...
 
       */
-      try {
-
-        var startProgressBarResponse = await startProgressBar( true, getSelectiveSyncOptions() );
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
-        resolve();
-        return;
-
-      }
 
       insertCheckmark();
-      setConnectionStepMessage('Determining the number of items to sync ...');
-      warningList = addToWarningList(warningList, startProgressBarResponse);
+      setConnectionStepMessage('Validating Shopify connection ...');
+
+      var [serverConnectionError, serverConnectionData] = await to( checkForValidServerConnection() );
+
+      if (serverConnectionError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(serverConnectionError) );
+        resolve();
+        return;
+      }
+
+      if (isWordPressError(serverConnectionData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(serverConnectionData) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
 
 
       /*
 
-      3. Get item counts
+      Fires off the first background process. Server errors will be captured in the Database from here on.
+
+      Calls delete_only_synced_data from Async_Processing_Database
 
       */
-      try {
-
-        var itemCountsResp = await getItemCounts();
-        var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
-        resolve();
-        return;
-
-      }
-
-      warningList = addToWarningList(warningList, itemCountsResp);
-
-
-      /*
-
-      4. Save item counts
-
-      */
-      try {
-
-        var saveCountsResponse = await saveCounts(allCounts); // save_counts
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
-        resolve();
-        return;
-
-      }
 
       insertCheckmark();
+      setConnectionStepMessage('Removing any existing data first ...');
 
-      setConnectionStepMessage('Cleaning out any existing data first ...');
-      warningList = addToWarningList(warningList, saveCountsResponse);
+      var [removeExistingDataError, removeExistingDataResponse] = await to( removeExistingData() );
 
-
-      /*
-
-      5. Remove existing data
-
-      */
-      try {
-        var removeExistingDataResponse = await removeExistingData();
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
+      if (removeExistingDataError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(removeExistingDataError) );
         resolve();
         return;
-
       }
 
-      insertCheckmark();
-      updateModalButtonText('Cancel re-syncing process');
-      setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
-      warningList = addToWarningList(warningList, removeExistingDataResponse);
-
-
-      /*
-
-      6. Begin polling for the status ... creates a cancelable loop
-
-      */
-      progressStatus();
-      appendProgressBars( filterOutSelectedDataForSync(allCounts, ['webhooks']) );
-
-
-      /*
-
-      7. Sync Data
-
-      */
-      try {
-        var syncResp = await syncData();
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
+      if (isWordPressError(removeExistingDataResponse)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(removeExistingDataResponse) );
         resolve();
         return;
-
       }
 
-      insertCheckmark();
-      setConnectionStepMessage('Cleaning up ...');
-      warningList = addToWarningList(warningList, syncResp);
-
-      forceProgressBarsComplete();
-
-
-      /*
-
-      8. Turn sync off
-
-      */
-      try {
-        var syncOffResponse = await syncOff();
-
-      } catch (errors) {
-
-        updateDomAfterSync({
-          noticeList: returnOnlyFailedRequests(errors)
-        });
-
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
         resolve();
         return;
-
       }
-
-      warningList = addToWarningList(warningList, syncOffResponse);
 
 
       /*
 
-      9. Finally update DOM
+      Only after data has been removed ...
 
       */
-      updateDomAfterSync({
-        headingText: 'Re-sync complete',
-        buttonText: 'Ok, let\'s go!',
-        status: 'is-connected',
-        stepText: 'Finished re-syncing',
-        noticeList: constructFinalNoticeList(warningList),
-        noticeType: 'success'
+      afterDataRemoval(async (response) => {
+
+        // Is called if our polling fails
+        if (isJavascriptError(response)) {
+          cleanUpAfterSync( syncingConfigJavascriptError(response) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(response)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(response) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+        }
+
+
+
+
+        /*
+
+        Sets the is_syncing flag in the database
+
+        */
+        var [syncOnError, syncOnData] = await to( syncOn() );
+
+        if (syncOnError) {
+          cleanUpAfterSync( syncingConfigJavascriptError(syncOnError) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(syncOnData)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(syncOnData) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+        }
+
+
+        /*
+
+        Gets the total number of items from Shopify
+
+        */
+
+        insertCheckmark();
+        setConnectionStepMessage('Determining the number of items to sync ...');
+
+        var [getItemCountsError, getItemCountsData] = await to( getItemCounts() );
+
+        if (getItemCountsError) {
+          cleanUpAfterSync( syncingConfigJavascriptError(getItemCountsError) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(getItemCountsData)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(getItemCountsData) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+        }
+
+
+        /*
+
+        5. Save item counts
+
+        */
+        var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(getItemCountsData) ) ) );
+
+
+        var [saveCountsError, saveCountsData] = await to( saveCounts(allCounts, ['webhooks']) ); // insert_syncing_totals
+
+        if (saveCountsError) {
+          cleanUpAfterSync( syncingConfigJavascriptError(saveCountsError) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(saveCountsData)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(saveCountsData) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+
+        }
+
+
+        /*
+
+        6. Start progress bar
+
+        */
+        var [startProgressBarError, startProgressBarData] = await to( startProgressBar(true, getSelectiveSyncOptions(), ['webhooks']) );
+
+        if (startProgressBarError) {
+          cleanUpAfterSync( syncingConfigJavascriptError(startProgressBarError) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(startProgressBarData)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(startProgressBarData) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+        }
+
+
+
+        /*
+
+        8. Sync Data
+
+        */
+
+        insertCheckmark();
+        updateModalButtonText('Cancel resyncing process');
+        setConnectionStepMessage('Syncing Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of internet connection.)');
+
+        // Excluding webhooks from the resync
+        appendProgressBars( filterOutSelectedDataForSync(allCounts, ['webhooks']) );
+
+
+        //  Begins polling for sync status ...
+        progressStatus();
+
+        syncPluginData(allCounts)
+
+
       });
-
-      activateToolButtons();
 
 
     });

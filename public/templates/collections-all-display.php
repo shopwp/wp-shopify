@@ -17,7 +17,6 @@ if ( !defined('ABSPATH') ) {
 	exit;
 }
 
-
 do_action( 'wps_collections_header', $data->collections );
 do_action( 'wps_collections_header_after', $data->collections );
 

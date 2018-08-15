@@ -37,16 +37,6 @@ function setConnectionProgress(status) {
 
 /*
 
-Remove Connection Nonce
-
-*/
-function removeConnectionNonce() {
-  localStorage.removeItem('wps-nonce');
-}
-
-
-/*
-
 Remove Cache Expiration
 
 */
@@ -264,7 +254,6 @@ Clears all localstorage cache
 function clearLocalstorageCache() {
   // removeModalCache();
   // removeConnectionProgress();
-  // removeConnectionNonce();
   // removeCacheExpiration();
   // removeAnimating();
   // removeLastCartID();
@@ -274,6 +263,14 @@ function clearLocalstorageCache() {
   // removeCancelSync();
   // removeWebhooksReconnect();
   localStorage.clear();
+
+  WP_Shopify.manuallyCanceled = false;
+  WP_Shopify.reconnectingWebhooks = false;
+  WP_Shopify.isSyncing = false;
+  WP_Shopify.isClearing = false;
+  WP_Shopify.isConnecting = false;
+  WP_Shopify.isDisconnecting = false;
+
 }
 
 
@@ -281,7 +278,6 @@ export {
   connectionInProgress,
   setConnectionProgress,
   removeConnectionProgress,
-  removeConnectionNonce,
   setModalCache,
   removeModalCache,
   getModalCache,

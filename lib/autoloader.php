@@ -20,12 +20,20 @@ spl_autoload_register(function($filename) {
 
 	// First, separate the components of the incoming file.
 	$file_path = explode( '\\', $filename );
+	$is_factories = false;
 
 	if (isset($file_path[1]) && $file_path[1] === 'DB') {
-		$is_db = true;
+		$is_sub_folder = true;
+
+	} else if (isset($file_path[1]) && $file_path[1] === 'WS') {
+		$is_sub_folder = true;
+
+	} else if (isset($file_path[1]) && $file_path[1] === 'Factories') {
+		$is_sub_folder = true;
+		$is_factories = true;
 
 	} else {
-		$is_db = false;
+		$is_sub_folder = false;
 
 	}
 
@@ -46,15 +54,28 @@ spl_autoload_register(function($filename) {
 
 		$class_file = str_ireplace( '_', '-', $class_file);
 
+
 		// The classname has an underscore, so we need to replace it with a hyphen for the file name.
-		if ($is_db && $class_file !== 'db') {
-			$class_file = "class-" . strtolower($file_path[1]) . "-" . $class_file . ".php";
+		if ($is_sub_folder && $class_file !== 'db') {
+
+			if ($class_file === 'db' || $class_file === 'ws') {
+				$class_file = "class-" . strtolower($file_path[1]) . ".php";
+
+			} else if ($is_factories) {
+				$class_file = "class-$class_file.php";
+
+			} else {
+				$class_file = "class-" . strtolower($file_path[1]) . "-" . $class_file . ".php";
+			}
 
 		} else {
+
 			$class_file = "class-$class_file.php";
 		}
 
 	}
+
+
 
 
 	/*
@@ -70,13 +91,6 @@ spl_autoload_register(function($filename) {
 		)
 	);
 
-	// if ($is_db) {
-	// 	$fully_qualified_path = $fully_qualified_path . 'classes/db/';
-	//
-	// } else {
-	//
-	// }
-
 	$fully_qualified_path = $fully_qualified_path . 'classes/';
 
 	for ( $i = 1; $i < count($file_path) - 1; $i++ ) {
@@ -88,14 +102,22 @@ spl_autoload_register(function($filename) {
 		$fully_qualified_path .= 'db/';
 		$fully_qualified_path .= $class_file;
 
+	} else if ($class_file === 'class-ws.php') {
+		$fully_qualified_path .= 'ws/';
+		$fully_qualified_path .= $class_file;
+
 	} else {
 		$fully_qualified_path .= $class_file;
 
 	}
 
+
 	// Now we include the file.
 	if ( file_exists( $fully_qualified_path ) ) {
 		include_once( $fully_qualified_path );
+
+	} else {
+
 	}
 
 });

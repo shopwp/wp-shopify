@@ -1,4 +1,8 @@
-import { removeEventHandlers } from '../utils/utils-common';
+import to from 'await-to-js';
+import { setCurrentlySelectedVariants } from '../ws/ws-products';
+import { getClient } from '../utils/utils-client';
+import { isGraphqlError, logNotice } from '../utils/utils-notices';
+
 import filter from 'lodash/filter';
 
 
@@ -9,7 +13,7 @@ Updates product title (product is the actual DOM element)
 */
 function updateProductTitle(productTitle, title) {
   jQuery(productTitle).text(title);
-};
+}
 
 
 /*
@@ -19,7 +23,7 @@ Updates product image
 */
 function updateVariantImage(productImage, image) {
   jQuery(productImage).attr('src', image.src);
-};
+}
 
 
 /*
@@ -29,7 +33,7 @@ Update product variant title
 */
 function updateVariantTitle(productVariantTitle, variant) {
   jQuery(productVariantTitle).text(variant.title);
-};
+}
 
 
 /*
@@ -39,7 +43,7 @@ Update product variant price
 */
 function updateVariantPrice(productVariantPrice, variant) {
   jQuery(productVariantPrice).text('$' + variant.price);
-};
+}
 
 
 /*
@@ -49,6 +53,11 @@ Show Hidden Product Variants
 */
 function showHiddenProductVariants() {
   jQuery('.wps-modal .wps-product-style').removeClass('wps-is-hidden');
+}
+
+
+function addProductIdsToMeta($element, productID) {
+  $element.attr('data-product-storefront-id', productID);
 }
 
 
@@ -66,12 +75,13 @@ function resetVariantSelectors() {
 
     $dropdown.attr('data-selected', false);
     $dropdown.data('selected', false);
-    $dropdownLink.html($dropdownLink.attr("data-option"));
 
-    jQuery('.wps-product-meta.wps-is-selecting').removeClass('wps-is-selecting');
+    // Resets the dropdown text to the Option name (Size, Color, Material, etc)
+    $dropdownLink.html($dropdownLink.attr("data-option"));
 
   });
 
+  setCurrentlySelectedVariants({});
   showHiddenProductVariants();
 
 }
@@ -123,21 +133,6 @@ function resetOptionsSelection() {
 
 /*
 
-Close Options Modal
-
-*/
-function closeOptionsModal($dropdown = false) {
-
-  jQuery('.wps-btn-dropdown').data('open', false);
-  jQuery('.wps-btn-dropdown').attr('data-open', false);
-
-  removeEventHandlers('wps-close-animation');
-
-}
-
-
-/*
-
 Get Deselected Dropdowns
 
 */
@@ -157,9 +152,8 @@ export {
   updateVariantTitle,
   updateVariantPrice,
   resetOptionsSelection,
-  closeOptionsModal,
   showHiddenProductVariants,
   getDeselectedDropdowns,
   getCurrentlySelectedOptionsAmount,
   getCurrentlySelectedOptions
-};
+}

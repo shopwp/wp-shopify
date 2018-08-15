@@ -1,8 +1,5 @@
 import forEach from 'lodash/forEach';
-
-import {
-  onModalClose
-} from '../forms/events';
+import to from 'await-to-js';
 
 import {
   unbindDisconnectForm,
@@ -12,15 +9,13 @@ import {
 import {
   disable,
   enable,
-  setNonce,
-  showSpinner,
   removeTrueAndTransformToArray,
   isWordPressError,
-  isConnected
+  isConnected,
+  hideLoader
 } from '../utils/utils';
 
 import {
-  createConnectorModal,
   injectConnectorModal,
   ejectConnectorModal,
   showConnectorModal,
@@ -29,43 +24,55 @@ import {
   updateModalHeadingText,
   updateCurrentConnectionStepText,
   insertXMark,
-  initCloseModalEvents,
   insertCheckmark,
-  updateConnectStatusHeading,
   clearConnectInputs,
   resetConnectSubmit,
   updateDomAfterSync,
   resetConnectionDOM,
   getConnectorCancelButton,
-  getToolsButtons
+  getToolsButtons,
+  hideAdminNoticeByType,
+  showAdminNotice,
+  resetSyncByCollectionOptions,
+  createModal
 } from '../utils/utils-dom';
 
 import {
   returnOnlyFailedRequests,
   constructFinalNoticeList,
-  addToWarningList
+  addToWarningList,
+  setConnectionStatus,
+  returnOnlyFirstError
 } from '../utils/utils-data';
 
 import {
-  uninstallPlugin,
-  removeConnectionData
+  removeConnectionData,
+  removeWebhooks,
+  checkForActiveConnection,
+  deleteOnlySyncedData,
+  resetNoticeFlags
 } from '../ws/ws';
 
 import {
-  clearSync,
-  syncOff
+  afterWebhooksRemoval,
+  cleanUpAfterSync,
+  manuallyCanceled
+} from '../utils/utils-progress';
+
+import {
+  syncOff,
+  resetNoticesAndClearCache,
+  noConnectionReset
 } from '../ws/wrappers';
 
 import {
-  setConnectionProgress,
   clearLocalstorageCache,
   removeConnectionProgress,
   setWebhooksReconnect
 } from '../ws/localstorage';
 
 import {
-  connectInit,
-  prepareBeforeSync
+  connectInit
 } from '../connect/connect';
 
 import {
@@ -76,6 +83,13 @@ import {
   removeExistingData,
   syncOn
 } from '../ws/syncing';
+
+import {
+  syncingConfigJavascriptError,
+  syncingConfigErrorBeforeSync,
+  syncingConfigDisconnection,
+  syncingConfigManualCancel
+} from '../ws/syncing-config';
 
 
 /*
@@ -105,103 +119,104 @@ function constructErrorList(errors, currentErrorList, errorCode = '') {
 
 /*
 
-Updates the connector modal with the proper messaging
+Callback fired on disconnect form submit
 
 */
-function showCleanDataMessaging() {
-
-  // updateModalHeadingText('Disconnecting ...');
-  updateModalButtonText('Stop disconnecting');
-  setConnectionStepMessage('Removing added data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
-  // insertCheckmark();
-
-  jQuery('.wps-progress-bar-wrapper').remove();
-
-  attachStopEvent();
-
-}
-
-
-/*
-
-Called when the user manually cancels an in-progress disconnect
-
-*/
-function attachStopEvent() {
-
-  jQuery('.wps-btn-cancel').on('click', function() {
-
-    if (!isConnected()) {
-      resetConnectionDOM();
-      resetConnectSubmit();
-    }
-
-    ejectConnectorModal();
-
-  });
-
-}
-
-
 function disconnectionFormSubmitHandler(e) {
 
   e.preventDefault();
 
+  createModal('Disconnecting', 'Cancel disconnecting');
+
   return new Promise(async (resolve, reject) => {
 
-    var warningList = [];
+    setConnectionStepMessage('Checking for active connection ...');
 
-    prepareBeforeSync();
+    WP_Shopify.isDisconnecting = true;
 
-    updateModalHeadingText('Disconnecting ...');
-    updateModalButtonText('Cancel disconnecting');
-    setConnectionStepMessage('Preparing to disconnect ...');
+
+
+    /*
+
+    Step 1. Clearing current data
+
+    */
+    var [checkForActiveConnectionError, checkForActiveConnectionData] = await to( checkForActiveConnection() );
+
+    if (checkForActiveConnectionError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(checkForActiveConnectionError) );
+      resolve();
+      return
+    }
+
+    if (manuallyCanceled()) {
+      cleanUpAfterSync( syncingConfigManualCancel() );
+      resolve();
+      return;
+    }
+
+    if (isWordPressError(checkForActiveConnectionData)) {
+
+      // No active connection exists. Just drop data and clear cache.
+      var [noConnectionResetError, noConnectionResetData] = await to( noConnectionReset() );
+
+      if (noConnectionResetError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(noConnectionResetError) );
+        resolve();
+        return
+      }
+
+      if (isWordPressError(noConnectionResetData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(noConnectionResetData) ) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
+
+      showAdminNotice('Successfully removed all data', 'updated');
+      hideAdminNoticeByType('notice_warning_app_uninstalled');
+      setConnectionStatus(false);
+
+      cleanUpAfterSync( syncingConfigDisconnection() );
+      resolve();
+      return;
+
+    }
+
 
     /*
 
     1. Turn syncing on
 
     */
-    try {
-      var syncOnResponse = await syncOn();
-
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
-      resolve();
-      return;
-
-    }
-
-    warningList = addToWarningList(warningList, syncOnResponse);
-
-
-    /*
-
-    2. Clear all cache
-
-    */
-    try {
-      var clearAllCacheResponse = await clearAllCache();
-
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
-      resolve();
-      return;
-
-    }
-
 
     insertCheckmark();
-    setConnectionStepMessage('Removing added Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of your internet connection.)');
-    warningList = addToWarningList(warningList, clearAllCacheResponse);
+    setConnectionStepMessage('Removing added Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of internet connection.)');
+
+    var [syncOnError, syncOnData] = await to( syncOn() );
+
+    if (syncOnError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(syncOnError) );
+      resolve();
+      return
+    }
+
+    if (isWordPressError(syncOnData)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(syncOnData) ) );
+      resolve();
+      return;
+    }
+
+    if (manuallyCanceled()) {
+      cleanUpAfterSync( syncingConfigManualCancel() );
+      resolve();
+      return;
+    }
 
 
     /*
@@ -209,88 +224,125 @@ function disconnectionFormSubmitHandler(e) {
     3. Remove product data
 
     */
-    try {
-      var removeExistingDataResponse = await removeExistingData();
+    var [removeExistingDataError, removeExistingDataResp] = await to( removeExistingData() );
 
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
+    if (removeExistingDataError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(removeExistingDataError) );
       resolve();
-      return;
-
+      return
     }
 
-    warningList = addToWarningList(warningList, removeExistingDataResponse);
+    if (isWordPressError(removeExistingDataResp)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(removeExistingDataResp) ) );
+      resolve();
+      return;
+    }
+
+    if (manuallyCanceled()) {
+      cleanUpAfterSync( syncingConfigManualCancel() );
+      resolve();
+      return;
+    }
 
 
     /*
 
-    4. Remove connection data
+    Remove webhooks
+    delete_webhooks
 
     */
-    try {
-      var removeConnectionDataResponse = await removeConnectionData();
 
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
-      resolve();
-      return;
-
-    }
+    setConnectionStatus(false);
 
 
-    insertCheckmark();
-    setConnectionStepMessage('Cleaning up ...');
-    warningList = addToWarningList(warningList, removeConnectionDataResponse);
 
 
-    /*
+      // Remove connection data
+      var [removeConnectionDataError, removeConnectionDataData] = await to( removeConnectionData() );
 
-    5. Turn sync off
+      if (removeConnectionDataError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(removeConnectionDataError) );
+        resolve();
+        return
+      }
 
-    */
-    try {
-      var syncOffResponse = await syncOff();
+      if (isWordPressError(removeConnectionDataData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(removeConnectionDataData) ) );
+        resolve();
+        return;
+      }
 
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
-      resolve();
-      return;
-
-    }
-
-    warningList = addToWarningList(warningList, syncOffResponse);
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
 
 
-    /*
+      /*
 
-    6. Finally update DOM
+      6. Turn sync off
 
-    */
-    updateDomAfterSync({
-      headingText: 'Disconnected',
-      stepText: 'Finished disconnecting',
-      noticeList: constructFinalNoticeList(warningList),
-      noticeType: 'success'
-    });
+      */
 
-    clearConnectInputs();
+      insertCheckmark();
+      setConnectionStepMessage('Cleaning up ...');
 
-    enable( getConnectorCancelButton() );
-    disable( getToolsButtons() );
+      var [syncOffError, syncOffData] = await to( syncOff() );
+
+      if (syncOffError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(syncOffError) );
+        resolve();
+        return
+      }
+
+      if (isWordPressError(syncOffData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(syncOffData) ) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
+
+
+      /*
+
+      2. Clear all cache
+
+      */
+      var [resetNoticesAndClearCacheError, resetNoticesAndClearCacheData] = await to( resetNoticesAndClearCache() );
+
+      if (resetNoticesAndClearCacheError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(resetNoticesAndClearCacheError) );
+        resolve();
+        return
+      }
+
+      if (isWordPressError(resetNoticesAndClearCacheData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(resetNoticesAndClearCacheData) ) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
+
+
+      // Finish
+      cleanUpAfterSync( syncingConfigDisconnection() );
+
+
+
 
   });
+
 
 }
 
@@ -307,7 +359,7 @@ function onDisconnectionFormSubmit() {
 
   unbindConnectForm();
 
-  $formConnect.on('submit.disconnect', disconnectionFormSubmitHandler);
+  $formConnect.off('submit.disconnect').on('submit.disconnect', disconnectionFormSubmitHandler);
 
 }
 
@@ -322,6 +374,5 @@ function disconnectInit() {
 }
 
 export {
-  disconnectInit,
-  showCleanDataMessaging
+  disconnectInit
 };

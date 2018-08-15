@@ -21,5 +21,5 @@ if ( !defined('ABSPATH') ) {
 <h2
   itemprop="name"
   class="wps-products-title <?= apply_filters( 'wps_products_title_class', '' ); ?>">
-  <?php esc_html_e($data->product->title, 'wp-shopify'); ?>
+  <?php esc_html_e($data->product->title, WPS_PLUGIN_TEXT_DOMAIN); ?>
 </h2>

@@ -2,73 +2,162 @@
 
 namespace WPS;
 
-use WPS\DB\Settings_Connection;
-use WPS\DB\Settings_General;
-use WPS\DB\Settings_License;
-use WPS\DB\Shop;
-use WPS\DB\Products;
-use WPS\DB\Variants;
-use WPS\DB\Collects;
-use WPS\DB\Options;
-use WPS\DB\Collections_Custom;
-use WPS\DB\Collections_Smart;
-use WPS\DB\Images;
-use WPS\DB\Tags;
-use WPS\CPT;
-use WPS\Utils;
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-
-/*
-
-Fired during plugin install / activate
-
-*/
 if ( !class_exists('Activator') ) {
 
 	class Activator {
 
-		protected static $instantiated = null;
-		private $Config;
-		public $config;
+		private $DB_Settings_Connection;
+		private $DB_Settings_General;
+		private $DB_Settings_License;
+		private $DB_Shop;
+		private $DB_Products;
+		private $DB_Variants;
+		private $DB_Collects;
+		private $DB_Options;
+		private $DB_Collections_Custom;
+		private $DB_Collections_Smart;
+		private $DB_Images;
+		private $DB_Tags;
+		private $CPT;
+		private $DB_Customers;
+		private $DB_Orders;
+		private $DB_Settings_Syncing;
 
-		/*
+		public function __construct($DB_Settings_Connection, $DB_Settings_General, $DB_Settings_License, $DB_Shop, $DB_Products, $DB_Variants, $DB_Collects, $DB_Options, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Images, $DB_Tags, $CPT, $DB_Customers, $DB_Orders, $DB_Settings_Syncing) {
 
-		Initialize the class and set its properties.
+			$this->DB_Settings_Connection 			= $DB_Settings_Connection;
+			$this->DB_Settings_General 					= $DB_Settings_General;
+			$this->DB_Settings_License 					= $DB_Settings_License;
+			$this->DB_Shop 											= $DB_Shop;
+			$this->DB_Products 									= $DB_Products;
+			$this->DB_Variants 									= $DB_Variants;
+			$this->DB_Collects 									= $DB_Collects;
+			$this->DB_Options 									= $DB_Options;
+			$this->DB_Collections_Custom 				= $DB_Collections_Custom;
+			$this->DB_Collections_Smart 				= $DB_Collections_Smart;
+			$this->DB_Images 										= $DB_Images;
+			$this->DB_Tags 											= $DB_Tags;
+			$this->CPT 													= $CPT;
 
-		*/
-		public function __construct($Config) {
-			$this->config = $Config;
+			// Pro only
+			$this->DB_Customers 								= $DB_Customers;
+			$this->DB_Orders 										= $DB_Orders;
+
+			$this->DB_Settings_Syncing					= $DB_Settings_Syncing;
+
 		}
 
 
 		/*
 
-		Creates a new class if one hasn't already been created.
-		Ensures only one instance is used.
+		Sets default plugin settings and inserts default rows
 
 		*/
-		public static function instance($Config) {
+		public function set_default_table_values() {
 
-			if (is_null(self::$instantiated)) {
-				self::$instantiated = new self($Config);
-			}
-
-			return self::$instantiated;
+			$this->DB_Settings_General->init();
+			$this->DB_Settings_Syncing->init();
 
 		}
 
 
-		/*
+		public function create_migration_db_tables() {
 
-		init_settings
+			$create_migration_db_tables_results = [];
 
-		*/
-		public function init_settings() {
+			$create_migration_db_tables_results['DB_Settings_Connection'] = $this->DB_Settings_Connection->create_migration_table();
+			$create_migration_db_tables_results['DB_Settings_General'] = $this->DB_Settings_General->create_migration_table();
+			$create_migration_db_tables_results['DB_Settings_License'] = $this->DB_Settings_License->create_migration_table();
+			$create_migration_db_tables_results['DB_Shop'] = $this->DB_Shop->create_migration_table();
+			$create_migration_db_tables_results['DB_Products'] = $this->DB_Products->create_migration_table();
+			$create_migration_db_tables_results['DB_Variants'] = $this->DB_Variants->create_migration_table();
+			$create_migration_db_tables_results['DB_Collects'] = $this->DB_Collects->create_migration_table();
+			$create_migration_db_tables_results['DB_Options'] = $this->DB_Options->create_migration_table();
+			$create_migration_db_tables_results['DB_Collections_Custom'] = $this->DB_Collections_Custom->create_migration_table();
+			$create_migration_db_tables_results['DB_Collections_Smart'] = $this->DB_Collections_Smart->create_migration_table();
+			$create_migration_db_tables_results['DB_Images'] = $this->DB_Images->create_migration_table();
+			$create_migration_db_tables_results['DB_Tags'] = $this->DB_Tags->create_migration_table();
+			$create_migration_db_tables_results['DB_Settings_Syncing'] = $this->DB_Settings_Syncing->create_migration_table();
+
+
+			return Utils::return_only_error_messages( Utils::return_only_errors($create_migration_db_tables_results) );
+
+		}
+
+
+		public function run_insert_to_queries() {
+
+			$insert_to_queries_results = [];
+
+			$insert_to_queries_results['DB_Settings_Connection'] = $this->DB_Settings_Connection->migration_insert_into_query();
+			$insert_to_queries_results['DB_Settings_General'] = $this->DB_Settings_General->migration_insert_into_query();
+			$insert_to_queries_results['DB_Settings_License'] = $this->DB_Settings_License->migration_insert_into_query();
+			$insert_to_queries_results['DB_Shop'] = $this->DB_Shop->migration_insert_into_query();
+			$insert_to_queries_results['DB_Products'] = $this->DB_Products->migration_insert_into_query();
+			$insert_to_queries_results['DB_Variants'] = $this->DB_Variants->migration_insert_into_query();
+			$insert_to_queries_results['DB_Collects'] = $this->DB_Collects->migration_insert_into_query();
+			$insert_to_queries_results['DB_Options'] = $this->DB_Options->migration_insert_into_query();
+			$insert_to_queries_results['DB_Collections_Custom'] = $this->DB_Collections_Custom->migration_insert_into_query();
+			$insert_to_queries_results['DB_Collections_Smart'] = $this->DB_Collections_Smart->migration_insert_into_query();
+			$insert_to_queries_results['DB_Images'] = $this->DB_Images->migration_insert_into_query();
+			$insert_to_queries_results['DB_Tags'] = $this->DB_Tags->migration_insert_into_query();
+			$insert_to_queries_results['DB_Settings_Syncing'] = $this->DB_Settings_Syncing->migration_insert_into_query();
+
+
+			return Utils::return_only_errors($insert_to_queries_results);
+
+		}
+
+
+
+		public function delete_old_tables() {
+
+			$delete_old_tables_results = [];
+
+			$delete_old_tables_results['DB_Settings_Connection'] = $this->DB_Settings_Connection->delete_table();
+			$delete_old_tables_results['DB_Settings_General'] = $this->DB_Settings_General->delete_table();
+			$delete_old_tables_results['DB_Settings_License'] = $this->DB_Settings_License->delete_table();
+			$delete_old_tables_results['DB_Shop'] = $this->DB_Shop->delete_table();
+			$delete_old_tables_results['DB_Products'] = $this->DB_Products->delete_table();
+			$delete_old_tables_results['DB_Variants'] = $this->DB_Variants->delete_table();
+			$delete_old_tables_results['DB_Collects'] = $this->DB_Collects->delete_table();
+			$delete_old_tables_results['DB_Options'] = $this->DB_Options->delete_table();
+			$delete_old_tables_results['DB_Collections_Custom'] = $this->DB_Collections_Custom->delete_table();
+			$delete_old_tables_results['DB_Collections_Smart'] = $this->DB_Collections_Smart->delete_table();
+			$delete_old_tables_results['DB_Images'] = $this->DB_Images->delete_table();
+			$delete_old_tables_results['DB_Tags'] = $this->DB_Tags->delete_table();
+			$delete_old_tables_results['DB_Settings_Syncing'] = $this->DB_Settings_Syncing->delete_table();
+
+
+			return Utils::return_only_errors($delete_old_tables_results);
+
+		}
+
+
+		public function rename_migration_tables() {
+
+			$rename_migration_tables_results = [];
+
+			$rename_migration_tables_results['DB_Settings_Connection'] = $this->DB_Settings_Connection->rename_migration_table();
+			$rename_migration_tables_results['DB_Settings_General'] = $this->DB_Settings_General->rename_migration_table();
+			$rename_migration_tables_results['DB_Settings_License'] = $this->DB_Settings_License->rename_migration_table();
+			$rename_migration_tables_results['DB_Shop'] = $this->DB_Shop->rename_migration_table();
+			$rename_migration_tables_results['DB_Products'] = $this->DB_Products->rename_migration_table();
+			$rename_migration_tables_results['DB_Variants'] = $this->DB_Variants->rename_migration_table();
+			$rename_migration_tables_results['DB_Collects'] = $this->DB_Collects->rename_migration_table();
+			$rename_migration_tables_results['DB_Options'] = $this->DB_Options->rename_migration_table();
+			$rename_migration_tables_results['DB_Collections_Custom'] = $this->DB_Collections_Custom->rename_migration_table();
+			$rename_migration_tables_results['DB_Collections_Smart'] = $this->DB_Collections_Smart->rename_migration_table();
+			$rename_migration_tables_results['DB_Images'] = $this->DB_Images->rename_migration_table();
+			$rename_migration_tables_results['DB_Tags'] = $this->DB_Tags->rename_migration_table();
+			$rename_migration_tables_results['DB_Settings_Syncing'] = $this->DB_Settings_Syncing->rename_migration_table();
+
+
+			return Utils::return_only_error_messages( Utils::return_only_errors($rename_migration_tables_results) );
 
 		}
 
@@ -80,49 +169,114 @@ if ( !class_exists('Activator') ) {
 		*/
 		public function create_db_tables() {
 
-			global $wpdb;
-
-			$DB_Settings_Connection = new Settings_Connection();
-			$DB_Settings_General = new Settings_General();
-			$DB_Settings_License = new Settings_License();
-			$DB_Shop = new Shop();
-			$DB_Products = new Products();
-			$DB_Variants = new Variants();
-			$DB_Collects = new Collects();
-			$DB_Options = new Options();
-			$DB_Collections_Custom = new Collections_Custom();
-			$DB_Collections_Smart = new Collections_Smart();
-			$DB_Images = new Images();
-			$DB_Tags = new Tags();
-
+			$this->DB_Settings_Connection->create_table();
+			$this->DB_Settings_General->create_table();
+			$this->DB_Settings_License->create_table();
+			$this->DB_Shop->create_table();
+			$this->DB_Products->create_table();
+			$this->DB_Variants->create_table();
+			$this->DB_Collects->create_table();
+			$this->DB_Options->create_table();
+			$this->DB_Collections_Custom->create_table();
+			$this->DB_Collections_Smart->create_table();
+			$this->DB_Images->create_table();
+			$this->DB_Tags->create_table();
+			$this->DB_Settings_Syncing->create_table();
 
 
-			/*
-
-			Create Tables
-
-			*/
-			$DB_Settings_Connection->create_table();
-			$DB_Settings_General->create_table();
-			$DB_Settings_License->create_table();
-			$DB_Shop->create_table();
-			$DB_Products->create_table();
-			$DB_Variants->create_table();
-			$DB_Collects->create_table();
-			$DB_Options->create_table();
-			$DB_Collections_Custom->create_table();
-			$DB_Collections_Smart->create_table();
-			$DB_Images->create_table();
-			$DB_Tags->create_table();
+		}
 
 
+		public function set_table_charset_cache() {
 
-			/*
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_WP_OPTIONS);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_PRODUCTS);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_COLLECTIONS_SMART);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_COLLECTIONS_CUSTOM);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_VARIANTS);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_IMAGES);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_TAGS);
+			$this->DB_Settings_General->get_table_charset(WPS_TABLE_NAME_SHOP);
 
-			Set any default plugin settings
 
-			*/
-			$DB_Settings_General->init_general();
+		}
+
+
+		public function bootstrap_tables() {
+
+			$this->create_db_tables();
+			$this->set_default_table_values();
+			$this->set_table_charset_cache();
+
+		}
+
+
+
+
+		public function run_table_migration() {
+
+			$create_tables_result = $this->create_migration_db_tables();
+
+			if ( Utils::array_not_empty($create_tables_result) ) {
+				Transients::delete_all_cache();
+				wp_send_json_error($create_tables_result);
+			}
+
+
+			$insert_queries_result = $this->run_insert_to_queries();
+
+			if ( Utils::array_not_empty($insert_queries_result) ) {
+				Transients::delete_all_cache();
+				wp_send_json_error($insert_queries_result);
+			}
+
+
+			$delete_old_tables_result = $this->delete_old_tables();
+
+			if ( Utils::array_not_empty($delete_old_tables_result) ) {
+				Transients::delete_all_cache();
+				wp_send_json_error($delete_old_tables_result);
+			}
+
+
+			$rename_tables_result = $this->rename_migration_tables();
+
+			if ( Utils::array_not_empty($rename_tables_result) ) {
+				Transients::delete_all_cache();
+				wp_send_json_error($rename_tables_result);
+			}
+
+
+
+
+			Transients::delete_all_cache();
+
+			wp_send_json_success();
+
+		}
+
+
+
+		public function is_pro_active() {
+
+			if ( is_plugin_active(WPS_PRO_SUBDIRECTORY_NAME) ) {
+			  return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		public function is_free_active() {
+
+			if ( is_plugin_active(WPS_FREE_SUBDIRECTORY_NAME) ) {
+			  return true;
+
+			} else {
+				return false;
+			}
 
 		}
 
@@ -134,34 +288,65 @@ if ( !class_exists('Activator') ) {
 		*/
 		public function on_activation() {
 
+
 			if (!current_user_can('activate_plugins')) {
-				return;
+				wp_die('Sorry you\'re not allowed to do that.');
 			}
 
-			$plugin_settings = new Settings_General();
-			$CPT = new CPT($this->config);
-			$this->init_settings();
-			$this->create_db_tables();
-			$CPT->init();
+			if ( !function_exists('version_compare') || version_compare(PHP_VERSION, '5.6.0', '<' )) {
+				wp_die('This plugin requires PHP Version 5.6 +. Sorry about that.');
+			}
+
+
+			$this->bootstrap_tables();
+			$this->CPT->init();
 
 			delete_option('_site_transient_update_plugins');
 
-			require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+			flush_rewrite_rules();
 
-			if (is_plugin_active(WPS_FREE_FILE_ROOT) ) {
+		}
 
+
+		public function deactivate_free_version() {
+
+			if ( $this->is_free_active() ) {
+
+				require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 				\deactivate_plugins(WPS_FREE_FILE_ROOT);
-
-				$plugin_settings->set_pro_tier();
-
-			} else {
-
-				$plugin_settings->set_free_tier();
 
 			}
 
-			flush_rewrite_rules();
+			// If for some reason is_fre is set but the free version isnt actually active
+			if ( !$this->is_free_active() && $this->DB_Settings_General->is_free_tier() ) {
+				$this->DB_Settings_General->set_free_tier(0);
+			}
 
+		}
+
+
+		public function toggle_activation_flags() {
+
+
+			if ( $this->is_free_active() ) {
+				$this->DB_Settings_General->set_free_tier();
+			}
+
+		}
+
+
+		public function hooks() {
+
+
+			register_activation_hook(WPS_FREE_FILE_ROOT, [$this, 'on_activation']);
+
+			add_action('admin_init', [$this, 'toggle_activation_flags']);
+
+		}
+
+
+		public function init() {
+			$this->hooks();
 		}
 
 

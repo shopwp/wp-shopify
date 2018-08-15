@@ -11,12 +11,12 @@ Load cart
       <tr valign="top">
 
         <th scope="row" class="titledesc">
-          <?php esc_html_e( 'Load cart', 'wp-shopify' ); ?>
+          <?php esc_html_e( 'Load cart', WPS_PLUGIN_TEXT_DOMAIN ); ?>
         </th>
 
         <td class="forminp forminp-text">
-          <label for="<?php echo $this->config->settings_general_option_name; ?>_cart_loaded" class="wps-label-block">
-            <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_cart_loaded]" id="<?php echo $this->config->settings_general_option_name; ?>_cart_loaded" type="checkbox" <?php echo $general->cart_loaded ? 'checked' : ''; ?>>
+          <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_cart_loaded" class="wps-label-block">
+            <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_cart_loaded]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_cart_loaded" type="checkbox" <?php echo $general->cart_loaded ? 'checked' : ''; ?>>
           </label>
         </td>
 

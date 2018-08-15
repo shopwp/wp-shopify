@@ -4,25 +4,15 @@
 
 @description   The main entry point for the 'collections single' page. Used internally by the custom post type single template
 
-@version       1.0.0
+@version       1.0.2
 @since         1.0.49
 @path          templates/collections-single.php
 @partials      templates/partials/collections/single
 
 @docs          https://wpshop.io/docs/templates/collections-single
 
-*/
-
-
-/*
-
-Need to perform business logic here because the WordPress filter add_filter('single_template')
-doesn't allow for variables to be passed through
 
 */
-use WPS\DB;
-use WPS\Utils;
-use WPS\DB\Products;
 
 if ( !defined('ABSPATH') ) {
 	exit;
@@ -30,17 +20,14 @@ if ( !defined('ABSPATH') ) {
 
 global $post;
 
-$DB = new DB();
-$DB_Products = new Products();
-$collection = $DB->get_collection($post->ID);
+use WPS\Factories\Templates_Factory;
+use WPS\Factories\DB_Collections_Factory;
 
-if ( is_object($collection[0]) && property_exists($collection[0], 'collection_id')) {
-  $products = $DB_Products->get_products_by_collection_id($collection[0]->collection_id);
+$Templates = Templates_Factory::build();
+$DB_Collections = DB_Collections_Factory::build();
 
-} else {
-  $products = [];
-}
-
+$products = $Templates->get_collection_products_data($post->ID);
+$collection = $DB_Collections->get_collection($post->ID);
 
 get_header('wps');
 

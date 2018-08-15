@@ -1,7 +1,7 @@
 import isError from 'lodash/isError';
+import to from 'await-to-js';
 
 import {
-  createConnectorModal,
   injectConnectorModal,
   showConnectorModal,
   setConnectionStepMessage,
@@ -10,22 +10,24 @@ import {
   updateModalHeadingText,
   updateCurrentConnectionStepText,
   insertXMark,
-  initCloseModalEvents,
   insertCheckmark,
   setConnectionNotice,
-  addConnectorStepMessage,
   addNotice,
   showAnyWarnings,
-  updateDomAfterSync
+  updateDomAfterSync,
+  createModal
 } from '../utils/utils-dom';
 
 import {
-  connectionInProgress,
-  setConnectionProgress,
   setModalCache,
   syncIsCanceled,
-  setWebhooksReconnect
+  setWebhooksReconnect,
+  setCancelSync
 } from '../ws/localstorage';
+
+import {
+  getItemCounts
+} from '../ws/middleware';
 
 import {
   setSyncingIndicator,
@@ -35,41 +37,46 @@ import {
 
 import {
   syncWebhooks,
-  syncOn
+  syncOn,
+  saveCounts
 } from '../ws/syncing';
 
 import {
-  prepareBeforeSync
-} from '../connect/connect';
-
-import {
-  syncOff,
-  clearSync
+  syncOff
 } from '../ws/wrappers.js';
-
-import {
-  onModalClose
-} from '../forms/events';
 
 import {
   enable,
   disable,
-  showSpinner,
-  isWordPressError
+  isWordPressError,
+  getDataFromArray
 } from '../utils/utils';
 
 import {
   startProgressBar,
   mapProgressDataFromSessionValues,
   appendProgressBars,
-  progressStatus
+  progressStatus,
+  afterWebhooksRemoval,
+  cleanUpAfterSync,
+  manuallyCanceled
 } from '../utils/utils-progress';
 
 import {
   returnOnlyFailedRequests,
   constructFinalNoticeList,
-  addToWarningList
+  addToWarningList,
+  filterOutAnyNotice,
+  filterOutSelectiveSync,
+  filterOutEmptySets,
+  filterOutSelectedDataForSync
 } from '../utils/utils-data';
+
+import {
+  syncingConfigJavascriptError,
+  syncingConfigErrorBeforeSync,
+  syncingConfigManualCancel
+} from '../ws/syncing-config';
 
 
 /*
@@ -82,9 +89,10 @@ checksum comparisons. Look into this.
 */
 function onWebhooksSubmit() {
 
-  jQuery(".wps-is-active #wps-button-webhooks")
-    .unbind()
+  jQuery("#wps-button-webhooks")
+    .off()
     .on('click', webhooksSubmitCallback);
+
 }
 
 
@@ -97,37 +105,40 @@ async function webhooksSubmitCallback(e) {
 
   e.preventDefault();
 
+  createModal('Reconnecting Webhooks', 'Cancel webhooks sync');
+
+  WP_Shopify.reconnectingWebhooks = true;
+  WP_Shopify.isSyncing = true;
+
   return new Promise(async (resolve, reject) => {
 
-    var warningList = [];
-
-    prepareBeforeSync();
-    updateModalHeadingText('Reconnecting Webhooks ...');
     setConnectionStepMessage('Preparing sync ...');
-    setWebhooksReconnect(true);
 
-    /*
 
-    1. Turn sync on
+    var [syncOnResponseError, syncOnResponse] = await to( syncOn() );
 
-    */
-    try {
-      var syncOnResponse = await syncOn();
-
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
+    if (syncOnResponseError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(syncOnResponseError) );
       resolve();
       return;
-
     }
 
+    if (isWordPressError(syncOnResponse)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync(syncOnResponse) );
+      resolve();
+      return;
+    }
+
+    if (manuallyCanceled()) {
+      cleanUpAfterSync( syncingConfigManualCancel() );
+      resolve();
+      return;
+    }
+
+
+
     insertCheckmark();
-    setConnectionStepMessage('Removing any existing webhooks first ...');
-    warningList = addToWarningList(warningList, syncOnResponse);
+    setConnectionStepMessage('Removing any existing webhooks first ...', '(Please wait, this might take 30 seconds or so)');
 
 
     /*
@@ -135,113 +146,143 @@ async function webhooksSubmitCallback(e) {
     2. Remove webhook
 
     */
-    try {
 
-      var removalErrors = await removeWebhooks(); // remove_webhooks
+    var [removeWebhooksError, removeWebhooksResponse] = await to( removeWebhooks() ); // delete_webhooks
 
-    } catch(errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
+    if (removeWebhooksError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(removeWebhooksError) );
       resolve();
       return;
-
     }
 
-    insertCheckmark();
-    setConnectionStepMessage('Syncing new webhooks ...');
-    warningList = addToWarningList(warningList, removalErrors);
-
-
-    /*
-
-    3. Start progress bar
-
-    */
-    try {
-
-      var progressSession = await startProgressBar(true, ['webhooks']);
-
-    } catch (errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
+    if (isWordPressError(removeWebhooksResponse)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync(removeWebhooksResponse) );
       resolve();
       return;
+    }
 
+    if (manuallyCanceled()) {
+      cleanUpAfterSync( syncingConfigManualCancel() );
+      resolve();
+      return;
     }
 
 
     /*
 
-    4. Begin polling for the status ... creates a cancelable loop
+    Only fires once webhooks have been removed ...
 
     */
-    await progressStatus();
-    appendProgressBars(progressSession.data);
-    warningList = addToWarningList(warningList, progressSession);
+    afterWebhooksRemoval(async () => {
+
+      var [itemCountsRespError, itemCountsResp] = await to( getItemCounts() ); // delete_webhooks
+
+      if (itemCountsRespError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(itemCountsRespError) );
+        resolve();
+        return;
+      }
+
+      if (isWordPressError(itemCountsResp)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(itemCountsResp) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
 
 
-    /*
-
-    5. Syncing webhooks
-
-    */
-    try {
-
-      var registerWebhooksResp = await syncWebhooks(removalErrors.data); // wps_ws_register_all_webhooks
-
-    } catch(errors) {
-
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
-
-      resolve();
-      return;
-
-    }
 
 
-    warningList = addToWarningList(warningList, registerWebhooksResp);
+      var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
 
 
-    /*
+      /*
 
-    6. Turn sync off
+      5. Save item counts
 
-    */
-    try {
-      await syncOff();
+      */
+      var [saveCountsError, saveCountsResponse] = await to( saveCounts( allCounts, [
+        'connection',
+        'shop',
+        'smart_collections',
+        'custom_collections',
+        'products',
+        'collects',
+        'orders',
+        'customers'
+      ]) ); // delete_webhooks
 
-    } catch (errors) {
+      if (saveCountsError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(saveCountsError) );
+        resolve();
+        return;
+      }
 
-      updateDomAfterSync({
-        noticeList: returnOnlyFailedRequests(errors)
-      });
+      if (isWordPressError(saveCountsResponse)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(saveCountsResponse) );
+        resolve();
+        return;
+      }
 
-      resolve();
-      return;
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
 
-    }
 
 
-    /*
+      insertCheckmark();
+      setConnectionStepMessage('Syncing new webhooks ...');
 
-    7. Finally update DOM
 
-    */
-    updateDomAfterSync({
-      headingText: 'Finished syncing Webhooks',
-      buttonText: 'Ok, let\'s go!',
-      status: 'is-connected',
-      stepText: 'Finished syncing webhooks',
-      noticeList: constructFinalNoticeList(warningList),
-      noticeType: 'success'
+
+      /*
+
+      3. Start progress bar
+
+      */
+
+      var [progressSessionError, progressSession] = await to( startProgressBar(true, ['webhooks']) );
+
+      if (progressSessionError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(progressSessionError) );
+        resolve();
+        return;
+      }
+
+      if (isWordPressError(progressSession)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync(progressSession) );
+        resolve();
+        return;
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        resolve();
+        return;
+      }
+
+
+      /*
+
+      4. Begin polling for the status ... creates a cancelable loop
+
+      */
+
+      appendProgressBars(progressSession.data);
+      setWebhooksReconnect(true);
+
+      progressStatus();
+
+      syncWebhooks(removeWebhooksResponse.data); // register_all_webhooks
+
+
     });
 
   });

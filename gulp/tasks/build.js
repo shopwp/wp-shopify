@@ -185,15 +185,40 @@ gulp.task('build:rename:misc', done => {
         NODE_ENV: config.buildTier
       }
     }))
-    .pipe(replace("esc_attr_e('WP Shopify Pro', 'wp-shopify' )", function(match, p1, offset, string) {
+    .pipe(replace("'WP Shopify Pro', WPS_PLUGIN_TEXT_DOMAIN", function(match, p1, offset, string) {
 
       if (config.buildTier === 'free') {
-        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with WP_Shopify in file: ' + this.file.relative);
-        return "esc_attr_e('WP Shopify', 'wp-shopify' )";
+        console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' with WP Shopify in file: ' + this.file.relative);
+        return "'WP Shopify', WPS_PLUGIN_TEXT_DOMAIN";
 
       } else {
         return match;
       }
+
+    }))
+    .pipe( gulp.dest("./") );
+
+});
+
+
+/*
+
+Ensures we comment out the test version number
+
+*/
+gulp.task('build:remove:testversion', done => {
+
+  return gulp
+    .src( config.files.pluginUpdateFunction, { base: "./" } )
+    .pipe(preprocess({
+      context: {
+        NODE_ENV: config.buildTier
+      }
+    }))
+    .pipe(replace("$new_version_number = '", function(match, p1, offset, string) {
+
+      console.log('\x1b[33m%s\x1b[0m', 'Notice: Commented out ' + match + ' in file: ' + this.file.relative);
+      return "// $new_version_number = '";
 
     }))
     .pipe( gulp.dest("./") );
@@ -251,7 +276,7 @@ Requires:
 */
 gulp.task('build:zip', done => {
 
-  var zipName = config.buildTier === 'pro' ? 'wp-shopify-pro.zip' : 'wp-shopify.zip';
+  var zipName = config.buildTier === 'pro' ? 'wp-shopify-pro.zip' : 'wpshopify.zip';
 
   return gulp
     .src(config.files.tmp, { base: "./" })
@@ -303,13 +328,12 @@ Requires:
 */
 gulp.task('build:zip:deploy', done => {
 
-  var tier = '';
-
   if (config.buildTier === 'pro') {
-    tier = '-pro';
-  }
+    var command = 'rsync -avz /Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip arobbins@162.243.170.76:~';
 
-  var command = 'rsync -avz /Users/arobbins/www/wpstest/assets/wp-shopify' + tier + '/wp-shopify' + tier + '.zip arobbins@162.243.170.76:~';
+  } else {
+    var command = 'rsync -avz /Users/arobbins/www/wpstest/assets/wpshopify/wpshopify.zip arobbins@162.243.170.76:~';
+  }
 
   return childProcess.exec(command, function (err, stdout, stderr) {
 
@@ -334,7 +358,7 @@ Requires:
 */
 gulp.task('build:zip:move', done => {
 
-  var zipName = 'wp-shopify.zip';
+  var zipName = 'wpshopify.zip';
   var tier = 'free';
 
   if (config.buildTier === 'pro') {
@@ -437,7 +461,10 @@ gulp.task('build', done => {
     'build:rename:version',
     'build:rename:class',
     'build:rename:misc',
-    gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    'build:remove:testversion',
+    'js-admin',
+    'js-public',
+    gulp.parallel('css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:dist',
     'build:update:edd',
     'clean:tmp'
@@ -446,9 +473,19 @@ gulp.task('build', done => {
 });
 
 
+/*
+
+Runs all build tasks
+
+Requires:
+--tier=""
+--release=""
+
+*/
 gulp.task('build:free', done => {
 
   return gulp.series(
+    'tests',
     'clean:tmp',
     'clean:free:repo',
     'build:free:copy',
@@ -457,11 +494,47 @@ gulp.task('build:free', done => {
     'build:rename:version',
     'build:rename:class',
     'build:rename:misc',
+    'build:remove:testversion',
     'build:clear:free',
-    gulp.parallel('js-admin', 'js-public', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    'js-admin',
+    'js-public',
+    gulp.parallel('css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:free:repo',
     'build:free:repo:copy',
     'clean:tmp'
+  )(done);
+
+});
+
+
+/*
+
+Runs all build tasks
+
+Requires:
+--tier=""
+--release=""
+
+*/
+gulp.task('build:prerelease', done => {
+
+  return gulp.series(
+    'tests',
+    'clean:tmp',
+    'clean:free:repo',
+    'build:copy',
+    'build:preprocess',
+    'build:rename:plugin',
+    'build:rename:version',
+    'build:rename:class',
+    'build:rename:misc',
+    'build:remove:testversion',
+    'js-admin',
+    'js-public',
+    gulp.parallel('css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    'build:clear:free',
+    'build:clear:superfluous',
+    'build:zip'
   )(done);
 
 });

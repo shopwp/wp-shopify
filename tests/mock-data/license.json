@@ -1,5 +1,5 @@
 {
-  "key": "82800d32c9514256e9564462e1728553",
+  "license_key": "82800d32c9514256e9564462e1728553",
   "is_local": 0,
   "expires": "1970-01-01 06:00:00",
   "site_count": 8,
@@ -12,5 +12,7 @@
   "payment_id": 193540,
   "success": 1,
   "nonce": "",
-  "activations_left": "12"
+  "activations_left": "12",
+  "is_free": 0,
+  "is_pro": 1
 }

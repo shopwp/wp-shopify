@@ -2,8 +2,7 @@ import {
   enable,
   disable,
   hasVals,
-  showLoader,
-  hideLoader
+  showLoader
 } from '../utils/utils';
 
 import {
@@ -11,11 +10,8 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  addWebhook,
-  getProductVariants,
-  getProducts,
-  uninstallPlugin
-} from '../ws/ws.js';
+  getProducts
+} from '../ws/ws';
 
 
 /*
@@ -40,36 +36,6 @@ function onInputBlur() {
       disable($forms.find('input[type="submit"]'));
 
     }
-
-  });
-
-}
-
-
-/*
-
-On plugin uninstall ...
-
-*/
-function onUninstall() {
-
-  jQuery('#wps-btn-uninstall').on('click', async function uninstallHandler(event) {
-
-    showLoader(jQuery(this));
-
-    try {
-      var response = await uninstallPlugin();
-
-    } catch(error) {
-
-      hideLoader(jQuery(this));
-      showAdminNotice("Error removing store data: " + error, 'error');
-      return;
-
-    }
-
-    hideLoader(jQuery(this));
-    showAdminNotice("Successfully removed store data", 'updated');
 
   });
 
@@ -153,7 +119,7 @@ Form Events Init
 
 */
 function formEventsInit() {
-  onUninstall();
+
 }
 
 export {

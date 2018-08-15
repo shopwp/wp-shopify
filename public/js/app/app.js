@@ -1,19 +1,17 @@
+import to from 'await-to-js';
 import bootstrap from "./utils/utils-bootstrap";
-import { showError } from "./utils/utils-common";
+import { showGlobalNotice } from "./utils/utils-notices";
 
 (function($) {
 
   "use strict";
 
-  $(async function() {
+  $(async () => {
 
-    try {
-      await bootstrap();
+    const [ error, response ] = await to( bootstrap() );
 
-    } catch (error) {
-      console.error('WP Shopify Error bootstrap: ', error);
-      showError(error);
-
+    if (error) {
+      showGlobalNotice(error, 'error');
     }
 
   });

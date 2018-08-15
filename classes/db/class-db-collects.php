@@ -2,23 +2,13 @@
 
 namespace WPS\DB;
 
-use WPS\WS;
-use WPS\Config;
 use WPS\Utils;
-use WPS\Progress_Bar;
 
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for collects
-
-*/
 if (!class_exists('Collects')) {
 
   class Collects extends \WPS\DB {
@@ -27,29 +17,21 @@ if (!class_exists('Collects')) {
   	public $version;
   	public $primary_key;
 
-    /*
 
-    Construct
-
-    */
   	public function __construct() {
 
       global $wpdb;
-      $this->table_name         = $wpdb->prefix . 'wps_collects';
-      $this->primary_key        = 'id';
-      $this->version            = '1.0';
-      $this->cache_group        = 'wps_db_collects';
+      $this->table_name         			= WPS_TABLE_NAME_COLLECTS;
+      $this->primary_key        			= 'id';
+      $this->version            			= '1.0';
+      $this->cache_group        			= 'wps_db_collects';
 
     }
 
 
-    /*
-
-    Get Columns
-
-    */
   	public function get_columns() {
-      return array(
+
+      return [
         'id'                   => '%d',
         'product_id'           => '%d',
         'collection_id'        => '%d',
@@ -58,18 +40,13 @@ if (!class_exists('Collects')) {
         'sort_value'           => '%d',
         'created_at'           => '%s',
         'updated_at'           => '%s'
-      );
+      ];
     }
 
 
-    /*
-
-    Get Column Defaults
-
-    */
   	public function get_column_defaults() {
 
-      return array(
+      return [
         'id'                   => 0,
         'product_id'           => '',
         'collection_id'        => '',
@@ -78,7 +55,7 @@ if (!class_exists('Collects')) {
         'sort_value'           => '',
         'created_at'           => date_i18n( 'Y-m-d H:i:s' ),
         'updated_at'           => date_i18n( 'Y-m-d H:i:s' )
-      );
+      ];
 
     }
 
@@ -90,20 +67,12 @@ if (!class_exists('Collects')) {
     */
   	public function insert_collects($collects) {
 
-      $results = array();
-      $progress = new Progress_Bar(new Config());
+      $results = [];
 
-      if (isset($collects) && $collects) {
+      if (Utils::array_not_empty($collects)) {
 
         foreach ($collects as $key => $collect) {
-
-          if (!Utils::isStillSyncing()) {
-            wp_die();
-      		}
-
           $results[] = $this->insert($collect, 'collect');
-          $progress->increment_current_amount('collects');
-
         }
 
       }
@@ -113,46 +82,19 @@ if (!class_exists('Collects')) {
     }
 
 
-    /*
+		/*
 
-    Update Collects
+    Insert Collects
 
     */
-  	public function update_collects($product) {
+  	public function delete_collects($collects) {
 
-      $WS = new WS(new Config());
-      $results = array();
+      $results = [];
 
-      $newProductID = Utils::wps_find_product_id($product);
-      $collectsFromShopify = $WS->wps_ws_get_collects_from_product($newProductID);
+      if (Utils::array_not_empty($collects)) {
 
-      /*
-
-      In order to handle image creation / deletions, we need to compare what's
-      currently in the database with what gets sent back via the
-      product/update webhook.
-
-      */
-      $currentCollectsForProduct = $this->get_rows('product_id', $newProductID);
-      $currentCollectsForProductArray = Utils::wps_convert_object_to_array($currentCollectsForProduct);
-      $collectsFromShopify = Utils::wps_convert_object_to_array($collectsFromShopify->collects);
-
-      $collectsToAdd = Utils::wps_find_items_to_add($currentCollectsForProductArray, $collectsFromShopify, true);
-      $collectsToDelete = Utils::wps_find_items_to_delete($currentCollectsForProductArray, $collectsFromShopify, true);
-
-      if (count($collectsToAdd) > 0) {
-
-        foreach ($collectsToAdd as $key => $newCollect) {
-          $results['created'][] = $this->insert($newCollect, 'collect');
-        }
-
-      }
-
-
-      if (count($collectsToDelete) > 0) {
-
-        foreach ($collectsToDelete as $key => $oldCollect) {
-          $results['deleted'][] = $this->delete($oldCollect['id']);
+        foreach ($collects as $key => $collect) {
+          $results[] = $this->delete($collect['id']);
         }
 
       }
@@ -162,35 +104,63 @@ if (!class_exists('Collects')) {
     }
 
 
-    /*
 
-    delete_collects_by_ids
+
+		/*
+
+		Gets collects by product ID
+
+		*/
+		public function get_collects_by_product_id($productID) {
+
+			global $wpdb;
+
+			$collects_table_name = WPS_TABLE_NAME_COLLECTS;
+
+			$query = "SELECT * FROM $collects_table_name collects WHERE collects.product_id = %d;";
+
+      return $wpdb->get_results(
+        $wpdb->prepare($query, $productID)
+      );
+
+		}
+
+
+
+
+		/*
+
+		delete_collects_by_ids
+
+		*/
+		public function delete_collects_by_ids($collects) {
+
+			$collect_ids = Utils::extract_ids_from_object($collects);
+			$collect_ids = Utils::convert_to_comma_string($collect_ids);
+
+			return $this->delete_rows_in('id', $collect_ids);
+
+		}
+
+
+		/*
+
+		Delete collects by collection ID
+
+		*/
+		public function delete_collects_from_collection_id($collection_id) {
+			return $this->delete_rows('collection_id', $collection_id);
+		}
+
+
+		/*
+
+    Delete collects from product ID
 
     */
-    public function delete_collects_by_ids($collects) {
-
-      $collect_ids = Utils::extract_ids_from_object($collects);
-      $collect_ids = Utils::convert_to_comma_string($collect_ids);
-
-      return $this->delete_rows_in('id', $collect_ids);
-
-    }
-
-
-    /*
-
-    Delete collects by product ID
-
-    */
-    public function delete_collects_by_product_id() {}
-
-
-    /*
-
-    Delete collects by collection ID
-
-    */
-    public function delete_collects_by_collection_id($collection_id) {}
+		public function delete_collects_from_product_id($product_id) {
+			return $this->delete_rows('product_id', $product_id);
+		}
 
 
     /*
@@ -198,9 +168,13 @@ if (!class_exists('Collects')) {
     Creates a table query string
 
     */
-    public function create_table_query() {
+    public function create_table_query($table_name = false) {
 
       global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
       $collate = '';
 
@@ -208,19 +182,31 @@ if (!class_exists('Collects')) {
         $collate = $wpdb->get_charset_collate();
       }
 
-      return "CREATE TABLE `{$this->table_name}` (
-        `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-        `product_id` bigint(100) DEFAULT NULL,
-        `collection_id` bigint(100) DEFAULT NULL,
-        `featured` tinyint(1) DEFAULT NULL,
-        `position` int(20) DEFAULT NULL,
-        `sort_value` int(20) DEFAULT NULL,
-        `created_at` datetime,
-        `updated_at` datetime,
-        PRIMARY KEY  (`{$this->primary_key}`)
+      return "CREATE TABLE $table_name (
+        id bigint(100) unsigned NOT NULL DEFAULT 0,
+        product_id bigint(100) DEFAULT NULL,
+        collection_id bigint(100) DEFAULT NULL,
+        featured tinyint(1) DEFAULT NULL,
+        position int(20) DEFAULT NULL,
+        sort_value int(20) DEFAULT NULL,
+        created_at datetime,
+        updated_at datetime,
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
     }
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `collection_id`, `featured`, `position`, `sort_value`, `created_at`, `updated_at`) SELECT `id`, `product_id`, `collection_id`, `featured`, `position`, `sort_value`, `created_at`, `updated_at` FROM '. $this->table_name);
+
+		}
 
 
     /*
@@ -233,7 +219,8 @@ if (!class_exists('Collects')) {
       require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
       if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query() );
+        dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
       }
 
     }

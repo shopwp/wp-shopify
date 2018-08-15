@@ -13,24 +13,24 @@ License Activation
 
       <?php
 
-        settings_fields($this->config->settings_license_option_name);
-        do_settings_sections($this->config->settings_license_option_name);
+        settings_fields(WPS_SETTINGS_GENERAL_OPTION_NAME);
+        do_settings_sections(WPS_SETTINGS_GENERAL_OPTION_NAME);
 
       ?>
 
       <!-- Nonce -->
-      <input hidden type="text" class="regular-text" id="<?php echo $this->config->settings_license_option_name; ?>_nonce_license_id" name="<?php echo $this->config->settings_license_option_name; ?>[nonce]" value="<?php echo wp_create_nonce( uniqid() ); ?>"/>
+      <input hidden type="text" class="regular-text" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_nonce_license_id" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[nonce]" value="<?php echo wp_create_nonce( uniqid() ); ?>"/>
 
       <!-- License Key -->
       <div class="wps-form-group">
 
-        <h3><?php esc_html_e('License Key', 'wp-shopify'); ?></h3>
+        <h3><?php esc_html_e('License Key', WPS_PLUGIN_TEXT_DOMAIN); ?></h3>
 
         <small class="wps-is-hidden">
-          <?php printf(__('You can find your license key <a href="%1$s" target="_blank">within your account</a> or contained inside your payment confirmation email.', 'wp-shopify'), esc_url("https://wpshop.io/login")); ?>
+          <?php printf(__('You can find your license key <a href="%1$s" target="_blank">within your account</a> or contained inside your payment confirmation email.', WPS_PLUGIN_TEXT_DOMAIN), esc_url("https://wpshop.io/login")); ?>
         </small>
 
-        <input autocomplete="off" required <?php echo $activeLicense ? 'disabled' : ''; ?> type="text" class="regular-text wps-input-license-key <?php echo $activeLicense ? 'valid' : ''; ?> wps-is-hidden" id="<?php echo $this->config->settings_license_option_name; ?>_license" name="<?php echo $this->config->settings_license_option_name; ?>[key]" value="<?php if(!empty($license->key)) echo $maskedKey; ?>" placeholder=""><div class="wps-form-icon wps-animated wps-is-hidden"></div>
+        <input autocomplete="off" required <?php echo $activeLicense ? 'disabled' : ''; ?> type="text" class="regular-text wps-input-license-key <?php echo $activeLicense ? 'valid' : ''; ?> wps-is-hidden" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_license" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[license_key]" value="<?php if(!empty($license->license_key)) echo $maskedKey; ?>" placeholder=""><div class="wps-form-icon wps-animated wps-is-hidden"></div>
 
       </div>
 
@@ -38,10 +38,10 @@ License Activation
       <div class="wps-button-group button-group button-group-ajax wps-is-hidden">
 
         <?php if($activeLicense) { ?>
-          <?php submit_button(esc_html__('Deactivate License', 'wp-shopify'), 'primary', 'submit-license', false, array('data-status' => 'deactivate')); ?>
+          <?php submit_button(esc_html__('Deactivate License', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submit-license', false, array('data-status' => 'deactivate')); ?>
 
         <?php } else { ?>
-          <?php submit_button(esc_html__('Activate License', 'wp-shopify'), 'primary', 'submit-license', false, array('data-status' => 'activate')); ?>
+          <?php submit_button(esc_html__('Activate License', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submit-license', false, array('data-status' => 'activate')); ?>
 
         <?php } ?>
 
@@ -51,17 +51,6 @@ License Activation
 
       <div class="spinner"></div>
 
-      <!--
-
-      Test functions
-
-      <div class="">
-        <input type="submit" value="Deactivate License" class="button button-primary wps-btn-deactivate-license">
-        <input type="submit" value="Check License" class="button button-primary wps-btn-check-license">
-        <input type="submit" value="Get Product" class="button button-primary wps-btn-get-product">
-      </div>
-
-      -->
 
     </form>
 

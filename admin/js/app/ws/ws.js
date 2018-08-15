@@ -1,9 +1,7 @@
 import {
-  createNewAuthData,
-  convertAuthDataToJSON,
   mergeNewDataIntoCurrent,
   convertAuthDataToString,
-  controlPromise
+  getErrorContents
 } from '../utils/utils-data';
 
 import {
@@ -12,7 +10,6 @@ import {
 } from '../utils/utils';
 
 import {
-  connectionInProgress,
   getWebhooksReconnect
 } from './localstorage';
 
@@ -22,21 +19,29 @@ import {
 Removing all data
 
 */
-function removeAllData() {
+function deleteAllData() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_uninstall_all_data',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'delete_all_data';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -47,19 +52,27 @@ Returns: Promise
 */
 function getProductsCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_products_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_products_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -70,20 +83,28 @@ Returns: Promise
 */
 function cacheNoticeDismissal(dismiss_name) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'cache_admin_notice_dismissal',
-      nonce: WP_Shopify.nonce,
-      dismiss_name: dismiss_name
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'cache_admin_notice_dismissal';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        dismiss_name: dismiss_name
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -94,19 +115,27 @@ Returns: Promise
 */
 function insertAltText() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_alt_text',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'insert_alt_text';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -117,19 +146,27 @@ Returns: Promise
 */
 function getCollectsCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_collects_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_collects_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -140,19 +177,27 @@ Returns: Promise
 */
 function getSmartCollectionsCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_smart_collections_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_smart_collections_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -163,19 +208,27 @@ Returns: Promise
 */
 function getCustomCollectionsCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_custom_collections_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_custom_collections_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -186,19 +239,27 @@ Returns: Promise
 */
 function getOrdersCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_orders_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_orders_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -209,19 +270,27 @@ Returns: Promise
 */
 function getCustomersCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_customers_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_customers_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -232,19 +301,27 @@ Returns: Promise
 */
 function getShopCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_shop_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_shop_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -255,19 +332,27 @@ Returns: Promise
 */
 function getWebhooksCount() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_webhooks_count',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_webhooks_count';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -278,114 +363,28 @@ Returns: Promise
 */
 function getProductsFromCollection(collection) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_products_from_collection',
-      collectionID: collection.collectionId,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_products_from_collection';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        collectionID: collection.collectionId,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
+  });
 
-/*
-
-Get Collections
-
-*/
-function insertCustomCollections() {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_custom_collections_data',
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Get Collections
-
-*/
-function insertSmartCollections() {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_smart_collections_data',
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Get all products from Shopify
-Returns: Promise
-
-*/
-function getCollectsFromProductID(productID) {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_collects_from_product',
-      productID: productID,
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Get Collects
-
-*/
-function insertCollects(currentPage = false) {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_collects',
-      currentPage: currentPage,
-      nonce: WP_Shopify.nonce
-    },
-    error: function(xhr) {
-      console.error("WP Shopify insert collects error: ", xhr);
-    }
-  };
-
-  return controlPromise(options);
-
-};
+}
 
 
 /*
@@ -396,20 +395,28 @@ Returns: Promise
 */
 function getCollectsFromCollection(collectionID) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_collects_from_collection',
-      collectionID: collectionID,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_collects_from_collection';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        collectionID: collectionID,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -420,43 +427,28 @@ Returns: Promise
 */
 function getSingleCollection(collectionID) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_single_collection',
-      collectionID: collectionID,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_single_collection';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        collectionID: collectionID,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
+  });
 
-/*
-
-Sending collections to server
-
-*/
-function sendCollectionsToServer(collections) {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_collections',
-      collections: collections,
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
+}
 
 
 /*
@@ -466,20 +458,28 @@ Inserting Shop data
 */
 function insertShopData(shopData) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_shop',
-      shopData: shopData,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'insert_shop';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        shopData: shopData,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -487,22 +487,30 @@ function insertShopData(shopData) {
 Sending collections to server
 
 */
-function insertConnectionData(connectionData) {
+function saveConnectionData(connectionData) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_connection',
-      connectionData: connectionData,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'save_connection';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        connectionData: connectionData,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -512,19 +520,27 @@ Sending collections to server
 */
 function removeConnectionData() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_remove_connection',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'remove_connection';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -534,19 +550,27 @@ Sending collections to server
 */
 function getConnectionData() {
 
-  var options = {
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_get_connection',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_connection';
 
-};
+    jQuery.ajax({
+      method: 'GET',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -556,20 +580,28 @@ Insert Products Data
 */
 function insertProductsData(currentPage = false) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_products_data',
-      currentPage: currentPage,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'insert_products';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        currentPage: currentPage,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -579,18 +611,26 @@ Get Webhooks
 */
 function getWebhooks() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_ws_get_webhooks',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'get_webhooks';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -601,14 +641,22 @@ Returns Promise
 */
 function getProductInfo(key) {
 
-  var options = {
-    type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=get_version&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'edd_action=get_version';
 
-};
+    jQuery.ajax({
+      type: 'GET',
+      url: 'https://wpshop.io/edd-sl?edd_action=get_version&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl,
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -619,14 +667,22 @@ Returns Promise
 */
 function getLicenseKeyStatus(key) {
 
-  var options = {
-    type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=check_license&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'edd_action=check_license';
 
-};
+    jQuery.ajax({
+      type: 'GET',
+      url: 'https://wpshop.io/edd-sl?edd_action=check_license&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl,
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -637,14 +693,22 @@ Returns Promise
 */
 function activateLicenseKey(key) {
 
-  var options = {
-    type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=activate_license&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'edd_action=activate_license';
 
-};
+    jQuery.ajax({
+      type: 'GET',
+      url: 'https://wpshop.io/edd-sl?edd_action=activate_license&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl,
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -655,14 +719,24 @@ Returns Promise
 */
 function deactivateLicenseKey(key) {
 
-  var options = {
-    type: 'GET',
-    url: 'https://wpshop.io/edd-sl?edd_action=deactivate_license&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'edd_action=deactivate_license';
 
-};
+    var url = 'https://wpshop.io/edd-sl?edd_action=deactivate_license&item_name=WP+Shopify&license=' + key + '&url=' + WP_Shopify.siteUrl;
+
+    jQuery.ajax({
+      type: 'GET',
+      url: url,
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -673,18 +747,27 @@ Returns Promise
 */
 function saveLicenseKey(data) {
 
-  data.action = "wps_license_save";
-  data.nonce = WP_Shopify.nonce;
+  return new Promise((resolve, reject) => {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: data
-  };
+    const action_name = 'license_save';
 
-  return jQuery.ajax(options);
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        data: data
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
-};
+  });
+
+}
 
 
 /*
@@ -695,19 +778,27 @@ Returns Promise
 */
 function deleteLicenseKey(key) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_license_delete',
-      key: key,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'license_delete';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        key: key,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -718,64 +809,26 @@ Returns Promise
 */
 function getLicenseKey() {
 
-  var options = {
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_license_get',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'license_get';
 
-};
+    jQuery.ajax({
+      method: 'GET',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
+  });
 
-/*
-
-Get the URL needed to send user to Shopify
-Returns Promise
-TODO: maybe not needed anymore
-
-*/
-function getShopifyURL() {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_waypoint_get_shopify_url',
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Send uninstall request to Shopify
-Returns Promise
-
-*/
-function uninstallPlugin() {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_uninstall_consumer',
-      nonce: jQuery('#wp-shopify-uninstall-nonce').val()
-    }
-  };
-
-  return jQuery.ajax(options);
-
-};
+}
 
 
 /*
@@ -786,21 +839,29 @@ Returns: Promise
 */
 function registerWebhooks(removalErrors) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_register_all_webhooks',
-      nonce: WP_Shopify.nonce,
-      removalErrors: removalErrors,
-      webhooksReconnect: getWebhooksReconnect()
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'register_all_webhooks';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        removalErrors: removalErrors,
+        webhooksReconnect: getWebhooksReconnect()
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -809,22 +870,91 @@ Send uninstall request to Shopify
 Returns Promise
 
 */
-function removePluginData() {
+function deleteOnlySyncedData() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_uninstall_product_data',
-      nonce: WP_Shopify.nonce,
-      webhooksReconnect: getWebhooksReconnect()
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'delete_only_synced_data';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+/*
+
+Send uninstall request to Shopify
+Returns Promise
+
+*/
+function deletePostsAndSyncedData() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'delete_posts_and_synced_data';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+/*
+
+Deletes product and collection posts only
+Returns Promise
+
+*/
+function deleteOnlyPostData() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'delete_only_posts';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -837,38 +967,26 @@ Returns: Promise
 */
 function setPluginSettings(formData) {
 
-  formData.nonce = WP_Shopify.nonce;
+  return new Promise((resolve, reject) => {
 
-  var options = {
-    method: "POST",
-    url: "options.php",
-    data: formData
-  };
+    const action_name = 'general_settings_form';
 
-  return controlPromise(options);
+    jQuery.ajax({
+      method: "POST",
+      url: "options.php",
+      data: {
+        nonce: WP_Shopify.nonce,
+        formData: formData
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
-};
+  });
 
-
-/*
-
-Add webhook
-
-*/
-function addWebhook() {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_webhooks_register_single',
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
+}
 
 
 /*
@@ -878,58 +996,26 @@ Del Webhooks
 */
 function delWebhooks() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_ws_delete_webhook',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'wps_ws_delete_webhook';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
+  });
 
-/*
-
-Grabbing Shopify credentials from WordPress
-Returns: Promise
-TODO: Not used
-
-*/
-function getShopifyCreds() {
-
-  var options = {
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_get_credentials',
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
-
-
-/*
-
-Getting all products
-Returns: Promise
-TODO: Not used
-TODO: Check if controlPromise is needed here
-
-*/
-function getAllProducts(shopify) {
-
-  var newnew = shopify.fetchAllProducts();
-  return shopify.fetchAllProducts();
-
-};
+}
 
 
 /*
@@ -939,17 +1025,25 @@ Get Progress Count
 */
 function getProgressCount() {
 
-  var options = {
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_progress_status',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'progress_status';
+
+    jQuery.ajax({
+      method: 'GET',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
 
 }
 
@@ -962,19 +1056,28 @@ Returns: Promise
 */
 function updateSettings(options) {
 
-  options.action = 'wps_update_settings_general';
-  options.nonce = WP_Shopify.nonce;
+  return new Promise((resolve, reject) => {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: options
-  };
+    const action_name = 'update_settings_general';
 
-  return jQuery.ajax(options);
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        data: options
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
-};
+  });
+
+}
 
 
 /*
@@ -985,42 +1088,27 @@ Returns: Promise
 */
 function getShopData() {
 
-  var options = {
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_shop_data',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_shop';
 
-};
+    jQuery.ajax({
+      method: 'GET',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
+  });
 
-/*
-
-Get Product Variants
-
-*/
-function getProductVariants(productID) {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_ws_get_variants',
-      productID: productID,
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
-
-};
+}
 
 
 /*
@@ -1030,19 +1118,27 @@ Set Syncing Indicator
 */
 function setSyncingIndicator(syncing) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_ws_set_syncing_indicator',
-      syncing: syncing,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'set_syncing_indicator';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        syncing: syncing,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -1052,37 +1148,24 @@ Clear Cache
 */
 function clearCache() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_clear_cache',
-      nonce: jQuery('#wp-shopify-cache-nonce').val()
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'clear_cache';
 
-}
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
-
-/*
-
-Sync custom table data with CPT tables
-
-*/
-function syncWithCPT() {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_sync_with_cpt',
-      nonce: WP_Shopify.nonce
-    }
-  };
-
-  return controlPromise(options);
+  });
 
 }
 
@@ -1094,18 +1177,26 @@ Insert Orders
 */
 function insertOrders(currentPage = false) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_orders',
-      currentPage: currentPage,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'insert_orders';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        currentPage: currentPage,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
 
 }
 
@@ -1117,18 +1208,26 @@ Insert Customers
 */
 function insertCustomers(currentPage = false) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'wps_insert_customers',
-      currentPage: currentPage,
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'insert_customers';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        currentPage: currentPage,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
 
 }
 
@@ -1140,55 +1239,56 @@ Insert Customers
 */
 function startProgress(progress) {
 
-  var options = {
-    method: 'GET',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_progress_bar_start',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'wps_progress_bar_start';
+
+    jQuery.ajax({
+      method: 'GET',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
 
 }
 
 
 /*
 
-Insert Customers
+Progress Session Start
 
 */
-function endProgress() {
+function progressSessionStart(resync = false, includes = [], excludes = []) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_progress_bar_end',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'progress_session_create';
 
-}
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        resync: resync,
+        includes: includes,
+        excludes: excludes
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
 
-
-function progressSessionStart(resync = false, includes = []) {
-
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'wps_progress_session_create',
-      nonce: WP_Shopify.nonce,
-      resync: resync,
-      includes: includes
-    }
-  };
-
-  return jQuery.ajax(options);
+  });
 
 }
 
@@ -1200,18 +1300,26 @@ Remove Webhooks
 */
 function removeWebhooks() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'remove_webhooks',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'delete_webhooks';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -1219,21 +1327,30 @@ function removeWebhooks() {
 Remove Webhooks
 
 */
-function saveCountsToSession(counts) {
+function saveCountsToSession(counts, exclusions = false) {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    data: {
-      action: 'save_counts',
-      nonce: WP_Shopify.nonce,
-      counts: counts
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return jQuery.ajax(options);
+    const action_name = 'insert_syncing_totals';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        counts: counts,
+        exclusions: exclusions
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 /*
@@ -1244,34 +1361,520 @@ Returns: Promise
 */
 function getTotalCountsFromSession() {
 
-  var options = {
-    method: 'POST',
-    url: WP_Shopify.ajax,
-    dataType: 'json',
-    data: {
-      action: 'get_total_counts',
-      nonce: WP_Shopify.nonce
-    }
-  };
+  return new Promise((resolve, reject) => {
 
-  return controlPromise(options);
+    const action_name = 'get_syncing_totals';
 
-};
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getBulkCollects(currentPage) {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_bulk_collects';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        currentPage: currentPage
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getBulkProducts(currentPage) {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_bulk_products';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        currentPage: currentPage
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getBulkOrders(currentPage) {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_bulk_orders';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        currentPage: currentPage
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getBulkCustomers(currentPage) {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_bulk_customers';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        currentPage: currentPage
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getBulkSmartCollections(currentPage) {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_bulk_smart_collections';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        currentPage: currentPage
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getBulkCustomCollections(currentPage) {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_bulk_custom_collections';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        currentPage: currentPage
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+function getSyncNotices() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_syncing_notices';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function killSyncing() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'kill_syncing';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function setProductPostsRelationships() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'set_product_posts_relationships';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function setCollectionPostsRelationships() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'set_collection_posts_relationships';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getWebhooksRemovalStatus() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_webhooks_removal_status';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getDataRemovalStatus() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_data_removal_status';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getPostsRelationshipsStatus() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_posts_relationships_status';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getAllCollections() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_all_collections';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function getSelectedCollections() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'get_selected_collections';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function checkForActiveConnection() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'check_connection';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function checkForValidServerConnection() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'check_valid_server_connection';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+function resetNoticeFlags() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'reset_notice_flags';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+/*
+
+Kicks off the table migration process
+
+*/
+function migrateTables() {
+
+  return new Promise((resolve, reject) => {
+
+    const action_name = 'migrate_tables';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
 
 
 export {
   getProductsFromCollection,
-  insertCustomCollections,
-  insertSmartCollections,
-  getCollectsFromProductID,
   getCollectsFromCollection,
-  sendCollectionsToServer,
   insertProductsData,
   getWebhooks,
-  getShopifyURL,
-  uninstallPlugin,
   setPluginSettings,
-  addWebhook,
   delWebhooks,
   getSingleCollection,
   deactivateLicenseKey,
@@ -1282,28 +1885,24 @@ export {
   deleteLicenseKey,
   getLicenseKey,
   getProductsCount,
-  insertCollects,
   getCollectsCount,
   updateSettings,
   getShopData,
   insertShopData,
-  insertConnectionData,
+  saveConnectionData,
   getConnectionData,
-  getProductVariants,
-  removePluginData,
+  deleteOnlySyncedData,
   setSyncingIndicator,
   clearCache,
-  syncWithCPT,
   insertOrders,
   getOrdersCount,
   insertCustomers,
   getCustomersCount,
   startProgress,
   registerWebhooks,
-  removeAllData,
+  deleteAllData,
   insertAltText,
   getProgressCount,
-  endProgress,
   getSmartCollectionsCount,
   getCustomCollectionsCount,
   progressSessionStart,
@@ -1313,5 +1912,26 @@ export {
   removeConnectionData,
   getWebhooksCount,
   getShopCount,
-  cacheNoticeDismissal
-};
+  cacheNoticeDismissal,
+  getBulkCollects,
+  getBulkProducts,
+  getBulkOrders,
+  getBulkCustomers,
+  getBulkSmartCollections,
+  getBulkCustomCollections,
+  getSyncNotices,
+  setProductPostsRelationships,
+  setCollectionPostsRelationships,
+  getWebhooksRemovalStatus,
+  getDataRemovalStatus,
+  getPostsRelationshipsStatus,
+  killSyncing,
+  getAllCollections,
+  getSelectedCollections,
+  checkForActiveConnection,
+  resetNoticeFlags,
+  deleteOnlyPostData,
+  deletePostsAndSyncedData,
+  checkForValidServerConnection,
+  migrateTables
+}

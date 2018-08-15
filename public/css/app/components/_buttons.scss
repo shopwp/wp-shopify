@@ -17,6 +17,11 @@
     font-size: 1em;
   }
 
+  &:focus {
+    background-color: color(lightgreen);
+    color: white;
+  }
+
   &:hover {
     color: white;
     background-color: color(linksHover);
@@ -27,8 +32,16 @@
   &.wps-is-disabled {
     &:hover {
       background-color: color(lightgreen);
+      cursor: not-allowed;
     }
   }
+
+  &:disabled {
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+
 
   &.wps-btn-secondary.wps-is-disabled {
     &:hover {
@@ -44,6 +57,11 @@
   &:hover {
     background-color: color(darkblue);
   }
+
+  &:focus {
+    background-color: color(lightblue);
+  }
+
 }
 
 
@@ -56,6 +74,11 @@
     color: white;
     background-color: color(darkblue);
   }
+
+  &:focus {
+    background-color: transparent;
+  }
+
 }
 
 
@@ -84,7 +107,8 @@
   position: relative;
   max-width: auto;
   width: auto;
-  height: 30px;
+  height: auto;
+  padding: 1em 1em;
 
   &.wps-fadeIn {
     opacity: 1;
@@ -105,10 +129,14 @@
   &.wps-is-loading {
 
     &:before {
-      top: 14%;
-      left: 100%;
-      width: 1.1em;
-      height: 1.1em;
+      right: -3px;
+      top: -3px;
+      width: 1.2em;
+      height: 1.2em;
+    }
+
+    .wps-cart-counter {
+      opacity: 0;
     }
 
   }
@@ -120,6 +148,7 @@
 
   &:focus {
     outline: 0;
+    background: transparent;
   }
 
   &:hover {

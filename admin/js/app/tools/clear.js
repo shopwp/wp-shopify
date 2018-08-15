@@ -1,38 +1,62 @@
 import isError from 'lodash/isError';
+import to from 'await-to-js';
 
 import {
-  createConnectorModal,
   injectConnectorModal,
   updateModalHeadingText,
   toggleActive,
-  showAdminNotice
+  showAdminNotice,
+  hideAdminNoticeByType
 } from '../utils/utils-dom';
 
 import {
+  afterWebhooksRemoval,
+  afterDataRemoval
+} from '../utils/utils-progress';
+
+import {
+  hasConnection,
+  returnOnlyFirstError
+} from '../utils/utils-data';
+
+import {
   clearLocalstorageCache
-} from '../ws/localstorage.js';
+} from '../ws/localstorage';
 
 import {
-  removeAllData
-} from '../ws/ws.js';
+  deleteAllData,
+  removeWebhooks,
+  checkForActiveConnection,
+  deleteOnlySyncedData,
+  removeConnectionData,
+  resetNoticeFlags,
+  deletePostsAndSyncedData,
+  checkForValidServerConnection
+} from '../ws/ws';
 
 import {
-  onModalClose
-} from '../forms/events';
+  resetNoticesAndClearCache,
+  deleteStandAloneData
+} from '../ws/wrappers';
 
 import {
   enable,
   disable,
-  showSpinner,
-  hideSpinner,
   showLoader,
   hideLoader,
-  isWordPressError
+  isWordPressError,
+  getWordPressErrorMessage,
+  getJavascriptErrorMessage,
+  getWordPressErrorType
 } from '../utils/utils';
 
 import {
   clearAllCache
 } from '../tools/cache';
+
+import {
+  syncOn
+} from '../ws/syncing';
 
 
 /*
@@ -46,7 +70,6 @@ function onClearSubmit() {
 
     if (window.confirm("Warning: This will delete all WordPress posts created from your Shopify data. Do you really want to remove?")) {
 
-
       e.preventDefault();
 
       var $button = jQuery(this);
@@ -56,68 +79,253 @@ function onClearSubmit() {
       toggleActive($spinner);
       showLoader($button);
 
+      clearLocalstorageCache();
+
+      WP_Shopify.isClearing = true;
+
 
       /*
 
-      Step 1. Clearing current data
+      Checks for an open connection to the server ...
 
       */
       try {
 
-        var removedResponse = await removeAllData();
+        var checkForValidServerResp = await checkForValidServerConnection();
 
-        if (isWordPressError(removedResponse)) {
-          throw removedResponse.data;
+        if (isWordPressError(checkForValidServerResp)) {
 
-        } else if (isError(removedResponse)) {
-          throw removedResponse;
+          showAdminNotice(
+            getWordPressErrorMessage(checkForValidServerResp),
+            getWordPressErrorType(checkForValidServerResp)
+          );
+
+          return;
+
         }
 
-      } catch(errors) {
+      } catch (error) {
 
-        showAdminNotice(errors, 'error');
+        showAdminNotice( getJavascriptErrorMessage(error) );
+        return;
 
       }
 
 
       /*
 
-      Step 2. Clear all plugin cache
+      No active connection exists. Just drop data and clear cache.
 
       */
-      try {
+      if (!hasConnection()) {
 
-        var clearAllCacheResponse = await clearAllCache();
 
-        if (isWordPressError(clearAllCacheResponse)) {
-          throw clearAllCacheResponse.data;
+        try {
 
-        } else if (isError(clearAllCacheResponse)) {
-          throw clearAllCacheResponse;
+          var clearAllCacheResponse = await clearAllCache();
 
-        } else {
+          if (isWordPressError(clearAllCacheResponse)) {
+
+            showAdminNotice(
+              getWordPressErrorMessage(clearAllCacheResponse),
+              getWordPressErrorType(clearAllCacheResponse)
+            );
+
+            return;
+
+          }
+
+        } catch(error) {
+
+          showAdminNotice( getJavascriptErrorMessage(error) );
+          return;
+
+        }
+
+
+        /*
+
+        Removing data that doesnt require an active Shopify connection
+
+        */
+
+        var [deletionError, deletionData] = await to( deleteStandAloneData() );
+
+        if (deletionError) {
+          showAdminNotice( getJavascriptErrorMessage(deletionError) );
+          return;
+        }
+
+        if (isWordPressError(deletionData)) {
+
+          showAdminNotice( returnOnlyFirstError(deletionData) );
+          return;
+
+        }
+
+
+        afterDataRemoval(async () => {
+
           showAdminNotice('Successfully removed all data', 'updated');
+          hideAdminNoticeByType('notice_warning_app_uninstalled');
+
+          return;
+
+        });
+
+
+      } else {
+
+
+        /*
+
+        Delete posts and synced data from custom tables
+
+        */
+        try {
+
+          var removedResponse = await deletePostsAndSyncedData();
+
+          if (isWordPressError(removedResponse)) {
+
+            showAdminNotice(
+              getWordPressErrorMessage(removedResponse),
+              getWordPressErrorType(removedResponse)
+            );
+
+            return;
+
+          }
+
+        } catch(error) {
+
+          showAdminNotice( getJavascriptErrorMessage(error) );
+          return;
 
         }
 
 
-      } catch(errors) {
 
-        showAdminNotice(errors, 'error');
+        afterDataRemoval(async () => {
+
+
+          /*
+
+          Turn syncing flag on
+
+          */
+          try {
+
+            var syncOnResponse = await syncOn();
+
+            if (isWordPressError(syncOnResponse)) {
+
+              showAdminNotice(
+                getWordPressErrorMessage(syncOnResponse),
+                getWordPressErrorType(syncOnResponse)
+              );
+
+              return;
+
+            }
+
+          } catch (error) {
+
+            showAdminNotice( getJavascriptErrorMessage(error) );
+            return;
+
+          }
+
+
+          if (hasConnection()) {
+
+
+
+
+
+
+              /*
+
+              Step 2. Clear all plugin cache
+
+              */
+              try {
+
+                var clearAllCacheResponse = await resetNoticesAndClearCache();
+
+                if (isWordPressError(clearAllCacheResponse)) {
+
+                  showAdminNotice(
+                    getWordPressErrorMessage(clearAllCacheResponse),
+                    getWordPressErrorType(clearAllCacheResponse)
+                  );
+
+                  return;
+
+                }
+
+              } catch(error) {
+
+                showAdminNotice( getJavascriptErrorMessage(error) );
+                return;
+
+              }
+
+              showAdminNotice('Successfully removed all data', 'updated');
+              hideAdminNoticeByType('notice_warning_app_uninstalled');
+
+
+
+
+          } else {
+
+
+            /*
+
+            Reset notices and clear cache
+
+            */
+            try {
+
+              var clearAllCacheResponse = await resetNoticesAndClearCache();
+
+              if (isWordPressError(clearAllCacheResponse)) {
+
+                showAdminNotice(
+                  getWordPressErrorMessage(clearAllCacheResponse),
+                  getWordPressErrorType(clearAllCacheResponse)
+                );
+
+                return;
+
+              }
+
+            } catch(error) {
+
+              showAdminNotice( getJavascriptErrorMessage(error) );
+              return;
+
+            }
+
+            showAdminNotice('Successfully removed all data', 'updated');
+            hideAdminNoticeByType('notice_warning_app_uninstalled');
+
+          }
+
+        });
 
       }
-
-      hideLoader($button);
-      enable($button);
 
     }
 
   });
 
-
 }
+
+
+
 
 
 export {
   onClearSubmit
-};
+}

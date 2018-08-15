@@ -1,9 +1,30 @@
-import { getProduct, getProductVariantID, getCartID } from '../ws/ws-products';
-import { animate, enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
-import { isEmptyCart } from '../utils/utils-cart';
-import { fetchCart, updateCart } from '../ws/ws-cart';
-import { quantityFinder, convertCustomAttrsToQueryString } from '../utils/utils-common';
-import { updateCartCounter, updateCartVariant, toggleCart, renderEmptyCartMessage, emptyCartUI } from './cart-ui';
+import to from 'await-to-js';
+import isEmpty from 'lodash/isEmpty';
+import isNaN from 'lodash/isNaN';
+import { getProductVariantID, getCheckoutID } from '../ws/ws-products';
+import { enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
+import { isCheckoutEmpty } from '../utils/utils-cart';
+import { getClient } from '../utils/utils-client';
+import { pulse } from '../utils/utils-animations';
+import { logNotice, showSingleCartNotice, noticeConfigEmptyLineItemsBeforeUpdate, isWordPressError } from '../utils/utils-notices';
+import { getCheckout, updateLineItems, addCheckoutAttributes } from '../ws/ws-cart';
+import { quantityFinder, convertCustomAttrsToQueryString, containsInvalidLineItemProps } from '../utils/utils-common';
+
+import {
+  updateCartCounter,
+  openCart,
+  renderEmptyCartMessage,
+  emptyCartUI,
+  updateTotalCartPricing,
+  disableCartItem,
+  enableCartItem,
+  enableCheckoutButton,
+  disableCheckoutButton,
+  cartIsOpen,
+  closeCart,
+  enableCartIcon
+} from './cart-ui';
+
 import { anyCustomAttrs } from '../ws/ws-checkout';
 
 /*
@@ -11,13 +32,13 @@ import { anyCustomAttrs } from '../ws/ws-checkout';
 Checkout listener
 
 */
-function onCheckout(shopify, cart) {
+function onCheckout(client, checkout) {
 
   return new Promise( async (resolve, reject) => {
 
     var finalCustomAttrs;
 
-    if (cart.lineItemCount === 0) {
+    if (checkout.lineItemCount === 0) {
       disable(jQuery('.wps-btn-checkout'));
     }
 
@@ -33,14 +54,15 @@ function onCheckout(shopify, cart) {
 
       event.preventDefault();
 
-      jQuery(document).trigger("wpshopify_checkout_before", [newCart]);
+      var $checkoutButton = jQuery(this);
 
-
-      if (jQuery('.wps-btn-checkout').hasClass('wps-is-disabled')) {
+      if ($checkoutButton.hasClass('wps-is-disabled')) {
         return;
       }
 
-      jQuery(this).addClass('wps-is-disabled wps-is-loading');
+      jQuery(document).trigger("wpshopify_checkout_before");
+      $checkoutButton.addClass('wps-is-disabled wps-is-loading');
+
 
 
 
@@ -51,38 +73,32 @@ function onCheckout(shopify, cart) {
       */
       try {
 
-        var newCart = await fetchCart(shopify);
+        var freshCheckout = await getCheckout(client);
 
       } catch(error) {
-        jQuery(this).removeClass('wps-is-disabled wps-is-loading');
+
+        $checkoutButton.removeClass('wps-is-disabled wps-is-loading');
         reject(error);
+        return;
+
+      }
+
+
+      if (isEmpty(WP_Shopify.checkoutAttributes)) {
+        window.open(freshCheckout.webUrl + '&attributes[cartID]=' + getCheckoutID(), '_self');
         return;
       }
 
 
-      /*
+      var [updatedCheckoutError, updatedCheckout] = await to( addCheckoutAttributes(client, freshCheckout, WP_Shopify.checkoutAttributes) );
 
-      Gets any customer note attributes for order
-
-      */
-      try {
-        var customAttrs = await anyCustomAttrs();
-
-      } catch (error) {
-        jQuery(this).removeClass('wps-is-disabled wps-is-loading');
-        reject(error);
-        return;
+      if (updatedCheckoutError) {
+        logNotice('anyCustomAttrs', updatedCheckoutError, 'error');
+        $checkoutButton.removeClass('wps-is-disabled wps-is-loading');
+        return reject(updatedCheckoutError);
       }
 
-
-       if (customAttrs.success) {
-         finalCustomAttrs = convertCustomAttrsToQueryString(customAttrs.data);
-
-       } else {
-         finalCustomAttrs = '';
-       }
-
-       window.open(newCart.checkoutUrl + '&attributes[cartID]=' + getCartID() + finalCustomAttrs, '_self');
+      window.open(updatedCheckout.webUrl + '&attributes[cartID]=' + getCheckoutID(), '_self');
 
 
     });
@@ -92,7 +108,7 @@ function onCheckout(shopify, cart) {
 
   });
 
-};
+}
 
 
 /*
@@ -100,174 +116,287 @@ function onCheckout(shopify, cart) {
 Toggle Cart
 
 */
-function onToggleCart() {
+function onOpenCart() {
 
-  jQuery('.wps-btn-cart').on('click', async function toggleCartHandler(e) {
+  jQuery('.wps-btn-cart').off('click').on('click', async function openCartHandler(e) {
 
     e.preventDefault();
-    toggleCart();
+
+    disable(jQuery(this));
+
+    openCart();
+
+    enable(jQuery(this));
 
   });
 
 }
 
 
-/*
+function onCloseCart() {
 
-On Manual Quantity Change
+  jQuery('.wps-btn-close').on('click', async function openCartHandler(e) {
 
-*/
-function onManualQuantityChange(shopify) {
+    e.preventDefault();
+    e.stopPropagation();
 
-  jQuery('.wps-cart').on('blur', '.wps-cart-item__quantity', async function quantityChangeHandler() {
-
-    var $input = jQuery(this);
-    var quantity = parseInt($input.val());
-    var variantId = parseInt($input.prev().attr('data-variant-id'), 10);
-    var productId = parseInt($input.prev().attr('data-product-id'), 10);
-    var $cartForm = $input.closest('.wps-cart-item-container');
-
-    disable($cartForm);
-    disable($input);
-
-    try {
-      var product = await getProduct(shopify, productId);
-
-    } catch(error) {
-      console.error('WP Shopify Error: getProduct ', error);
-
-    }
-
-    var variant = getProductVariantID(product, variantId);
-
-    try {
-      var cart = await fetchCart(shopify);
-
-    } catch (error) {
-      console.error('WP Shopify Error: fetchCart ', error);
-
-    }
-
-    var difference = quantityFinder(cart.lineItems[0].quantity, quantity);
-
-
-    /*
-
-    Update cart model
-
-    */
-    try {
-      var newCart = await updateCart(variant, difference, shopify);
-
-    } catch (error) {
-      console.error('WP Shopify Error: updateCart ', error);
-
-    }
-
-
-    /*
-
-    Update cart counter
-
-    */
-    try {
-
-      // Calls server if empty cart
-      await updateCartCounter(shopify, newCart); //
-
-    } catch (error) {
-      console.error('WP Shopify Error: updateCartCounter ', error);
-    }
-
-
-    setTimeout(() => {
-      enable($cartForm);
-      enable(jQuery('.wps-cart-item__quantity'));
-    }, 0);
-
+    closeCart();
 
   });
 
 }
 
 
+function getCurrentQuantityFromButton($quantityInput) {
+  return parseInt( $quantityInput.val() );
+}
+
+function getPrevQuantityFromButton($quantityInput) {
+
+  var prevValue = $quantityInput.attr('data-wps-previous-amount');
+
+  if (!prevValue) {
+    prevValue = 1;
+  }
+
+  return parseInt(prevValue);
+
+}
+
+
+function enableAllQuantityInputs() {
+  enable( jQuery('.wps-cart-item__quantity') );
+}
+
+function disableAllQuantityInputs() {
+  disable( jQuery('.wps-cart-item__quantity') );
+}
+
+
+
+
+
+function removeLineItemByID(lineItemVariantID) {
+  jQuery('.wps-cart-item[data-wps-line-item-variant-id="' + lineItemVariantID +'"]').remove();
+}
+
+
+function removeLineItemIfZeroQuantity(lineItemQuantity, lineItemVariantID) {
+
+  if (lineItemQuantity === 0) {
+    removeLineItemByID(lineItemVariantID);
+  }
+
+}
+
+
 /*
 
-Increase product variant quantity in cart
-TODO: Combine with below function
+Runs when quantity changes due to manual quantity change
 
 */
-function onQuantityChange(shopify) {
+function onManualQuantityChange(client, checkout) {
 
-  jQuery('.wps-cart').on('click', '.wps-quantity-increment, .wps-quantity-decrement', async function cartIncHandler() {
+  jQuery('.wps-cart-item')
+    .off('blur')
+    .on('blur', '.wps-cart-item__quantity', function(e) {
+      onQuantityChange( jQuery(this), client, checkout );
+    });
 
-    var quantity;
-    var $cartForm = jQuery(this).closest('.wps-cart-item-container');
-    var variantId = parseInt(jQuery(this).attr('data-variant-id'), 10);
-    var productId = parseInt(jQuery(this).attr('data-product-id'), 10);
+}
 
-    // showLoader($cartForm);
-    disable($cartForm);
 
-    $cartForm.addClass('wps-is-disabled wps-is-loading');
+function enableCartFunctionality($lineItem) {
+  enableCartItem($lineItem);
+  enableCheckoutButton();
+  enableAllQuantityInputs();
+  enableCartIcon();
+}
 
-    if (jQuery(this).hasClass('wps-quantity-increment')) {
-      quantity = 1;
+
+/*
+
+Runs when quantity changes due to plus minus buttons clicked
+
+*/
+function onButtonQuantityChange(client, checkout) {
+
+  jQuery('.wps-cart-item')
+    .off('click')
+    .on('click', '.wps-quantity-increment, .wps-quantity-decrement', function(e) {
+      onQuantityChange( jQuery(this), client, checkout);
+    });
+
+}
+
+
+
+async function onQuantityChange($trigger, client, checkout) {
+
+  var quantity,
+      $quantityTrigger = $trigger,
+      $lineItem = $quantityTrigger.closest('.wps-cart-item'),
+      lineItemId = getLineItemIdFromInput($quantityTrigger),
+      lineItemVariantId = getLineItemVariantIdFromInput($quantityTrigger),
+      $quantityWrapper = $quantityTrigger.closest('.wps-cart-item__quantity-container'),
+      $quantityInput = $quantityWrapper.find('.wps-cart-item__quantity'),
+      currentAmount = getCurrentQuantityFromButton($quantityInput),
+      prevAmount = getPrevQuantityFromButton($quantityInput),
+      newAmount = getNewAmount($quantityTrigger, prevAmount),
+      $lineItemRow = $quantityTrigger.closest('.wps-cart-item__content-row');
+
+  disableCartItem($lineItem);
+  disableCheckoutButton();
+
+
+  const lineItemInfo = getSingleLineItemUpdateOptions(lineItemId, lineItemVariantId, newAmount);
+
+  if (containsInvalidLineItemProps(lineItemInfo)) {
+
+    logNotice('getSingleLineItemUpdateOptions', lineItemInfo, 'warning');
+    showSingleCartNotice(noticeConfigEmptyLineItemsBeforeUpdate(), $lineItem);
+    enableCartFunctionality($lineItem);
+
+    return;
+
+  }
+
+
+  const [ updateLineItemsError, updatedCheckout ] = await to( updateLineItems(client, checkout, [lineItemInfo] ) );
+
+  if (updateLineItemsError) {
+
+    logNotice('updateLineItems', updateLineItemsError, 'warning');
+    showSingleCartNotice(updateLineItemsError, $lineItem, 'error');
+    enableCartFunctionality($lineItem);
+    return;
+
+  }
+
+
+
+
+  if ( isCheckoutEmpty(updatedCheckout) ) {
+    emptyCartUI(updatedCheckout);
+
+  } else {
+
+    removeLineItemIfZeroQuantity(lineItemInfo.quantity, lineItemVariantId);
+
+    updateQuantityInput($quantityInput, newAmount);
+    updateQuantityHelper($lineItemRow, newAmount);
+    updateTotalCartPricing(updatedCheckout);
+    updateCartCounter(client, updatedCheckout);
+
+    enableCartFunctionality($lineItem);
+
+  }
+
+}
+
+
+function coerceQuanaityToNumber(currentAmount, prevAmount) {
+
+  var value = parseInt( currentAmount );
+
+  if (isNaN(value)) {
+
+    if (isNaN(prevAmount)) {
+
+      value = 1;
 
     } else {
-      quantity = -1;
+      value = prevAmount;
     }
 
+  } else {
 
-    /*
-
-    Get product
-
-    */
-    try {
-      var product = await getProduct(shopify, productId);
-      var variant = getProductVariantID(product, variantId);
-
-    } catch(error) {
-      console.error('WP Shopify Error getProduct: ', error);
-      $cartForm.removeClass('wps-is-disabled wps-is-loading');
-      return error;
+    // Make sure only postive or zero values are used
+    if (value < 0) {
+      value = 0;
     }
 
+  }
 
-    /*
+  return value;
 
-    Update cart variant
-
-    */
-    try {
-
-      // Updates cart line item
-      var newCart = await updateCartVariant(variant, quantity, shopify);
-
-    } catch(error) {
-      console.error('WP Shopify Error updateCartVariant: ', error);
-      $cartForm.removeClass('wps-is-disabled wps-is-loading');
-      return error;
-    }
+}
 
 
-    if ( isEmptyCart(newCart) ) {
-      emptyCartUI(shopify, newCart);
 
-    } else {
+function isIncrementing($button) {
+  return $button.hasClass('wps-quantity-increment');
+}
 
-      // Updates cart icon counter
-      updateCartCounter(shopify, newCart);
 
-    }
+function getNewAmount($button, prevAmount) {
 
-    $cartForm.removeClass('wps-is-disabled wps-is-loading');
-    // enable($cartForm);
+  if ($button.hasClass('wps-cart-item__quantity')) {
+    return coerceQuanaityToNumber($button.val(), prevAmount);
+  }
 
-  });
+  if ( isIncrementing($button) ) {
+    return prevAmount + 1;
 
-};
+  } else {
+    return prevAmount - 1;
+  }
+
+}
+
+
+
+
+
+
+
+function getSingleLineItemUpdateOptions(lineItemId, variantId, newAmount) {
+
+  return {
+    id: lineItemId,
+    quantity: parseInt(newAmount),
+    variantId: variantId
+  }
+
+}
+
+
+
+/*
+
+It's important that the id we add to [data-wps-line-item-id] be correct!
+
+*/
+function getLineItemIdFromInput($inputButton) {
+  return $inputButton.closest('.wps-cart-item').attr('data-wps-line-item-id');
+}
+
+function getLineItemVariantIdFromInput($inputButton) {
+  return $inputButton.closest('.wps-cart-item').attr('data-wps-line-item-variant-id');
+}
+
+
+function updateQuantityInput($quantityInput, newAmount) {
+
+  $quantityInput.val(newAmount);
+  $quantityInput.attr('val', newAmount);
+
+  $quantityInput.attr('data-wps-previous-amount', newAmount);
+  $quantityInput.data('wps-previous-amount', newAmount);
+
+  pulse($quantityInput);
+
+}
+
+
+function updateQuantityHelper($rowElement, newAmount) {
+  $rowElement.find('.wps-cart-item__price .wps-cart-item__quantity').text('x' + newAmount);
+}
+
+
+
+
+
 
 
 /*
@@ -275,13 +404,20 @@ function onQuantityChange(shopify) {
 Initialize Cart Events
 
 */
-function cartEvents(shopify, cart) {
-  onCheckout(shopify, cart);
-  onToggleCart();
-  onQuantityChange(shopify);
-  onManualQuantityChange(shopify);
+function cartEvents(client, checkout) {
+  onCheckout(client, checkout);
+  onOpenCart();
+  onCloseCart();
+  onCartQuantity(client, checkout);
 }
 
+function onCartQuantity(client, checkout) {
+  onButtonQuantityChange(client, checkout);
+  onManualQuantityChange(client, checkout);
+}
+
+
 export {
-  cartEvents
-};
+  cartEvents,
+  onCartQuantity
+}

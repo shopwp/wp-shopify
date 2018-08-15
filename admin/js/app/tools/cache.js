@@ -1,3 +1,5 @@
+import to from 'await-to-js';
+
 import {
   showAdminNotice,
   toggleActive,
@@ -10,16 +12,17 @@ import {
 import {
   setSyncingIndicator,
   clearCache
-} from '../ws/ws.js';
+} from '../ws/ws';
 
 import {
   enable,
   disable,
-  showSpinner,
-  hideSpinner,
   showLoader,
   hideLoader,
-  isWordPressError
+  isWordPressError,
+  getWordPressErrorMessage,
+  getWordPressErrorType,
+  getJavascriptErrorMessage
 } from '../utils/utils';
 
 
@@ -41,23 +44,20 @@ function onCacheClear() {
     toggleActive($spinner);
     showLoader($button);
 
-    try {
+    clearLocalstorageCache();
 
-      var clearAllCacheResponse = await clearAllCache();
+    var [clearError, clearResp] = await to( clearAllCache() );
 
-      if (isWordPressError(clearAllCacheResponse)) {
-        throw new Error(clearAllCacheResponse.data);
-
-      } else {
-        showAdminNotice('Successfully cleared cache', 'updated');
-      }
-
-    } catch(errors) {
-      showAdminNotice(errors, 'error');
+    if (clearError) {
+      showAdminNotice( getJavascriptErrorMessage(clearError) );
     }
 
-    hideLoader($button);
-    enable($button);
+    if (isWordPressError(clearResp)) {
+      getWordPressErrorMessage(clearResp),
+      getWordPressErrorType(clearResp)
+    }
+
+    showAdminNotice('Successfully cleared the WP Shopify cache', 'updated');
 
   });
 
@@ -68,42 +68,13 @@ function onCacheClear() {
 
 Clear All Cache
 
+clear_cache
+
 */
 function clearAllCache() {
-
-  return new Promise(async function(resolve, reject) {
-
-    /*
-
-    Step 1. Clear LS cache
-
-    */
-    clearLocalstorageCache();
-
-
-    /*
-
-    Step 2. Clear main cache
-
-    */
-    try {
-      var clearCacheResponse = await clearCache(); // wps_clear_cache
-
-      if (isWordPressError(clearCacheResponse)) {
-        reject(clearCacheResponse.data);
-      }
-
-    } catch(clearCacheError) {
-      reject(clearCacheError);
-
-    }
-
-    resolve(clearCacheResponse);
-
-
-  });
-
+  return clearCache(); // Returns a Promise
 }
+
 
 export {
   onCacheClear,

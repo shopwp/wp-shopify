@@ -48,5 +48,5 @@ printf "${GREEN}Success: ${NC}Updated permissions\n"
 #
 # Checkout the wordpress testing data folder
 #
-svn co https://develop.svn.wordpress.org/tags/4.9.4/tests/phpunit/data/ /tmp/wordpress-tests-lib/data/
+svn co https://develop.svn.wordpress.org/tags/4.9.8/tests/phpunit/data/ /tmp/wordpress-tests-lib/data/
 printf "${GREEN}Success: ${NC}Checked out data folder from SVN\n"

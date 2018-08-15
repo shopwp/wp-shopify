@@ -9,7 +9,7 @@ Init
 */
 function cacheAdminNoticeDismissal() {
 
-  jQuery('.wps-notice').on( 'click', '.notice-dismiss', async function(event, el) {
+  jQuery('.wps-notice').on('click', '.notice-dismiss', async function(event, el) {
 
     var $notice = jQuery(this).parent('.notice.is-dismissible');
     var dismiss_name = $notice.attr('data-dismiss-name');
@@ -30,6 +30,15 @@ function cacheAdminNoticeDismissal() {
 }
 
 
+function initDismissNoticeEvents() {
+
+  jQuery('.wps-notice.is-dismissible .notice-dismiss').on('click', e => {
+    jQuery(e.currentTarget).parent().fadeOut();
+  });
+
+}
+
+
 /*
 
 Init
@@ -40,5 +49,6 @@ function noticesInit() {
 }
 
 export {
-  noticesInit
+  noticesInit,
+  initDismissNoticeEvents
 }

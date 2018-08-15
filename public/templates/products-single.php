@@ -4,7 +4,7 @@
 
 @description   The main entry point for the 'products single' page. Used internally by the custom post type single template
 
-@version       1.0.0
+@version       1.0.2
 @since         1.0.49
 @path          templates/products-single.php
 @partials      templates/partials/products/single
@@ -13,15 +13,15 @@
 
 */
 
-use WPS\DB\Products;
-use WPS\Utils;
-
 if ( !defined('ABSPATH') ) {
 	exit;
 }
 
-$DB_Products = new Products();
-$product = $DB_Products->get_data();
+use WPS\Utils;
+use WPS\Factories\Templates_Factory;
+
+$Templates = Templates_Factory::build();
+$product = $Templates->get_product_data();
 
 get_header('wps');
 
@@ -56,7 +56,7 @@ if ( is_single() ) {
   do_action('wps_products_quantity', $product);
   do_action('wps_product_single_actions_group_start', $product);
 
-  if(count($product->variants) > 1) {
+  if (count($product->variants) > 1) {
     do_action('wps_products_options', $product);
   }
 

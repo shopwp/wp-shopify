@@ -3,60 +3,41 @@
 namespace WPS;
 
 use WPS\Transients;
-use WPS\Messages;
 use WPS\WS;
-use WPS\Config;
+use WPS\Messages;
 
-// If this file is called directly, abort.
+
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-/*
-
-Class Admin_Notices
-
-*/
 if ( !class_exists('Admin_Notices') ) {
 
 	class Admin_Notices {
 
+		private $WS;
+		private $Messages;
+		private $DB_Settings_General;
 		private $admin_notices;
-	  protected static $instantiated = null;
+
 
 	  /*
 
 	  Initialize the class and set its properties.
 
 	  */
-	  public function __construct() {
+	  public function __construct($WS, $Messages, $DB_Settings_General) {
 
-			$this->admin_notices = new \stdClass();
-			$this->admin_notices->error = [];
-			$this->admin_notices->warning = [];
-			$this->admin_notices->info = [];
-			$this->admin_notices->success = [];
+			// Dependencies
+			$this->WS 								 					= $WS;
+			$this->Messages 					 					= $Messages;
+			$this->DB_Settings_General 					= $DB_Settings_General;
 
-			$this->WS = new WS(new Config());
-
-			$this->messages = new Messages();
-
-	  }
-
-
-	  /*
-
-	  Creates a new class if one hasn't already been created.
-	  Ensures only one instance is used.
-
-	  */
-	  public static function instance() {
-
-	    if (is_null(self::$instantiated)) {
-	      self::$instantiated = new self();
-	    }
-
-	    return self::$instantiated;
+			$this->admin_notices 								= new \stdClass();
+			$this->admin_notices->error 				= [];
+			$this->admin_notices->warning 			= [];
+			$this->admin_notices->info 					= [];
+			$this->admin_notices->success 			= [];
 
 	  }
 
@@ -136,8 +117,75 @@ if ( !class_exists('Admin_Notices') ) {
 		*/
 		public function show_admin_notices() {
 
-			if (!empty(get_current_screen()) && get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections') {
-				$this->warning($this->messages->message_saving_native_cpt_data, 'notice_warning_post_data_eraser' );
+			$this->show_cpt_data_erase_notice();
+			$this->show_app_uninstalled_notice();
+			$this->show_database_migration_needed_notice();
+
+		}
+
+
+		public function is_wp_shopify_cpt_page() {
+
+			if (!empty(get_current_screen()) && get_current_screen()->id === WPS_PRODUCTS_POST_TYPE_SLUG || get_current_screen()->id === WPS_COLLECTIONS_POST_TYPE_SLUG) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		public function is_wp_shopify_settings_page() {
+
+			if (!empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings') {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		public function show_database_migration_needed_notice() {
+
+			if (Transients::get('wps_database_migration_needed')) {
+				$this->warning($this->Messages->message_database_migration_needed, 'notice_warning_database_migration_needed' );
+			}
+
+		}
+
+
+		/*
+
+		Show admin notices
+
+		*/
+		public function show_cpt_data_erase_notice() {
+
+			if ($this->is_wp_shopify_cpt_page()) {
+				$this->warning($this->Messages->message_saving_native_cpt_data, 'notice_warning_post_data_eraser' );
+			}
+
+		}
+
+
+		/*
+
+		Show admin notices
+
+		*/
+		public function show_app_uninstalled_notice() {
+
+			$app_uninstalled_status = $this->DB_Settings_General->app_uninstalled();
+
+			if (!$app_uninstalled_status) {
+				return;
+			}
+
+			if ($this->is_wp_shopify_cpt_page() || $this->is_wp_shopify_settings_page()) {
+				$this->warning($this->Messages->message_app_uninstalled, 'notice_warning_app_uninstalled' );
 			}
 
 		}
@@ -159,6 +207,21 @@ if ( !class_exists('Admin_Notices') ) {
 
 	    }
 
+		}
+
+
+		/*
+
+		Hooks
+
+		*/
+		public function hooks() {
+
+			add_action('wp_ajax_cache_admin_notice_dismissal', [$this, 'cache_admin_notice_dismissal']);
+			add_action('wp_ajax_nopriv_cache_admin_notice_dismissal', [$this, 'cache_admin_notice_dismissal']);
+
+			// Shows default notices
+			add_action('admin_notices', [$this, 'show_admin_notices']);
 
 		}
 
@@ -169,14 +232,7 @@ if ( !class_exists('Admin_Notices') ) {
 
 		*/
 		public function init() {
-
-			add_action('wp_ajax_cache_admin_notice_dismissal', [$this, 'cache_admin_notice_dismissal']);
-			add_action('wp_ajax_nopriv_cache_admin_notice_dismissal', [$this, 'cache_admin_notice_dismissal']);
-
-			// Shows default notices
-			add_action('admin_notices', [$this, 'show_admin_notices']);
-
-
+			$this->hooks();
 		}
 
 

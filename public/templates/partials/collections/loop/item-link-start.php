@@ -18,4 +18,4 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<a href="<?= esc_url( home_url() . '/' . $data->settings->url_collections . '/' . $data->collection->handle); ?>" class="wps-collection-link <?= apply_filters( 'wps_collections_link_class', '' ); ?>" title="<?php esc_attr_e($data->collection->title, 'wp-shopify' ); ?>">
+<a href="<?= esc_url( home_url() . '/' . $data->settings->url_collections . '/' . $data->collection->handle); ?>" class="wps-collection-link <?= apply_filters( 'wps_collections_link_class', '' ); ?>" title="<?php esc_attr_e($data->collection->title, WPS_PLUGIN_TEXT_DOMAIN ); ?>">

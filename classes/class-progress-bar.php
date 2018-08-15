@@ -2,35 +2,30 @@
 
 namespace WPS;
 
-use WPS\WS;
-use WPS\Messages;
-use WPS\DB\Settings_Connection;
+use WPS\Utils;
 
-require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
-
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Class Progress Bar
-
-*/
 if (!class_exists('Progress_Bar')) {
 
 	class Progress_Bar {
 
+		protected $DB_Settings_Syncing;
+		protected $DB_Settings_General;
+		protected $Messages;
+		protected $WS;
+		protected $WS_Syncing;
 
-		public function __construct($Config) {
+		public function __construct($DB_Settings_Syncing, $DB_Settings_General, $Messages, $WS, $WS_Syncing) {
 
-			$this->config = $Config;
-			$this->connection = new Settings_Connection();
-			$this->messages = new Messages();
-			$this->ws = new WS($this->config);
+			$this->DB_Settings_Syncing 			= $DB_Settings_Syncing;
+			$this->DB_Settings_General 			= $DB_Settings_General;
+			$this->Messages 								= $Messages;
+			$this->WS 											= $WS;
+			$this->WS_Syncing								= $WS_Syncing;
 
 		}
 
@@ -40,23 +35,29 @@ if (!class_exists('Progress_Bar')) {
 		Progress: Session creation
 
 		*/
-		public function wps_progress_session_create() {
+		public function progress_session_create() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_progress_session_create)');
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_session_create)');
 			}
 
+			$this->DB_Settings_Syncing->toggle_syncing(1);
 
-			Utils::wps_access_session();
+			$startingSyncTotals = [];
 
-			session_unset();
 
-			$_SESSION = [
-				'wps_syncing_totals' => [],
-				'wps_syncing_current_amounts' => [],
-				'wps_is_syncing' => 1
-			];
+			/*
 
+			$includes is an array contain the data types like this:
+
+			Array (
+				[0] => smart_collections
+				[1] => custom_collections
+				[2] => customers
+				[3] => orders
+			)
+
+			*/
 			if (isset($_POST['includes']) && $_POST['includes']) {
 				$includes = $_POST['includes']; // array of keys in which to filter from
 
@@ -67,73 +68,66 @@ if (!class_exists('Progress_Bar')) {
 
 			/*
 
-			Totals
+			$excludes is an array contain the data types like this:
+
+			Array (
+				[0] => smart_collections
+				[1] => custom_collections
+				[2] => customers
+				[3] => orders
+			)
 
 			*/
-			if (!isset($_SESSION['wps_syncing_totals']['smart_collections'])) {
-				$_SESSION['wps_syncing_totals']['smart_collections'] = 0;
-			}
+			if (isset($_POST['excludes']) && $_POST['excludes']) {
+				$excludes = $_POST['excludes']; // array of keys in which to filter from
 
-			if (!isset($_SESSION['wps_syncing_totals']['custom_collections'])) {
-				$_SESSION['wps_syncing_totals']['custom_collections'] = 0;
-			}
-
-			if (!isset($_SESSION['wps_syncing_totals']['connection'])) {
-				$_SESSION['wps_syncing_totals']['connection'] = 1;
-			}
-
-			if (!isset($_SESSION['wps_syncing_totals']['shop'])) {
-				$_SESSION['wps_syncing_totals']['shop'] = 1;
-			}
-
-			if (!isset($_SESSION['wps_syncing_totals']['products'])) {
-				$_SESSION['wps_syncing_totals']['products'] = 0;
-			}
-
-			if (!isset($_SESSION['wps_syncing_totals']['collects'])) {
-				$_SESSION['wps_syncing_totals']['collects'] = 0;
+			} else {
+				$excludes = [];
 			}
 
 
-			/*
+			// Totals
+			$startingSyncTotals['wps_syncing_totals'] = $this->DB_Settings_Syncing->syncing_totals();
 
-			Current amounts
+			// Current amounts
+			$startingSyncTotals['wps_syncing_current_amounts'] = $this->DB_Settings_Syncing->syncing_current_amounts();
 
-			*/
-			if (!isset($_SESSION['wps_syncing_current_amounts']['smart_collections'])) {
-				$_SESSION['wps_syncing_current_amounts']['smart_collections'] = 0;
-			}
+			$startingSyncTotals = $this->filter_session_variables_by_includes($startingSyncTotals, $includes);
+			$startingSyncTotals = $this->filter_session_variables_by_excludes($startingSyncTotals, $excludes);
 
-			if (!isset($_SESSION['wps_syncing_current_amounts']['custom_collections'])) {
-				$_SESSION['wps_syncing_current_amounts']['custom_collections'] = 0;
-			}
-
-			if (!isset($_SESSION['wps_syncing_current_amounts']['connection'])) {
-				$_SESSION['wps_syncing_current_amounts']['connection'] = 0;
-			}
-
-			if (!isset($_SESSION['wps_syncing_current_amounts']['shop'])) {
-				$_SESSION['wps_syncing_current_amounts']['shop'] = 0;
-			}
-
-			if (!isset($_SESSION['wps_syncing_current_amounts']['products'])) {
-				$_SESSION['wps_syncing_current_amounts']['products'] = 0;
-			}
-
-			if (!isset($_SESSION['wps_syncing_current_amounts']['collects'])) {
-				$_SESSION['wps_syncing_current_amounts']['collects'] = 0;
-			}
-
-
-			$sessionVariables = $_SESSION;
-			$sessionVariablesFiltered = $this->filter_session_variables_by_includes($sessionVariables, $includes);
-
-			$_SESSION['wps_syncing_current_amounts'] = $sessionVariablesFiltered['wps_syncing_current_amounts'];
-			$_SESSION['wps_syncing_totals'] = $sessionVariablesFiltered['wps_syncing_totals'];
-
-			$this->ws->send_success($sessionVariablesFiltered);
+			$this->WS->send_success($startingSyncTotals);
 
 		}
+
+
+
+		public function filter_session_variables_by_excludes($startingSyncTotals, $excludes) {
+
+			if (empty($excludes)) {
+				return $startingSyncTotals;
+
+			} else {
+
+				$not_allowed = [];
+
+				foreach ($excludes as $exclude) {
+
+					foreach ($startingSyncTotals as &$startingSyncTotal) {
+
+						if (isset($startingSyncTotal[$exclude])) {
+							unset($startingSyncTotal[$exclude]);
+						}
+
+					}
+
+				}
+
+				return $startingSyncTotals;
+
+			}
+
+		}
+
 
 
 		/*
@@ -171,9 +165,9 @@ if (!class_exists('Progress_Bar')) {
 		*/
 		public function wps_progress_step_current() {
 
-			$databaseResponse = $this->connection->get_column_single('syncing_step_current');
+			$databaseResponse = $this->DB_Settings_Syncing->get_column_single('syncing_step_current');
 
-			if (is_array($databaseResponse) && isset($databaseResponse[0]->syncing_step_current)) {
+			if (Utils::array_not_empty($databaseResponse) && isset($databaseResponse[0]->syncing_step_current)) {
 				$syncingStepCurrent = intval($databaseResponse[0]->syncing_step_current);
 
 			} else {
@@ -193,9 +187,9 @@ if (!class_exists('Progress_Bar')) {
 		*/
 		public function wps_progress_syncing_status() {
 
-			$syncingStatus = $this->connection->get_column_single('is_syncing');
+			$syncingStatus = $this->DB_Settings_Syncing->get_column_single('is_syncing');
 
-			if (is_array($syncingStatus) && isset($syncingStatus[0]->is_syncing)) {
+			if (Utils::array_not_empty($syncingStatus) && isset($syncingStatus[0]->is_syncing)) {
 				$syncing = intval($syncingStatus[0]->is_syncing);
 
 			} else {
@@ -209,48 +203,24 @@ if (!class_exists('Progress_Bar')) {
 
 		/*
 
-		Ends a progress bar instance
-
-		*/
-		public function wps_progress_bar_end($ajax = true) {
-
-			Utils::wps_session_flush();
-
-			session_unset();
-
-			$_SESSION = [
-				'wps_is_syncing' => 0,
-				'wps_syncing_totals' => [],
-				'wps_syncing_current_amounts' => []
-			];
-
-			if ($ajax) {
-				$this->ws->send_success($_SESSION);
-
-			} else {
-				return $_SESSION;
-			}
-
-		}
-
-
-		/*
-
 		Progress: Get Status
 
 		*/
-		public function wps_progress_status() {
+		public function progress_status() {
 
 			if (!Utils::valid_backend_nonce($_GET['nonce'])) {
-				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_progress_status)');
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
 			}
 
-			Utils::wps_access_session();
+			if ($this->DB_Settings_Syncing->all_syncing_complete()) {
+				$this->WS_Syncing->expire_sync();
+			}
 
-			$this->ws->send_success([
-				'is_syncing' 								=> isset($_SESSION['wps_is_syncing']) ? $_SESSION['wps_is_syncing'] : 1,
-				'syncing_totals'						=> isset($_SESSION['wps_syncing_totals']) ? $_SESSION['wps_syncing_totals'] : [],
-				'syncing_current_amounts'		=> isset($_SESSION['wps_syncing_current_amounts']) ? $_SESSION['wps_syncing_current_amounts'] : []
+			$this->WS->send_success([
+				'is_syncing' 								=> $this->DB_Settings_Syncing->is_syncing(),
+				'syncing_totals'						=> $this->DB_Settings_Syncing->syncing_totals(),
+				'syncing_current_amounts'		=> $this->DB_Settings_Syncing->syncing_current_amounts(),
+				'has_fatal_errors' 					=> $this->DB_Settings_Syncing->has_fatal_errors()
 			]);
 
 		}
@@ -258,20 +228,110 @@ if (!class_exists('Progress_Bar')) {
 
 		/*
 
-		Progress: Update current amount
+		Fires once the syncing process stops
 
 		*/
-		public function increment_current_amount($key) {
+		public function get_syncing_notices() {
 
-			Utils::wps_access_session();
-
-			if (isset($key) && isset($_SESSION['wps_syncing_current_amounts'][$key]) && !empty($key)) {
-				$_SESSION['wps_syncing_current_amounts'][$key] = $_SESSION['wps_syncing_current_amounts'][$key] + 1;
+			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
 			}
 
-			Utils::wps_close_session_write();
+			$syncing_notices = $this->DB_Settings_Syncing->syncing_notices();
+
+			$this->WS->send_success( $syncing_notices );
 
 		}
+
+
+		public function get_webhooks_removal_status() {
+
+			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+			}
+
+			$this->WS->send_success( $this->DB_Settings_Syncing->webhooks_removal_status() );
+
+		}
+
+
+		public function get_data_removal_status() {
+
+			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+			}
+
+			$this->WS->send_success( $this->DB_Settings_Syncing->data_removal_status() );
+
+		}
+
+
+		public function get_posts_relationships_status() {
+
+			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+			}
+
+			$this->WS->send_success( $this->DB_Settings_Syncing->posts_relationships_status() );
+
+		}
+
+
+		/*
+
+		Kills syncing
+
+		*/
+		public function kill_syncing() {
+
+			// Clear all caches again for good measure
+			$this->DB_Settings_Syncing->reset_syncing_cache();
+
+			wp_die();
+
+		}
+
+
+		/*
+
+		Hooks
+
+		*/
+		public function hooks() {
+
+			add_action( 'wp_ajax_progress_status', [$this, 'progress_status']);
+			add_action( 'wp_ajax_nopriv_progress_status', [$this, 'progress_status']);
+
+			add_action( 'wp_ajax_progress_session_create', [$this, 'progress_session_create']);
+			add_action( 'wp_ajax_nopriv_progress_session_create', [$this, 'progress_session_create']);
+
+			add_action( 'wp_ajax_get_syncing_notices', [$this, 'get_syncing_notices']);
+			add_action( 'wp_ajax_nopriv_get_syncing_notices', [$this, 'get_syncing_notices']);
+
+			add_action( 'wp_ajax_kill_syncing', [$this, 'kill_syncing']);
+			add_action( 'wp_ajax_nopriv_kill_syncing', [$this, 'kill_syncing']);
+
+			add_action( 'wp_ajax_get_webhooks_removal_status', [$this, 'get_webhooks_removal_status']);
+			add_action( 'wp_ajax_nopriv_get_webhooks_removal_status', [$this, 'get_webhooks_removal_status']);
+
+			add_action( 'wp_ajax_get_data_removal_status', [$this, 'get_data_removal_status']);
+			add_action( 'wp_ajax_nopriv_get_data_removal_status', [$this, 'get_data_removal_status']);
+
+			add_action( 'wp_ajax_get_posts_relationships_status', [$this, 'get_posts_relationships_status']);
+			add_action( 'wp_ajax_nopriv_get_posts_relationships_status', [$this, 'get_posts_relationships_status']);
+
+		}
+
+
+		/*
+
+		Init
+
+		*/
+		public function init() {
+			$this->hooks();
+		}
+
 
 	}
 

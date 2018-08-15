@@ -1,30 +1,13 @@
 import forEach from 'lodash/forEach';
+import isError from 'lodash/isError';
+import isObject from 'lodash/isObject';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
+import has from 'lodash/has';
 import isURL from 'validator/lib/isURL';
 import dateFormat from 'dateformat';
-
 import { stopSpinner } from './utils-dom';
-
-
-/*
-
-Check if object has a property
-
-*/
-function hasProp(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-
-/*
-
-Check if an object
-
-*/
-function isObject(value) {
-  var type = typeof value;
-  return value != null && (type == 'object' || type == 'function');
-}
-
 
 /*
 
@@ -38,21 +21,147 @@ FALSE - send_success
 */
 function isWordPressError(response) {
 
-  if (isObject(response) && hasProp(response, 'success')) {
+  var foundError = false;
 
-    if (response.success) {
-      return false;
+  // A single error is being checked
+  if (isObject(response) && has(response, 'success')) {
 
-    } else {
-      return true;
-
+    if (!response.success) {
+      foundError = true;
     }
+
+  }
+
+  // Used when using promise all for checking more than one returned response
+  if (isArray(response) && !isEmpty(response)) {
+
+    forEach(response, function(possibleError) {
+
+      if (isObject(possibleError) && has(possibleError, 'success')) {
+
+        if (!possibleError.success) {
+          foundError = true;
+        }
+
+      }
+
+    });
+
+  }
+
+  return foundError;
+
+}
+
+
+/*
+
+Checks if object is one of our standard JS errors
+
+*/
+function isJavascriptError(response) {
+
+  if (isObject(response) && has(response, 'statusCode') && has(response, 'message')) {
+    return true;
 
   } else {
     return false;
 
   }
 
+}
+
+
+/*
+
+Returns the string error message produces from a WP_Error on the server
+
+*/
+function getWordPressErrorMessage(error) {
+
+  if ( isString(error) ) {
+    return error;
+  }
+
+  if (isObject(error) && has(error, 'data') && has(error.data, 'message')) {
+    return error.data.message;
+
+  } else if ( isObject(error) && has(error, 'message') ) {
+    return error.message;
+
+  } else if ( isObject(error) && has(error, 'data') ) {
+
+    if (isArray(error.data)) {
+
+      if (isString(error.data[0])) {
+        return error.data[0];
+      }
+
+      if (has(error.data[0], 'message')) {
+        return error.data[0].message;
+      }
+
+      return 'An unknown error occured. Please clear the plugin cache and try again.';
+
+    } else {
+
+      return Object.values(error.data)[0].errors.error[0];
+
+    }
+
+  } else {
+    return 'It looks like something unexpected happened. Please clear the plugin cache and try again.';
+
+  }
+
+}
+
+
+/*
+
+Returns the error type (error, warning, success)
+
+*/
+function getWordPressErrorType(error) {
+
+  if (isObject(error) && has(error, 'data') && has(error.data, 'type')) {
+    return error.data.type;
+
+  } else {
+    return 'error';
+
+  }
+
+}
+
+
+/*
+
+Returns the string error message produces from a WP_Error on the server
+
+*/
+function getJavascriptErrorMessage(error) {
+
+  if (isError(error)) {
+    return 'WP Shopify javascript error: ' + error.message;
+  }
+
+  if (isObject(error) && has(error, 'statusCode') && has(error, 'message')) {
+
+    var died_at = has(error, 'action_name') ? error.action_name : 'unknown location';
+
+    return error.statusCode + ' Error: ' + capitalizeFirstLetter(error.message) + ' while calling ' + died_at + '. Please clear the plugin transient cache and try again.';
+  }
+
+  else {
+    return false;
+  }
+
+}
+
+
+function capitalizeFirstLetter(string) {
+  return string.toLowerCase().replace(/^\w/, c => c.toUpperCase());
 }
 
 
@@ -275,21 +384,14 @@ Util: Get URL Parameters
 Returns: Object
 
 */
-function getUrlParams(url) {
+function getUrlParamByID(match) {
 
-  var newURL = url;
-  var urlParams = {};
-
-  newURL.replace(
-    new RegExp("([^?=&]+)(=([^&]*))?", "g"),
-    function($0, $1, $2, $3) {
-      urlParams[$1] = $3;
-    }
-  );
-
-  return urlParams;
-
-};
+  return location.search.substring(1).split("&")
+    .map(function (p) { return p.split("=") })
+    .filter(function (p) { return p[0] == match })
+    .map(function (p) { return decodeURIComponent(p[1]) })
+    .pop();
+}
 
 
 /*
@@ -409,20 +511,6 @@ function hideLoader($button) {
 
 /*
 
-Hide spinner
-
-*/
-function hideSpinner($element) {
-
-  $element.parent().next().removeClass('wps-is-active');
-  $element.prop("disabled", false);
-  enable($element);
-
-};
-
-
-/*
-
 Util: Reset the state of any UX indicators
 Returns: undefined
 
@@ -437,45 +525,14 @@ function resetProgressIndicators() {
 
 /*
 
-Util: Disable buttons
-Returns: $element with disable
-
-*/
-const disableButton = function(button) {
-
-  if(jQuery(button).is(':enabled')) {
-    jQuery(button).prop('disabled', true);
-  }
-
-};
-
-
-/*
-
-Getting nonce from localStorage
-
-*/
-function getNonce() {
-  return localStorage.getItem("wps-nonce");
-};
-
-
-/*
-
-Setting nonce into localStorage
-
-*/
-function setNonce(nonce) {
-  localStorage.setItem('wps-nonce', nonce);
-};
-
-
-/*
-
 Creates a masked version of a particular string
 
 */
 function createMask(origString, mask, revealLength) {
+
+  if (!origString) {
+    return;
+  }
 
   var origStringLength = origString.length;
   var lastFour = origString.substr(origStringLength - revealLength);
@@ -573,14 +630,36 @@ function findStatusCodeFirstNum(statusCode) {
 }
 
 
+/*
+
+Turns parent Array wrap to Object. Like this:
+
+Before:
+
+[
+  { products: 100 },
+  { orders: 10 },
+  { customers: 1 },
+]
+
+After:
+
+{
+  { products: 100 },
+  { orders: 10 },
+  { customers: 1 },
+}
+
+
+*/
+function convertArrayWrapToObject(array) {
+  return Object.assign({}, ...array);
+}
+
 export {
   findStatusCodeFirstNum,
-  getUrlParams,
+  getUrlParamByID,
   showSpinner,
-  hideSpinner,
-  disableButton,
-  getNonce,
-  setNonce,
   resetProgressIndicators,
   hasVal,
   hasVals,
@@ -601,9 +680,13 @@ export {
   removeTrailingForwardSlash,
   removeTrueAndTransformToArray,
   isWordPressError,
-  hasProp,
   isObject,
   getDataFromArray,
   isConnected,
-  isTimeout
+  isTimeout,
+  convertArrayWrapToObject,
+  getWordPressErrorMessage,
+  getWordPressErrorType,
+  getJavascriptErrorMessage,
+  isJavascriptError
 };

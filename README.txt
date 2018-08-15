@@ -4,7 +4,7 @@ Donate link: https://wpshop.io/purchase/
 Tags: shopify, ecommerce, store, sell, products, shop, purchase, buy, wpshopify
 Requires at least: 4.4
 Requires PHP: 5.6
-Tested up to: 4.9.5
+Tested up to: 4.9.8
 Stable tag: trunk
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

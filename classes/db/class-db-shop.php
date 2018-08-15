@@ -2,23 +2,13 @@
 
 namespace WPS\DB;
 
-use WPS\Transients;
 use WPS\Utils;
-use WPS\Progress_Bar;
-use WPS\Config;
 
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for Shop
-
-*/
 if (!class_exists('Shop')) {
 
 	class Shop extends \WPS\DB {
@@ -26,13 +16,8 @@ if (!class_exists('Shop')) {
 		public $table_name;
 		public $version;
 		public $primary_key;
+		public $cache_group;
 
-
-		/*
-
-		Defaults
-
-		*/
 		public $domain;
 		public $source;
 		public $customer_email;
@@ -62,25 +47,16 @@ if (!class_exists('Shop')) {
 		public $pre_launch_enabled;
 
 
-	  /*
-
-	  Construct
-
-	  */
 		public function __construct() {
 
 	    global $wpdb;
-	    $this->table_name  		 												= $wpdb->prefix . 'wps_shop';
+
+			$this->table_name 		 												= WPS_TABLE_NAME_SHOP;
+
 	    $this->primary_key 		 												= 'id';
 	    $this->version     		 												= '1.0';
 			$this->cache_group     												= 'wps_db_shop';
 
-
-			/*
-
-			Defaults
-
-			*/
 			$this->id                          						= 0;
 			$this->name                        						= '';
 			$this->myshopify_domain            						= '';
@@ -137,14 +113,9 @@ if (!class_exists('Shop')) {
 	  }
 
 
-	  /*
-
-	  Get Columns
-
-	  */
 		public function get_columns() {
 
-			return array(
+			return [
 	      'id'                          					=> '%d',
 	      'name'                        					=> '%s',
 				'myshopify_domain'            					=> '%s',
@@ -197,7 +168,7 @@ if (!class_exists('Shop')) {
 				'setup_required' 												=> '%d',
 				'force_ssl' 														=> '%d',
 				'pre_launch_enabled' 										=> '%d'
-	    );
+	    ];
 
 	  }
 
@@ -208,7 +179,8 @@ if (!class_exists('Shop')) {
 
 	  */
 		public function get_column_defaults() {
-	    return array(
+
+	    return [
 	      'id'                          					=> $this->id,
 	      'name'                        					=> $this->name,
 				'myshopify_domain'            					=> $this->myshopify_domain,
@@ -261,7 +233,8 @@ if (!class_exists('Shop')) {
 				'setup_required' 												=> $this->setup_required,
 				'force_ssl' 														=> $this->force_ssl,
 				'pre_launch_enabled' 										=> $this->pre_launch_enabled
-	    );
+	    ];
+
 	  }
 
 
@@ -309,11 +282,6 @@ if (!class_exists('Shop')) {
 		public function insert_shop($shopData) {
 
 			global $wpdb;
-			$progress = new Progress_Bar(new Config());
-
-			if (!Utils::isStillSyncing()) {
-				wp_die();
-			}
 
 			if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
 
@@ -329,8 +297,6 @@ if (!class_exists('Shop')) {
 
 			}
 
-			$progress->increment_current_amount('shop');
-
 			return $results;
 
 		}
@@ -345,11 +311,11 @@ if (!class_exists('Shop')) {
 
 	    $money_format = $this->get_shop('money_format');
 
-			if (empty($money_format)) {
-				return '${{amount}}'; // Default fallback
+			if (Utils::array_not_empty($money_format)) {
+				return $money_format[0]->money_format;
 
 			} else {
-				return $money_format[0]->money_format;
+				return '${{amount}}'; // Default fallback
 			}
 
 	  }
@@ -364,11 +330,12 @@ if (!class_exists('Shop')) {
 
 	    $domain = $this->get_shop('domain');
 
-			if (empty($domain)) {
+			if (Utils::array_not_empty($domain)) {
+				return $domain[0]->domain;
+
+			} else {
 				return false;
 			}
-
-			return $domain[0]->domain;
 
 	  }
 
@@ -381,9 +348,13 @@ if (!class_exists('Shop')) {
 		public function get_money_with_currency_format() {
 
 	    $money_with_currency_format = $this->get_shop('money_with_currency_format');
-	    $money_with_currency_format = $money_with_currency_format[0]->money_with_currency_format;
 
-	    return $money_with_currency_format;
+			if (!empty($money_with_currency_format)) {
+				return $money_with_currency_format[0]->money_with_currency_format;
+
+			} else {
+				return false;
+			}
 
 	  }
 
@@ -394,17 +365,7 @@ if (!class_exists('Shop')) {
 
 	  */
 	  public function update_shop($shopData) {
-
-			if ($shopData->money_format !== $this->get_money_format()) {
-				Transients::delete_cached_prices();
-			}
-
-			if ($shopData->money_with_currency_format !== $this->get_money_with_currency_format()) {
-				Transients::delete_cached_prices();
-			}
-
-	    return $this->update($this->get_shop('id')[0]->id, $shopData);
-
+	    return $this->update( $this->get_shop('id')[0]->id, $shopData);
 	  }
 
 
@@ -413,9 +374,13 @@ if (!class_exists('Shop')) {
 	  Creates a table query string
 
 	  */
-	  public function create_table_query() {
+	  public function create_table_query($table_name = false) {
 
 			global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
 			$collate = '';
 
@@ -423,61 +388,73 @@ if (!class_exists('Shop')) {
 				$collate = $wpdb->get_charset_collate();
 			}
 
-			return "CREATE TABLE {$this->table_name} (
-				`id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-				`name` varchar(255) DEFAULT '{$this->name}',
-				`myshopify_domain` varchar(255) DEFAULT '{$this->myshopify_domain}',
-				`shop_owner` varchar(100) DEFAULT '{$this->shop_owner}',
-				`phone` varchar(100) DEFAULT '{$this->phone}',
-				`email` varchar(100) DEFAULT '{$this->email}',
-				`address1` varchar(100) DEFAULT '{$this->address1}',
-				`address2` varchar(100) DEFAULT '{$this->address2}',
-				`city` varchar(50) DEFAULT '{$this->city}',
-				`zip` varchar(50) DEFAULT '{$this->zip}',
-				`country` varchar(50) DEFAULT '{$this->country}',
-				`country_code` varchar(50) DEFAULT '{$this->country_code}',
-				`country_name` varchar(50) DEFAULT '{$this->country_name}',
-				`currency` varchar(50) DEFAULT '{$this->currency}',
-				`latitude` smallint(20) DEFAULT '{$this->latitude}',
-				`longitude` smallint(20) DEFAULT '{$this->longitude}',
-				`money_format` varchar(200) DEFAULT '{$this->money_format}',
-				`money_with_currency_format` varchar(200) DEFAULT '{$this->money_with_currency_format}',
-				`weight_unit` varchar(20) DEFAULT '{$this->weight_unit}',
-				`primary_locale` varchar(20) DEFAULT '{$this->primary_locale}',
-				`province` varchar(20) DEFAULT '{$this->province}',
-				`province_code` varchar(20) DEFAULT '{$this->province_code}',
-				`timezone` varchar(200) DEFAULT '{$this->timezone}',
-				`created_at` datetime DEFAULT '{$this->created_at}',
-				`updated_at` datetime DEFAULT '{$this->updated_at}',
-				`domain` varchar(100) DEFAULT '{$this->domain}',
-				`source` varchar(100) DEFAULT '{$this->source}',
-				`customer_email` varchar(100) DEFAULT '{$this->customer_email}',
-				`iana_timezone` varchar(100) DEFAULT '{$this->iana_timezone}',
-				`taxes_included` tinyint(1) DEFAULT '{$this->taxes_included}',
-				`tax_shipping` varchar(100) DEFAULT '{$this->tax_shipping}',
-				`county_taxes` varchar(100) DEFAULT '{$this->county_taxes}',
-				`plan_display_name` varchar(100) DEFAULT '{$this->plan_display_name}',
-				`plan_name` varchar(100) DEFAULT '{$this->plan_name}',
-				`has_discounts` tinyint(1) DEFAULT '{$this->has_discounts}',
-				`has_gift_cards` tinyint(1) DEFAULT '{$this->has_gift_cards}',
-				`google_apps_domain` varchar(100) DEFAULT '{$this->google_apps_domain}',
-				`google_apps_login_enabled` tinyint(1) DEFAULT '{$this->google_apps_login_enabled}',
-				`money_in_emails_format` varchar(100) DEFAULT '{$this->money_in_emails_format}',
-				`money_with_currency_in_emails_format` varchar(100) DEFAULT '{$this->money_with_currency_in_emails_format}',
-				`eligible_for_payments` tinyint(1) DEFAULT '{$this->eligible_for_payments}',
-				`requires_extra_payments_agreement` tinyint(1) DEFAULT '{$this->requires_extra_payments_agreement}',
-				`password_enabled` tinyint(1) DEFAULT '{$this->password_enabled}',
-				`has_storefront` tinyint(1) DEFAULT '{$this->has_storefront}',
-				`eligible_for_card_reader_giveaway` tinyint(1) DEFAULT '{$this->eligible_for_card_reader_giveaway}',
-				`finances` tinyint(1) DEFAULT '{$this->finances}',
-				`primary_location_id` tinyint(1) DEFAULT '{$this->primary_location_id}',
-				`checkout_api_supported` tinyint(1) DEFAULT '{$this->checkout_api_supported}',
-				`multi_location_enabled` tinyint(1) DEFAULT '{$this->multi_location_enabled}',
-				`setup_required` tinyint(1) DEFAULT '{$this->setup_required}',
-				`force_ssl` tinyint(1) DEFAULT '{$this->force_ssl}',
-				`pre_launch_enabled` tinyint(1) DEFAULT '{$this->pre_launch_enabled}',
-				PRIMARY KEY  (`{$this->primary_key}`)
+			return "CREATE TABLE $table_name (
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+				name varchar(255) DEFAULT '{$this->name}',
+				myshopify_domain varchar(255) DEFAULT '{$this->myshopify_domain}',
+				shop_owner varchar(100) DEFAULT '{$this->shop_owner}',
+				phone varchar(100) DEFAULT '{$this->phone}',
+				email varchar(100) DEFAULT '{$this->email}',
+				address1 varchar(100) DEFAULT '{$this->address1}',
+				address2 varchar(100) DEFAULT '{$this->address2}',
+				city varchar(50) DEFAULT '{$this->city}',
+				zip varchar(50) DEFAULT '{$this->zip}',
+				country varchar(50) DEFAULT '{$this->country}',
+				country_code varchar(50) DEFAULT '{$this->country_code}',
+				country_name varchar(50) DEFAULT '{$this->country_name}',
+				currency varchar(50) DEFAULT '{$this->currency}',
+				latitude smallint(20) DEFAULT '{$this->latitude}',
+				longitude smallint(20) DEFAULT '{$this->longitude}',
+				money_format varchar(200) DEFAULT '{$this->money_format}',
+				money_with_currency_format varchar(200) DEFAULT '{$this->money_with_currency_format}',
+				weight_unit varchar(20) DEFAULT '{$this->weight_unit}',
+				primary_locale varchar(20) DEFAULT '{$this->primary_locale}',
+				province varchar(20) DEFAULT '{$this->province}',
+				province_code varchar(20) DEFAULT '{$this->province_code}',
+				timezone varchar(200) DEFAULT '{$this->timezone}',
+				created_at datetime,
+				updated_at datetime,
+				domain varchar(100) DEFAULT '{$this->domain}',
+				source varchar(100) DEFAULT '{$this->source}',
+				customer_email varchar(100) DEFAULT '{$this->customer_email}',
+				iana_timezone varchar(100) DEFAULT '{$this->iana_timezone}',
+				taxes_included tinyint(1) DEFAULT '{$this->taxes_included}',
+				tax_shipping varchar(100) DEFAULT '{$this->tax_shipping}',
+				county_taxes varchar(100) DEFAULT '{$this->county_taxes}',
+				plan_display_name varchar(100) DEFAULT '{$this->plan_display_name}',
+				plan_name varchar(100) DEFAULT '{$this->plan_name}',
+				has_discounts tinyint(1) DEFAULT '{$this->has_discounts}',
+				has_gift_cards tinyint(1) DEFAULT '{$this->has_gift_cards}',
+				google_apps_domain varchar(100) DEFAULT '{$this->google_apps_domain}',
+				google_apps_login_enabled tinyint(1) DEFAULT '{$this->google_apps_login_enabled}',
+				money_in_emails_format varchar(100) DEFAULT '{$this->money_in_emails_format}',
+				money_with_currency_in_emails_format varchar(100) DEFAULT '{$this->money_with_currency_in_emails_format}',
+				eligible_for_payments tinyint(1) DEFAULT '{$this->eligible_for_payments}',
+				requires_extra_payments_agreement tinyint(1) DEFAULT '{$this->requires_extra_payments_agreement}',
+				password_enabled tinyint(1) DEFAULT '{$this->password_enabled}',
+				has_storefront tinyint(1) DEFAULT '{$this->has_storefront}',
+				eligible_for_card_reader_giveaway tinyint(1) DEFAULT '{$this->eligible_for_card_reader_giveaway}',
+				finances tinyint(1) DEFAULT '{$this->finances}',
+				primary_location_id tinyint(1) DEFAULT '{$this->primary_location_id}',
+				checkout_api_supported tinyint(1) DEFAULT '{$this->checkout_api_supported}',
+				multi_location_enabled tinyint(1) DEFAULT '{$this->multi_location_enabled}',
+				setup_required tinyint(1) DEFAULT '{$this->setup_required}',
+				force_ssl tinyint(1) DEFAULT '{$this->force_ssl}',
+				pre_launch_enabled tinyint(1) DEFAULT '{$this->pre_launch_enabled}',
+				PRIMARY KEY  (id)
 			) ENGINE=InnoDB $collate";
+
+		}
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `name`, `myshopify_domain`, `shop_owner`, `phone`, `email`, `address1`, `address2`, `city`, `zip`, `country`, `country_code`, `country_name`, `currency`, `latitude`, `longitude`, `money_format`, `money_with_currency_format`, `weight_unit`, `primary_locale`, `province`, `province_code`, `timezone`, `created_at`, `updated_at`, `domain`, `source`, `customer_email`, `iana_timezone`, `taxes_included`, `tax_shipping`, `county_taxes`, `plan_display_name`, `plan_name`, `has_discounts`, `has_gift_cards`, `google_apps_domain`, `google_apps_login_enabled`, `money_in_emails_format`, `money_with_currency_in_emails_format`, `eligible_for_payments`, `requires_extra_payments_agreement`, `password_enabled`, `has_storefront`, `eligible_for_card_reader_giveaway`, `finances`, `primary_location_id`, `checkout_api_supported`, `multi_location_enabled`, `setup_required`, `force_ssl`, `pre_launch_enabled`) SELECT `id`, `name`, `myshopify_domain`, `shop_owner`, `phone`, `email`, `address1`, `address2`, `city`, `zip`, `country`, `country_code`, `country_name`, `currency`, `latitude`, `longitude`, `money_format`, `money_with_currency_format`, `weight_unit`, `primary_locale`, `province`, `province_code`, `timezone`, `created_at`, `updated_at`, `domain`, `source`, `customer_email`, `iana_timezone`, `taxes_included`, `tax_shipping`, `county_taxes`, `plan_display_name`, `plan_name`, `has_discounts`, `has_gift_cards`, `google_apps_domain`, `google_apps_login_enabled`, `money_in_emails_format`, `money_with_currency_in_emails_format`, `eligible_for_payments`, `requires_extra_payments_agreement`, `password_enabled`, `has_storefront`, `eligible_for_card_reader_giveaway`, `finances`, `primary_location_id`, `checkout_api_supported`, `multi_location_enabled`, `setup_required`, `force_ssl`, `pre_launch_enabled` FROM ' . $this->table_name);
 
 		}
 
@@ -493,6 +470,7 @@ if (!class_exists('Shop')) {
 
 			if ( !$this->table_exists($this->table_name) ) {
 				dbDelta( $this->create_table_query() );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
 			}
 
 	  }

@@ -3,40 +3,15 @@
 namespace WPS\DB;
 
 use WPS\Utils;
-use WPS\DB;
-use WPS\DB\Variants;
-use WPS\DB\Options;
-use WPS\DB\Images;
-use WPS\DB\Collects;
-use WPS\DB\Tags;
 use WPS\CPT;
-use WPS\WS;
-use WPS\Config;
-use WPS\Backend;
 use WPS\Transients;
-use WPS\DB\Settings_Connection;
-use WPS\Progress_Bar;
-
-// Used for mocking HTTP requests
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Exception\RequestException;
 
 
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for Products
-
-*/
 if (!class_exists('Products')) {
 
   class Products extends \WPS\DB {
@@ -44,72 +19,81 @@ if (!class_exists('Products')) {
     public $table_name;
   	public $version;
   	public $primary_key;
-    public $product_data;
 
-    /*
 
-    Construct
-
-    */
   	public function __construct() {
 
       global $wpdb;
-      $this->table_name         = $wpdb->prefix . 'wps_products';
-      $this->primary_key        = 'product_id';
-      $this->version            = '1.0';
-      $this->cache_group        = 'wps_db_products';
+
+      $this->table_name         				= WPS_TABLE_NAME_PRODUCTS;
+      $this->primary_key        				= 'product_id';
+      $this->version            				= '1.0';
+      $this->cache_group        				= 'wps_db_products';
 
     }
 
 
-    /*
-
-    Get Columns
-
-    */
   	public function get_columns() {
 
-      return array(
+      return [
         'product_id'            => '%d',
         'post_id'               => '%d',
         'title'                 => '%s',
         'body_html'             => '%s',
         'handle'                => '%s',
         'image'                 => '%s',
+				'images'                => '%s',
         'vendor'                => '%s',
         'product_type'          => '%s',
         'published_scope'       => '%s',
         'published_at'          => '%s',
         'updated_at'            => '%s',
-        'created_at'            => '%s'
-      );
+        'created_at'            => '%s',
+				'admin_graphql_api_id'	=> '%s'
+      ];
 
     }
 
 
-    /*
-
-    Get Column Defaults
-
-    */
   	public function get_column_defaults() {
 
-      return array(
+      return [
         'product_id'            => 0,
         'post_id'               => 0,
         'title'                 => '',
         'body_html'             => '',
         'handle'                => '',
         'image'                 => '',
+				'images'                => '',
         'vendor'                => '',
         'product_type'          => '',
         'published_scope'       => '',
         'published_at'          => '',
         'updated_at'            => '',
-        'created_at'            => ''
-      );
+        'created_at'            => '',
+				'admin_graphql_api_id'	=> ''
+      ];
 
     }
+
+
+		/*
+
+		Insert Product Data
+
+		*/
+		public function insert_product($product = false, $cpt_id = false) {
+
+			$insertionResults = [];
+
+			$product = Utils::convert_array_to_object($product);
+			$product = $this->rename_primary_key($product);
+			$product = $this->add_image_to_product($product);
+			$product = $this->add_post_id_to_product($product, $cpt_id);
+
+			return $this->insert($product, 'product');
+
+		}
 
 
     /*
@@ -118,7 +102,7 @@ if (!class_exists('Products')) {
     Without: Images, variants
 
     */
-  	public function get_product($postID = null) {
+  	public function get_product_from_post_id($postID = null) {
 
       global $wpdb;
 
@@ -130,13 +114,33 @@ if (!class_exists('Products')) {
         $results = get_transient('wps_product_single_' . $postID);
 
       } else {
-
-        $query = "SELECT products.* FROM $this->table_name as products WHERE products.post_id = %d";
+        $query = "SELECT products.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products WHERE products.post_id = %d";
         $results = $wpdb->get_row( $wpdb->prepare($query, $postID) );
 
         set_transient('wps_product_single_' . $postID, $results);
 
       }
+
+      return $results;
+
+    }
+
+
+		/*
+
+		Finds product row from WordPress post iD
+
+		*/
+		public function get_product_from_post_name($post_name = false) {
+
+      global $wpdb;
+
+      if ($post_name === false) {
+        return;
+      }
+
+      $query = "SELECT products.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products WHERE products.handle = %s";
+			$results = $wpdb->get_row( $wpdb->prepare($query, $post_name) );
 
       return $results;
 
@@ -152,38 +156,6 @@ if (!class_exists('Products')) {
       return $this->get_all_rows();
     }
 
-
-    /*
-
-    Get Single Product
-
-    */
-    public function get_data($postID = null) {
-
-      $Images = new Images();
-      $Variants = new Variants();
-      $Options = new Options();
-      $Tags = new Tags();
-			$DB = new DB();
-
-			$results = new \stdClass;
-
-      $results->details = $this->get_product($postID);
-
-      $results->images = $Images->get_product_images($postID);
-      $results->tags = $Tags->get_product_tags($postID);
-      $results->variants = $Variants->get_product_variants($postID);
-      $results->options = $Options->get_product_options($postID);
-      $results->details->tags = $Tags->construct_only_tag_names($results->tags);
-
-			$results->product_id = $results->details->product_id;
-			$results->post_id = $results->details->post_id;
-
-			$results->collections = $DB->get_collections_by_product_id($results->details->product_id);
-
-      return $results;
-
-    }
 
 
     /*
@@ -203,277 +175,130 @@ if (!class_exists('Products')) {
     }
 
 
-    /*
+		/*
 
-    Product Mods Before Insert
+    Add Post ID To Product
 
     */
-    public function modify_product_before_insert($product, $customPostTypeID) {
+    public function add_post_id_to_product($product, $cpt_id) {
 
-      $product = $this->add_image_to_product($product);
+      $product->post_id = $cpt_id;
 
       return $product;
 
     }
 
 
-    /*
+		/*
 
-    Product Mods Update After CPT
+		Assigns a post id to the product data
 
-    */
-    public function modify_product_after_cpt_insert($product, $customPostTypeID) {
+		*/
+		public function assign_post_id_to_product($post_id, $product_id) {
 
-      // Modify's the products model with CPT foreign key
-      $product = $this->assign_foreign_key($product, $customPostTypeID);
-      $product = $this->rename_primary_key($product);
+			global $wpdb;
 
-      return $product;
+			return $wpdb->update(
+				$this->table_name,
+				['post_id' => $post_id],
+				['product_id' => $product_id],
+				['%d'],
+				['%d']
+			);
 
-    }
-
-
-    /*
-
-    Insert Product
-
-    */
-    public function insert_product($product, $customPostTypeID) {
-
-      // If product has an image
-      if (property_exists($product, 'image') && is_object($product->image)) {
-        $product->image = $product->image->src;
-      }
-
-      // If product is published
-      if (property_exists($product, 'published_at') && $product->published_at !== null) {
-
-        // Modify's the products model with CPT foreign key
-        $product = $this->assign_foreign_key($product, $customPostTypeID);
-        $product = $this->rename_primary_key($product);
-
-        return $this->insert($product, 'product');
-
-      } else {
-
-        return false;
-
-      }
-
-    }
-
-
-    /*
-
-    Insert products
-
-    */
-  	public function insert_products($products) {
-
-      $DB_Tags = new Tags();
-      $DB_Settings_Connection = new Settings_Connection();
-
-      $progress = new Progress_Bar(new Config());
-      $results = array();
-      $index = 1;
-
-
-      foreach ($products as $key => $product) {
-
-        if (!Utils::isStillSyncing()) {
-          wp_die();
-          break;
-        }
-
-
-        // Inserts CPT
-        $customPostTypeID = CPT::wps_insert_or_update_product($product, $index);
-
-        $DB_Tags->insert_product_tags($product, $customPostTypeID);
-
-        // Tested and passed by - test-sync-products.php
-        $results[] = $this->insert_product($product, $customPostTypeID);
-
-
-        $progress->increment_current_amount('products');
-        $index++;
-
-      }
-
-      return $results;
-
-    }
-
-
-    /*
-
-    Fired when product is update at Shopify
-
-    */
-    public function update_product($product) {
-
-      $newProductID = Utils::wps_find_product_id($product);
-      $results = [];
-
-      /*
-
-      If published_at is null, we know the user turned off the Online Store sales channel.
-      TODO: Shopify may implement better sales channel checking in the future API. We should
-      then check for Buy Button visibility as-well.
-
-      */
-      if (property_exists($product, 'published_at') && $product->published_at !== null) {
-
-        $DB_Variants = new Variants();
-        $DB_Options = new Options();
-        $DB_Images = new Images();
-        $DB_Collects = new Collects();
-        $DB_Tags = new Tags();
-
-        /*
-
-        TODO: Move to a Util
-        Needed to update 'image' col in products table. Object is returned
-        Shopify so need to only save image URL. Rest of images live in
-        images table_name
-
-        */
-        if (property_exists($product, 'image') && !empty($product->image)) {
-          $product->image = $product->image->src;
-        }
-
-        $results['variants']    = $DB_Variants->update_variant($product);
-        $results['options']     = $DB_Options->update_option($product);
-        $results['product']     = $this->update($newProductID, $product);
-        $results['image']       = $DB_Images->update_image($product);
-        $results['collects']    = $DB_Collects->update_collects($product);
-        $results['product_cpt'] = CPT::wps_insert_or_update_product($product);
-        $results['tags']        = $DB_Tags->update_tags($product, $results['product_cpt']);
-
-      } else {
-
-        // $results['deleted_product'] = $this->delete_product($product, $newProductID);
-
-      }
+		}
 
 
 
-			/*
+		function product_exists_by_id($product_id) {
 
-			*Important* Clear product cache and log errors if present
-
-			*/
-			$transientSingleProductDeletion = Transients::delete_cached_single_product_by_id($results['product_cpt']);
-			$transientProductQueriesDeletion = Transients::delete_cached_product_queries();
-			$transientProductPricesDeletion = Transients::delete_cached_prices();
-
-			if (is_wp_error($transientSingleProductDeletion)) {
-				error_log($transientSingleProductDeletion->get_error_message());
+			if (empty($product_id)) {
+				return false;
 			}
 
-			if (is_wp_error($transientProductQueriesDeletion)) {
-				error_log($transientProductQueriesDeletion->get_error_message());
+			$product_found = $this->get($product_id);
+
+			if (empty($product_found)) {
+		    return false;
+
+		  } else {
+		    return true;
+		  }
+
+		}
+
+
+		/*
+
+  	Responsible for assigning a post_id to collection_id
+
+  	*/
+		public function set_post_id_to_product($post_id, $product) {
+
+			$product = Utils::convert_array_to_object($product);
+
+			$update_result = $this->update_column_single(['post_id' => $post_id], ['product_id' => $product->id]);
+
+			return $this->sanitize_db_response($update_result);
+
+		}
+
+
+		/*
+
+		Find Product ID
+
+		Not really sure if this is needed ... $product should always have an `id` property
+
+		*/
+		public function get_product_id($product) {
+
+			if (isset($product->id)) {
+				return $product->id;
+
+			} else if ($product->product_id) {
+				return $product->product_id;
+
+			} else {
+				return 0;
 			}
 
-			if (is_wp_error($transientProductPricesDeletion)) {
-				error_log($transientProductPricesDeletion->get_error_message());
+		}
+
+
+		/*
+
+		Returns the image src of a product
+
+		Needed to update 'image' col in products table. Object is returned from Shopify
+		so we need to only save image src. Rest of product images live in Images table.
+
+		*/
+		public function flatten_product_image($product) {
+
+			if (property_exists($product, 'image') && !empty($product->image)) {
+				return $product->image->src;
 			}
 
-
-      return $results;
-
-    }
+		}
 
 
-    /*
+		/*
 
-    Fired when product is deleted at Shopify
+    Find a post ID from a product ID
 
     */
-    public function delete_product($product, $productID = null) {
+		public function find_post_id_from_product_id($product_id) {
 
-      $DB_Variants = new Variants();
-      $DB_Options = new Options();
-      $DB_Images = new Images();
-      $DB_Collects = new Collects();
-      $DB_Tags = new Tags();
-      $Backend = new Backend(new Config());
+			$product = $this->get($product_id);
 
-      if ($productID === null) {
+			if (empty($product)) {
+				return [];
+			}
 
-        if (isset($product->product_id)) {
-          $productID = $product->product_id;
+			return [$product->post_id];
 
-        } else {
-          $productID = $product->id;
-        }
-
-      }
-
-      $productData = $this->get($productID);
-
-      if (!empty($productData)) {
-        $postIds = array($productData->post_id);
-
-      } else {
-        $postIds = array();
-      }
-
-      $results['variants']  = $DB_Variants->delete_rows('product_id', $productID);
-      $results['options']   = $DB_Options->delete_rows('product_id', $productID);
-      $results['images']    = $DB_Images->delete_rows('product_id', $productID);
-      $results['collects']  = $DB_Collects->delete_rows('product_id', $productID);
-      $results['tags']      = $DB_Tags->delete_rows('product_id', $productID);
-      $results['product']   = $this->delete($productID);
-      $results['cpt']       = $Backend->wps_delete_posts('wps_products', $postIds);
-
-      // TODO: Only delete cache of the product that was deleted
-      Transients::delete_cached_prices();
-      Transients::delete_cached_variants();
-      Transients::delete_cached_product_single();
-      Transients::delete_cached_product_queries();
-
-      return $results;
-
-    }
-
-
-    /*
-
-    Fired when product is created at Shopify. No need to manually
-    created the WP custom post here as this is handled already within
-    the insert_products call.
-
-    */
-    public function create_product($product) {
-
-      $DB_Variants = new Variants();
-      $DB_Options = new Options();
-      $DB_Images = new Images();
-      $DB_Collects = new Collects();
-
-      $productWrapped = array();
-      $productWrapped[] = $product;
-      $results = array();
-
-      /*
-
-      Tags are being inserted by _insert_products because
-      we need access to the CPT id.
-
-      */
-      $results['products'] = $this->insert_products($productWrapped);
-      $results['variants'] = $DB_Variants->insert_variants($productWrapped);
-      $results['options'] = $DB_Options->insert_options($productWrapped);
-      $results['images'] = $DB_Images->insert_images($productWrapped);
-      $results['collects']  = $DB_Collects->update_collects($product);
-
-      Transients::delete_cached_product_queries();
-      Transients::delete_cached_product_single();
-
-      return $results;
-
-    }
+		}
 
 
     /*
@@ -510,7 +335,7 @@ if (!class_exists('Products')) {
       ));
 
       if ($response === 0) {
-        return new \WP_Error('error', sprintf(esc_html__('Warning: Unable to update product: %s', 'wp-shopify'), $product->title));
+        return new \WP_Error('error', sprintf(esc_html__('Warning: Unable to update product: %s', WPS_PLUGIN_TEXT_DOMAIN), $product->title));
 
       } else {
         return $response;
@@ -569,15 +394,14 @@ if (!class_exists('Products')) {
     */
     public function get_content_hash($product, $content, $cpt = false) {
 
-      $Utils = new Utils();
-
       if ($cpt) {
 
         $post = get_post( $this->get_post_id_from_object($product) );
-        return $Utils->wps_hash($post->{$content});
+        return Utils::wps_hash($post->{$content});
 
       } else {
-        return $Utils->wps_hash($product->{$content});
+        return Utils::wps_hash($product->{$content});
+
       }
 
     }
@@ -590,7 +414,7 @@ if (!class_exists('Products')) {
     */
     public function update_products($products) {
 
-      $result = array();
+      $result = [];
 
       foreach ($products as $key => $product) {
         $result[] = $this->update($product['id'], $product);
@@ -619,20 +443,14 @@ if (!class_exists('Products')) {
 
     /*
 
-    get_products_by_collection_id
+    Gets all products from a collection by collection id
 
     */
     public function get_products_by_collection_id($collection_id) {
 
       global $wpdb;
 
-      $DB_Collects = new Collects();
-      $DB_Variants = new Variants();
-
-      $collects_table_name = $DB_Collects->get_table_name();
-      $products_table_name = $this->get_table_name();
-
-      $query = "SELECT products.* FROM $products_table_name products INNER JOIN $collects_table_name collects ON products.product_id = collects.product_id WHERE collects.collection_id = %d;";
+      $query = "SELECT products.* FROM " . WPS_TABLE_NAME_PRODUCTS ." products INNER JOIN " . WPS_TABLE_NAME_COLLECTS . " collects ON products.product_id = collects.product_id WHERE collects.collection_id = %d order by collects.position asc;";
 
       /*
 
@@ -643,75 +461,58 @@ if (!class_exists('Products')) {
         $wpdb->prepare($query, $collection_id)
       );
 
-      /*
-
-      Get the variants / feat image and add them to the products
-
-      */
-      foreach ($products as $key => $product) {
-        $product->variants = $DB_Variants->get_product_variants($product->post_id);
-        $product->feat_image = Utils::get_feat_image_by_id($product->post_id);
-      }
-
       return $products;
 
     }
 
 
-    /*
+		/*
 
-    Rename primary key
+	  Delete products from product ID
 
-    */
-    public function get_products_by_page($currentPage) {
-
-      // Create a mock and queue two responses.
-
-      // $mock = new MockHandler([
-      //   new Response(504, ['X-Foo' => 'Bar'])
-      // ]);
-      //
-      // $handler = HandlerStack::create($mock);
-      // $client = new Client(['handler' => $handler]);
-      //
-      // return $client->request('GET', '/');
+	  */
+	  public function delete_products_from_product_id($product_id) {
+			return $this->delete_rows('product_id', $product_id);
+	  }
 
 
+		/*
 
-      $WS = new WS(new Config());
+		Updates products from product ID
 
-      return $WS->wps_request(
-        'GET',
-        $WS->get_request_url("/admin/products.json", "?limit=250&page=" . $currentPage),
-        $WS->get_request_options()
-      );
+		*/
+		public function update_products_from_product_id($product_id, $product) {
+
+			if (Utils::is_data_published($product)) {
+
+				$product->image = $this->flatten_product_image($product);
+
+				return $this->update($product_id, $product);
+
+			}
+
+		}
 
 
-    }
-
-
-    /*
+		/*
 
     Default Products Query
 
     */
-    public function get_default_query() {
+    public function get_default_products_query() {
 
       global $wpdb;
 
-      $DB_Variants = new Variants();
-      $table_variants = $DB_Variants->get_table_name();
-
-      return array(
+      return [
         'where' => '',
         'groupby' => '',
-        'join' => ' INNER JOIN ' . $this->get_table_name() . ' products ON ' .
-           $wpdb->posts . '.ID = products.post_id INNER JOIN ' . $table_variants . ' variants ON products.product_id = variants.product_id AND variants.position = 1',
+        'join' => ' INNER JOIN ' . WPS_TABLE_NAME_PRODUCTS . ' products ON ' .
+           $wpdb->posts . '.ID = products.post_id INNER JOIN ' . WPS_TABLE_NAME_VARIANTS . ' variants ON products.product_id = variants.product_id AND variants.position = 1',
         'orderby' => $wpdb->posts . '.menu_order',
         'distinct' => '',
         'fields' => 'products.*, variants.price',
         'limits' => ''
-      );
+      ];
 
     }
 
@@ -721,9 +522,13 @@ if (!class_exists('Products')) {
     Creates a table query string
 
     */
-    public function create_table_query() {
+    public function create_table_query($table_name = false) {
 
       global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
       $collate = '';
 
@@ -731,23 +536,37 @@ if (!class_exists('Products')) {
         $collate = $wpdb->get_charset_collate();
       }
 
-      return "CREATE TABLE `{$this->table_name}` (
-        `product_id` bigint(255) unsigned DEFAULT NULL AUTO_INCREMENT,
-        `post_id` bigint(100) unsigned DEFAULT NULL,
-        `title` varchar(255) DEFAULT NULL,
-        `body_html` longtext,
-        `handle` varchar(255) DEFAULT NULL,
-        `image` longtext,
-        `vendor` varchar(255),
-        `product_type` varchar(100) DEFAULT NULL,
-        `published_scope` varchar(100) DEFAULT NULL,
-        `published_at` datetime,
-        `updated_at` datetime,
-        `created_at` datetime,
-        PRIMARY KEY  (`{$this->primary_key}`)
+      return "CREATE TABLE $table_name (
+        product_id bigint(255) unsigned NOT NULL,
+        post_id bigint(100) unsigned DEFAULT NULL,
+        title varchar(255) DEFAULT NULL,
+        body_html longtext,
+        handle varchar(255) DEFAULT NULL,
+        image longtext,
+				images longtext,
+        vendor varchar(255),
+        product_type varchar(100) DEFAULT NULL,
+        published_scope varchar(100) DEFAULT NULL,
+        published_at datetime,
+        updated_at datetime,
+        created_at datetime,
+				admin_graphql_api_id longtext DEFAULT NULL,
+        PRIMARY KEY  (product_id)
       ) ENGINE=InnoDB $collate";
 
     }
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`product_id`, `post_id`, `title`, `body_html`, `handle`, `image`, `vendor`, `product_type`, `published_scope`, `published_at`, `updated_at`, `created_at`) SELECT `product_id`, `post_id`, `title`, `body_html`, `handle`, `image`, `vendor`, `product_type`, `published_scope`, `published_at`, `updated_at`, `created_at` FROM ' . $this->table_name);
+
+		}
 
 
     /*
@@ -759,9 +578,9 @@ if (!class_exists('Products')) {
 
       require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-      // Create the table if it doesnt exist. Where the magic happens.
       if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query() );
+        dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
       }
 
     }

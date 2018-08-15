@@ -1,9 +1,6 @@
-import {
-  clearAllCache
-} from '../tools/cache';
+import to from 'await-to-js';
 
 import {
-  updateDomAfterSync,
   updateModalHeadingText,
   setConnectionStepMessage,
   insertCheckmark,
@@ -16,41 +13,38 @@ import {
 } from '../utils/utils';
 
 import {
-  setConnectionProgress,
-  connectionInProgress,
-  isConnectionInProgress,
+  isSyncingProducts,
+  isSyncingCollections
+} from '../utils/utils-data';
+
+import {
   setCancelSync,
-  syncIsCanceled
+  syncIsCanceled,
+  clearLocalstorageCache
 } from './localstorage';
 
 import {
   setSyncingIndicator,
-  endProgress,
-  removeConnectionData
+  setProductPostsRelationships,
+  setCollectionPostsRelationships,
+  getAllCollections,
+  getSelectedCollections,
+  resetNoticeFlags,
+  clearCache,
+  removeConnectionData,
+  deletePostsAndSyncedData,
+  deleteOnlySyncedData
 } from '../ws/ws';
-
-import {
-  showCleanDataMessaging
-} from '../disconnect/disconnect';
 
 
 /*
 
 End Sync
+expire_sync
 
 */
 async function syncOff() {
-
-  return Promise.all([
-
-    // Empty and end the $_SESSION
-    await endProgress(), // wps_progress_bar_end
-
-    // Clears the LS cache and any Transients
-    await clearAllCache() // wps_clear_cache
-
-  ]);
-
+  return setSyncingIndicator(0);
 }
 
 
@@ -62,27 +56,63 @@ Runs on errors or manual disconnects
 */
 function clearSync() {
 
-  return new Promise(async function clearSyncHandler(resolve, reject) {
+  if (!syncIsCanceled()) {
 
-    if (!syncIsCanceled()) {
+    addStopConnectorClass();
+    disable( getConnectorCancelButton() );
+    updateModalHeadingText('Stopping');
 
-      addStopConnectorClass();
-      disable( getConnectorCancelButton() );
+    insertCheckmark();
+    setConnectionStepMessage('Canceling, please wait ...', '(This may take up to 30 seconds)');
+    setCancelSync(true);
 
-      insertCheckmark();
+  }
 
-      updateModalHeadingText('Stopping ...');
-      setConnectionStepMessage('Please wait ...', '(This may take up to 30 seconds)');
+}
 
-      setCancelSync(true);
 
-      await syncOff();
+/*
 
-      resolve();
-      return;
+Fires off the process of attaching post ids to products
+
+*/
+function checkForProductPostsRelationships() {
+
+  return new Promise(async function(resolve, reject) {
+
+    if (isSyncingProducts()) {
+
+      var [error, data] = await to( setProductPostsRelationships() );
+
+      error ? reject(error) : resolve(data);
 
     } else {
+      resolve();
+    }
 
+
+  });
+
+}
+
+
+/*
+
+Fires off the process of attaching post ids to collections
+
+*/
+function checkForCollectionPostsRelationships() {
+
+  return new Promise(async function(resolve, reject) {
+
+    if (isSyncingCollections()) {
+
+      var [error, data] = await to( setCollectionPostsRelationships() );
+
+      error ? reject(error) : resolve(data);
+
+    } else {
+      resolve();
     }
 
   });
@@ -90,7 +120,72 @@ function clearSync() {
 }
 
 
+/*
+
+Gets both the selected collections and all available collections
+
+*/
+function getSelectiveCollections() {
+
+  return Promise.all([
+    getAllCollections(),
+    getSelectedCollections()
+  ]);
+
+}
+
+
+function resetNoticesAndClearCache() {
+
+  return Promise.all([
+    resetNoticeFlags(),
+    clearCache()
+  ]);
+
+}
+
+
+function checkPostRelationships() {
+
+  return Promise.all([
+    checkForProductPostsRelationships(),
+    checkForCollectionPostsRelationships()
+  ]);
+
+}
+
+
+function deleteStandAloneData() {
+
+  return Promise.all([
+    deletePostsAndSyncedData(),
+    removeConnectionData(),
+    resetNoticeFlags()
+  ]);
+
+}
+
+
+function noConnectionReset() {
+
+  return Promise.all([
+    clearCache(),
+    deleteOnlySyncedData(),
+    removeConnectionData(),
+    resetNoticeFlags()
+  ]);
+
+}
+
+
 export {
   syncOff,
-  clearSync
+  clearSync,
+  checkForProductPostsRelationships,
+  checkForCollectionPostsRelationships,
+  getSelectiveCollections,
+  resetNoticesAndClearCache,
+  checkPostRelationships,
+  deleteStandAloneData,
+  noConnectionReset
 }

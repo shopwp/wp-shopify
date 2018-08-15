@@ -2,50 +2,50 @@
 
 namespace WPS;
 
-use WPS\Messages;
 
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Class Transients
-
-*/
 if (!class_exists('Transients')) {
 
 	class Transients {
 
-	  protected static $instantiated = null;
+		private static $Messages;
 
-
-	  /*
-
-	  Initialize the class and set its properties.
-
-	  */
-	  public function __construct() {
-
+	  public function __construct(Messages $Messages) {
+			self::$Messages = $Messages;
 	  }
 
 
-	  /*
+		/*
 
-		Creates a new class if one hasn't already been created.
-		Ensures only one instance is used.
+		Delete Transient
 
 		*/
-		public static function instance() {
+		public static function delete_single($transientName) {
+			return delete_transient($transientName);
+		}
 
-			if (is_null(self::$instantiated)) {
-				self::$instantiated = new self();
-			}
 
-			return self::$instantiated;
+		/*
 
+		Set Transient
+
+		*/
+		public static function set($transientName, $value, $time = 0) {
+			return set_transient($transientName, $value, $time);
+		}
+
+
+		/*
+
+		Get Transient
+
+		*/
+		public static function get($transientName) {
+			return get_transient($transientName);
 		}
 
 
@@ -94,6 +94,16 @@ if (!class_exists('Transients')) {
 	  }
 
 
+		/*
+
+	  Check Migration Needed
+
+	  */
+	  public static function database_migration_needed() {
+	    return get_transient('wps_database_migration_needed');
+	  }
+
+
 	  /*
 
 	  Delete cached prices
@@ -103,13 +113,11 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_single_product_prices_by_id($productID) {
 
 	    global $wpdb;
-			$messages = new Messages();
-
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_price_id_ " . $productID . "'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_product_prices);
+	      return new \WP_Error('error', self::$Messages->message_delete_product_prices);
 
 	    } else {
 	      return true;
@@ -126,12 +134,11 @@ if (!class_exists('Transients')) {
 		public static function delete_cached_prices() {
 
 			global $wpdb;
-			$messages = new Messages();
 
 			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_price\_id\_%'");
 
 			if ($results === false) {
-				return new \WP_Error('error', $messages->message_delete_product_prices);
+				return new \WP_Error('error', self::$Messages->message_delete_product_prices);
 
 			} else {
 				return true;
@@ -145,21 +152,62 @@ if (!class_exists('Transients')) {
 	  Delete entire cache
 
 	  */
-	  public static function delete_all_cache() {
+	  public static function delete_short_term_cache() {
 
 	    global $wpdb;
-			$messages = new Messages();
 
-	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%' OR `option_name` LIKE '%\_transient\_timeout_\wps\_%'");
+	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%' OR `option_name` LIKE '%\_transient\_timeout_\wps\_%' OR `option_name` LIKE '%_wps_background_processing_process_lock%' OR `option_name` LIKE '%wp_wps_background_processing_batch%' OR `option_name` LIKE '%_transient_wps_async_processing_%' OR `option_name` LIKE '%wp_wps_background_processing%' OR `option_name` LIKE '%wps_sync_by_collections%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_all_cache);
+	      return new \WP_Error('error', self::$Messages->message_delete_all_cache);
 
 	    } else {
 	      return true;
 	    }
 
 	  }
+
+
+		/*
+
+		Clears the general plugin cache
+
+		*/
+		public static function delete_long_term_cache() {
+
+			global $wpdb;
+
+			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wp_shopify\_%'");
+
+			if ($results === false) {
+				return new \WP_Error('error', self::$Messages->message_delete_cache_general);
+
+			} else {
+				return true;
+			}
+
+		}
+
+
+		/*
+
+		Used within the Async_Processing_Database class
+
+		*/
+		public function delete() {
+			return self::delete_all_cache();
+		}
+
+
+		/*
+
+		Helper method
+
+		*/
+		public static function delete_all_cache() {
+			self::delete_short_term_cache();
+			self::delete_long_term_cache();
+		}
 
 
 	  /*
@@ -170,12 +218,11 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_variants() {
 
 	    global $wpdb;
-			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_with\_variants\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_single_product_variants_cache);
+	      return new \WP_Error('error', self::$Messages->message_delete_single_product_variants_cache);
 
 	    } else {
 	      return true;
@@ -192,12 +239,11 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_settings() {
 
 	    global $wpdb;
-			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%' OR `option_name` LIKE '%\_transient\_wps\_table\_single\_row\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_cached_settings);
+	      return new \WP_Error('error', self::$Messages->message_delete_cached_settings);
 
 	    } else {
 	      return true;
@@ -214,12 +260,11 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_product_queries() {
 
 	    global $wpdb;
-			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_products\_query\_hash\_cache\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_cached_products_queries);
+	      return new \WP_Error('error', self::$Messages->message_delete_cached_products_queries);
 
 	    } else {
 	      return true;
@@ -236,12 +281,11 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_product_single() {
 
 	    global $wpdb;
-			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_single\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_single_product_cache);
+	      return new \WP_Error('error', self::$Messages->message_delete_single_product_cache);
 
 	    } else {
 	      return true;
@@ -259,12 +303,11 @@ if (!class_exists('Transients')) {
 		public static function delete_cached_single_collections() {
 
 			global $wpdb;
-			$messages = new Messages();
 
 			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collection\_single\_%'");
 
 			if ($results === false) {
-				return new \WP_Error('error', $messages->message_delete_single_collections_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_collections_cache);
 
 			} else {
 				return true;
@@ -281,12 +324,11 @@ if (!class_exists('Transients')) {
 		public static function delete_cached_single_collection_by_id($postID) {
 
 			global $wpdb;
-			$messages = new Messages();
 
 			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_collection_single_" . $postID . "'");
 
 			if ($results === false) {
-				return new \WP_Error('error', $messages->message_delete_single_collection_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_collection_cache);
 
 			} else {
 				return true;
@@ -303,7 +345,6 @@ if (!class_exists('Transients')) {
 		public static function delete_cached_single_product_by_id($postID) {
 
 			global $wpdb;
-			$messages = new Messages();
 
 			$resultsSingle = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_" . $postID . "'");
 			$resultsImages = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_images_" . $postID . "'");
@@ -317,23 +358,23 @@ if (!class_exists('Transients')) {
 
 			*/
 			if ($resultsSingle === false) {
-				return new \WP_Error('error', $messages->message_delete_single_product_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_product_cache);
 			}
 
 			if ($resultsImages === false) {
-				return new \WP_Error('error', $messages->message_delete_single_product_images_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_product_images_cache);
 			}
 
 			if ($resultsTags === false) {
-				return new \WP_Error('error', $messages->message_delete_single_product_tags_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_product_tags_cache);
 			}
 
 			if ($resultsVariants === false) {
-				return new \WP_Error('error', $messages->message_delete_single_product_variants_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_product_variants_cache);
 			}
 
 			if ($resultsOptions === false) {
-				return new \WP_Error('error', $messages->message_delete_single_product_options_cache);
+				return new \WP_Error('error', self::$Messages->message_delete_single_product_options_cache);
 			}
 
 			return true;
@@ -349,12 +390,11 @@ if (!class_exists('Transients')) {
 	  public static function delete_cached_collection_queries() {
 
 	    global $wpdb;
-			$messages = new Messages();
 
 	    $results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collections\_query\_hash\_cache\_%'");
 
 	    if ($results === false) {
-	      return new \WP_Error('error', $messages->message_delete_cached_collection_queries);
+	      return new \WP_Error('error', self::$Messages->message_delete_cached_collection_queries);
 
 	    } else {
 	      return true;
@@ -373,12 +413,11 @@ if (!class_exists('Transients')) {
 		public static function delete_cached_connections() {
 
 			global $wpdb;
-			$messages = new Messages();
 
 			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_connection\_%'");
 
 			if ($results === false) {
-				return new \WP_Error('error', $messages->message_delete_cached_connection);
+				return new \WP_Error('error', self::$Messages->message_delete_cached_connection);
 
 			} else {
 				return true;
@@ -395,12 +434,11 @@ if (!class_exists('Transients')) {
 		public static function delete_cached_notices() {
 
 			global $wpdb;
-			$messages = new Messages();
 
 			$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_admin\_dismissed\_notice\_%'");
 
 			if ($results === false) {
-				return new \WP_Error('error', $messages->message_delete_cached_admin_notices);
+				return new \WP_Error('error', self::$Messages->message_delete_cached_admin_notices);
 
 			} else {
 				return true;
@@ -409,36 +447,7 @@ if (!class_exists('Transients')) {
 		}
 
 
-	  /*
-
-	  Delete Transient
-
-	  */
-	  public static function delete($transientName) {
-	    return delete_transient($transientName);
-	  }
-
-
-	  /*
-
-	  Set Transient
-
-	  */
-	  public static function set($transientName, $value, $time) {
-	    return set_transient($transientName, $value, $time);
-	  }
-
-
-	  /*
-
-	  Get Transient
-
-	  */
-	  public static function get($transientName) {
-	    return get_transient($transientName);
-	  }
-
-
 	}
+
 
 }

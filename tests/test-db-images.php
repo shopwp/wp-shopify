@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Images;
+use WPS\Factories\DB_Images_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Images extends WP_UnitTestCase {
 
-  protected static $Images;
+  protected static $DB_Images;
   protected static $mockDataImage;
   protected static $mockDataImageForUpdate;
   protected static $mockDataImageID;
@@ -23,7 +23,7 @@ class Test_Sync_Images extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Images                    = new Images();
+    self::$DB_Images                 = DB_Images_Factory::build();
     self::$mockDataImage             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/image.json") );
     self::$mockDataImageForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/image-update.json") );
     self::$mockDataImageID           = self::$mockDataImage->id;
@@ -38,9 +38,8 @@ class Test_Sync_Images extends WP_UnitTestCase {
   */
   function test_image_create() {
 
-    $result = self::$Images->insert(self::$mockDataImage, 'image');
-
-    $this->assertTrue($result);
+    $result = self::$DB_Images->insert(self::$mockDataImage, 'image');
+    $this->assertEquals(1, $result);
 
   }
 
@@ -52,9 +51,8 @@ class Test_Sync_Images extends WP_UnitTestCase {
   */
   function test_image_update() {
 
-    $results = self::$Images->update( self::$mockDataImageID, self::$mockDataImageForUpdate );
-    
-    $this->assertTrue($results);
+    $results = self::$DB_Images->update( self::$mockDataImageID, self::$mockDataImageForUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -66,9 +64,8 @@ class Test_Sync_Images extends WP_UnitTestCase {
   */
   function test_image_delete() {
 
-    $results = self::$Images->delete( self::$mockDataImageID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Images->delete( self::$mockDataImageID );
+    $this->assertEquals(1, $results);
 
   }
 

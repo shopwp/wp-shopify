@@ -6,41 +6,43 @@ Tab navs
 
 <?php
 
-// TODO: Clean up
 if ('wp-shopify_page_wps-settings' == get_current_screen()->id ) {
 
-  if (isset($_GET['tab']) && $_GET['tab']) {
-    $tab = $_GET['tab'];
+  if (isset($_GET['activetab']) && $_GET['activetab']) {
+    $active_tab = $_GET['activetab'];
 
   } else {
-    $tab = false;
+    $active_tab = 'tab-connect'; // default tab
   }
 
 }
 
 ?>
 
-
 <h2 class="nav-tab-wrapper">
 
-  <a href="#!" class="nav-tab  <?php echo $tab === false ? 'nav-tab-active' : ''; ?>" data-tab="tab-connect">
-    <?php esc_html_e('Connect', 'wp-shopify'); ?>
+  <a href="#!" class="nav-tab  <?php echo $active_tab === 'tab-connect' ? 'nav-tab-active' : ''; ?>" data-tab="tab-connect">
+    <?php esc_html_e('Connect', WPS_PLUGIN_TEXT_DOMAIN); ?>
   </a>
 
-  <a href="#!" class="nav-tab <?php echo $tab === 'settings' ? 'nav-tab-active' : ''; ?>" data-tab="tab-settings">
-    <?php esc_html_e('Settings', 'wp-shopify'); ?>
+  <a href="#!" class="nav-tab <?php echo $active_tab === 'tab-settings' ? 'nav-tab-active' : ''; ?>" data-tab="tab-settings">
+    <?php esc_html_e('Settings', WPS_PLUGIN_TEXT_DOMAIN); ?>
   </a>
 
-  <a href="#!" class="nav-tab <?php echo $tab === 'tools' ? 'nav-tab-active' : ''; ?>" data-tab="tab-tools">
-    <?php esc_html_e('Tools', 'wp-shopify'); ?>
+  <a href="#!" class="nav-tab <?php echo $active_tab === 'tab-tools' ? 'nav-tab-active' : ''; ?>" data-tab="tab-tools">
+    <?php esc_html_e('Tools', WPS_PLUGIN_TEXT_DOMAIN); ?>
   </a>
 
-  <a href="#!" class="nav-tab <?php echo $tab === 'updates' ? 'nav-tab-active' : ''; ?>" data-tab="tab-updates">
-    <?php esc_html_e('Updates', 'wp-shopify'); ?>
+  <a href="#!" class="nav-tab <?php echo $active_tab === 'tab-license' ? 'nav-tab-active' : ''; ?>" data-tab="tab-license">
+    <?php esc_html_e('License', WPS_PLUGIN_TEXT_DOMAIN); ?>
   </a>
 
-  <a href="#!" class="nav-tab <?php echo $tab === 'help' ? 'nav-tab-active' : ''; ?>" data-tab="tab-help">
-    <?php esc_html_e('Debug', 'wp-shopify'); ?>
+  <a href="#!" class="nav-tab <?php echo $active_tab === 'tab-help' ? 'nav-tab-active' : ''; ?>" data-tab="tab-help">
+    <?php esc_html_e('Debug', WPS_PLUGIN_TEXT_DOMAIN); ?>
+  </a>
+
+  <a href="#!" class="nav-tab <?php echo $active_tab === 'tab-misc' ? 'nav-tab-active' : ''; ?>" data-tab="tab-misc">
+    <?php esc_html_e('Misc', WPS_PLUGIN_TEXT_DOMAIN); ?>
   </a>
 
 </h2>

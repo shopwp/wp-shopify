@@ -1,35 +1,30 @@
 import {
-  activateLicenseKey,
-  deactivateLicenseKey,
   getLicenseKeyStatus,
   getProductInfo,
   saveLicenseKey,
   deleteLicenseKey,
   getLicenseKey
-} from '../ws/ws.js';
+} from '../ws/ws';
 
 import {
   enable,
   disable,
   createMask,
   formatExpireDate,
-  isObject,
-  showSpinner,
-  hideSpinner,
   showLoader,
   hideLoader,
   isWordPressError
-} from '../utils/utils.js';
+} from '../utils/utils';
 
 import {
   showAdminNotice,
   toggleActive,
   removeCheckmarks
-} from '../utils/utils-dom.js';
+} from '../utils/utils-dom';
 
-import { rejectedPromise } from '../utils/utils-data.js';
-import { deactivateKey } from './license-deactivate.js';
-import { activateKey } from './license-activate.js';
+import { rejectedPromise } from '../utils/utils-data';
+import { deactivateKey } from './license-deactivate';
+import { activateKey } from './license-activate';
 
 
 /*
@@ -41,14 +36,14 @@ function updateDOMAfterLicenseActivation(newLicenseKeyInfo) {
 
   var $form = jQuery('#wps-license'),
       $submitButton = $form.find('input[type="submit"]'),
-      $licenseInput = $form.find("#wps_settings_license_license"),
+      $licenseInput = $form.find("#wps_settings_general_license"),
       $licensePostbox = jQuery('.wps-postbox-license-info');
 
   $submitButton.data('status', 'deactivate');
   $submitButton.attr('data-status', 'deactivate');
   $submitButton.val('Deactivate License');
 
-  $licenseInput.val( createMask(newLicenseKeyInfo.key, '•', 4) );
+  $licenseInput.val( createMask(newLicenseKeyInfo.license_key, '•', 4) );
   $licenseInput.removeClass('error');
 
   updateInfoBox(newLicenseKeyInfo);
@@ -57,7 +52,7 @@ function updateDOMAfterLicenseActivation(newLicenseKeyInfo) {
     $licensePostbox.removeClass('wps-fadeInRight');
   });
 
-  disable(jQuery('#wps_settings_license_license'));
+  disable(jQuery('#wps_settings_general_license'));
 
 }
 
@@ -71,7 +66,7 @@ function clearLicenseForm() {
 
   var $form = jQuery('#wps-license'),
       $submitButton = $form.find('input[type="submit"]'),
-      $licenseInput = $form.find("#wps_settings_license_license"),
+      $licenseInput = $form.find("#wps_settings_general_license"),
       $licensePostbox = jQuery('.wps-postbox-license-info');
 
   $submitButton.data('status', 'activate');
@@ -131,9 +126,9 @@ function onLicenseFormSubmit() {
 
       var $submitButton = jQuery(form).find('input[type="submit"]'),
           $spinner = jQuery(form).find('.spinner'),
-          nonce = jQuery("#wps_settings_license_nonce_license_id").val(),
-          $licenseInput = jQuery(form).find("#wps_settings_license_license"),
-          key = jQuery(form).find("#wps_settings_license_license").val(),
+          nonce = jQuery("#wps_settings_general_nonce_license_id").val(),
+          $licenseInput = jQuery(form).find("#wps_settings_general_license"),
+          key = jQuery(form).find("#wps_settings_general_license").val(),
           $licensePostbox = jQuery('.wps-postbox-license-info');
 
 
@@ -225,7 +220,7 @@ function constructLicenseInfoForSaving(licenseKeyInfo, key) {
     newLicenseKeyInfo.lifetime = false;
   }
 
-  newLicenseKeyInfo.key = key;
+  newLicenseKeyInfo.license_key = key;
 
   return newLicenseKeyInfo;
 
@@ -243,7 +238,7 @@ function isLicenseKeyValid(key) {
   return new Promise(async (resolve, reject) => {
 
     if (key.license === 'invalid') {
-      return reject('This license key is invalid or disabled. Please double check your key and try again.');
+      return reject('This license key is invalid or disabled. Please double check / re-enter your key.');
     }
 
     if (key.license === 'expired') {
@@ -384,7 +379,7 @@ function onLoad() {
         $loader = jQuery('#wps-license > .spinner'),
         $submitButton = $form.find('input[type="submit"]'),
         $spinner = $form.find('.spinner'),
-        $licenseInput = $form.find("#wps_settings_license_license"),
+        $licenseInput = $form.find("#wps_settings_general_license"),
         $licensePostbox = jQuery('.wps-postbox-license-info'),
         $postBox = jQuery('.wps-postbox-license-activation'),
         $pluginInfo = jQuery('#wps-plugin-info'),

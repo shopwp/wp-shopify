@@ -18,27 +18,3 @@ it('Turns sync off', async () => {
   expect(true).toBe(true);
 
 });
-
-
-// it('Fetches data', async () => {
-//
-//   await expect( fetchData() ).resolves.toHaveProperty('success', true);
-//
-//
-// });
-
-
-
-// async function syncOff() {
-//
-//   return Promise.all([
-//
-//     // Empty and end the $_SESSION
-//     await endProgress(), // wps_progress_bar_end
-//
-//     // Clears the LS cache and any Transients
-//     await clearAllCache() // wps_clear_cache
-//
-//   ]);
-//
-// }

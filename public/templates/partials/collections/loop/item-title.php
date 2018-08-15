@@ -21,5 +21,5 @@ if ( !defined('ABSPATH') ) {
 <h2
   itemprop="category"
   class="wps-collections-title <?= apply_filters( 'wps_collections_title_class', '' ); ?>">
-  <?php esc_html_e($data->collection->title, 'wp-shopify'); ?>
+  <?php esc_html_e($data->collection->title, WPS_PLUGIN_TEXT_DOMAIN); ?>
 </h2>

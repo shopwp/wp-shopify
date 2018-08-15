@@ -1,7 +1,8 @@
 {
   "require": {
-    "guzzlehttp/guzzle": "~6.0",
     "gerardojbaez/money": "0.*",
-    "gamajo/template-loader": "^1.3"
+    "gamajo/template-loader": "^1.3",
+    "myclabs/deep-copy": "^1.8",
+    "guzzlehttp/guzzle": "^6.3"
   }
 }

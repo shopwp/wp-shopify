@@ -5,9 +5,9 @@ import { licenseInit } from './license/license';
 import { connectInit, onAuthRedirect } from './connect/connect';
 import { disconnectInit } from './disconnect/disconnect';
 import { settingsInit } from './settings/settings';
-import { getUrlParams } from './utils/utils';
 import { initAdmin } from './admin/admin';
 import { toolsInit } from './tools/tools';
+import { initMisc } from './misc/misc';
 import { menusInit } from './menus/menus';
 import { noticesInit } from './notices/notices';
 
@@ -16,10 +16,6 @@ import { noticesInit } from './notices/notices';
 	'use strict';
 
 	$(function() {
-
-		var $formConnect = $("#wps-connect");
-	  var $submitButton = $formConnect.find('input[type="submit"]');
-		var params = getUrlParams(window.location.href);
 
 		initAdmin();
 		tabsInit();
@@ -30,7 +26,10 @@ import { noticesInit } from './notices/notices';
 		toolsInit();
 		menusInit();
 		noticesInit();
-		
+		initMisc();
+
+		var $formConnect = $("#wps-connect");
+	  var $submitButton = $formConnect.find('input[type="submit"]');
 
 		if ($submitButton.attr('name') === 'submitDisconnect') {
 			disconnectInit();
@@ -38,7 +37,6 @@ import { noticesInit } from './notices/notices';
 		} else {
 			connectInit();
 		}
-
 
   });
 

@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Settings_General;
+use WPS\Factories\DB_Settings_General_Factory;
 
 /*
 
@@ -11,7 +11,7 @@ General key currently doesn't update -- only adds or deletes
 */
 class Test_Sync_General extends WP_UnitTestCase {
 
-  protected static $General;
+  protected static $DB_Settings_General;
   protected static $mockDataGeneralUpdate;
   protected static $mockDataGeneralID;
 
@@ -19,7 +19,7 @@ class Test_Sync_General extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$General                     = new Settings_General();
+    self::$DB_Settings_General         = DB_Settings_General_Factory::build();
     self::$mockDataGeneralUpdate       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/general-update.json") );
     self::$mockDataGeneralID           = self::$mockDataGeneralUpdate->id;
 
@@ -33,9 +33,8 @@ class Test_Sync_General extends WP_UnitTestCase {
   */
   function test_general_update() {
 
-    $results = self::$General->update( self::$mockDataGeneralID, self::$mockDataGeneralUpdate );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Settings_General->update( self::$mockDataGeneralID, self::$mockDataGeneralUpdate );
+    $this->assertEquals(1, $results);
 
   }
 

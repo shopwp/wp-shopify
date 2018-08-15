@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Options;
+use WPS\Factories\DB_Options_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Options extends WP_UnitTestCase {
 
-  protected static $Options;
+  protected static $DB_Options;
   protected static $mockDataOption;
   protected static $mockDataOptionForUpdate;
   protected static $mockDataOptionID;
@@ -23,7 +23,7 @@ class Test_Sync_Options extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Options                    = new Options();
+    self::$DB_Options                 = DB_Options_Factory::build();
     self::$mockDataOption             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/option.json") );
     self::$mockDataOptionForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/option-update.json") );
     self::$mockDataOptionID           = self::$mockDataOption->id;
@@ -38,9 +38,8 @@ class Test_Sync_Options extends WP_UnitTestCase {
   */
   function test_option_create() {
 
-    $result = self::$Options->insert(self::$mockDataOption, 'option');
-
-    $this->assertTrue($result);
+    $result = self::$DB_Options->insert(self::$mockDataOption, 'option');
+    $this->assertEquals(1, $result);
 
   }
 
@@ -52,8 +51,8 @@ class Test_Sync_Options extends WP_UnitTestCase {
   */
   function test_option_update() {
 
-    $results = self::$Options->update( self::$mockDataOptionID, self::$mockDataOptionForUpdate );
-    $this->assertTrue($results);
+    $results = self::$DB_Options->update( self::$mockDataOptionID, self::$mockDataOptionForUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -65,9 +64,8 @@ class Test_Sync_Options extends WP_UnitTestCase {
   */
   function test_option_delete() {
 
-    $results = self::$Options->delete( self::$mockDataOptionID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Options->delete( self::$mockDataOptionID );
+    $this->assertEquals(1, $results);
 
   }
 

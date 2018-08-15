@@ -1,14 +1,14 @@
 {
-  "collection_id": 111111111111111,
-  "post_id": 111111111,
-  "title": "Mock Custom Collection",
-  "handle": "mock-custom-collection",
-  "body_html": "<p>MOCK MOCK Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Sed porttitor lectus nibh. Nulla quis lorem ut libero malesuada feugiat. Proin eget tortor risus. Donec rutrum congue leo eget malesuada. Vivamus suscipit tortor eget felis porttitor volutpat.<br><br>Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Donec sollicitudin molestie malesuada. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.</p>",
-  "image": "https://cdn.shopify.com/s/files/1/2400/7681/collections/hail-damage.jpg?v=1507320202",
+  "collection_id": 9211969559,
+  "post_id": 989225,
+  "title": "CUSTOMzzzz",
+  "handle": "custom",
+  "body_html": "<meta charset=\"utf-8\"><span>Mauris </span><p>MOCK MOCK Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Sed porttitor lectus nibh. Nulla quis lorem ut libero malesuada feugiat. Proin eget tortor risus. Donec rutrum congue leo eget malesuada. Vivamus suscipit tortor eget felis porttitor volutpat.<br><br>Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Donec sollicitudin molestie malesuada. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.</p>",
+  "image": "",
   "metafield": "",
   "published": "",
   "published_scope": "global",
   "sort_order": "best-selling",
-  "published_at": "2017-09-27 13:08:06",
-  "updated_at": "2018-02-26 15:16:17"
+  "published_at": "2017-10-16 23:48:58",
+  "updated_at": "2018-04-27 01:58:11"
 }

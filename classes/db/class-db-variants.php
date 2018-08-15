@@ -3,23 +3,12 @@
 namespace WPS\DB;
 
 use WPS\Utils;
-use WPS\DB\Products;
-use WPS\DB\Settings_Connection;
-use WPS\Progress_Bar;
-use WPS\Config;
 
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for Variants
-
-*/
 if (!class_exists('Variants')) {
 
   class Variants extends \WPS\DB {
@@ -29,35 +18,25 @@ if (!class_exists('Variants')) {
   	public $primary_key;
 
 
-    /*
-
-    Construct
-
-    */
   	public function __construct() {
 
-      global $wpdb;
-      $this->table_name         = $wpdb->prefix . 'wps_variants';
-      $this->primary_key        = 'id';
-      $this->version            = '1.0';
-      $this->cache_group        = 'wps_db_variants';
+			$this->table_name         				= WPS_TABLE_NAME_VARIANTS;
+      $this->primary_key        				= 'id';
+      $this->version            				= '1.0';
+      $this->cache_group        				= 'wps_db_variants';
 
     }
 
 
-    /*
-
-    Get Columns
-
-    */
   	public function get_columns() {
-      return array(
+
+      return [
         'id'                        => '%d',
         'product_id'                => '%d',
         'image_id'                  => '%d',
         'title'                     => '%s',
-        'price'                     => '%s',
-        'compare_at_price'          => '%d',
+        'price'                     => '%f',
+        'compare_at_price'          => '%f',
         'position'                  => '%d',
         'option1'                   => '%s',
         'option2'                   => '%s',
@@ -74,24 +53,22 @@ if (!class_exists('Variants')) {
         'fulfillment_service'       => '%s',
         'barcode'                   => '%s',
         'created_at'                => '%s',
-        'updated_at'                => '%s'
-      );
+        'updated_at'                => '%s',
+				'admin_graphql_api_id'			=> '%s'
+      ];
+
     }
 
 
-    /*
-
-    Get Column Defaults
-
-    */
   	public function get_column_defaults() {
-      return array(
+
+      return [
         'id'                        => '',
         'product_id'                => '',
         'image_id'                  => '',
         'title'                     => '',
-        'price'                     => '',
-        'compare_at_price'          => '',
+        'price'                     => 0,
+        'compare_at_price'          => 0,
         'position'                  => '',
         'option1'                   => '',
         'option2'                   => '',
@@ -108,9 +85,21 @@ if (!class_exists('Variants')) {
         'fulfillment_service'       => '',
         'barcode'                   => '',
         'created_at'                => date_i18n( 'Y-m-d H:i:s' ),
-        'updated_at'                => date_i18n( 'Y-m-d H:i:s' )
-      );
+        'updated_at'                => date_i18n( 'Y-m-d H:i:s' ),
+				'admin_graphql_api_id'			=> ''
+      ];
+
     }
+
+
+		public function insert_variant($variant) {
+			return $this->insert($variant, 'variant');
+		}
+
+
+		public function insert_variants($variants) {
+			return $this->insert($variant, 'variant');
+		}
 
 
     /*
@@ -118,21 +107,22 @@ if (!class_exists('Variants')) {
     Insert variant
 
     */
-    public function insert_variant($product) {
+    public function insert_variants_from_product($product) {
 
       $results = [];
-      $DB_Settings_Connection = new Settings_Connection();
+			$product = Utils::convert_array_to_object($product);
 
       if (isset($product->variants) && $product->variants) {
 
         foreach ($product->variants as $key => $variant) {
 
-          if (!Utils::isStillSyncing()) {
-            wp_die();
-            break;
-          }
+					$insertion_result = $this->insert_variant($variant);
 
-          $results[] = $this->insert($variant, 'variant');
+					if (is_wp_error($insertion_result)) {
+						return $insertion_result;
+					}
+
+					$results[] = $insertion_result;
 
         }
 
@@ -146,32 +136,24 @@ if (!class_exists('Variants')) {
     /*
 
     Get single shop info value
+		Returns (array) of insertion results or WP_Error
 
     */
-  	public function insert_variants($products) {
+  	public function insert_variants_from_products($products) {
 
-      $DB_Settings_Connection = new Settings_Connection();
-      $progress = new Progress_Bar(new Config());
-      $results = array();
+      $results = [];
+
+			$products = Utils::wrap_in_array($products);
 
       foreach ($products as $key => $product) {
 
-        if (isset($product->variants) && $product->variants) {
+				$insertion_result = $this->insert_variants_from_product($product);
 
-          foreach ($product->variants as $key => $variant) {
+				if (is_wp_error($insertion_result)) {
+					return $insertion_result;
+				}
 
-            if (!Utils::isStillSyncing()) {
-              wp_die();
-              break 2;
-            }
-
-            $results[] = $this->insert($variant, 'variant');
-
-            $progress->increment_current_amount('products');
-
-          }
-
-        }
+				$results[] = $insertion_result;
 
       }
 
@@ -180,27 +162,55 @@ if (!class_exists('Variants')) {
     }
 
 
+		/*
+
+		Get Product Variants
+
+		*/
+		public function get_variants_from_post_id($postID = null) {
+
+			global $wpdb;
+
+			if ($postID === null) {
+				$postID = get_the_ID();
+			}
+
+			if (get_transient('wps_product_single_variants_' . $postID)) {
+				$variants = get_transient('wps_product_single_variants_' . $postID);
+
+			} else {
+
+				$query = "SELECT variants.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_VARIANTS . " as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
+
+				$variants = $wpdb->get_results( $wpdb->prepare($query, $postID) );
+				$variants = Utils::product_inventory(false, $variants);
+
+				set_transient('wps_product_single_variants_' . $postID, $variants);
+
+			}
+
+			return $variants;
+
+		}
+
+
     /*
 
-    update_variant
+    Update variant from product
+
+		In order to handle an update being initated by _new_ data (e.g., when a new variant is added),
+		we need to compare what's currently in the database with what gets sent back via the
+		product/update webhook.
 
     */
-  	public function update_variant($product) {
+  	public function update_variants_from_product($product) {
 
-      $results = array();
+      $results = [];
       $variantsFromShopify = $product->variants;
-      $newProductID = Utils::wps_find_product_id($product);
 
-      /*
-
-      In order to handle an update being initated by _new_ data (e.g., when a new variant is added),
-      we need to compare what's currently in the database with what gets sent back via the
-      product/update webhook.
-
-      */
-      $currentVariants = $this->get_rows('product_id', $newProductID);
-      $currentVariantsArray = Utils::wps_convert_object_to_array($currentVariants);
-      $variantsFromShopify = Utils::wps_convert_object_to_array($variantsFromShopify);
+      $currentVariants = $this->get_rows('product_id', $product->id);
+      $currentVariantsArray = Utils::convert_object_to_array($currentVariants);
+      $variantsFromShopify = Utils::convert_object_to_array($variantsFromShopify);
 
       $variantsToAdd = Utils::wps_find_items_to_add($currentVariantsArray, $variantsFromShopify, true);
       $variantsToDelete = Utils::wps_find_items_to_delete($currentVariantsArray, $variantsFromShopify, true);
@@ -227,47 +237,27 @@ if (!class_exists('Variants')) {
 
       }
 
+
       foreach ($product->variants as $key => $variant) {
         $results['updated'] = $this->update($variant->id, $variant);
-      }
+    	}
+
 
       return $results;
 
     }
 
 
-    /*
 
-    Get Product Variants
+		/*
 
-    */
-    public function get_product_variants($postID = null) {
+	  Delete variants from product ID
 
-      global $wpdb;
+	  */
+	  public function delete_variants_from_product_id($product_id) {
+			return $this->delete_rows('product_id', $product_id);
+	  }
 
-      if ($postID === null) {
-        $postID = get_the_ID();
-      }
-
-      if (get_transient('wps_product_single_variants_' . $postID)) {
-        $results = get_transient('wps_product_single_variants_' . $postID);
-
-      } else {
-
-        $DB_Products = new Products();
-        $table_products = $DB_Products->get_table_name();
-
-        $query = "SELECT variants.* FROM $table_products as products INNER JOIN $this->table_name as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
-
-        $results = $wpdb->get_results( $wpdb->prepare($query, $postID) );
-
-        set_transient('wps_product_single_variants_' . $postID, $results);
-
-      }
-
-      return $results;
-
-    }
 
 
     /*
@@ -275,9 +265,13 @@ if (!class_exists('Variants')) {
     Creates a table query string
 
     */
-    public function create_table_query() {
+    public function create_table_query($table_name = false) {
 
       global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
       $collate = '';
 
@@ -285,34 +279,47 @@ if (!class_exists('Variants')) {
         $collate = $wpdb->get_charset_collate();
       }
 
-      return "CREATE TABLE `{$this->table_name}` (
-        `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-        `product_id` bigint(100) DEFAULT NULL,
-        `image_id` bigint(100) DEFAULT NULL,
-        `title` varchar(255) DEFAULT NULL,
-        `price` varchar(100) DEFAULT NULL,
-        `compare_at_price` varchar(100) DEFAULT NULL,
-        `position` int(20) DEFAULT NULL,
-        `option1` varchar(100) DEFAULT NULL,
-        `option2` varchar(100) DEFAULT NULL,
-        `option3` varchar(100) DEFAULT NULL,
-        `taxable` tinyint(1) DEFAULT NULL,
-        `sku` varchar(255) DEFAULT NULL,
-        `inventory_policy` varchar(255) DEFAULT NULL,
-        `inventory_quantity` bigint(20) DEFAULT NULL,
-        `old_inventory_quantity` bigint(20) DEFAULT NULL,
-        `inventory_management` varchar(255) DEFAULT NULL,
-        `fulfillment_service` varchar(255) DEFAULT NULL,
-        `barcode` varchar(255) DEFAULT NULL,
-        `weight` int(20) DEFAULT NULL,
-        `weight_unit` varchar(100) DEFAULT NULL,
-        `requires_shipping` tinyint(1) DEFAULT NULL,
-        `created_at` datetime,
-        `updated_at` datetime,
-        PRIMARY KEY  (`{$this->primary_key}`)
+      return "CREATE TABLE $table_name (
+        id bigint(100) unsigned NOT NULL DEFAULT 0,
+        product_id bigint(100) DEFAULT NULL,
+        image_id bigint(100) DEFAULT NULL,
+        title varchar(255) DEFAULT NULL,
+        price decimal(12,2) DEFAULT 0,
+        compare_at_price decimal(12,2) DEFAULT 0,
+        position int(20) DEFAULT NULL,
+        option1 varchar(100) DEFAULT NULL,
+        option2 varchar(100) DEFAULT NULL,
+        option3 varchar(100) DEFAULT NULL,
+        taxable tinyint(1) DEFAULT NULL,
+        sku varchar(255) DEFAULT NULL,
+        inventory_policy varchar(255) DEFAULT NULL,
+        inventory_quantity bigint(20) DEFAULT NULL,
+        old_inventory_quantity bigint(20) DEFAULT NULL,
+        inventory_management varchar(255) DEFAULT NULL,
+        fulfillment_service varchar(255) DEFAULT NULL,
+        barcode varchar(255) DEFAULT NULL,
+        weight int(20) DEFAULT NULL,
+        weight_unit varchar(100) DEFAULT NULL,
+        requires_shipping tinyint(1) DEFAULT NULL,
+        created_at datetime,
+        updated_at datetime,
+				admin_graphql_api_id longtext DEFAULT NULL,
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
   	}
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `image_id`, `title`, `price`, `compare_at_price`, `position`, `option1`, `option2`, `option3`, `taxable`, `sku`, `inventory_policy`, `inventory_quantity`, `old_inventory_quantity`, `inventory_management`, `fulfillment_service`, `barcode`, `weight`, `weight_unit`, `requires_shipping`, `created_at`, `updated_at`) SELECT `id`, `product_id`, `image_id`, `title`, `price`, `compare_at_price`, `position`, `option1`, `option2`, `option3`, `taxable`, `sku`, `inventory_policy`, `inventory_quantity`, `old_inventory_quantity`, `inventory_management`, `fulfillment_service`, `barcode`, `weight`, `weight_unit`, `requires_shipping`, `created_at`, `updated_at` FROM ' . $this->table_name);
+
+		}
 
 
     /*
@@ -325,7 +332,8 @@ if (!class_exists('Variants')) {
       require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
       if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query() );
+        dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
       }
 
     }

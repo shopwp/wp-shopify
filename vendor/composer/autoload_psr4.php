@@ -17,5 +17,5 @@ return array(
     'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Gerardojbaez\\Money\\' => array($vendorDir . '/gerardojbaez/money/src'),
-    'CoenJacobs\\Mozart\\' => array($vendorDir . '/coenjacobs/mozart/src'),
+    'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
 );

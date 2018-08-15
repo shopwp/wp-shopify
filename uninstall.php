@@ -2,33 +2,35 @@
 
 namespace WPS;
 
-include_once('lib/autoloader.php');
-
-use WPS\Config;
-use WPS\WS;
-use WPS\DB\Settings_General;
-
 // If uninstall not called from WordPress, then exit.
 if (!defined('WP_UNINSTALL_PLUGIN')) {
 	exit;
 }
 
 if ( !current_user_can('activate_plugins') ) {
-	return;
+	exit;
 }
 
-$WS = new WS(new Config());
-$plugin_settings = new Settings_General();
+include_once('lib/autoloader.php');
+
+use WPS\Transients;
+use WPS\Factories\Async_Processing_Database_Factory;
+use WPS\Factories\DB_Settings_General_Factory;
+use WPS\Factories\License_Factory;
+
+$Async_Processing_Database = Async_Processing_Database_Factory::build();
+$DB_Settings_General = DB_Settings_General_Factory::build();
+$License = License_Factory::build();
 
 
-if ($plugin_settings->is_free_tier() && $plugin_settings->is_pro_tier()) {
 
-	$freeTierDeactivated = $plugin_settings->set_free_tier(0);
-
-	return;
+if ($DB_Settings_General->is_free_tier() && $DB_Settings_General->is_pro_tier() ) {
+	$DB_Settings_General->set_free_tier(0);
 
 } else {
-
-	$WS->wps_uninstall_consumer(false);
-	$WS->wps_drop_databases();
+	$Async_Processing_Database->delete_posts();
+	$Async_Processing_Database->drop_databases();
 }
+
+
+Transients::delete_all_cache();

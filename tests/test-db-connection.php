@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Settings_Connection;
+use WPS\Factories\DB_Settings_Connection_Factory;
 
 /*
 
@@ -11,7 +11,7 @@ Connection key currently doesn't update -- only adds or deletes
 */
 class Test_Sync_Connection extends WP_UnitTestCase {
 
-  protected static $Connection;
+  protected static $DB_Settings_Connection;
   protected static $mockDataConnection;
   protected static $mockDataConnectionUpdate;
   protected static $mockDataConnectionID;
@@ -20,7 +20,7 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Connection                     = new Settings_Connection();
+    self::$DB_Settings_Connection         = DB_Settings_Connection_Factory::build();
     self::$mockDataConnection             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection.json") );
     self::$mockDataConnectionUpdate       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection-update.json") );
     self::$mockDataConnectionID           = self::$mockDataConnection->id;
@@ -35,9 +35,8 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   */
   function test_connection_create() {
 
-    $result = self::$Connection->insert(self::$mockDataConnection, 'connection');
-
-    $this->assertTrue($result);
+    $result = self::$DB_Settings_Connection->insert(self::$mockDataConnection, 'connection');
+    $this->assertEquals(1, $result);
 
   }
 
@@ -49,9 +48,8 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   */
   function test_connection_update() {
 
-    $results = self::$Connection->update( self::$mockDataConnectionID, self::$mockDataConnectionUpdate );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Settings_Connection->update( self::$mockDataConnectionID, self::$mockDataConnectionUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -63,9 +61,8 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   */
   function test_connection_delete() {
 
-    $results = self::$Connection->delete( self::$mockDataConnectionID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Settings_Connection->delete( self::$mockDataConnectionID );
+    $this->assertEquals(1, $results);
 
   }
 

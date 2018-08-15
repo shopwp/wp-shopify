@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Shop;
+use WPS\Factories\DB_Shop_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Shop extends WP_UnitTestCase {
 
-  protected static $Shop;
+  protected static $DB_Shop;
   protected static $mockDataShop;
   protected static $mockDataShopForUpdate;
   protected static $mockDataShopID;
@@ -23,7 +23,7 @@ class Test_Sync_Shop extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Shop                     = new Shop();
+    self::$DB_Shop                  = DB_Shop_Factory::build();
     self::$mockDataShop             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/shop.json") );
     self::$mockDataShopForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/shop-update.json") );
     self::$mockDataShopID           = self::$mockDataShop->id;
@@ -38,9 +38,9 @@ class Test_Sync_Shop extends WP_UnitTestCase {
   */
   function test_shop_create() {
 
-    $result = self::$Shop->insert(self::$mockDataShop, 'shop');
+    $result = self::$DB_Shop->insert(self::$mockDataShop, 'shop');
 
-    $this->assertTrue($result);
+    $this->assertEquals(1, $result);
 
   }
 
@@ -52,9 +52,9 @@ class Test_Sync_Shop extends WP_UnitTestCase {
   */
   function test_shop_update() {
 
-    $results = self::$Shop->update( self::$mockDataShopID, self::$mockDataShopForUpdate );
-    
-    $this->assertTrue($results);
+    $results = self::$DB_Shop->update( self::$mockDataShopID, self::$mockDataShopForUpdate );
+
+    $this->assertEquals(1, $results);
 
   }
 
@@ -66,9 +66,9 @@ class Test_Sync_Shop extends WP_UnitTestCase {
   */
   function test_shop_delete() {
 
-    $results = self::$Shop->delete( self::$mockDataShopID );
+    $results = self::$DB_Shop->delete( self::$mockDataShopID );
 
-    $this->assertTrue($results);
+    $this->assertEquals(1, $results);
 
   }
 

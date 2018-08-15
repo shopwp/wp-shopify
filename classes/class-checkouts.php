@@ -2,66 +2,26 @@
 
 namespace WPS;
 
-use WPS\WS;
-use WPS\Messages;
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-
-/*
-
-Class Checkouts
-
-*/
 if ( !class_exists('Checkouts') ) {
 
 	class Checkouts {
 
-	  protected static $instantiated = null;
-	  private $Config;
-
+	  private $Messages;
+		private $WS;
 
 		/*
 
 		Initialize the class and set its properties.
 
 		*/
-		public function __construct($Config) {
-			$this->config = $Config;
-			$this->messages = new Messages();
-			$this->ws = new WS($this->config);
+		public function __construct($Messages, $WS) {
+			$this->Messages = $Messages;
+			$this->WS = $WS;
 		}
-
-
-	  /*
-
-	  Creates a new class if one hasn't already been created.
-	  Ensures only one instance is used.
-
-	  */
-	  public static function instance($Config) {
-
-	    if (is_null(self::$instantiated)) {
-	      self::$instantiated = new self($Config);
-	    }
-
-	    return self::$instantiated;
-
-	  }
-
-
-	  /*
-
-	  Saving webhook plugin settings
-	  TODO: Same as function above, combine into utility
-
-	  */
-	  public function wps_on_checkout() {
-
-	  }
 
 
 		/*
@@ -70,7 +30,7 @@ if ( !class_exists('Checkouts') ) {
 		Returns nothing by default
 
 		*/
-		public function wps_cart_checkout_attrs() {
+		public function wps_cart_checkout_attrs($defaultAttrs) {
 			return [];
 		}
 
@@ -80,14 +40,17 @@ if ( !class_exists('Checkouts') ) {
 		Get Checkout Attrs (ajax)
 
 		*/
-		public function wps_get_cart_checkout_attrs() {
+		public function get_cart_checkout_attrs() {
 
-			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
-				$this->ws->send_error($this->messages->message_nonce_invalid . ' (wps_get_cart_checkout_attrs)');
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (get_cart_checkout_attrs)');
 			}
 
-			$defaultAttrs = [];
-			$this->ws->send_success(apply_filters('wps_cart_checkout_attrs', $defaultAttrs));
+			$defaultAttrs = [
+				'cartID'	=>	$_POST['cartID']
+			];
+
+			$this->WS->send_success(apply_filters('wps_cart_checkout_attrs', $defaultAttrs));
 
 		}
 
@@ -114,19 +77,54 @@ if ( !class_exists('Checkouts') ) {
 
 		/*
 
-		Init
+		Before Checkout Hook
 
 		*/
-	  public function init() {
+		public function add_checkout_before_hook() {
 
-			add_action('wp_ajax_wps_get_cart_checkout_attrs', [$this, 'wps_get_cart_checkout_attrs']);
-			add_action('wp_ajax_nopriv_wps_get_cart_checkout_attrs', [$this, 'wps_get_cart_checkout_attrs']);
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (add_checkout_before_hook)');
+			}
+
+			$cart = $_POST['cart'];
+			$exploded = explode($cart['domain'], $cart['checkoutUrl']);
+			$landing_site = $exploded[1];
+
+			$landing_site_hash = Utils::wps_hash($landing_site);
+
+			$this->WS->send_success();
+
+		}
+
+
+		/*
+
+		Hooks
+
+		*/
+	  public function hooks() {
+
+			add_action('wp_ajax_get_cart_checkout_attrs', [$this, 'get_cart_checkout_attrs']);
+			add_action('wp_ajax_nopriv_get_cart_checkout_attrs', [$this, 'get_cart_checkout_attrs']);
 
 			add_action('wps_cart_checkout_btn_before', [$this, 'wps_cart_checkout_btn_before']);
 			add_action('wps_cart_checkout_btn_after', [$this, 'wps_cart_checkout_btn_after']);
 
+			add_action('wp_ajax_add_checkout_before_hook', [$this, 'add_checkout_before_hook']);
+			add_action('wp_ajax_nopriv_add_checkout_before_hook', [$this, 'add_checkout_before_hook']);
+
 			add_filter('wps_cart_checkout_attrs', [$this, 'wps_cart_checkout_attrs']);
 
+	  }
+
+
+		/*
+
+		Init
+
+		*/
+	  public function init() {
+			$this->hooks();
 	  }
 
 

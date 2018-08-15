@@ -2,65 +2,120 @@
 
 namespace WPS;
 
-// If this file is called directly, abort.
+use WPS\Transients;
+use WPS\Utils;
+
+
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-
-/*
-
-Class Cart
-
-*/
 if ( !class_exists('Cart') ) {
 
 	class Cart {
 
-	  protected static $instantiated = null;
+		private $Messages;
+		private $WS;
 
 	  /*
 
 	  Initialize the class and set its properties.
 
 	  */
-	  public function __construct() {
-
+	  public function __construct($Messages, $WS) {
+			$this->Messages		= $Messages;
+			$this->WS					= $WS;
 	  }
 
 
-	  /*
+		/*
 
-	  Creates a new class if one hasn't already been created.
-	  Ensures only one instance is used.
+		Get cart cache
 
-	  */
-	  public static function instance() {
+		*/
+		public function get_checkout_cache() {
 
-	    if (is_null(self::$instantiated)) {
-	      self::$instantiated = new self();
-	    }
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (get_checkout_cache)');
+			}
 
-	    return self::$instantiated;
+			if (isset($_POST['checkoutID']) && $_POST['checkoutID']) {
 
-	  }
+				$checkoutName = 'wps_checkout_' . $_POST['checkoutID'];
+
+				if (Transients::get($checkoutName)) {
+					$this->WS->send_success();
+
+				} else {
+					$this->WS->send_error();
+				}
+
+			} else {
+				$this->WS->send_error();
+			}
 
 
-	  public static function wps_get_cart_id_from_order($order) {
+		}
 
-	    $cartID = array_filter($order->note_attributes, function($attribute) {
-	      return $attribute->name === 'cartID';
-	    });
 
-	    if (is_array($cartID) && isset($cartID[0]->value)) {
-	      return $cartID[0]->value;
+		/*
 
-	    } else {
-	      return false;
+		Set checkout cache in transient
 
-	    }
+		*/
+		public function set_checkout_cache() {
 
-	  }
+			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
+				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (set_checkout_cache)');
+			}
+
+			$checkoutName = 'wps_cart_' . $_POST['checkoutID'];
+
+			if (isset($checkoutName) && $checkoutName) {
+
+				// Checkout is already cached, return
+				if ( Transients::get($checkoutName) ) {
+					$this->WS->send_success($checkoutName);
+				}
+
+				// Cache the checkout id for three days
+				$cache_result = Transients::set($checkoutName, true, WPS_CART_CACHE_EXPIRATION);
+
+				if ($cache_result) {
+					$this->WS->send_success($checkoutName);
+
+				} else {
+					$this->WS->send_error( $this->Messages->message_unable_to_cache_checkout . ' (set_checkout_cache)' );
+				}
+
+
+			} else {
+				$this->WS->send_error( $this->Messages->message_missing_checkout_id . ' (set_checkout_cache)' );
+
+			}
+
+		}
+
+
+		/*
+
+		Hooks
+
+		*/
+		public function hooks() {
+
+			add_action('wp_ajax_get_checkout_cache', [$this, 'get_checkout_cache']);
+			add_action('wp_ajax_nopriv_get_checkout_cache', [$this, 'get_checkout_cache']);
+
+			add_action('wp_ajax_set_checkout_cache', [$this, 'set_checkout_cache']);
+			add_action('wp_ajax_nopriv_set_checkout_cache', [$this, 'set_checkout_cache']);
+
+		}
+
+
+		public function init() {
+			$this->hooks();
+		}
 
 
 	}

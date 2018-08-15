@@ -1,83 +1,37 @@
 import currencyFormatter from 'currency-formatter';
 import forOwn from 'lodash/forOwn';
 import isEmpty from 'lodash/isEmpty';
+import has from 'lodash/has';
+import isError from 'lodash/isError';
+import isNull from 'lodash/isNull';
+import isUndefined from 'lodash/isUndefined';
+import filter from 'lodash/filter';
+import values from 'lodash/values';
+
 
 import {
   cartIsOpen
 } from '../cart/cart-ui';
 
 import {
-  animateOut
+  enable
 } from '../utils/utils-ux';
 
 import {
-  getCurrencyFormat,
-  getCurrencyFormats,
-  getMoneyFormat,
-  getMoneyFormatWithCurrency
-} from '../ws/ws-settings';
+  getClient
+} from '../utils/utils-client';
 
 import {
   setMoneyFormatCache,
-  getMoneyFormatCache,
-  moneyFormatChanged,
   getCacheTime,
   setCacheTime
 } from '../ws/ws-products';
 
 import {
-  closeOptionsModal
-} from '../products/products-meta';
+  getMoneyFormat,
+  getShop
+} from '../ws/ws-shop';
 
-
-/*
-
-Is WordPress Error
-
-*/
-function isWordPressError(response) {
-
-  if (isObject(response) && hasProp(response, 'success')) {
-
-    if (response.success) {
-      return false;
-
-    } else {
-      return true;
-
-    }
-
-  } else {
-    return false;
-
-  }
-
-}
-
-
-/*
-
-Checks whether data is a WordPress error
-
-*/
-function isError(response) {
-
-  if (isObject(response) && hasProp(response, 'success')) {
-
-    if (response.success) {
-      return false;
-
-    } else {
-      return true;
-
-    }
-
-  } else {
-    return false;
-
-  }
-
-}
 
 
 /*
@@ -117,16 +71,6 @@ function convertCustomAttrsToQueryString(customAttrs) {
 
 /*
 
-Check if object has a property
-
-*/
-function hasProp(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-
-/*
-
 Check if an object
 
 */
@@ -145,57 +89,6 @@ seperated list of class names.
 function createSelector(classname) {
   var newClass = classname;
   return "." + newClass.split(' ').join('.');
-}
-
-
-/*
-
-removeEventHandlers
-
-*/
-function removeEventHandlers(elementClass) {
-  jQuery(document).off('click.' + elementClass);
-  jQuery(document).off('keyup.' + elementClass);
-}
-
-
-/*
-
-addOriginalClassesBack
-
-*/
-function addOriginalClassesBack(config) {
-  config.element.attr('class', config.originalClasses);
-}
-
-
-/*
-
-turnAnimationFlagOff
-
-*/
-function turnAnimationFlagOff() {
-  localStorage.setItem('wps-animating', false);
-}
-
-
-/*
-
-turnAnimationFlagOn
-
-*/
-function turnAnimationFlagOn() {
-  localStorage.setItem('wps-animating', true);
-}
-
-
-/*
-
-Is Animation On?
-
-*/
-function isAnimating() {
-  return localStorage.getItem('wps-animating');
 }
 
 
@@ -380,65 +273,10 @@ function cacheExpired() {
 
 Format product price into format from Shopify
 
-TODO: Expensive! Figure out how to speed up.
-
-1. Check whether we're using price_with_currency setting
-2. Depending on the result of #1, either query the "money_format" or "money_with_currency_format" value
-3. Once we have the value from #2, check what kind of variable we're using "amount, amount without decimal, etc".
-4. Format our money accordingly
-5. Replace the {{amount}} with our newly formatted money
-
 */
-async function formatAsMoney(amount) {
-
-  return new Promise(async function(resolve, reject) {
-
-    // Calls LS
-    if (!cacheExpired()) {
-
-      // Get the format from LS
-      var moneyFormat = getMoneyFormatCache();
-
-    } else {
-
-      try {
-
-        // Calls server
-        var formats = await getCurrencyFormats(); // wps_get_currency_formats
-
-        if (isError(formats)) {
-          throw formats.data;
-
-        } else {
-          formats = formats.data;
-        }
-
-      } catch (error) {
-        reject(error);
-
-      }
-
-      var formatWithCurrencySymbol = formats.priceWithCurrency;
-
-      if (formatWithCurrencySymbol == '1') {
-
-        var moneyFormat = formats.moneyFormatWithCurrency;
-
-      } else {
-        var moneyFormat = formats.moneyFormat;
-
-      }
-
-      // Calls LS
-      setMoneyFormatCache(moneyFormat);
-
-    }
-
-    resolve( formatTotalAmount(amount, moneyFormat) );
-
-  });
-
-};
+function formatAsMoney(amount) {
+  return formatTotalAmount(amount, getMoneyFormat(getShop()) );
+}
 
 
 /*
@@ -454,39 +292,6 @@ function formatTotalAmount(amount, moneyFormat) {
   return replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
 
 }
-
-
-/*
-
-Listener: Close
-
-*/
-function listenForClose(config = false) {
-
-  if (!config) {
-
-    jQuery(document).on('click.wps-close-animation', closeCallbackClick);
-    jQuery(document).on('keyup.wps-close-animation', closeCallbackEsc);
-
-  } else {
-
-    // if (!config.element.hasClass('wps-is-visible')) {
-    //   config.element.addClass('wps-is-visible');
-    // }
-
-    if (!config.oneway) {
-
-      // Close when user clicks outside modal ...
-      jQuery(document).on('click.wps-close-animation', config, closeCallbackClick);
-
-      // Close when user hits escape ...
-      jQuery(document).on('keyup.wps-close-animation', config, closeCallbackEsc);
-
-    }
-
-  }
-
-};
 
 
 /*
@@ -524,130 +329,36 @@ function isCart($element) {
 
 /*
 
-Callback: Close Click Callback
+Checks if data is an invalid value for add or updating lineitems
 
 */
-function closeCallbackClick(event) {
+function invalidLineItemProp(lineItemProp) {
 
-  var config = event.data;
-
-  if (!config) {
-    closeOptionsModal();
-
-  } else {
-
-    var element = document.querySelector( createSelector(config.element.attr('class')) ),
-        triggerAddToCart = jQuery(event.srcElement).hasClass('wps-add-to-cart'),
-        triggerVariantSelect = jQuery(event.srcElement).hasClass('wps-product-style'),
-        cartIsClosing = isCart(jQuery(element));
-
-    if (triggerAddToCart || triggerVariantSelect && cartIsClosing) {
-
-    } else {
-
-      if (localStorage.getItem('wps-animating') === 'false') {
-
-        if (jQuery(event.target).hasClass('wps-modal-close-trigger') ) {
-          animateOut(config);
-
-        } else {
-
-          if (event.target !== config.element && !jQuery.contains(element, event.target)) {
-            animateOut(config);
-          }
-
-        }
-
-      } else {
-        animateOut(config);
-      }
-
-    }
-
+  if ( isError(lineItemProp) || isNull(lineItemProp) || isUndefined(lineItemProp) || lineItemProp === false) {
+    return true;
   }
 
-
-};
+}
 
 
 /*
 
-Callback: Close Esc Callback
-
-TODO: The assumption here is that if we don't pass in any data to the callback
-the originating event is for the variant dropdowns. We should decouple this.
+Checks if config for add or updating lineitems is valid
 
 */
-function closeCallbackEsc(event) {
-
-  if (!event.data) {
-
-    if (event.keyCode && event.keyCode == 27) {
-      closeOptionsModal();
-    }
-
-  } else {
-
-    if (localStorage.getItem('wps-animating') === 'false') {
-
-      var config = event.data;
-
-      if (event.keyCode && event.keyCode == 27) {
-        animateOut(config);
-      }
-
-    }
-
-  }
-
-};
-
-
-/*
-
-Show Error
-
-*/
-function showError(error) {
-
-  if (isObject(error) && hasProp(error, 'message') && hasProp(error, 'type')) {
-    var newError = error;
-
-  } else {
-
-    var newError = {
-      type: 'warning',
-      message: error
-    }
-    
-  }
-
-  jQuery('.wps-btn-cart')
-    .removeClass('wps-is-disabled wps-is-loading');
-
-  jQuery('.wps-product-meta')
-    .html('<p class="wps-notice-inline wps-notice-' + newError.type + '">' + newError.message + '</p>')
-    .removeClass('wps-is-disabled wps-is-loading');
-
+function containsInvalidLineItemProps(lineItemProps) {
+  return !isEmpty( filter( values(lineItemProps), invalidLineItemProp) );
 }
 
 
 export {
   createSelector,
   formatAsMoney,
-  listenForClose,
-  removeEventHandlers,
-  addOriginalClassesBack,
-  turnAnimationFlagOff,
-  turnAnimationFlagOn,
   quantityFinder,
   isError,
   isObject,
-  hasProp,
-  isAnimating,
   convertCustomAttrsToQueryString,
   update,
-  isWordPressError,
-  showError,
-  formatTotalAmount
+  formatTotalAmount,
+  containsInvalidLineItemProps
 };

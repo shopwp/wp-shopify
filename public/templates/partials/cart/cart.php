@@ -4,7 +4,7 @@
 
 @description   Cart template. The actual markup that appears when opening the cart.
 
-@version       1.0.0
+@version       1.0.1
 @since         1.0.49
 @path          templates/partials/cart/cart.php
 
@@ -39,7 +39,7 @@ if ( !defined('ABSPATH') ) {
   <div class="wps-cart-form">
 
     <div class="wps-cart-item-container wps-cart-section">
-      <aside class="wps-cart-empty-notice"><h2><?php esc_html_e('Your cart is empty', 'wp-shopify'); ?></h2></aside>
+      <aside class="wps-cart-empty-notice"><h2><?php esc_html_e('Your cart is empty', WPS_PLUGIN_TEXT_DOMAIN); ?></h2></aside>
     </div>
 
     <div class="wps-cart-bottom wps-row">
@@ -47,7 +47,7 @@ if ( !defined('ABSPATH') ) {
       <div class="wps-cart-info wps-clearfix wps-cart-section">
 
         <div class="wps-type--caps wps-cart-info__total">
-          <?= apply_filters('wps_cart_total_text', esc_html__('Total', 'wp-shopify')); ?>
+          <?= apply_filters('wps_cart_total_text', esc_html__('Subtotal', WPS_PLUGIN_TEXT_DOMAIN)); ?>
         </div>
 
         <div class="wps-cart-info__pricing">
@@ -58,7 +58,7 @@ if ( !defined('ABSPATH') ) {
       <div class="wps-cart-actions-container wps-cart-section type--center">
 
         <div class="wps-cart-discount-notice wps-cart-info__small">
-          <?= apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', 'wp-shopify')); ?>
+          <?= apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', WPS_PLUGIN_TEXT_DOMAIN)); ?>
         </div>
 
         <?php
@@ -79,7 +79,7 @@ if ( !defined('ABSPATH') ) {
 
     <div class="wps-cart-item <?= apply_filters( 'wps_cart_item_class', '' ); ?>">
 
-      <a href="#!" class="wps-cart-item-img-link">
+      <a href="#!" class="wps-cart-item-img-link" target="<?= apply_filters( 'wps_cart_item_link_target', '' ); ?>">
         <div class="wps-cart-item__img"></div>
       </a>
 
@@ -98,7 +98,7 @@ if ( !defined('ABSPATH') ) {
               <span class="wps-visuallyhidden"></span>
             </button>
 
-            <input class="wps-cart-item__quantity" type="number" min="0" aria-label="Quantity">
+            <input class="wps-cart-item__quantity" type="number" min="0" aria-label="Quantity" data-wps-previous-amount="">
 
             <button class="btn--seamless wps-quantity-increment" type="button">
               <span>+</span>

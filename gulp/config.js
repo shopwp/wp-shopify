@@ -45,6 +45,9 @@ var config = {
     pluginTitleSettings: [
       './_tmp/admin/partials/wps-admin-display.php'
     ],
+    pluginUpdateFunction: [
+      './_tmp/classes/class-hooks.php'
+    ],
     tmp: './_tmp/**/*',
     tmpAll: [
       './_tmp/**/*',
@@ -53,6 +56,7 @@ var config = {
     test: 'hello/*',
     all: [
       './**/*',
+      '!./yarn.lock',
       '!./node_modules/**',
       '!./bin/**',
       '!./.git/**',
@@ -83,13 +87,10 @@ var config = {
     ],
     build: './**/*',
     buildProContent: '../../../../assets/wp-shopify-pro/**/*',
-    buildFreeContent: '../../../../assets/wp-shopify/**/*',
+    buildFreeContent: '../../../../assets/wpshopify/**/*',
     // Files / folders that DONT exist in the free version
     buildFreeClear: [
       './_tmp/webhooks',
-      './_tmp/classes/class-webhooks.php',
-      './_tmp/classes/class-orders.php',
-      './_tmp/classes/class-customers.php',
       './_tmp/admin/partials/settings/settings-webhooks-urls.php',
       './_tmp/admin/partials/settings/settings-selective-sync.php',
       './_tmp/.git/**',
@@ -102,8 +103,8 @@ var config = {
       './_tmp/public/css/app',
       './_tmp/dist/public.min.js.LICENSE'
     ],
-    buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify/wp-shopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
-    buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wp-shopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
+    buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wpshopify/wpshopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
+    buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wpshopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
     buildEntry: [
       './admin/js/app/tools/tools.js',
       './admin/partials/wps-tab-content-tools.php'
@@ -137,7 +138,7 @@ var config = {
     plugin: './',
     dist: argvs.argv.tier ? './_tmp/dist' : './dist',
     pro: '../../../../assets/wp-shopify-pro',
-    free: '../../../../assets/wp-shopify',
+    free: '../../../../assets/wpshopify',
     svgsPublic: argvs.argv.tier ? './_tmp/public/imgs' : './public/imgs',
     svgsAdmin: argvs.argv.tier ? './_tmp/admin/imgs' : './admin/imgs',
     cache: './node_modules/.cache'

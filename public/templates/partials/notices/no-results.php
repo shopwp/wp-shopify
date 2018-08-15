@@ -4,7 +4,7 @@
 
 @description   Notice for no products found within main products loop
 
-@version       1.0.0
+@version       1.0.1
 @since         1.0.49
 @path          templates/partials/notices/no-results.php
 
@@ -19,5 +19,5 @@ if ( !defined('ABSPATH') ) {
 ?>
 
 <div class="wps-notice-inline wps-notice-warning wps-contain <?= apply_filters('wps_products_no_results_class', ''); ?>">
-  <p><?php esc_html_e('No products found', 'wp-shopify'); ?></p>
+  <p><?php esc_html_e('No products found', WPS_PLUGIN_TEXT_DOMAIN); ?></p>
 </div>

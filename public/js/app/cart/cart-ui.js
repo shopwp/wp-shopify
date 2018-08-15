@@ -1,50 +1,103 @@
-import { formatAsMoney, isError, turnAnimationFlagOn, formatTotalAmount } from '../utils/utils-common';
-import { fetchCart, createCart, createLineItemsFromVariants } from '../ws/ws-cart';
-import { getProduct, getMoneyFormatCache } from '../ws/ws-products';
-import { animate, animateIn, enable, disable } from '../utils/utils-ux';
-import { isEmptyCart } from '../utils/utils-cart';
+import to from 'await-to-js';
+import size from 'lodash/size';
+import castArray from 'lodash/castArray';
+import last from 'lodash/last';
+import first from 'lodash/first';
+import forEach from 'lodash/forEach';
+import filter from 'lodash/filter';
+import isEmpty from 'lodash/isEmpty';
+import uniqBy from 'lodash/uniqBy';
+import has from 'lodash/has';
+
+
+import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount } from '../utils/utils-common';
+import { createLineItemsFromVariants, createLineItemsMarkup } from '../ws/ws-cart';
+import { getMoneyFormat, getShop } from '../ws/ws-shop';
+import { enable, disable } from '../utils/utils-ux';
+import { bounceIn, slideInLeft, slideOutRight, pulse } from '../utils/utils-animations';
+import { isCheckoutEmpty, lineItemExists } from '../utils/utils-cart';
+
+
+function disableCartIcon() {
+
+  var $cartIcon = jQuery('.wps-btn-cart');
+
+  disable($cartIcon);
+  $cartIcon.addClass('wps-is-disabled wps-is-loading');
+
+}
+
+
+function enableCartIcon() {
+
+  var $cartIcon = jQuery('.wps-btn-cart');
+
+  enable($cartIcon);
+  $cartIcon.removeClass('wps-is-disabled wps-is-loading');
+
+}
+
+
+/*
+
+Disables cart
+
+*/
+function disableCartItem($cartItem) {
+
+  disable($cartItem);
+  disableCartIcon();
+
+  $cartItem.addClass('wps-is-disabled wps-is-loading');
+
+}
+
+
+/*
+
+Enables cart
+
+*/
+function enableCartItem($cartItem) {
+
+  var $cartIcon = jQuery('.wps-btn-cart'); // cart icon
+
+  enable($cartItem);
+  enableCartIcon();
+
+  $cartItem.removeClass('wps-is-disabled wps-is-loading');
+
+}
+
+
+function enableCheckoutButton() {
+  enable( jQuery('.wps-btn-checkout').removeClass('wps-is-disabled wps-is-loading') );
+}
+
+function disableCheckoutButton() {
+  disable( jQuery('.wps-btn-checkout').addClass('wps-is-disabled') );
+}
+
 
 /*
 
 Update product variant price
 
 */
-function updateTotalCartPricing(shopify, cart = false) {
+function updateSubtotal(formattedSubtotal) {
+
+  var $subtotal = jQuery('.wps-cart .wps-pricing');
+
+  $subtotal.text(formattedSubtotal);
+
+  pulse(jQuery('.wps-cart .wps-cart-info__pricing'));
+
+}
 
 
-
-  return new Promise( async (resolve, reject) => {
-
-    if (!cart) {
-
-      try {
-
-        // Calls LS
-        cart = await fetchCart(shopify);
-
-      } catch (error) {
-        reject(error);
-        return;
-      }
-
-    }
-
-    try {
-
-      // Calls Server
-      var formattedSubtotal = await formatAsMoney(cart.subtotal);
-
-    } catch(error) {
-      reject(error);
-      return;
-    }
-
-    jQuery('.wps-cart .wps-pricing').text(formattedSubtotal);
-    resolve(formattedSubtotal);
-
-  });
-
-};
+function updateTotalCartPricing(checkout) {
+  updateSubtotal( formatAsMoney(checkout.subtotalPrice) );
+}
 
 
 /*
@@ -70,53 +123,63 @@ function removeVariantSelections() {
 
 /*
 
-Update Cart Icon Amount
+Adds each line item quantity together
 
 */
-async function updateCartCounter(shopify, cart) {
+function addLineItemTotals(total, item) {
+  return total + item.quantity;
+}
 
-  if (isEmptyCart(cart)) {
 
-    // Calls Server
-    emptyCartUI(shopify, cart);
+/*
+
+Gets the checkout grand total by adding each line item quantity
+
+*/
+function getCartGrandTotal(checkout) {
+  return checkout.lineItems.reduce(addLineItemTotals, 0);
+}
+
+
+function addCheckoutQuantityToCounter($counter, totalItems) {
+  return $counter.html(totalItems);
+}
+
+function showCheckoutCounter($counter) {
+  $counter.removeClass('wps-is-hidden');
+}
+
+function setCheckoutCounterSize($checkoutCounter, checkout) {
+
+  if (getCartGrandTotal(checkout) >= 10) {
+    $checkoutCounter.addClass('wps-cart-counter-lg');
 
   } else {
-
-    var $cartCounter = jQuery('.wps-cart-counter');
-
-    var totalItems = cart.lineItems.reduce(function(total, item) {
-      return total + item.quantity;
-    }, 0);
-
-
-    $cartCounter.html(totalItems);
-    $cartCounter.removeClass('wps-is-hidden');
-
-    if(cart.lineItemCount >= 10) {
-      $cartCounter.addClass('wps-cart-counter-lg');
-
-    } else {
-      $cartCounter.removeClass('wps-cart-counter-lg');
-
-    }
-
-    enable(jQuery('.wps-btn-checkout'));
-
-
-
-    if ($cartCounter.length) {
-
-      animate({
-        element: $cartCounter,
-        inClass: 'wps-bounceInDown',
-        oneway: true
-      });
-
-    }
+    $checkoutCounter.removeClass('wps-cart-counter-lg');
 
   }
 
-};
+}
+
+/*
+
+Update Cart Icon Amount
+
+*/
+function updateCartCounter(client, checkout) {
+
+  var $checkoutCounter = jQuery('.wps-cart-counter');
+
+  addCheckoutQuantityToCounter( $checkoutCounter, getCartGrandTotal(checkout) );
+  showCheckoutCounter($checkoutCounter);
+
+  setCheckoutCounterSize($checkoutCounter, checkout);
+
+  if ($checkoutCounter.length) {
+    bounceIn($checkoutCounter);
+  }
+
+}
 
 
 /*
@@ -124,12 +187,8 @@ async function updateCartCounter(shopify, cart) {
 Find Line Item By Variant ID
 
 */
-function findLineItemByVariantID(cart, variant) {
-
-  return cart.lineItems.filter(function(value, index, ar) {
-    return value.variant_id === variant.id;
-  })[0];
-
+function findLineItemByVariantID(checkout, variant) {
+  return checkout.lineItems.filter( lineItem => lineItem.variant.id === variant.id )[0];
 }
 
 
@@ -147,49 +206,42 @@ function findExistingLineItem(id) {
 }
 
 
+function removeLineItemByVariantID(variantID) {
+  return findExistingLineItem(variantID).remove();
+}
+
+
 /*
 
 Updates the single line item HTML
 Returns: String of updated HTML
 
 */
-async function updateSingleProductCartDOM(lineItem, variant) {
+function updateSingleProductCartDOM(lineItem, variant) {
 
-  return new Promise(async function(resolve, reject) {
+  // Remove item if quantity equals 0
+  if (typeof lineItem === "undefined") {
 
-    // Remove item if quantity equals 0
-    if (typeof lineItem === "undefined") {
+    return removeLineItemByVariantID(variant.id);
 
-      var $foundLineItem = findExistingLineItem(variant.id);
-      $foundLineItem.remove();
-      resolve();
+  } else {
 
-    } else {
+    var $foundLineItem = findExistingLineItem(lineItem.variant.id);
+    var lineItemHTML = '';
 
-      var $foundLineItem = findExistingLineItem(lineItem.variant_id);
-      var lineItemHTML = '';
-
-      if (!elementExists($foundLineItem)) {
-        $foundLineItem = getLineItemTemplate();
-      }
-
-      lineItemHTML = renderLineItemImage(lineItem, $foundLineItem);
-      lineItemHTML = renderLineItemTitle(lineItem, lineItemHTML);
-      lineItemHTML = renderLineItemVariantTitle(lineItem, lineItemHTML);
-      lineItemHTML = renderCartQuantities(lineItem, lineItemHTML);
-
-      try {
-
-        lineItemHTML = await formatLineItemMoney(lineItem, lineItemHTML);
-        resolve(lineItemHTML);
-
-      } catch (error) {
-        reject(error);
-      }
-
+    if (!elementExists($foundLineItem)) {
+      $foundLineItem = getLineItemTemplate();
     }
 
-  });
+    lineItemHTML = renderLineItemImage(lineItem, $foundLineItem);
+    lineItemHTML = renderLineItemTitle(lineItem, lineItemHTML);
+    lineItemHTML = renderLineItemVariantTitle(lineItem, lineItemHTML);
+    lineItemHTML = renderCartQuantities(lineItem, lineItemHTML);
+    lineItemHTML = formatLineItemMoney(lineItem, lineItemHTML);
+
+    return lineItemHTML;
+
+  }
 
 }
 
@@ -201,6 +253,10 @@ Render Cart Quantities
 */
 function renderCartQuantities(lineItem, lineItemHTML, $lineItemTemplate = false) {
 
+  if ( !lineItemExists(lineItem) ) {
+    return false;
+  }
+
   if (!$lineItemTemplate) {
     $lineItemTemplate = jQuery(lineItemHTML);
   }
@@ -208,13 +264,16 @@ function renderCartQuantities(lineItem, lineItemHTML, $lineItemTemplate = false)
   var $decrement = $lineItemTemplate.find('.wps-quantity-decrement');
   var $increment = $lineItemTemplate.find('.wps-quantity-increment');
 
-  $decrement.attr('data-variant-id', lineItem.variant_id);
-  $decrement.attr('data-product-id', lineItem.product_id);
+  $decrement.attr('data-variant-id', lineItem.variant.id);
+  $decrement.attr('data-product-id', lineItem.variant.product.id);
 
-  $increment.attr('data-variant-id', lineItem.variant_id);
-  $increment.attr('data-product-id', lineItem.product_id);
+  $increment.attr('data-variant-id', lineItem.variant.id);
+  $increment.attr('data-product-id', lineItem.variant.product.id);
 
-  $lineItemTemplate.find('.wps-cart-item__quantity').attr('value', lineItem.quantity);
+  $lineItemTemplate.find('.wps-cart-item__quantity')
+    .attr('value', lineItem.quantity)
+    .attr('data-wps-previous-amount', lineItem.quantity)
+    .data('wps-previous-amount', lineItem.quantity);
 
   return $lineItemTemplate.prop('outerHTML');
 
@@ -227,22 +286,28 @@ Format Line Item Money
 Calls Server
 
 */
-async function formatLineItemMoney(lineItem, lineItemHTML) {
+function formatLineItemMoney(lineItem, lineItemHTML) {
 
-  return new Promise( async function(resolve, reject) {
+  if ( !lineItemExists(lineItem) ) {
+    return false;
+  }
 
-    try {
+  var formatedPrice = formatAsMoney(lineItem.variant.price);
 
-      var formatedPrice = await formatAsMoney(lineItem.line_price);
+  return renderCartItemQuantity( lineItem.quantity, renderCartItemPrice(formatedPrice, lineItemHTML) );
 
-      resolve( renderCartItemPrice(formatedPrice, lineItemHTML) );
+}
 
-    } catch(error) {
-      reject(error);
 
-    }
 
-  });
+function renderCartItemQuantity(quantity, lineItemHTML) {
+
+  var $lineItem = jQuery(lineItemHTML);
+  var $price = $lineItem.find('.wps-cart-item__price');
+
+  $price.prepend('<span class="wps-cart-item__quantity">x' + quantity + '</span>');
+
+  return $lineItem.prop('outerHTML');
 
 }
 
@@ -250,6 +315,8 @@ async function formatLineItemMoney(lineItem, lineItemHTML) {
 /*
 
 Render Cart Item Price
+
+Returns the HTML of the price
 
 */
 function renderCartItemPrice(price, lineItemHTML) {
@@ -270,7 +337,13 @@ Contains Default Vairant Title
 
 */
 function containsDefaultVariantTitle(lineItem) {
-  return lineItem.variant_title.indexOf('Default Title') !== -1;
+
+  if ( !lineItemExists(lineItem) ) {
+    return false;
+  }
+
+  return lineItem.variant.title.indexOf('Default Title') !== -1;
+
 }
 
 
@@ -284,6 +357,69 @@ function getLineItemLink(lineItem) {
 }
 
 
+
+
+function getWordPressURLCustomAttribute(wordpressURLsParsed, lineItem) {
+
+  return filter(wordpressURLsParsed, function(product) {
+    return product.productID === lineItem.variant.product.id;
+  });
+
+}
+
+
+function getStoredWordPressURLs() {
+  return localStorage.getItem('wps-wordpress-urls');
+}
+
+function setStoredWordPressURLs(items, existing = false) {
+
+  if (!existing) {
+    return localStorage.setItem('wps-wordpress-urls', JSON.stringify([items]) );
+
+  } else {
+
+    var existingNewItems = JSON.parse(existing);
+
+    existingNewItems.push(items);
+
+    existingNewItems = uniqBy(existingNewItems, item => item.productID );
+
+    return localStorage.setItem('wps-wordpress-urls', JSON.stringify(existingNewItems));
+
+  }
+
+}
+
+function buildWordPressURLsObj(foundLineItem, wordpressProductURL) {
+
+  if (isEmpty(foundLineItem)) {
+    return {};
+  }
+
+  return {
+    'productID': foundLineItem[0].variant.product.id,
+    'url': wordpressProductURL
+  }
+
+}
+
+function getLineItemWordPressURL(lineItem) {
+
+  var wordpressURLs = getStoredWordPressURLs();
+  var wordpressURLsParsed = JSON.parse(wordpressURLs);
+  var foundTheStoredStuff = getWordPressURLCustomAttribute(wordpressURLsParsed, lineItem);
+
+  if (isEmpty(foundTheStoredStuff)) {
+    return '#!';
+
+  } else {
+    return foundTheStoredStuff[0].url;
+  }
+
+}
+
+
 /*
 
 Render Line Item Image
@@ -291,12 +427,17 @@ Render Line Item Image
 */
 function renderLineItemImage(lineItem, lineItemHTML) {
 
+  var wordpressURL = getLineItemWordPressURL(lineItem);
   var $lineItem = jQuery(lineItemHTML);
   var $image = $lineItem.find('.wps-cart-item__img');
 
   getLineItemLink(lineItem);
 
   $image.css('background-image', 'url(\'' + getLineItemImage(lineItem) + '\')');
+
+  if (wordpressURL) {
+    $lineItem.find('.wps-cart-item-img-link').attr('href', wordpressURL);
+  }
 
   return $lineItem.prop('outerHTML');
 
@@ -313,7 +454,14 @@ function renderLineItemTitle(lineItem, lineItemHTML) {
   var $lineItem = jQuery(lineItemHTML);
   var $title = $lineItem.find('.wps-cart-item__title');
 
+  // We can just use what we set on the image since title is always rendered afterwards.
+  var wordpressURL = $lineItem.find('.wps-cart-item-img-link').attr('href');
+
   $title.text(lineItem.title);
+
+  if (wordpressURL) {
+    $title.attr('href', wordpressURL);
+  }
 
   return $lineItem.prop('outerHTML');
 
@@ -327,23 +475,22 @@ Render Line Item Variant Title
 */
 function renderLineItemVariantTitle(lineItem, lineItemHTML) {
 
+  if ( !lineItemExists(lineItem) ) {
+    return false;
+  }
+
   var $lineItem = jQuery(lineItemHTML);
+  var $variantTitle = $lineItem.find('.wps-cart-item__variant-title');
 
   if ( !containsDefaultVariantTitle(lineItem) ) {
-
-    var $variantTitle = $lineItem.find('.wps-cart-item__variant-title');
-    $variantTitle.text(lineItem.variant_title);
-
-    return $lineItem.prop('outerHTML');
+    $variantTitle.text(lineItem.variant.title);
 
   } else {
-
-    var $variantTitle = $lineItem.find('.wps-cart-item__variant-title');
     $variantTitle.text('');
 
-    return $lineItem.prop('outerHTML');
-
   }
+
+  return $lineItem.prop('outerHTML');
 
 }
 
@@ -365,55 +512,64 @@ Get Line Item Image
 */
 function getLineItemImage(lineItem) {
 
-  if (!lineItem.image) {
+  if ( !lineItemExists(lineItem) || !lineItem.variant.image ) {
     return WP_Shopify.pluginsPath + '/wp-shopify/public/imgs/placeholder.png';
 
   } else {
-    return lineItem.image.src;
+    return lineItem.variant.image.src;
   }
 
 }
 
 
-/*
+function renderLineItemUniqueIDs(lineItem, lineItemHTML) {
 
-Render Line Items
+  if ( !lineItemExists(lineItem) ) {
+    return false;
+  }
 
-*/
-async function renderLineItem(lineItem, index, shopify) {
+  return addLineItemAttributes( jQuery(lineItemHTML), lineItem)[0].outerHTML;
 
-  return new Promise(async function(resolve, reject) {
+}
 
-    try {
 
-      // Calls LS
-      var lineItemDetails = await getProduct(shopify, lineItem.product_id);
-      lineItem.superrr = lineItemDetails;
 
-    } catch(error) {
-      reject(error);
-      return;
-    }
 
-    var lineItemHTML = '';
+function addLineItemAttributes($lineItem, lineItemData) {
 
-    lineItemHTML = renderLineItemImage(lineItem, getLineItemTemplate());
-    lineItemHTML = renderLineItemTitle(lineItem, lineItemHTML);
-    lineItemHTML = renderLineItemVariantTitle(lineItem, lineItemHTML);
-    lineItemHTML = renderCartQuantities(lineItem, lineItemHTML);
-
-    try {
-
-      lineItemHTML = await formatLineItemMoney(lineItem, lineItemHTML);
-      resolve(lineItemHTML);
-
-    } catch (error) {
-      reject(error);
-      return;
-    }
-
+  $lineItem.attr({
+    "data-wps-line-item-id": lineItemData.id,
+    "data-wps-line-item-variant-id": lineItemData.variant.id,
+    "data-wps-line-item-product-id": lineItemData.variant.product.id
   });
 
+  return $lineItem;
+
+}
+
+
+
+
+
+
+
+/*
+
+Responsible for building the Line Item markup
+
+*/
+function createLineItemMarkup(lineItem) {
+
+  var lineItemHTML = '';
+
+  lineItemHTML = renderLineItemImage(lineItem, getLineItemTemplate());
+  lineItemHTML = renderLineItemTitle(lineItem, lineItemHTML);
+  lineItemHTML = renderLineItemVariantTitle(lineItem, lineItemHTML);
+  lineItemHTML = renderCartQuantities(lineItem, lineItemHTML);
+  lineItemHTML = renderLineItemUniqueIDs(lineItem, lineItemHTML);
+  lineItemHTML = formatLineItemMoney(lineItem, lineItemHTML);
+
+  return lineItemHTML;
 
 }
 
@@ -448,13 +604,17 @@ function renderEmptyCartMessage() {
 Append Cart Items
 Param: jQuery Object of item HTML
 
+Returns: The DOM element that was added
+
 */
-function emptyAndAppendCartItems($cartLineItems) {
+function emptyAndAppendCartItems($cartLineItems, checkout) {
 
   var $cartItemContainer = getCartItemContainer();
 
   $cartItemContainer.empty();
-  $cartItemContainer.append($cartLineItems);
+  $cartItemContainer.append( $cartLineItems );
+
+  return $cartLineItems;
 
 }
 
@@ -464,9 +624,18 @@ function emptyAndAppendCartItems($cartLineItems) {
 Append Cart Items
 Param: jQuery Object of item HTML
 
+Returns: The DOM element that was added
+
 */
-function appendSingleCartItem(cartLineItemHTML) {
-  getCartItemContainer().append(jQuery(cartLineItemHTML));
+function appendSingleCartItem(cartLineItemHTML, client, checkout) {
+
+  var $newlineItemToAdd = jQuery(cartLineItemHTML);
+
+  getCartItemContainer()
+    .append($newlineItemToAdd);
+
+  return $newlineItemToAdd;
+
 }
 
 
@@ -494,9 +663,17 @@ function cartHasItemsDOM() {
 
 Updates HTML of single line item
 
+Returns: The DOM element that was added
+
 */
 function replaceSingleCartItem($existingItem, itemNewHTML) {
-  return $existingItem.replaceWith(itemNewHTML);
+
+  var $newItemToInsert = jQuery(itemNewHTML);
+
+  $existingItem.replaceWith( $newItemToInsert );
+
+  return $newItemToInsert;
+
 }
 
 
@@ -524,47 +701,38 @@ function hasExistingCartItem(variant) {
 
 Render Single Cart Item
 
+Used only when adding a product to the cart
+
 */
-async function renderSingleCartItem(shopify, cart, variant) {
+function renderSingleCartItem(client, checkout, variant) {
 
-  return new Promise(async function(resolve, reject) {
+  // Filters the checkout items for the one we want ...
+  var lineItem = findLineItemByVariantID(checkout, variant);
 
-    // Filters the cart items for the one we want ...
-    var lineItem = findLineItemByVariantID(cart, variant);
+  // Grabs the line item markup
+  var lineItemMarkup = updateSingleProductCartDOM(lineItem, variant);
 
-    // Takes care of updating the line items DOM elements ...
-    try {
-      var itemNewHTML = await updateSingleProductCartDOM(lineItem, variant);
+  /*
 
-    } catch(error) {
-      reject(error)
+  Now that we have the updated HTML, we need to add it to the DOM.
+  We also need to make sure we return the recently added item.
 
-    }
+  */
+  if ( cartHasItemsDOM() ) {
 
+    var $existingItem = hasExistingCartItem(variant);
 
-    /*
-
-    Now that we have the updated HTML, we need to override it
-    within the DOM
-
-    */
-    if ( cartHasItemsDOM() ) {
-
-      var $existingItem = hasExistingCartItem(variant);
-
-      if ($existingItem) {
-        resolve( replaceSingleCartItem($existingItem, itemNewHTML) );
-
-      } else {
-        resolve( appendSingleCartItem(itemNewHTML) );
-      }
+    if ($existingItem) {
+      return replaceSingleCartItem($existingItem, lineItemMarkup);
 
     } else {
-      resolve( emptyAndAppendCartItems(jQuery(itemNewHTML)) );
-
+      return appendSingleCartItem(lineItemMarkup, client, checkout);
     }
 
-  });
+  } else {
+    return emptyAndAppendCartItems( jQuery(lineItemMarkup), checkout );
+
+  }
 
 }
 
@@ -576,149 +744,9 @@ Render Cart Items
 We have nested promises here ...
 
 */
-async function renderCartItems(shopify, cart = false, variant = false) {
-
-  return new Promise(async function(resolve, reject) {
-
-    if ( isEmptyCart(cart) ) {
-
-      // Calls Server
-      emptyCartUI(shopify, cart);
-
-      resolve(cart);
-      return;
-
-    } else {
-
-      /*
-
-      Updating Single Product Cart DOM
-
-      */
-      if (variant) {
-
-        var lineItem = findLineItemByVariantID(cart, variant);
-
-        try {
-
-          var lineItems = await updateSingleProductCartDOM(lineItem, variant);
-
-        } catch(error) {
-          reject(error);
-          return
-        }
-
-
-      } else {
-
-        /*
-
-        Updating each line item
-        Need the closure because of the shopify variable
-
-        */
-        try {
-
-          var lineItems = await Promise.all( cart.lineItems.map( (lineItem, index) => {
-            return renderLineItem(lineItem, index, shopify);
-          }) );
-
-        } catch(error) {
-          reject(error);
-          return;
-        }
-
-        emptyAndAppendCartItems(lineItems);
-
-      }
-
-      resolve(cart);
-      return;
-
-    }
-
-  });
-
-
+async function renderCartItems(checkout) {
+  return emptyAndAppendCartItems( createLineItemsMarkup(checkout), checkout );
 }
-
-
-/*
-
-Update Cart Variant
-
-*/
-function updateCartVariant(variant, quantity, shopify) {
-
-  return new Promise(async function(resolve, reject) {
-
-    /*
-
-    This takes care of adding the line item data to the Shopify
-    cart model. If ensures the data persists across the cart and checkout.
-
-    https://shopify.github.io/js-buy-sdk/api/classes/CartModel.html#method-createLineItemsFromVariants
-
-    */
-    try {
-
-      var newCart = await createLineItemsFromVariants({
-        variant: variant,
-        quantity: quantity
-      }, shopify);
-
-    } catch(error) {
-      reject(error);
-    }
-
-
-    /*
-
-    The cart should never be empty at this point
-
-    */
-    if ( isEmptyCart(newCart) ) {
-
-      // Calls Server
-      emptyCartUI(shopify, newCart);
-      resolve(newCart);
-
-    } else {
-
-      /*
-
-      Update quantity and price ...
-
-      */
-      try {
-        await renderSingleCartItem(shopify, newCart, variant);
-
-      } catch(error) {
-        reject(error);
-      }
-
-
-      /*
-
-      Update Cart Total ...
-
-      */
-      try {
-
-        // Calls Server
-        await updateTotalCartPricing(shopify, newCart);
-
-      } catch(error) {
-        reject(error);
-      }
-
-      resolve(newCart);
-
-    }
-
-  });
-
-};
 
 
 /*
@@ -728,9 +756,15 @@ Checks if the cart is currently open or not.
 */
 function cartIsOpen() {
 
-  var isOpen = jQuery('.wps-cart').hasClass('wps-is-visible');
+  var isOpen = jQuery('.wps-cart').hasClass('wps-cart-is-open');
   return isOpen ? true : false;
 
+}
+
+
+
+function hideCart() {
+  jQuery('.wps-cart').removeClass('wps-is-visible wps-animated wps-slideInRight wps-bounceInOutRight');
 }
 
 
@@ -742,7 +776,7 @@ Close Cart
 function closeCart() {
 
   if (cartIsOpen()) {
-    jQuery('.wps-cart').removeClass('wps-is-visible wps-slideInRight wps-bounceOutRight');
+    slideOutRight( jQuery('.wps-cart') );
   }
 
 }
@@ -753,21 +787,10 @@ function closeCart() {
 Toggle Cart
 
 */
-async function toggleCart() {
+function openCart() {
 
-  try {
-
-    await animate({
-      inClass: 'wps-slideInRight',
-      outClass: 'wps-bounceOutRight',
-      element: jQuery('.wps-cart')
-    });
-
-    // Removing green button success icons
-    removeVariantSelections();
-
-  } catch(error) {
-    return error;
+  if (!cartIsOpen()) {
+    slideInLeft( jQuery('.wps-cart') );
   }
 
 }
@@ -778,10 +801,10 @@ async function toggleCart() {
 Empty Cart Total
 
 */
-function emptyCartTotal(cart) {
+function emptyCartTotal(checkout) {
 
-  var totalAmount = formatTotalAmount(cart.subtotal, getMoneyFormatCache());
-  jQuery('.wps-cart .wps-pricing').text(totalAmount);
+  jQuery('.wps-cart .wps-pricing')
+    .text( formatTotalAmount( checkout.subtotalPrice, getMoneyFormat(getShop())) );
 
 }
 
@@ -791,35 +814,78 @@ function emptyCartTotal(cart) {
 Empty Cart UI
 
 */
-function emptyCartUI(shopify, cart) {
+function emptyCartUI(checkout) {
 
-  disable(jQuery('.wps-btn-checkout'));
   jQuery('.wps-cart-counter').addClass('wps-is-hidden');
+  jQuery('.wps-btn-cart').addClass('wps-is-cart-empty').removeClass('wps-is-disabled wps-is-loading');
   renderEmptyCartMessage();
-  emptyCartTotal(cart);
+  emptyCartTotal(checkout);
+  disableCheckoutButton();
+  enableCartIcon();
 
 }
 
 
-/*
 
-Show UI elements after Bootsrap
 
-*/
-function showUIElements() {
-  jQuery('.wps-product-meta, .wps-btn-cart').addClass('wps-fadeIn').removeClass('wps-is-disabled wps-is-loading');
+function getLineItemFromVariant(lineItems, variant) {
+  return filter(lineItems, lineItem => variant.id === lineItem.variant.id );
 }
+
+function getLineItemFromVariantID(lineItems, variantID) {
+
+  if (!lineItems) {
+    return [];
+  }
+
+  return filter(lineItems, lineItem =>  variantID === lineItem.variant.id );
+
+}
+
+
+
+function getMostRecentlyAddedLineitem(checkout, variant) {
+
+  var foundMatchingLineItem = getLineItemFromVariant(checkout.lineItems, variant);
+
+  if ( !isEmpty(foundMatchingLineItem) ) {
+    return first(foundMatchingLineItem);
+  }
+
+  return first(checkout.lineItems);
+
+}
+
+
+
+function addLineItemIDs($lastLineItem, variant, checkout) {
+
+  addLineItemAttributes( $lastLineItem, getMostRecentlyAddedLineitem(checkout, variant));
+
+}
+
 
 
 export {
   updateTotalCartPricing,
   updateCartCounter,
   renderCartItems,
-  updateCartVariant,
-  toggleCart,
+  openCart,
   closeCart,
   cartIsOpen,
   renderSingleCartItem,
   emptyCartUI,
-  showUIElements
+  createLineItemMarkup,
+  removeVariantSelections,
+  enableCartItem,
+  disableCartItem,
+  enableCheckoutButton,
+  disableCheckoutButton,
+  hideCart,
+  enableCartIcon,
+  addLineItemIDs,
+  getLineItemFromVariantID,
+  getStoredWordPressURLs,
+  setStoredWordPressURLs,
+  buildWordPressURLsObj
 }

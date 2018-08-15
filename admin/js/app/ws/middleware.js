@@ -9,21 +9,28 @@ import {
   getOrdersCount,
   getCustomersCount,
   getWebhooksCount,
-  getShopCount
+  getShopCount,
+  setDataRelationships
 } from '../ws/ws';
 
 import {
-  syncConnection,
   syncShop,
   syncProducts,
-  syncCollects,
   syncSmartCollections,
   syncCustomCollections,
   syncOrders,
   syncCustomers,
   syncWebhooks,
-  syncImageAlt
 } from './syncing';
+
+import {
+  streamProducts,
+  streamCollects,
+  streamOrders,
+  streamCustomers,
+  streamSmartCollections,
+  streamCustomCollections
+} from './streaming';
 
 import {
   updateModalHeadingText,
@@ -31,7 +38,8 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  isWordPressError
+  isWordPressError,
+  convertArrayWrapToObject
 } from '../utils/utils';
 
 import {
@@ -39,56 +47,35 @@ import {
   returnCustomError
 } from '../utils/utils-data';
 
+import {
+  syncCollectsAndProducts
+} from '../tools/tools';
+
 
 /*
 
 Syncing Shopify data with WordPress CPT
 
+Each Promise here loops through the counted number of items and kicks off
+the batch process
+
 */
-async function syncPluginData() {
+async function syncPluginData(counts, inital = false) {
 
-  // 1. Smart Collections
-  if (WP_Shopify.selective_sync.all || WP_Shopify.selective_sync.smart_collections) {
+  WP_Shopify.isSyncing = true;
 
-    try {
-      await syncSmartCollections(); // wps_insert_smart_collections_data
+  counts = convertArrayWrapToObject(counts);
 
-    } catch(errors) {
-      return returnCustomError(errors);
+  var promises = [
+    streamSmartCollections(counts.smart_collections),
+    streamCustomCollections(counts.custom_collections),
+    syncShop(), // insert_shop
+    streamProducts(counts.products),
+    streamCollects(counts.collects),
+  ];
 
-    }
 
-  }
-
-  // 2. Custom Collections
-  if (WP_Shopify.selective_sync.all || WP_Shopify.selective_sync.custom_collections) {
-
-    try {
-      await syncCustomCollections(); // wps_insert_custom_collections_data
-
-    } catch(errors) {
-      return returnCustomError(errors);
-
-    }
-
-  }
-
-  // 3. Remaining data
-  try {
-
-    var remainingResp = await Promise.all([
-      syncConnection(), // wps_insert_connection
-      syncShop(), // wps_insert_shop
-      syncProducts(), // wps_insert_products_data
-      syncCollects(), // wps_insert_collects
-    ]);
-
-  } catch(errors) {
-    return returnCustomError(errors);
-
-  }
-
-  return remainingResp;
+  return Promise.all(promises);
 
 }
 
@@ -100,30 +87,15 @@ Syncing Shopify data with WordPress CPT
 */
 function getItemCounts() {
 
-  return new Promise(async function(resolve, reject) {
+  return Promise.all([
 
-    try {
-
-      var counts = await Promise.all([
-        getSmartCollectionsCount(), // wps_ws_get_smart_collections_count
-        getCustomCollectionsCount(), // wps_ws_get_custom_collections_count
-        getProductsCount(), // wps_ws_get_products_count
-        getCollectsCount(), // wps_ws_get_collects_count
-        getShopCount() // wps_ws_get_shop_count
-      ]);
-
-      if (!isEmpty(filter(counts, isWordPressError))) {
-        reject(counts);
-
-      } else {
-        resolve(counts);
-      }
-
-    } catch(errors) {
-      reject(errors);
-    }
-
-  });
+    getSmartCollectionsCount(), // get_smart_collections_count
+    getCustomCollectionsCount(), // get_custom_collections_count
+    getProductsCount(), // get_products_count
+    getCollectsCount(), // get_collects_count
+    getShopCount() // get_shop_count
+    
+  ]);
 
 }
 

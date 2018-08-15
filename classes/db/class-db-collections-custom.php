@@ -3,44 +3,31 @@
 namespace WPS\DB;
 
 use WPS\Utils;
-use WPS\WS;
-use WPS\DB\Collects;
-use WPS\Config;
 use WPS\CPT;
-use WPS\Progress_Bar;
 
 
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for custom collections
-
-*/
 if (!class_exists('Collections_Custom')) {
 
-  class Collections_Custom extends \WPS\DB {
+  class Collections_Custom extends \WPS\DB\Collections {
 
     public $table_name;
   	public $version;
   	public $primary_key;
 
-    /*
 
-    Construct
-
-    */
   	public function __construct() {
 
       global $wpdb;
-      $this->table_name         = $wpdb->prefix . 'wps_collections_custom';
-      $this->primary_key        = 'collection_id';
-      $this->version            = '1.0';
-      $this->cache_group        = 'wps_db_collections_custom';
+
+      $this->table_name         				= WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+      $this->primary_key        				= 'collection_id';
+      $this->version            				= '1.0';
+      $this->cache_group        				= 'wps_db_collections_custom';
 
     }
 
@@ -51,7 +38,8 @@ if (!class_exists('Collections_Custom')) {
 
     */
   	public function get_columns() {
-      return array(
+
+      return [
         'collection_id'       => '%d',
         'post_id'             => '%d',
         'title'               => '%s',
@@ -64,7 +52,8 @@ if (!class_exists('Collections_Custom')) {
         'sort_order'          => '%s',
         'published_at'        => '%s',
         'updated_at'          => '%s'
-      );
+      ];
+
     }
 
 
@@ -74,7 +63,8 @@ if (!class_exists('Collections_Custom')) {
 
     */
   	public function get_column_defaults() {
-      return array(
+
+      return [
         'collection_id'       => 0,
         'post_id'             => 0,
         'title'               => '',
@@ -87,56 +77,10 @@ if (!class_exists('Collections_Custom')) {
         'sort_order'          => '',
         'published_at'        => date_i18n( 'Y-m-d H:i:s' ),
         'updated_at'          => date_i18n( 'Y-m-d H:i:s' )
-      );
-    }
-
-
-    /*
-
-    Inserts Multiple Collections
-    Only used during initial sync so we don't need to Insert
-    Collects. Might need to change in future.
-
-    */
-  	public function insert_custom_collections($custom_collections) {
-
-      // If no custom collections exist to insert, keep moving ...
-      if (empty($custom_collections)) {
-        return true;
-      }
-
-      $results = array();
-      $progress = new Progress_Bar(new Config());
-      $custom_collections = Utils::flatten_collections_image_prop($custom_collections);
-      $index = CPT::wps_find_latest_menu_order('collections');
-      $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
-
-      foreach ($custom_collections as $key => $custom_collection) {
-
-        if (!Utils::isStillSyncing()) {
-          wp_die();
-        }
-
-        // If product is published
-        if (property_exists($custom_collection, 'published_at') && $custom_collection->published_at !== null) {
-
-          $customPostTypeID = CPT::wps_insert_or_update_collection($custom_collection, $existingCollections, $index);
-          $custom_collection = $this->assign_foreign_key($custom_collection, $customPostTypeID);
-          $custom_collection = $this->rename_primary_key($custom_collection);
-
-          $results[$customPostTypeID] = $this->insert($custom_collection, 'custom_collection');
-
-        }
-
-        $progress->increment_current_amount('custom_collections');
-
-        $index++;
-
-      }
-
-      return $results;
+      ];
 
     }
+
 
 
     /*
@@ -147,30 +91,10 @@ if (!class_exists('Collections_Custom')) {
     */
   	public function insert_custom_collection($collection) {
 
-      if (!Utils::isStillSyncing()) {
-        wp_die();
-      }
+			$collection = Utils::flatten_collections_image_prop($collection);
+			$collection = $this->rename_primary_key($collection);
 
-      $WS = new WS(new Config());
-      $DB_Collects = new Collects();
-      $collection = Utils::flatten_collections_image_prop($collection);
-      $existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
-      $newCollectionID = Utils::wps_find_collection_id($collection);
-
-      $shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
-
-      $customPostTypeID = CPT::wps_insert_or_update_collection($collection, $existingCollections);
-
-      $collection = $this->assign_foreign_key($collection, $customPostTypeID);
-      $collection = $this->rename_primary_key($collection);
-
-      if (is_array($shopifyCollects) && $shopifyCollects) {
-        $results['custom_collects'] = $DB_Collects->insert_collects($shopifyCollects);
-      }
-
-      $results['custom_collection'] = $this->insert($collection, 'custom_collection');
-
-      return $results;
+      return $this->insert($collection, 'custom_collection');
 
     }
 
@@ -193,7 +117,7 @@ if (!class_exists('Collections_Custom')) {
 
     */
     public function delete_custom_collection($collection) {
-      return $this->delete_collection($collection);
+      return $this->delete($collection->id);
     }
 
 
@@ -225,7 +149,7 @@ if (!class_exists('Collections_Custom')) {
       return array(
         'where' => '',
         'groupby' => '',
-        'join' => ' INNER JOIN ' . $this->get_table_name() . ' custom ON ' . $wpdb->posts . '.ID = custom.post_id',
+        'join' => ' INNER JOIN ' . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . ' custom ON ' . $wpdb->posts . '.ID = custom.post_id',
         'orderby' => '',
         'distinct' => '',
         'fields' => 'custom .*',
@@ -235,14 +159,38 @@ if (!class_exists('Collections_Custom')) {
     }
 
 
+		/*
+
+		Assigns a post id to the product data
+
+		*/
+		public function assign_post_id_to_custom_collection($post_id, $collection_id) {
+
+			global $wpdb;
+
+			return $wpdb->update(
+				$this->table_name,
+				['post_id' => $post_id],
+				['collection_id' => $collection_id],
+				['%d'],
+				['%d']
+			);
+
+		}
+
+
     /*
 
     Creates a table query string
 
     */
-    public function create_table_query() {
+    public function create_table_query($table_name = false) {
 
       global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
       $collate = '';
 
@@ -250,23 +198,35 @@ if (!class_exists('Collections_Custom')) {
         $collate = $wpdb->get_charset_collate();
       }
 
-      return "CREATE TABLE `{$this->table_name}` (
-        `collection_id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-        `post_id` bigint(100) unsigned DEFAULT NULL,
-        `title` varchar(255) DEFAULT NULL,
-        `handle` varchar(255) DEFAULT NULL,
-        `body_html` longtext DEFAULT NULL,
-        `image` longtext DEFAULT NULL,
-        `metafield` longtext DEFAULT NULL,
-        `published` varchar(50) DEFAULT NULL,
-        `published_scope` varchar(100) DEFAULT NULL,
-        `sort_order` varchar(100) DEFAULT NULL,
-        `published_at` datetime,
-        `updated_at` datetime,
-        PRIMARY KEY  (`{$this->primary_key}`)
+      return "CREATE TABLE $table_name (
+        collection_id bigint(100) unsigned NOT NULL DEFAULT 0,
+        post_id bigint(100) unsigned DEFAULT NULL,
+        title varchar(255) DEFAULT NULL,
+        handle varchar(255) DEFAULT NULL,
+        body_html longtext DEFAULT NULL,
+        image longtext DEFAULT NULL,
+        metafield longtext DEFAULT NULL,
+        published varchar(50) DEFAULT NULL,
+        published_scope varchar(100) DEFAULT NULL,
+        sort_order varchar(100) DEFAULT NULL,
+        published_at datetime,
+        updated_at datetime,
+        PRIMARY KEY  (collection_id)
       ) ENGINE=InnoDB $collate";
 
   	}
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`collection_id`, `post_id`, `title`, `handle`, `body_html`, `image`, `metafield`, `published`, `published_scope`, `sort_order`, `published_at`, `updated_at`) SELECT `collection_id`, `post_id`, `title`, `handle`, `body_html`, `image`, `metafield`, `published`, `published_scope`, `sort_order`, `published_at`, `updated_at` FROM ' . $this->table_name);
+
+		}
 
 
     /*
@@ -279,7 +239,8 @@ if (!class_exists('Collections_Custom')) {
       require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
       if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query() );
+        dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
       }
 
     }

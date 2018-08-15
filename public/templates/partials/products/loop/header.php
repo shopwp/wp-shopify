@@ -4,7 +4,7 @@
 
 @description   Product header within loop
 
-@version       1.0.0
+@version       1.0.1
 @since         1.0.49
 @path          templates/partials/products/loop/header.php
 
@@ -23,7 +23,7 @@ if ( !defined('ABSPATH') ) {
   <?php do_action('wps_products_heading_before', $data->query); ?>
 
   <h1 class="wps-products-heading <?= apply_filters('wps_products_heading_class', ''); ?>">
-    <?= apply_filters('wps_products_heading', esc_html__('Products', 'wp-shopify')); ?>
+    <?= apply_filters('wps_products_heading', esc_html__('Products', WPS_PLUGIN_TEXT_DOMAIN)); ?>
   </h1>
 
   <?php do_action('wps_products_heading_after', $data->query); ?>

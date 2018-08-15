@@ -11,6 +11,7 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '5a29f2abde115bb0e1aa502d691e2e50' => __DIR__ . '/..' . '/gerardojbaez/money/src/helpers.php',
+        '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
     );
 
@@ -38,9 +39,9 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
             'GuzzleHttp\\' => 11,
             'Gerardojbaez\\Money\\' => 19,
         ),
-        'C' => 
+        'D' => 
         array (
-            'CoenJacobs\\Mozart\\' => 18,
+            'DeepCopy\\' => 9,
         ),
     );
 
@@ -89,9 +90,9 @@ class ComposerStaticInitc37342d6ccb37f9b966782650de7b1bb
         array (
             0 => __DIR__ . '/..' . '/gerardojbaez/money/src',
         ),
-        'CoenJacobs\\Mozart\\' => 
+        'DeepCopy\\' => 
         array (
-            0 => __DIR__ . '/..' . '/coenjacobs/mozart/src',
+            0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
     );
 

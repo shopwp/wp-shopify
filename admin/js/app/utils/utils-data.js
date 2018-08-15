@@ -13,38 +13,26 @@ import isArray from 'lodash/isArray';
 import has from 'lodash/has';
 import pickBy from 'lodash/pickBy';
 import omitBy from 'lodash/omitBy';
+import forEach from 'lodash/forEach';
+import uniqBy from 'lodash/uniqBy';
 
 import {
-  getNonce
-} from './utils';
-
-import {
-  getCollectsFromProductID
-} from '../ws/ws';
-
-import {
-  connectionInProgress,
   getStartingURL
 } from '../ws/localstorage';
 
 
+
 /*
 
-Always returns a Promise
+Returns a standarized format for client-side errors
 
 */
-function controlPromise(options) {
+function getErrorContents(xhr, err, action_name) {
 
-  if ( connectionInProgress() === 'false' ) {
-
-    return new Promise(function (resolve, reject) {
-      reject('Connection stopped by user.');
-    });
-
-  } else {
-
-    return jQuery.ajax(options);
-
+  return {
+    statusCode: xhr.status,
+    message: err,
+    action_name: action_name
   }
 
 }
@@ -226,42 +214,6 @@ function setCollectionImage(collection) {
 
 /*
 
-Creates data template
-Returns: Object
-
-*/
-function createNewAuthData() {
-
-  return [{
-    "domain": window.location.hostname,
-    "url": window.location.href,
-    "nonce": getNonce(),
-    "timestamp": Date.now(),
-    "shop": jQuery('#wps_settings_connection_domain').val()
-  }];
-};
-
-
-/*
-
-Converts string to JSON
-Returns: JS value (authUserData === Object)
-
-*/
-function convertAuthDataToJSON(authUserData) {
-
-  if (authUserData === null) {
-    return createNewAuthData();
-
-  } else {
-    return jQuery.parseJSON(authUserData);
-  }
-
-};
-
-
-/*
-
 Merging new auth data into old
 Returns: Array
 
@@ -355,11 +307,10 @@ function getDefaultExitOptions() {
     headingText: 'Canceled',
     stepText: 'Stopped syncing',
     status: 'is-disconnected',
-    buttonText: 'Exit Shopify Sync',
-    xMark: false,
+    buttonText: 'Close WP Shopify Sync',
     noticeList: [{
       type: 'warning',
-      message: 'Syncing manually canceled early'
+      message: 'The syncing process was manually canceled early.'
     }],
     errorCode: '',
     clearInputs: true,
@@ -395,10 +346,50 @@ function onlyFailedRequests(request) {
 
 /*
 
+Filters for only erors
+
+*/
+function filterForErrors(maybeErrors) {
+  return filter(maybeErrors, onlyFailedRequests);
+}
+
+
+/*
+
+Filters for only erors
+
+*/
+function pickFirstError(errors) {
+
+  if (isArray(errors)) {
+    return errors[0];
+  }
+
+  return errors;
+
+}
+
+
+/*
+
+If a Promise all returns multiple errors, only pick one
+
+*/
+function returnOnlyFirstError(maybeErrors) {
+  return pickFirstError( filterForErrors(maybeErrors) );
+}
+
+
+/*
+
 Return Only Failed Requests
 
 */
 function returnOnlyFailedRequests(noticeList) {
+
+  if (!noticeList) {
+    return [];
+  }
 
   if (noticeList.hasOwnProperty('statusText')) {
     return [{
@@ -418,7 +409,8 @@ function returnOnlyFailedRequests(noticeList) {
     }];
 
   } else {
-    return map(filter(noticeList, onlyFailedRequests), sanitizeErrorResponse);
+
+    return map( filterForErrors(noticeList), sanitizeErrorResponse);
 
   }
 
@@ -455,47 +447,139 @@ function onlyNonNotice(obj) {
 
 /*
 
-Only non notice
+Runs for each sync type: products, webhooks, etc
+{webhooks: 27}
+{orders: 55}
 
 */
 function onlyAvailableSyncOptions(obj) {
 
+
+  // If syncing everything, return full list
   if (WP_Shopify.selective_sync.all) {
+    return obj;
+  }
+
+  // If initial connect, or syncing webhooks, return webhooks
+  if (WP_Shopify.isConnecting || WP_Shopify.reconnectingWebhooks) {
+    if (obj.hasOwnProperty('webhooks')) {
+      return obj;
+    }
+  }
+
+
+
+  var onlySelectedSyncs = filterOutDeselectedSyncs(WP_Shopify.selective_sync);
+  var nameOfSync = Object.getOwnPropertyNames(obj)[0];
+
+
+  /*
+
+  Falls into this conditional when the loop comes across the name of a selected sync
+
+  */
+  if (onlySelectedSyncs.hasOwnProperty(nameOfSync)) {
     return obj;
 
   } else {
 
-    var onlySelectedSyncs = filterOutDeselectedSyncs(WP_Shopify.selective_sync);
-    var nameOfSync = Object.getOwnPropertyNames(obj)[0];
-
     /*
 
-    Falls into this conditional when the loop comes across the name of a selected sync
+    Falls into this conditional when the loop doesn't find the name of a selected sync.
+
+    At this point we still need to check for the collects when the user has selected
+    to sync only products.
 
     */
-    if (onlySelectedSyncs.hasOwnProperty(nameOfSync)) {
-      return obj;
+    if (has(onlySelectedSyncs, 'products')) {
 
-    } else {
-
-      /*
-
-      Falls into this conditional when the loop doesn't find the name of a selected sync.
-
-      At this point we still need to check for the collects when the user has selected
-      to sync only products.
-
-      */
-      if (has(onlySelectedSyncs, 'products')) {
-
-        if ( has(obj, 'collects') ) {
-          return obj;
-        }
-
+      if ( has(obj, 'collects') ) {
+        return obj;
       }
 
     }
 
+  }
+
+
+}
+
+
+
+
+/*
+
+Checks if user is attempting to sync products
+
+*/
+function isSyncingProducts() {
+
+  if (WP_Shopify.reconnectingWebhooks) {
+    return false;
+  }
+
+  if (WP_Shopify.selective_sync.all) {
+    return true;
+
+  } else if (WP_Shopify.selective_sync.products) {
+    return true;
+
+  } else {
+    return false;
+  }
+
+}
+
+
+/*
+
+Checks if user is attempting to sync collections
+
+*/
+function isSyncingCollections() {
+
+  if (WP_Shopify.reconnectingWebhooks) {
+    return false;
+  }
+
+  if (WP_Shopify.selective_sync.all) {
+    return true;
+
+  } else if (WP_Shopify.selective_sync.custom_collections) {
+    return true;
+
+  } else if (WP_Shopify.selective_sync.smart_collections) {
+    return true;
+
+  } else {
+    return false;
+  }
+
+}
+
+
+/*
+
+Checks if user is attempting to sync collections
+
+*/
+function hasConnection() {
+
+  if (WP_Shopify.hasConnection === undefined) {
+    return false;
+  }
+
+  if (WP_Shopify.hasConnection === true) {
+    return true;
+
+  } else if (WP_Shopify.hasConnection === 1) {
+    return true;
+
+  } else if (WP_Shopify.hasConnection === '1') {
+    return true;
+
+  } else {
+    return false;
   }
 
 }
@@ -511,9 +595,6 @@ Only returns selected syncs
 function filterOutDeselectedSyncs(syncs) {
   return pickBy(syncs, (value, key) => value == 1);
 }
-
-
-
 
 
 /*
@@ -555,19 +636,23 @@ function filterOutSelectiveSync(array) {
 Filter Out Any Notice
 
 */
-function filterOutSelectedDataForSync(array, arrayOfFilters) {
+function filterOutSelectedDataForSync(arrayOfSyncObjects, exclusions) {
 
-  return filter(array, function(dataSet) {
+  return filter(arrayOfSyncObjects, function(syncObject) {
 
-    return find(arrayOfFilters, function(filter) {
+    var found = false;
 
-      return !dataSet[filter];
+    forEach(exclusions, function(exclusionName) {
+
+      if (has(syncObject, exclusionName)) {
+        found = true;
+      }
 
     });
 
-  });
+    return !found;
 
-  return array;
+  });
 
 }
 
@@ -673,6 +758,22 @@ function addToWarningList(currentWarningList, newWarning) {
 }
 
 
+function setConnectionStatus(status) {
+  WP_Shopify.hasConnection = status;
+}
+
+function getConnectionStatus() {
+
+  if (hasConnection()) {
+    return 'is-connected';
+
+  } else {
+    return 'is-disconnected';
+  }
+
+}
+
+
 /*
 
 Add Success Notice
@@ -680,10 +781,36 @@ Add Success Notice
 */
 function addSuccessNotice() {
 
-  return [{
-    type: 'success',
-    message: 'Success! You\'ve finished syncing your Shopify store with WordPress.'
-  }];
+  if (hasConnection()) {
+    return [{
+      type: 'success',
+      message: 'Success! You\'ve finished syncing your Shopify store with WordPress.'
+    }];
+
+  } else {
+    return [{
+      type: 'success',
+      message: 'Success! You\'ve finished disconnecting your Shopify store from WordPress.'
+    }];
+  }
+
+}
+
+
+
+function hasErrorsInNoticeList(anyWarnings) {
+
+  var hasErrors = false;
+
+  forEach(anyWarnings, function(error) {
+
+    if (error.type === 'error') {
+      hasErrors = true;
+    }
+
+  });
+
+  return hasErrors;
 
 }
 
@@ -694,7 +821,14 @@ Construct Final Notice List
 
 */
 function constructFinalNoticeList(anyWarnings) {
-  return union(addSuccessNotice(), anyWarnings);
+
+  if (hasErrorsInNoticeList(anyWarnings)) {
+    return uniqBy(union(anyWarnings), 'message');
+
+  } else {
+    return union(anyWarnings, addSuccessNotice());
+  }
+
 }
 
 
@@ -715,18 +849,35 @@ function emptyDataCount(count) {
 }
 
 
+/*
+
+Used for testing / figuring out memory usage
+
+*/
+function formatBytes(a, b) {
+
+  if (0 == a) return "0 Bytes";
+
+  var c = 1024,
+      d = b || 2,
+      e = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+      f = Math.floor(Math.log(a) / Math.log(c));
+
+  return parseFloat((a / Math.pow(c, f)).toFixed(d)) + " " + e[f]
+
+}
+
+
+
 export {
   getProductImages,
   mapProductsModel,
   mapCollectionsModel,
   setCollectionImage,
-  createNewAuthData,
-  convertAuthDataToJSON,
   mergeNewDataIntoCurrent,
   convertAuthDataToString,
   addCollectionsToProduct,
   createProductsModel,
-  controlPromise,
   rejectedPromise,
   mapCollectsToProducts,
   mapCollectsToCollections,
@@ -744,5 +895,14 @@ export {
   emptyDataCount,
   filterOutSelectiveSync,
   filterOutSelectedDataForSync,
-  filterOutEmptySets
-};
+  filterOutEmptySets,
+  formatBytes,
+  isSyncingProducts,
+  isSyncingCollections,
+  hasConnection,
+  setConnectionStatus,
+  getErrorContents,
+  filterForErrors,
+  returnOnlyFirstError,
+  getConnectionStatus
+}

@@ -4,47 +4,89 @@ Tab Content: Settings
 
 -->
 
-<?php
+<div class="tab-content tab-content-full <?php echo $active_tab === 'tab-settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
 
-  // Grab all general settings
-  $general = $this->config->wps_get_settings_general();
+  <ul class="subsubsub wps-submenu">
 
-?>
+    <li>
+      <a class="wps-sub-section-link current" href="#!" data-sub-section="wps-admin-section-general">General</a> |
+    </li>
 
-<div class="tab-content tab-content-full <?php echo $tab === 'settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
+    <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-syncing">Syncing</a> |
+    </li>
 
-  <h2 class="wps-admin-section-heading">
-    <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'General ', 'wp-shopify' ); ?>
-  </h2>
+    <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-related-products">Related Products</a> |
+    </li>
+
+    <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-cart">Cart</a> |
+    </li>
+
+    <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-plugin-assets">Plugin Assets</a>
+    </li>
+
+  </ul>
+
 
   <form method="post" name="wps_settings_general" action="options.php" id="wps-settings" class="wps-admin-form">
+
 
     <!--
 
     General Settings
 
     -->
-    <div class="wps-admin-section">
+    <div class="wps-admin-sub-section is-active" id="wps-admin-section-general">
 
-        <?php
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'General ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
 
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-product-urls.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-collections-urls.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-product-urls.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-collections-urls.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-price-formatter.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-link-products-to-shopify.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-show-breadcrumbs.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-hide-pagination.php';
+
+          ?>
+
+      </div>
+
+    </div>
 
 
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-sync-image-alt.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
+    <!--
+
+    Syncing
+
+    -->
+    <div class="wps-admin-sub-section" id="wps-admin-section-syncing">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Syncing ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
 
 
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-price-formatter.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-save-connection-only.php';
 
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-link-products-to-shopify.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-show-breadcrumbs.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/settings-hide-pagination.php';
 
-        ?>
+
+          ?>
+
+      </div>
 
     </div>
 
@@ -54,35 +96,84 @@ Tab Content: Settings
     Related Products
 
     -->
-    <h2 class="wps-admin-section-heading">
-      <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Related Products ', 'wp-shopify' ); ?>
-    </h2>
+    <div class="wps-admin-sub-section" id="wps-admin-section-related-products">
 
-    <div class="wps-admin-section">
-      <?php require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-show.php'; ?>
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Related Products ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+
+      <?php
+
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-show.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-sort.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-amount.php';
+
+      ?>
+
+
     </div>
 
-    <div class="wps-admin-section">
-      <?php require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-sort.php'; ?>
+
+    <!--
+
+    Cart Settings
+
+    -->
+    <div class="wps-admin-sub-section" id="wps-admin-section-cart">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Cart ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
+
+          ?>
+
+      </div>
+
     </div>
 
-    <div class="wps-admin-section">
-      <?php require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-amount.php'; ?>
+
+    <!--
+
+    Assets Settings
+
+    -->
+    <div class="wps-admin-sub-section" id="wps-admin-section-plugin-assets">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Plugin Assets ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
+
+          ?>
+
+      </div>
+
     </div>
-
-
-
-
 
 
     <!-- Nonce -->
-    <input hidden type="text" class="regular-text" id="<?php echo $this->config->settings_general_option_name; ?>_urls_nonce_id" name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_nonce]" value="<?php echo wp_create_nonce( uniqid() ); ?>"/>
+    <input hidden type="text" class="regular-text" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_urls_nonce_id" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_nonce]" value="<?php echo wp_create_nonce( uniqid() ); ?>"/>
+
 
     <!-- Submit -->
     <div class="wps-button-group button-group button-group-ajax">
-      <?php submit_button(esc_html__('Update Settings', 'wp-shopify'), 'primary', 'submitURLs', false, array()); ?>
+      <?php submit_button(esc_html__('Save WP Shopify Settings', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, array()); ?>
       <div class="spinner"></div>
     </div>
+
 
   </form>
 

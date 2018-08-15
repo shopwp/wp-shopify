@@ -2,64 +2,21 @@
 
 namespace WPS;
 
-use WPS\AJAX;
-use WPS\License;
-use WPS\Collections;
-use WPS\Products_General;
-use WPS\Progress_Bar;
-use WPS\WS;
-use WPS\Messages;
-use WPS\DB\Shop;
-use WPS\DB\Settings_Connection;
-use WPS\DB\Settings_General;
-
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Backend Class
-
-*/
 if ( !class_exists('Backend') ) {
 
 	class Backend {
 
-		protected static $instantiated = null;
-		private $Config;
-		private $messages;
+		private $DB_Settings_General;
+		private $DB_Settings_Connection;
 
-		/*
-
-		Initialize the class and set its properties.
-
-		*/
-		public function __construct($Config) {
-			$this->config = $Config;
-			$this->connection = $this->config->wps_get_settings_connection();
-			$this->messages = new Messages();
-			$this->ws = new WS($this->config);
-		}
-
-
-		/*
-
-		Creates a new class if one hasn't already been created.
-		Ensures only one instance is used.
-
-		*/
-		public static function instance($Config) {
-
-			if (is_null(self::$instantiated)) {
-				self::$instantiated = new self($Config);
-			}
-
-			return self::$instantiated;
-
+		public function __construct($DB_Settings_General, $DB_Settings_Connection) {
+			$this->DB_Settings_General 		= $DB_Settings_General;
+			$this->DB_Settings_Connection = $DB_Settings_Connection;
 		}
 
 
@@ -68,15 +25,41 @@ if ( !class_exists('Backend') ) {
 		Admin styles
 
 		*/
-		public function wps_config_admin_styles() {
+		public function admin_styles() {
 
 			// Only loading styles if we're on the settings page ...
-			if ( !empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings' || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections' || get_current_screen()->id === 'plugins') {
+			if ( !empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings' || get_current_screen()->id === WPS_PRODUCTS_POST_TYPE_SLUG || get_current_screen()->id === WPS_COLLECTIONS_POST_TYPE_SLUG || get_current_screen()->id === 'plugins') {
 
 				wp_enqueue_style('wp-color-picker');
-				wp_enqueue_style('animate-css', $this->config->plugin_url . 'admin/css/vendor/animate.min.css', array());
-				wp_enqueue_style('tooltipster-css', $this->config->plugin_url . 'admin/css/vendor/tooltipster.min.css', array());
-				wp_enqueue_style($this->config->plugin_name, $this->config->plugin_url . 'dist/admin.min.css', array( 'wp-color-picker', 'animate-css', 'tooltipster-css'), $this->config->plugin_version, 'all');
+
+				wp_enqueue_style(
+					'animate-css',
+					WPS_PLUGIN_URL . 'admin/css/vendor/animate.min.css',
+					[],
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/css/vendor/animate.min.css' )
+				);
+
+				wp_enqueue_style(
+					'tooltipster-css',
+					WPS_PLUGIN_URL . 'admin/css/vendor/tooltipster.min.css',
+					[],
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/css/vendor/tooltipster.min.css' )
+				);
+
+				wp_enqueue_style(
+					'chosen-css',
+					WPS_PLUGIN_URL . 'admin/css/vendor/chosen.min.css',
+					[],
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/css/vendor/chosen.min.css' )
+				);
+
+				wp_enqueue_style(
+					WPS_PLUGIN_TEXT_DOMAIN . '-styles-backend',
+					WPS_PLUGIN_URL . 'dist/admin.min.css',
+					['wp-color-picker', 'animate-css', 'tooltipster-css', 'chosen-css'],
+					filemtime( WPS_PLUGIN_DIR_PATH . 'dist/admin.min.css' ),
+					'all'
+				);
 
 			}
 
@@ -88,36 +71,94 @@ if ( !class_exists('Backend') ) {
 		Admin scripts
 
 		*/
-		public function wps_config_admin_scripts() {
+		public function admin_scripts() {
 
 			// Only loading admin script if we're on the settings page ...
-			if ( !empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings' || get_current_screen()->id === 'wps_products' || get_current_screen()->id === 'wps_collections' || get_current_screen()->id === 'nav-menus') {
+			if ( !empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings' || get_current_screen()->id === WPS_PRODUCTS_POST_TYPE_SLUG || get_current_screen()->id === WPS_COLLECTIONS_POST_TYPE_SLUG || get_current_screen()->id === 'nav-menus') {
 
 				wp_enqueue_media();
 
-				$DB_Settings_General = new Settings_General();
-
-				if (is_object($DB_Settings_General) && method_exists($DB_Settings_General, 'selective_sync_status') ) {
-					$selectiveSyncValue = $DB_Settings_General->selective_sync_status();
+				if (is_object($this->DB_Settings_General) && method_exists($this->DB_Settings_General, 'selective_sync_status') ) {
+					$selectiveSyncValue = $this->DB_Settings_General->selective_sync_status();
 
 				} else {
 					$selectiveSyncValue = false;
 				}
 
 
-				wp_enqueue_script('promise-polyfill', $this->config->plugin_url . 'admin/js/vendor/es6-promise.auto.min.js', array('jquery'), $this->config->plugin_version, true);
-				wp_enqueue_script('tooltipster-js', $this->config->plugin_url . 'admin/js/vendor/jquery.tooltipster.min.js', array('jquery'), $this->config->plugin_version, false );
-				wp_enqueue_script('validate-js', $this->config->plugin_url . 'admin/js/vendor/jquery.validate.min.js', array('jquery'), $this->config->plugin_version, false );
-				wp_enqueue_script('wps-admin', $this->config->plugin_url . 'dist/admin.min.js', array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js'), $this->config->plugin_version, true );
+				wp_enqueue_script(
+					'promise-polyfill',
+					WPS_PLUGIN_URL . 'admin/js/vendor/es6-promise.auto.min.js',
+					array('jquery'),
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/es6-promise.auto.min.js' ),
+					true
+				);
 
-				wp_localize_script('wps-admin', $this->config->plugin_name_js, array(
-					'ajax' => __(admin_url('admin-ajax.php')),
-					'pluginsPath' => __(plugins_url()),
-					'siteUrl' => site_url(),
-					'pluginsDirURL' => plugin_dir_url(dirname(__FILE__)),
-					'nonce'	=> wp_create_nonce('wp-shopify-backend'),
-					'selective_sync' => $selectiveSyncValue
-				));
+
+				wp_enqueue_script(
+					'tooltipster-js',
+					WPS_PLUGIN_URL . 'admin/js/vendor/jquery.tooltipster.min.js',
+					array('jquery'),
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/jquery.tooltipster.min.js' ),
+					false
+				);
+
+
+				wp_enqueue_script(
+					'validate-js',
+					WPS_PLUGIN_URL . 'admin/js/vendor/jquery.validate.min.js',
+					array('jquery'),
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/jquery.validate.min.js' ),
+					false
+				);
+
+
+				wp_enqueue_script(
+					'chosen-js',
+					WPS_PLUGIN_URL . 'admin/js/vendor/chosen.jquery.min.js',
+					array('jquery'),
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/chosen.jquery.min.js' ),
+					false
+				);
+
+
+				wp_enqueue_script(
+					'anime-js',
+					WPS_PLUGIN_URL . 'admin/js/vendor/anime.min.js',
+					[],
+					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/anime.min.js' ),
+					false
+				);
+
+
+				wp_enqueue_script(
+					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-backend',
+					WPS_PLUGIN_URL . 'dist/admin.min.js',
+					array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js', 'chosen-js'),
+					filemtime( WPS_PLUGIN_DIR_PATH . 'dist/admin.min.js' ),
+					true
+				);
+
+
+				wp_localize_script(
+					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-backend',
+					WPS_PLUGIN_NAME_JS,
+					[
+						'ajax' 										=> __(admin_url('admin-ajax.php')),
+						'pluginsPath' 						=> __(plugins_url()),
+						'siteUrl' 								=> site_url(),
+						'pluginsDirURL' 					=> plugin_dir_url(dirname(__FILE__)),
+						'nonce'										=> wp_create_nonce(WPS_BACKEND_NONCE_ACTION),
+						'selective_sync' 					=> $selectiveSyncValue,
+						'reconnectingWebhooks' 		=> false,
+						'hasConnection' 					=> $this->DB_Settings_Connection->has_connection(),
+						'isSyncing' 							=> false,
+						'manuallyCanceled' 				=> false,
+						'isClearing' 							=> false,
+						'isDisconnecting' 				=> false,
+						'isConnecting' 						=> false
+					]
+				);
 
 			}
 
@@ -130,7 +171,7 @@ if ( !class_exists('Backend') ) {
 		Adding a settings page to the Settings menu.
 
 		*/
-		public function wps_config_add_plugin_menu() {
+		public function add_dashboard_menus() {
 
 			if (current_user_can('manage_options')) {
 
@@ -140,8 +181,8 @@ if ( !class_exists('Backend') ) {
 
 				// Main menu
 				add_menu_page(
-					__('WP Shopify', $this->config->plugin_name),
-					__('WP Shopify', $this->config->plugin_name),
+					__('WP Shopify', WPS_PLUGIN_NAME),
+					__('WP Shopify', WPS_PLUGIN_NAME),
 					'manage_options',
 					'wpshopify',
 					array($this, 'wps_config_display_setup_page'),
@@ -152,8 +193,8 @@ if ( !class_exists('Backend') ) {
 				// Submenu: Settings
 				add_submenu_page(
 					'wpshopify',
-					__('Settings', $this->config->plugin_name),
-					__('Settings', $this->config->plugin_name),
+					__('Settings', WPS_PLUGIN_NAME),
+					__('Settings', WPS_PLUGIN_NAME),
 					'manage_options',
 					'wps-settings',
 					array($this, 'wps_config_display_setup_page')
@@ -162,30 +203,31 @@ if ( !class_exists('Backend') ) {
 				// Submenu: Products
 				add_submenu_page(
 					'wpshopify',
-					__('Products', $this->config->plugin_name),
-					__('Products', $this->config->plugin_name),
+					__('Products', WPS_PLUGIN_NAME),
+					__('Products', WPS_PLUGIN_NAME),
 					'manage_options',
-					'edit.php?post_type=wps_products',
+					'edit.php?post_type=' . WPS_PRODUCTS_POST_TYPE_SLUG,
 					null
 				);
 
 				// Submenu: Collections
 				add_submenu_page(
 					'wpshopify',
-					__('Collections', $this->config->plugin_name),
-					__('Collections', $this->config->plugin_name),
+					__('Collections', WPS_PLUGIN_NAME),
+					__('Collections', WPS_PLUGIN_NAME),
 					'manage_options',
-					'edit.php?post_type=wps_collections',
+					'edit.php?post_type=' . WPS_COLLECTIONS_POST_TYPE_SLUG,
 					null
 				);
+
 				//
 				// // Submenu: Tags
 				// add_submenu_page(
 				// 	'wpshopify',
-				// 	__('Tags', $this->config->plugin_name),
-				// 	__('Tags', $this->config->plugin_name),
+				// 	__('Tags', WPS_PLUGIN_NAME),
+				// 	__('Tags', WPS_PLUGIN_NAME),
 				// 	'manage_options',
-				// 	'edit-tags.php?taxonomy=wps_tags&post_type=wps_products',
+				// 	'edit-tags.php?taxonomy=wps_tags&post_type=' . WPS_PRODUCTS_POST_TYPE_SLUG,
 				// 	null
 				// );
 
@@ -202,10 +244,9 @@ if ( !class_exists('Backend') ) {
 		Add settings action link to the plugins page.
 
 		*/
-		public function wps_config_add_action_links($links) {
+		public function add_action_links($links) {
 
-			// $this->config = new Config();
-			$settings_link = ['<a href="' . esc_url( admin_url('/admin.php?page=' . $this->config->plugin_name) . '-settings' ) . '">' . esc_html__('Settings', 'wp-shopify') . '</a>'];
+			$settings_link = ['<a href="' . esc_url( admin_url('/admin.php?page=' . WPS_PLUGIN_NAME) . '-settings' ) . '">' . esc_html__('Settings', WPS_PLUGIN_TEXT_DOMAIN) . '</a>'];
 
 			return array_merge($settings_link, $links);
 
@@ -218,9 +259,7 @@ if ( !class_exists('Backend') ) {
 
 		*/
 		public function wps_config_display_setup_page() {
-
-			include_once($this->config->plugin_path . 'admin/partials/wps-admin-display.php');
-
+			include_once(WPS_PLUGIN_DIR_PATH . 'admin/partials/wps-admin-display.php');
 		}
 
 
@@ -230,11 +269,9 @@ if ( !class_exists('Backend') ) {
 		Currently only updating connection form
 
 		*/
-		public function wps_options_update() {
-
-	    register_setting( $this->config->settings_connection_option_name, $this->config->settings_connection_option_name, array($this, 'wps_connection_form_validate') );
-			register_setting( $this->config->settings_general_option_name, $this->config->settings_general_option_name, array($this, 'wps_general_form_validate') );
-
+		public function on_options_update() {
+	    register_setting( WPS_SETTINGS_CONNECTION_OPTION_NAME, WPS_SETTINGS_CONNECTION_OPTION_NAME, [$this, 'connection_form_validate'] );
+			register_setting( WPS_SETTINGS_GENERAL_OPTION_NAME, WPS_SETTINGS_GENERAL_OPTION_NAME, [$this, 'general_form_validate'] );
 		}
 
 
@@ -243,10 +280,11 @@ if ( !class_exists('Backend') ) {
 		Validate connection form settings
 
 		*/
-		public function wps_connection_form_validate($input) {
+		public function connection_form_validate($input) {
+
 
 	    // All checkboxes inputs
-	    $valid = array();
+	    $valid = [];
 
 			/*
 
@@ -300,10 +338,11 @@ if ( !class_exists('Backend') ) {
 		Validate connection form settings
 
 		*/
-		public function wps_general_form_validate($input) {
+		public function general_form_validate($input) {
+
 
 			// All checkboxes inputs
-			$valid = array();
+			$valid = [];
 
 			// Products URL
 			$valid['wps_general_url_products'] = isset($input['wps_general_url_products']) && !empty($input['wps_general_url_products']) ? sanitize_text_field($input['wps_general_url_products']) : '';
@@ -318,88 +357,13 @@ if ( !class_exists('Backend') ) {
 
 		/*
 
-		Getting and sending application credentials to front-end.
-
-		These credentials do not need to be secured and can be stored on the client-side to
-		improve performance.
-
-		*/
-	 	public function wps_get_credentials_frontend() {
-
-			if (isset($_GET) && isset($_GET['action']) && !empty($_GET)) {
-				$ajax = true;
-
-			} else {
-				$ajax = false;
-			}
-
-
-			$shopifyCreds = array();
-			$connection = $this->config->wps_get_settings_connection();
-
-			if (is_object($connection) && isset($connection->js_access_token)) {
-				$shopifyCreds['js_access_token'] = $connection->js_access_token;
-			}
-
-			if (is_object($connection) && isset($connection->app_id)) {
-				$shopifyCreds['app_id'] = $connection->app_id;
-			}
-
-			if (is_object($connection) && isset($connection->domain)) {
-				$shopifyCreds['domain'] = $connection->domain;
-			}
-
-
-			if ($ajax) {
-				$this->ws->send_success($shopifyCreds);
-
-			} else {
-				return $shopifyCreds;
-			}
-
-
-		}
-
-
-		/*
-
-		Gets the initial cart session
-
-		*/
-		public function wps_get_cart_session() {
-
-			// $cartSession = [];
-
-			// $cartSession['creds'] = $this->wps_get_credentials_frontend(false);
-
-
-			/*
-
-			Cart Session Steps
-
-			1. wps_get_credentials_frontend
-			2. wps_get_cart_cache
-			3. wps_has_money_format_changed -- moneyFormatChanged()
-			4. wps_get_currency_format
-			5. wps_get_money_format_with_currency -- OR -- wps_get_money_format
-
-			*/
-
-			// $this->ws->send_success($shopifyCreds);
-
-
-		}
-
-
-		/*
-
 		Inserting authentication modal below settings form
 
 		*/
-		public function wps_insert_auth_modal() {
+		public function insert_auth_modal() {
 
 			if (isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
-				printf(esc_html__('<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="%1" /> to <img class="wps-connector-logo" src="%2" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>'), esc_url($this->config->plugin_url . 'admin/imgs/logo-wp.svg'), esc_url($this->config->plugin_url . 'admin/imgs/shopify.svg'));
+				printf(esc_html__('<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="%1" /> to <img class="wps-connector-logo" src="%2" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>'), esc_url(WPS_PLUGIN_URL . 'admin/imgs/logo-wp.svg'), esc_url(WPS_PLUGIN_URL . 'admin/imgs/shopify.svg'));
 			}
 
 		}
@@ -407,299 +371,28 @@ if ( !class_exists('Backend') ) {
 
 		/*
 
-		Delete taxonomies
+		Hooks
 
 		*/
-		public function wps_delete_taxonomies($type) {
+		public function hooks() {
 
-			if (!taxonomy_exists($type)) {
-				return;
-			}
-
-			$deletions = [];
-
-			$terms = get_terms([
-				'taxonomy' => $type,
-				'hide_empty' => false,
-			]);
-
-			foreach ($terms as $term) {
-				$deletions[] = wp_delete_term( $term->term_id, $type);
-			}
-
-			return $deletions;
+			add_action('admin_menu', [$this, 'add_dashboard_menus']);
+			add_action('admin_enqueue_scripts', [$this, 'admin_styles']);
+			add_action('admin_enqueue_scripts', [$this, 'admin_scripts']);
+			add_filter('plugin_action_links_' . WPS_PLUGIN_BASENAME, [$this, 'add_action_links']);
+			add_action('wps_after_settings_form', [$this, 'insert_auth_modal'], 1);
+			add_action('admin_init', [$this, 'on_options_update']);
 
 		}
 
 
 		/*
 
-		Delete Synced Posts
-		- Predicate Function (returns boolean)
+		Init
 
 		*/
-		public function wps_delete_posts($type, $ids = null) {
-
-			$deletions = array();
-
-			$args = array(
-				'posts_per_page' => -1,
-				'post_type' => $type
-			);
-
-			if ($ids !== null) {
-				$args['post__in'] = $ids;
-			}
-
-			$posts = get_posts($args);
-
-			if (!empty($posts) && is_array($posts)) {
-
-				foreach ($posts as $post) {
-					$deletions[] = wp_delete_post( $post->ID, true);
-				}
-
-				if (in_array(false, $deletions, true) ) {
-					return false;
-
-				} else {
-					return true;
-				}
-
-
-			} else {
-				return true;
-
-			}
-
-		}
-
-
-		/*
-
-		Deleting the actual access token from consumer DB
-		Returns: Boolean
-
-		*/
-		public function wps_delete_connection_setting($setting) {
-
-			// $this->config = new Config();
-			$connection = $this->config->wps_get_settings_connection();
-
-			if (isset($setting) && $setting) {
-
-				if( array_key_exists($setting, $connection) ) {
-
-					$connection->$setting = null;
-					$connection = array_filter($connection);
-
-					update_option($this->config->settings_connection_option_name, $connection);
-
-				}
-
-			}
-
-			// At this point we should expect an array without the webhook prop
-			$pluginSettingsNew = $this->config->wps_get_settings_connection();
-
-			return $pluginSettingsNew;
-
-		}
-
-
-	
 		public function init() {
-
-			// $this->config = new Config();
-
-			$AJAX = new AJAX($this->config);
-			$License = new License($this->config);
-
-			$Collections = new Collections($this->config);
-			$Products_General = new Products_General($this->config);
-
-
-			$WS = new WS($this->config);
-			$ProgressBar = new Progress_Bar($this->config);
-
-			$DB_Shop = new Shop();
-			$DB_Settings_Connection = new Settings_Connection();
-
-
-
-			/*
-
-			TODO: Remove nopriv actions?
-
-			*/
-			add_action( 'admin_menu', array($this, 'wps_config_add_plugin_menu') );
-
-
-			add_action( 'admin_enqueue_scripts', array($this, 'wps_config_admin_styles') );
-			add_action( 'admin_enqueue_scripts', array($this, 'wps_config_admin_scripts') );
-
-			add_filter( 'plugin_action_links_' . $this->config->plugin_basename, array($this, 'wps_config_add_action_links') );
-
-
-			add_action( 'wp_ajax_wps_get_credentials_frontend', array($this, 'wps_get_credentials_frontend'));
-			add_action( 'wp_ajax_nopriv_wps_get_credentials_frontend', array($this, 'wps_get_credentials_frontend'));
-
-			add_action( 'wp_ajax_wps_get_cart_session', array($this, 'wps_get_cart_session'));
-			add_action( 'wp_ajax_nopriv_wps_get_cart_session', array($this, 'wps_get_cart_session'));
-
-			// Setup / Events
-			add_action( 'wp_ajax_wps_notice', array($this, 'wps_notice'));
-			add_action( 'wp_ajax_nopriv_wps_notice', array($this, 'wps_notice'));
-
-			add_action( 'wps_after_settings_form', array($this, 'wps_insert_auth_modal'), 1);
-
-			// Custom MetaBoxes for Collections CPT
-			// add_action( 'add_meta_boxes', $this, 'wps_meta_collections');
-
-			// Save / Update our plugin options
-			add_action( 'admin_init', array($this, 'wps_options_update'));
-
-
-			// WS
-			add_action( 'wp_ajax_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
-			add_action( 'wp_ajax_nopriv_wps_sync_with_cpt', array($WS, 'wps_sync_with_cpt'));
-
-			add_action( 'wp_ajax_wps_clear_cache', array($WS, 'wps_clear_cache'));
-			add_action( 'wp_ajax_nopriv_wps_clear_cache', array($WS, 'wps_clear_cache'));
-
-			add_action( 'wp_ajax_wps_ws_set_syncing_indicator', array($WS, 'wps_ws_set_syncing_indicator'));
-			add_action( 'wp_ajax_nopriv_wps_ws_set_syncing_indicator', array($WS, 'wps_ws_set_syncing_indicator'));
-
-			add_action( 'wp_ajax_wps_uninstall_consumer', array($WS, 'wps_uninstall_consumer'));
-			add_action( 'wp_ajax_nopriv_wps_uninstall_consumer', array($WS, 'wps_uninstall_consumer'));
-
-			add_action( 'wp_ajax_wps_uninstall_product_data', array($WS, 'wps_uninstall_product_data'));
-			add_action( 'wp_ajax_nopriv_wps_uninstall_product_data', array($WS, 'wps_uninstall_product_data'));
-
-			add_action( 'wp_ajax_wps_uninstall_all_data', array($WS, 'wps_uninstall_all_data'));
-			add_action( 'wp_ajax_nopriv_wps_uninstall_all_data', array($WS, 'wps_uninstall_all_data'));
-
-			add_action( 'wp_ajax_wps_get_progress_count', array($WS, 'wps_get_progress_count'));
-			add_action( 'wp_ajax_nopriv_wps_get_progress_count', array($WS, 'wps_get_progress_count'));
-
-			add_action( 'wp_ajax_wps_ws_get_collects_count', array($WS, 'wps_ws_get_collects_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_collects_count', array($WS, 'wps_ws_get_collects_count'));
-
-			add_action( 'wp_ajax_wps_ws_get_shop_count', array($WS, 'wps_ws_get_shop_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_shop_count', array($WS, 'wps_ws_get_shop_count'));
-
-			add_action( 'wp_ajax_wps_ws_get_smart_collections_count', array($WS, 'wps_ws_get_smart_collections_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_smart_collections_count', array($WS, 'wps_ws_get_smart_collections_count'));
-
-			add_action( 'wp_ajax_wps_ws_get_custom_collections_count', array($WS, 'wps_ws_get_custom_collections_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_custom_collections_count', array($WS, 'wps_ws_get_custom_collections_count'));
-
-			add_action( 'wp_ajax_wps_insert_collects', array($WS, 'wps_insert_collects'));
-			add_action( 'wp_ajax_nopriv_wps_insert_collects', array($WS, 'wps_insert_collects'));
-
-			add_action( 'wp_ajax_wps_ws_get_products_count', array($WS, 'wps_ws_get_products_count'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_products_count', array($WS, 'wps_ws_get_products_count'));
-
-
-
-			add_action( 'wp_ajax_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
-			add_action( 'wp_ajax_nopriv_wps_insert_products_data', array($WS, 'wps_insert_products_data'));
-
-			add_action( 'wp_ajax_wps_insert_alt_text', array($WS, 'wps_insert_alt_text'));
-			add_action( 'wp_ajax_nopriv_wps_insert_alt_text', array($WS, 'wps_insert_alt_text'));
-
-			add_action( 'wp_ajax_wps_insert_custom_collections_data', array($WS, 'wps_insert_custom_collections_data'));
-			add_action( 'wp_ajax_nopriv_wps_insert_custom_collections_data', array($WS, 'wps_insert_custom_collections_data'));
-
-			add_action( 'wp_ajax_wps_insert_smart_collections_data', array($WS, 'wps_insert_smart_collections_data'));
-			add_action( 'wp_ajax_nopriv_wps_insert_smart_collections_data', array($WS, 'wps_insert_smart_collections_data'));
-
-			add_action( 'wp_ajax_wps_ws_get_products_from_collection', array($WS, 'wps_ws_get_products_from_collection'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_products_from_collection', array($WS, 'wps_ws_get_products_from_collection'));
-
-			add_action( 'wp_ajax_wps_ws_get_collects_from_product', array($WS, 'wps_ws_get_collects_from_product'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_collects_from_product', array($WS, 'wps_ws_get_collects_from_product'));
-
-			add_action( 'wp_ajax_wps_ws_get_collects_from_collection', array($WS, 'wps_ws_get_collects_from_collection'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_collects_from_collection', array($WS, 'wps_ws_get_collects_from_collection'));
-
-
-			add_action( 'wp_ajax_wps_ws_get_webhooks', array($WS, 'wps_ws_get_webhooks'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_webhooks', array($WS, 'wps_ws_get_webhooks'));
-
-
-			add_action( 'wp_ajax_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
-			add_action( 'wp_ajax_nopriv_wps_update_settings_general', array($WS, 'wps_update_settings_general'));
-
-
-			// Collections
-			add_action( 'wp_ajax_wps_insert_collections', array($Collections, 'wps_insert_collections'));
-			add_action( 'wp_ajax_nopriv_wps_insert_collections', array($Collections, 'wps_insert_collections'));
-
-			// Shop Data
-			add_action( 'wp_ajax_wps_insert_shop', array($WS, 'wps_insert_shop'));
-			add_action( 'wp_ajax_nopriv_wps_insert_shop', array($WS, 'wps_insert_shop'));
-
-			// Insert connction data
-			add_action( 'wp_ajax_wps_insert_connection', array($WS, 'wps_insert_connection'));
-			add_action( 'wp_ajax_nopriv_wps_insert_connection', array($WS, 'wps_insert_connection'));
-
-			// Get connection data
-			add_action( 'wp_ajax_wps_get_connection', array($WS, 'wps_get_connection'));
-			add_action( 'wp_ajax_nopriv_wps_get_connection', array($WS, 'wps_get_connection'));
-
-			// Remove connection data
-			add_action( 'wp_ajax_wps_remove_connection', array($WS, 'wps_remove_connection'));
-			add_action( 'wp_ajax_nopriv_wps_remove_connection', array($WS, 'wps_remove_connection'));
-
-			// Get Variants
-			add_action( 'wp_ajax_wps_ws_get_variants', array($WS, 'wps_ws_get_variants'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_variants', array($WS, 'wps_ws_get_variants'));
-
-			// Save Counts
-			add_action( 'wp_ajax_save_counts', array($WS, 'save_counts'));
-			add_action( 'wp_ajax_nopriv_save_counts', array($WS, 'save_counts'));
-
-			// Get Total Counts
-			add_action( 'wp_ajax_get_total_counts', array($WS, 'get_total_counts'));
-			add_action( 'wp_ajax_nopriv_get_total_counts', array($WS, 'get_total_counts'));
-
-
-
-
-			// License Key
-			add_action( 'wp_ajax_wps_license_save', array($License, 'wps_license_save'));
-			add_action( 'wp_ajax_nopriv_wps_license_save', array($License, 'wps_license_save'));
-
-			add_action( 'wp_ajax_wps_license_delete', array($License, 'wps_license_delete'));
-			add_action( 'wp_ajax_nopriv_wps_license_delete', array($License, 'wps_license_delete'));
-
-			add_action( 'wp_ajax_wps_license_get', array($License, 'wps_license_get'));
-			add_action( 'wp_ajax_nopriv_wps_license_get', array($License, 'wps_license_get'));
-
-			// Get Single Collection
-			add_action( 'wp_ajax_wps_ws_get_single_collection', array($WS, 'wps_ws_get_single_collection'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_single_collection', array($WS, 'wps_ws_get_single_collection'));
-
-			// Shop data
-			add_action( 'wp_ajax_wps_ws_get_shop_data', array($WS, 'wps_ws_get_shop_data'));
-			add_action( 'wp_ajax_nopriv_wps_ws_get_shop_data', array($WS, 'wps_ws_get_shop_data'));
-
-
-			// Progress Bar
-			add_action( 'wp_ajax_wps_progress_status', array($ProgressBar, 'wps_progress_status'));
-			add_action( 'wp_ajax_nopriv_wps_progress_status', array($ProgressBar, 'wps_progress_status'));
-
-			add_action( 'wp_ajax_wps_progress_bar_end', array($ProgressBar, 'wps_progress_bar_end'));
-			add_action( 'wp_ajax_nopriv_wps_progress_bar_end', array($ProgressBar, 'wps_progress_bar_end'));
-
-
-			add_action( 'wp_ajax_wps_progress_session_create', array($ProgressBar, 'wps_progress_session_create'));
-			add_action( 'wp_ajax_nopriv_wps_progress_session_create', array($ProgressBar, 'wps_progress_session_create'));
-
-
-			add_action( 'update_option_wps_settings_general', array($ProgressBar, 'wps_reset_rewrite_rules'), 10, 2 );
-
+			$this->hooks();
 		}
 
 	}

@@ -5,7 +5,6 @@ Plugin Info
 -->
 <?php
 
-// $plugin_data_latest = $License->wps_get_latest_plugin_version();
 $plugin_data_latest = false;
 
 ?>
@@ -14,7 +13,7 @@ $plugin_data_latest = false;
 
   <div class="spinner"></div>
 
-  <h3><?php esc_html_e('Plugin Information', 'wp-shopify'); ?></h3>
+  <h3><?php esc_html_e('Plugin Information', WPS_PLUGIN_TEXT_DOMAIN); ?></h3>
 
   <table class="form-table wps-is-hidden">
 
@@ -22,7 +21,7 @@ $plugin_data_latest = false;
 
       <td scope="row">
         <label for="tablecell">
-          <?php esc_html_e('Name', 'wp-shopify'); ?>
+          <?php esc_html_e('Name', WPS_PLUGIN_TEXT_DOMAIN); ?>
         </label>
       </td>
 
@@ -34,7 +33,7 @@ $plugin_data_latest = false;
 
       <td scope="row">
         <label for="tablecell">
-          <?php esc_html_e('Tested up to WordPress', 'wp-shopify'); ?>
+          <?php esc_html_e('Tested up to WordPress', WPS_PLUGIN_TEXT_DOMAIN); ?>
         </label>
       </td>
 
@@ -48,12 +47,12 @@ $plugin_data_latest = false;
 
       <td scope="row">
         <label for="tablecell">
-          <?php esc_html_e('Installed version', 'wp-shopify'); ?>
+          <?php esc_html_e('Installed version', WPS_PLUGIN_TEXT_DOMAIN); ?>
         </label>
       </td>
 
       <td class="wps-col wps-col-plugin-ver">
-        <?php esc_html_e($plugin_current_version, 'wp-shopify' ); ?>
+        <?php esc_html_e(WPS_NEW_PLUGIN_VERSION, WPS_PLUGIN_TEXT_DOMAIN ); ?>
       </td>
 
     </tr>
@@ -62,7 +61,7 @@ $plugin_data_latest = false;
 
       <td scope="row">
         <label for="tablecell">
-          <?php esc_html_e('Latest version', 'wp-shopify'); ?>
+          <?php esc_html_e('Latest version', WPS_PLUGIN_TEXT_DOMAIN); ?>
         </label>
       </td>
 
@@ -71,10 +70,10 @@ $plugin_data_latest = false;
         <?php
 
           if (is_object($plugin_data_latest) && isset($plugin_data_latest->new_version)) {
-            printf(esc_html__('%s', 'wp-shopify'), $plugin_data_latest->new_version);
+            printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $plugin_data_latest->new_version);
 
           } else {
-            _e('Add your license key to receive updates', 'wp-shopify');
+            _e('Add your license key to receive updates', WPS_PLUGIN_TEXT_DOMAIN);
           }
 
         ?>

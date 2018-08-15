@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Collections_Custom;
+use WPS\Factories\DB_Collections_Custom_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Collections_Custom extends WP_UnitTestCase {
 
-  protected static $CollectionsCustom;
+  protected static $DB_Collections_Custom;
   protected static $mockDatacollectionsCustom;
   protected static $mockDatacollectionsCustomForUpdate;
   protected static $mockDatacollectionsCustomID;
@@ -23,7 +23,7 @@ class Test_Sync_Collections_Custom extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$CollectionsCustom                     = new Collections_Custom();
+    self::$DB_Collections_Custom                 = DB_Collections_Custom_Factory::build();
     self::$mockDatacollectionsCustom             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-custom.json") );
     self::$mockDatacollectionsCustomForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-custom-update.json") );
     self::$mockDatacollectionsCustomID           = self::$mockDatacollectionsCustom->collection_id;
@@ -38,9 +38,8 @@ class Test_Sync_Collections_Custom extends WP_UnitTestCase {
   */
   function test_custom_collection_create() {
 
-    $results = self::$CollectionsCustom->insert( self::$mockDatacollectionsCustom, 'custom_collection' );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collections_Custom->insert( self::$mockDatacollectionsCustom, 'custom_collection' );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -52,9 +51,8 @@ class Test_Sync_Collections_Custom extends WP_UnitTestCase {
   */
   function test_custom_collection_update() {
 
-    $results = self::$CollectionsCustom->update( self::$mockDatacollectionsCustomID, self::$mockDatacollectionsCustomForUpdate );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collections_Custom->update( self::$mockDatacollectionsCustomID, self::$mockDatacollectionsCustomForUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -66,9 +64,8 @@ class Test_Sync_Collections_Custom extends WP_UnitTestCase {
   */
   function test_custom_collection_delete() {
 
-    $results = self::$CollectionsCustom->delete_rows( 'collection_id', self::$mockDatacollectionsCustomID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collections_Custom->delete_rows( 'collection_id', self::$mockDatacollectionsCustomID );
+    $this->assertEquals(1, $results);
 
   }
 

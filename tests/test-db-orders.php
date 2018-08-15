@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Orders;
+use WPS\Factories\DB_Orders_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Orders extends WP_UnitTestCase {
 
-  protected static $Orders;
+  protected static $DB_Orders;
   protected static $mockDataOrder;
   protected static $mockDataOrderForUpdate;
   protected static $mockDataOrderID;
@@ -23,7 +23,7 @@ class Test_Sync_Orders extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Orders                    = new Orders();
+    self::$DB_Orders                 = DB_Orders_Factory::build();
     self::$mockDataOrder             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/order.json") );
     self::$mockDataOrderForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/order-update.json") );
     self::$mockDataOrderID           = self::$mockDataOrder->id;
@@ -38,9 +38,8 @@ class Test_Sync_Orders extends WP_UnitTestCase {
   */
   function test_order_create() {
 
-    $result = self::$Orders->insert(self::$mockDataOrder, 'order');
-
-    $this->assertTrue($result);
+    $result = self::$DB_Orders->insert(self::$mockDataOrder, 'order');
+    $this->assertEquals(1, $result);
 
   }
 
@@ -52,8 +51,8 @@ class Test_Sync_Orders extends WP_UnitTestCase {
   */
   function test_order_update() {
 
-    $results = self::$Orders->update( self::$mockDataOrderID, self::$mockDataOrderForUpdate );
-    $this->assertTrue($results);
+    $results = self::$DB_Orders->update( self::$mockDataOrderID, self::$mockDataOrderForUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -65,9 +64,8 @@ class Test_Sync_Orders extends WP_UnitTestCase {
   */
   function test_order_delete() {
 
-    $results = self::$Orders->delete( self::$mockDataOrderID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Orders->delete( self::$mockDataOrderID );
+    $this->assertEquals(1, $results);
 
   }
 

@@ -2,28 +2,14 @@
 
 namespace WPS\DB;
 
-use WPS\Config;
-use WPS\WS;
 use WPS\Utils;
-use WPS\DB\Products;
-use WPS\DB\Settings_Connection;
-use WPS\DB\Settings_General;
-use WPS\Progress_Bar;
-
-use GuzzleHttp\Promise;
 
 
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 
-/*
-
-Database class for Images
-
-*/
 if (!class_exists('Images')) {
 
   class Images extends \WPS\DB {
@@ -32,29 +18,22 @@ if (!class_exists('Images')) {
   	public $version;
   	public $primary_key;
 
-    /*
 
-    Construct
-
-    */
   	public function __construct() {
 
       global $wpdb;
-      $this->table_name         = $wpdb->prefix . 'wps_images';
-      $this->primary_key        = 'id';
-      $this->version            = '1.0';
-      $this->cache_group        = 'wps_db_images';
+
+      $this->table_name         			= WPS_TABLE_NAME_IMAGES;
+      $this->primary_key        			= 'id';
+      $this->version            			= '1.0';
+      $this->cache_group        			= 'wps_db_images';
 
     }
 
 
-    /*
-
-    Get Columns
-
-    */
   	public function get_columns() {
-      return array(
+
+			return [
         'id'                   => '%d',
         'product_id'           => '%d',
         'variant_ids'          => '%s',
@@ -63,17 +42,14 @@ if (!class_exists('Images')) {
         'position'             => '%d',
         'created_at'           => '%s',
         'updated_at'           => '%s'
-      );
+      ];
+
     }
 
 
-    /*
-
-    Get Column Defaults
-
-    */
   	public function get_column_defaults() {
-      return array(
+
+      return [
         'id'                   => 0,
         'product_id'           => '',
         'variant_ids'          => '',
@@ -82,44 +58,7 @@ if (!class_exists('Images')) {
         'position'             => '',
         'created_at'           => date_i18n( 'Y-m-d H:i:s' ),
         'updated_at'           => date_i18n( 'Y-m-d H:i:s' )
-      );
-    }
-
-
-    /*
-
-    Get alt text from response
-
-    */
-    public function get_alt_text_from_response($imageAltResponse) {
-
-      if (!is_object($imageAltResponse)) {
-        return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
-
-      } else {
-
-        $data = json_decode( $imageAltResponse->getBody()->getContents() );
-
-        if (!is_object($data)) {
-          return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if nothing exists
-        }
-
-        if (property_exists($data, 'metafields')) {
-
-          if (is_array($data->metafields) && !empty($data->metafields)) {
-            return $data->metafields[0]->value;
-
-          } else {
-            return esc_html__('Shop Product', 'wp-shopify'); // Default alt text if none exists
-          }
-
-        } else {
-
-          return new \WP_Error('error', $data->errors);
-
-        }
-
-      }
+      ];
 
     }
 
@@ -132,12 +71,8 @@ if (!class_exists('Images')) {
     */
   	public function insert_images($products) {
 
-      $DB_Settings_Connection = new Settings_Connection();
-      $DB_Settings_General = new Settings_General();
-      $WS = new WS(new Config());
-      $progress = new Progress_Bar(new Config());
       $results = [];
-      $count = 1;
+			$products = Utils::wrap_in_array($products);
 
       foreach ($products as $key => $product) {
 
@@ -145,45 +80,7 @@ if (!class_exists('Images')) {
 
           foreach ($product->images as $key => $image) {
 
-            if (!Utils::isStillSyncing()) {
-              wp_die();
-              break 2;
-            }
-
-
-            /*
-
-            If use title as alt isn't checked, go get the real alt text, otherwise
-            use the title for alt.
-
-            */
-            if (!$DB_Settings_General->title_as_alt()) {
-
-              // Calls API asynchronously and returns a Promise
-              $response = $WS->wps_ws_get_image_alt($image);
-              $altText = $this->get_alt_text_from_response($response);
-
-              if (is_wp_error($altText)) {
-
-                // $results[] = false;
-                $results = false;
-                break 2;
-
-              } else {
-
-                // $results[] = $altText;
-                $image->alt = $altText;
-
-              }
-
-            } else {
-              $image->alt = $product->title;
-            }
-
-            $results[] = $this->insert($image, 'image');
-
-            $progress->increment_current_amount('products');
-            $count++;
+						$results[] = $this->insert($image, 'image');
 
           }
 
@@ -203,55 +100,20 @@ if (!class_exists('Images')) {
     */
     public function insert_image($product) {
 
-      $DB_Settings_Connection = new Settings_Connection();
-      $DB_Settings_General = new Settings_General();
-      $WS = new WS(new Config());
-
       $results = [];
-      $count = 1;
+			$product = Utils::convert_array_to_object($product);
 
       if (isset($product->images) && $product->images) {
 
         foreach ($product->images as $key => $image) {
 
-          if (!Utils::isStillSyncing()) {
-            wp_die();
-            break;
-          }
+					$result = $this->insert($image, 'image');
 
-          /*
+					if (is_wp_error($result)) {
+						return $result;
+					}
 
-          If use title as alt isn't checked, go get the real alt text, otherwise
-          use the title for alt.
-
-          */
-          if (!$DB_Settings_General->title_as_alt()) {
-
-            // Calls API asynchronously and returns a Promise
-            $response = $WS->wps_ws_get_image_alt($image);
-
-            $altText = $this->get_alt_text_from_response($response);
-
-            if (is_wp_error($altText)) {
-
-              // $results[] = false;
-              $results = false;
-              break;
-
-            } else {
-
-              // $results[] = $altText;
-              $image->alt = $altText;
-
-            }
-
-          } else {
-            $image->alt = $product->title;
-          }
-
-          $results[] = $this->insert($image, 'image');
-
-          $count++;
+					$results[] = $result;
 
         }
 
@@ -264,31 +126,26 @@ if (!class_exists('Images')) {
 
     /*
 
-    update_variant
+    Update Image
+
+		In order to handle image creation / deletions, we need to compare what's
+		currently in the database with what gets sent back via the
+		product/update webhook.
 
     */
-  	public function update_image($product) {
+  	public function update_images_from_product($product) {
 
-      $WS = new WS(new Config());
-      $results = array();
+      $results = [];
       $imagesFromShopify = $product->images;
 
-      /*
-
-      In order to handle image creation / deletions, we need to compare what's
-      currently in the database with what gets sent back via the
-      product/update webhook.
-
-      */
-
-      $newProductID = Utils::wps_find_product_id($product);
-      $currentImagesArray = $this->get_rows('product_id', $newProductID);
+      $currentImagesArray = $this->get_rows('product_id', $product->id);
 
       $imagesToAdd = Utils::wps_find_items_to_add($currentImagesArray, $imagesFromShopify, true);
       $imagesToDelete = Utils::wps_find_items_to_delete($currentImagesArray, $imagesFromShopify, true);
 
-      $imagesToAdd = Utils::wps_convert_object_to_array($imagesToAdd);
-      $imagesToDelete = Utils::wps_convert_object_to_array($imagesToDelete);
+      $imagesToAdd = Utils::convert_object_to_array($imagesToAdd);
+      $imagesToDelete = Utils::convert_object_to_array($imagesToDelete);
+
 
       /*
 
@@ -298,19 +155,7 @@ if (!class_exists('Images')) {
       if (count($imagesToAdd) > 0) {
 
         foreach ($imagesToAdd as $key => $newImage) {
-
-          // TODO: Should we type check or type cast?
-          if (is_object($newImage)) {
-            $imageResponse = $WS->wps_ws_get_image_alt($newImage);
-            $newImage->alt = $this->get_alt_text_from_response($imageResponse);
-
-          } else if (is_array($newImage)) {
-            $imageResponse = $WS->wps_ws_get_image_alt($newImage);
-            $newImage['alt'] = $this->get_alt_text_from_response($imageResponse);
-          }
-
           $results['created'] = $this->insert($newImage, 'image');
-
         }
 
       }
@@ -324,7 +169,13 @@ if (!class_exists('Images')) {
       if (count($imagesToDelete) > 0) {
 
         foreach ($imagesToDelete as $key => $oldImage) {
-          $results['deleted'] = $this->delete($oldImage['id']);
+
+					$oldImage = Utils::convert_object_to_array($oldImage);
+
+					if (isset($oldImage['id'])) {
+						$results['deleted'] = $this->delete($oldImage['id']);
+					}
+
         }
 
       }
@@ -336,12 +187,7 @@ if (!class_exists('Images')) {
 
       */
       foreach ($imagesFromShopify as $key => $image) {
-
-        $imageResponse = $WS->wps_ws_get_image_alt($image);
-        $image->alt = $this->get_alt_text_from_response($imageResponse);
-
         $results['updated'] = $this->update($image->id, $image);
-
       }
 
       return $results;
@@ -349,48 +195,25 @@ if (!class_exists('Images')) {
     }
 
 
-    /*
 
-    Get Single Product Images
-    Without: Images, variants
 
-    */
-    public function get_product_images($postID = null) {
 
-      global $wpdb;
 
-      if ($postID === null) {
-        $postID = get_the_ID();
-      }
 
-      if (get_transient('wps_product_single_images_' . $postID)) {
-        $results = get_transient('wps_product_single_images_' . $postID);
 
-      } else {
 
-        $DB_Products = new Products();
-        $table_images = $this->table_name;
-        $table_products = $DB_Products->get_table_name();
-
-        $query = "SELECT images.* FROM $table_products AS products INNER JOIN $table_images AS images ON images.product_id = products.product_id WHERE products.post_id = %d";
-
-        $results = $wpdb->get_results($wpdb->prepare($query, $postID));
-
-        set_transient('wps_product_single_images_' . $postID, $results);
-
-      }
-
-      return $results;
-
-    }
 
 
 
     public static function get_variants_from_image($image) {
 
-      if (is_array($image) && isset($image['variant_ids'])) {
+			if (is_array($image)) {
+				$image = Utils::convert_array_to_object($image);
+			}
 
-        $variantIDs = maybe_unserialize($image['variant_ids']);
+      if (Utils::has($image, 'variant_ids')) {
+
+        $variantIDs = maybe_unserialize($image->variant_ids);
 
         if (!empty($variantIDs)) {
           $variantIDs = implode(', ', $variantIDs);
@@ -416,7 +239,6 @@ if (!class_exists('Images')) {
     */
     public static function get_image_details_from_image($image, $product) {
 
-      $Config = new Config();
 			$result = new \stdClass;
 
       if (empty($image->alt)) {
@@ -427,7 +249,7 @@ if (!class_exists('Images')) {
       }
 
       if (empty($image->src)) {
-        $src = $Config->plugin_url . 'public/imgs/placeholder.png';
+        $src = WPS_PLUGIN_URL . 'public/imgs/placeholder.png';
 
       } else {
         $src = $image->src;
@@ -449,7 +271,6 @@ if (!class_exists('Images')) {
     */
     public static function get_image_details_from_product($product) {
 
-      $Config = new Config();
 			$data = new \stdClass;
 
       // If an object is passed ...
@@ -458,7 +279,7 @@ if (!class_exists('Images')) {
         if (empty($product->feat_image)) {
 
           $alt = $product->title;
-          $src = $Config->plugin_url . 'public/imgs/placeholder.png';
+          $src = WPS_PLUGIN_URL . 'public/imgs/placeholder.png';
 
         } else {
           $src = $product->feat_image[0]->src;
@@ -495,12 +316,10 @@ if (!class_exists('Images')) {
     */
     public static function get_image_details_from_collection($collection) {
 
-      $Config = new Config();
 			$data = new \stdClass;
 
-
       if (empty($collection->image)) {
-        $src = $Config->plugin_url . 'public/imgs/placeholder.png';
+        $src = WPS_PLUGIN_URL . 'public/imgs/placeholder.png';
 
       } else {
         $src = $collection->image;
@@ -523,14 +342,87 @@ if (!class_exists('Images')) {
     }
 
 
+		/*
+
+		Get Single Product Images
+		Without: Images, variants
+
+		*/
+		public function get_images_from_post_id($postID = null) {
+
+			global $wpdb;
+
+			if ($postID === null) {
+				$postID = get_the_ID();
+			}
+
+			if (get_transient('wps_product_single_images_' . $postID)) {
+				$results = get_transient('wps_product_single_images_' . $postID);
+
+			} else {
+
+				$table_products = WPS_TABLE_NAME_PRODUCTS;
+
+				$query = "SELECT images.* FROM " . $table_products . " AS products INNER JOIN " . $this->table_name . " AS images ON images.product_id = products.product_id WHERE products.post_id = %d";
+
+				$results = $wpdb->get_results($wpdb->prepare($query, $postID));
+
+				set_transient('wps_product_single_images_' . $postID, $results);
+
+			}
+
+			return $results;
+
+		}
+
+
+		/*
+
+		Delete Images from product ID
+
+		*/
+		public function delete_images_from_product_id($product_id) {
+			return $this->delete_rows('product_id', $product_id);
+		}
+
+
+		/*
+
+		Position is a string so we need a more relaxed
+		equality check
+
+		*/
+		public function get_featured_image_by_position($image) {
+			return $image->position == 1;
+		}
+
+
+		/*
+
+		Get feat image by id
+
+		*/
+		public function get_feat_image_by_post_id($post_id) {
+
+			$feat_image = array_filter( $this->get_images_from_post_id($post_id), [$this, "get_featured_image_by_position"] );
+
+			return array_values($feat_image);
+
+		}
+
+
     /*
 
     Creates a table query string
 
     */
-    public function create_table_query() {
+    public function create_table_query($table_name = false) {
 
       global $wpdb;
+
+			if (!$table_name) {
+				$table_name = $this->table_name;
+			}
 
       $collate = '';
 
@@ -538,19 +430,31 @@ if (!class_exists('Images')) {
         $collate = $wpdb->get_charset_collate();
       }
 
-      return "CREATE TABLE `{$this->table_name}` (
-        `id` bigint(100) unsigned NOT NULL AUTO_INCREMENT,
-        `product_id` bigint(100) DEFAULT NULL,
-        `variant_ids` longtext DEFAULT NULL,
-        `src` longtext DEFAULT NULL,
-        `alt` longtext DEFAULT NULL,
-        `position` int(20) DEFAULT NULL,
-        `created_at` datetime,
-        `updated_at` datetime,
-        PRIMARY KEY  (`{$this->primary_key}`)
+      return "CREATE TABLE $table_name (
+        id bigint(100) unsigned NOT NULL DEFAULT 0,
+        product_id bigint(100) DEFAULT NULL,
+        variant_ids longtext DEFAULT NULL,
+        src longtext DEFAULT NULL,
+        alt longtext DEFAULT NULL,
+        position int(20) DEFAULT NULL,
+        created_at datetime,
+        updated_at datetime,
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
     }
+
+
+		/*
+
+		Migrate insert into query
+
+		*/
+		public function migration_insert_into_query() {
+
+			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `variant_ids`, `src`, `alt`, `position`, `created_at`, `updated_at`) SELECT `id`, `product_id`, `variant_ids`, `src`, `alt`, `position`, `created_at`, `updated_at` FROM ' . $this->table_name);
+
+		}
 
 
     /*
@@ -563,7 +467,8 @@ if (!class_exists('Images')) {
       require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
       if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query() );
+        dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
       }
 
     }

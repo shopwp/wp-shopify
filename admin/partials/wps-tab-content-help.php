@@ -4,20 +4,21 @@ Tab Content: Help / Debug
 
 -->
 
-<div class="tab-content <?php echo $tab === 'help' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-help">
+<div class="tab-content <?php echo $active_tab === 'tab-help' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-help">
 
   <div class="wps-admin-section">
 
-    <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-sos"></span> <?php esc_html_e('Help', 'wp-shopify'); ?></h3>
+    <h3 class="wps-admin-section-heading"><span class="dashicons dashicons-sos"></span> <?php esc_html_e('Help', WPS_PLUGIN_TEXT_DOMAIN); ?></h3>
 
-    <p><?php printf(__('Need help finding your Shopify API keys? Watch our <a href="%s" target="_blank"> video tutorial</a>.', 'wp-shopify'), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
+    <p><?php printf(__('Need help finding your Shopify API keys? Watch our <a href="%s" target="_blank"> video tutorial</a>.', WPS_PLUGIN_TEXT_DOMAIN), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
 
-    <p><?php printf(__('If you\'re running into problems, please review our exhaustive <a href="%1$s" target="_blank">documentation</a>. If you\'re not able to find the solution you can also send us an email to <a href="%2$s">hello@wpshop.io</a> with the problem you\'re having. The more detailed you are the better we can help! Also if you\'ve purchased a <a href="%3$s" target="_blank">WP Shopify Pro</a> license you can join our private Slack channel to receive dedicated live support. ', 'wp-shopify'), esc_url("https://wpshop.io/docs"), esc_url("mailto:hello@wpshop.io"), esc_url("https://wpshop.io/purchase")); ?></p>
-    <p><?php printf(__('WP Shopify documentation can be found here: <a href="%1$s" target="_blank">%2$s</a>', 'wp-shopify'), esc_url($this->config->plugin_env . "/docs"), esc_url($this->config->plugin_env . "/docs")); ?></p>
+    <p><?php printf(__('If you\'re running into problems, please review our exhaustive <a href="%1$s" target="_blank">documentation</a>. If you\'re not able to find the solution you can also send us an email to <a href="%2$s">hello@wpshop.io</a> with the problem you\'re having. The more detailed you are the better we can help! Also if you\'ve purchased a <a href="%3$s" target="_blank">WP Shopify Pro</a> license you can join our private Slack channel to receive dedicated live support. ', WPS_PLUGIN_TEXT_DOMAIN), esc_url("https://wpshop.io/docs"), esc_url("mailto:hello@wpshop.io"), esc_url("https://wpshop.io/purchase")); ?></p>
+    <p><?php printf(__('WP Shopify documentation can be found here: <a href="%1$s" target="_blank">%2$s</a>', WPS_PLUGIN_TEXT_DOMAIN), esc_url(WPS_PLUGIN_ENV . "/docs"), esc_url(WPS_PLUGIN_ENV . "/docs")); ?></p>
 
     <textarea name="name" rows="30" cols="95" readonly>
 
 <?php
+
 
 
 // TODO: Clean this up and restructure
@@ -107,6 +108,8 @@ echo "\r\n";
 
 echo 'MySQL: ';
 echo esc_html( empty( $wpdb->use_mysqli ) ? mysql_get_server_info() : mysqli_get_server_info( $wpdb->dbh ) );
+
+
 echo "\r\n";
 
 echo 'ext/mysqli: ';
@@ -139,6 +142,7 @@ echo 'DB Charset: ';
 echo esc_html( DB_CHARSET );
 echo "\r\n";
 
+
 if ( function_exists( 'ini_get' ) && $suhosin_limit = ini_get( 'suhosin.post.max_value_length' ) ) {
   echo 'Suhosin Post Max Value Length: ';
   echo esc_html( is_numeric( $suhosin_limit ) ? size_format( $suhosin_limit ) : $suhosin_limit );
@@ -163,7 +167,7 @@ echo "\r\n";
 // echo esc_html( size_format( $this->get_post_max_size() ) );
 // echo "\r\n";
 
-echo 'PHP Time Limit: ';
+echo 'PHP Max Execution Time: ';
 if ( function_exists( 'ini_get' ) ) {
   echo esc_html( ini_get( 'max_execution_time' ) );
 }

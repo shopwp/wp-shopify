@@ -5,23 +5,20 @@ namespace WPS;
 use WPS\Utils;
 use WPS\Transients;
 
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-
-/*
-
-CPT Class
-
-*/
 if ( !class_exists('CPT') ) {
 
 	class CPT {
 
-	  protected static $instantiated = null;
-	  private $Config;
+		private $DB_Settings_General;
+		private $DB_Products;
+		private $DB_Collections_Custom;
+		private $DB_Collections_Smart;
+		private $DB_Collects;
+		private $DB_Tags;
 
 
 	  /*
@@ -29,51 +26,63 @@ if ( !class_exists('CPT') ) {
 	  Initialize the class and set its properties.
 
 	  */
-	  public function __construct($Config) {
-	    $this->config = $Config;
-	    $this->general = $this->config->wps_get_settings_general();
-	  }
+	  public function __construct($DB_Settings_General, $DB_Products, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Collects, $DB_Tags) {
 
-
-	  /*
-
-	  Creates a new class if one hasn't already been created.
-	  Ensures only one instance is used.
-
-	  */
-	  public static function instance($Config) {
-
-	    if (is_null(self::$instantiated)) {
-	      self::$instantiated = new self($Config);
-	    }
-
-	    return self::$instantiated;
+			$this->DB_Settings_General						= $DB_Settings_General;
+			$this->DB_Products										= $DB_Products;
+			$this->DB_Collections_Custom					= $DB_Collections_Custom;
+			$this->DB_Collections_Smart						= $DB_Collections_Smart;
+			$this->DB_Collects										= $DB_Collects;
+			$this->DB_Tags												= $DB_Tags;
 
 	  }
 
 
-	  public static function wps_add_meta_to_cpt($posts) {
-
-	    $postsNew = Utils::wps_convert_object_to_array($posts);
+	  public static function add_meta_to_cpt($posts) {
 
 	    return array_map(function($post) {
-	      $post['post_meta'] = get_post_meta($post['ID']);
+
+	      $post->post_meta = get_post_meta($post->ID);
+
 	      return $post;
-	    }, $postsNew);
+
+	    }, $posts);
 
 	  }
 
 
-	  public static function wps_get_all_cpt_by_type($type) {
 
-	    $posts = get_posts(array(
-				'posts_per_page' => -1,
-				'post_type' => $type
-			));
+		public static function get_all_posts($type) {
 
-	    return self::wps_add_meta_to_cpt($posts);
+			return get_posts([
+				'posts_per_page' 		=> -1,
+				'post_type' 				=> $type
+			]);
 
+		}
+
+
+	  public static function get_all_posts_by_type($type) {
+	    return self::add_meta_to_cpt( self::get_all_posts($type) );
 	  }
+
+
+
+
+		public static function truncate_post_data($posts) {
+
+			return array_map(function($post) {
+
+				return [
+					'ID'					=> $post->ID,
+					'post_name'		=> $post->post_name
+				];
+
+			}, $posts );
+
+		}
+
+
 
 
 	  /*
@@ -81,37 +90,39 @@ if ( !class_exists('CPT') ) {
 	  CPT: Products
 
 	  */
-	  public function wps_post_type_products() {
+	  public function post_type_products() {
 
-	    if (post_type_exists('wps_products')) {
+	    if (post_type_exists(WPS_PRODUCTS_POST_TYPE_SLUG)) {
 	      return;
 	    }
 
+			$settings_general = $this->DB_Settings_General->get();
+
 	    // If falsey or not an object ...
-	    if (empty($this->general) || !is_object($this->general)) {
+	    if (empty($settings_general) || !is_object($settings_general)) {
 	      $permalink = 'products';
 
 	    } else {
-	      $permalink = $this->general->url_products;
+	      $permalink = $settings_general->url_products;
 	    }
 
 
 	    $labels = array(
-	      'name'                => _x('Products', 'Post Type General Name', 'wp-shopify'),
-	      'singular_name'       => _x('Product', 'Post Type Singular Name', 'wp-shopify'),
-	      'menu_name'           => __('Products', 'wp-shopify'),
-	      'parent_item_colon'   => __('Parent Item:', 'wp-shopify'),
-	      'new_item'            => __('Add New Product', 'wp-shopify'),
-	      'edit_item'           => __('Edit Product', 'wp-shopify'),
-	      'not_found'           => __('No Products found', 'wp-shopify'),
-	      'not_found_in_trash'  => __('No Products found in trash', 'wp-shopify')
+	      'name'                => _x('Products', 'Post Type General Name', WPS_PLUGIN_TEXT_DOMAIN),
+	      'singular_name'       => _x('Product', 'Post Type Singular Name', WPS_PLUGIN_TEXT_DOMAIN),
+	      'menu_name'           => __('Products', WPS_PLUGIN_TEXT_DOMAIN),
+	      'parent_item_colon'   => __('Parent Item:', WPS_PLUGIN_TEXT_DOMAIN),
+	      'new_item'            => __('Add New Product', WPS_PLUGIN_TEXT_DOMAIN),
+	      'edit_item'           => __('Edit Product', WPS_PLUGIN_TEXT_DOMAIN),
+	      'not_found'           => __('No Products found', WPS_PLUGIN_TEXT_DOMAIN),
+	      'not_found_in_trash'  => __('No Products found in trash', WPS_PLUGIN_TEXT_DOMAIN)
 	    );
 
 	    $args = array(
-	      'label'               => __('Products', 'wp-shopify'),
-	      'description'         => __('Custom Post Type for Products', 'wp-shopify'),
+	      'label'               => __('Products', WPS_PLUGIN_TEXT_DOMAIN),
+	      'description'         => __('Custom Post Type for Products', WPS_PLUGIN_TEXT_DOMAIN),
 	      'labels'              => $labels,
-	      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
+	      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments', 'thumbnail'),
 				'taxonomies'					=> ['category'],
 	      'hierarchical'        => false,
 	      'public'              => true,
@@ -131,9 +142,8 @@ if ( !class_exists('CPT') ) {
 	      )
 	    );
 
-	    register_post_type('wps_products', $args);
+	    register_post_type(WPS_PRODUCTS_POST_TYPE_SLUG, $args);
 
-			// Transients::check_rewrite_rules();
 
 	  }
 
@@ -143,37 +153,39 @@ if ( !class_exists('CPT') ) {
 	  CPT: Collections
 
 	  */
-	  public function wps_post_type_collections() {
+	  public function post_type_collections() {
 
-	    if ( post_type_exists( 'wps_collections' ) ) {
+	    if ( post_type_exists(WPS_COLLECTIONS_POST_TYPE_SLUG) ) {
 	      return;
 	    }
 
+			$settings_general = $this->DB_Settings_General->get();
+
 	    // If falsey or not an object ...
-	    if (empty($this->general) || !is_object($this->general)) {
+	    if (empty($settings_general) || !is_object($settings_general)) {
 	      $permalink = 'collections';
 
 	    } else {
-	      $permalink = $this->general->url_collections;
+	      $permalink = $settings_general->url_collections;
 	    }
 
 
 	    $labels = array(
-	      'name'                => _x('Collections', 'Post Type General Name', 'wp-shopify'),
-	      'singular_name'       => _x('Collection', 'Post Type Singular Name', 'wp-shopify'),
-	      'menu_name'           => __('Collections', 'wp-shopify'),
-	      'parent_item_colon'   => __('Parent Item:', 'wp-shopify'),
-	      'new_item'            => __('Add New Collection', 'wp-shopify'),
-	      'edit_item'           => __('Edit Collection', 'wp-shopify'),
-	      'not_found'           => __('No Collections found', 'wp-shopify'),
-	      'not_found_in_trash'  => __('No Collections found in trash', 'wp-shopify')
+	      'name'                => _x('Collections', 'Post Type General Name', WPS_PLUGIN_TEXT_DOMAIN),
+	      'singular_name'       => _x('Collection', 'Post Type Singular Name', WPS_PLUGIN_TEXT_DOMAIN),
+	      'menu_name'           => __('Collections', WPS_PLUGIN_TEXT_DOMAIN),
+	      'parent_item_colon'   => __('Parent Item:', WPS_PLUGIN_TEXT_DOMAIN),
+	      'new_item'            => __('Add New Collection', WPS_PLUGIN_TEXT_DOMAIN),
+	      'edit_item'           => __('Edit Collection', WPS_PLUGIN_TEXT_DOMAIN),
+	      'not_found'           => __('No Collections found', WPS_PLUGIN_TEXT_DOMAIN),
+	      'not_found_in_trash'  => __('No Collections found in trash', WPS_PLUGIN_TEXT_DOMAIN)
 	    );
 
 	    $args = array(
-	      'label'               => __('Collections', 'wp-shopify'),
-	      'description'         => __('Custom Post Type for Collections', 'wp-shopify'),
+	      'label'               => __('Collections', WPS_PLUGIN_TEXT_DOMAIN),
+	      'description'         => __('Custom Post Type for Collections', WPS_PLUGIN_TEXT_DOMAIN),
 	      'labels'              => $labels,
-	      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments'),
+	      'supports'            => array('title', 'page-attributes', 'editor', 'custom-fields', 'comments', 'thumbnail'),
 	      'hierarchical'        => false,
 	      'public'              => true,
 	      'show_ui'             => true,
@@ -193,12 +205,33 @@ if ( !class_exists('CPT') ) {
 
 	    );
 
-
-	    // Transients::check_rewrite_rules();
-	    register_post_type('wps_collections', $args);
+	    register_post_type(WPS_COLLECTIONS_POST_TYPE_SLUG, $args);
 
 	  }
 
+
+
+		/*
+
+		Returns a collections post model with collection id assigned as meta_value
+
+		*/
+		public function set_collection_model_defaults($collection) {
+
+			$collection = Utils::convert_array_to_object($collection);
+
+			return [
+				'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
+				'post_content'  => property_exists($collection, 'body_html') && $collection->body_html !== null  ? __($collection->body_html) : '',
+				'post_status'   => 'publish',
+				'post_type'     => WPS_COLLECTIONS_POST_TYPE_SLUG,
+				'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
+				'meta_input' => [
+					'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
+				]
+			];
+
+		}
 
 
 	  /*
@@ -206,41 +239,23 @@ if ( !class_exists('CPT') ) {
 	  Returns a model used to either add or update a product CPT
 
 	  */
-	  public static function wps_get_product_cpt_model($product) {
+	  public static function set_product_model_defaults($product) {
 
-	    return $productModel = array(
+			$product = Utils::convert_array_to_object($product);
+
+	    return [
 	      'post_title'    => property_exists($product, 'title') ? __($product->title) : '',
-	      'post_content'  => property_exists($product, 'body_html') ? __($product->body_html) : '',
+	      'post_content'  => property_exists($product, 'body_html') && $product->body_html !== null ? __($product->body_html) : '',
 	      'post_status'   => 'publish',
-	      'post_type'     => 'wps_products',
+	      'post_type'     => WPS_PRODUCTS_POST_TYPE_SLUG,
 	      'post_name'			=> property_exists($product, 'handle') ? __($product->handle) : '',
-	      'meta_input' => array(
+	      'meta_input' => [
 	        'product_id' => property_exists($product, 'id') ? $product->id : ''
-	      )
-	    );
+	      ]
+	    ];
 
 	  }
 
-
-	  /*
-
-	  Returns a model used to either add or update a collection CPT
-
-	  */
-	  public static function wps_get_collection_cpt_model($collection, $newCollectionID) {
-
-	    return array(
-	      'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
-	      'post_content'  => property_exists($collection, 'body_html') ? __($collection->body_html) : '',
-	      'post_status'   => 'publish',
-	      'post_type'     => 'wps_collections',
-	      'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
-	      'meta_input' => array(
-	        'collection_id' => $newCollectionID
-	      )
-	    );
-
-	  }
 
 
 	  /*
@@ -257,138 +272,547 @@ if ( !class_exists('CPT') ) {
 	      'posts_per_page'  => 1,
 	    );
 
-	    $loop = get_posts($args);
+	    $posts = get_posts($args);
 
-	    if (is_array($loop) && empty($loop)) {
+	    if (is_array($posts) && empty($posts)) {
 	      return 1;
 
 	    } else {
-	      return $loop[0]->menu_order + 1;
+	      return $posts[0]->menu_order + 1;
 	    }
 
 	  }
 
 
-	  /*
+		/*
 
-	  Adds New CPT Product into DB
-	  Don't put expensive operations inside as this function gets called within loops.
+		$product_or_collection = Array
 
-	  Called in class-db-products.php
+		*/
+		public static function find_existing_post_id($product_or_collection) {
 
-	  */
-	  public static function wps_insert_or_update_product($product, $index = false) {
+			if (is_array($product_or_collection) && !empty($product_or_collection)) {
 
-			$existingProducts = self::wps_get_all_cpt_by_type('wps_products');
-	    $productModel = self::wps_get_product_cpt_model($product);
-	    $existing_post_id = Utils::wps_find_post_id_from_new_product_or_collection($product, $existingProducts, 'product');
+				$product_or_collection = Utils::get_first_array_item($product_or_collection);
 
-	    // If existing CPT found ...
-	    if (!empty($existing_post_id) && $existing_post_id) {
+				return $product_or_collection->ID;
 
-	      $productCPT = get_post($existing_post_id);
+			} else {
+				return false;
 
-	      $productModel['ID'] = $existing_post_id;
-	      $productModel['menu_order'] = $productCPT->menu_order;
-
-	    } else {
-
-	      if (!empty($index) && $index) {
-	        $productModel['menu_order'] = $index;
-	      }
-
-	    }
-
-			if ($productModel['post_content'] == null) {
-				$productModel['post_content']	= '';
 			}
 
-	    // Insert post and return the ID or error object if fail
-	    return wp_insert_post($productModel, true);
-
-	  }
+		}
 
 
+		/*
 
-	  /*
+		Returns an array containing only products / collections that match the passed in ID.
 
-	  Insert New Collections
-	  $product, $existingProducts, $index = false
+		*/
+		public static function find_only_existing_posts($existing_items, $item_id, $post_type = '') {
 
-	  */
-	  public static function wps_insert_or_update_collection($collection, $existingCollections, $index = false) {
+			return array_filter($existing_items, function($existing_item) use ($item_id, $post_type) {
 
-	    // Sets the collection ID within the meta value
-	    $newCollectionID = Utils::wps_find_collection_id($collection);
-	    $newCollectionModel = self::wps_get_collection_cpt_model($collection, $newCollectionID);
-
-	    $existing_post_id = Utils::wps_find_post_id_from_new_product_or_collection($collection, $existingCollections,  'collection');
-
-	    if (!empty($existing_post_id) && $existing_post_id) {
-	      $newCollectionModel['ID'] = $existing_post_id;
-	    }
-
-	    /*
-
-	    We have access to an $index variable if this function is called
-	    by a full sync. Otherwise this function is called via a webhook like
-	    update or add. In this case we need to find the highest index
-
-	    */
-	    if (!empty($index) && $index) {
-	      $newCollectionModel['menu_order'] = $index;
-
-	    } else {
-
-	      // Use the current menu order number instead
-	      $collectionCPT = get_post($existing_post_id);
-
-				if (is_object($collectionCPT) && isset($collectionCPT->menu_order)) {
-					$newCollectionModel['menu_order'] = $collectionCPT->menu_order;
+				if (isset($existing_item->post_meta[$post_type . '_id']) && is_array($existing_item->post_meta[$post_type . '_id'])) {
+					return $existing_item->post_meta[$post_type . '_id'][0] == $item_id;
 				}
 
-	    }
+			});
 
-			if ($newCollectionModel['post_content'] == null) {
-				$newCollectionModel['post_content']	= '';
+		}
+
+
+		/*
+
+		Adds the post ID if one exists. Used for building the product / collections model
+
+		*/
+		public static function set_post_id_if_exists($model, $existing_post_id) {
+
+			if (!empty($existing_post_id)) {
+				$model['ID'] = $existing_post_id;
 			}
 
-	    // Insert post and return the ID or error object if fail
+			return $model;
 
-			return wp_insert_post($newCollectionModel, true);
-
-	  }
+		}
 
 
-	  /*
+		/*
 
-	  Update existing products
+		Post exists
+
+		*/
+		public static function post_exists($posts, $post_handle) {
+
+			if ( in_array($post_handle, array_column($posts, 'post_name')) ) {
+				return true;
+			}
+
+		}
+
+
+		/*
+
+		At this point the $savedCollections contains only collection IDs that are NEW.
+		We need to now create the proper collects row connection
+
+		*/
+		public function add_collects_to_post($savedCollections, $product) {
+
+			$insertionResults = [];
+
+			foreach ($savedCollections as $newSavedCollectionID => $value) {
+
+				$productID = (int) $product->product_id;
+				$numberString1 = (int) substr(strval($newSavedCollectionID), 0, -4);
+				$numberString2 = (int) substr(strval($productID), 0, -4);
+
+				$newCollect = [
+					'id'                   => $numberString1 . $numberString2 . 1111,
+					'product_id'           => $product->product_id,
+					'collection_id'        => $newSavedCollectionID,
+					'featured'             => '',
+					'position'             => '',
+					'sort_value'           => '',
+					'created_at'           => date_i18n( 'Y-m-d H:i:s' ),
+					'updated_at'           => date_i18n( 'Y-m-d H:i:s' )
+				];
+
+				// Inserts any new collects
+				$insertionResults[] = $this->DB_Collects->insert($newCollect, 'collect');
+
+			}
+
+			return $insertionResults;
+
+		}
+
+
+		/*
+
+		At this point the $savedCollections contains only collection IDs that are NEW.
+		We need to now create the proper collects row connection
+
+		*/
+		public function add_tags_to_post($savedTags, $product) {
+
+			$insertionResults = [];
+
+			foreach ($savedTags as $savedTag => $savedTagValue) {
+
+				$productID = (int) $product->product_id;
+				$numberString1 = (int) ord($savedTag);
+				$numberString2 = (int) substr(strval($productID), 0, -4);
+
+				$newTag = [
+					'tag_id'               => $numberString1 . $numberString2 . 1111,
+					'product_id'           => $product->product_id,
+					'post_id'              => $product->post_id,
+					'tag'             		 => $savedTag
+				];
+
+				// Inserts any new collects
+				$insertionResults[] = $this->DB_Tags->insert($newTag, 'tag');
+
+			}
+
+			return $insertionResults;
+
+		}
+
+
+
+		/*
+
+		Removing collects row from post
+
+		*/
+		public function remove_collects_from_post($collectsToRemove) {
+
+			$removalResult = [];
+
+			foreach ($collectsToRemove as $collectID) {
+				$removalResult[] = $this->DB_Collects->delete_rows_in('id', $collectID);
+			}
+
+			return $removalResult;
+
+		}
+
+
+		/*
+
+		Removing tags row from post
+
+		*/
+		public function remove_tags_from_post($tagsToRemove) {
+
+			$removalResult = [];
+
+			foreach ($tagsToRemove as $key => $tagID) {
+				$removalResult[] = $this->DB_Tags->delete_rows_in('tag_id', $tagID);
+			}
+
+			return $removalResult;
+
+		}
+
+
+		/*
+
+		Fires when custom post type `wps_products` is saved / updated
+
+		*/
+		public function on_save_products($postID, $post, $update) {
+
+			if (function_exists('get_current_screen') && !empty(get_current_screen()) && get_current_screen()->id === WPS_PRODUCTS_POST_TYPE_SLUG) {
+
+				$product = $this->DB_Products->get_product_from_post_id($postID);
+
+				$collectsResults = $this->save_collects_to_post($product);
+				$tagsResults = $this->save_tags_to_post($product);
+
+
+				/*
+
+				Updates the product title and post content
+
+				*/
+				$title = $this->DB_Products->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
+				$body_content = $this->DB_Products->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+
+
+				/*
+
+				Clear product cache and log errors if present
+
+				*/
+				$transientSingleProductDeletion = Transients::delete_cached_single_product_by_id($postID);
+				$transientProductQueriesDeletion = Transients::delete_cached_product_queries();
+
+				if (is_wp_error($transientSingleProductDeletion)) {
+					error_log($transientSingleProductDeletion->get_error_message());
+				}
+
+				if (is_wp_error($transientProductQueriesDeletion)) {
+					error_log($transientsDeletion->get_error_message());
+				}
+
+			}
+
+
+		}
+
+
+		/*
+
+		Fires when custom post type `wps_collections` is updated
+
+		*/
+		public function on_save_collections($postID, $post, $update) {
+
+			if (function_exists('get_current_screen') && !empty(get_current_screen()) && get_current_screen()->id === WPS_COLLECTIONS_POST_TYPE_SLUG) {
+
+				// Update custom product table data
+				$customTitle = $this->DB_Collections_Custom->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
+				$customBodyContent = $this->DB_Collections_Custom->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+
+				$smartTitle = $this->DB_Collections_Smart->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
+				$smartBodyContent = $this->DB_Collections_Smart->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+
+				// Clear product cache
+				$transientsDeletion = Transients::delete_cached_single_collection_by_id($postID);
+
+				// Log error if one exists
+				if (is_wp_error($transientsDeletion)) {
+					error_log($transientsDeletion->get_error_message());
+				}
+
+			}
+
+		}
+
+
+		/*
+
+		Save collects to post
+
+		*/
+		public function save_collects_to_post($product) {
+
+			$collects = $this->DB_Collects->get_collects_by_product_id($product->product_id);
+			$collections = $this->establish_items_for_post('collections');
+
+			$collectsAdded = $this->add_collects_to_post( $this->find_items_to_add($collects, $collections['saved']), $product);
+			$collectsRemoved = $this->remove_collects_from_post( $this->find_items_to_remove($collects, $collections['saved_orig']) );
+
+			return [
+				'collects_added' => $collectsAdded,
+				'collects_removed' => $collectsRemoved
+			];
+
+		}
+
+
+		/*
+
+		Creating array of collects to potentially remove
+
+		*/
+		public function find_items_to_add($currentItems, $savedItems) {
+
+			foreach ($currentItems as $key => $currentItem) {
+
+
+				if (isset($currentItem->collection_id) && $currentItem->collection_id) {
+
+					if (isset($savedItems[$currentItem->collection_id])) {
+						unset($savedItems[$currentItem->collection_id]);
+					}
+
+				}
+
+
+				if (isset($currentItem->tag_id) && $currentItem->tag_id) {
+
+					if (isset($savedItems[$currentItem->tag])) {
+						unset($savedItems[$currentItem->tag]);
+					}
+
+				}
+
+
+			}
+
+			return $savedItems;
+
+		}
+
+
+		/*
+
+		Creating array of collects to potentially remove
+
+		*/
+		public function find_items_to_remove($currentItems, $savedItemsOrig) {
+
+			$currentItemsOrig = json_decode(json_encode($currentItems), true);
+			$itemsToRemove = [];
+
+			foreach ($currentItemsOrig as $item) {
+
+				if (isset($item['collection_id']) && $item['collection_id']) {
+					if (!array_key_exists($item['collection_id'], $savedItemsOrig)) {
+						$itemsToRemove[] = $item['id'];
+					}
+				}
+
+				if (isset($item['tag_id']) && $item['tag_id']) {
+					if (!array_key_exists($item['tag'], $savedItemsOrig)) {
+						$itemsToRemove[] = $item['tag_id'];
+					}
+				}
+
+			}
+
+			return $itemsToRemove;
+
+		}
+
+
+		/*
+
+		Save tags to post
+
+		*/
+		public function save_tags_to_post($product) {
+
+			$currentTags = $this->DB_Tags->get_tags_from_post_id($product->post_id);
+			$savedTags = $this->establish_items_for_post('tags');
+
+			$tagsAdded = $this->add_tags_to_post( $this->find_items_to_add($currentTags, $savedTags['saved']), $product);
+			$tagsRemoved = $this->remove_tags_from_post( $this->find_items_to_remove($currentTags, $savedTags['saved_orig']) );
+
+			return [
+				'tags_added' => $tagsAdded,
+				'tags_removed' => $tagsRemoved
+			];
+
+		}
+
+
+		/*
+
+		Gathering the nessesary collections data to work with
+
+		*/
+		public function establish_items_for_post($type) {
+
+			if (isset($_POST[$type]) && $_POST[$type]) {
+				$savedItems = $_POST[$type];
+				$savedItemsOrig = $_POST[$type];
+
+			} else {
+
+				// Should never be empty, but just incase ...
+				$savedItems = [];
+				$savedItemsOrig = [];
+
+			}
+
+			return [
+				'saved' 			=> $savedItems,
+				'saved_orig'	=> $savedItemsOrig
+			];
+
+		}
+
+
+		/*
+
+	  Find the WP Post ID of the product being updated
 
 	  */
-	  public static function wps_update_existing_collection($collection) {
+	  public static function find_existing_post_id_from_collection($existing_collections, $collection) {
 
-	    $found_post_id = Utils::wps_find_post_id_from_new_collection($collection);
+	    $found_post = self::find_only_existing_posts($existing_collections, $collection->collection_id, 'collection');
+			$found_post_id = self::find_existing_post_id($found_post);
 
-	    $collection_args = array(
-	      'ID'            => !empty($found_post_id) ? $found_post_id : null,
-	      'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
-	      'post_content'  => property_exists($collection, 'body_html') ? __($collection->body_html) : '',
-	      'post_status'   => 'publish',
-	      'post_type'     => 'wps_collections',
-	      'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
-	      'meta_input' => array(
-	        'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
-	      )
-
-	    );
-
-	    // Needed to ensure working pages
-	    // flush_rewrite_rules();
-
-	    // Insert post and return the ID or error object if fail
-	    return wp_insert_post($collection_args, true);
+			return $found_post_id;
 
 	  }
+
+
+		/*
+
+		Find the WP Post ID of the product being updated
+
+		*/
+		public static function find_existing_post_id_from_product($existing_products, $product) {
+
+			$found_post = self::find_only_existing_posts($existing_products, $product->id, 'product');
+			$found_post_id = self::find_existing_post_id($found_post);
+
+			return $found_post_id;
+
+		}
+
+
+		public static function num_of_posts($type) {
+
+			$amounts = wp_count_posts($type);
+			$amounts_total = [];
+
+			$amounts_array = get_object_vars($amounts);
+			$amounts_values_array = array_values($amounts_array);
+
+			$total_amounts = array_reduce($amounts_values_array, function($carry, $item) {
+
+				$carry += $item;
+				return $carry;
+
+			});
+
+			return $total_amounts;
+
+		}
+
+
+		public static function collections_posts_exist() {
+
+			if (self::num_of_posts(WPS_COLLECTIONS_POST_TYPE_SLUG) > 0) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		public static function products_posts_exist() {
+
+			if (self::num_of_posts(WPS_PRODUCTS_POST_TYPE_SLUG) > 0) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+		function get_shopify_featured_image() {
+
+		}
+
+		function has_existing_featured_image() {
+
+		}
+
+
+
+		function wp_get_attachment_image_attributes_filter($attr, $attachment, $size) {
+
+			global $post;
+
+			$media = get_attached_media('image', $post->ID);
+			$post_type = get_post_type($post->ID);
+
+
+			if ($post_type !== 'wps_products' && $post_type !== 'wps_collections') {
+				return $attr;
+			}
+
+			return $attr;
+
+		}
+
+
+		public function post_thumbnail_html_filter($html, $post_ID, $post_thumbnail_id, $size, $attr) {
+
+			if (!empty($html)) {
+				return $html;
+			}
+
+			$post_type = get_post_type($post_ID);
+
+			if ($post_type !== 'wps_products' && $post_type !== 'wps_collections') {
+				return $html;
+			}
+
+		}
+
+
+		/*
+
+		Hooks
+
+		*/
+		public function hooks() {
+
+			add_action('init', [$this, 'post_type_products']);
+			add_action('init', [$this, 'post_type_collections']);
+
+			add_action('save_post_' . WPS_PRODUCTS_POST_TYPE_SLUG, [$this, 'on_save_products'], 10, 3);
+			add_action('save_post_' . WPS_COLLECTIONS_POST_TYPE_SLUG, [$this, 'on_save_collections'], 10, 3);
+
+			// add_filter( 'wp_get_attachment_image_attributes', [$this, 'wp_get_attachment_image_attributes_filter'], 10, 3 );
+			add_filter( 'post_thumbnail_html', [$this, 'post_thumbnail_html_filter'], 10, 5 );
+
+		}
 
 
 	  /*
@@ -397,10 +821,7 @@ if ( !class_exists('CPT') ) {
 
 	  */
 	  public function init() {
-
-			add_action('init', [$this, 'wps_post_type_products']);
-			add_action('init', [$this, 'wps_post_type_collections']);
-
+			$this->hooks();
 	  }
 
 

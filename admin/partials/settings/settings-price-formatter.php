@@ -3,6 +3,7 @@
 Price Formatter
 
 -->
+
 <div class="wps-form-group wps-form-group-tight wps-form-group-align-top">
 
   <table class="form-table">
@@ -10,13 +11,13 @@ Price Formatter
       <tr valign="top">
 
         <th scope="row" class="titledesc">
-          <?php esc_attr_e( 'Price formatting', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'For example, enabling would make the price output look like this: $19.99 USD. (Adding USD in this example).', 'wp-shopify' ); ?>"></span>
+          <?php esc_attr_e( 'Price formatting', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'For example, enabling would make the price output look like this: $19.99 USD. (Adding USD in this example).', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">
-          <label for="<?php echo $this->config->settings_general_option_name; ?>_price_with_currency" class="wps-label-block">
-            <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_price_with_currency]" id="<?php echo $this->config->settings_general_option_name; ?>_price_with_currency" type="checkbox" <?php echo $general->price_with_currency ? 'checked' : ''; ?>> <?php esc_attr_e('Show currency symbol with price', 'wp-shopify' ); ?>
+          <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_price_with_currency" class="wps-label-block">
+            <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_price_with_currency]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_price_with_currency" type="checkbox" <?php echo $general->price_with_currency ? 'checked' : ''; ?>> <?php esc_attr_e('Show currency symbol with price', WPS_PLUGIN_TEXT_DOMAIN ); ?>
           </label>
         </td>
 

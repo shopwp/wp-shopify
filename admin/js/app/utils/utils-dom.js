@@ -3,14 +3,26 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import forEach from 'lodash/forEach';
 import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
 
 import {
-  connectInit
+  checkMark,
+  slideInDown
+} from './utils-animations';
+
+import {
+  connectInit,
+  prepareBeforeSync
 } from '../connect/connect';
 
 import {
-  getDefaultExitOptions,
-  getCombinedExitOptions
+  initDismissNoticeEvents
+} from '../notices/notices';
+
+import {
+  getCombinedExitOptions,
+  hasConnection,
+  getConnectionStatus
 } from './utils-data';
 
 import {
@@ -18,16 +30,23 @@ import {
 } from './utils';
 
 import {
+  manuallyCanceled
+} from './utils-progress';
+
+import {
+  onModalClose
+} from '../forms/events';
+
+import {
   getModalCache,
-  connectionInProgress,
+  isConnectionInProgress,
   removeModalCache,
   removeConnectionProgress,
-  removeConnectionNonce,
   clearLocalstorageCache,
-  setConnectionProgress,
-  isConnectionInProgress,
   syncIsCanceled
 } from '../ws/localstorage';
+
+import he from 'he';
 
 /*
 
@@ -116,10 +135,9 @@ function showConnectorModal($connectorModal) {
 
 Creates a new connector modal if one doesn't already exist
 Returns: $element
-TODO: Needs dynamic image paths
 
 */
-function createConnectorModal(heading = 'Connecting ...', cancelText = 'Cancel connection') {
+function modalDOM(heading = 'Connecting ...', cancelText = 'Cancel connection') {
 
   if (getModalCache() === null) {
 
@@ -130,6 +148,23 @@ function createConnectorModal(heading = 'Connecting ...', cancelText = 'Cancel c
   }
 
 };
+
+
+/*
+
+Creates a modal
+
+*/
+function createModal(heading = '', cancelText = '') {
+
+  prepareBeforeSync();
+
+  var $connectorModal = modalDOM(heading, cancelText);
+  injectConnectorModal($connectorModal);
+  onModalClose();
+  showConnectorModal($connectorModal);
+
+}
 
 
 /*
@@ -158,6 +193,7 @@ function addConnectorStepMessage(content, type = '', supportingMessage = '') {
       $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-error"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span></div></div>');
 
     } else {
+
       $notice = jQuery('<div class="wps-progress-notice wps-progress-notice-success"><div class="wps-progress-notice-group"><span class="wps-progress-text">' + content + '<small class="wps-progress-text-supporting">' + supportingMessage + '</small></span><div class="spinner is-active"></div></div></div>');
 
     }
@@ -175,9 +211,13 @@ Insert Checkmark
 
 */
 function insertCheckmark() {
+
   jQuery('.wps-connector-content .wps-progress-notice:first-child').append( createCheckmark() );
   jQuery('.wps-connector-content .wps-progress-notice:first-child .spinner').removeClass('is-active');
   jQuery('.wps-connector-content .wps-progress-notice:first-child').addClass('is-inactive');
+
+  checkMark( jQuery('.wps-connector-content .wps-progress-notice:first-child').find('.dashicons') );
+
 }
 
 
@@ -199,7 +239,7 @@ Inserts a step in a connection process
 */
 function setConnectionStepMessage(message, supportingMessage = '') {
 
-  if (connectionInProgress() !== 'false') {
+  if (isConnectionInProgress()) {
     addConnectorStepMessage(message, '', supportingMessage);
   }
 
@@ -213,6 +253,22 @@ Inserts a step in a connection process
 */
 function setConnectionNotice(message, type) {
   jQuery('.wps-connector-heading').after('<div class="notice notice-' + type + '">' + message + '</div>');
+}
+
+
+function showSyncByCollectionsNotice() {
+
+  jQuery('#wps-sync-by-collections-checkbox-wrapper').removeClass('wps-is-hidden');
+  jQuery('#wps-sync-by-collections-wrapper').addClass('wps-is-hidden');
+
+}
+
+
+function hideSyncByCollectionsNotice() {
+
+  jQuery('#wps-sync-by-collections-checkbox-wrapper').addClass('wps-is-hidden');
+  jQuery('#wps-sync-by-collections-wrapper').removeClass('wps-is-hidden');
+
 }
 
 
@@ -257,19 +313,12 @@ function initCloseModalEvents() {
   jQuery(document).on('click', function(event) {
 
     if (!jQuery(event.target).closest('.wps-connector').length) {
+
       jQuery('.wps-connector-wrapper').remove();
       jQuery(document).unbind();
       clearLocalstorageCache();
+
     }
-
-  });
-
-  // Cancel request when user hits escape ...
-  jQuery(document).keyup(function(e) {
-
-    jQuery('.wps-connector-wrapper').remove();
-    jQuery(document).unbind();
-    clearLocalstorageCache();
 
   });
 
@@ -283,7 +332,7 @@ Toggle an element active / inactive (hides / shows)
 */
 function toggleActive($element) {
   $element.toggleClass('wps-is-active');
-};
+}
 
 
 /*
@@ -295,7 +344,7 @@ TODO: make dom element instead of classs
 */
 function stopSpinner(spinner) {
   jQuery(spinner).removeClass('wps-is-active');
-};
+}
 
 
 /*
@@ -305,7 +354,7 @@ Show canceling connection
 */
 function updateCurrentConnectionStepText(text) {
   jQuery('.wps-connector-content .wps-progress-notice:first-child .wps-progress-text').text(text);
-};
+}
 
 
 /*
@@ -318,17 +367,57 @@ function updateModalButtonText(text) {
 }
 
 
+function showCollectionsNotice(message, type) {
+
+  if (message) {
+    jQuery('#wps-sync-by-collections-wrapper').empty()
+    .append('<div class="notice notice-' + type + ' inline"><p>' + he.decode(message) + '</p></div>');
+  }
+
+}
+
+
+function resetSyncByCollectionOptions() {
+  jQuery("#wps-sync-by-collections option:selected").removeAttr("selected");
+  jQuery("#wps-sync-by-collections").trigger("chosen:updated");
+}
+
 
 /*
 
-Update Modal Text
+Hides an admin notice by type
 
 */
-function showAdminNotice(message, type) {
+function hideAdminNoticeByType(type = false) {
+
+  if (type) {
+    jQuery('.notice[data-dismiss-name="' + type + '"]').fadeOut();
+  }
+
+}
+
+
+/*
+
+Shows admin notice
+
+*/
+function showAdminNotice(message, type = 'error') {
+
+  var message_decoded = '';
+
+  if (message && isString(message)) {
+    message_decoded = he.decode(message);
+  }
 
   var $msgContainer = jQuery('#wps-errors');
 
-  $msgContainer.removeClass('wps-is-hidden').html('<div class="notice ' + type + '"><p><strong>' + message + '</strong></p></div>');
+  var $notice = jQuery('<div class="wps-notice notice is-dismissible ' + type + '"><p>' + message_decoded + '</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>');
+
+  $msgContainer.empty().removeClass('wps-is-hidden').append($notice);
+  slideInDown($notice);
+
+  initDismissNoticeEvents();
 
   var $msg = $msgContainer.find('.notice');
 
@@ -343,6 +432,9 @@ function showAdminNotice(message, type) {
     }, 5000);
 
   }
+
+  enableRecentlyActiveButton();
+  hideRecentlyActiveSpinners();
 
 }
 
@@ -374,6 +466,36 @@ Clear Connect Inputs
 */
 function disableConnectInputs() {
   jQuery('#wps-connect .wps-form-group input').prop('disabled', true).attr('disabled', true);
+}
+
+
+/*
+
+Enables Connection submit button whether disconnection / connection state
+
+*/
+function enableConnectionSubmit() {
+  enable(jQuery('#wps-connect input[type="submit"]'));
+}
+
+
+/*
+
+Enables any inputs
+
+*/
+function enableRecentlyActiveButton() {
+  enable( jQuery('.wps-button-group .spinner.wps-is-active').prev() );
+}
+
+
+/*
+
+Hides any active spinners
+
+*/
+function hideRecentlyActiveSpinners() {
+  jQuery('.wps-button-group .spinner.wps-is-active').removeClass('wps-is-active');
 }
 
 
@@ -449,13 +571,8 @@ function resetConnectionDOM() {
 
   // clearConnectInputs();
   initCloseModalEvents();
-  resetConnectSubmit();
-
-  jQuery('.wps-connector').addClass('wps-is-finished');
-  enable(jQuery('.wps-btn-cancel'));
-
-  setConnectionProgress("false");
-
+  enable(jQuery('.wps-btn-cancel').blur());
+  enableConnectionSubmit();
 }
 
 
@@ -473,8 +590,12 @@ function appendNotice(notice) {
       message: notice
     }
   }
-  
-  jQuery('.wps-connector-heading').after('<div class="notice notice-' + notice.type + '">' + notice.message + '</div>');
+
+  var $notice = jQuery('<div class="notice notice-' + notice.type + '">' + he.decode(notice.message) + '</div>');
+
+  jQuery('.wps-connector-heading').after($notice);
+
+  slideInDown($notice);
 
 }
 
@@ -492,7 +613,7 @@ function updateNotices(exitOptions) {
 
 }
 
-function replaceSpinnersWithCheckmarks() {
+function replaceSpinnersWithCheckmarks(exitOptions) {
 
   jQuery('.wps-progress-notice').not('.is-inactive').each(function() {
 
@@ -500,15 +621,25 @@ function replaceSpinnersWithCheckmarks() {
     var $spinner = $notice.find('.spinner');
 
     if ($spinner.length) {
-      $spinner.remove();
-      $notice.append(createCheckmark());
-    }
 
-    $notice.addClass('is-inactive');
+      $spinner.remove();
+
+      if (exitOptions.xMark === true) {
+        $notice.append(createX());
+
+      } else {
+         $notice.append( createCheckmark() );
+         checkMark($notice.find('.dashicons-yes'));
+      }
+
+    }
 
   });
 
 }
+
+
+
 
 
 /*
@@ -525,28 +656,13 @@ function updateDomAfterSync(customOptions = {}) {
   const exitOptions = getCombinedExitOptions(customOptions);
 
   resetConnectionDOM();
+  replaceSpinnersWithCheckmarks(exitOptions);
 
   updateModalHeadingText(exitOptions.headingText);
   updateModalButtonText(exitOptions.buttonText);
   updateCurrentConnectionStepText(exitOptions.stepText);
-  updateConnectStatusHeading(exitOptions.status);
+  updateConnectStatusHeading( getConnectionStatus() );
   updateNotices(exitOptions);
-
-  if (exitOptions.status === 'is-connected') {
-    setDisconnectSubmit();
-
-  } else {
-    resetConnectSubmit();
-  }
-
-  enable( getConnectorCancelButton() );
-  enable( getToolsButtons() );
-
-  replaceSpinnersWithCheckmarks();
-
-  // Safe to reconnect again -- reattaches the submit form handler
-  connectInit();
-
 
 }
 
@@ -576,8 +692,7 @@ export {
   createCheckmark,
   injectConnectorModal,
   showConnectorModal,
-  createConnectorModal,
-  addConnectorStepMessage,
+  modalDOM,
   initCloseModalEvents,
   stopSpinner,
   insertCheckmark,
@@ -601,5 +716,14 @@ export {
   resetConnectionDOM,
   addStopConnectorClass,
   getConnectorCancelButton,
-  getToolsButtons
-};
+  getToolsButtons,
+  enableConnectionSubmit,
+  enableRecentlyActiveButton,
+  hideRecentlyActiveSpinners,
+  showCollectionsNotice,
+  hideAdminNoticeByType,
+  showSyncByCollectionsNotice,
+  hideSyncByCollectionsNotice,
+  resetSyncByCollectionOptions,
+  createModal
+}

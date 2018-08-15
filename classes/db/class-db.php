@@ -3,37 +3,14 @@
 namespace WPS;
 
 use WPS\Utils;
-use WPS\WS;
-use WPS\DB\Products;
-use WPS\DB\Variants;
-use WPS\DB\Tags;
-use WPS\DB\Shop;
-use WPS\DB\Options;
-use WPS\DB\Inventory;
-use WPS\DB\Images;
-use WPS\DB\Collects;
-use WPS\DB\Collections_Smart;
-use WPS\DB\Collections_Custom;
-use WPS\DB\Settings_General;
-use WPS\DB\Settings_License;
-use WPS\DB\Settings_Connection;
 use WPS\CPT;
 use WPS\Transients;
-use WPS\Config;
-use WPS\Backend;
 
 
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-
-/*
-
-Main database class
-
-*/
 if (!class_exists('DB')) {
 
 	class DB {
@@ -41,13 +18,6 @@ if (!class_exists('DB')) {
 		public $table_name;
 		public $version;
 		public $primary_key;
-
-	  /*
-
-	  Construct
-
-	  */
-		public function __construct() {}
 
 
 	  /*
@@ -57,7 +27,12 @@ if (!class_exists('DB')) {
 	  */
 		public function get_columns_current() {
 
+			if (!$this->table_exists($this->table_name)) {
+				return [];
+			}
+
 			global $wpdb;
+
 			return $wpdb->get_col("DESC {$this->table_name}", 0);
 
 	  }
@@ -100,18 +75,101 @@ if (!class_exists('DB')) {
 
 	  */
 		public function get_column_defaults() {
-	    return array();
+	    return [];
 	  }
 
 
 		/*
 
-		Returns corrosponding table name per table
+	  Get Column Defaults
+
+	  */
+		public function get_column_names($columns) {
+
+			$list = [];
+
+			foreach ($columns as $key => $value) {
+				$list[] = $key;
+			}
+
+			return $list;
+
+	  }
+
+
+		/*
+
+		Construct a string version of the column names
+
+		*/
+		public function construct_column_name_string($columns) {
+
+			$string = '';
+			$last_column = end($columns);
+
+			foreach ($columns as $column) {
+
+				if ($column == $last_column) {
+					$string .= $column;
+
+				} else {
+					$string .= $column . ', ';
+				}
+
+			}
+
+			return $string;
+
+		}
+
+
+		/*
+
+		Returns corrosponding table name. Contains prefix.
 
 		*/
 		public function get_table_name() {
 			return $this->table_name;
 		}
+
+
+		/*
+
+		Gets the max packet size
+
+		*/
+		public function get_max_packet_size() {
+
+			global $wpdb;
+
+			$results = $wpdb->get_results("SHOW VARIABLES LIKE 'max_allowed_packet'");
+
+			if (!empty($results)) {
+				return (int) $results[0]->Value;
+
+			} else {
+				return 0;
+			}
+
+
+		}
+
+
+		public function max_packet_size_reached($query) {
+
+			$postmax_size_in_bytes = $this->get_max_packet_size();
+			$query_size_in_bytes = strlen(serialize($query));
+
+			if ($query_size_in_bytes > $postmax_size_in_bytes) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
 
 
 	  /*
@@ -122,7 +180,7 @@ if (!class_exists('DB')) {
 		public function get($row_id = 0) {
 
 	    global $wpdb;
-			$results = array();
+			$results = [];
 
 			if ($this->table_exists($this->table_name)) {
 
@@ -205,6 +263,7 @@ if (!class_exists('DB')) {
 
 	  */
 		public function get_column($column, $row_id) {
+
 	    global $wpdb;
 
 	    $column = esc_sql($column);
@@ -217,38 +276,75 @@ if (!class_exists('DB')) {
 	  }
 
 
+		public function get_column_single_query($column) {
+			return "SELECT $column FROM $this->table_name;";
+		}
+
+
+		/*
+
+		Returns true if a database table column exists. Otherwise returns false.
+
+		@link http://stackoverflow.com/a/5943905/2489248
+
+		@param string $table_name Name of table we will check for column existence.
+		@param string $column_name Name of column we are checking for.
+		@return boolean True if column exists. Else returns false.
+
+		*/
+		public function column_exists($column_name) {
+
+			global $wpdb;
+
+			$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s ";
+
+			$column = $wpdb->get_results( $wpdb->prepare($query, DB_NAME, $this->table_name, $column_name));
+
+			if ( !empty($column) ) {
+				return true;
+			}
+
+			return false;
+
+		}
+
+
 		/*
 
 	  Retrieve a specific column's value by the primary key
 		TODO: Return the actual value instead of array('col_name' => 'value')
+
+		From Codex: "If no matching rows are found, or if there is a database error, the return value will be an empty array. If your $query string is empty, or you pass an invalid $output_type, NULL will be returned.""
+
+		Can return the following values:
+
+		WP_Error
+		False if nothing found or error
+		Array of objects
+
 
 	  */
 		public function get_column_single($column) {
 
 			global $wpdb;
 
+			// If table doesnt exist ...
 			if (!$this->table_exists($this->table_name)) {
-				return;
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Failed to get single database column. Table "' . $this->table_name . '" doesn\'t exist. Please clear the plugin cache and try again.');
 			}
 
-			// If not a string ...
+			// If column name is not a string ...
 			if (!is_string($column)) {
-				return;
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.');
 			}
 
 			// If argument not apart of schema ...
 			if (!array_key_exists($column, $this->get_columns()) ) {
-				return;
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name does not exist. Please try reinstalling the plugin from scratch.');
 			}
 
-
-			/*
-
-			Check cache for existing record ...
-
-			*/
+			// Check cache for existing record ...
 			$cachedResult = wp_cache_get($column, $this->cache_group);
-
 
 			/*
 
@@ -258,26 +354,27 @@ if (!class_exists('DB')) {
 			*/
 			if ($cachedResult) {
 				return $cachedResult;
-
-			} else {
-
-				// Otherwise, construct query and get result ...
-				$query = "SELECT $column FROM $this->table_name;";
-				$queryResults = $wpdb->get_results($query);
-
-				// Check if any errors came back ..
-				if (isset($wpdb->last_error) && $wpdb->last_error) {
-					return new \WP_Error( 'error', esc_html__($wpdb->last_error, 'wp-shopify') );
-
-				} else {
-
-					// Otherwise cache the successful query and return the result
-					wp_cache_add($column, $queryResults, $this->cache_group, 3600);
-					return $queryResults;
-
-				}
-
 			}
+
+
+			// Dont get the column value if it doesnt exist ...
+			if ( !$this->column_exists($column) ) {
+				return false;
+			}
+
+			// Otherwise, construct query and get result ...
+			$query = $this->get_column_single_query($column);
+			$results = $wpdb->get_results($query);
+
+			// $result will be false if error or if nothing found
+			$result = $this->sanitize_db_response($results, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.');
+
+
+			if ($result !== false) {
+				wp_cache_add($column, $results, $this->cache_group, 3600);
+			}
+
+			return $result;
 
 	  }
 
@@ -314,6 +411,108 @@ if (!class_exists('DB')) {
 		}
 
 
+		/*
+
+		Checks if there was a MySQL error
+
+		*/
+		public function has_mysql_error() {
+
+			global $wpdb;
+
+			if ($wpdb->last_error !== '') {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		/*
+
+		Helper method for returning MYSQL errors
+
+		Used only for MySQL operations
+
+		*/
+		public function sanitize_db_response($result, $fallback_message = 'Uncaught error. Please clear the plugin cache and try again.') {
+
+
+			/*
+
+			If $wpdb->last_error doesnt contain an empty string, then we know the query failed in some capacity. We can safely
+			return this error wrapped inside a WP_Error.
+
+			*/
+			global $wpdb;
+
+
+
+			if ( $this->has_mysql_error() ) {
+				return new \WP_Error('error', __($wpdb->last_error . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN));
+			}
+
+
+			/*
+
+			Returns false if errors:
+
+			$wpdb->update
+			$wpdb->delete
+			$wpdb->insert
+			$wpdb->replace
+
+			*/
+			if ($result === false) {
+				return new \WP_Error('error', __($fallback_message . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN));
+			}
+
+
+
+			/*
+
+			Empty array is returned if no results are found for the following functions:
+
+			$wpdb->get_col					-- Returns an empty array if no result is found.
+			$wpdb->get_results			-- If no matching rows are found, or if there is a database error
+
+
+			NULL will be returned.
+			Null is returned for the following functions:
+
+			$wpdb->get_var 				-- Returns NULL if no result is found
+			$wpdb->get_row 				-- Returns NULL if no result is found,
+			$wpdb->get_results 		-- If your $query string is empty, or you pass an invalid $output_type
+
+			*/
+			if (Utils::array_is_empty($result) || is_null($result)) {
+				return false;
+			}
+
+
+			/*
+
+			If the $data matches what is already in the database, no rows will be updated, so 0 will be returned.
+
+			No errors occured and nothing was updated.
+
+			$wpdb->update: If nothing was updated
+			$wpdb->delete: If nothing was deleted
+
+			*/
+			if ($result === 0) {
+				return true;
+			}
+
+
+			// If execution gets to hear, then we have actual data to work with in the form of a non-empty array
+			return $result;
+
+		}
+
+
 	  /*
 
 	  Insert a new row
@@ -326,56 +525,62 @@ if (!class_exists('DB')) {
 
 	    global $wpdb;
 
-			// Only perform an insertion if the table exists ...
-			if ($this->table_exists($this->table_name)) {
-
-				// Set default values
-		    $data = wp_parse_args($data, $this->get_column_defaults());
-
-		    do_action('wps_pre_insert_' . $type, $data);
-
-				// Sanitizing nested arrays (serializes nested arrays and objects)
-				$data = Utils::wps_serialize_data_for_db($data);
-
-		    // Initialise column format array
-		    $column_formats = $this->get_columns();
-
-		    // Force fields to lower case
-		    $data = array_change_key_case($data);
-
-		    // White list columns
-		    $data = array_intersect_key($data, $column_formats);
-
-		    // Reorder $column_formats to match the order of columns given in $data
-		    $data_keys = array_keys($data);
-
-		    $column_formats = array_merge( array_flip($data_keys), $column_formats);
-
-
-				/*
-
-				Checks whether the item we're inserting into the DB
-				already exists to avoid errors. We can do this by first running $wpdb->get_results
-				and then cheking the num rows like below:
-
-				*/
-				if (!$this->has_existing_record($data)) {
-
-					$result = $wpdb->insert($this->table_name, $data, $column_formats);
-
-			    do_action('wps_post_insert_' . $type, $result, $data);
-
-				} else {
-					$result = false;
-				}
-
-
-			} else {
-				$result = false;
-
+			// Return immediately, if $data does not exist or if it equals false
+			if (empty($data)) {
+				return false;
 			}
 
-			return $result === 1 ? true : false;
+			// Only perform an insertion if the table exists ...
+			if (!$this->table_exists($this->table_name)) {
+				return false;
+			}
+
+			// Set default values. Requires $data to be array
+			$data = wp_parse_args($data, $this->get_column_defaults());
+
+			do_action('wps_pre_insert_' . $type, $data);
+
+			// Shopify sometimes sends date values that don't adhere to the MySQL standard. Here we force it.
+			$data = Utils::convert_needed_values_to_datetime($data);
+
+			// Sanitizing nested arrays (serializes nested arrays and objects)
+			$data = Utils::wps_serialize_data_for_db($data);
+
+			// Initialise column format array
+			$column_formats = $this->get_columns();
+
+			// Force fields to lower case
+			$data = array_change_key_case($data);
+
+			// White list columns
+			$data = array_intersect_key($data, $column_formats);
+
+			// Reorder $column_formats to match the order of columns given in $data
+			$data_keys = array_keys($data);
+
+			$column_formats = array_merge( array_flip($data_keys), $column_formats);
+
+			/*
+
+			Checks whether the item we're inserting into the DB
+			already exists to avoid errors. We can do this by first running $wpdb->get_results
+			and then cheking the num rows like below:
+
+			*/
+			if ($this->has_existing_record($data)) {
+
+				$result = $wpdb->update($this->table_name, $data, $column_formats);
+				return $this->sanitize_db_response($result, 'Failed to update database record. Please clear the plugin cache and try again.');
+
+			} else {
+
+				$result = $wpdb->insert($this->table_name, $data, $column_formats);
+
+				do_action('wps_post_insert_' . $type, $result, $data);
+
+				return $this->sanitize_db_response($result, 'Failed to insert database record. Please clear the plugin cache and try again.');
+
+			}
 
 
 	  }
@@ -402,6 +607,12 @@ if (!class_exists('DB')) {
 	      $where = $this->primary_key;
 	    }
 
+			// Forces data to array
+			$data = Utils::convert_object_to_array($data);
+
+			// Shopify sometimes sends date values that don't adhere to the MySQL standard. Here we force it.
+			$data = Utils::convert_needed_values_to_datetime($data);
+
 			$data = Utils::wps_serialize_data_for_db($data);
 
 	    // Initialize column format array
@@ -419,7 +630,6 @@ if (!class_exists('DB')) {
 	    $column_formats = array_merge( array_flip($data_keys), $column_formats );
 
 
-
 			$results = $wpdb->update(
 		    $this->table_name,
 		    $data,
@@ -432,14 +642,7 @@ if (!class_exists('DB')) {
 				Transients::delete_cached_settings();
 			}
 
-			// Need a strict equality check since $wpdb->update can return 0 if nothing was updated
-		  if ($results === false) {
-		    return false;
-
-		  } else {
-		    return true;
-
-		  }
+			return $this->sanitize_db_response($results, 'Failed to update database record. Please clear the plugin cache and try again.');
 
 	  }
 
@@ -456,8 +659,8 @@ if (!class_exists('DB')) {
 
 			/*
 
-			TODO: Currently not working. Will fail silently. The correct where format needs to be:
-			['primary_key_col', 'primary_key_value']
+			TODO: Currently the below empty check is not working. Will fail silently.
+			The correct where format needs to be: ['primary_key_col', 'primary_key_value']
 
 			*/
 	    if (empty($where)) {
@@ -468,19 +671,18 @@ if (!class_exists('DB')) {
 
 		    $column_formats = $this->get_columns();
 
-				if ($wpdb->update( $this->table_name, $data, $where, $column_formats ) === false) {
-		      return false;
-		    }
+				// Shopify sometimes sends date values that don't adhere to the MySQL standard. Here we force it.
+				$data = Utils::convert_needed_values_to_datetime($data);
+
+				$results = $wpdb->update($this->table_name, $data, $where, $column_formats);
 
 			} else {
 
-				if ($wpdb->update( $this->table_name, $data, $where ) === false) {
-					return false;
-				}
+				$results = $wpdb->update($this->table_name, $data, $where);
 
 			}
 
-	    return true;
+			return $this->sanitize_db_response($results, 'Failed to update database record. Please clear the plugin cache and try again.');
 
 	  }
 
@@ -505,29 +707,33 @@ if (!class_exists('DB')) {
 					$results = $wpdb->query("TRUNCATE TABLE $this->table_name");
 
 				} else {
-
 					$results = $wpdb->query( $wpdb->prepare( "DELETE FROM $this->table_name WHERE $this->primary_key = %d", $row_id ));
 
 				}
 
-				// Need to strictly check for FALSE since query can return 0 for no change
-				if ($results === false) {
-
-					return false;
-
-				} else {
-
-					return true;
-
-				}
 
 			} else {
-
 				$results = false;
 
 			}
 
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete database record. Please clear the plugin cache and try again.');
+
 	  }
+
+
+		/*
+
+		Used for generalized queriers + error handling
+
+		*/
+		public function query($query) {
+
+			global $wpdb;
+
+			return $this->sanitize_db_response( $wpdb->query($query), 'WP Shopify Error - General database query failed on table: ' . $this->table_name);
+
+		}
 
 
 		/*
@@ -540,69 +746,62 @@ if (!class_exists('DB')) {
 			global $wpdb;
 
 			if ($this->table_exists($this->table_name)) {
+
 				$sql = "DROP TABLE IF EXISTS " . $this->table_name;
 				$results = $wpdb->get_results($sql);
 
+				return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete table: ' . $this->table_name . '. Please clear the plugin cache and try again.');
+
 			} else {
-				$results = array();
+				return [];
 
 			}
-
-			return $results;
 
 		}
 
 
 		/*
 
-		Find the difference between tables in the database
-		and tables in the database schemea. Used during plugin updates
-		to dynamically update the database.
+		Responsible for renaming the migration table name back to the standard table name
 
 		*/
-		public function get_table_delta() {
+		public function rename_migration_table() {
 
-			$tables = array();
-			$finalDelta = array();
+			global $wpdb;
 
-			$tables[] = new Products();
-			$tables[] = new Variants();
-			$tables[] = new Tags();
-			$tables[] = new Shop();
-			$tables[] = new Options();
-			$tables[] = new Images();
-			$tables[] = new Collects();
-			$tables[] = new Collections_Smart();
-			$tables[] = new Collections_Custom();
-			$tables[] = new Settings_License();
-			$tables[] = new Settings_Connection();
-			$tables[] = new Settings_General();
-
-
-			foreach ($tables as $key => $table) {
-
-				if ( $table->table_exists($table->get_table_name()) ) {
-
-					$columnsNew = $table->get_columns();
-					$columnsCurrent = $table->get_columns_current();
-					$tableName = $table->get_table_name();
-
-					$delta = array_diff_key($columnsNew, array_flip($columnsCurrent));
-
-					if (!empty($delta)) {
-						$finalDelta[$tableName] = $table;
-					}
-
-				} else {
-
-					// Create table since it doesn't exist
-					$result = $table->create_table();
-
-				}
-
+			if ( !$this->table_exists( $this->table_name . WPS_TABLE_MIGRATION_SUFFIX ) ) {
+				return true;
 			}
 
-			return array_filter($finalDelta);
+			$results = $wpdb->get_results("RENAME TABLE " . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . ' TO ' . $this->table_name);
+
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to rename migration table back to: ' . $this->table_name . '. Please clear the plugin cache and try again.');
+
+		}
+
+
+		/*
+
+		Responsible for creating a migration table with the '_migrate' suffix
+
+		*/
+		public function create_migration_table() {
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+      if (!$this->table_exists( $this->table_name . WPS_TABLE_MIGRATION_SUFFIX )) {
+
+				global $wpdb;
+
+        $result = dbDelta( $this->create_table_query( $this->table_name . WPS_TABLE_MIGRATION_SUFFIX ) );
+
+				if ($this->has_mysql_error()) {
+					return new \WP_Error('error', __($wpdb->last_error, WPS_PLUGIN_TEXT_DOMAIN));
+				}
+
+				return true;
+
+      }
 
 		}
 
@@ -616,7 +815,6 @@ if (!class_exists('DB')) {
 
 			global $wpdb;
 			$column = esc_sql($column);
-
 
 			if (gettype($column_value) === 'integer') {
 				$query = "DELETE FROM $this->table_name WHERE $column = %d";
@@ -633,13 +831,7 @@ if (!class_exists('DB')) {
 				$wpdb->prepare($query, $column_value)
 			);
 
-
-			if ($results === false) {
-				return false;
-
-			} else {
-				return true;
-			}
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete database rows. Please clear the plugin cache and try again.');
 
 		}
 
@@ -657,7 +849,6 @@ if (!class_exists('DB')) {
 			global $wpdb;
 			$column = esc_sql($column);
 
-
 			if (gettype($ids) === 'integer') {
 				$query = "DELETE FROM $this->table_name WHERE $column IN (%d)";
 
@@ -668,20 +859,30 @@ if (!class_exists('DB')) {
 				$query = "DELETE FROM $this->table_name WHERE $column IN (%s)";
 			}
 
-			$wpdb->show_errors();
 
 			$result = $wpdb->get_results(
 				$wpdb->prepare($query, $ids)
 			);
 
+			return $this->sanitize_db_response($result, 'WP Shopify Error - Failed to delete database rows by value. Please clear the plugin cache and try again.');
 
-			if ($wpdb->last_error) {
-			  error_log('WP Shopify delete_rows_in Error - ' . $wpdb->last_error);
-				return false;
+		}
 
-			} else {
-				return true;
-			}
+
+		/*
+
+		Looks to see if table exists by name
+
+		*/
+		public function search_for_table($table) {
+
+			global $wpdb;
+
+			$table_sanitized = sanitize_text_field($table);
+
+			$query = $wpdb->prepare("SHOW TABLES LIKE '%s'", $table_sanitized);
+
+			return $wpdb->get_var($query);
 
 		}
 
@@ -691,21 +892,22 @@ if (!class_exists('DB')) {
 	  Check if the given table exists
 
 	  */
-		public function table_exists($table) {
+		public function table_exists($table_name) {
 
-	    global $wpdb;
-
-			if (get_transient('wps_table_exists_' . $table)) {
-				return get_transient('wps_table_exists_' . $table);
+			if (get_transient('wp_shopify_table_exists_' . $table_name)) {
+				return true;
 
 			} else {
 
-				$table = sanitize_text_field($table);
-				$tableResponse = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE '%s'", $table)) === $table;
+				$table_name_from_db = $this->search_for_table($table_name);
 
-				set_transient('wps_table_exists_' . $table, $tableResponse);
+				// Tables exists
+				if ($table_name_from_db === $table_name) {
+					set_transient('wp_shopify_table_exists_' . $table_name, 1);
+					return true;
+				}
 
-				return $tableResponse;
+				return false;
 
 			}
 
@@ -725,154 +927,6 @@ if (!class_exists('DB')) {
 			return $rowCopy;
 
 		}
-
-
-		/*
-
-		Used to check the type of collection
-
-		Need to update Collects AND Collections
-
-		*/
-		public function update_collection($collection) {
-
-			$WS = new WS(new Config());
-			$CPT = new CPT(new Config());
-			$DB_Collects = new Collects();
-			$DB_Collections_Custom = new Collections_Custom();
-			$DB_Collections_Smart = new Collections_Smart();
-			$existingCollections = CPT::wps_get_all_cpt_by_type('wps_collections');
-			$newCollectionID = Utils::wps_find_collection_id($collection);
-
-			// Collects from Plugin
-			$pluginCollects = $DB_Collects->get_rows('collection_id', $newCollectionID);
-
-			$results = array();
-
-			/*
-
-	    TODO: Shopify may implement better sales channel checking in the future API. We should
-	    then check for Buy Button visibility as-well.
-
-	    */
-			if (property_exists($collection, 'published_at') && $collection->published_at !== null) {
-
-				$collection = Utils::flatten_collections_image_prop($collection);
-
-				// Collects from Shopify
-				$shopifyCollects = $WS->wps_ws_get_collects_from_collection($newCollectionID);
-
-				if (is_array($shopifyCollects) && $shopifyCollects) {
-
-					$collectsToAdd = Utils::wps_find_items_to_add($pluginCollects, $shopifyCollects, true);
-					$collectsToDelete = Utils::wps_find_items_to_delete($pluginCollects, $shopifyCollects, true);
-
-					if (count($collectsToAdd) > 0) {
-						foreach ($collectsToAdd as $key => $newCollect) {
-							$results['collects_created'][] = $DB_Collects->insert($newCollect, 'collect');
-						}
-					}
-
-					if (count($collectsToDelete) > 0) {
-						foreach ($collectsToDelete as $key => $oldCollect) {
-							$results['collects_deleted'][] = $DB_Collects->delete($oldCollect->id);
-						}
-					}
-
-				}
-
-
-				if (!isset($collection->image)) {
-					$results['collection_image'] = $this->update_column_single(
-						array('image' => null),
-						array('collection_id' => $newCollectionID)
-					);
-				}
-
-
-				/*
-
-				If collection doesn't currently exist, insert it otherwise update it.
-				We also update / insert Collects within insert_smart_collection or
-				within insert_custom_collection.
-
-				*/
-
-				$collectionID = $this->get($newCollectionID);
-
-				if (empty($collectionID)) {
-
-					/*
-
-					Inserting collections. Takes care of adding content into custom post type.
-
-					*/
-					if (isset($collection->rules)) {
-						$results['collection'] = $DB_Collections_Smart->insert_smart_collection($collection);
-
-					} else {
-						$results['collection'] = $DB_Collections_Custom->insert_custom_collection($collection);
-					}
-
-				} else {
-
-					$results['collection_cpt'] = $CPT->wps_insert_or_update_collection($collection, $existingCollections);
-
-					$results['collection'] = $this->update($newCollectionID, $collection);
-
-				}
-
-
-			} else {
-
-				/*
-
-				Need to also delete any corresponding Collects
-
-				*/
-				$results['deleted_collects'] = $DB_Collects->delete_collects_by_ids($pluginCollects);
-				$results['deleted_collection'] = $this->delete_collection($collection, $newCollectionID);
-
-			}
-
-			Transients::delete_cached_collection_queries();
-
-			return $results;
-
-		}
-
-
-	  /*
-
-	  Fired when product is deleted at Shopify
-
-	  */
-	  public function delete_collection($collection) {
-
-			$collectionData = $this->get($collection->id);
-
-			if (!empty($collectionData)) {
-
-				$DB_Collects = new Collects();
-				$Backend = new Backend(new Config());
-				$postIds = array($collectionData->post_id);
-
-				$results['collects']  	= $DB_Collects->delete_rows('collection_id', $collection->id);
-		    $results['collection']  = $this->delete_rows('collection_id', $collection->id);
-
-				if (!empty($postIds)) {
-					$results['cpt'] = $Backend->wps_delete_posts('wps_collections', $postIds);
-				}
-
-				Transients::delete_cached_collection_queries();
-
-			} else {
-				$results = array();
-			}
-
-	    return $results;
-
-	  }
 
 
 		/*
@@ -909,255 +963,367 @@ if (!class_exists('DB')) {
 		}
 
 
-	  /*
+		/*
 
-	  Get Collection
+		Wrapper function for updating post meta
 
-	  */
-		public function get_collection($postID = null) {
+		*/
+		public function update_post_meta($post_id, $meta_key, $meta_value) {
 
-	    global $wpdb;
-			global $post;
+			return $this->sanitize_db_response(
+				update_post_meta($post_id, $meta_key, $meta_value)
+			);
 
-			$DB_Collections_Custom = new Collections_Custom();
-			$DB_Collections_Smart = new Collections_Smart();
-
-			$collections_custom_table = $DB_Collections_Custom->get_table_name();
-			$collections_smart_table = $DB_Collections_Smart->get_table_name();
-
-	    if ($postID === null && is_object($post)) {
-	      $postID = $post->ID;
-	    }
-
-	    $query = "SELECT
-			smart.collection_id,
-			smart.post_id,
-			smart.title,
-			smart.handle,
-			smart.body_html,
-			smart.image,
-			smart.sort_order,
-			smart.published_at,
-			smart.updated_at,
-			smart.rules
-			FROM $collections_smart_table smart WHERE smart.post_id = $postID
-
-			UNION
-
-			SELECT
-			custom.collection_id,
-			custom.post_id,
-			custom.title,
-			custom.handle,
-			custom.body_html,
-			custom.image,
-			custom.sort_order,
-			custom.published_at,
-			custom.updated_at,
-			NULL as rules
-			FROM $collections_custom_table custom WHERE custom.post_id = $postID;";
+		}
 
 
-			/*
-
-			Caching mecahnism for collections. Used also by products
-
-			*/
-			if (get_transient('wps_collection_single_' . $postID)) {
-				$results = get_transient('wps_collection_single_' . $postID);
-
-			} else {
-				$results = $wpdb->get_results($query);
-				set_transient('wps_collection_single_' . $postID, $results);
-
-			}
-
-			return $results;
-
-	  }
+		public function convert_array_to_in_string($array) {
+			return "('" .  implode("', '", $array) . "')";
+		}
 
 
 		/*
 
-		Gets all collections
+		Checks if the tables has been initialized or not
 
 		*/
-		public function get_collections() {
+		public function table_has_been_initialized($primary_key = 'id') {
 
-			global $wpdb;
+			if ( !$this->table_exists($this->table_name) ) {
+				return false;
+			}
 
-			$DB_Collections_Custom = new Collections_Custom();
-			$DB_Collections_Smart = new Collections_Smart();
+			$row = $this->get_rows($primary_key, 1);
 
-			$collections_custom_table = $DB_Collections_Custom->get_table_name();
-			$collections_smart_table = $DB_Collections_Smart->get_table_name();
+      if (count($row) <= 0) {
+				return false;
 
-			$query = "SELECT
-			smart.collection_id,
-			smart.post_id,
-			smart.title,
-			smart.handle,
-			smart.body_html,
-			smart.image,
-			smart.sort_order,
-			smart.published_at,
-			smart.updated_at,
-			smart.rules
-			FROM $collections_smart_table smart
-
-			UNION
-
-			SELECT
-			custom.collection_id,
-			custom.post_id,
-			custom.title,
-			custom.handle,
-			custom.body_html,
-			custom.image,
-			custom.sort_order,
-			custom.published_at,
-			custom.updated_at,
-			NULL as rules
-			FROM $collections_custom_table custom";
-
-			return $wpdb->get_results($query);
+      } else {
+				return true;
+			}
 
 		}
 
 
 		/*
 
-		Get collections by product ID
+		Table charset: Get column info
 
 		*/
-		public function get_collections_by_product_id($productID) {
+		public function get_col_info($table) {
 
-			$productCollects = $this->get_collects_by_product_id($productID);
-			$allCollections = $this->get_collections();
-			$results = [];
+			global $wpdb;
 
-			foreach ( $allCollections as $collection ) {
+			$results = $wpdb->get_results( "SHOW FULL COLUMNS FROM $table" );
 
-				if (in_array($collection->collection_id, array_column($productCollects, 'collection_id'))) {
-					$results[] = $collection;
+			if (!$results) {
+				return new WP_Error('WP Shopify Error - Unable to get charset for table ' . $table);
+
+			} else {
+				return $results;
+			}
+
+		}
+
+
+		/*
+
+		Table charset: Get column data
+
+		*/
+		public function construct_column_data($column_info, $columns) {
+
+			foreach ($column_info as $column) {
+				$columns[strtolower($column->Field)] = $column;
+			}
+
+			return $columns;
+
+		}
+
+
+		/*
+
+		Table charset: Get charset from count
+
+		*/
+		public function construct_charset_from_count($charsets) {
+
+			// Check if we have more than one charset in play.
+			$count = count( $charsets );
+
+			if ( 1 === $count ) {
+				$charset = key( $charsets );
+
+			} elseif ( 0 === $count ) {
+
+				// No charsets, assume this table can store whatever.
+				$charset = false;
+
+			} else {
+
+				// More than one charset. Remove latin1 if present and recalculate.
+				unset( $charsets['latin1'] );
+				$count = count( $charsets );
+
+				if ( 1 === $count ) {
+
+					// Only one charset (besides latin1).
+					$charset = key( $charsets );
+
+				} elseif ( 2 === $count && isset( $charsets['utf8'], $charsets['utf8mb4'] ) ) {
+
+					// Two charsets, but they're utf8 and utf8mb4, use utf8.
+					$charset = 'utf8';
+
+				} else {
+
+					// Two mixed character sets. ascii.
+					$charset = 'ascii';
+
 				}
 
 			}
 
-			return $results;
+			return $charset;
 
 		}
 
 
 		/*
 
-		Gets collects by product ID
+		Table charset: Check for binary type
 
 		*/
-		public function get_collects_by_product_id($productID) {
+		public function check_for_binary_type($type) {
+
+			// A binary/blob means the whole query gets treated like this.
+			if ( in_array( strtoupper( $type ), array( 'BINARY', 'VARBINARY', 'TINYBLOB', 'MEDIUMBLOB', 'BLOB', 'LONGBLOB' ) ) ) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		/*
+
+		Table charset: Get charsets from collation
+
+		*/
+		public function construct_charsets_from_collation($column, $charsets) {
 
 			global $wpdb;
 
-			$DB_Products = new Products();
-			$DB_Collects = new Collects();
-			$DB_Collections_Smart = new Collections_Smart();
-			$DB_Collections_Custom = new Collections_Custom();
+			if (!empty($column->Collation)) {
 
-			$collections_custom_table = $DB_Collections_Custom->get_table_name();
-			$collections_smart_table = $DB_Collections_Smart->get_table_name();
-			$collects_table_name = $DB_Collects->get_table_name();
-			$products_table_name = $DB_Products->get_table_name();
+				list($charset) = explode( '_', $column->Collation );
 
-			// $query = "SELECT
-			// smart.collection_id,
-			// smart.post_id,
-			// smart.title,
-			// smart.handle
-			// FROM '7b3ca31e_wps_collections_smart' smart
-			//
-			// UNION
-			//
-			// SELECT
-			// custom.collection_id,
-			// custom.post_id,
-			// custom.title,
-			// custom.handle
-			// FROM '7b3ca31e_wps_collections_custom' custom
-			//
-			// INNER JOIN '7b3ca31e_wps_collects' collects
-			//
-			// WHERE collects.product_id = 475291811863";
+				// If the current connection can't support utf8mb4 characters, let's only send 3-byte utf8 characters.
+				if ('utf8mb4' === $charset && !$wpdb->has_cap('utf8mb4')) {
+					$charset = 'utf8';
+				}
 
-			$query = "SELECT * FROM $collects_table_name collects WHERE collects.product_id = %d;";
+				$charsets[ strtolower( $charset ) ] = true;
 
-			/*
+			}
 
-      Get the products
+			return $charsets;
 
-      */
-      $collections = $wpdb->get_results(
-        $wpdb->prepare($query, $productID)
-      );
+		}
 
-			return $collections;
+
+		/*
+
+		Table charset: Check for utf8md3
+
+		*/
+		public function check_for_utf8md3($charsets) {
+
+			// utf8mb3 is an alias for utf8.
+			if (isset( $charsets['utf8mb3'] )) {
+				$charsets['utf8'] = true;
+				unset( $charsets['utf8mb3'] );
+			}
+
+			return $charsets;
+
+		}
+
+
+		/*
+
+		Table charset: Get table charset
+
+		*/
+		public function get_table_charset($table) {
+
+			global $wpdb;
+
+			$table = strtolower($table);
+
+			if (get_transient('wp_shopify_table_charset_' . $table)) {
+				return get_transient('wp_shopify_table_charset_' . $table);
+			}
+
+			$charsets = [];
+			$columns = [];
+
+
+			$column_info = $this->get_col_info($table);
+
+			if (is_wp_error($column_info)) {
+				return $column_info;
+			}
+
+
+			$columns = $this->construct_column_data($column_info, $columns);
+
+
+			foreach ( $columns as $column ) {
+
+				$charsets = $this->construct_charsets_from_collation($column, $charsets);
+
+				list($type) = explode( '(', $column->Type );
+
+				if ($this->check_for_binary_type($type)) {
+					return 'binary';
+				}
+
+			}
+
+			$charsets = $this->check_for_utf8md3($charsets);
+
+			$charset = $this->construct_charset_from_count($charsets);
+
+			set_transient('wp_shopify_table_charset_' . $table, $charset);
+
+			return $charset;
+
+		}
+
+
+		/*
+
+		utf8mb4 was introduced in MySQL 5.5.3. As of WordPress 4.2, utf8mb4 is used by default on supported MySQL versions
+
+		Issues can arise when a user syncs utf8mb4 content into a utf8 WP database. Therefore we need to check whether WP is
+		using a non-utf8mb4 character set and encode our content properly using wp_encode_emoji().
+
+		WordPress has supported utf8mb4 encoded data since version 4.2, and automatically updates the database tables to use utf8mb4
+		rather than utf8 during the first upgrade to 4.2+ or when installing 4.2+ from scratch. This only happens if the version of
+		MySQL being used supports utf8mb4 (5.5.3+).
+
+		https://deliciousbrains.com/wp-migrate-db-pro/doc/the-source-site-supports-utf8mb4-data-but-the-target-does-not-and-unknown-collation-errors/
+
+		*/
+		public function has_compatible_charset($table_name) {
+
+			$charset = $this->get_table_charset($table_name);
+
+			if (is_wp_error($charset)) {
+				return false;
+			}
+
+			if ($charset !== 'utf8mb4') {
+				return false;
+			}
+
+			return true;
+
+		}
+
+
+		/*
+
+		Checks whether $charsets are compaible
+
+		$charsets is an array of table name strings
+		Predicate function
+
+		*/
+		public function has_compatible_charsets($charsets) {
+
+			foreach ($charsets as $charset) {
+
+				if (!$this->has_compatible_charset($charset)) {
+					return false;
+				}
+
+			}
+
+			return true;
+
+		}
+
+
+		/*
+
+		Wrapper function for encoding utf8 charset content into utf8mb4
+
+		*/
+		public function maybe_encode_emoji_content($content) {
+
+			if ( function_exists('wp_encode_emoji') && function_exists( 'mb_convert_encoding' ) ) {
+				$content = wp_encode_emoji($content);
+			}
+
+			return $content;
 
 		}
 
 
 
-
 		/*
 
-		Default Collections Query
+		$items: Always represents an array of objects
 
 		*/
-		public function get_default_collections_query($clauses = '') {
+		public function encode_data($items) {
 
-			global $wpdb;
+			if (empty($items)) {
+				return $items;
+			}
 
-			$DB_Collections_Custom = new Collections_Custom();
-			$DB_Collections_Smart = new Collections_Smart();
+			// If one big string is passed in, just encode and return it
+			if (is_string($items)) {
 
-			$collections_custom_table = $DB_Collections_Custom->get_table_name();
-			$collections_smart_table = $DB_Collections_Smart->get_table_name();
+				return $this->maybe_encode_emoji_content($items);
 
-			return array(
-				'where' => '',
-				'groupby' => '',
-				'join' => ' INNER JOIN (
+			}
 
-				SELECT
-				smart.collection_id,
-				smart.post_id,
-				smart.title,
-				smart.handle,
-				smart.body_html,
-				smart.image,
-				smart.sort_order,
-				smart.published_at,
-				smart.updated_at
-				FROM ' . $wpdb->prefix . 'wps_collections_smart smart
 
-				UNION ALL
+			foreach ($items as $key => $value) {
 
-				SELECT
-				custom.collection_id,
-				custom.post_id,
-				custom.title,
-				custom.handle,
-				custom.body_html,
-				custom.image,
-				custom.sort_order,
-				custom.published_at,
-				custom.updated_at
-				FROM ' . $wpdb->prefix . 'wps_collections_custom custom
+				if (empty($value)) {
+					return;
+				}
 
-			) as collections ON ' . $wpdb->prefix . 'posts.ID = collections.post_id',
-				'orderby' => $wpdb->posts . '.menu_order',
-				'distinct' => '',
-				'fields' => 'collections.*',
-				'limits' => ''
-			);
+				if (is_array($value) || is_object($value)) {
+
+					$this->encode_data($value);
+
+				} else {
+
+					if (is_string($value)) {
+
+						if (is_array($items)) {
+							$items[$key] = $this->maybe_encode_emoji_content($value);
+						}
+
+						if (is_object($items)) {
+							$items->{$key} = $this->maybe_encode_emoji_content($value);
+						}
+
+					}
+
+				}
+
+			}
+
+			return $items;
 
 		}
 

@@ -2,8 +2,6 @@
 
 namespace WPS;
 
-
-// If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -13,35 +11,15 @@ if ( !class_exists( 'WPS_Gamajo_Template_Loader' ) ) {
 }
 
 
-/*
-
-Template loader for WP Shopify
-
-*/
 if ( !class_exists('Template_Loader') ) {
 
   class Template_Loader extends \WPS_Gamajo_Template_Loader {
 
-
-    /*
-
-    Prefix for filter names.
-
-    @since 1.0.0
-    @var string
-
-    */
+		// Prefix for filter names.
     protected $filter_prefix = 'wps';
 
 
-    /*
-
-    Directory name where custom templates for this plugin should be found in the theme.
-
-    @since 1.0.0
-    @var string
-
-    */
+    // Directory name where custom templates for this plugin should be found in the theme.
     protected $theme_template_directory = 'wps-templates';
 
 
@@ -61,7 +39,7 @@ if ( !class_exists('Template_Loader') ) {
     @var string
 
     */
-    protected $plugin_directory = WPS_PLUGIN_DIR;
+    protected $plugin_directory = WPS_PLUGIN_DIR_PATH;
 
 
     /*

@@ -10,10 +10,10 @@
 
 @version       1.0.0
 @since         1.0.49
-@path          templates/partials/products/add-to-cart/meta-end.php
+@path          templates/partials/products/add-to-cart/meta-start.php
 @js            true
 
-@docs          https://wpshop.io/docs/templates/partials/products/add-to-cart/meta-end
+@docs          https://wpshop.io/docs/templates/partials/products/add-to-cart/meta-start
 
 */
 
@@ -31,5 +31,9 @@ if ( !defined('ABSPATH') ) {
   data-product-post-id="<?= $data->product->details->post_id; ?>"
   data-product-id="<?= $data->product->details->product_id; ?>"
   data-product-selected-options=""
+	data-product-url="<?= $data->product->details->url; ?>"
+	data-product-handle="<?= $data->product->details->handle; ?>"
   data-product-selected-variant="<?= count($data->product->variants) === 1 ? $data->product->variants[0]->id : ''; ?>"
-  data-product-available-variants='<?= json_encode($data->filtered_options); ?>'>
+  data-product-available-variants='<?= json_encode($data->filtered_options); ?>'
+	data-product-graphql-id="<?= $data->product->details->admin_graphql_api_id; ?>"
+	data-product-selected-options-and-variants="">

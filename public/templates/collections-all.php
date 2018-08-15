@@ -5,7 +5,7 @@
 @description   The main entry point for the 'collections all' page. Used internally by the custom post type archive
                template as well as the [wps_collections] shortcode
 
-@version       1.0.0
+@version       1.0.1
 @since         1.0.49
 @path          templates/collections-all.php
 @partials      templates/partials/collections
@@ -14,14 +14,13 @@
 
 */
 
-
-use WPS\Templates;
-
 if ( !defined('ABSPATH') ) {
 	exit;
 }
 
-$Templates = new Templates();
+use WPS\Factories\Templates_Factory;
+
+$Templates = Templates_Factory::build();
 
 
 /*

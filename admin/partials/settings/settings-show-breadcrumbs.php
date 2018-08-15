@@ -11,13 +11,13 @@ Load cart
       <tr valign="top">
 
         <th scope="row" class="titledesc">
-          <?php esc_html_e( 'Show breadcrumbs', 'wp-shopify' ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'Shows breadcrumbs', 'wp-shopify' ); ?>"></span>
+          <?php esc_html_e( 'Show breadcrumbs', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'Shows breadcrumbs', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">
-          <label for="<?php echo $this->config->settings_general_option_name; ?>_show_breadcrumbs" class="wps-label-block">
-            <input name="<?php echo $this->config->settings_general_option_name; ?>[wps_general_show_breadcrumbs]" id="<?php echo $this->config->settings_general_option_name; ?>_show_breadcrumbs" type="checkbox" <?php echo $general->show_breadcrumbs ? 'checked' : ''; ?>>
+          <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_show_breadcrumbs" class="wps-label-block">
+            <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_show_breadcrumbs]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_show_breadcrumbs" type="checkbox" <?php echo $general->show_breadcrumbs ? 'checked' : ''; ?>>
           </label>
         </td>
 

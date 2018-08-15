@@ -1,13 +1,37 @@
+import to from 'await-to-js';
 import intersection from 'lodash/intersection';
 import filter from 'lodash/filter';
 import matches from 'lodash/matches';
+import isEmpty from 'lodash/isEmpty';
+import uniqWith from 'lodash/uniqWith';
+import isEqual from 'lodash/isEqual';
+import forEach from 'lodash/forEach';
+import forIn from 'lodash/forIn';
+import has from 'lodash/has';
+import merge from 'lodash/merge';
+import reduce from 'lodash/reduce';
+
 
 import {
-  isError,
-  listenForClose,
   update,
-  isWordPressError
+  formatAsMoney
 } from '../utils/utils-common';
+
+import {
+  getClient
+} from '../utils/utils-client';
+
+import {
+  logNotice,
+  showSingleNotice,
+  hideProductMetaNotice,
+  isWordPressError
+} from '../utils/utils-notices';
+
+import {
+  triggerEventAfterAddToCart,
+  triggerEventBeforeAddToCart
+} from '../utils/utils-triggers';
 
 import {
   disable,
@@ -15,25 +39,40 @@ import {
   enableNoLoader,
   disableNoLoader,
   showLoader,
-  hideLoader,
-  shake
 } from '../utils/utils-ux';
 
 import {
-  getProduct,
+  pulse,
+  pulseSoft
+} from '../utils/utils-animations';
+
+import {
+  getProductByID,
   getProductVariantID,
   getVariantIdFromOptions,
   setProductSelectionID,
   getProductSelectionID,
   getProductOptionIds,
   setProductOptionIds,
-  removeProductOptionIds
+  removeProductOptionIds,
+  setCurrentlySelectedVariants,
+  getCurrentlySelectedVariants,
+  setFromPricing,
+  getFromPricing,
+  addLineItems,
+  getCheckoutID,
+  getProductByHandle,
+  getProductIDByHandle,
+  setProductIDByHandle
 } from '../ws/ws-products';
+
+import {
+  buildSelectedOptions
+} from './products-options';
 
 import {
   resetVariantSelectors,
   resetOptionsSelection,
-  closeOptionsModal,
   getDeselectedDropdowns,
   getCurrentlySelectedOptionsAmount,
   getCurrentlySelectedOptions,
@@ -41,73 +80,36 @@ import {
 } from './products-meta';
 
 import {
-  updateCart
-} from '../ws/ws-cart';
+  hideAllOpenProductDropdowns
+} from './products-ui';
 
 import {
   updateCartCounter,
-  toggleCart,
+  openCart,
   cartIsOpen,
-  closeCart
+  closeCart,
+  renderSingleCartItem,
+  updateTotalCartPricing,
+  addLineItemIDs,
+  removeVariantSelections,
+  enableCheckoutButton,
+  enableCart,
+  getLineItemFromVariantID,
+  getStoredWordPressURLs,
+  setStoredWordPressURLs,
+  buildWordPressURLsObj
 } from '../cart/cart-ui';
 
+import {
+  onCartQuantity
+} from '../cart/cart-events';
 
 import {
   getPluginInstance
 } from "../plugin/plugin";
 
-/*
-
-showProductMetaError
-
-*/
-function showProductMetaError($element, errorMessage) {
-
-  // Hides all other error messages
-  hideAllProductMetaErrors($element);
-
-  $element
-    .closest('.wps-product-meta')
-    .find('.wps-product-notice')
-    .html(errorMessage)
-    .addClass('wps-is-visible wps-notice-error');
-
-  var $elementToShake = $element.closest('.wps-product-actions-group').find('.wps-btn-dropdown[data-selected="false"]');
-
-  shake($elementToShake);
-
-}
 
 
-/*
-
-hideProductMetaErrors
-
-*/
-function hideAllProductMetaErrors($element) {
-
-  $element
-    .closest('.wps-product-meta')
-    .find('.wps-product-notice')
-    .html('')
-    .removeClass('wps-is-visible wps-notice-error');
-
-}
-
-
-/*
-
-hideProductMetaErrors
-
-*/
-function hideProductMetaErrors($element) {
-
-  $element
-    .closest('.wps-product-meta')
-    .find('.wps-product-notice')
-    .html('')
-    .removeClass('wps-is-visible wps-notice-error');
-}
 
 
 /*
@@ -116,7 +118,7 @@ Remove Inline Notices
 
 */
 function removeInlineNotices($productMetaWrapper) {
-  $productMetaWrapper.find('.wps-notice-inline').removeClass('wps-is-visible wps-notice-error').text('');
+  $productMetaWrapper.find('.wps-notice-inline').removeClass('wps-is-visible wps-notice-error wps-notice-warning wps-notice-info').text('');
 }
 
 
@@ -133,9 +135,6 @@ function resetSingleProductVariantSelector($addToCartButton) {
   var $productMetaDropdown = $productMetaWrapper.find('.wps-btn-dropdown');
   var $variantSelectors = $group.find('.wps-modal-trigger');
 
-  // Any errors
-  removeInlineNotices($productMetaWrapper);
-
   $variantSelectors.each(function(index, value) {
 
     var variantTitle = jQuery(value).data('option');
@@ -148,7 +147,58 @@ function resetSingleProductVariantSelector($addToCartButton) {
 
   });
 
-  $productMetaWrapper.removeClass('wps-is-selecting');
+}
+
+
+
+
+
+function variantForOptions(product, options) {
+  return product.variants.find((variant) => {
+    return variant.selectedOptions.every((selectedOption) => {
+      return options[selectedOption.name] === selectedOption.value.valueOf();
+    });
+  });
+}
+
+
+
+function getProductQuantitySelection($container) {
+  return $container.find('.wps-product-quantity').val();
+}
+
+
+
+
+
+function getAddLineItemsConfig(variant, productQuantity) {
+
+  return {
+    checkoutId: getCheckoutID(), // ID of an existing checkout
+    lineItems: [{
+      variantId: variant.id,
+      quantity: parseInt(productQuantity)
+    }]
+  }
+
+}
+
+
+
+function resetVariantSelection($addToCartButton) {
+  removeVariantSelections();
+  resetVariantSelectors(); // Resets DOM related to selecting options
+  resetSingleProductVariantSelector($addToCartButton);
+  enable($addToCartButton);
+}
+
+
+function buildSelectedOptionsData(selectedGraphOptions) {
+
+  selectedGraphOptions = JSON.parse(selectedGraphOptions);
+
+  // Reduce to a single object
+  return reduce(selectedGraphOptions, merge);
 
 }
 
@@ -159,7 +209,7 @@ Attach and control listeners onto buy button
 TODO: Add try catches below
 
 */
-function onAddProductToCart(shopify) {
+function onProductAddToCart(client) {
 
   jQuery('.wps-btn-wrapper').on('click', '.wps-add-to-cart', async function addToCartHandler(event) {
 
@@ -169,117 +219,144 @@ function onAddProductToCart(shopify) {
         $container = $addToCartButton.closest('.wps-product-meta'),
         matchingProductVariantID = $container.attr('data-product-selected-variant'),
         productID = $container.attr('data-product-id'),
-        productQuantity = $container.attr('data-product-quantity'),
+        productQuantity = getProductQuantitySelection($container),
         $cartForm = jQuery('.wps-cart-form .wps-cart-item-container'),
-        product,
-        productVariant;
+        graphqlID = $container.attr('data-product-graphql-id'),
+        selectedOptions = $container.attr('data-product-selected-options'),
+        productHandle = $container.attr('data-product-handle'),
+        wordpressProductURL = $container.attr('data-product-url'),
+        productStorefrontID = $container.attr('data-product-storefront-id'),
+        selectedGraphOptions = $container.attr('data-product-selected-options-and-variants');
 
+    // Stop if all variants are not selected
+    if ( !allProductVariantsSelected($container) ) {
 
-    if (cartIsOpen()) {
-      toggleCart();
+      pulse( $container.find('.wps-btn-dropdown[data-selected="false"] .wps-btn') );
+
+      return showSingleNotice('Please select the required options', $addToCartButton, 'warning');
+
     }
 
 
-    showLoader($cartForm);
-    disable($cartForm);
-
-    if (allProductVariantsSelected($container)) {
-
-      disable($addToCartButton);
-      showLoader($addToCartButton);
-      showHiddenProductVariants();
-
-      try {
-
-        product = await getProduct(shopify, productID);
-        productVariant = getProductVariantID(product, matchingProductVariantID);
-
-      } catch(error) {
-
-        /*
-
-        Sometimes the plugin will fail here because the productID needed isn't found within the
-        database despite the syncing process finishing successfully. In legacy versions of MySQL
-        the productID will change during the sync and thus the product ID doesn't actually exist.
-
-        Upgrade to MySQL 5.6+ !
-
-        */
-        enable($addToCartButton);
-        enable($cartForm);
-        hideLoader($addToCartButton);
-        hideLoader($cartForm);
-
-        showProductMetaError($addToCartButton,  'Sorry, it looks like this product isn\'t available to purchase');
-        return;
-
-      }
-
-      jQuery(document).trigger("wpshopify_add_to_cart_before", [product]);
+    // If cart is open when add to cart button is clicked, close it
+    closeCart();
 
 
-      /*
-
-      Update Cart Instance
-      newCart === new cart instance after adding / removing
-
-      */
-      try {
-        
-        var newCart = await updateCart(productVariant, productQuantity, shopify);
-
-      } catch(error) {
-
-        enable($addToCartButton);
-        enable($cartForm);
-        hideLoader($addToCartButton);
-        hideLoader($cartForm);
-
-        showProductMetaError($addToCartButton,  error + '. Code: 4');
-        return;
-
-      }
+    showLoader($addToCartButton);
+    disable($addToCartButton);
+    showHiddenProductVariants();
 
 
-      /*
 
-      Update Cart Counter
+    var [productError, product] = await to( getProductByHandle(client, productHandle) );
 
-      */
-      try {
-        await updateCartCounter(shopify, newCart);
+    if (!product) {
 
-      } catch(error) {
+      logNotice('getProductByHandle', productError, 'error');
+      showSingleNotice('Sorry, it looks like this product is currently unavailable to purchase. Please clear your browser cache and try again.', $addToCartButton);
 
-        enable($addToCartButton);
-        enable($cartForm);
-        hideLoader($addToCartButton);
-        hideLoader($cartForm);
+      resetVariantSelection($addToCartButton);
 
-        showProductMetaError($addToCartButton,  error + '. Code: 5');
-        return;
-      }
+      return;
 
-      enable($cartForm);
-      enable($addToCartButton);
-      hideLoader($addToCartButton);
-      hideLoader($cartForm);
+    }
 
 
-      if (!cartIsOpen()) {
-        toggleCart();
-      }
+    if (productError) {
 
-      jQuery(document).trigger("wpshopify_add_to_cart_after", [product, newCart]);
+      logNotice('getProductByID', productError, 'error');
+      showSingleNotice('Oops, something went wrong when trying to add ' + jQuery('.wps-product-heading') + ' to cart. Please clear your browser cache and try again.', $addToCartButton);
 
-      resetVariantSelectors(); // Resets DOM related to selecting options
-      resetSingleProductVariantSelector($addToCartButton);
+      resetVariantSelection($addToCartButton);
+
+      return;
+
+    }
+
+
+
+
+    triggerEventBeforeAddToCart(product);
+
+
+    var constructedSelectedGraphOptions = buildSelectedOptionsData(selectedGraphOptions);
+    var variant = variantForOptions(product, constructedSelectedGraphOptions);
+    var { checkoutId, lineItems } = getAddLineItemsConfig(variant, productQuantity);
+
+
+
+    /*
+
+    Adding new item to checkout ...
+
+    */
+    var [addLineitemsError, checkout] = await to( addLineItems(client, checkoutId, lineItems) );
+
+
+
+    var foundLineItem = getLineItemFromVariantID(checkout.lineItems, lineItems[0].variantId);
+    var storedWordPressURLs = getStoredWordPressURLs();
+
+
+
+
+
+
+
+
+
+
+
+    if (addLineitemsError) {
+      logNotice('addLineItems', addLineitemsError, 'error');
+      showSingleNotice( addLineitemsError, $addToCartButton);
+      resetVariantSelection($addToCartButton);
+      return;
+    }
+
+
+
+
+
+
+    updateCartCounter(client, checkout);
+
+    resetVariantSelection($addToCartButton);
+    showVariantPrice( getFromPricing(), $container );
+
+    enableCheckoutButton();
+
+    updateTotalCartPricing(checkout);
+
+
+
+
+    if ( !storedWordPressURLs ) {
+      setStoredWordPressURLs( buildWordPressURLsObj(foundLineItem, wordpressProductURL) );
 
     } else {
-
-      showProductMetaError($addToCartButton, 'Please select the required options');
-
+      setStoredWordPressURLs( buildWordPressURLsObj(foundLineItem, wordpressProductURL), storedWordPressURLs );
     }
+
+
+    // Responsible for adding the line item ids to the DOM element -- important
+    addLineItemIDs( renderSingleCartItem(client, checkout, variant), variant, checkout);
+
+
+    // Responsible for adding cart item events
+    onCartQuantity(client, checkout);
+
+
+    triggerEventAfterAddToCart(product, checkout);
+
+
+    openCart();
+
+
+
+
+
+
 
   });
 
@@ -458,6 +535,7 @@ function updateSingleVariantValues($variantTrigger) {
   $variantTrigger.parent().prev().text(optionName + ': ' + variantText);
   $variantTrigger.closest('.wps-btn-dropdown').data('selected-val', variantText);
   $variantTrigger.closest('.wps-btn-dropdown').attr('data-selected-val', variantText);
+
   $variantTrigger.closest('.wps-btn-dropdown').data('selected', true);
   $variantTrigger.closest('.wps-btn-dropdown').attr('data-selected', true);
 
@@ -519,11 +597,35 @@ Show Variant Image
 */
 function showVariantImage(variantID) {
 
-  var $images = findMatchingVariantImageByID(variantID)
+  var $images = findMatchingVariantImageByID(variantID);
 
   if ($images) {
     $images.click();
   }
+
+}
+
+
+function emptyPriceDOM($metaContainer) {
+  $metaContainer.parent().find('.wps-products-price').empty();
+}
+
+function getSelectedVariantPrice() {
+  return jQuery('.wps-product-meta').data('product-price');
+}
+
+
+function showVariantPrice(price, $metaContainer) {
+
+  if (price) {
+
+    emptyPriceDOM($metaContainer);
+
+    $metaContainer.parent().find('.wps-products-price')
+      .append('<span itemprop="price" class="wps-product-individual-price">' + price + '</span>');
+
+  }
+
 
 }
 
@@ -573,6 +675,7 @@ Param   => availableVariants  => Array of Objects   => [{ option1: "Extra Small"
 */
 function toggleAvailableVariantSelections(selectedVariant, availableVariants) {
 
+
   /*
 
   Represents an array of variants that are available to select based on a previous selection
@@ -620,6 +723,7 @@ function toggleAvailableVariantSelections(selectedVariant, availableVariants) {
 
   });
 
+
 }
 
 
@@ -630,14 +734,41 @@ Construct Selected Variant Options
 */
 function constructSelectedVariantOptions($trigger) {
 
-  var newlySelected = {};
   var key = 'option' + $trigger.data('option-position');
+  var currentlySelected = getCurrentlySelectedVariants();
 
-  newlySelected[key] = $trigger.data('variant-title');
+  if (isEmpty(currentlySelected)) {
+    currentlySelected = {};
+  } else {
+    currentlySelected = JSON.parse(currentlySelected);
+  }
 
-  return newlySelected;
+  currentlySelected[key] = $trigger.data('variant-title');
+
+  setCurrentlySelectedVariants(currentlySelected);
+
+  return currentlySelected;
 
 }
+
+
+/*
+
+Turns on selecting meta state
+
+*/
+function turnOnMetaSelectingState($newProductMetaContainer) {
+  $newProductMetaContainer.addClass('wps-is-selecting');
+}
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -660,16 +791,34 @@ function onProductVariantChange() {
 
     var $trigger = jQuery(this),
         optionID = $trigger.data('option-id'),
+        variantTitle = $trigger.data('variant-title'),
         variantText = $trigger.text().trim(),
         $newProductMetaContainer = $trigger.closest('.wps-product-meta'),
+        $variantDropdownContainer = $trigger.closest('.wps-btn-dropdown'),
+        variantOptionName = $variantDropdownContainer.data('option-name'),
         currentProductID = $newProductMetaContainer.data('product-id'),
         previouslySelectedOptions = $newProductMetaContainer.data('product-selected-options'),
-        availableOptions = $trigger.closest('.wps-btn-dropdown').data('available-options'),
-        dropdownAlreadySelected = $trigger.closest('.wps-btn-dropdown').data('selected'),
-        availableVariants = $newProductMetaContainer.data('product-available-variants');
+        availableOptions = $variantDropdownContainer.data('available-options'),
+        dropdownAlreadySelected = $variantDropdownContainer.data('selected'),
+        availableVariants = $newProductMetaContainer.data('product-available-variants'),
+        prevSelected = $newProductMetaContainer.attr('data-product-selected-options-and-variants');
 
 
-    $newProductMetaContainer.addClass('wps-is-selecting');
+    hideAllOpenProductDropdowns();
+
+
+    // Turns on meta selecting state
+    turnOnMetaSelectingState($newProductMetaContainer);
+
+
+    /*
+
+    This builds the selected options needed for the eventual GraphQL request
+
+    */
+    buildSelectedOptions($newProductMetaContainer, prevSelected, variantOptionName, variantTitle);
+
+
 
     /*
 
@@ -728,8 +877,6 @@ function onProductVariantChange() {
       availableVariants
     );
 
-    closeOptionsModal();
-
 
 
     /*
@@ -739,61 +886,115 @@ function onProductVariantChange() {
     */
     if (allProductVariantsSelected($newProductMetaContainer)) {
 
+      setCurrentlySelectedVariants({});
+
       var newCurrentProductID = $newProductMetaContainer.attr('data-product-post-id');
       var selectedOptions = $trigger.closest('.wps-product-meta').data('product-selected-options');
       var $optionButtons = $newProductMetaContainer.find('.wps-btn-dropdown .wps-btn');
       var $addToCartButton = $newProductMetaContainer.find('.wps-add-to-cart');
 
+
+
       disable($optionButtons);
       disableNoLoader($addToCartButton);
 
-      resetOptionsSelection();
+      // resetOptionsSelection();
+
+      // resetVariantSelectors(); // Resets DOM related to selecting options
+      // resetSingleProductVariantSelector($addToCartButton);
 
       // All variants selected, find actual variant ID
-      try {
 
-        var foundVariantIDResponse = await getVariantIdFromOptions(newCurrentProductID, selectedOptions);
 
-        if (isWordPressError(foundVariantIDResponse)) {
-          throw foundVariantIDResponse.data;
-        }
+      // Calls get_variant_id_from_product_options
+      var [foundVariantError, foundVariantResponse] = await to( getVariantIdFromOptions(newCurrentProductID, selectedOptions) );
 
-        if (isError(foundVariantIDResponse)) {
-          throw foundVariantIDResponse.data;
+      if (foundVariantError) {
 
-        } else {
+        logNotice('getVariantIdFromOptions', foundVariantError, 'error');
+        showSingleNotice(foundVariantError, $trigger);
 
-          var foundVariantID = foundVariantIDResponse.data;
-
-          $newProductMetaContainer.data('product-selected-variant', foundVariantID);
-          $newProductMetaContainer.attr('data-product-selected-variant', foundVariantID);
-
-          showVariantImage(foundVariantID);
-
-        }
-
-        enable($optionButtons);
-        enableNoLoader($addToCartButton);
-
-        hideProductMetaErrors($trigger);
-
-      } catch(error) {
-
-        showProductMetaError($trigger,  error.message);
         enable($newProductMetaContainer.find('.wps-btn'));
-        shake($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
+
+        pulse($newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]'));
 
         resetVariantSelectors();
         removeProductOptionIds();
         resetOptionsSelection();
 
+        return;
+
       }
+
+
+      if (isWordPressError(foundVariantResponse)) {
+
+        logNotice('getVariantIdFromOptions', foundVariantResponse, 'error');
+        showSingleNotice(foundVariantResponse, $trigger);
+
+        enable($newProductMetaContainer.find('.wps-btn'));
+
+
+        pulse( $newProductMetaContainer.find('.wps-btn-dropdown[data-selected=true]') );
+
+
+
+        resetVariantSelectors();
+        removeProductOptionIds();
+        resetOptionsSelection();
+
+        return;
+
+      }
+
+
+
+      var foundVariant = foundVariantResponse.data;
+
+      $newProductMetaContainer.data('product-selected-variant', foundVariant.id);
+      $newProductMetaContainer.attr('data-product-selected-variant', foundVariant.id);
+
+      showVariantImage(foundVariant.id);
+
+      setFromPricing();
+      showVariantPrice( formatAsMoney(foundVariant.price), $newProductMetaContainer );
+
+
+      pulseSoft($addToCartButton);
+
+      enable($optionButtons);
+      enable($addToCartButton);
+
+      hideProductMetaNotice($trigger);
+
+
+
+
 
     }
 
   });
 
 }
+
+
+
+
+
+
+function toggleProductDropdownOpenState($clickedDropdown) {
+
+  $clickedDropdown.attr('data-open', $clickedDropdown.attr('data-open') === 'true' ? 'false' : 'true');
+
+  if ($clickedDropdown.attr('data-open') === 'true') {
+    jQuery('.wps-btn-dropdown').attr('data-open', false);
+    $clickedDropdown.attr('data-open', true);
+  }
+
+}
+
+
+
 
 
 /*
@@ -810,41 +1011,16 @@ function onProductDropdown() {
 
     $productMetaContainer.on('click', '.wps-modal-trigger', function modalTriggerHandler(e) {
 
-      e.stopPropagation();
       e.preventDefault();
-
-      closeCart();
 
       var $trigger = jQuery(this),
           $dropdownModal = $trigger.next(),
           $dropdown = $trigger.parent();
 
-      /*
 
-      Hide any visible dropdowns before we show the selected one
+      closeCart();
 
-      */
-      // Closes other dropdowns
-      closeOptionsModal();
-
-      if ($dropdown.data('open')) {
-
-        $dropdown.data('open', false);
-        $dropdown.attr('data-open', false);
-
-      } else {
-
-
-        if (!$dropdown.closest('.wps-product-meta').hasClass('wps-is-selecting')) {
-          showHiddenProductVariants();
-        }
-
-        $dropdown.data('open', true);
-        $dropdown.attr('data-open', true);
-
-        listenForClose();
-
-      }
+      toggleProductDropdownOpenState( $dropdown );
 
     });
 
@@ -873,9 +1049,9 @@ function allProductVariantsSelected($container = null) {
 Initialize Product Events
 
 */
-function productEvents(shopify) {
+function productEvents(client) {
 
-  onAddProductToCart(shopify);
+  onProductAddToCart(client);
   onProductGalleryClick();
   onProductQuantityChange();
   onProductVariantChange();
@@ -887,4 +1063,4 @@ function productEvents(shopify) {
 
 export {
   productEvents
-};
+}

@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Collects;
+use WPS\Factories\DB_Collects_Factory;
 
 /*
 
@@ -16,7 +16,7 @@ Collects are not updated -- only created or deleted
 */
 class Test_Sync_Collects extends WP_UnitTestCase {
 
-  protected static $Collects;
+  protected static $DB_Collects;
   protected static $mockDataCollect;
   protected static $mockDataCollectID;
 
@@ -24,7 +24,7 @@ class Test_Sync_Collects extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$Collects                       = new Collects();
+    self::$DB_Collects                    = DB_Collects_Factory::build();
     self::$mockDataCollect                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collect.json") );
     self::$mockDataCollectID              = self::$mockDataCollect->id;
 
@@ -38,9 +38,8 @@ class Test_Sync_Collects extends WP_UnitTestCase {
   */
   function test_collect_create() {
 
-    $result = self::$Collects->insert(self::$mockDataCollect, 'collect');
-
-    $this->assertTrue($result);
+    $result = self::$DB_Collects->insert(self::$mockDataCollect, 'collect');
+    $this->assertEquals(1, $result);
 
   }
 
@@ -52,9 +51,8 @@ class Test_Sync_Collects extends WP_UnitTestCase {
   */
   function test_collect_delete() {
 
-    $results = self::$Collects->delete( self::$mockDataCollectID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collects->delete( self::$mockDataCollectID );
+    $this->assertEquals(1, $results);
 
   }
 

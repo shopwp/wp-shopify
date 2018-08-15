@@ -1,0 +1,390 @@
+<?php
+
+namespace WPS;
+
+if (!defined('ABSPATH')) {
+	exit;
+}
+
+if ( !class_exists('Async_Processing_Database') ) {
+
+  class Async_Processing_Database extends WP_Shopify_Background_Process {
+
+		protected $action = 'wps_background_processing_deletions';
+
+		protected $Config;
+		protected $DB_Collections_Custom;
+		protected $DB_Collections_Smart;
+		protected $DB_Collects;
+		protected $DB_Customers;
+		protected $DB_Images;
+		protected $DB_Options;
+		protected $DB_Orders;
+		protected $DB_Products;
+		protected $DB_Settings_Connection;
+		protected $DB_Settings_General;
+		protected $DB_Settings_License;
+		protected $DB_Settings_Syncing;
+		protected $DB_Shop;
+		protected $DB_Tags;
+		protected $DB_Variants;
+		protected $Transients;
+		protected $WS_Webhooks;
+		protected $WS_CPT;
+		protected $License;
+
+
+		public function __construct($Config, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Collects, $DB_Customers, $DB_Images, $DB_Options, $DB_Orders, $DB_Products, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_License, $DB_Settings_Syncing, $DB_Shop, $DB_Tags, $DB_Variants, $Transients, $WS_Webhooks, $WS_CPT, $License) {
+
+			$this->Config 														= $Config;
+			$this->DB_Collections_Custom 							= $DB_Collections_Custom;
+			$this->DB_Collections_Smart 							= $DB_Collections_Smart;
+			$this->DB_Collects 												= $DB_Collects;
+			$this->DB_Customers 											= $DB_Customers;
+			$this->DB_Images 													= $DB_Images;
+			$this->DB_Options 												= $DB_Options;
+			$this->DB_Orders 													= $DB_Orders;
+			$this->DB_Products 												= $DB_Products;
+			$this->DB_Settings_Connection 						= $DB_Settings_Connection;
+			$this->DB_Settings_General 								= $DB_Settings_General;
+			$this->DB_Settings_License 								= $DB_Settings_License;
+			$this->DB_Settings_Syncing 								= $DB_Settings_Syncing;
+			$this->DB_Shop 														= $DB_Shop;
+			$this->DB_Tags 														= $DB_Tags;
+			$this->DB_Variants 												= $DB_Variants;
+			$this->Transients 												= $Transients;
+
+			$this->WS_Webhooks 												= $WS_Webhooks;
+			$this->WS_CPT 														= $WS_CPT;
+			$this->License 														= $this->License;
+
+			parent::__construct();
+
+		}
+
+
+		/*
+
+		Drop databases used during uninstall
+
+		*/
+		public function drop_databases() {
+
+			$results = [];
+
+			$results['shop'] = $this->DB_Shop->delete_table();
+			$results['settings_general'] = $this->DB_Settings_General->delete_table();
+			$results['settings_license'] = $this->DB_Settings_License->delete_table();
+			$results['settings_connection'] = $this->DB_Settings_Connection->delete_table();
+			$results['settings_syncing'] = $this->DB_Settings_Syncing->delete_table();
+			$results['collections_smart'] = $this->DB_Collections_Smart->delete_table();
+			$results['collections_custom'] = $this->DB_Collections_Custom->delete_table();
+			$results['products'] = $this->DB_Products->delete_table();
+			$results['variants'] = $this->DB_Variants->delete_table();
+			$results['options'] = $this->DB_Options->delete_table();
+			$results['tags'] = $this->DB_Tags->delete_table();
+			$results['collects'] = $this->DB_Collects->delete_table();
+			$results['images'] = $this->DB_Images->delete_table();
+
+
+			return $results;
+
+		}
+
+
+		/*
+
+		Drop databases used during uninstall
+
+		*/
+		public function delete_posts() {
+
+			$results = [];
+
+			$results['posts'] = $this->WS_CPT->delete_posts();
+
+			return $results;
+
+		}
+
+
+		/*
+
+		Uninstalls plugin
+		Returns: Response object
+
+		Need to do a few things here ...
+
+		1. Remove webhooks
+		3. Remove the wps config values from the database
+		4. Delete cache
+
+
+		TODO: Since invalidating the main Shopify API connection is
+		performed asynchronously, we should break that into its own
+		request; perhaps after this one.
+
+		Each deletion returns either type boolean of TRUE or a type
+		STRING containing the error message.
+
+		*/
+		public function delete_all_data() {
+
+			$this->push_to_queue('License');
+			$this->push_to_queue('WS_CPT');
+			$this->push_to_queue('DB_Collections_Custom');
+			$this->push_to_queue('DB_Collections_Smart');
+			$this->push_to_queue('DB_Collects');
+			$this->push_to_queue('DB_Images');
+			$this->push_to_queue('DB_Options');
+			$this->push_to_queue('DB_Products');
+			$this->push_to_queue('DB_Shop');
+			$this->push_to_queue('DB_Tags');
+			$this->push_to_queue('DB_Variants');
+			$this->push_to_queue('Transients');
+			$this->push_to_queue('DB_Settings_Connection');
+			$this->push_to_queue('DB_Settings_Syncing');
+
+
+			$this->save()->dispatch();
+
+		}
+
+
+		public function delete_only_posts() {
+
+			$this->push_to_queue('WS_CPT');
+
+			$this->save()->dispatch();
+
+		}
+
+
+		/*
+
+		Deletes both synced data AND custom post types but no:
+
+		- Connection data
+		- License data
+
+		*/
+		public function delete_posts_and_synced_data() {
+
+			$this->push_to_queue('WS_CPT');
+			$this->push_to_queue('DB_Collections_Custom');
+			$this->push_to_queue('DB_Collections_Smart');
+			$this->push_to_queue('DB_Collects');
+			$this->push_to_queue('DB_Images');
+			$this->push_to_queue('DB_Options');
+			$this->push_to_queue('DB_Products');
+			$this->push_to_queue('DB_Shop');
+			$this->push_to_queue('DB_Tags');
+			$this->push_to_queue('DB_Variants');
+			$this->push_to_queue('Transients');
+
+
+			$this->save()->dispatch();
+
+		}
+
+
+		/*
+
+		Deletes only synced Shopify data. Keeps custom post types, license, etc.
+
+		*/
+		public function delete_only_synced_data() {
+
+			$selective_sync = $this->DB_Settings_General->selective_sync_status();
+
+			if ($selective_sync['products'] === 1 || $selective_sync['all'] === 1) {
+
+				$this->push_to_queue('DB_Products');
+				$this->push_to_queue('DB_Shop');
+				$this->push_to_queue('DB_Variants');
+				$this->push_to_queue('DB_Tags');
+				$this->push_to_queue('DB_Collects');
+				$this->push_to_queue('DB_Images');
+				$this->push_to_queue('DB_Options');
+
+			}
+
+			if ($selective_sync['smart_collections'] === 1 || $selective_sync['all'] === 1) {
+				$this->push_to_queue('DB_Collections_Smart');
+			}
+
+			if ($selective_sync['custom_collections'] === 1 || $selective_sync['all'] === 1) {
+				$this->push_to_queue('DB_Collections_Custom');
+			}
+
+
+			$this->push_to_queue('Transients');
+
+			$this->save()->dispatch();
+
+
+		}
+
+
+		/*
+
+		Override this method to perform any actions required during the async request.
+
+		*/
+		protected function task($object_name) {
+
+			$class_object = $this->$object_name;
+
+			if ($class_object) {
+
+				if ($object_name === 'WS_CPT') {
+					$class_object->delete_posts();
+
+				} else if ($object_name === 'DB_Settings_Syncing') {
+					$class_object->reset_syncing_current_amounts();
+
+				} else if ($object_name === 'WS_Webhooks') {
+					return false;
+
+				} else {
+					$class_object->delete();
+				}
+
+			}
+
+			return false;
+
+		}
+
+
+		/*
+
+		Calculates row difference
+
+		*/
+		public function different_row_amount($columns_new, $columns_current) {
+			return count($columns_new) > count($columns_current);
+		}
+
+
+
+		/*
+
+		Find the difference between tables in the database
+		and tables in the database schemea. Used during plugin updates
+		to dynamically update the database.
+
+		*/
+		public function get_table_delta() {
+
+			$tables = [];
+			$final_delta = [];
+
+			$tables[] = $this->DB_Products;
+			$tables[] = $this->DB_Variants;
+			$tables[] = $this->DB_Tags;
+			$tables[] = $this->DB_Shop;
+			$tables[] = $this->DB_Options;
+			$tables[] = $this->DB_Images;
+			$tables[] = $this->DB_Collects;
+			$tables[] = $this->DB_Collections_Smart;
+			$tables[] = $this->DB_Collections_Custom;
+			$tables[] = $this->DB_Settings_License;
+			$tables[] = $this->DB_Settings_Connection;
+			$tables[] = $this->DB_Settings_General;
+			$tables[] = $this->DB_Settings_Syncing;
+
+
+			foreach ($tables as $key => $table) {
+
+				// Contains full table name /w prefix
+				$table_name = $table->get_table_name();
+
+				if ( $table->table_exists($table_name) ) {
+
+					if ($this->different_row_amount( $table->get_columns(), $table->get_columns_current() )) {
+						$final_delta[$table_name] = $table;
+					}
+
+				} else {
+
+					// Create table since it doesn't exist
+					$result = $table->create_table();
+
+				}
+
+			}
+
+			return array_filter($final_delta);
+
+		}
+
+
+		/*
+
+		Useful for creating new tables and updating existing tables to a new structure.
+		Does NOT remove columns or delete tables
+
+		*/
+		public function sync_table_deltas() {
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+			// Next get all tables
+			$tables = $this->get_table_delta();
+
+			if (Utils::array_not_empty($tables)) {
+
+				foreach ($tables as $table) {
+					$results = \dbDelta( $table->create_table_query($table->table_name) );
+				}
+
+			}
+
+		}
+
+
+		/*
+
+		When the background process completes ...
+
+		*/
+		protected function complete() {
+
+			$this->DB_Settings_Syncing->set_finished_data_deletions(1);
+
+			parent::complete();
+
+		}
+
+
+		/*
+
+		Hooks
+
+		*/
+		public function hooks() {
+
+			add_action('wp_ajax_delete_only_synced_data', [$this, 'delete_only_synced_data']);
+			add_action('wp_ajax_nopriv_delete_only_synced_data', [$this, 'delete_only_synced_data']);
+
+			add_action('wp_ajax_delete_all_data', [$this, 'delete_all_data']);
+			add_action('wp_ajax_nopriv_delete_all_data', [$this, 'delete_all_data']);
+
+			add_action('wp_ajax_delete_only_posts', [$this, 'delete_only_posts']);
+			add_action('wp_ajax_nopriv_delete_only_posts', [$this, 'delete_only_posts']);
+
+			add_action('wp_ajax_delete_posts_and_synced_data', [$this, 'delete_posts_and_synced_data']);
+			add_action('wp_ajax_nopriv_delete_posts_and_synced_data', [$this, 'delete_posts_and_synced_data']);
+
+		}
+
+
+		public function init() {
+			$this->hooks();
+		}
+
+
+  }
+
+}

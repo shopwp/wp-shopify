@@ -1,6 +1,6 @@
 <?php
 
-use WPS\DB\Collections_Smart;
+use WPS\Factories\DB_Collections_Smart_Factory;
 
 /*
 
@@ -14,7 +14,7 @@ https://help.shopify.com/api/reference/webhook
 */
 class Test_Sync_Collections_Smart extends WP_UnitTestCase {
 
-  protected static $CollectionsSmart;
+  protected static $DB_Collections_Smart;
   protected static $mockDatacollectionsSmart;
   protected static $mockDatacollectionsSmartForUpdate;
   protected static $mockDatacollectionsSmartID;
@@ -23,7 +23,7 @@ class Test_Sync_Collections_Smart extends WP_UnitTestCase {
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$CollectionsSmart                     = new Collections_Smart();
+    self::$DB_Collections_Smart                 = DB_Collections_Smart_Factory::build();
     self::$mockDatacollectionsSmart             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-smart.json") );
     self::$mockDatacollectionsSmartForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-smart-update.json") );
     self::$mockDatacollectionsSmartID           = self::$mockDatacollectionsSmart->collection_id;
@@ -38,9 +38,8 @@ class Test_Sync_Collections_Smart extends WP_UnitTestCase {
   */
   function test_smart_collection_create() {
 
-    $results = self::$CollectionsSmart->insert( self::$mockDatacollectionsSmart, 'smart_collection' );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collections_Smart->insert( self::$mockDatacollectionsSmart, 'smart_collection' );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -52,9 +51,8 @@ class Test_Sync_Collections_Smart extends WP_UnitTestCase {
   */
   function test_smart_collection_update() {
 
-    $results = self::$CollectionsSmart->update( self::$mockDatacollectionsSmartID, self::$mockDatacollectionsSmartForUpdate );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collections_Smart->update( self::$mockDatacollectionsSmartID, self::$mockDatacollectionsSmartForUpdate );
+    $this->assertEquals(1, $results);
 
   }
 
@@ -66,9 +64,8 @@ class Test_Sync_Collections_Smart extends WP_UnitTestCase {
   */
   function test_smart_collection_delete() {
 
-    $results = self::$CollectionsSmart->delete_rows( 'collection_id', self::$mockDatacollectionsSmartID );
-
-    $this->assertTrue($results);
+    $results = self::$DB_Collections_Smart->delete_rows( 'collection_id', self::$mockDatacollectionsSmartID );
+    $this->assertEquals(1, $results);
 
   }
 
