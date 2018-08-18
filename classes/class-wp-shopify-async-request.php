@@ -94,9 +94,13 @@ if ( ! class_exists( 'WP_Shopify_Async_Request' ) ) {
 			$result = wp_remote_post( esc_url_raw( $url ), $args );
 
 			// If error occurs, try one more time
-			if (is_wp_error($result)) {
-				wp_remote_post( esc_url_raw( $url ), $args );
-			}
+			// if (is_wp_error($result)) {
+			//
+			// 	error_log('---- WP_ERRRRROR -----');
+			// 	error_log(print_r($result, true));
+			// 	error_log('---- /WP_ERRRRROR -----');
+			// 	// wp_remote_post( esc_url_raw( $url ), $args );
+			// }
 
 		}
 

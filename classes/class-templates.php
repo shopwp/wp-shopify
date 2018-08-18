@@ -1689,6 +1689,8 @@ if (!class_exists('Templates')) {
       $results->tags = $this->DB_Tags->get_tags_from_post_id($postID);
       $results->variants = $this->DB_Variants->get_variants_from_post_id($postID);
       $results->options = $this->DB_Options->get_options_from_post_id($postID);
+
+			// TODO: $results->tags sometimes doesnt work
       $results->details->tags = $this->DB_Tags->construct_only_tag_names($results->tags);
 
 

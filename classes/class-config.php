@@ -73,7 +73,7 @@ if ( !class_exists('Config') ) {
 			$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 			$this->plugin_name_js 													= 'WP_Shopify';
 			$this->plugin_text_domain 											= 'wp-shopify';
-			$this->plugin_version 													= '1.2.0';
+			$this->plugin_version 													= '1.2.1';
 			$this->plugin_author 														= 'WP Shopify';
 
 			$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';

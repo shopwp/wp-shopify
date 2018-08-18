@@ -403,8 +403,11 @@ if (!class_exists('DB')) {
 
 			global $wpdb;
 
-			$firstKey = current(array_keys($data));
-			$existingResults = $wpdb->get_results("SELECT * FROM " . $this->table_name . " WHERE " . $this->table_name . "." . $this->primary_key . " = " . "'" . $data[$firstKey] . "'");
+			$firstKey = current( array_keys($data) );
+
+			$query = "SELECT * FROM " . $this->table_name . " WHERE " . $this->table_name . "." . $this->primary_key . " = %d LIMIT 1";
+
+			$wpdb->get_results( $wpdb->prepare($query, $data[$firstKey]) );
 
 			return $wpdb->num_rows > 0;
 
@@ -567,6 +570,7 @@ if (!class_exists('DB')) {
 			and then cheking the num rows like below:
 
 			*/
+
 			if ($this->has_existing_record($data)) {
 
 				$result = $wpdb->update($this->table_name, $data, $column_formats);

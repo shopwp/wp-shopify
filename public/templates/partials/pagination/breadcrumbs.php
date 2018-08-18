@@ -12,16 +12,6 @@
 
 */
 
-// use WPS\Factories\Breadcrumbs_Factory;
-//
-// if ( !defined('ABSPATH') ) {
-// 	exit;
-// }
-//
-// $Breadcrumbs = Breadcrumbs_Factory::build();
-//
-// $Breadcrumbs->show();
-
 // Settings
 $separator          = __( apply_filters('wps_breadcrumbs_separator', '&gt;'), WPS_PLUGIN_TEXT_DOMAIN);
 $breadcrums_id      = __( apply_filters('wps_breadcrumbs_id', 'wps-breadcrumbs'), WPS_PLUGIN_TEXT_DOMAIN);

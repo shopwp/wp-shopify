@@ -183,6 +183,7 @@ if (!class_exists('Variants')) {
 				$query = "SELECT variants.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_VARIANTS . " as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
 
 				$variants = $wpdb->get_results( $wpdb->prepare($query, $postID) );
+
 				$variants = Utils::product_inventory(false, $variants);
 
 				set_transient('wps_product_single_variants_' . $postID, $variants);

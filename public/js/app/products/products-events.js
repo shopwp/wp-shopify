@@ -10,6 +10,7 @@ import forIn from 'lodash/forIn';
 import has from 'lodash/has';
 import merge from 'lodash/merge';
 import reduce from 'lodash/reduce';
+import size from 'lodash/size';
 
 
 import {
@@ -169,6 +170,10 @@ function getProductQuantitySelection($container) {
 
 
 
+function getAvailableVariants(product) {
+  return product.variants.filter( variant => variant.available );
+}
+
 
 
 function getAddLineItemsConfig(variant, productQuantity) {
@@ -279,8 +284,34 @@ function onProductAddToCart(client) {
     triggerEventBeforeAddToCart(product);
 
 
-    var constructedSelectedGraphOptions = buildSelectedOptionsData(selectedGraphOptions);
-    var variant = variantForOptions(product, constructedSelectedGraphOptions);
+
+
+    var availVariants = getAvailableVariants(product);
+
+    if ( size(availVariants) > 1) {
+      var constructedSelectedGraphOptions = buildSelectedOptionsData(selectedGraphOptions);
+      var variant = variantForOptions(product, constructedSelectedGraphOptions);
+
+    } else {
+
+      if (!isEmpty(availVariants)) {
+        var variant = availVariants[0];
+
+      } else {
+
+        logNotice('getAvailableVariants', 'No product variant found.', 'error');
+        showSingleNotice('Sorry, that product variant doesn\'t exit. Please clear your browser cache and try again.', $addToCartButton);
+
+        resetVariantSelection($addToCartButton);
+
+        return;
+
+      }
+
+    }
+
+
+
     var { checkoutId, lineItems } = getAddLineItemsConfig(variant, productQuantity);
 
 

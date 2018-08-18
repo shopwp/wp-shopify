@@ -69,13 +69,3 @@ matrix:
         - "find /tmp/wordpress-tests-lib -type d -exec chmod 755 {} + && find /tmp/wordpress-tests-lib -type f -exec chmod 644 {} +"
       script:
         - phpunit
-    - language: node_js
-      os:
-        - osx
-      env:
-        - "NODE_ENV=production"
-      node_js:
-        - "node"
-      cache:
-        directories:
-          - "node_modules"
