@@ -1,5 +1,5 @@
 <?php
-namespace GuzzleHttp\Exception;
+namespace WPS\Vendor\GuzzleHttp\Exception;
 
 /**
  * @method string getMessage()

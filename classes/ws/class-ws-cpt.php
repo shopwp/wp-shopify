@@ -15,14 +15,18 @@ if (!class_exists('CPT')) {
   class CPT extends \WPS\WS {
 
 		protected $Messages;
+		protected $DB;
 		protected $DB_Products;
 
 		public function __construct($Messages, $DB_Products, $Async_Processing_Posts_Products_Relationships, $Async_Processing_Posts_Collections_Relationships) {
+
 			$this->Messages				= $Messages;
+			$this->DB							= $DB_Products;
 			$this->DB_Products		= $DB_Products;
 
 			$this->Async_Processing_Posts_Products_Relationships			= $Async_Processing_Posts_Products_Relationships;
 			$this->Async_Processing_Posts_Collections_Relationships		=	$Async_Processing_Posts_Collections_Relationships;
+
 		}
 
 
@@ -35,13 +39,13 @@ if (!class_exists('CPT')) {
 		- Predicate Function (returns boolean)
 
 		*/
-		public function delete_posts_by_type($type) {
+		public function delete_posts_by_type($post_type) {
 
 			global $wpdb;
 
 			$query = "DELETE posts, pt, pm FROM " . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.post_type = %s";
 
-			return $wpdb->query( $wpdb->prepare($query, $type) );
+			return $this->DB->query( $wpdb->prepare($query, $post_type) );
 
 		}
 
@@ -105,9 +109,12 @@ if (!class_exists('CPT')) {
 		*/
 		public function delete_posts() {
 
-			$this->delete_taxonomies('wps_tags');
-			$this->delete_posts_by_type(WPS_PRODUCTS_POST_TYPE_SLUG);
-			$this->delete_posts_by_type(WPS_COLLECTIONS_POST_TYPE_SLUG);
+			$results = [];
+			// $this->delete_taxonomies('wps_tags'); Not currently used
+			$results[WPS_PRODUCTS_POST_TYPE_SLUG] 			= $this->delete_posts_by_type(WPS_PRODUCTS_POST_TYPE_SLUG);
+			$results[WPS_COLLECTIONS_POST_TYPE_SLUG] 		= $this->delete_posts_by_type(WPS_COLLECTIONS_POST_TYPE_SLUG);
+
+			return $results;
 
 		}
 

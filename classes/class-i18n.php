@@ -16,7 +16,7 @@ if (!class_exists('I18N')) {
 
 		*/
 		public function load_textdomain() {
-			load_plugin_textdomain(WPS_TEXT_DOMAIN, false, dirname(dirname(plugin_basename(__FILE__))) . WPS_LANGUAGES_FOLDER);
+			load_plugin_textdomain(WPS_PLUGIN_TEXT_DOMAIN, false, dirname(dirname(plugin_basename(__FILE__))) . WPS_LANGUAGES_FOLDER);
 		}
 
 

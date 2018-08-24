@@ -455,7 +455,7 @@ function getSelectiveSyncOptions() {
 
     var includes = [];
 
-    
+
     return includes;
 
   }
@@ -533,34 +533,23 @@ Populate sync by collections
 async function populateSyncByCollections() {
 
   // Don't do anything if no active connection exists
-  if (!hasConnection()) {
-    showSyncByCollectionsNotice();
-    return;
+  if ( !hasConnection() ) {
+    return showSyncByCollectionsNotice();
   }
 
   var [collectionsError, collectionsData] = await to( getSelectiveCollections() );
 
   if (collectionsError) {
-    showSyncByCollectionsNotice();
-    showAdminNotice( getJavascriptErrorMessage(collectionsError) );
-    return;
+    return showSyncByCollectionsNotice( getJavascriptErrorMessage(collectionsError) );
   }
 
   if (isWordPressError(collectionsData)) {
-
-    showSyncByCollectionsNotice();
-
-    return showAdminNotice(
-      getWordPressErrorMessage( returnOnlyFirstError(collectionsData) ),
-      getWordPressErrorType( returnOnlyFirstError(collectionsData) )
-    );
-
+    return showSyncByCollectionsNotice( getWordPressErrorMessage( returnOnlyFirstError(collectionsData) ) );
   }
 
 
   var allCollections = collectionsData[0];
   var selectedCollections = collectionsData[1];
-
 
   if (allCollections.success && has(allCollections, 'data')) {
     populateCollectionOptions(allCollections.data);

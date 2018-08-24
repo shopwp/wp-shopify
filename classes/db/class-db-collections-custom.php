@@ -25,7 +25,7 @@ if (!class_exists('Collections_Custom')) {
       global $wpdb;
 
       $this->table_name         				= WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
-      $this->primary_key        				= 'collection_id';
+      $this->primary_key        				= 'id';
       $this->version            				= '1.0';
       $this->cache_group        				= 'wps_db_collections_custom';
 
@@ -40,6 +40,7 @@ if (!class_exists('Collections_Custom')) {
   	public function get_columns() {
 
       return [
+				'id'       						=> '%d',
         'collection_id'       => '%d',
         'post_id'             => '%d',
         'title'               => '%s',
@@ -65,6 +66,7 @@ if (!class_exists('Collections_Custom')) {
   	public function get_column_defaults() {
 
       return [
+				'id'       						=> 0,
         'collection_id'       => 0,
         'post_id'             => 0,
         'title'               => '',
@@ -92,7 +94,7 @@ if (!class_exists('Collections_Custom')) {
   	public function insert_custom_collection($collection) {
 
 			$collection = Utils::flatten_collections_image_prop($collection);
-			$collection = $this->rename_primary_key($collection);
+			$collection = $this->rename_primary_key($collection, 'collection_id');
 
       return $this->insert($collection, 'custom_collection');
 
@@ -118,22 +120,6 @@ if (!class_exists('Collections_Custom')) {
     */
     public function delete_custom_collection($collection) {
       return $this->delete($collection->id);
-    }
-
-
-    /*
-
-    Rename primary key
-
-    */
-    public function rename_primary_key($collection) {
-
-      $collectionCopy = $collection;
-      $collectionCopy->collection_id = $collectionCopy->id;
-      unset($collectionCopy->id);
-
-      return $collectionCopy;
-
     }
 
 
@@ -186,19 +172,14 @@ if (!class_exists('Collections_Custom')) {
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ($wpdb->has_cap('collation')) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
         collection_id bigint(100) unsigned NOT NULL DEFAULT 0,
         post_id bigint(100) unsigned DEFAULT NULL,
         title varchar(255) DEFAULT NULL,
@@ -211,39 +192,10 @@ if (!class_exists('Collections_Custom')) {
         sort_order varchar(100) DEFAULT NULL,
         published_at datetime,
         updated_at datetime,
-        PRIMARY KEY  (collection_id)
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
   	}
-
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`collection_id`, `post_id`, `title`, `handle`, `body_html`, `image`, `metafield`, `published`, `published_scope`, `sort_order`, `published_at`, `updated_at`) SELECT `collection_id`, `post_id`, `title`, `handle`, `body_html`, `image`, `metafield`, `published`, `published_scope`, `sort_order`, `published_at`, `updated_at` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
 
   }

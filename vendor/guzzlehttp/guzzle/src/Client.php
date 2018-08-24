@@ -1,12 +1,12 @@
 <?php
-namespace GuzzleHttp;
+namespace WPS\Vendor\GuzzleHttp;
 
-use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Promise;
-use GuzzleHttp\Psr7;
-use Psr\Http\Message\UriInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use WPS\Vendor\GuzzleHttp\Cookie\CookieJar;
+use WPS\Vendor\GuzzleHttp\Promise;
+use WPS\Vendor\GuzzleHttp\Psr7;
+use WPS\Vendor\Psr\Http\Message\UriInterface;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\ResponseInterface;
 
 /**
  * @method ResponseInterface get(string|UriInterface $uri, array $options = [])
@@ -57,7 +57,7 @@ class Client implements ClientInterface
      *
      * @param array $config Client configuration settings.
      *
-     * @see \GuzzleHttp\RequestOptions for a list of available request options.
+     * @see \WPS\Vendor\GuzzleHttp\RequestOptions for a list of available request options.
      */
     public function __construct(array $config = [])
     {
@@ -320,7 +320,7 @@ class Client implements ClientInterface
         }
 
         if (isset($options['json'])) {
-            $options['body'] = \GuzzleHttp\json_encode($options['json']);
+            $options['body'] = \WPS\Vendor\GuzzleHttp\json_encode($options['json']);
             unset($options['json']);
             // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);

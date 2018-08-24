@@ -2,6 +2,10 @@
 
 namespace WPS\Factories;
 
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\WS\Products as WS_Products;
 
 use WPS\Factories\DB_Settings_Connection_Factory;
@@ -21,14 +25,8 @@ use WPS\Factories\Async_Processing_Variants_Factory;
 use WPS\Factories\Async_Processing_Options_Factory;
 use WPS\Factories\Async_Processing_Images_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
+use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
 
-use GuzzleHttp\Client as Guzzle;
-
-require plugin_dir_path( __FILE__ ) . '../../vendor/autoload.php';
-
-if (!defined('ABSPATH')) {
-	exit;
-}
 
 if (!class_exists('WS_Products_Factory')) {
 
@@ -49,7 +47,7 @@ if (!class_exists('WS_Products_Factory')) {
 					DB_Variants_Factory::build(),
 					DB_Options_Factory::build(),
 					DB_Images_Factory::build(),
-					new Guzzle(),
+					new GuzzleClient(),
 					CPT_Model_Factory::build(),
 					WS_Factory::build(),
 					Async_Processing_Posts_Products_Factory::build(),

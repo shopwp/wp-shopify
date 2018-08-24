@@ -1673,26 +1673,27 @@ if (!class_exists('Templates')) {
     Get Single Product
 
     */
-    public function get_product_data($postID = null) {
+    public function get_product_data($postID = false) {
 
-			$results = new \stdClass;
-
-			global $post;
-
-			if ($postID === null) {
+			// Should grab the correct post ID on product single pages
+			if ($postID === false) {
         $postID = get_the_ID();
       }
 
+			$product_data_cache = Transients::get('wps_product_data_' . $postID);
 
+			if ( !empty($product_data_cache) ) {
+				return $product_data_cache;
+			}
+
+
+			$results = new \stdClass;
 			$results->details = $this->DB_Products->get_product_from_post_id($postID);
       $results->images = $this->DB_Images->get_images_from_post_id($postID);
       $results->tags = $this->DB_Tags->get_tags_from_post_id($postID);
       $results->variants = $this->DB_Variants->get_variants_from_post_id($postID);
       $results->options = $this->DB_Options->get_options_from_post_id($postID);
-
-			// TODO: $results->tags sometimes doesnt work
       $results->details->tags = $this->DB_Tags->construct_only_tag_names($results->tags);
-
 
 			if (Utils::has($results->details, 'product_id')) {
 				$results->product_id = $results->details->product_id;
@@ -1702,6 +1703,8 @@ if (!class_exists('Templates')) {
 			if (Utils::has($results->details, 'post_id')) {
 				$results->post_id = $results->details->post_id;
 			}
+
+			Transients::set('wps_product_data_' . $postID, $results);
 
       return $results;
 

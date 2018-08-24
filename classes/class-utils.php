@@ -59,6 +59,10 @@ if (!class_exists('Utils')) {
 
 	  }
 
+		public static function filter_non_empty($item) {
+			return !empty($item);
+		}
+
 
 		/*
 
@@ -90,6 +94,17 @@ if (!class_exists('Utils')) {
 	  public function filter_errors_with_messages($title, $error) {
 	    return $error->get_error_message();
 	  }
+
+
+		/*
+
+		Loops through items and returns only those with values
+		of WP_Error instances
+
+		*/
+		public static function return_non_empty($items) {
+			return array_filter($items, [__CLASS__, 'filter_non_empty'], ARRAY_FILTER_USE_BOTH);
+		}
 
 
 	  /*
@@ -128,11 +143,14 @@ if (!class_exists('Utils')) {
 
 	  Sort Product Images By Position
 
+		TODO: Need to check if this passes or fails
+
 	  */
 	  public static function sort_product_images_by_position($images) {
 
-			// TODO: Need to check if this passes or fails
-			usort($images, array(__CLASS__, "sort_product_images"));
+			if ( is_array($images) ) {
+				usort($images, array(__CLASS__, "sort_product_images"));
+			}
 
 			return $images;
 
@@ -327,6 +345,15 @@ if (!class_exists('Utils')) {
 	  }
 
 
+		/*
+
+	  convert_to_comma_string
+
+	  */
+	  public static function convert_to_comma_string_backticks($items) {
+	    return implode('`, `', $items);
+	  }
+
 
 	  /*
 
@@ -514,7 +541,7 @@ if (!class_exists('Utils')) {
 
 			// Unable to convert to Object from these. Return false.
 			if (is_float($object) || is_int($object) || is_bool($object)) {
-				return new \WP_Error('error', __('Unabled to convert data type to Array', WPS_TEXT_DOMAIN ) );
+				return new \WP_Error('error', __('Unabled to convert data type to Array', WPS_PLUGIN_TEXT_DOMAIN ) );
 			}
 
 	    // $array = array();
@@ -535,19 +562,19 @@ if (!class_exists('Utils')) {
 	  Converts an array to object
 
 	  */
-	  public static function convert_array_to_object($maybeArray) {
+	  public static function convert_array_to_object($maybe_array) {
 
-			if (is_object($maybeArray)) {
-				return $maybeArray;
+			if (is_object($maybe_array)) {
+				return $maybe_array;
 			}
 
 			// Unable to convert to Object from these. Return false.
-			if (is_float($maybeArray) || is_int($maybeArray) || is_bool($maybeArray)) {
-				return new \WP_Error('error', __('Unabled to convert data type to Object', WPS_TEXT_DOMAIN ) );
+			if (is_float($maybe_array) || is_int($maybe_array) || is_bool($maybe_array)) {
+				return new \WP_Error('error', __('Unabled to convert data type to Object', WPS_PLUGIN_TEXT_DOMAIN ) );
 			}
 
-			if (is_array($maybeArray)) {
-				return json_decode(json_encode($maybeArray), false);
+			if (is_array($maybe_array)) {
+				return json_decode(json_encode($maybe_array), false);
 			}
 
 	  }
@@ -1747,6 +1774,26 @@ if (!class_exists('Utils')) {
 				return self::unset_all_except($item, $exception);
 			}, $items);
 
+		}
+
+
+		/*
+
+		Helper for checking whether the bootstrapping has occured or not.
+
+		*/
+		public static function plugin_ready() {
+			return get_option('wp_shopify_is_ready');
+		}
+
+
+		/*
+
+		Calculates row difference
+
+		*/
+		public static function different_row_amount($columns_new, $columns_current) {
+			return count($columns_new) > count($columns_current);
 		}
 
 

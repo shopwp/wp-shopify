@@ -19,6 +19,7 @@ if (!class_exists('Progress_Bar')) {
 		protected $WS;
 		protected $WS_Syncing;
 
+
 		public function __construct($DB_Settings_Syncing, $DB_Settings_General, $Messages, $WS, $WS_Syncing) {
 
 			$this->DB_Settings_Syncing 			= $DB_Settings_Syncing;

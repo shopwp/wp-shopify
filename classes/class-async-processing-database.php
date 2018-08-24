@@ -2,13 +2,15 @@
 
 namespace WPS;
 
+use WPS\Utils;
+
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 if ( !class_exists('Async_Processing_Database') ) {
 
-  class Async_Processing_Database extends WP_Shopify_Background_Process {
+  class Async_Processing_Database extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_deletions';
 
@@ -65,29 +67,62 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 		/*
 
-		Drop databases used during uninstall
+		Drop custom tables
+
+		Tested
 
 		*/
-		public function drop_databases() {
+		public function drop_custom_tables() {
 
 			$results = [];
 
-			$results['shop'] = $this->DB_Shop->delete_table();
-			$results['settings_general'] = $this->DB_Settings_General->delete_table();
-			$results['settings_license'] = $this->DB_Settings_License->delete_table();
-			$results['settings_connection'] = $this->DB_Settings_Connection->delete_table();
-			$results['settings_syncing'] = $this->DB_Settings_Syncing->delete_table();
-			$results['collections_smart'] = $this->DB_Collections_Smart->delete_table();
-			$results['collections_custom'] = $this->DB_Collections_Custom->delete_table();
-			$results['products'] = $this->DB_Products->delete_table();
-			$results['variants'] = $this->DB_Variants->delete_table();
-			$results['options'] = $this->DB_Options->delete_table();
-			$results['tags'] = $this->DB_Tags->delete_table();
-			$results['collects'] = $this->DB_Collects->delete_table();
-			$results['images'] = $this->DB_Images->delete_table();
+			$results['shop'] 									= $this->DB_Shop->delete_table();
+			$results['settings_general'] 			= $this->DB_Settings_General->delete_table();
+			$results['settings_license'] 			= $this->DB_Settings_License->delete_table();
+			$results['settings_connection'] 	= $this->DB_Settings_Connection->delete_table();
+			$results['settings_syncing'] 			= $this->DB_Settings_Syncing->delete_table();
+			$results['collections_smart'] 		= $this->DB_Collections_Smart->delete_table();
+			$results['collections_custom'] 		= $this->DB_Collections_Custom->delete_table();
+			$results['products'] 							= $this->DB_Products->delete_table();
+			$results['variants'] 							= $this->DB_Variants->delete_table();
+			$results['options'] 							= $this->DB_Options->delete_table();
+			$results['tags'] 									= $this->DB_Tags->delete_table();
+			$results['collects'] 							= $this->DB_Collects->delete_table();
+			$results['images'] 								= $this->DB_Images->delete_table();
 
 
-			return $results;
+			return Utils::return_only_error_messages( Utils::return_only_errors($results) );
+
+		}
+
+
+		/*
+
+		Drop custom migration tables
+
+		Tested
+
+		*/
+		public function drop_custom_migration_tables($table_suffix) {
+
+			$results = [];
+
+			$results['shop' . $table_suffix] 									= $this->DB_Shop->delete_migration_table($table_suffix);
+			$results['settings_general' . $table_suffix] 			= $this->DB_Settings_General->delete_migration_table($table_suffix);
+			$results['settings_license' . $table_suffix] 			= $this->DB_Settings_License->delete_migration_table($table_suffix);
+			$results['settings_connection' . $table_suffix] 	= $this->DB_Settings_Connection->delete_migration_table($table_suffix);
+			$results['settings_syncing' . $table_suffix] 			= $this->DB_Settings_Syncing->delete_migration_table($table_suffix);
+			$results['collections_smart' . $table_suffix] 		= $this->DB_Collections_Smart->delete_migration_table($table_suffix);
+			$results['collections_custom' . $table_suffix] 		= $this->DB_Collections_Custom->delete_migration_table($table_suffix);
+			$results['products' . $table_suffix] 							= $this->DB_Products->delete_migration_table($table_suffix);
+			$results['variants' . $table_suffix] 							= $this->DB_Variants->delete_migration_table($table_suffix);
+			$results['options' . $table_suffix] 							= $this->DB_Options->delete_migration_table($table_suffix);
+			$results['tags' . $table_suffix] 									= $this->DB_Tags->delete_migration_table($table_suffix);
+			$results['collects' . $table_suffix] 							= $this->DB_Collects->delete_migration_table($table_suffix);
+			$results['images' . $table_suffix] 								= $this->DB_Images->delete_migration_table($table_suffix);
+
+
+			return Utils::return_only_error_messages( Utils::return_only_errors($results) );
 
 		}
 
@@ -96,15 +131,11 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 		Drop databases used during uninstall
 
+		Tested
+
 		*/
 		public function delete_posts() {
-
-			$results = [];
-
-			$results['posts'] = $this->WS_CPT->delete_posts();
-
-			return $results;
-
+			return $this->WS_CPT->delete_posts();
 		}
 
 
@@ -259,17 +290,6 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 		/*
 
-		Calculates row difference
-
-		*/
-		public function different_row_amount($columns_new, $columns_current) {
-			return count($columns_new) > count($columns_current);
-		}
-
-
-
-		/*
-
 		Find the difference between tables in the database
 		and tables in the database schemea. Used during plugin updates
 		to dynamically update the database.
@@ -302,7 +322,7 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 				if ( $table->table_exists($table_name) ) {
 
-					if ($this->different_row_amount( $table->get_columns(), $table->get_columns_current() )) {
+					if ( Utils::different_row_amount( $table->get_columns(), $table->get_columns_current() ) ) {
 						$final_delta[$table_name] = $table;
 					}
 
@@ -328,12 +348,12 @@ if ( !class_exists('Async_Processing_Database') ) {
 		*/
 		public function sync_table_deltas() {
 
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
 			// Next get all tables
 			$tables = $this->get_table_delta();
 
-			if (Utils::array_not_empty($tables)) {
+			if ( Utils::array_not_empty($tables) ) {
+
+				require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 				foreach ($tables as $table) {
 					$results = \dbDelta( $table->create_table_query($table->table_name) );

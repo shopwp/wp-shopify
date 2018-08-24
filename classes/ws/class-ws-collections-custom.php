@@ -161,7 +161,7 @@ if (!class_exists('Collections_Custom')) {
 
 				$customPostTypeID = $this->CPT_Model->insert_or_update_collection($all_collections, $custom_collection, $menu_order);
 				$custom_collection = $this->DB_Collections_Custom->assign_foreign_key($custom_collection, $customPostTypeID);
-				$custom_collection = $this->DB_Collections_Custom->rename_primary_key($custom_collection);
+				$custom_collection = $this->DB_Collections_Custom->rename_primary_key($custom_collection, 'collection_id');
 
 				$results[$customPostTypeID] = $this->DB_Collections_Custom->insert($custom_collection, 'custom_collection');
 

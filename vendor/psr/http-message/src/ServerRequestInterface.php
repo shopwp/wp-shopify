@@ -1,6 +1,6 @@
 <?php
 
-namespace Psr\Http\Message;
+namespace WPS\Vendor\Psr\Http\Message;
 
 /**
  * Representation of an incoming, server-side HTTP request.

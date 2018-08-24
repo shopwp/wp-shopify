@@ -531,7 +531,9 @@ if (!class_exists('Hooks')) {
 
 				// Not currently used
         'posts_per_page' 								=> apply_filters('wps_products_related_args_posts_per_page', 4),
-				'orderby'   										=> apply_filters('wps_products_related_args_orderby', 'rand'),
+
+				// TODO: Make this an option in the backend
+				'orderby'   										=> apply_filters('wps_products_related_args_orderby', 'desc'),
         'paged' 												=> false,
 				'post__not_in' 									=> array($post->ID),
 				'wps_related_products' 					=> apply_filters('wps_products_related_show', true),
@@ -644,6 +646,25 @@ if (!class_exists('Hooks')) {
 
 		/*
 
+		Table doesnt exist, need to notify user of that
+
+		*/
+		public function show_missing_tables_notice($error) {
+
+			return add_action('admin_notices', function() use($error) { ?>
+
+				<div class="notice wps-notice notice-warning is-dismissible">
+					<p><?= Utils::filter_error_messages($error); ?></p>
+				</div>
+
+			<?php });
+
+		}
+
+
+
+		/*
+
 		Runs when the plugin updates.
 
 		Will only run once since we're updating the plugin verison after everything gets executed.
@@ -663,15 +684,16 @@ if (!class_exists('Hooks')) {
 			// If current version is behind new version
 			if (version_compare($current_version_number, $new_version_number, '<')) {
 
-				if (version_compare($current_version_number, '1.2.0', '<')) {
+				if (version_compare($current_version_number, '1.2.2', '<')) {
 
 					if ( !Transients::database_migration_needed() ) {
-						Transients::set('wps_database_migration_needed', true);
+						update_option('wp_shopify_migration_needed', true);
 					}
 
 				} else {
 
-					$this->Async_Processing_Database->sync_table_deltas(); // Only runs when table columns are different
+					// Only runs when table columns are different
+					$this->Async_Processing_Database->sync_table_deltas();
 
 				}
 
@@ -692,18 +714,6 @@ if (!class_exists('Hooks')) {
 		//
 		// }
 
-
-		public function migrate_tables() {
-
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				wp_send_json_error($this->Messages->message_nonce_invalid  . ' (migrate_tables)');
-			}
-
-			$this->Activator->run_table_migration();
-
-		}
-
-
 		/*
 
 		Hooks
@@ -713,9 +723,6 @@ if (!class_exists('Hooks')) {
 
 			// add_action('upgrader_process_complete', [$this, 'after_plugin_update'], 10, 2 );
 			add_action('plugins_loaded', [$this, 'on_plugin_load']);
-
-			add_action('wp_ajax_migrate_tables', [$this, 'migrate_tables']);
-			add_action('wp_ajax_nopriv_migrate_tables', [$this, 'migrate_tables']);
 
 			add_action('wps_products_sidebar', [$this, 'wps_products_sidebar']);
 			add_action('wps_product_single_sidebar', [$this, 'wps_product_single_sidebar']);

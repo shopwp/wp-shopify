@@ -6,6 +6,10 @@ import {
 } from '../ws/ws';
 
 import {
+  getErrorContents
+} from '../utils/utils-data';
+
+import {
   enable,
   disable,
   showLoader,
@@ -55,7 +59,7 @@ function onMigrationSubmit() {
 
     disableButtons($button, $spinner);
 
-    if (window.confirm("Warning: This will modify your database tables to be compatible with the new (1.2.0) version of WP Shopify. Please don\'t leave this screen until the migration finishes. Finally, please ensure that you've made a backup as potential data loss could occur!")) {
+    if (window.confirm("Warning: This will modify your database tables to be compatible with the new (1.2.2) version of WP Shopify. Please don\'t leave this screen until the migration finishes. Finally, please ensure that you've made a backup as potential data loss could occur!")) {
 
       $wrapper.addClass('is-working');
       // toggleActive($spinner);
@@ -89,6 +93,7 @@ function onMigrationSubmit() {
 
       hideLoader($button);
       $wrapper.removeClass('is-working');
+      disable($button);
       showAdminNotice('Successfully migrated database tables to the latest version of WP Shopify! You\'re ready to go!', 'updated');
 
 
@@ -99,9 +104,7 @@ function onMigrationSubmit() {
 
     }
 
-
   });
-
 
 }
 

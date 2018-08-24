@@ -376,17 +376,11 @@ if (!class_exists('Shop')) {
 	  */
 	  public function create_table_query($table_name = false) {
 
-			global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-			$collate = '';
-
-			if ( $wpdb->has_cap('collation') ) {
-				$collate = $wpdb->get_charset_collate();
-			}
+			$collate = $this->collate();
 
 			return "CREATE TABLE $table_name (
 				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
@@ -445,35 +439,6 @@ if (!class_exists('Shop')) {
 			) ENGINE=InnoDB $collate";
 
 		}
-
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `name`, `myshopify_domain`, `shop_owner`, `phone`, `email`, `address1`, `address2`, `city`, `zip`, `country`, `country_code`, `country_name`, `currency`, `latitude`, `longitude`, `money_format`, `money_with_currency_format`, `weight_unit`, `primary_locale`, `province`, `province_code`, `timezone`, `created_at`, `updated_at`, `domain`, `source`, `customer_email`, `iana_timezone`, `taxes_included`, `tax_shipping`, `county_taxes`, `plan_display_name`, `plan_name`, `has_discounts`, `has_gift_cards`, `google_apps_domain`, `google_apps_login_enabled`, `money_in_emails_format`, `money_with_currency_in_emails_format`, `eligible_for_payments`, `requires_extra_payments_agreement`, `password_enabled`, `has_storefront`, `eligible_for_card_reader_giveaway`, `finances`, `primary_location_id`, `checkout_api_supported`, `multi_location_enabled`, `setup_required`, `force_ssl`, `pre_launch_enabled`) SELECT `id`, `name`, `myshopify_domain`, `shop_owner`, `phone`, `email`, `address1`, `address2`, `city`, `zip`, `country`, `country_code`, `country_name`, `currency`, `latitude`, `longitude`, `money_format`, `money_with_currency_format`, `weight_unit`, `primary_locale`, `province`, `province_code`, `timezone`, `created_at`, `updated_at`, `domain`, `source`, `customer_email`, `iana_timezone`, `taxes_included`, `tax_shipping`, `county_taxes`, `plan_display_name`, `plan_name`, `has_discounts`, `has_gift_cards`, `google_apps_domain`, `google_apps_login_enabled`, `money_in_emails_format`, `money_with_currency_in_emails_format`, `eligible_for_payments`, `requires_extra_payments_agreement`, `password_enabled`, `has_storefront`, `eligible_for_card_reader_giveaway`, `finances`, `primary_location_id`, `checkout_api_supported`, `multi_location_enabled`, `setup_required`, `force_ssl`, `pre_launch_enabled` FROM ' . $this->table_name);
-
-		}
-
-
-	  /*
-
-	  Creates database table
-
-	  */
-		public function create_table() {
-
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-			if ( !$this->table_exists($this->table_name) ) {
-				dbDelta( $this->create_table_query() );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-			}
-
-	  }
 
 
 	}

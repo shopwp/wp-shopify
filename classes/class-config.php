@@ -73,7 +73,7 @@ if ( !class_exists('Config') ) {
 			$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 			$this->plugin_name_js 													= 'WP_Shopify';
 			$this->plugin_text_domain 											= 'wp-shopify';
-			$this->plugin_version 													= '1.2.1';
+			$this->plugin_version 													= '1.2.2';
 			$this->plugin_author 														= 'WP Shopify';
 
 			$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -133,6 +133,7 @@ if ( !class_exists('Config') ) {
 			$this->plugin_table_name_wp_term_relationships	=	$wpdb->prefix . 'term_relationships';
 			$this->plugin_table_name_wp_options							=	$wpdb->prefix . 'options';
 			$this->plugin_table_migration_suffix						=	'_migrate';
+			$this->plugin_table_migration_suffix_tests			=	'_migrate_tests';
 
 
 			// $this->plugin_table_name_collections_smart,
@@ -192,10 +193,6 @@ if ( !class_exists('Config') ) {
 				define('WPS_PLUGIN_URL', $this->plugin_url);
 			}
 
-			if ( !defined('WPS_TEXT_DOMAIN') ) {
-				define('WPS_TEXT_DOMAIN', $this->plugin_text_domain);
-			}
-
 			if ( !defined('WPS_PLUGIN_ROOT_PATH') ) {
 				define('WPS_PLUGIN_ROOT_PATH', $this->plugin_root_file);
 			}
@@ -210,10 +207,6 @@ if ( !class_exists('Config') ) {
 
 			if ( !defined('WPS_PLUGIN_DIR_PATH') ) {
 				define('WPS_PLUGIN_DIR_PATH', $this->plugin_dir_path);
-			}
-
-			if ( !defined('WPS_PLUGIN_URL') ) {
-				define('WPS_PLUGIN_URL', $this->plugin_url);
 			}
 
 			if ( !defined('WPS_CART_CACHE_EXPIRATION') ) {
@@ -364,8 +357,9 @@ if ( !class_exists('Config') ) {
 				define('WPS_TABLE_MIGRATION_SUFFIX', $this->plugin_table_migration_suffix);
 			}
 
-
-
+			if ( !defined('WPS_TABLE_MIGRATION_SUFFIX_TESTS') ) {
+				define('WPS_TABLE_MIGRATION_SUFFIX_TESTS', $this->plugin_table_migration_suffix_tests);
+			}
 
 			if ( !defined('WPS_PRO_SUBDIRECTORY_NAME') ) {
 				define('WPS_PRO_SUBDIRECTORY_NAME', $this->plugin_pro_subdirectory_name);

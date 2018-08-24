@@ -35,6 +35,7 @@ if (!class_exists('Images')) {
 
 			return [
         'id'                   => '%d',
+				'image_id'             => '%d',
         'product_id'           => '%d',
         'variant_ids'          => '%s',
         'src'                  => '%s',
@@ -51,6 +52,7 @@ if (!class_exists('Images')) {
 
       return [
         'id'                   => 0,
+				'image_id'             => 0,
         'product_id'           => '',
         'variant_ids'          => '',
         'src'                  => '',
@@ -79,8 +81,7 @@ if (!class_exists('Images')) {
         if (isset($product->images) && $product->images) {
 
           foreach ($product->images as $key => $image) {
-
-						$results[] = $this->insert($image, 'image');
+						$results[] = $this->insert( $this->rename_primary_key($image, 'image_id'), 'image');
 
           }
 
@@ -107,7 +108,7 @@ if (!class_exists('Images')) {
 
         foreach ($product->images as $key => $image) {
 
-					$result = $this->insert($image, 'image');
+					$result = $this->insert( $this->rename_primary_key($image, 'image_id'), 'image');
 
 					if (is_wp_error($result)) {
 						return $result;
@@ -154,8 +155,8 @@ if (!class_exists('Images')) {
       */
       if (count($imagesToAdd) > 0) {
 
-        foreach ($imagesToAdd as $key => $newImage) {
-          $results['created'] = $this->insert($newImage, 'image');
+        foreach ($imagesToAdd as $key => $new_image) {
+          $results['created'] = $this->insert( $this->rename_primary_key($new_image, 'image_id'), 'image');
         }
 
       }
@@ -172,8 +173,8 @@ if (!class_exists('Images')) {
 
 					$oldImage = Utils::convert_object_to_array($oldImage);
 
-					if (isset($oldImage['id'])) {
-						$results['deleted'] = $this->delete($oldImage['id']);
+					if (isset($oldImage['image_id'])) {
+						$results['deleted'] = $this->delete($oldImage['image_id']);
 					}
 
         }
@@ -187,7 +188,7 @@ if (!class_exists('Images')) {
 
       */
       foreach ($imagesFromShopify as $key => $image) {
-        $results['updated'] = $this->update($image->id, $image);
+        $results['updated'] = $this->update($image->image_id, $image);
       }
 
       return $results;
@@ -403,35 +404,26 @@ if (!class_exists('Images')) {
 
 		*/
 		public function get_feat_image_by_post_id($post_id) {
-
-			$feat_image = array_filter( $this->get_images_from_post_id($post_id), [$this, "get_featured_image_by_position"] );
-
-			return array_values($feat_image);
-
+			return array_values( array_filter( $this->get_images_from_post_id($post_id), [$this, "get_featured_image_by_position"] ) );
 		}
 
 
-    /*
+		/*
 
     Creates a table query string
 
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
-        id bigint(100) unsigned NOT NULL DEFAULT 0,
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+				image_id bigint(100) unsigned NOT NULL DEFAULT 0,
         product_id bigint(100) DEFAULT NULL,
         variant_ids longtext DEFAULT NULL,
         src longtext DEFAULT NULL,
@@ -444,34 +436,6 @@ if (!class_exists('Images')) {
 
     }
 
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `variant_ids`, `src`, `alt`, `position`, `created_at`, `updated_at`) SELECT `id`, `product_id`, `variant_ids`, `src`, `alt`, `position`, `created_at`, `updated_at` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
   }
 

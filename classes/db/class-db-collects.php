@@ -21,6 +21,7 @@ if (!class_exists('Collects')) {
   	public function __construct() {
 
       global $wpdb;
+
       $this->table_name         			= WPS_TABLE_NAME_COLLECTS;
       $this->primary_key        			= 'id';
       $this->version            			= '1.0';
@@ -33,6 +34,7 @@ if (!class_exists('Collects')) {
 
       return [
         'id'                   => '%d',
+				'collect_id'           => '%d',
         'product_id'           => '%d',
         'collection_id'        => '%d',
         'featured'             => '%d',
@@ -41,6 +43,7 @@ if (!class_exists('Collects')) {
         'created_at'           => '%s',
         'updated_at'           => '%s'
       ];
+
     }
 
 
@@ -48,6 +51,7 @@ if (!class_exists('Collects')) {
 
       return [
         'id'                   => 0,
+				'collect_id'           => 0,
         'product_id'           => '',
         'collection_id'        => '',
         'featured'             => '',
@@ -58,6 +62,11 @@ if (!class_exists('Collects')) {
       ];
 
     }
+
+
+		public function insert_collect($collect) {
+			return $this->insert( $this->rename_primary_key($collect, 'collect_id'), 'collect');
+		}
 
 
     /*
@@ -72,7 +81,7 @@ if (!class_exists('Collects')) {
       if (Utils::array_not_empty($collects)) {
 
         foreach ($collects as $key => $collect) {
-          $results[] = $this->insert($collect, 'collect');
+          $results[] = $this->insert_collect($collect);
         }
 
       }
@@ -94,7 +103,7 @@ if (!class_exists('Collects')) {
       if (Utils::array_not_empty($collects)) {
 
         foreach ($collects as $key => $collect) {
-          $results[] = $this->delete($collect['id']);
+          $results[] = $this->delete($collect->collect_id);
         }
 
       }
@@ -138,7 +147,7 @@ if (!class_exists('Collects')) {
 			$collect_ids = Utils::extract_ids_from_object($collects);
 			$collect_ids = Utils::convert_to_comma_string($collect_ids);
 
-			return $this->delete_rows_in('id', $collect_ids);
+			return $this->delete_rows_in('collect_id', $collect_ids);
 
 		}
 
@@ -163,67 +172,34 @@ if (!class_exists('Collects')) {
 		}
 
 
-    /*
+		/*
 
-    Creates a table query string
+		Creates a table query string
 
-    */
-    public function create_table_query($table_name = false) {
+		*/
+		public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
+			$collate = $this->collate();
 
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
-
-      return "CREATE TABLE $table_name (
-        id bigint(100) unsigned NOT NULL DEFAULT 0,
-        product_id bigint(100) DEFAULT NULL,
-        collection_id bigint(100) DEFAULT NULL,
-        featured tinyint(1) DEFAULT NULL,
-        position int(20) DEFAULT NULL,
-        sort_value int(20) DEFAULT NULL,
-        created_at datetime,
-        updated_at datetime,
-        PRIMARY KEY  (id)
-      ) ENGINE=InnoDB $collate";
-
-    }
-
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `collection_id`, `featured`, `position`, `sort_value`, `created_at`, `updated_at`) SELECT `id`, `product_id`, `collection_id`, `featured`, `position`, `sort_value`, `created_at`, `updated_at` FROM '. $this->table_name);
+			return "CREATE TABLE $table_name (
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+				collect_id bigint(100) unsigned NOT NULL DEFAULT 0,
+				product_id bigint(100) DEFAULT NULL,
+				collection_id bigint(100) DEFAULT NULL,
+				featured tinyint(1) DEFAULT NULL,
+				position int(20) DEFAULT NULL,
+				sort_value int(20) DEFAULT NULL,
+				created_at datetime,
+				updated_at datetime,
+				PRIMARY KEY  (id)
+			) ENGINE=InnoDB $collate";
 
 		}
 
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
   }
 

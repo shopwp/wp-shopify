@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Products') ) {
 
-  class Async_Processing_Products extends WP_Shopify_Background_Process {
+  class Async_Processing_Products extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_products';
 
@@ -43,7 +43,7 @@ if ( !class_exists('Async_Processing_Products') ) {
 
 			// Actual work
 			$result = $this->DB_Products->insert_product($product);
-
+			
 
 			if (is_wp_error($result)) {
 				$this->WS->save_notice_and_stop_sync($result);

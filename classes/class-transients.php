@@ -100,8 +100,23 @@ if (!class_exists('Transients')) {
 
 	  */
 	  public static function database_migration_needed() {
-	    return get_transient('wps_database_migration_needed');
+
+			return get_option('wp_shopify_migration_needed');
+
 	  }
+
+
+		/*
+
+	  Deletes custom options
+
+	  */
+		public static function delete_custom_options() {
+
+			delete_option('wp_shopify_is_ready');
+			delete_option('wp_shopify_migration_needed');
+
+		}
 
 
 	  /*

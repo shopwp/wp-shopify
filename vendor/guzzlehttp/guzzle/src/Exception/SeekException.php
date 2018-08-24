@@ -1,7 +1,7 @@
 <?php
-namespace GuzzleHttp\Exception;
+namespace WPS\Vendor\GuzzleHttp\Exception;
 
-use Psr\Http\Message\StreamInterface;
+use WPS\Vendor\Psr\Http\Message\StreamInterface;
 
 /**
  * Exception thrown when a seek fails on a stream.

@@ -1,5 +1,5 @@
 <?php
-namespace GuzzleHttp\Cookie;
+namespace WPS\Vendor\GuzzleHttp\Cookie;
 
 /**
  * Persists non-session cookies using a JSON formatted file
@@ -55,7 +55,7 @@ class FileCookieJar extends CookieJar
             }
         }
 
-        $jsonStr = \GuzzleHttp\json_encode($json);
+        $jsonStr = \WPS\Vendor\GuzzleHttp\json_encode($json);
         if (false === file_put_contents($filename, $jsonStr)) {
             throw new \RuntimeException("Unable to save file {$filename}");
         }
@@ -78,7 +78,7 @@ class FileCookieJar extends CookieJar
             return;
         }
 
-        $data = \GuzzleHttp\json_decode($json, true);
+        $data = \WPS\Vendor\GuzzleHttp\json_decode($json, true);
         if (is_array($data)) {
             foreach (json_decode($json, true) as $cookie) {
                 $this->setCookie(new SetCookie($cookie));

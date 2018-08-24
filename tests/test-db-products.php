@@ -15,23 +15,20 @@ https://help.shopify.com/api/reference/webhook
 class Test_Sync_Products extends WP_UnitTestCase {
 
   protected static $DB_Products;
-  protected static $mockDataProduct;
-  protected static $mockDataProductForUpdate;
-  protected static $mockDataProductID;
+  protected static $mock_data_product;
+  protected static $mock_data_product_for_update;
+  protected static $mock_data_product_id;
+  protected static $mock_data_product_sync_insert;
 
 
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$DB_Products                 = DB_Products_Factory::build();
-    self::$mockDataProduct             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product.json") );
-    self::$mockDataProductForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-update.json") );
-    self::$mockDataProductID           = self::$mockDataProductForUpdate->id;
-
-  }
-
-
-  public function tearDown() {
+    self::$DB_Products                      = DB_Products_Factory::build();
+    self::$mock_data_product                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product.json") );
+    self::$mock_data_product_sync_insert    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-sync-insert.json") );
+    self::$mock_data_product_for_update     = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-update.json") );
+    self::$mock_data_product_id             = self::$mock_data_product_for_update->product_id;
 
   }
 
@@ -43,7 +40,7 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_create() {
 
-    $result = self::$DB_Products->insert( self::$mockDataProduct, 'product' );
+    $result = self::$DB_Products->insert( self::$mock_data_product, 'product' );
 
     $this->assertEquals(1, $result);
 
@@ -58,7 +55,7 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_update() {
 
-    $results = self::$DB_Products->update( self::$mockDataProductID, self::$mockDataProductForUpdate );
+    $results = self::$DB_Products->update( self::$mock_data_product_id, self::$mock_data_product_for_update );
 
     $this->assertEquals(1, $results);
 
@@ -72,9 +69,19 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_delete() {
 
-    $results = self::$DB_Products->delete( self::$mockDataProductID );
+    $results = self::$DB_Products->delete( self::$mock_data_product_id );
 
     $this->assertEquals(1, $results);
+
+  }
+
+
+  function test_it_should_insert_product() {
+
+    $results = self::$DB_Products->insert_product( self::$mock_data_product_sync_insert );
+
+    $this->assertEquals(1, $results);
+  
 
   }
 

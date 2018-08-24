@@ -6,14 +6,10 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if ( !class_exists( 'WPS_Gamajo_Template_Loader' ) ) {
-  require plugin_dir_path( __FILE__ ) . 'class-template-loader-gamajo.php';
-}
-
 
 if ( !class_exists('Template_Loader') ) {
 
-  class Template_Loader extends \WPS_Gamajo_Template_Loader {
+  class Template_Loader extends \WPS\Vendor_Template_Loader_Gamajo {
 
 		// Prefix for filter names.
     protected $filter_prefix = 'wps';

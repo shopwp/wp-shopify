@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Transients;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -50,7 +51,7 @@ if (!class_exists('Query')) {
 
 			*/
 			if ( $this->is_related_products_query($query) ) {
-				$query->set('category_name', WPS_TEXT_DOMAIN);
+				$query->set('category_name', WPS_PLUGIN_TEXT_DOMAIN);
 				$query->set('no_found_rows', true);
 				$query->set('update_post_meta_cache', false);
 				$query->set('update_post_term_cache', false);
@@ -185,6 +186,7 @@ if (!class_exists('Query')) {
 
 							// If the user didn't set a custom orderby then use random by default
 							$clauses['orderby'] = 'RAND()';
+
 						}
 
 
@@ -308,7 +310,7 @@ if (!class_exists('Query')) {
 				}
 
 
-				$productQueryHash = md5(serialize($args));
+				$product_query_hash = md5(serialize($args));
 
 
 				/*
@@ -323,14 +325,16 @@ if (!class_exists('Query')) {
 				settings are updated.
 
 				*/
-		    if (get_transient('wps_products_query_hash_cache_' . $productQueryHash)) {
+				$product_query_hash_cache = Transients::get('wps_products_query_hash_cache_' . $product_query_hash);
 
-		      $productsQuery = get_transient('wps_products_query_hash_cache_' . $productQueryHash);
+
+		    if ( !empty($product_query_hash_cache) ) {
+
+		      $products_query = $product_query_hash_cache;
 
 		    } else {
 
-					$productsQuery = new \WP_Query($args);
-
+					$products_query = new \WP_Query($args);
 
 					if ( isset($args['orderby']) ) {
 						$custom_order_by = $args['orderby'];
@@ -344,57 +348,56 @@ if (!class_exists('Query')) {
 
 
 					if ( $custom_order_by !== 'rand' ) {
-						set_transient('wps_products_query_hash_cache_' . $productQueryHash, $productsQuery);
+						Transients::set('wps_products_query_hash_cache_' . $product_query_hash, $products_query);
 					}
 
 		    }
 
 
-				if (Utils::wps_is_manually_sorted($args)) {
-					$wps_products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $productsQuery->posts);
+
+				$wps_products_cached = Transients::get('wps_products_query_data_hash_' . $product_query_hash);
+
+				if ( empty($wps_products_cached) ) {
+
+					if (Utils::wps_is_manually_sorted($args)) {
+						$wps_products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $products_query->posts);
+
+					} else {
+						$wps_products = $products_query->posts;
+					}
+
+					// Adding feature imaged to object
+					foreach ($wps_products as $wps_product) {
+			      $wps_product->feat_image = $this->DB_Images->get_feat_image_by_post_id($wps_product->post_id);
+			    }
+
+					/*
+
+					Used for related products only. Filters products array to exclude the currently shown single product
+
+					*/
+					if (is_single()) {
+
+						$wps_products = array_filter($wps_products, function($value, $key) use ($post) {
+						    return (int) $value->post_id !== $post->ID;
+						}, ARRAY_FILTER_USE_BOTH);
+
+					}
+
+					Transients::set('wps_products_query_data_hash_' . $product_query_hash, $wps_products);
 
 				} else {
-					$wps_products = $productsQuery->posts;
+					$wps_products = $wps_products_cached;
 				}
 
-
-
-				// Adding feature imaged to object
-				foreach ($wps_products as $wps_product) {
-		      $wps_product->feat_image = $this->DB_Images->get_feat_image_by_post_id($wps_product->post_id);
-		    }
-
-
-
-				/*
-
-				Used for related products only. Filters products array to exclude the currently shown single product
-
-				*/
-				if (is_single()) {
-
-					$wps_products = array_filter($wps_products, function($value, $key) use ($post) {
-					    return (int) $value->post_id !== $post->ID;
-					}, ARRAY_FILTER_USE_BOTH);
-
-				}
-
-
-				/*
-
-				Show add to cart button if add to cart is passed in
-
-				*/
+				// Show add to cart button if add to cart is passed in
 				if (isset($args['custom']['add-to-cart']) && $args['custom']['add-to-cart']) {
 					add_filter( 'wps_products_show_add_to_cart', function() { return true; });
 				}
 
 
-
-
-
 				$data = [
-					'query'								=>	$productsQuery,
+					'query'								=>	$products_query,
 					'args'								=>	Utils::convert_array_to_object($args),
 					'custom_args'					=>	isset($args['custom']) ? $args['custom'] : [],
 					'amount_of_products'	=>	count($wps_products),

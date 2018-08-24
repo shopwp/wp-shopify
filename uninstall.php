@@ -11,7 +11,8 @@ if ( !current_user_can('activate_plugins') ) {
 	exit;
 }
 
-include_once('lib/autoloader.php');
+require_once('lib/autoloader.php'); // Our autoloader
+require_once('vendor/autoload.php'); // Composer autoloader
 
 use WPS\Transients;
 use WPS\Factories\Async_Processing_Database_Factory;
@@ -23,14 +24,17 @@ $DB_Settings_General = DB_Settings_General_Factory::build();
 $License = License_Factory::build();
 
 
-
 if ($DB_Settings_General->is_free_tier() && $DB_Settings_General->is_pro_tier() ) {
 	$DB_Settings_General->set_free_tier(0);
 
 } else {
+
+
 	$Async_Processing_Database->delete_posts();
-	$Async_Processing_Database->drop_databases();
+	$Async_Processing_Database->drop_custom_tables();
+	$Async_Processing_Database->drop_custom_migration_tables(WPS_TABLE_MIGRATION_SUFFIX);
+
 }
 
-
 Transients::delete_all_cache();
+Transients::delete_custom_options();

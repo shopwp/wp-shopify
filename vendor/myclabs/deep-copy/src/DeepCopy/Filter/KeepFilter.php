@@ -1,6 +1,6 @@
 <?php
 
-namespace DeepCopy\Filter;
+namespace WPS\Vendor\DeepCopy\Filter;
 
 class KeepFilter implements Filter
 {

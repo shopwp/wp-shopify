@@ -12,10 +12,6 @@ import {
 } from './streaming';
 
 import {
-  isWordPressError
-} from '../utils/utils';
-
-import {
   registerWebhooks,
   insertAltText,
   setSyncingIndicator,

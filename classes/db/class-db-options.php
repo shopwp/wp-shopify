@@ -38,6 +38,7 @@ if (!class_exists('Options')) {
 
       return [
         'id'                        => '%d',
+				'option_id'                 => '%d',
         'product_id'                => '%d',
         'name'                      => '%s',
         'position'                  => '%d',
@@ -51,6 +52,7 @@ if (!class_exists('Options')) {
 
 			return [
         'id'                        => 0,
+				'option_id'                 => 0,
         'product_id'                => 0,
         'name'                      => '',
         'position'                  => 0,
@@ -74,7 +76,7 @@ if (!class_exists('Options')) {
 
         foreach ($product->options as $key => $option) {
 
-					$result = $this->insert($option, 'option');
+					$result = $this->insert( $this->rename_primary_key($option, 'option_id'), 'option' );
 
 					if (is_wp_error($result)) {
 						return $result;
@@ -123,11 +125,11 @@ if (!class_exists('Options')) {
       if (count($product->options) > 0) {
 
         foreach ($product->options as $key => $option) {
-          $results[] = $this->update($option->id, $option);
+          $results[] = $this->update($option->option_id, $option);
         }
 
       } else {
-        $results[] = $this->delete_rows('product_id', $product->id);
+        $results[] = $this->delete_rows('product_id', $product->product_id);
 
       }
 
@@ -192,30 +194,30 @@ if (!class_exists('Options')) {
 		public function update_options_from_product($product) {
 
 			$results = [];
-			$optionsFromShopify = $product->options;
-			$currentOptions = $this->get_rows('product_id', $product->id);
+			$options_from_shopify = $product->options;
+			$current_options = $this->get_rows('product_id', $product->product_id);
 
-			$optionsToAdd = Utils::wps_find_items_to_add($currentOptions, $optionsFromShopify, true);
-			$optionsToDelete = Utils::wps_find_items_to_delete($currentOptions, $optionsFromShopify, true);
+			$options_to_add = Utils::wps_find_items_to_add($current_options, $options_from_shopify, true);
+			$options_to_delete = Utils::wps_find_items_to_delete($current_options, $options_from_shopify, true);
 
-			if (count($optionsToAdd) > 0) {
+			if (count($options_to_add) > 0) {
 
-				foreach ($optionsToAdd as $key => $newOption) {
-					$results['created'][] = $this->insert($newOption, 'option');
+				foreach ($options_to_add as $key => $new_option) {
+					$results['created'][] = $this->insert( $this->rename_primary_key($new_option, 'option_id'), 'option');
 				}
 
 			}
 
-			if (count($optionsToDelete) > 0) {
+			if (count($options_to_delete) > 0) {
 
-				foreach ($optionsToDelete as $key => $oldOption) {
-					$results['deleted'][] = $this->delete($oldOption->id);
+				foreach ($options_to_delete as $key => $old_option) {
+					$results['deleted'][] = $this->delete($old_option->option_id);
 				}
 
 			}
 
 			foreach ($product->options as $key => $option) {
-				$results['updated'] = $this->update($option->id, $option);
+				$results['updated'] = $this->update($option->option_id, $option);
 			}
 
 			return $results;
@@ -230,20 +232,15 @@ if (!class_exists('Options')) {
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
-        id bigint(100) unsigned NOT NULL DEFAULT 0,
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+				option_id bigint(100) unsigned NOT NULL DEFAULT 0,
         product_id bigint(100) DEFAULT NULL,
         name varchar(100) DEFAULT NULL,
         position int(20) DEFAULT NULL,
@@ -253,34 +250,6 @@ if (!class_exists('Options')) {
 
     }
 
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `product_id`, `name`, `position`, `values`) SELECT `id`, `product_id`, `name`, `position`, `values` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
   }
 

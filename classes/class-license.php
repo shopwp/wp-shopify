@@ -18,6 +18,7 @@ if (!class_exists('License')) {
 		private $DB_Settings_General;
 		private $WS_Settings_License;
 
+
 		public function __construct($Messages, $WS, $WS_Settings_License, $DB_Settings_License, $DB_Settings_General) {
 
 			$this->Messages 									= $Messages;
@@ -99,15 +100,13 @@ if (!class_exists('License')) {
 			}
 
 			// The name of your product. This should match the download name in EDD exactly
-			if(!defined('EDD_SAMPLE_ITEM_ID')) {
+			if (!defined('EDD_SAMPLE_ITEM_ID') ) {
 	  		define( 'EDD_SAMPLE_ITEM_ID', 35 );
 			}
 
 			// load our custom updater
-			if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-
+			if ( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 			  include( WPS_PLUGIN_DIR_PATH . 'vendor/EDD/EDD_SL_Plugin_Updater.php' );
-
 			}
 
 			// Setup the updater

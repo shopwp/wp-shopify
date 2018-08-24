@@ -164,17 +164,11 @@ if (!class_exists('Settings_Connection')) {
 		*/
 		public function create_table_query($table_name = false) {
 
-			global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-			$collate = '';
-
-			if ( $wpdb->has_cap('collation') ) {
-				$collate = $wpdb->get_charset_collate();
-			}
+			$collate = $this->collate();
 
 			return "CREATE TABLE $table_name (
 				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
@@ -193,35 +187,6 @@ if (!class_exists('Settings_Connection')) {
 		}
 
 
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `domain`, `js_access_token`, `access_token`, `app_id`, `webhook_id`, `nonce`, `api_key`, `password`, `shared_secret`) SELECT `id`, `domain`, `js_access_token`, `access_token`, `app_id`, `webhook_id`, `nonce`, `api_key`, `password`, `shared_secret` FROM ' . $this->table_name);
-
-		}
-
-
-		/*
-
-		Creates database table
-
-		*/
-		public function create_table() {
-
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-			if (!$this->table_exists($this->table_name)) {
-				dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-			}
-
-		}
-
   }
-
 
 }

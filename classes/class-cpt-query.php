@@ -9,10 +9,12 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+
 if ( !class_exists('CPT_Query') ) {
 
 	class CPT_Query {
 
+		private $DB;
 		private $DB_Settings_General;
 		private $DB_Settings_Connection;
 
@@ -24,6 +26,7 @@ if ( !class_exists('CPT_Query') ) {
 	  */
 	  public function __construct($DB_Settings_General, $DB_Settings_Connection) {
 
+			$this->DB 											= $DB_Settings_General;
 			$this->DB_Settings_General 			= $DB_Settings_General;
 			$this->DB_Settings_Connection 	= $DB_Settings_Connection;
 
@@ -42,6 +45,132 @@ if ( !class_exists('CPT_Query') ) {
 
 		/*
 
+		If $post is not a true WordPress $post object, then we know
+		the items are NEW and coming straight from Shopify. We can
+		return 0 for now as the post_id will be changed during
+		a seperate step in the syncing process.
+
+		*/
+		public function return_post_id($post) {
+
+			if (Utils::has($post, 'post_id')) {
+				$post_id = $post->post_id;
+
+			} else {
+				$post_id = 0;
+			}
+
+			return intval($post_id);
+
+		}
+
+
+		/*
+
+		Grabs the current author ID
+
+		*/
+		public function return_author_id() {
+
+			if (get_current_user_id() === 0) {
+				$author_id = 1;
+
+			} else {
+				$author_id = get_current_user_id();
+			}
+
+			return intval($author_id);
+
+		}
+
+		public function return_post_date() {
+			return sanitize_text_field( date_i18n('Y-m-d H:i:s') );
+		}
+
+		public function return_post_date_gmt() {
+			return sanitize_text_field( date_i18n('Y-m-d H:i:s') );
+		}
+
+		public function return_post_content($post) {
+			return wp_kses_post($post->body_html);
+		}
+
+		public function return_post_title($post) {
+			return sanitize_text_field($post->title);
+		}
+
+		public function return_post_excerpt() {
+			return sanitize_text_field('');
+		}
+
+		public function return_post_status() {
+			return sanitize_text_field('publish');
+		}
+
+		public function return_comment_status() {
+			return sanitize_text_field('open');
+		}
+
+		public function return_ping_status() {
+			return sanitize_text_field('open');
+		}
+
+		public function return_post_password() {
+			return sanitize_text_field('');
+		}
+
+		public function return_post_name($post) {
+			return sanitize_title($post->handle);
+		}
+
+		public function return_to_ping() {
+			return sanitize_text_field('');
+		}
+
+		public function return_pinged() {
+			return sanitize_text_field('');
+		}
+
+		public function return_post_modified() {
+			return sanitize_text_field( date_i18n('Y-m-d H:i:s') );
+		}
+
+		public function return_post_modified_gmt() {
+			return sanitize_text_field( date_i18n('Y-m-d H:i:s') );
+		}
+
+		public function return_post_content_filtered() {
+			return sanitize_text_field('');
+		}
+
+		public function return_post_parent() {
+			return intval(0);
+		}
+
+		public function return_guid($posts_page_url) {
+			return esc_url_raw($posts_page_url);
+		}
+
+		public function return_menu_order() {
+			return intval(0);
+		}
+
+		public function return_post_type($post_type) {
+			return sanitize_text_field($post_type);
+		}
+
+		public function return_post_mime_type() {
+			return sanitize_text_field('');
+		}
+
+		public function return_comment_count() {
+			return intval(0);
+		}
+
+
+
+		/*
+
 		Construct posts col values as string
 
 		$post_type = 'wps_products' or 'wps_collections'
@@ -54,55 +183,35 @@ if ( !class_exists('CPT_Query') ) {
 
 			foreach ($posts as $post) {
 
-				$posts_page_url = $this->construct_post_guid($post, $post_type);
-
 				$index++;
 
 				if ($index > 1) {
 					$values_string .=',';
 				}
 
-
-				if (Utils::has($post, 'post_id')) {
-					$postID = $post->post_id;
-
-				} else {
-					$postID = 0;
-				}
-
-
-				if (get_current_user_id() === 0) {
-					$author_id = 1;
-
-				} else {
-					$author_id = get_current_user_id();
-				}
-
-
-				$post_id = esc_sql( intval($postID) );
-				$post_author_id = esc_sql( intval($author_id) );
-				$post_date = esc_sql(	sanitize_text_field(date_i18n('Y-m-d H:i:s')));
-				$post_date_gmt = esc_sql( sanitize_text_field(date_i18n('Y-m-d H:i:s')));
-				$post_content = esc_sql( wp_kses_post($post->body_html) );
-				$post_title = esc_sql( sanitize_text_field($post->title) );
-				$post_excerpt = esc_sql( sanitize_text_field('') );
-				$post_status = esc_sql( sanitize_text_field('publish') );
-				$comment_status = esc_sql( sanitize_text_field('open') );
-				$ping_status = esc_sql( sanitize_text_field('open') );
-				$post_password = esc_sql( sanitize_text_field('') );
-				$post_name = esc_sql( sanitize_title($post->handle) );
-				$to_ping = esc_sql( sanitize_text_field('') );
-				$pinged = esc_sql( sanitize_text_field('') );
-				$post_modified = esc_sql(sanitize_text_field(date_i18n('Y-m-d H:i:s')));
-				$post_modified_gmt = esc_sql(sanitize_text_field(date_i18n('Y-m-d H:i:s')));
-				$post_content_filtered = esc_sql( sanitize_text_field('') );
-				$post_parent = esc_sql( intval(0) );
-				$guid = esc_sql( esc_url_raw($posts_page_url) );
-				$menu_order = esc_sql( intval(0) );
-				$post_type = esc_sql( sanitize_text_field( $post_type ) );
-				$post_mime_type = esc_sql( sanitize_text_field('') );
-				$comment_count = esc_sql( intval(0) );
-
+				$post_id 									= esc_sql( $this->return_post_id($post) );
+				$post_author_id 					= esc_sql( $this->return_author_id() );
+				$post_date 								= esc_sql( $this->return_post_date() );
+				$post_date_gmt 						= esc_sql( $this->return_post_date_gmt() );
+				$post_content 						= esc_sql( $this->return_post_content($post) );
+				$post_title 							= esc_sql( $this->return_post_title($post) );
+				$post_excerpt 						= esc_sql( $this->return_post_excerpt($post) );
+				$post_status 							= esc_sql( $this->return_post_status() );
+				$comment_status 					= esc_sql( $this->return_comment_status() );
+				$ping_status 							= esc_sql( $this->return_ping_status() );
+				$post_password 						= esc_sql( $this->return_post_password() );
+				$post_name 								= esc_sql( $this->return_post_name($post) );
+				$to_ping 									= esc_sql( $this->return_to_ping() );
+				$pinged 									= esc_sql( $this->return_pinged() );
+				$post_modified 						= esc_sql( $this->return_post_modified() );
+				$post_modified_gmt 				= esc_sql( $this->return_post_modified_gmt() );
+				$post_content_filtered 		= esc_sql( $this->return_post_content_filtered() );
+				$post_parent 							= esc_sql( $this->return_post_parent() );
+				$guid 										= esc_sql( $this->return_guid( $this->construct_post_guid($post, $post_type) ) );
+				$menu_order 							= esc_sql( $this->return_menu_order() );
+				$post_type 								= esc_sql( $this->return_post_type($post_type) );
+				$post_mime_type 					= esc_sql( $this->return_post_mime_type() );
+				$comment_count 						= esc_sql( $this->return_comment_count() );
 
 				$values_string .= "(" .
 					"'" . $post_id . "', " .
@@ -406,7 +515,6 @@ if ( !class_exists('CPT_Query') ) {
 
 				$columns = $this->construct_post_case_columns_query($post_values_to_update);
 				$columns = $this->set_default_case_values($columns);
-
 				$where = $this->set_where_clause($post_values_to_update);
 
 				$update_query = $this->join_query_with_commas($update_query, $columns, $where);
@@ -425,22 +533,23 @@ if ( !class_exists('CPT_Query') ) {
 		*/
 		public function construct_posts_insert_query($shopify_items, $existing_posts = false, $post_type) {
 
-			global $wpdb;
+			if ( empty($shopify_items) ) {
+				return false;
+			}
 
 			$posts_column_names = $this->construct_posts_col_names_as_string();
+
+			// Should return an array of Shopify items
 			$items_to_insert = $this->find_posts_to_insert($shopify_items, $existing_posts);
 
 			// If we didn't find any posts to insert, return false and don't perform the query.
-			if (empty($items_to_insert)) {
+			if ( empty($items_to_insert) ) {
 				return false;
-
-			} else {
-
-				$posts_column_values_insert = $this->construct_posts_col_values_as_string($items_to_insert, $post_type);
-
-				return "INSERT INTO " . WPS_TABLE_NAME_WP_POSTS . $posts_column_names . " VALUES " . $posts_column_values_insert . ";";
-
 			}
+
+			$posts_column_values_insert = $this->construct_posts_col_values_as_string($items_to_insert, $post_type);
+
+			return "INSERT INTO " . WPS_TABLE_NAME_WP_POSTS . $posts_column_names . " VALUES " . $posts_column_values_insert . ";";
 
 		}
 
@@ -463,6 +572,21 @@ if ( !class_exists('CPT_Query') ) {
 
 			}
 
+		}
+
+
+		/*
+
+		Wrapper for inserting data coming from Shopify as WordPress posts
+
+		*/
+		public function insert_posts($items_from_shopify, $existing_posts, $post_type) {
+			return $this->DB->query( $this->construct_posts_insert_query($items_from_shopify, $existing_posts, $post_type) );
+		}
+
+
+		public function update_posts($posts_to_update, $post_type) {
+			return $this->DB->query( $this->construct_posts_update_query( $this->format_posts_for_update($posts_to_update, $post_type) ) );
 		}
 
 

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Collects') ) {
 
-  class Async_Processing_Collects extends WP_Shopify_Background_Process {
+  class Async_Processing_Collects extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_collects';
 
@@ -41,7 +41,8 @@ if ( !class_exists('Async_Processing_Collects') ) {
 			}
 
 			// Actual work
-			$result = $this->DB_Collects->insert($collect, 'collect');
+			$result = $this->DB_Collects->insert_collect($collect);
+
 
 			if (is_wp_error($result)) {
 				$this->WS->save_notice_and_stop_sync($result);

@@ -182,8 +182,8 @@ if (!class_exists('Settings_General')) {
 
       $results = [];
 
-			if (!$this->table_has_been_initialized('id')) {
-				$results = $this->insert($this->get_column_defaults(), 'general');
+			if ( !$this->table_has_been_initialized('id') ) {
+				$results = $this->insert_default_values();
 			}
 
       return $results;
@@ -232,94 +232,6 @@ if (!class_exists('Settings_General')) {
 
 
       return $results;
-
-    }
-
-
-    /*
-
-    Creates a table query string
-
-    */
-    public function create_table_query($table_name = false) {
-
-      global $wpdb;
-
-			if (!$table_name) {
-				$table_name = $this->table_name;
-			}
-
-  		$collate = '';
-
-  		if ($wpdb->has_cap('collation')) {
-  			$collate = $wpdb->get_charset_collate();
-  		}
-
-      return "CREATE TABLE $table_name (
-        id bigint(100) NOT NULL AUTO_INCREMENT,
-  		  url_products varchar(100) NOT NULL DEFAULT 'products',
-  		  url_collections varchar(100) NOT NULL DEFAULT 'collections',
-        url_webhooks varchar(100) NOT NULL DEFAULT '{$this->webhooks}',
-        num_posts bigint(100) DEFAULT NULL,
-        styles_all tinyint(1) DEFAULT 1,
-        styles_core tinyint(1) DEFAULT 0,
-        styles_grid tinyint(1) DEFAULT 0,
-        plugin_name varchar(100) NOT NULL DEFAULT '{$this->plugin_name}',
-        plugin_textdomain varchar(100) NOT NULL DEFAULT '{$this->plugin_textdomain}',
-        plugin_version varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
-        plugin_author varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
-        price_with_currency tinyint(1) DEFAULT 0,
-        cart_loaded tinyint(1) DEFAULT '{$this->cart_loaded}',
-				title_as_alt tinyint(1) DEFAULT '{$this->title_as_alt}',
-        selective_sync_all tinyint(1) DEFAULT '{$this->selective_sync_all}',
-        selective_sync_products tinyint(1) DEFAULT '{$this->selective_sync_products}',
-				sync_by_collections LONGTEXT DEFAULT '{$this->sync_by_collections}',
-        selective_sync_collections tinyint(1) DEFAULT '{$this->selective_sync_collections}',
-        selective_sync_customers tinyint(1) DEFAULT '{$this->selective_sync_customers}',
-        selective_sync_orders tinyint(1) DEFAULT '{$this->selective_sync_orders}',
-        selective_sync_shop tinyint(1) DEFAULT '{$this->selective_sync_shop}',
-				products_link_to_shopify tinyint(1) DEFAULT '{$this->products_link_to_shopify}',
-				show_breadcrumbs tinyint(1) DEFAULT '{$this->show_breadcrumbs}',
-				hide_pagination tinyint(1) DEFAULT '{$this->hide_pagination}',
-				is_free tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_free}',
-				is_pro tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_pro}',
-				related_products_show tinyint(1) unsigned NOT NULL DEFAULT '{$this->related_products_show}',
-				related_products_sort varchar(100) NOT NULL DEFAULT '{$this->related_products_sort}',
-				related_products_amount tinyint(1) unsigned NOT NULL DEFAULT '{$this->related_products_amount}',
-				allow_insecure_webhooks tinyint(1) unsigned NOT NULL DEFAULT '{$this->allow_insecure_webhooks}',
-				save_connection_only tinyint(1) unsigned NOT NULL DEFAULT '{$this->save_connection_only}',
-				app_uninstalled tinyint(1) unsigned NOT NULL DEFAULT '{$this->app_uninstalled}',
-  		  PRIMARY KEY  (id)
-  		) ENGINE=InnoDB $collate";
-
-    }
-
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`id`, `url_products`, `url_collections`, `url_webhooks`, `num_posts`, `styles_all`, `styles_core`, `styles_grid`, `plugin_name`, `plugin_textdomain`, `plugin_version`, `plugin_author`, `price_with_currency`, `cart_loaded`, `title_as_alt`, `selective_sync_all`, `selective_sync_products`, `selective_sync_collections`, `selective_sync_customers`, `selective_sync_orders`, `selective_sync_shop`, `products_link_to_shopify`, `show_breadcrumbs`, `hide_pagination`, `is_free`, `is_pro`, `related_products_show`, `related_products_sort`, `related_products_amount`) SELECT `id`, `url_products`, `url_collections`, `url_webhooks`, `num_posts`, `styles_all`, `styles_core`, `styles_grid`, `plugin_name`, `plugin_textdomain`, `plugin_version`, `plugin_author`, `price_with_currency`, `cart_loaded`, `title_as_alt`, `selective_sync_all`, `selective_sync_products`, `selective_sync_collections`, `selective_sync_customers`, `selective_sync_orders`, `selective_sync_shop`, `products_link_to_shopify`, `show_breadcrumbs`, `hide_pagination`, `is_free`, `is_pro`, `related_products_show`, `related_products_sort`, `related_products_amount` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
 
     }
 
@@ -663,7 +575,7 @@ if (!class_exists('Settings_General')) {
 				return $plugin_version[0]->plugin_version;
 
 			} else {
-				return '0.0.0';
+				return $plugin_version;
 			}
 
 		}
@@ -848,6 +760,59 @@ if (!class_exists('Settings_General')) {
 		public function update_webhooks_callback_url_to_https() {
 			return $this->update_column_single( ['url_webhooks' => Utils::convert_to_https_url( get_home_url() )], ['id' => 1] );
 		}
+
+
+		/*
+
+    Creates a table query string
+
+    */
+    public function create_table_query($table_name = false) {
+
+			if ( !$table_name ) {
+				$table_name = $this->table_name;
+			}
+
+  		$collate = $this->collate();
+
+      return "CREATE TABLE $table_name (
+        id bigint(100) NOT NULL AUTO_INCREMENT,
+  		  url_products varchar(100) NOT NULL DEFAULT 'products',
+  		  url_collections varchar(100) NOT NULL DEFAULT 'collections',
+        url_webhooks varchar(100) NOT NULL DEFAULT '{$this->webhooks}',
+        num_posts bigint(100) DEFAULT NULL,
+        styles_all tinyint(1) DEFAULT 1,
+        styles_core tinyint(1) DEFAULT 0,
+        styles_grid tinyint(1) DEFAULT 0,
+        plugin_name varchar(100) NOT NULL DEFAULT '{$this->plugin_name}',
+        plugin_textdomain varchar(100) NOT NULL DEFAULT '{$this->plugin_textdomain}',
+        plugin_version varchar(100) NOT NULL DEFAULT '{$this->plugin_version}',
+        plugin_author varchar(100) NOT NULL DEFAULT '{$this->plugin_author}',
+        price_with_currency tinyint(1) DEFAULT 0,
+        cart_loaded tinyint(1) DEFAULT '{$this->cart_loaded}',
+				title_as_alt tinyint(1) DEFAULT '{$this->title_as_alt}',
+        selective_sync_all tinyint(1) DEFAULT '{$this->selective_sync_all}',
+        selective_sync_products tinyint(1) DEFAULT '{$this->selective_sync_products}',
+				sync_by_collections LONGTEXT DEFAULT '{$this->sync_by_collections}',
+        selective_sync_collections tinyint(1) DEFAULT '{$this->selective_sync_collections}',
+        selective_sync_customers tinyint(1) DEFAULT '{$this->selective_sync_customers}',
+        selective_sync_orders tinyint(1) DEFAULT '{$this->selective_sync_orders}',
+        selective_sync_shop tinyint(1) DEFAULT '{$this->selective_sync_shop}',
+				products_link_to_shopify tinyint(1) DEFAULT '{$this->products_link_to_shopify}',
+				show_breadcrumbs tinyint(1) DEFAULT '{$this->show_breadcrumbs}',
+				hide_pagination tinyint(1) DEFAULT '{$this->hide_pagination}',
+				is_free tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_free}',
+				is_pro tinyint(1) unsigned NOT NULL DEFAULT '{$this->is_pro}',
+				related_products_show tinyint(1) unsigned NOT NULL DEFAULT '{$this->related_products_show}',
+				related_products_sort varchar(100) NOT NULL DEFAULT '{$this->related_products_sort}',
+				related_products_amount tinyint(1) unsigned NOT NULL DEFAULT '{$this->related_products_amount}',
+				allow_insecure_webhooks tinyint(1) unsigned NOT NULL DEFAULT '{$this->allow_insecure_webhooks}',
+				save_connection_only tinyint(1) unsigned NOT NULL DEFAULT '{$this->save_connection_only}',
+				app_uninstalled tinyint(1) unsigned NOT NULL DEFAULT '{$this->app_uninstalled}',
+  		  PRIMARY KEY  (id)
+  		) ENGINE=InnoDB $collate";
+
+    }
 
 
   }

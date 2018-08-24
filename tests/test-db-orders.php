@@ -26,7 +26,7 @@ class Test_Sync_Orders extends WP_UnitTestCase {
     self::$DB_Orders                 = DB_Orders_Factory::build();
     self::$mockDataOrder             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/order.json") );
     self::$mockDataOrderForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/order-update.json") );
-    self::$mockDataOrderID           = self::$mockDataOrder->id;
+    self::$mockDataOrderID           = self::$mockDataOrder->order_id;
 
   }
 

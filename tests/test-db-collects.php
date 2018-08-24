@@ -17,16 +17,16 @@ Collects are not updated -- only created or deleted
 class Test_Sync_Collects extends WP_UnitTestCase {
 
   protected static $DB_Collects;
-  protected static $mockDataCollect;
-  protected static $mockDataCollectID;
+  protected static $mock_data_collect;
+  protected static $mock_data_collect_id;
 
 
   static function setUpBeforeClass() {
 
     // Assemble
     self::$DB_Collects                    = DB_Collects_Factory::build();
-    self::$mockDataCollect                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collect.json") );
-    self::$mockDataCollectID              = self::$mockDataCollect->id;
+    self::$mock_data_collect              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collect.json") );
+    self::$mock_data_collect_id           = self::$mock_data_collect->collect_id;
 
   }
 
@@ -38,7 +38,7 @@ class Test_Sync_Collects extends WP_UnitTestCase {
   */
   function test_collect_create() {
 
-    $result = self::$DB_Collects->insert(self::$mockDataCollect, 'collect');
+    $result = self::$DB_Collects->insert(self::$mock_data_collect, 'collect');
     $this->assertEquals(1, $result);
 
   }
@@ -51,7 +51,7 @@ class Test_Sync_Collects extends WP_UnitTestCase {
   */
   function test_collect_delete() {
 
-    $results = self::$DB_Collects->delete( self::$mockDataCollectID );
+    $results = self::$DB_Collects->delete( self::$mock_data_collect_id );
     $this->assertEquals(1, $results);
 
   }

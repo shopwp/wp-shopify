@@ -114,7 +114,7 @@ if (!class_exists('Variants')) {
 
 
 					$refinedVariants[] = [
-						'id' 									=> $variant->id,
+						'variant_id' 					=> $variant->variant_id,
 						'sku'									=> $variant->sku,
 						'inventory_quantity'	=> $variant->inventory_quantity,
 						'price'								=> $variant->price,
@@ -137,7 +137,7 @@ if (!class_exists('Variants')) {
 
 					if ( $cleanVariants === $constructedOptions ) {
 
-						$variantObj = $this->DB_Variants->get_by('id', $variant['id']);
+						$variantObj = $this->DB_Variants->get_by('variant_id', $variant['variant_id']);
 						$productData->variants = $variantData;
 
 						if (Utils::product_inventory($productData, [(array) $variantObj])) {

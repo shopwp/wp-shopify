@@ -1,5 +1,5 @@
 <?php
-namespace GuzzleHttp\Exception;
+namespace WPS\Vendor\GuzzleHttp\Exception;
 
 /**
  * Exception when a client error is encountered (4xx codes)

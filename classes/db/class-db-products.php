@@ -26,7 +26,7 @@ if (!class_exists('Products')) {
       global $wpdb;
 
       $this->table_name         				= WPS_TABLE_NAME_PRODUCTS;
-      $this->primary_key        				= 'product_id';
+      $this->primary_key        				= 'id';
       $this->version            				= '1.0';
       $this->cache_group        				= 'wps_db_products';
 
@@ -36,6 +36,7 @@ if (!class_exists('Products')) {
   	public function get_columns() {
 
       return [
+				'id'            				=> '%d',
         'product_id'            => '%d',
         'post_id'               => '%d',
         'title'                 => '%s',
@@ -58,6 +59,7 @@ if (!class_exists('Products')) {
   	public function get_column_defaults() {
 
       return [
+				'id'										=> 0,
         'product_id'            => 0,
         'post_id'               => 0,
         'title'                 => '',
@@ -81,13 +83,15 @@ if (!class_exists('Products')) {
 
 		Insert Product Data
 
+		$product comes directly from Shopify
+
 		*/
 		public function insert_product($product = false, $cpt_id = false) {
 
 			$insertionResults = [];
 
 			$product = Utils::convert_array_to_object($product);
-			$product = $this->rename_primary_key($product);
+			$product = $this->rename_primary_key($product, 'product_id');
 			$product = $this->add_image_to_product($product);
 			$product = $this->add_post_id_to_product($product, $cpt_id);
 
@@ -155,7 +159,6 @@ if (!class_exists('Products')) {
     public function get_products() {
       return $this->get_all_rows();
     }
-
 
 
     /*
@@ -233,35 +236,13 @@ if (!class_exists('Products')) {
   	Responsible for assigning a post_id to collection_id
 
   	*/
-		public function set_post_id_to_product($post_id, $product) {
+		public function set_post_id_to_product($post_id, $product_id) {
 
 			$product = Utils::convert_array_to_object($product);
 
-			$update_result = $this->update_column_single(['post_id' => $post_id], ['product_id' => $product->id]);
+			$update_result = $this->update_column_single(['post_id' => $post_id], ['product_id' => $product_id]);
 
 			return $this->sanitize_db_response($update_result);
-
-		}
-
-
-		/*
-
-		Find Product ID
-
-		Not really sure if this is needed ... $product should always have an `id` property
-
-		*/
-		public function get_product_id($product) {
-
-			if (isset($product->id)) {
-				return $product->id;
-
-			} else if ($product->product_id) {
-				return $product->product_id;
-
-			} else {
-				return 0;
-			}
 
 		}
 
@@ -427,22 +408,6 @@ if (!class_exists('Products')) {
 
     /*
 
-    Rename primary key
-
-    */
-    public function rename_primary_key($product) {
-
-      $productCopy = $product;
-      $productCopy->product_id = $productCopy->id;
-      unset($productCopy->id);
-
-      return $productCopy;
-
-    }
-
-
-    /*
-
     Gets all products from a collection by collection id
 
     */
@@ -477,18 +442,13 @@ if (!class_exists('Products')) {
 
 
 		/*
-
 		Updates products from product ID
-
 		*/
 		public function update_products_from_product_id($product_id, $product) {
 
 			if (Utils::is_data_published($product)) {
-
 				$product->image = $this->flatten_product_image($product);
-
 				return $this->update($product_id, $product);
-
 			}
 
 		}
@@ -524,19 +484,14 @@ if (!class_exists('Products')) {
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
         product_id bigint(255) unsigned NOT NULL,
         post_id bigint(100) unsigned DEFAULT NULL,
         title varchar(255) DEFAULT NULL,
@@ -551,39 +506,11 @@ if (!class_exists('Products')) {
         updated_at datetime,
         created_at datetime,
 				admin_graphql_api_id longtext DEFAULT NULL,
-        PRIMARY KEY  (product_id)
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
     }
 
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`product_id`, `post_id`, `title`, `body_html`, `handle`, `image`, `vendor`, `product_type`, `published_scope`, `published_at`, `updated_at`, `created_at`) SELECT `product_id`, `post_id`, `title`, `body_html`, `handle`, `image`, `vendor`, `product_type`, `published_scope`, `published_at`, `updated_at`, `created_at` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
   }
 

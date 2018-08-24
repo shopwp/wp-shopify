@@ -1,8 +1,8 @@
 <?php
-namespace GuzzleHttp\Psr7;
+namespace WPS\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
+use WPS\Vendor\Psr\Http\Message\ResponseInterface;
+use WPS\Vendor\Psr\Http\Message\StreamInterface;
 
 /**
  * PSR-7 response implementation.

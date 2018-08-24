@@ -1,7 +1,7 @@
 <?php
-namespace GuzzleHttp\Psr7;
+namespace WPS\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\UriInterface;
+use WPS\Vendor\Psr\Http\Message\UriInterface;
 
 /**
  * Provides methods to normalize and compare URIs.

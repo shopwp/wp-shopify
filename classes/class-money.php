@@ -7,10 +7,8 @@ if (!defined('ABSPATH')) {
 }
 
 use WPS\Utils;
-use Gerardojbaez\Money\Money as Money_Gerardo; // TODO: Get rid of these hidden deps
-use Gerardojbaez\Money\Currency as Currency_Gerardo;
-
-require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
+use WPS\Vendor\Gerardojbaez\Money\Money as Money_Gerardo;
+use WPS\Vendor\Gerardojbaez\Money\Currency as Currency_Gerardo;
 
 
 if ( !class_exists('Money') ) {
@@ -216,10 +214,10 @@ if ( !class_exists('Money') ) {
 
 	      if (isset($product['variants']) && count($product['variants']) > 1) {
 	        $matchedVariant = $this->find_variant_by_price($price, $product['variants']);
-	        $productID = $matchedVariant->id;
+	        $productID = $matchedVariant->variant_id;
 
 	      } else {
-	        $productID = $product['variants'][0]['id'];
+	        $productID = $product['variants'][0]['variant_id'];
 	      }
 
 	    } else {
@@ -235,7 +233,7 @@ if ( !class_exists('Money') ) {
 
 	        $variants = Utils::convert_object_to_array($variants);
 	        $matchedVariant = $this->find_variant_by_price($price, $variants);
-	        $productID = $matchedVariant->id;
+	        $productID = $matchedVariant->variant_id;
 
 	      } else {
 

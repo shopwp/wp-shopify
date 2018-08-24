@@ -2,20 +2,18 @@
 
 namespace WPS\Factories;
 
+if (!defined('ABSPATH')) {
+	exit;
+}
+
+
 use WPS\WS\Images as WS_Images;
 
 use WPS\Factories\DB_Images_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 use WPS\Factories\Messages_Factory;
+use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
 
-use GuzzleHttp\Client as Guzzle;
-
-require plugin_dir_path( __FILE__ ) . '../../vendor/autoload.php';
-
-
-if (!defined('ABSPATH')) {
-	exit;
-}
 
 if (!class_exists('WS_Images_Factory')) {
 
@@ -31,7 +29,7 @@ if (!class_exists('WS_Images_Factory')) {
 					DB_Images_Factory::build(),
 					DB_Settings_General_Factory::build(),
 					Messages_Factory::build(),
-					new Guzzle()
+					new GuzzleClient()
 				);
 
 				self::$instantiated = $WS_Images;

@@ -145,17 +145,11 @@ if (!class_exists('Settings_License')) {
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
         license_key varchar(100) NOT NULL,
@@ -180,34 +174,6 @@ if (!class_exists('Settings_License')) {
 
     }
 
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`license_key`, `is_local`, `expires`, `site_count`, `checksum`, `customer_email`, `customer_name`, `item_name`, `license`, `license_limit`, `payment_id`, `success`, `nonce`, `activations_left`) SELECT `key`, `is_local`, `expires`, `site_count`, `checksum`, `customer_email`, `customer_name`, `item_name`, `license`, `license_limit`, `payment_id`, `success`, `nonce`, `activations_left` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if ( !$this->table_exists($this->table_name) ) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
   }
 

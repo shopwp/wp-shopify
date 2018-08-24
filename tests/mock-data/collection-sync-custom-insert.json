@@ -1,0 +1,12 @@
+{
+  "id": 13729693719,
+  "handle": "aaaaa-1",
+  "title": "aaaaa",
+  "updated_at": "2018-08-13T22:10:01-05:00",
+  "body_html": "aaaaa",
+  "published_at": "2017-12-10T17:15:50-06:00",
+  "sort_order": "best-selling",
+  "template_suffix": null,
+  "published_scope": "global",
+  "admin_graphql_api_id": "gid://shopify/Collection/13729693719"
+}

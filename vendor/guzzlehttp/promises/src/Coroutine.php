@@ -1,5 +1,5 @@
 <?php
-namespace GuzzleHttp\Promise;
+namespace WPS\Vendor\GuzzleHttp\Promise;
 
 use Exception;
 use Generator;
@@ -16,7 +16,7 @@ use Throwable;
  * This can lead to less verbose code when doing lots of sequential async calls
  * with minimal processing in between.
  *
- *     use GuzzleHttp\Promise;
+ *     use WPS\Vendor\GuzzleHttp\Promise;
  *
  *     function createPromise($value) {
  *         return new Promise\FulfilledPromise($value);

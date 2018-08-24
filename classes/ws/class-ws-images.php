@@ -3,7 +3,7 @@
 namespace WPS\WS;
 
 use WPS\Utils;
-use GuzzleHttp\Promise;
+use WPS\Vendor\GuzzleHttp\Promise;
 
 if (!defined('ABSPATH')) {
 	exit;

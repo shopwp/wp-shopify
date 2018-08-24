@@ -1,9 +1,9 @@
 <?php
 
-namespace DeepCopy\TypeFilter\Date;
+namespace WPS\Vendor\DeepCopy\TypeFilter\Date;
 
 use DateInterval;
-use DeepCopy\TypeFilter\TypeFilter;
+use WPS\Vendor\DeepCopy\TypeFilter\TypeFilter;
 
 /**
  * @final

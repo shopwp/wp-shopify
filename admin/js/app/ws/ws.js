@@ -1846,9 +1846,9 @@ Kicks off the table migration process
 */
 function migrateTables() {
 
-  return new Promise((resolve, reject) => {
+  return new Promise( (resolve, reject) => {
 
-    const action_name = 'migrate_tables';
+    const action_name = 'run_table_migration_' + WP_Shopify.latestVersionCombined;
 
     jQuery.ajax({
       method: 'POST',

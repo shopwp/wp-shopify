@@ -68,7 +68,7 @@ This isn't a WordPress plugin on its own, so the usual instructions don't apply.
  */
 
 if ( ! class_exists( 'Gamajo_Template_Loader' ) ) {
-  require plugin_dir_path( __FILE__ ) . 'class-gamajo-template-loader.php';
+  // require plugin_dir_path( __FILE__ ) . 'class-gamajo-template-loader.php';
 }
 
 /**

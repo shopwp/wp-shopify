@@ -1,14 +1,14 @@
 <?php
 
-namespace DeepCopy\Matcher;
+namespace WPS\Vendor\DeepCopy\Matcher;
 
-use DeepCopy\Reflection\ReflectionHelper;
+use WPS\Vendor\DeepCopy\Reflection\ReflectionHelper;
 use ReflectionException;
 
 /**
  * Matches a property by its type.
  *
- * It is recommended to use {@see DeepCopy\TypeFilter\TypeFilter} instead, as it applies on all occurrences
+ * It is recommended to use WPS\Vendor\{@see DeepCopy\TypeFilter\TypeFilter} instead, as it applies on all occurrences
  * of given type in copied context (eg. array elements), not just on object properties.
  *
  * @final

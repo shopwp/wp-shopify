@@ -26,7 +26,7 @@ class Test_Sync_Options extends WP_UnitTestCase {
     self::$DB_Options                 = DB_Options_Factory::build();
     self::$mockDataOption             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/option.json") );
     self::$mockDataOptionForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/option-update.json") );
-    self::$mockDataOptionID           = self::$mockDataOption->id;
+    self::$mockDataOptionID           = self::$mockDataOption->option_id;
 
   }
 

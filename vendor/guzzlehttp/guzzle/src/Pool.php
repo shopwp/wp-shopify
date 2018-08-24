@@ -1,9 +1,9 @@
 <?php
-namespace GuzzleHttp;
+namespace WPS\Vendor\GuzzleHttp;
 
-use GuzzleHttp\Promise\PromisorInterface;
-use Psr\Http\Message\RequestInterface;
-use GuzzleHttp\Promise\EachPromise;
+use WPS\Vendor\GuzzleHttp\Promise\PromisorInterface;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
+use WPS\Vendor\GuzzleHttp\Promise\EachPromise;
 
 /**
  * Sends and iterator of requests concurrently using a capped pool size.
@@ -50,7 +50,7 @@ class Pool implements PromisorInterface
             $opts = [];
         }
 
-        $iterable = \GuzzleHttp\Promise\iter_for($requests);
+        $iterable = \WPS\Vendor\GuzzleHttp\Promise\iter_for($requests);
         $requests = function () use ($iterable, $client, $opts) {
             foreach ($iterable as $key => $rfn) {
                 if ($rfn instanceof RequestInterface) {

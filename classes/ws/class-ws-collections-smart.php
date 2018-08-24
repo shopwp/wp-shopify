@@ -169,7 +169,7 @@ if (!class_exists('Collections_Smart')) {
 					$customPostTypeID = $this->CPT_Model->insert_or_update_collection($all_collections, $smart_collection, $menu_order);
 
 					$smart_collection = $this->DB_Collections_Smart->assign_foreign_key($smart_collection, $customPostTypeID);
-					$smart_collection = $this->DB_Collections_Smart->rename_primary_key($smart_collection);
+					$smart_collection = $this->DB_Collections_Smart->rename_primary_key($smart_collection, 'collection_id');
 
 					$results[$customPostTypeID] = $this->DB_Collections_Smart->insert($smart_collection, 'smart_collection');
 

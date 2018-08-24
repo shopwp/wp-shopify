@@ -2,6 +2,10 @@
 
 namespace WPS\Factories;
 
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\WS\Webhooks as WS_Webhooks;
 
 use WPS\Factories\DB_Settings_Connection_Factory;
@@ -12,14 +16,7 @@ use WPS\Factories\Messages_Factory;
 use WPS\Factories\WS_Factory;
 use WPS\Factories\Async_Processing_Webhooks_Factory;
 use WPS\Factories\Async_Processing_Webhooks_Deletions_Factory;
-
-use GuzzleHttp\Client as Guzzle;
-
-require plugin_dir_path( __FILE__ ) . '../../vendor/autoload.php';
-
-if (!defined('ABSPATH')) {
-	exit;
-}
+use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
 
 if (!class_exists('WS_Webhooks_Factory')) {
 
@@ -37,7 +34,7 @@ if (!class_exists('WS_Webhooks_Factory')) {
 					DB_Settings_Syncing_Factory::build(),
 					Webhooks_Factory::build(),
 					Messages_Factory::build(),
-					new Guzzle(),
+					new GuzzleClient(),
 					WS_Factory::build(),
 					Async_Processing_Webhooks_Factory::build(),
 					Async_Processing_Webhooks_Deletions_Factory::build()

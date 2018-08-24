@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Posts_Collections_Smart') ) {
 
-  class Async_Processing_Posts_Collections_Smart extends WP_Shopify_Background_Process {
+  class Async_Processing_Posts_Collections_Smart extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_posts_collections_smart';
 
@@ -64,23 +64,14 @@ if ( !class_exists('Async_Processing_Posts_Collections_Smart') ) {
 			*/
 			if ( !CPT::collections_posts_exist() ) {
 
-				// INSERT only
-				$insert_query = $this->CPT_Query->construct_posts_insert_query($collections_from_shopify, false, WPS_COLLECTIONS_POST_TYPE_SLUG);
-
-				/*
-
-				Use the identity operator (===) to check for errors (e.g., false === $result),
-				and whether any rows were affected (e.g., 0 === $result).
-
-				*/
-				$result = $this->CPT_Query->query($insert_query, 'smart_collections');
+				// Final Query Results
+				$result = $this->CPT_Query->insert_posts( $collections_from_shopify, false, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 				if (is_wp_error($result)) {
 					$this->WS->save_notice_and_stop_sync($result);
 					$this->complete();
 					return false;
 				}
-
 
 
 			} else {
@@ -125,10 +116,8 @@ if ( !class_exists('Async_Processing_Posts_Collections_Smart') ) {
 				// The same amount of posts and Shopify collections exists
 				if ($total_collections_posts === $total_collections_to_sync) {
 
-					$stuff = $this->CPT_Query->format_posts_for_update($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
-					$final_update_query = $this->CPT_Query->construct_posts_update_query($stuff);
 
-					$result = $this->CPT_Query->query($final_update_query, 'smart_collections');
+					$result = $this->CPT_Query->update_posts($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result)) {
 						$this->WS->save_notice_and_stop_sync($result);
@@ -139,9 +128,8 @@ if ( !class_exists('Async_Processing_Posts_Collections_Smart') ) {
 
 				} else {
 
-					$insert_query = $this->CPT_Query->construct_posts_insert_query($collections_from_shopify, $existing_collections, WPS_COLLECTIONS_POST_TYPE_SLUG);
-					$result_insert = $this->CPT_Query->query($insert_query, 'smart_collections');
-
+					// Final Query Results
+					$result_insert = $this->CPT_Query->insert_posts( $collections_from_shopify, $existing_collections, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_insert)) {
 						$this->WS->save_notice_and_stop_sync($result_insert);
@@ -150,12 +138,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Smart') ) {
 					}
 
 
-
-					$posts_to_update = $this->CPT_Query->format_posts_for_update($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
-					$final_update_query = $this->CPT_Query->construct_posts_update_query($posts_to_update);
-
-
-					$result_update = $this->CPT_Query->query($final_update_query, 'smart_collections');
+					$result_update = $this->CPT_Query->update_posts($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result_update)) {
 						$this->WS->save_notice_and_stop_sync($result_update);

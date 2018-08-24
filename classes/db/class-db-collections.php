@@ -35,16 +35,9 @@ if (!class_exists('Collections')) {
     }
 
 
-		/*
+		public function get_all_collections_query() {
 
-		Gets all collections
-
-		*/
-		public function get_collections() {
-
-			global $wpdb;
-
-			$query = "SELECT
+			return "SELECT
 			smart.collection_id,
 			smart.post_id,
 			smart.title,
@@ -72,7 +65,29 @@ if (!class_exists('Collections')) {
 			NULL as rules
 			FROM " . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom";
 
-			return $wpdb->get_results($query);
+		}
+
+
+		/*
+
+		Gets all collections
+
+		*/
+		public function get_collections() {
+
+			$collections_cached = Transients::get('wps_all_collections');
+
+			if ( !empty($collections_cached) ) {
+				return $collections_cached;
+			}
+
+			global $wpdb;
+
+			$results = $wpdb->get_results( $this->get_all_collections_query() );
+
+			Transients::set('wps_all_collections', $results);
+
+			return $results;
 
 		}
 
@@ -146,6 +161,12 @@ if (!class_exists('Collections')) {
 		*/
 		public function get_collections_by_product_id($product_id) {
 
+			$results_cached = Transients::get('wps_collections_by_product_id_' . $product_id);
+
+			if ( !empty($results_cached) ) {
+				return $results_cached;
+			}
+
 			$collects = $this->DB_Collects->get_collects_by_product_id($product_id);
 			$allCollections = $this->get_collections();
 			$results = [];
@@ -157,6 +178,8 @@ if (!class_exists('Collections')) {
 				}
 
 			}
+
+			Transients::set('wps_collections_by_product_id_' . $product_id, $results);
 
 			return $results;
 

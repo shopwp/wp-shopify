@@ -1,20 +1,20 @@
 <?php
 
-namespace DeepCopy;
+namespace WPS\Vendor\DeepCopy;
 
 use DateInterval;
 use DateTimeInterface;
 use DateTimeZone;
-use DeepCopy\Exception\CloneException;
-use DeepCopy\Filter\Filter;
-use DeepCopy\Matcher\Matcher;
-use DeepCopy\TypeFilter\Date\DateIntervalFilter;
-use DeepCopy\TypeFilter\Spl\SplDoublyLinkedListFilter;
-use DeepCopy\TypeFilter\TypeFilter;
-use DeepCopy\TypeMatcher\TypeMatcher;
+use WPS\Vendor\DeepCopy\Exception\CloneException;
+use WPS\Vendor\DeepCopy\Filter\Filter;
+use WPS\Vendor\DeepCopy\Matcher\Matcher;
+use WPS\Vendor\DeepCopy\TypeFilter\Date\DateIntervalFilter;
+use WPS\Vendor\DeepCopy\TypeFilter\Spl\SplDoublyLinkedListFilter;
+use WPS\Vendor\DeepCopy\TypeFilter\TypeFilter;
+use WPS\Vendor\DeepCopy\TypeMatcher\TypeMatcher;
 use ReflectionObject;
 use ReflectionProperty;
-use DeepCopy\Reflection\ReflectionHelper;
+use WPS\Vendor\DeepCopy\Reflection\ReflectionHelper;
 use SplDoublyLinkedList;
 
 /**

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Collections_Custom') ) {
 
-  class Async_Processing_Collections_Custom extends WP_Shopify_Background_Process {
+  class Async_Processing_Collections_Custom extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_collections_custom';
 
@@ -86,7 +86,7 @@ if ( !class_exists('Async_Processing_Collections_Custom') ) {
 			}
 
 			parent::complete();
-			
+
 
 		}
 

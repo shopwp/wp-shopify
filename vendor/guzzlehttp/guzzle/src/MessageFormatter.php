@@ -1,9 +1,9 @@
 <?php
-namespace GuzzleHttp;
+namespace WPS\Vendor\GuzzleHttp;
 
-use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use WPS\Vendor\Psr\Http\Message\MessageInterface;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\ResponseInterface;
 
 /**
  * Formats log messages using variable substitutions for requests, responses,

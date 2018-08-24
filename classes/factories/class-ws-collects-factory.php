@@ -2,6 +2,10 @@
 
 namespace WPS\Factories;
 
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\WS\Collects as WS_Collects;
 
 use WPS\Factories\DB_Collects_Factory;
@@ -11,14 +15,8 @@ use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\WS_Factory;
 use WPS\Factories\Messages_Factory;
 use WPS\Factories\Async_Processing_Collects_Factory;
+use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
 
-use GuzzleHttp\Client as Guzzle;
-
-require plugin_dir_path( __FILE__ ) . '../../vendor/autoload.php';
-
-if (!defined('ABSPATH')) {
-	exit;
-}
 
 if (!class_exists('WS_Collects_Factory')) {
 
@@ -37,7 +35,7 @@ if (!class_exists('WS_Collects_Factory')) {
 					DB_Settings_Syncing_Factory::build(),
 					WS_Factory::build(),
 					Messages_Factory::build(),
-					new Guzzle(),
+					new GuzzleClient(),
 					Async_Processing_Collects_Factory::build()
 				);
 

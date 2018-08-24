@@ -180,7 +180,7 @@ function onResyncSubmit() {
       */
 
       insertCheckmark();
-      setConnectionStepMessage('Removing any existing data first ...');
+      setConnectionStepMessage('Removing any existing data first ...', '(Please wait, this might take 30 seconds or so)');
 
       var [removeExistingDataError, removeExistingDataResponse] = await to( removeExistingData() );
 

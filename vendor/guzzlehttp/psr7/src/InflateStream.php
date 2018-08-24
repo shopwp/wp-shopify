@@ -1,7 +1,7 @@
 <?php
-namespace GuzzleHttp\Psr7;
+namespace WPS\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\StreamInterface;
+use WPS\Vendor\Psr\Http\Message\StreamInterface;
 
 /**
  * Uses PHP's zlib.inflate filter to inflate deflate or gzipped content.

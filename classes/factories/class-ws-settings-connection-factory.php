@@ -2,16 +2,17 @@
 
 namespace WPS\Factories;
 
-use GuzzleHttp\Client as Guzzle;
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\WS\Settings_Connection as WS_Settings_Connection;
 
+use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
 use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 use WPS\Factories\Messages_Factory;
 
-if (!defined('ABSPATH')) {
-	exit;
-}
 
 if (!class_exists('WS_Settings_Connection_Factory')) {
 
@@ -26,7 +27,7 @@ if (!class_exists('WS_Settings_Connection_Factory')) {
 				$WS_Settings_Connection = new WS_Settings_Connection(
 					DB_Settings_Connection_Factory::build(),
 					Messages_Factory::build(),
-					new Guzzle(),
+					new GuzzleClient(),
 					DB_Settings_General_Factory::build()
 				);
 

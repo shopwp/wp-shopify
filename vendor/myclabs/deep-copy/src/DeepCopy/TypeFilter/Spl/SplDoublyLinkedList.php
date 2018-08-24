@@ -1,6 +1,6 @@
 <?php
 
-namespace DeepCopy\TypeFilter\Spl;
+namespace WPS\Vendor\DeepCopy\TypeFilter\Spl;
 
 /**
  * @deprecated Use {@see SplDoublyLinkedListFilter} instead.

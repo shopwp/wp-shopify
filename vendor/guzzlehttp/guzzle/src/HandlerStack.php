@@ -1,7 +1,7 @@
 <?php
-namespace GuzzleHttp;
+namespace WPS\Vendor\GuzzleHttp;
 
-use Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
 
 /**
  * Creates a composed Guzzle handler function by stacking middlewares on top of

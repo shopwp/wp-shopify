@@ -1,0 +1,62 @@
+{
+    "name": "typisttech/imposter",
+    "type": "library",
+    "description": "Wrapping all composer vendor packages inside your own namespace. Intended for WordPress plugins",
+    "keywords": [
+        "composer",
+        "dependency",
+        "monkey-patching",
+        "namespace",
+        "wordpress"
+    ],
+    "homepage": "https://www.typist.tech/projects/imposter",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Typist Tech",
+            "email": "imposter@typist.tech",
+            "homepage": "https://www.typist.tech"
+        },
+        {
+            "name": "Tang Rufus",
+            "email": "tangrufus@gmail.com",
+            "homepage": "https://www.typist.tech",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "imposter@typist.tech",
+        "issues": "https://github.com/TypistTech/imposter/issues",
+        "source": "https://github.com/TypistTech/imposter"
+    },
+    "require": {
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "codeception/aspect-mock": "^2.1",
+        "codeception/base": "^2.3",
+        "squizlabs/php_codesniffer": "^3.2"
+    },
+    "suggest": {
+        "typisttech/imposter-plugin": "Composer plugin to integrate composer and imposter"
+    },
+    "autoload": {
+        "psr-4": {
+            "TypistTech\\Imposter\\": "src"
+        }
+    },
+    "scripts": {
+        "check-style": "phpcs --standard=ruleset.xml --colors -p -s .",
+        "fix-style": "phpcbf -p --standard=ruleset.xml --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 .",
+        "pre-tag": [
+            "doctoc README.md",
+            "github_changelog_generator --no-verbose"
+        ],
+        "test": "codecept run",
+        "test:coverage": "codecept run --coverage --coverage-xml --coverage-html",
+        "test:unit": "codecept unit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

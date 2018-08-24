@@ -23,7 +23,7 @@ if (!class_exists('Tags')) {
       global $wpdb;
 
       $this->table_name         = WPS_TABLE_NAME_TAGS;
-      $this->primary_key        = 'tag_id';
+      $this->primary_key        = 'id';
       $this->version            = '1.0';
       $this->cache_group        = 'wps_db_tags';
 
@@ -33,7 +33,8 @@ if (!class_exists('Tags')) {
   	public function get_columns() {
 
       return [
-        'tag_id'                    => '%d',
+				'id'                    		=> '%d',
+        'tag_id'                    => '%d', // deprecated
         'product_id'                => '%d',
         'post_id'                   => '%d',
         'tag'                       => '%s'
@@ -45,7 +46,8 @@ if (!class_exists('Tags')) {
   	public function get_column_defaults() {
 
 			return [
-        'tag_id'                    => 0,
+				'id'                    		=> 0,
+        'tag_id'                    => 0, // deprecated
         'product_id'                => 0,
         'post_id'                   => 0,
         'tag'                       => ''
@@ -54,31 +56,37 @@ if (!class_exists('Tags')) {
     }
 
 
+		public function get_id_from_shopify($product) {
+
+			if (Utils::has($product, 'id')) {
+				return $product->id;
+
+			} else {
+				return 0;
+			}
+
+		}
+
+
     /*
 
   	Construct Tag Model
 
   	*/
-    public function construct_tag_model($tag, $product = 0, $cpt_id = 0, $tag_id = 0) {
-
-      $product_id = null;
-
-			if (Utils::has($product, 'id')) {
-				$product_id = $product->id;
-
-			} else {
-				$product_id = $product->product_id;
-			}
-
+    public function construct_tag_model($tag, $product = 0, $cpt_id = 0) {
 
       return [
-        'tag_id' => $tag_id,
-        'product_id' => $product_id,
-        'post_id' => $cpt_id,
-        'tag' => $tag
+        'product_id' 	=> $this->get_id_from_shopify($product),
+        'post_id' 		=> $cpt_id,
+        'tag' 				=> $tag
       ];
 
     }
+
+
+		public function return_tag($tag_obj) {
+			return $tag_obj->tag;
+		}
 
 
     /*
@@ -88,15 +96,19 @@ if (!class_exists('Tags')) {
     */
     public function construct_only_tag_names($tags) {
 
-			if (empty($tags)) {
+			if ( empty($tags) ) {
 				return [];
 			}
 
-      return array_map(function($tagObj) {
-        return $tagObj->tag;
-      }, $tags);
+      return array_map( [__CLASS__, 'return_tag'], $tags );
 
     }
+
+
+		public function insert_tag($tag) {
+			return $this->insert($tag, 'tag');
+		}
+
 
 
     /*
@@ -109,15 +121,16 @@ if (!class_exists('Tags')) {
 			$results = [];
 			$product = Utils::convert_array_to_object($product);
 
+
       if (isset($product->tags) && $product->tags) {
 
         $tags = Utils::wps_comma_list_to_array($product->tags);
 
         foreach ($tags as $key => $tag) {
 
-          $tagData = $this->construct_tag_model($tag, $product, $cpt_id);
+          $tag_data = $this->construct_tag_model($tag, $product, $cpt_id);
 
-					$insertion_result = $this->insert($tagData, 'tag');
+					$insertion_result = $this->insert_tag($tag_data);
 
 					if (is_wp_error($insertion_result)) {
 						return $insertion_result;
@@ -190,7 +203,7 @@ if (!class_exists('Tags')) {
       */
       if (count($tagsToDelete) > 0) {
         foreach ($tagsToDelete as $key => $old_tag) {
-          $results['deleted'] = $this->delete($old_tag->tag_id);
+          $results['deleted'] = $this->delete($old_tag->id);
         }
 
       }
@@ -240,13 +253,7 @@ if (!class_exists('Tags')) {
 
 			$tags = $this->get_all_rows();
 
-			return array_values(
-				array_unique(
-					array_map(function ($tag) {
-						return $tag->tag;
-					}, $tags)
-				)
-			);
+			return array_values( array_unique( array_map( [__CLASS__, 'return_tag'], $tags) ) );
 
 		}
 
@@ -271,63 +278,30 @@ if (!class_exists('Tags')) {
 	  }
 
 
-    /*
+		/*
 
     Creates a table query string
 
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
-        tag_id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+        tag_id bigint(100) unsigned NOT NULL,
         product_id bigint(100) DEFAULT NULL,
         post_id bigint(100) DEFAULT NULL,
         tag varchar(255) DEFAULT NULL,
-        PRIMARY KEY  (tag_id)
+        PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 
   	}
 
-
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query('INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . '(`tag_id`, `product_id`, `post_id`, `tag`) SELECT `tag_id`, `product_id`, `post_id`, `tag` FROM ' . $this->table_name);
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if ( !$this->table_exists($this->table_name) ) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
 
   }
 

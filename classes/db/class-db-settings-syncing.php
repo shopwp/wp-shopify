@@ -1230,22 +1230,34 @@ if (!class_exists('Settings_Syncing')) {
 
 		/*
 
+		Initializes table with default row
+
+		*/
+		public function init() {
+
+      $results = [];
+
+			if ( !$this->table_has_been_initialized('id') ) {
+				$results = $this->insert($this->get_column_defaults(), 'syncing');
+			}
+
+      return $results;
+
+    }
+
+
+		/*
+
     Creates a table query string
 
     */
     public function create_table_query($table_name = false) {
 
-      global $wpdb;
-
-			if (!$table_name) {
+			if ( !$table_name ) {
 				$table_name = $this->table_name;
 			}
 
-      $collate = '';
-
-      if ( $wpdb->has_cap('collation') ) {
-        $collate = $wpdb->get_charset_collate();
-      }
+      $collate = $this->collate();
 
       return "CREATE TABLE $table_name (
         id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
@@ -1282,54 +1294,6 @@ if (!class_exists('Settings_Syncing')) {
     }
 
 
-		/*
-
-		Migrate insert into query
-
-		*/
-		public function migration_insert_into_query() {
-
-			return $this->query("INSERT INTO " . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . " (`id`, `is_syncing`, `syncing_totals_shop`, `syncing_totals_smart_collections`, `syncing_totals_custom_collections`, `syncing_totals_products`, `syncing_totals_collects`, `syncing_totals_orders`, `syncing_totals_customers`, `syncing_totals_webhooks`, `syncing_step_total`, `syncing_step_current`, `syncing_current_amounts_shop`, `syncing_current_amounts_smart_collections`, `syncing_current_amounts_custom_collections`, `syncing_current_amounts_products`, `syncing_current_amounts_collects`, `syncing_current_amounts_orders`, `syncing_current_amounts_customers`, `syncing_current_amounts_webhooks`, `syncing_start_time`, `syncing_end_time`, `syncing_errors`, `syncing_warnings`, `finished_webhooks_deletions`, `finished_product_posts_relationships`, `finished_collection_posts_relationships`, `finished_data_deletions`) VALUES (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0)");
-
-		}
-
-
-    /*
-
-    Creates database table
-
-    */
-  	public function create_table() {
-
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists($this->table_name)) {
-        dbDelta( $this->create_table_query($this->table_name) );
-				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
-      }
-
-    }
-
-
-		/*
-
-		Initializes table with default row
-
-		*/
-		public function init() {
-
-      $results = [];
-
-			if ( !$this->table_has_been_initialized('id') ) {
-				$results = $this->insert($this->get_column_defaults(), 'syncing');
-			}
-
-      return $results;
-
-    }
-
-
   }
-
 
 }

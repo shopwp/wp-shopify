@@ -2,20 +2,18 @@
 
 namespace WPS\Factories;
 
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 use WPS\WS;
-use GuzzleHttp\Client as Guzzle;
 
 use WPS\Factories\Messages_Factory;
 use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
+use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
 
-
-require plugin_dir_path( __FILE__ ) . '../../vendor/autoload.php';
-
-if (!defined('ABSPATH')) {
-	exit;
-}
 
 if (!class_exists('WS_Factory')) {
 
@@ -28,7 +26,7 @@ if (!class_exists('WS_Factory')) {
 			if (is_null(self::$instantiated)) {
 
 				$WS = new WS(
-					new Guzzle(),
+					new GuzzleClient(),
 					Messages_Factory::build(),
 					DB_Settings_Connection_Factory::build(),
 					DB_Settings_General_Factory::build(),

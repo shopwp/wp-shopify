@@ -1,8 +1,8 @@
 <?php
 
-namespace Gerardojbaez\Money;
+namespace WPS\Vendor\Gerardojbaez\Money;
 
-use Gerardojbaez\Money\Exceptions\CurrencyException;
+use WPS\Vendor\Gerardojbaez\Money\Exceptions\CurrencyException;
 
 class Currency
 {

@@ -1,13 +1,13 @@
 <?php
-namespace GuzzleHttp;
+namespace WPS\Vendor\GuzzleHttp;
 
-use GuzzleHttp\Exception\BadResponseException;
-use GuzzleHttp\Exception\TooManyRedirectsException;
-use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
+use WPS\Vendor\GuzzleHttp\Exception\BadResponseException;
+use WPS\Vendor\GuzzleHttp\Exception\TooManyRedirectsException;
+use WPS\Vendor\GuzzleHttp\Promise\PromiseInterface;
+use WPS\Vendor\GuzzleHttp\Psr7;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\ResponseInterface;
+use WPS\Vendor\Psr\Http\Message\UriInterface;
 
 /**
  * Request redirect middleware.

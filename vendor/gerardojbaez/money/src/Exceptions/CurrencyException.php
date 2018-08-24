@@ -1,6 +1,6 @@
 <?php
 
-namespace Gerardojbaez\Money\Exceptions;
+namespace WPS\Vendor\Gerardojbaez\Money\Exceptions;
 
 class CurrencyException extends \Exception
 {

@@ -51,7 +51,6 @@ if ( !class_exists('CPT') ) {
 	  }
 
 
-
 		public static function get_all_posts($type) {
 
 			return get_posts([
@@ -67,8 +66,6 @@ if ( !class_exists('CPT') ) {
 	  }
 
 
-
-
 		public static function truncate_post_data($posts) {
 
 			return array_map(function($post) {
@@ -81,8 +78,6 @@ if ( !class_exists('CPT') ) {
 			}, $posts );
 
 		}
-
-
 
 
 	  /*
@@ -208,54 +203,6 @@ if ( !class_exists('CPT') ) {
 	    register_post_type(WPS_COLLECTIONS_POST_TYPE_SLUG, $args);
 
 	  }
-
-
-
-		/*
-
-		Returns a collections post model with collection id assigned as meta_value
-
-		*/
-		public function set_collection_model_defaults($collection) {
-
-			$collection = Utils::convert_array_to_object($collection);
-
-			return [
-				'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
-				'post_content'  => property_exists($collection, 'body_html') && $collection->body_html !== null  ? __($collection->body_html) : '',
-				'post_status'   => 'publish',
-				'post_type'     => WPS_COLLECTIONS_POST_TYPE_SLUG,
-				'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
-				'meta_input' => [
-					'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
-				]
-			];
-
-		}
-
-
-	  /*
-
-	  Returns a model used to either add or update a product CPT
-
-	  */
-	  public static function set_product_model_defaults($product) {
-
-			$product = Utils::convert_array_to_object($product);
-
-	    return [
-	      'post_title'    => property_exists($product, 'title') ? __($product->title) : '',
-	      'post_content'  => property_exists($product, 'body_html') && $product->body_html !== null ? __($product->body_html) : '',
-	      'post_status'   => 'publish',
-	      'post_type'     => WPS_PRODUCTS_POST_TYPE_SLUG,
-	      'post_name'			=> property_exists($product, 'handle') ? __($product->handle) : '',
-	      'meta_input' => [
-	        'product_id' => property_exists($product, 'id') ? $product->id : ''
-	      ]
-	    ];
-
-	  }
-
 
 
 	  /*
@@ -406,15 +353,8 @@ if ( !class_exists('CPT') ) {
 				$numberString1 = (int) ord($savedTag);
 				$numberString2 = (int) substr(strval($productID), 0, -4);
 
-				$newTag = [
-					'tag_id'               => $numberString1 . $numberString2 . 1111,
-					'product_id'           => $product->product_id,
-					'post_id'              => $product->post_id,
-					'tag'             		 => $savedTag
-				];
-
 				// Inserts any new collects
-				$insertionResults[] = $this->DB_Tags->insert($newTag, 'tag');
+				$insertionResults[] = $this->DB_Tags->insert( $this->DB_Tags->construct_tag_model($savedTag, $product, $product->post_id), 'tag');
 
 			}
 
@@ -452,7 +392,7 @@ if ( !class_exists('CPT') ) {
 			$removalResult = [];
 
 			foreach ($tagsToRemove as $key => $tagID) {
-				$removalResult[] = $this->DB_Tags->delete_rows_in('tag_id', $tagID);
+				$removalResult[] = $this->DB_Tags->delete_rows_in('id', $tagID);
 			}
 
 			return $removalResult;
@@ -565,7 +505,6 @@ if ( !class_exists('CPT') ) {
 
 			foreach ($currentItems as $key => $currentItem) {
 
-
 				if (isset($currentItem->collection_id) && $currentItem->collection_id) {
 
 					if (isset($savedItems[$currentItem->collection_id])) {
@@ -574,15 +513,13 @@ if ( !class_exists('CPT') ) {
 
 				}
 
-
-				if (isset($currentItem->tag_id) && $currentItem->tag_id) {
+				if (isset($currentItem->id) && $currentItem->id) {
 
 					if (isset($savedItems[$currentItem->tag])) {
 						unset($savedItems[$currentItem->tag]);
 					}
 
 				}
-
 
 			}
 
@@ -609,9 +546,9 @@ if ( !class_exists('CPT') ) {
 					}
 				}
 
-				if (isset($item['tag_id']) && $item['tag_id']) {
+				if (isset($item['id']) && $item['id']) {
 					if (!array_key_exists($item['tag'], $savedItemsOrig)) {
-						$itemsToRemove[] = $item['tag_id'];
+						$itemsToRemove[] = $item['id'];
 					}
 				}
 
@@ -692,7 +629,7 @@ if ( !class_exists('CPT') ) {
 		*/
 		public static function find_existing_post_id_from_product($existing_products, $product) {
 
-			$found_post = self::find_only_existing_posts($existing_products, $product->id, 'product');
+			$found_post = self::find_only_existing_posts($existing_products, $product->product_id, 'product');
 			$found_post_id = self::find_existing_post_id($found_post);
 
 			return $found_post_id;

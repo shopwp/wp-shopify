@@ -20,6 +20,49 @@ if (!class_exists('DB')) {
 		public $primary_key;
 
 
+		/*
+
+    Creates database table
+
+    */
+  	public function create_table() {
+
+			$result = false;
+
+      if ( !$this->table_exists($this->table_name) ) {
+
+				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+        $result = \dbDelta( $this->create_table_query($this->table_name) );
+				set_transient('wp_shopify_table_exists_' . $this->table_name, 1);
+
+      }
+
+			return $result;
+
+    }
+
+
+		/*
+
+		Gets database collate
+
+		*/
+		public function collate() {
+
+			global $wpdb;
+
+			$collate = '';
+
+			if ( $wpdb->has_cap('collation') ) {
+				$collate = $wpdb->get_charset_collate();
+			}
+
+			return $collate;
+
+		}
+
+
 	  /*
 
 	  Get Current Columns
@@ -38,6 +81,25 @@ if (!class_exists('DB')) {
 	  }
 
 
+    /*
+
+    Rename primary key
+
+		$product
+
+    */
+    public function rename_primary_key($data, $new_primary_key) {
+
+      $data_copy = $data;
+			$data_copy->{$new_primary_key} = $data_copy->id;
+
+      unset($data_copy->id);
+
+      return $data_copy;
+
+    }
+
+
 		/*
 
 	  Get Column Meta
@@ -46,6 +108,7 @@ if (!class_exists('DB')) {
 		public function get_column_meta() {
 
 			global $wpdb;
+
 			return $wpdb->get_results("SHOW FULL COLUMNS FROM $this->table_name");
 
 	  }
@@ -179,10 +242,17 @@ if (!class_exists('DB')) {
 	  */
 		public function get($row_id = 0) {
 
+
 	    global $wpdb;
 			$results = [];
 
 			if ($this->table_exists($this->table_name)) {
+
+				$get_results_cached = Transients::get('wps_table_' . $this->table_name . '_row_' . $row_id);
+
+				if ( !empty($get_results_cached) ) {
+					return $get_results_cached;
+				}
 
 				if (empty($row_id)) {
 
@@ -197,6 +267,8 @@ if (!class_exists('DB')) {
 				}
 
 			}
+
+			Transients::set('wps_table_' . $this->table_name . '_row_' . $row_id, $results);
 
 	    return $results;
 
@@ -330,17 +402,17 @@ if (!class_exists('DB')) {
 
 			// If table doesnt exist ...
 			if (!$this->table_exists($this->table_name)) {
-				return $this->sanitize_db_response(false, 'WP Shopify Error - Failed to get single database column. Table "' . $this->table_name . '" doesn\'t exist. Please clear the plugin cache and try again.');
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Failed to get single database column. Table "' . $this->table_name . '" doesn\'t exist');
 			}
 
 			// If column name is not a string ...
 			if (!is_string($column)) {
-				return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.');
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name is not a string');
 			}
 
 			// If argument not apart of schema ...
 			if (!array_key_exists($column, $this->get_columns()) ) {
-				return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name does not exist. Please try reinstalling the plugin from scratch.');
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name does not exist. Please try reinstalling the plugin from scratch');
 			}
 
 			// Check cache for existing record ...
@@ -442,17 +514,15 @@ if (!class_exists('DB')) {
 		*/
 		public function sanitize_db_response($result, $fallback_message = 'Uncaught error. Please clear the plugin cache and try again.') {
 
+			global $wpdb;
+
 
 			/*
 
 			If $wpdb->last_error doesnt contain an empty string, then we know the query failed in some capacity. We can safely
-			return this error wrapped inside a WP_Error.
+			return this wrapped inside a WP_Error.
 
 			*/
-			global $wpdb;
-
-
-
 			if ( $this->has_mysql_error() ) {
 				return new \WP_Error('error', __($wpdb->last_error . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN));
 			}
@@ -473,7 +543,6 @@ if (!class_exists('DB')) {
 			}
 
 
-
 			/*
 
 			Empty array is returned if no results are found for the following functions:
@@ -490,7 +559,7 @@ if (!class_exists('DB')) {
 			$wpdb->get_results 		-- If your $query string is empty, or you pass an invalid $output_type
 
 			*/
-			if (Utils::array_is_empty($result) || is_null($result)) {
+			if (is_array($result) && Utils::array_is_empty($result) || is_null($result)) {
 				return false;
 			}
 
@@ -562,6 +631,7 @@ if (!class_exists('DB')) {
 			$data_keys = array_keys($data);
 
 			$column_formats = array_merge( array_flip($data_keys), $column_formats);
+
 
 			/*
 
@@ -667,9 +737,10 @@ if (!class_exists('DB')) {
 			The correct where format needs to be: ['primary_key_col', 'primary_key_value']
 
 			*/
-	    if (empty($where)) {
+	    if ( empty($where) ) {
 	      $where = $this->primary_key;
 	    }
+
 
 			if ($formats) {
 
@@ -742,26 +813,49 @@ if (!class_exists('DB')) {
 
 		/*
 
-		Delete a table
+		Deletes a normal WP Shopify table
+
+		TODO: Will only delete table if it exists. We should probably alert the system
+		somehow if the table was _expected to exist_ but didn't for some reason.
 
 		*/
 		public function delete_table() {
 
 			global $wpdb;
 
-			if ($this->table_exists($this->table_name)) {
+			// Removes real table if exists ...
+			if ( $this->table_exists($this->table_name) ) {
 
 				$sql = "DROP TABLE IF EXISTS " . $this->table_name;
-				$results = $wpdb->get_results($sql);
 
-				return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete table: ' . $this->table_name . '. Please clear the plugin cache and try again.');
-
-			} else {
-				return [];
+				return $this->sanitize_db_response( $wpdb->query($sql), 'WP Shopify Error - Failed to delete table: ' . $this->table_name . '. Please clear the plugin cache and try again.');
 
 			}
 
 		}
+
+
+		/*
+
+		Deletes a WP Shopify migration table
+
+		*/
+		public function delete_migration_table($table_suffix) {
+
+			global $wpdb;
+
+			// Removes migration table if exists ...
+			if ( $this->table_exists($this->table_name . $table_suffix) ) {
+
+				$sql = "DROP TABLE IF EXISTS " . $this->table_name . $table_suffix;
+
+				return $this->sanitize_db_response( $wpdb->query($sql), 'WP Shopify Error - Failed to delete table: ' . $this->table_name . $table_suffix . '. Please clear the plugin cache and try again.');
+
+			}
+
+		}
+
+
 
 
 		/*
@@ -777,7 +871,9 @@ if (!class_exists('DB')) {
 				return true;
 			}
 
-			$results = $wpdb->get_results("RENAME TABLE " . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . ' TO ' . $this->table_name);
+			$query = "RENAME TABLE " . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . ' TO ' . $this->table_name;
+
+			$results = $wpdb->get_results($query);
 
 			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to rename migration table back to: ' . $this->table_name . '. Please clear the plugin cache and try again.');
 
@@ -788,24 +884,40 @@ if (!class_exists('DB')) {
 
 		Responsible for creating a migration table with the '_migrate' suffix
 
+		Returns either a WP_Error or true on success
+
+		For CREATE, ALTER, TRUNCATE and DROP SQL statements, (which affect whole tables instead of specific rows)
+		this function returns TRUE on success. If a MySQL error is encountered, the function will return FALSE.
+
 		*/
-		public function create_migration_table() {
+		public function create_migration_table( $table_suffix ) {
 
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-      if (!$this->table_exists( $this->table_name . WPS_TABLE_MIGRATION_SUFFIX )) {
+      if ( !$this->table_exists( $this->table_name . $table_suffix ) ) {
 
 				global $wpdb;
 
-        $result = dbDelta( $this->create_table_query( $this->table_name . WPS_TABLE_MIGRATION_SUFFIX ) );
+				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-				if ($this->has_mysql_error()) {
-					return new \WP_Error('error', __($wpdb->last_error, WPS_PLUGIN_TEXT_DOMAIN));
+        $result = $wpdb->query( $this->create_table_query( $this->table_name . $table_suffix ) );
+
+				if ($result !== true) {
+
+					if ( $this->has_mysql_error() ) {
+						return new \WP_Error('error', __($wpdb->last_error, WPS_PLUGIN_TEXT_DOMAIN));
+
+					} else {
+						return new \WP_Error('error', __('Unable to create migration table. Unknown reason.', WPS_PLUGIN_TEXT_DOMAIN));
+
+					}
+
 				}
 
-				return true;
+				return $result;
 
-      }
+      } else {
+				return new \WP_Error('error', __('Unable to create migration table. Already exists.', WPS_PLUGIN_TEXT_DOMAIN));
+
+			}
 
 		}
 
@@ -1021,7 +1133,7 @@ if (!class_exists('DB')) {
 			$results = $wpdb->get_results( "SHOW FULL COLUMNS FROM $table" );
 
 			if (!$results) {
-				return new WP_Error('WP Shopify Error - Unable to get charset for table ' . $table);
+				return new \WP_Error('WP Shopify Error - Unable to get charset for table ' . $table);
 
 			} else {
 				return $results;
@@ -1329,6 +1441,64 @@ if (!class_exists('DB')) {
 
 			return $items;
 
+		}
+
+
+
+
+		public function get_only_matching_cols($old_cols) {
+
+			$new_col_names = array_keys( $this->get_columns() );
+
+			$final_cols = array_values( array_intersect($new_col_names, $old_cols) );
+
+			return $final_cols;
+
+		}
+
+		public function build_columns_with_backticks($old_cols) {
+
+			$col_names_string_single_quotes = '`' . Utils::convert_to_comma_string_backticks( $this->get_only_matching_cols($old_cols) ) . '`';
+
+			return str_replace("'", "`", $col_names_string_single_quotes);
+
+		}
+
+		/*
+
+		This is our Unit test:
+		array_splice($new_col_names, 3, 0, 'test_col_1');
+		array_push($new_col_names, 'test_col_2');
+		$matching_col_names === $old_cols
+
+		*/
+		public function get_columns_as_insert_string($old_cols) {
+
+			$col_names_string_backticks = $this->build_columns_with_backticks($old_cols);
+
+			return ' (' . $col_names_string_backticks . ') SELECT ' . $col_names_string_backticks . ' FROM ' . $this->table_name;
+
+		}
+
+		public function get_values_as_string($values) {
+			 return " VALUES (" . Utils::convert_to_comma_string($values) . ")";
+		}
+
+		public function get_insert_into_start() {
+			return 'INSERT INTO ' . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX;
+		}
+
+		public function build_insert_into_query($old_cols) {
+			return $this->get_insert_into_start() . $this->get_columns_as_insert_string($old_cols);
+		}
+
+		public function build_insert_into_values_query($values) {
+			return $this->get_insert_into_start() . $this->get_values_as_string($values);
+		}
+
+
+		public function insert_default_values() {
+			return $this->insert( $this->get_column_defaults(), $this->cache_group );
 		}
 
 	}

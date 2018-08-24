@@ -45,7 +45,7 @@ if ( !class_exists('Admin_Menus') ) {
 			// Collections
 	    add_meta_box(
 	      'wps_products_meta_box_collections',
-	      __('Collections', WPS_TEXT_DOMAIN),
+	      __('Collections', WPS_PLUGIN_TEXT_DOMAIN),
 	      [ $this, 'products_meta_box_collections' ],
 	      WPS_PRODUCTS_POST_TYPE_SLUG,
 	      'side',
@@ -55,7 +55,7 @@ if ( !class_exists('Admin_Menus') ) {
 			// Tags
 			add_meta_box(
 	      'wps_products_meta_box_tags',
-	      __('Tags', WPS_TEXT_DOMAIN),
+	      __('Tags', WPS_PLUGIN_TEXT_DOMAIN),
 	      [ $this, 'wps_products_meta_box_tags' ],
 	      WPS_PRODUCTS_POST_TYPE_SLUG,
 	      'side',
@@ -149,7 +149,7 @@ if ( !class_exists('Admin_Menus') ) {
 
 	    add_meta_box(
 	      'wps_nav_cart_icon',
-	      __('Cart', WPS_TEXT_DOMAIN),
+	      __('Cart', WPS_PLUGIN_TEXT_DOMAIN),
 	      [ $this, 'nav_menu_link' ],
 	      'nav-menus',
 	      'side',

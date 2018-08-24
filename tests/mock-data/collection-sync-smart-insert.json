@@ -1,0 +1,20 @@
+{
+  "id": 10801610775,
+  "handle": "11collection",
+  "title": "11collection",
+  "updated_at": "2018-07-21T15:17:22-05:00",
+  "body_html": "11collection",
+  "published_at": "2017-10-21T14:50:06-05:00",
+  "sort_order": "best-selling",
+  "template_suffix": null,
+  "disjunctive": false,
+  "rules": [
+    {
+      "column": "vendor",
+      "relation": "equals",
+      "condition": "Bogan-Wolf"
+    }
+  ],
+  "published_scope": "global",
+  "admin_graphql_api_id": "gid://shopify/Collection/10801610775"
+}

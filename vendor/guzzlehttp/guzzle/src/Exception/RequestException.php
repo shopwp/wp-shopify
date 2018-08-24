@@ -1,10 +1,10 @@
 <?php
-namespace GuzzleHttp\Exception;
+namespace WPS\Vendor\GuzzleHttp\Exception;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\Promise\PromiseInterface;
-use Psr\Http\Message\UriInterface;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\ResponseInterface;
+use WPS\Vendor\GuzzleHttp\Promise\PromiseInterface;
+use WPS\Vendor\Psr\Http\Message\UriInterface;
 
 /**
  * HTTP Request exception

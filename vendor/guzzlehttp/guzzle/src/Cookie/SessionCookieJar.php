@@ -1,5 +1,5 @@
 <?php
-namespace GuzzleHttp\Cookie;
+namespace WPS\Vendor\GuzzleHttp\Cookie;
 
 /**
  * Persists cookies in the client session

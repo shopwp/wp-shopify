@@ -1,8 +1,13 @@
 {
   "require": {
     "gerardojbaez/money": "0.*",
-    "gamajo/template-loader": "^1.3",
     "myclabs/deep-copy": "^1.8",
-    "guzzlehttp/guzzle": "^6.3"
+    "guzzlehttp/guzzle": "^6.3",
+    "typisttech/imposter-plugin": "^0.3.0"
+  },
+  "extra": {
+    "imposter": {
+      "namespace": "WPS\\Vendor"
+    }
   }
 }

@@ -16,12 +16,15 @@ php:
   - "7.2.0"
 
 matrix:
+  fast_finish: true
   include:
     - language: php
       php: "5.6"
       env:
         - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
+        - phpenv config-add travis-php.ini
+        - "find {classes,tests,admin,public} -name '*.php' -print0 | xargs -0 -n1 -P8 php -l"
         - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
         - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
         - "mkdir /tmp/wordpress-tests-lib/data/"
@@ -35,6 +38,8 @@ matrix:
       env:
         - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
+        - phpenv config-add travis-php.ini
+        - "find {classes,tests,admin,public} -name '*.php' -print0 | xargs -0 -n1 -P8 php -l"
         - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
         - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
         - "mkdir /tmp/wordpress-tests-lib/data/"
@@ -48,6 +53,8 @@ matrix:
       env:
         - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
+        - phpenv config-add travis-php.ini
+        - "find {classes,tests,admin,public} -name '*.php' -print0 | xargs -0 -n1 -P8 php -l"
         - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
         - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
         - "mkdir /tmp/wordpress-tests-lib/data/"
@@ -61,6 +68,8 @@ matrix:
       env:
         - "WP_VERSION=latest WP_MULTISITE=0"
       before_script:
+        - phpenv config-add travis-php.ini
+        - "find {classes,tests,admin,public} -name '*.php' -print0 | xargs -0 -n1 -P8 php -l"
         - "bash bin/install-wp-tests.sh wps_unit_testing root '' localhost $WP_VERSION"
         - "mysql -u root wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql"
         - "mkdir /tmp/wordpress-tests-lib/data/"

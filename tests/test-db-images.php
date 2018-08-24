@@ -26,7 +26,7 @@ class Test_Sync_Images extends WP_UnitTestCase {
     self::$DB_Images                 = DB_Images_Factory::build();
     self::$mockDataImage             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/image.json") );
     self::$mockDataImageForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/image-update.json") );
-    self::$mockDataImageID           = self::$mockDataImage->id;
+    self::$mockDataImageID           = self::$mockDataImage->image_id;
 
   }
 

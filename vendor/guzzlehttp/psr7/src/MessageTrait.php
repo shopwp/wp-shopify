@@ -1,7 +1,7 @@
 <?php
-namespace GuzzleHttp\Psr7;
+namespace WPS\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\StreamInterface;
+use WPS\Vendor\Psr\Http\Message\StreamInterface;
 
 /**
  * Trait implementing functionality common to requests and responses.

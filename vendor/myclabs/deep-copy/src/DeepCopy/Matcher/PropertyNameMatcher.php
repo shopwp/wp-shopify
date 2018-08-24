@@ -1,6 +1,6 @@
 <?php
 
-namespace DeepCopy\Matcher;
+namespace WPS\Vendor\DeepCopy\Matcher;
 
 /**
  * @final

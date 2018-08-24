@@ -1,9 +1,9 @@
 <?php
 
-namespace DeepCopy\Filter\Doctrine;
+namespace WPS\Vendor\DeepCopy\Filter\Doctrine;
 
-use DeepCopy\Filter\Filter;
-use DeepCopy\Reflection\ReflectionHelper;
+use WPS\Vendor\DeepCopy\Filter\Filter;
+use WPS\Vendor\DeepCopy\Reflection\ReflectionHelper;
 
 /**
  * @final

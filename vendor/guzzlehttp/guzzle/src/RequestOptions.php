@@ -1,5 +1,5 @@
 <?php
-namespace GuzzleHttp;
+namespace WPS\Vendor\GuzzleHttp;
 
 /**
  * This class contains a list of built-in Guzzle request options.

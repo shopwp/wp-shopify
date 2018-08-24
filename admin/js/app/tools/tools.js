@@ -13,6 +13,7 @@ function toolsInit() {
   onResyncSubmit();
   onCacheClear();
   onClearSubmit();
+  
 
 }
 

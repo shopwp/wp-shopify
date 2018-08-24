@@ -1,6 +1,6 @@
 <?php
 
-namespace Gerardojbaez\Money;
+namespace WPS\Vendor\Gerardojbaez\Money;
 
 class Money
 {

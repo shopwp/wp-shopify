@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 
-  class Async_Processing_Posts_Collections_Custom extends WP_Shopify_Background_Process {
+  class Async_Processing_Posts_Collections_Custom extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_posts_collections_custom';
 
@@ -63,11 +63,9 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 			*/
 			if ( !CPT::collections_posts_exist() ) {
 
-				$insert_query = $this->CPT_Query->construct_posts_insert_query($collections_from_shopify, false, WPS_COLLECTIONS_POST_TYPE_SLUG);
 
-				// $insert_query .= 'sdfsdf';
-
-				$result = $this->CPT_Query->query($insert_query, 'custom_collections');
+				// Final Query Results
+				$result = $this->CPT_Query->insert_posts( $collections_from_shopify, false, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 				if (is_wp_error($result)) {
 					$this->WS->save_notice_and_stop_sync($result);
@@ -98,7 +96,6 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 				reflect the current batch. We do this by filtering the array by the post name
 
 				*/
-
 				$collections_to_update = $this->CPT_Query->find_posts_to_update($collections_from_shopify, $existing_collections);
 
 
@@ -116,10 +113,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 				// The same amount of posts and Shopify collections exists
 				if ($total_collections_posts === $total_collections_to_sync) {
 
-					$stuff = $this->CPT_Query->format_posts_for_update($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
-					$final_update_query = $this->CPT_Query->construct_posts_update_query($stuff);
-
-					$result = $this->CPT_Query->query($final_update_query, 'custom_collections');
+					$result = $this->CPT_Query->update_posts($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result)) {
 						$this->WS->save_notice_and_stop_sync($result);
@@ -130,13 +124,8 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 
 				} else {
 
-					/*
 
-					Inserting query
-
-					*/
-					$insert_query = $this->CPT_Query->construct_posts_insert_query($collections_from_shopify, $existing_collections, WPS_COLLECTIONS_POST_TYPE_SLUG);
-					$result_insert = $this->CPT_Query->query($insert_query, 'custom_collections');
+					$result_insert = $this->CPT_Query->insert_posts( $collections_from_shopify, $existing_collections, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_insert)) {
 						$this->WS->save_notice_and_stop_sync($result_insert);
@@ -145,14 +134,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 					}
 
 
-					/*
-
-					Updating query
-
-					*/
-					$posts_to_update = $this->CPT_Query->format_posts_for_update($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
-					$final_update_query = $this->CPT_Query->construct_posts_update_query($posts_to_update);
-					$result_update = $this->CPT_Query->query($final_update_query, 'custom_collections');
+					$result_update = $this->CPT_Query->update_posts( $collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_update)) {
 						$this->WS->save_notice_and_stop_sync($result_update);

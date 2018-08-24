@@ -1,6 +1,6 @@
 <?php
 
-namespace DeepCopy\TypeMatcher;
+namespace WPS\Vendor\DeepCopy\TypeMatcher;
 
 class TypeMatcher
 {

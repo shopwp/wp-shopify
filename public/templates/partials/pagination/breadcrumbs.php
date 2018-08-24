@@ -158,17 +158,6 @@ if ( !is_front_page() ) {
 		// Display year archive
 		echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-current-' . get_the_time('Y') . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-current-' . get_the_time('Y') . '" title="' . get_the_time('Y') . '" itemprop="name">' . get_the_time('Y') . ' Archives</strong></li>';
 
-	} else if ( is_author() ) {
-
-		// Auhor archive
-
-		// Get the author information
-		global $author;
-		$userdata = get_userdata( $author );
-
-		// Display author name
-		echo '<li class="wps-breadcrumbs-item-current wps-breadcrumbs-item-current-' . $userdata->user_nicename . '" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><strong class="wps-breadcrumbs-current wps-breadcrumbs-current-' . $userdata->user_nicename . '" title="' . $userdata->display_name . '" itemprop="name">' . 'Author: ' . $userdata->display_name . '</strong></li>';
-
 	} else if ( get_query_var('paged') ) {
 
 		// Paginated archives

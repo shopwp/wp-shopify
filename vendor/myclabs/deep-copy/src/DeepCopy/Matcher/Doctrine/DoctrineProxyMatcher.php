@@ -1,9 +1,9 @@
 <?php
 
-namespace DeepCopy\Matcher\Doctrine;
+namespace WPS\Vendor\DeepCopy\Matcher\Doctrine;
 
-use DeepCopy\Matcher\Matcher;
-use Doctrine\Common\Persistence\Proxy;
+use WPS\Vendor\DeepCopy\Matcher\Matcher;
+use WPS\Vendor\Doctrine\Common\Persistence\Proxy;
 
 /**
  * @final

@@ -1075,7 +1075,9 @@ TODO: Remove for Phase 2
   tr.active[data-plugin="wp-shopify-pro/wp-shopify.php"] td,
   tr.active[data-plugin="wp-shopify-pro/wp-shopify.php"] th,
   tr.active[data-plugin="wpshopify/wp-shopify.php"] td,
-  tr.active[data-plugin="wpshopify/wp-shopify.php"] th {
+  tr.active[data-plugin="wpshopify/wp-shopify.php"] th,
+  tr.active[data-plugin="wp-shopify/wp-shopify.php"] td,
+  tr.active[data-plugin="wp-shopify/wp-shopify.php"] th {
     padding-bottom: 0;
     box-shadow: none;
   }

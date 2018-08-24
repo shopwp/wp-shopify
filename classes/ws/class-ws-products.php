@@ -6,7 +6,7 @@ use WPS\Utils;
 use WPS\Transients;
 use WPS\CPT as CPT_Main;
 
-use function DeepCopy\deep_copy;
+use function WPS\Vendor\DeepCopy\deep_copy;
 
 
 if (!defined('ABSPATH')) {
@@ -123,7 +123,7 @@ if (!class_exists('Products')) {
 				$this->send_success(['products' => $products_count]);
 
 			} else {
-				
+
 				$products = $this->get("/admin/products/count.json");
 
 				if ( is_wp_error($products) ) {
@@ -285,7 +285,6 @@ if (!class_exists('Products')) {
 			}
 
 
-
 		}
 
 
@@ -300,6 +299,8 @@ if (!class_exists('Products')) {
 		/*
 
 		Inserts a product post as CPT. $_POST['index'] used for menu_order
+
+		TODO: Not currently used
 
 		*/
 		public function insert_product_post($all_products, $product = false, $menu_order = false) {

@@ -96,7 +96,7 @@ License Info
 
         <?php printf(esc_html__('%1$d / %2$d', WPS_PLUGIN_TEXT_DOMAIN), $count, $licenseLimit); ?>
 
-        <?php if (isset($license) && $license->is_local) { ?>
+        <?php if ($license && isset($license->is_local)) { ?>
           <small class="wps-table-supporting">
             <?php esc_html_e('(Activations on dev environments don\'t add to total)', WPS_PLUGIN_TEXT_DOMAIN); ?>
           </small>

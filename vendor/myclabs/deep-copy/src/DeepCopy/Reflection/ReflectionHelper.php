@@ -1,8 +1,8 @@
 <?php
 
-namespace DeepCopy\Reflection;
+namespace WPS\Vendor\DeepCopy\Reflection;
 
-use DeepCopy\Exception\PropertyException;
+use WPS\Vendor\DeepCopy\Exception\PropertyException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;

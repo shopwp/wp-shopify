@@ -38,7 +38,6 @@ import {
 } from '../utils/utils-dom';
 
 import {
-  isWordPressError,
   convertArrayWrapToObject
 } from '../utils/utils';
 
@@ -94,7 +93,7 @@ function getItemCounts() {
     getProductsCount(), // get_products_count
     getCollectsCount(), // get_collects_count
     getShopCount() // get_shop_count
-    
+
   ]);
 
 }

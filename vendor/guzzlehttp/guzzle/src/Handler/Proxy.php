@@ -1,8 +1,8 @@
 <?php
-namespace GuzzleHttp\Handler;
+namespace WPS\Vendor\GuzzleHttp\Handler;
 
-use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\RequestInterface;
+use WPS\Vendor\GuzzleHttp\RequestOptions;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
 
 /**
  * Provides basic proxies for handlers.

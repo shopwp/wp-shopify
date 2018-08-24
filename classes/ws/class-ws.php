@@ -2,24 +2,11 @@
 
 namespace WPS;
 
-use WPS\Utils;
-
-use GuzzleHttp\Promise\Promise;
-use GuzzleHttp\Exception;
-use GuzzleHttp\Client as Guzzle;
-use GuzzleHttp\Pool;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
-
-
 if (!defined('ABSPATH')) {
 	exit;
 }
+
+use WPS\Utils;
 
 
 if (!class_exists('WS')) {
@@ -393,7 +380,7 @@ if (!class_exists('WS')) {
 
 					return $promise;
 
-				} catch (\Exception $error) {
+				} catch (Exception $error) {
 
 					return new \WP_Error('error', __($this->get_error_message($error), WPS_PLUGIN_TEXT_DOMAIN));
 
@@ -413,7 +400,7 @@ if (!class_exists('WS')) {
 
 					return $this->get_contents($response);
 
-				} catch (\Exception $error) {
+				} catch (Exception $error) {
 
 					 $wp_error = new \WP_Error('error', __($this->get_error_message($error), WPS_PLUGIN_TEXT_DOMAIN));
 

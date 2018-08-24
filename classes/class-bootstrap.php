@@ -52,6 +52,7 @@ use WPS\Factories\Async_Processing_Posts_Collections_Custom_Factory;
 use WPS\Factories\Cart_Factory;
 use WPS\Factories\Progress_Bar_Factory;
 use WPS\Factories\Query_Factory;
+use WPS\Factories\Migrations_122_Factory;
 
 
 
@@ -90,12 +91,8 @@ if ( !class_exists('Bootstrap') ) {
 
 		public function plugin_build() {
 
-			// Only need to build Config for the constants. No init needed.
 			$Config 																										= Config_Factory::build();
 			$Activator 																									= Activator_Factory::build();
-
-			$Activator->init(); // Registers register_activation_hook
-
 			$Async_Processing_Database 																	= Async_Processing_Database_Factory::build();
 			$Deactivator 																								= Deactivator_Factory::build();
 			$License 																										= License_Factory::build();
@@ -129,8 +126,10 @@ if ( !class_exists('Bootstrap') ) {
 			$Cart 																											= Cart_Factory::build();
 			$Progress_Bar 																							= Progress_Bar_Factory::build();
 			$Query 																											= Query_Factory::build();
+			$Migrations_122 																						= Migrations_122_Factory::build();
 
 
+			$Activator->init(); // Registers register_activation_hook
 			$Async_Processing_Database->init();
 			$Deactivator->init();
 			$License->init();
@@ -164,6 +163,8 @@ if ( !class_exists('Bootstrap') ) {
 			$Cart->init();
 			$Progress_Bar->init();
 			$Query->init();
+
+			$Migrations_122->init();
 
 		}
 

@@ -1,7 +1,7 @@
 <?php
-namespace GuzzleHttp\Handler;
+namespace WPS\Vendor\GuzzleHttp\Handler;
 
-use Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
 
 interface CurlFactoryInterface
 {

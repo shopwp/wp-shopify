@@ -26,7 +26,7 @@ class Test_Sync_Variants extends WP_UnitTestCase {
     self::$DB_Variants                 = DB_Variants_Factory::build();
     self::$mockDataVariant             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/variant.json") );
     self::$mockDataVariantForUpdate    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/variant-update.json") );
-    self::$mockDataVariantID           = self::$mockDataVariant->id;
+    self::$mockDataVariantID           = self::$mockDataVariant->variant_id;
 
   }
 

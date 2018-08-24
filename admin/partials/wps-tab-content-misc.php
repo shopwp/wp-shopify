@@ -11,11 +11,23 @@ Tab Content: Tools
 
     <h3><?php esc_attr_e('Migrate WP Shopify Database Tables', WPS_PLUGIN_TEXT_DOMAIN); ?> </h3>
 
-    <p><?php esc_attr_e('If you just upgraded from a version below 1.2.0, then you need to perform a simple database upgrade. Please make sure that you\'ve made a backup of your database before proceeding as data loss could occur!', WPS_PLUGIN_TEXT_DOMAIN); ?></p>
+    <p><?php esc_attr_e('If you just upgraded from a version below 1.2.2, then you need to perform a simple database upgrade. Please make sure that you\'ve made a backup of your database before proceeding. Data loss could occur!', WPS_PLUGIN_TEXT_DOMAIN); ?></p>
 
-    <div class="wps-button-group button-group button-group-ajax <?php echo $connected ? 'wps-is-active' : 'wps-is-not-active'; ?>" id="wps-button-wrapper-migrate">
+    <div class="wps-button-group button-group button-group-ajax" id="wps-button-wrapper-migrate">
 
-      <?php submit_button(esc_html__('Upgrade Database Tables', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, ['id' => 'wps-button-migrate']); ?>
+      <?php
+
+      $attributes = [
+        'id' => 'wps-button-migrate'
+      ];
+
+      if ( get_option('wp_shopify_migration_needed') != true ) {
+        $attributes['disabled'] = true;
+      }
+
+      ?>
+
+      <?php submit_button( esc_html__('Upgrade Database Tables', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, $attributes) ; ?>
 
       <div class="spinner"></div>
 

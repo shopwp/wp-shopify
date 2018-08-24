@@ -66,6 +66,38 @@ if ( !class_exists('Backend') ) {
 		}
 
 
+		public function get_selective_sync_value() {
+
+			if ( is_object($this->DB_Settings_General) && method_exists($this->DB_Settings_General, 'selective_sync_status') ) {
+				$selectiveSyncValue = $this->DB_Settings_General->selective_sync_status();
+
+			} else {
+				$selectiveSyncValue = false;
+			}
+
+			return $selectiveSyncValue;
+
+		}
+
+
+		public function admin_pages_for_loading() {
+
+			if ( empty( get_current_screen() ) ) {
+				return false;
+			}
+
+			$admin_page_id = get_current_screen()->id;
+
+			if ($admin_page_id === 'wp-shopify_page_wps-settings' || $admin_page_id === WPS_PRODUCTS_POST_TYPE_SLUG || $admin_page_id === WPS_COLLECTIONS_POST_TYPE_SLUG || $admin_page_id === 'nav-menus') {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
 		/*
 
 		Admin scripts
@@ -73,18 +105,8 @@ if ( !class_exists('Backend') ) {
 		*/
 		public function admin_scripts() {
 
-			// Only loading admin script if we're on the settings page ...
-			if ( !empty(get_current_screen()) && get_current_screen()->id === 'wp-shopify_page_wps-settings' || get_current_screen()->id === WPS_PRODUCTS_POST_TYPE_SLUG || get_current_screen()->id === WPS_COLLECTIONS_POST_TYPE_SLUG || get_current_screen()->id === 'nav-menus') {
-
-				wp_enqueue_media();
-
-				if (is_object($this->DB_Settings_General) && method_exists($this->DB_Settings_General, 'selective_sync_status') ) {
-					$selectiveSyncValue = $this->DB_Settings_General->selective_sync_status();
-
-				} else {
-					$selectiveSyncValue = false;
-				}
-
+			// Only loading admin scripts if we're on the correct page ...
+			if ( $this->admin_pages_for_loading() ) {
 
 				wp_enqueue_script(
 					'promise-polyfill',
@@ -94,7 +116,6 @@ if ( !class_exists('Backend') ) {
 					true
 				);
 
-
 				wp_enqueue_script(
 					'tooltipster-js',
 					WPS_PLUGIN_URL . 'admin/js/vendor/jquery.tooltipster.min.js',
@@ -102,7 +123,6 @@ if ( !class_exists('Backend') ) {
 					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/jquery.tooltipster.min.js' ),
 					false
 				);
-
 
 				wp_enqueue_script(
 					'validate-js',
@@ -112,7 +132,6 @@ if ( !class_exists('Backend') ) {
 					false
 				);
 
-
 				wp_enqueue_script(
 					'chosen-js',
 					WPS_PLUGIN_URL . 'admin/js/vendor/chosen.jquery.min.js',
@@ -120,7 +139,6 @@ if ( !class_exists('Backend') ) {
 					filemtime( WPS_PLUGIN_DIR_PATH . 'admin/js/vendor/chosen.jquery.min.js' ),
 					false
 				);
-
 
 				wp_enqueue_script(
 					'anime-js',
@@ -130,7 +148,6 @@ if ( !class_exists('Backend') ) {
 					false
 				);
 
-
 				wp_enqueue_script(
 					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-backend',
 					WPS_PLUGIN_URL . 'dist/admin.min.js',
@@ -138,7 +155,6 @@ if ( !class_exists('Backend') ) {
 					filemtime( WPS_PLUGIN_DIR_PATH . 'dist/admin.min.js' ),
 					true
 				);
-
 
 				wp_localize_script(
 					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-backend',
@@ -149,14 +165,17 @@ if ( !class_exists('Backend') ) {
 						'siteUrl' 								=> site_url(),
 						'pluginsDirURL' 					=> plugin_dir_url(dirname(__FILE__)),
 						'nonce'										=> wp_create_nonce(WPS_BACKEND_NONCE_ACTION),
-						'selective_sync' 					=> $selectiveSyncValue,
+						'selective_sync' 					=> $this->get_selective_sync_value(),
 						'reconnectingWebhooks' 		=> false,
 						'hasConnection' 					=> $this->DB_Settings_Connection->has_connection(),
 						'isSyncing' 							=> false,
 						'manuallyCanceled' 				=> false,
 						'isClearing' 							=> false,
 						'isDisconnecting' 				=> false,
-						'isConnecting' 						=> false
+						'isConnecting' 						=> false,
+						'latestVersion'						=> WPS_NEW_PLUGIN_VERSION,
+						'latestVersionCombined'		=> str_replace('.', '', WPS_NEW_PLUGIN_VERSION),
+						'migrationNeeded'					=> get_option('wp_shopify_migration_needed')
 					]
 				);
 
@@ -357,20 +376,6 @@ if ( !class_exists('Backend') ) {
 
 		/*
 
-		Inserting authentication modal below settings form
-
-		*/
-		public function insert_auth_modal() {
-
-			if (isset($_GET["auth"]) && trim($_GET["auth"]) == 'true') {
-				printf(esc_html__('<div class="wps-connector-wrapper wps-is-connected"><div class="wps-connector wps-connector-progress" style="display:block;opacity:1;"><h1 class="wps-connector-heading">Connecting <img class="wps-connector-logo" src="%1" /> to <img class="wps-connector-logo" src="%2" /></h1><div class="wps-l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel button button-primary">Cancel</button></div><div class="wps-connector-content"></div></div></div>'), esc_url(WPS_PLUGIN_URL . 'admin/imgs/logo-wp.svg'), esc_url(WPS_PLUGIN_URL . 'admin/imgs/shopify.svg'));
-			}
-
-		}
-
-
-		/*
-
 		Hooks
 
 		*/
@@ -380,7 +385,6 @@ if ( !class_exists('Backend') ) {
 			add_action('admin_enqueue_scripts', [$this, 'admin_styles']);
 			add_action('admin_enqueue_scripts', [$this, 'admin_scripts']);
 			add_filter('plugin_action_links_' . WPS_PLUGIN_BASENAME, [$this, 'add_action_links']);
-			add_action('wps_after_settings_form', [$this, 'insert_auth_modal'], 1);
 			add_action('admin_init', [$this, 'on_options_update']);
 
 		}

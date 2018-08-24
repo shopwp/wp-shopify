@@ -30,7 +30,6 @@ if (!class_exists('Customers')) {
 
 
 
-		
 
   }
 

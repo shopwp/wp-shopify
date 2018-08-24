@@ -26,13 +26,20 @@ if ( !class_exists('Deactivator') ) {
 		Things to do on plugin deactivation
 
 		*/
-		public function deactivate() {
+		public function on_plugin_deactivate() {
 			delete_option('rewrite_rules');
 		}
 
-		public function init() {
-			register_deactivation_hook(WPS_PLUGIN_BASENAME, [$this, 'deactivate']);
+
+		public function hooks() {
+			add_action('wps_on_plugin_deactivate', [$this, 'on_plugin_deactivate']);
 		}
+
+
+		public function init() {
+			$this->hooks();
+		}
+
 
 	}
 

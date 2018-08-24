@@ -30,6 +30,12 @@ if ( !class_exists('CPT_Model') ) {
 
 		Returns a collections post model with collection id assigned as meta_value
 
+		TODO: Can't we just add the collection_id to the meta_input field like this?
+
+		'meta_input' => [
+			'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
+		]
+
 		*/
 		public function set_collection_model_defaults($collection) {
 
@@ -40,7 +46,10 @@ if ( !class_exists('CPT_Model') ) {
 				'post_content'  => property_exists($collection, 'body_html') && $collection->body_html !== null  ? __($collection->body_html) : '',
 				'post_status'   => 'publish',
 				'post_type'     => WPS_COLLECTIONS_POST_TYPE_SLUG,
-				'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : ''
+				'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
+				'meta_input' => [
+					'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
+				]
 			];
 
 		}
@@ -49,6 +58,8 @@ if ( !class_exists('CPT_Model') ) {
 	  /*
 
 	  Returns a model used to either add or update a product CPT
+
+		TODO: Can't we just add the product_id to the meta_input field like this?
 
 	  */
 	  public function set_product_model_defaults($product) {
@@ -60,7 +71,10 @@ if ( !class_exists('CPT_Model') ) {
 	      'post_content'  => property_exists($product, 'body_html') && $product->body_html !== null ? __($product->body_html) : '',
 	      'post_status'   => 'publish',
 	      'post_type'     => WPS_PRODUCTS_POST_TYPE_SLUG,
-	      'post_name'			=> property_exists($product, 'handle') ? __($product->handle) : ''
+	      'post_name'			=> property_exists($product, 'handle') ? __($product->handle) : '',
+				'meta_input' => [
+					'product_id' => property_exists($product, 'id') ? $product->id : ''
+				]
 	    ];
 
 	  }
@@ -181,6 +195,8 @@ if ( !class_exists('CPT_Model') ) {
 
 		Inserts post and returns the ID or error object if fail.
 
+		Only currently used in webhooks
+
 		*/
 		public function insert_or_update_product($all_products, $product, $menu_order = 0) {
 
@@ -200,7 +216,7 @@ if ( !class_exists('CPT_Model') ) {
 
 			$model = $this->build_collections_model_for_update($all_collections, $collection, $menu_order);
 			return wp_insert_post($model, true);
-			
+
 	  }
 
 

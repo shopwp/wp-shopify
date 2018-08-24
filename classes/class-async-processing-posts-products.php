@@ -10,13 +10,14 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Posts_Products') ) {
 
-  class Async_Processing_Posts_Products extends WP_Shopify_Background_Process {
+  class Async_Processing_Posts_Products extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_posts_products';
 
 		protected $DB_Settings_Syncing;
 		protected $WS;
 		protected $DB_Products;
+		protected $CPT_Query;
 
 
 		public function __construct($DB_Settings_Syncing, $WS, $DB_Products, $CPT_Query) {
@@ -34,7 +35,10 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 
 		/*
 
-		Override this method to perform any actions required during the async request.
+		Three scenarios could exists:
+			a. Zero posts exist 															-- INSERT only
+			b. less posts than data exist (new products)			-- Both UPDATE and INSERT only
+			c. the same amount of posts and data exists				-- UPDATE only
 
 		*/
 		protected function task($products_from_shopify) {
@@ -46,14 +50,10 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 			}
 
 
-			global $wpdb;
-
 			if ( !CPT::products_posts_exist() ) {
 
-				$insert_query = $this->CPT_Query->construct_posts_insert_query($products_from_shopify, false, WPS_PRODUCTS_POST_TYPE_SLUG);
-
-				// Final Query
-				$result = $this->CPT_Query->query($insert_query, 'products');
+				// Final Query Results
+				$result = $this->CPT_Query->insert_posts( $products_from_shopify, false, WPS_PRODUCTS_POST_TYPE_SLUG );
 
 				if (is_wp_error($result)) {
 					$this->WS->save_notice_and_stop_sync($result);
@@ -86,32 +86,9 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 				$products_to_update = $this->CPT_Query->find_posts_to_update($products_from_shopify, $existing_products);
 
 
-				/*
-
-				Step 3.
-
-				Three scenarios could exists:
-					a. Zero posts exist 															-- INSERT only
-					b. less posts than data exist (new products)		-- Both UPDATE and INSERT only
-					c. the same amount of posts and data exists				-- UPDATE only
-
-				*/
-
-
-
-				/*
-
-				If the program flow falls here, we need only need to perform an update
-
-				*/
 				if ($total_products_posts === $total_products_to_sync) {
 
-					$posts_to_update_formated = $this->CPT_Query->format_posts_for_update($products_to_update, WPS_PRODUCTS_POST_TYPE_SLUG);
-					$final_update_query = $this->CPT_Query->construct_posts_update_query($posts_to_update_formated);
-
-
-					// Final Query
-					$result = $this->CPT_Query->query($final_update_query, 'products');
+					$result = $this->CPT_Query->update_posts($products_to_update, WPS_PRODUCTS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result)) {
 						$this->WS->save_notice_and_stop_sync($result);
@@ -122,17 +99,8 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 
 				} else {
 
-					/*
-
-					If the program flow falls here, we need to perform both an insert and an update
-
-					*/
-
-					$insert_query = $this->CPT_Query->construct_posts_insert_query($products_from_shopify, $existing_products, WPS_PRODUCTS_POST_TYPE_SLUG);
-
-
-					// Final Query
-					$result_insert = $this->CPT_Query->query($insert_query, 'products');
+					// Final insert_posts results
+					$result_insert = $this->CPT_Query->insert_posts( $products_from_shopify, $existing_products, WPS_PRODUCTS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_insert)) {
 						$this->WS->save_notice_and_stop_sync($result_insert);
@@ -140,21 +108,14 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 						return false;
 					}
 
-
-					$posts_to_update = $this->CPT_Query->format_posts_for_update($products_to_update, WPS_PRODUCTS_POST_TYPE_SLUG);
-					$final_update_query = $this->CPT_Query->construct_posts_update_query($posts_to_update);
-
-
-
-					// Final Query
-					$result_update = $this->CPT_Query->query($final_update_query, 'products');
+					// Final update_posts results
+					$result_update = $this->CPT_Query->update_posts($products_to_update, WPS_PRODUCTS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result_update)) {
 						$this->WS->save_notice_and_stop_sync($result_update);
 						$this->complete();
 						return false;
 					}
-
 
 				}
 

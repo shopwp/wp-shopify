@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 
-  class Async_Processing_Posts_Products_Relationships extends WP_Shopify_Background_Process {
+  class Async_Processing_Posts_Products_Relationships extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_posts_prod_r';
 

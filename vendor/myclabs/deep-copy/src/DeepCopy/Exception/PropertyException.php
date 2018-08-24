@@ -1,6 +1,6 @@
 <?php
 
-namespace DeepCopy\Exception;
+namespace WPS\Vendor\DeepCopy\Exception;
 
 use ReflectionException;
 

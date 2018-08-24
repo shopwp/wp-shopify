@@ -1,7 +1,5 @@
 <?php
 
-require plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
-
 use WPS\Utils;
 
 /*
@@ -13,10 +11,11 @@ class Test_Utils extends WP_UnitTestCase {
 
 	protected static $Messages;
   protected static $WS;
+	protected static $mock_products;
 
   static function setUpBeforeClass() {
 
-    // Assemble
+    self::$mock_products        = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products.json") );
 
   }
 
@@ -69,6 +68,35 @@ class Test_Utils extends WP_UnitTestCase {
     $this->assertFalse( Utils::is_available_to_buy($mock_variant) );
 
   }
+
+
+	function test_it_should_filter_data_by() {
+
+		$results = Utils::filter_data_by(self::$mock_products, ['variants', 'options']);
+
+		foreach ($results as $product) {
+			$this->assertEquals(false, property_exists($product, 'options'));
+			$this->assertEquals(false, property_exists($product, 'variants'));
+		}
+
+  }
+
+
+	function test_is_array_not_empty() {
+
+		$non_empty_array = ['variants', 'options'];
+		$empty_array = [];
+		$false = false;
+		$true = true;
+		$wp_error = new \WP_Error('Test');
+
+		$this->assertTrue( Utils::array_not_empty($non_empty_array) );
+		$this->assertFalse( Utils::array_not_empty($empty_array) );
+		$this->assertFalse( Utils::array_not_empty($false) );
+		$this->assertFalse( Utils::array_not_empty($true) );
+		$this->assertFalse( Utils::array_not_empty($wp_error) );
+
+	}
 
 
 }

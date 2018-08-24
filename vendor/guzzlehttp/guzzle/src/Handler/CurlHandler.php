@@ -1,8 +1,8 @@
 <?php
-namespace GuzzleHttp\Handler;
+namespace WPS\Vendor\GuzzleHttp\Handler;
 
-use GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
+use WPS\Vendor\GuzzleHttp\Psr7;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
 
 /**
  * HTTP handler that uses cURL easy handles as a transport layer.

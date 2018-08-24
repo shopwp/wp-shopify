@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Customers') ) {
 
-  class Async_Processing_Customers extends WP_Shopify_Background_Process {
+  class Async_Processing_Customers extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_customers';
 
@@ -39,7 +39,9 @@ if ( !class_exists('Async_Processing_Customers') ) {
 				return false;
 			}
 
-			$result = $this->DB_Customers->insert( Utils::convert_to_assoc_array($customer), 'customer');
+
+			$result = $this->DB_Customers->insert_customer($customer);
+
 
 			if (is_wp_error($result)) {
 				$this->WS->save_notice_and_stop_sync($result);

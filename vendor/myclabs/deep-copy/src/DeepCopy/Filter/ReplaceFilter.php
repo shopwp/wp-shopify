@@ -1,8 +1,8 @@
 <?php
 
-namespace DeepCopy\Filter;
+namespace WPS\Vendor\DeepCopy\Filter;
 
-use DeepCopy\Reflection\ReflectionHelper;
+use WPS\Vendor\DeepCopy\Reflection\ReflectionHelper;
 
 /**
  * @final

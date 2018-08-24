@@ -1,10 +1,10 @@
 <?php
 
-namespace DeepCopy\TypeFilter\Spl;
+namespace WPS\Vendor\DeepCopy\TypeFilter\Spl;
 
 use Closure;
-use DeepCopy\DeepCopy;
-use DeepCopy\TypeFilter\TypeFilter;
+use WPS\Vendor\DeepCopy\DeepCopy;
+use WPS\Vendor\DeepCopy\TypeFilter\TypeFilter;
 use SplDoublyLinkedList;
 
 /**

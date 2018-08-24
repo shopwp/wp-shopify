@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Orders') ) {
 
-  class Async_Processing_Orders extends WP_Shopify_Background_Process {
+  class Async_Processing_Orders extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_orders';
 
@@ -42,8 +42,9 @@ if ( !class_exists('Async_Processing_Orders') ) {
 				return false;
 			}
 
+
 			// Actual work
-			$result = $this->DB_Orders->insert( Utils::convert_to_assoc_array($order), 'order');
+			$result = $this->DB_Orders->insert_order($order);
 
 
 			if (is_wp_error($result)) {

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 if ( !class_exists('Async_Processing_Options') ) {
 
-  class Async_Processing_Options extends WP_Shopify_Background_Process {
+  class Async_Processing_Options extends Vendor_Background_Process {
 
 		protected $action = 'wps_background_processing_options';
 

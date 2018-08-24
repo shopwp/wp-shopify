@@ -1,13 +1,13 @@
 <?php
-namespace GuzzleHttp\Handler;
+namespace WPS\Vendor\GuzzleHttp\Handler;
 
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Promise\RejectedPromise;
-use GuzzleHttp\TransferStats;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use WPS\Vendor\GuzzleHttp\Exception\RequestException;
+use WPS\Vendor\GuzzleHttp\HandlerStack;
+use WPS\Vendor\GuzzleHttp\Promise\PromiseInterface;
+use WPS\Vendor\GuzzleHttp\Promise\RejectedPromise;
+use WPS\Vendor\GuzzleHttp\TransferStats;
+use WPS\Vendor\Psr\Http\Message\RequestInterface;
+use WPS\Vendor\Psr\Http\Message\ResponseInterface;
 
 /**
  * Handler that returns responses or throw exceptions from a queue.
@@ -91,8 +91,8 @@ class MockHandler implements \Countable
         }
 
         $response = $response instanceof \Exception
-            ? \GuzzleHttp\Promise\rejection_for($response)
-            : \GuzzleHttp\Promise\promise_for($response);
+            ? \WPS\Vendor\GuzzleHttp\Promise\rejection_for($response)
+            : \WPS\Vendor\GuzzleHttp\Promise\promise_for($response);
 
         return $response->then(
             function ($value) use ($request, $options) {
@@ -120,7 +120,7 @@ class MockHandler implements \Countable
                 if ($this->onRejected) {
                     call_user_func($this->onRejected, $reason);
                 }
-                return \GuzzleHttp\Promise\rejection_for($reason);
+                return \WPS\Vendor\GuzzleHttp\Promise\rejection_for($reason);
             }
         );
     }
@@ -140,7 +140,7 @@ class MockHandler implements \Countable
                 $this->queue[] = $value;
             } else {
                 throw new \InvalidArgumentException('Expected a response or '
-                    . 'exception. Found ' . \GuzzleHttp\describe_type($value));
+                    . 'exception. Found ' . \WPS\Vendor\GuzzleHttp\describe_type($value));
             }
         }
     }

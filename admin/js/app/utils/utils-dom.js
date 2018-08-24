@@ -256,7 +256,13 @@ function setConnectionNotice(message, type) {
 }
 
 
-function showSyncByCollectionsNotice() {
+function showSyncByCollectionsNotice(errorMessage = false) {
+
+  if (errorMessage) {
+
+    jQuery('#wps-sync-by-collections-checkbox-wrapper .notice')
+      .replaceWith('<p class="notice notice-error inline">' + he.decode(errorMessage) + '</p>');
+  }
 
   jQuery('#wps-sync-by-collections-checkbox-wrapper').removeClass('wps-is-hidden');
   jQuery('#wps-sync-by-collections-wrapper').addClass('wps-is-hidden');
