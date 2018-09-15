@@ -7,31 +7,31 @@ if (!defined('ABSPATH')) {
 }
 
 use WPS\Utils;
+use WPS\Messages;
 
 if (!class_exists('Orders')) {
 
 
   class Orders extends \WPS\WS {
 
-		protected $WS;
+		protected $DB_Orders;
+		protected $DB_Settings_General;
+		protected $DB_Settings_Syncing;
+		protected $Async_Processing_Orders_Factory;
+		protected $HTTP;
 
-  	public function __construct($DB_Orders, $DB_Settings_General, $Messages, $DB_Settings_Connection, $DB_Settings_Syncing, $Guzzle, $WS, $Async_Processing_Orders_Factory) {
+  	public function __construct($DB_Orders, $DB_Settings_General, $DB_Settings_Syncing, $Async_Processing_Orders_Factory, $HTTP) {
 
 			$this->DB_Orders 												= $DB_Orders;
 			$this->DB_Settings_General 							= $DB_Settings_General;
-			$this->DB_Settings_Connection						=	$DB_Settings_Connection;
 			$this->DB_Settings_Syncing							=	$DB_Settings_Syncing;
-			$this->Messages 												= $Messages;
-			$this->WS																= $WS;
 			$this->Async_Processing_Orders_Factory	= $Async_Processing_Orders_Factory;
-
-			parent::__construct($Guzzle, $Messages, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_Syncing);
+			$this->HTTP															= $HTTP;
 
     }
 
 
 
-		
 
 
   }

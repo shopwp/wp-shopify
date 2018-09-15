@@ -14,12 +14,16 @@ class Test_CPT extends WP_UnitTestCase {
 	protected static $CPT_Model;
 	protected static $CPT_Query;
 	protected static $mock_products;
+	protected static $mock_product;
+	protected static $mock_collection;
 
   static function setUpBeforeClass() {
 
 		self::$CPT_Model								= CPT_Model_Factory::build();
 		self::$CPT_Query								= CPT_Query_Factory::build();
 		self::$mock_products            = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products-insert.json") );
+		self::$mock_product             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );
+		self::$mock_collection          = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/collection.json") );
 
   }
 
@@ -47,7 +51,7 @@ class Test_CPT extends WP_UnitTestCase {
 
 
 	function test_it_should_return_valid_author_id() {
-		$this->assertGreaterThan( 0, self::$CPT_Query->return_author_id() );
+		$this->assertGreaterThan( 0, CPT::return_author_id() );
 	}
 
 	function test_it_should_return_post_date() {
@@ -137,8 +141,6 @@ class Test_CPT extends WP_UnitTestCase {
 
 	/*
 
-	test_it_should_insert_or_update_product
-
 	insert_posts contains many sub functions so this test goes through many
 	different processes.
 
@@ -169,5 +171,69 @@ class Test_CPT extends WP_UnitTestCase {
 		$this->assertGreaterThan(1, $results);
 
 	}
+
+
+	/*
+
+	Checks whether collections posts exist
+
+	*/
+	function test_it_should_check_whether_collections_posts_exist() {
+
+		$this->assertFalse( CPT::collections_posts_exist() );
+
+		$this->factory->post->create( self::$CPT_Model->set_collection_model_defaults( self::$mock_collection ) );
+
+		$this->assertTrue( CPT::collections_posts_exist() );
+
+  }
+
+
+	/*
+
+	Checks whether collections posts exist
+
+	*/
+	function test_it_should_check_num_of_posts_collections() {
+
+		$this->assertEquals(0, CPT::num_of_posts(WPS_COLLECTIONS_POST_TYPE_SLUG) );
+
+		$this->factory->post->create( self::$CPT_Model->set_collection_model_defaults( self::$mock_collection ) );
+
+		$this->assertEquals(1, CPT::num_of_posts(WPS_COLLECTIONS_POST_TYPE_SLUG) );
+
+  }
+
+
+	/*
+
+	Checks whether collections posts exist
+
+	*/
+	function test_it_should_check_num_of_posts_products() {
+
+		$this->assertEquals(0, CPT::num_of_posts(WPS_PRODUCTS_POST_TYPE_SLUG) );
+
+		$this->factory->post->create( self::$CPT_Model->set_product_model_defaults( self::$mock_product ) );
+
+		$this->assertEquals(1, CPT::num_of_posts(WPS_PRODUCTS_POST_TYPE_SLUG) );
+
+  }
+
+
+	/*
+
+	Responsible for testing whether a post ID is assigned to a post object and returned
+
+	*/
+	function test_it_should_set_post_id() {
+
+		$result = CPT::set_post_id( new \stdClass, 123 );
+
+		$this->assertObjectHasAttribute('post_id', $result);
+		$this->assertEquals(123, $result->post_id);
+
+	}
+
 
 }

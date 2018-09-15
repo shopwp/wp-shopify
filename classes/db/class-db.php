@@ -6,6 +6,7 @@ use WPS\Utils;
 use WPS\CPT;
 use WPS\Transients;
 
+use function WPS\Vendor\DeepCopy\deep_copy;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -81,6 +82,56 @@ if (!class_exists('DB')) {
 	  }
 
 
+		public function switch_shopify_ids($data, $old_primary_key, $new_primary_key) {
+
+			if ( !Utils::has($data, $old_primary_key) ) {
+				return $data;
+			}
+
+			$data->$new_primary_key = $data->$old_primary_key;
+      unset($data->$old_primary_key);
+
+			return $data;
+
+		}
+
+
+		public function tables_skip_rename_primary_key() {
+
+			return [
+				'settings_connection',
+				'settings_general',
+				'settings_syncing',
+				'settings_license',
+				'shop',
+				'tag'
+			];
+
+		}
+
+
+		/*
+
+		Maybe renames primary key of data before update / insert
+
+		*/
+		public function maybe_rename_to_lookup_key($item) {
+
+			if ( in_array($this->type, $this->tables_skip_rename_primary_key() )) {
+				return $item;
+			}
+
+			// If item doesnt have the shopify primary key
+			// Only proceeds if 'id' is present on data
+			if ( !Utils::has($item, WPS_SHOPIFY_PAYLOAD_KEY) ) {
+				return $item;
+			}
+
+			return $this->rename_to_lookup_key($item, WPS_SHOPIFY_PAYLOAD_KEY, $this->lookup_key);
+
+		}
+
+
     /*
 
     Rename primary key
@@ -88,16 +139,56 @@ if (!class_exists('DB')) {
 		$product
 
     */
-    public function rename_primary_key($data, $new_primary_key) {
+    public function rename_to_lookup_key($data, $old_primary_key, $new_primary_key) {
 
-      $data_copy = $data;
-			$data_copy->{$new_primary_key} = $data_copy->id;
+      $data = Utils::convert_array_to_object($data);
 
-      unset($data_copy->id);
+			// If keys have already been changed just return it
+			if ( Utils::has($data, $new_primary_key) && !Utils::has($data, $old_primary_key) ) {
+				return $data;
+			}
 
-      return $data_copy;
+      return $this->switch_shopify_ids($data, $old_primary_key, $new_primary_key);
 
     }
+
+
+		/*
+
+		Renames primary keys for an array of items
+
+		array_map("show_hindi", $counting, $hindi);
+
+		*/
+		public function rename_to_lookup_keys($items, $old_primary_key, $new_primary_key) {
+
+			if ( Utils::object_is_empty($items) ) {
+				return [];
+			}
+
+			$items = Utils::convert_object_to_array($items);
+
+			return array_map( function($item) use ($old_primary_key, $new_primary_key) {
+        return $this->rename_to_lookup_key($item, $old_primary_key, $new_primary_key);
+    	}, $items );
+
+		}
+
+
+		/*
+
+		Copy objects
+
+		*/
+		public function copy($maybe_object) {
+
+			if ( is_object($maybe_object) ) {
+				return deep_copy($maybe_object);
+			}
+
+			return $maybe_object;
+
+		}
 
 
 		/*
@@ -221,6 +312,7 @@ if (!class_exists('DB')) {
 		public function max_packet_size_reached($query) {
 
 			$postmax_size_in_bytes = $this->get_max_packet_size();
+
 			$query_size_in_bytes = strlen(serialize($query));
 
 			if ($query_size_in_bytes > $postmax_size_in_bytes) {
@@ -280,16 +372,18 @@ if (!class_exists('DB')) {
 	  Retrieve a row by a specific column / value
 
 	  */
-		public function get_by($column, $row_id) {
+		public function get_row_by($column_name, $column_value) {
 
 	    global $wpdb;
 
-	    $column = esc_sql($column);
-	    $query = "SELECT * FROM $this->table_name WHERE $column = %s LIMIT 1;";
+	    $column_name = esc_sql($column_name);
+	    $query = "SELECT * FROM $this->table_name WHERE $column_name = %s LIMIT 1;";
 
-	    return $wpdb->get_row(
-	      $wpdb->prepare($query, $row_id)
-	    );
+			$prepared = $wpdb->prepare($query, $column_value);
+
+	    $results = $wpdb->get_row($prepared);
+
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Unable to get single database row.', 'get_row');
 
 	  }
 
@@ -298,17 +392,20 @@ if (!class_exists('DB')) {
 
 	  Retrieve rows by a specific column / value
 
+		Note: we can't prepare $col_name because doing so converts the sql col into a string.
+		E.g., SELECT * FROM wptests_wps_variants WHERE 'product_id'= '1403917533207';
+
 	  */
-		public function get_rows($column, $row_id) {
+		public function get_rows($col_name, $col_value) {
 
 	    global $wpdb;
 
-	    $column = esc_sql($column);
-	    $query = "SELECT * FROM $this->table_name WHERE $column = %s";
+	    $col_name = esc_sql($col_name);
+	    $query = "SELECT * FROM $this->table_name WHERE $col_name = %s";
 
-	    return $wpdb->get_results(
-	      $wpdb->prepare($query, $row_id)
-	    );
+			$prepared_query = $wpdb->prepare($query, $col_value);
+
+	    return $wpdb->get_results($prepared_query);
 
 	  }
 
@@ -334,15 +431,15 @@ if (!class_exists('DB')) {
 	  Retrieve a specific column's value by the primary key
 
 	  */
-		public function get_column($column, $row_id) {
+		public function get_column($column_name, $column_value) {
 
 	    global $wpdb;
 
-	    $column = esc_sql($column);
-	    $query = "SELECT $column FROM $this->table_name WHERE $this->primary_key = %s LIMIT 1;";
+	    $column_name = esc_sql($column_name);
+	    $query = "SELECT $column_name FROM $this->table_name WHERE $this->primary_key = %s LIMIT 1;";
 
 	    return $wpdb->get_var(
-	      $wpdb->prepare($query, $row_id)
+	      $wpdb->prepare($query, $column_value)
 	    );
 
 	  }
@@ -439,7 +536,7 @@ if (!class_exists('DB')) {
 			$results = $wpdb->get_results($query);
 
 			// $result will be false if error or if nothing found
-			$result = $this->sanitize_db_response($results, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.');
+			$result = $this->sanitize_db_response($results, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.', 'get_results');
 
 
 			if ($result !== false) {
@@ -475,13 +572,13 @@ if (!class_exists('DB')) {
 
 			global $wpdb;
 
-			$firstKey = current( array_keys($data) );
+			$results = $this->get_row_by($this->lookup_key, $data[$this->lookup_key]);
 
-			$query = "SELECT * FROM " . $this->table_name . " WHERE " . $this->table_name . "." . $this->primary_key . " = %d LIMIT 1";
+			if ( empty($results) || is_wp_error($results) ) {
+				return false;
+			}
 
-			$wpdb->get_results( $wpdb->prepare($query, $data[$firstKey]) );
-
-			return $wpdb->num_rows > 0;
+			return true;
 
 		}
 
@@ -507,12 +604,32 @@ if (!class_exists('DB')) {
 
 		/*
 
+		Default mod before change just returns
+
+		*/
+		public function mod_before_change($item) {
+			return $item;
+		}
+
+
+		/*
+
 		Helper method for returning MYSQL errors
 
 		Used only for MySQL operations
 
+		$query: The result of a wpdb operation
+		$fallback_message: The message to use if an error occurs
+		$type: Name of the wpdb function. Possible values:
+			- get_row
+			- get_results
+			- query
+			- update
+			- insert
+
+
 		*/
-		public function sanitize_db_response($result, $fallback_message = 'Uncaught error. Please clear the plugin cache and try again.') {
+		public function sanitize_db_response($result, $fallback_message = 'Uncaught error. Please clear the plugin cache and try again.', $type) {
 
 			global $wpdb;
 
@@ -524,7 +641,7 @@ if (!class_exists('DB')) {
 
 			*/
 			if ( $this->has_mysql_error() ) {
-				return new \WP_Error('error', __($wpdb->last_error . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN));
+				return Utils::wp_error( __($wpdb->last_error . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN) );
 			}
 
 
@@ -539,7 +656,7 @@ if (!class_exists('DB')) {
 
 			*/
 			if ($result === false) {
-				return new \WP_Error('error', __($fallback_message . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN));
+				return false;
 			}
 
 
@@ -559,7 +676,8 @@ if (!class_exists('DB')) {
 			$wpdb->get_results 		-- If your $query string is empty, or you pass an invalid $output_type
 
 			*/
-			if (is_array($result) && Utils::array_is_empty($result) || is_null($result)) {
+
+			if ( is_array($result) && Utils::array_is_empty($result) || is_null($result) ) {
 				return false;
 			}
 
@@ -575,7 +693,11 @@ if (!class_exists('DB')) {
 
 			*/
 			if ($result === 0) {
-				return true;
+
+				if ($type === 'query' || $type === 'update') {
+					return true;
+				}
+
 			}
 
 
@@ -593,33 +715,37 @@ if (!class_exists('DB')) {
 		https://codex.wordpress.org/Class_Reference/wpdb
 
 	  */
-	  public function insert($data, $type = '') {
+	  public function insert($data) {
 
 	    global $wpdb;
 
-			// Return immediately, if $data does not exist or if it equals false
-			if (empty($data)) {
+			// Only perform an insertion if the table exists ...
+			if ( !$this->table_exists($this->table_name) ) {
 				return false;
 			}
 
-			// Only perform an insertion if the table exists ...
-			if (!$this->table_exists($this->table_name)) {
+			// Convert data to array if not one already
+			$data = Utils::convert_object_to_array($data);
+
+			// Return immediately, if $data does not exist or if it equals false
+			if ( empty($data) ) {
 				return false;
 			}
+
+			// Gets the table's column names
+			$column_formats = $this->get_columns();
+
+			// Performs any needed data structure changes before insert (primary key, adding values, etc)
+			$data = $this->mod_before_change($data);
 
 			// Set default values. Requires $data to be array
 			$data = wp_parse_args($data, $this->get_column_defaults());
-
-			do_action('wps_pre_insert_' . $type, $data);
 
 			// Shopify sometimes sends date values that don't adhere to the MySQL standard. Here we force it.
 			$data = Utils::convert_needed_values_to_datetime($data);
 
 			// Sanitizing nested arrays (serializes nested arrays and objects)
-			$data = Utils::wps_serialize_data_for_db($data);
-
-			// Initialise column format array
-			$column_formats = $this->get_columns();
+			$data = Utils::serialize_data_for_db($data);
 
 			// Force fields to lower case
 			$data = array_change_key_case($data);
@@ -630,7 +756,10 @@ if (!class_exists('DB')) {
 			// Reorder $column_formats to match the order of columns given in $data
 			$data_keys = array_keys($data);
 
+
 			$column_formats = array_merge( array_flip($data_keys), $column_formats);
+
+			do_action('wps_before_insert_' . $this->type, $data);
 
 
 			/*
@@ -641,18 +770,20 @@ if (!class_exists('DB')) {
 
 			*/
 
-			if ($this->has_existing_record($data)) {
+			if ( $this->has_existing_record($data) ) {
 
 				$result = $wpdb->update($this->table_name, $data, $column_formats);
-				return $this->sanitize_db_response($result, 'Failed to update database record. Please clear the plugin cache and try again.');
+
+				return $this->sanitize_db_response($result, 'Failed to update database record. Please clear the plugin cache and try again.', 'update');
+
 
 			} else {
 
 				$result = $wpdb->insert($this->table_name, $data, $column_formats);
 
-				do_action('wps_post_insert_' . $type, $result, $data);
+				do_action('wps_after_insert_' . $this->type, $result, $data);
 
-				return $this->sanitize_db_response($result, 'Failed to insert database record. Please clear the plugin cache and try again.');
+				return $this->sanitize_db_response($result, 'Failed to insert database record. Please clear the plugin cache and try again.', 'insert');
 
 			}
 
@@ -660,26 +791,37 @@ if (!class_exists('DB')) {
 	  }
 
 
+
+
 	  /*
 
 	  Update a new row
 
+
+		By defaut, $row_id refers to the primary key of the table. However if $where is passed in, then
+		$row_id will refer to this column instead
+
+
 	  */
-		public function update($row_id, $data = array(), $where = '') {
+		public function update($column_name = false, $column_value, $data = []) {
 
 	    global $wpdb;
 
 	    // Row ID must be positive integer
-	    $row_id = absint($row_id);
+	    $column_value = absint($column_value);
 
 			// Record must already exist already to update
-	    if (empty($row_id)) {
+	    if ( empty($column_value) ) {
 	      return false;
 	    }
 
-	    if (empty($where)) {
-	      $where = $this->primary_key;
+			// Sets the column for lookup to the primary key of the table by default
+	    if ( $column_name === false ) {
+	      $column_name = $this->primary_key;
 	    }
+
+			// Performs any needed data structure changes before update (primary key, adding values, etc)
+			$data = $this->mod_before_change($data);
 
 			// Forces data to array
 			$data = Utils::convert_object_to_array($data);
@@ -687,7 +829,7 @@ if (!class_exists('DB')) {
 			// Shopify sometimes sends date values that don't adhere to the MySQL standard. Here we force it.
 			$data = Utils::convert_needed_values_to_datetime($data);
 
-			$data = Utils::wps_serialize_data_for_db($data);
+			$data = Utils::serialize_data_for_db($data);
 
 	    // Initialize column format array
 	    $column_formats = $this->get_columns();
@@ -703,20 +845,22 @@ if (!class_exists('DB')) {
 
 	    $column_formats = array_merge( array_flip($data_keys), $column_formats );
 
+			do_action('wps_before_update_' . $this->type, $data);
 
 			$results = $wpdb->update(
 		    $this->table_name,
 		    $data,
-		    array($where => $row_id),
+		    [ $column_name => $column_value ],
 		    $column_formats
 		  );
-
 
 			if (isset($data['access_token'])) {
 				Transients::delete_cached_settings();
 			}
 
-			return $this->sanitize_db_response($results, 'Failed to update database record. Please clear the plugin cache and try again.');
+			do_action('wps_after_update_' . $this->type, $data);
+
+			return $this->sanitize_db_response($results, 'Failed to update database record. Please clear the plugin cache and try again.', 'update');
 
 	  }
 
@@ -757,42 +901,60 @@ if (!class_exists('DB')) {
 
 			}
 
-			return $this->sanitize_db_response($results, 'Failed to update database record. Please clear the plugin cache and try again.');
+			return $this->sanitize_db_response($results, 'Failed to update database record. Please clear the plugin cache and try again.', 'update');
 
 	  }
+
+
+		/*
+
+		Truncates table
+
+		*/
+		public function truncate() {
+
+			global $wpdb;
+
+			if ( !$this->table_exists($this->table_name) ) {
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Tried to truncate table ' . $this->table_name . ' but table doesn\'t exist.');
+			}
+
+			$query = "TRUNCATE TABLE $this->table_name";
+			$query_results = $wpdb->query($query);
+
+			return $this->sanitize_db_response($query_results, 'WP Shopify Error - Failed to truncate table ' . $this->table_name . '. Please clear the plugin cache and try again.', 'query');
+
+		}
 
 
 	  /*
 
 	  Delete a row identified by the primary key
 
+		Used only to delete single rows from a table specified by primary key.
+
 	  */
-	  public function delete($row_id = 0) {
+	  public function delete($row_id = 1) {
 
 	    global $wpdb;
 
-			if ($this->table_exists($this->table_name)) {
-
-				// Row ID must be positive integer
-				$row_id = absint($row_id);
-
-				// If no primary key is passed, delete the entire table
-				if (empty($row_id)) {
-
-					$results = $wpdb->query("TRUNCATE TABLE $this->table_name");
-
-				} else {
-					$results = $wpdb->query( $wpdb->prepare( "DELETE FROM $this->table_name WHERE $this->primary_key = %d", $row_id ));
-
-				}
-
-
-			} else {
-				$results = false;
-
+			if ( !$this->table_exists($this->table_name) ) {
+				return $this->sanitize_db_response(false, 'WP Shopify Error - Tried to perform deletion on table ' . $this->table_name . ' but table doesn\'t exist.');
 			}
 
-			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete database record. Please clear the plugin cache and try again.');
+			// Row ID must be positive integer
+			$row_id = absint($row_id);
+
+			$query = "DELETE FROM $this->table_name WHERE $this->primary_key = %d";
+			$query_prepared = $wpdb->prepare($query, $row_id);
+
+			do_action('wps_before_delete_' . $this->type, $row_id);
+
+			$query_results = $wpdb->query($query_prepared);
+
+			do_action('wps_after_delete_' . $this->type, $row_id);
+
+			return $this->sanitize_db_response($query_results, 'WP Shopify Error - Failed to delete record(s) on table ' . $this->table_name . '. Please clear the plugin cache and try again.', 'query');
 
 	  }
 
@@ -806,7 +968,9 @@ if (!class_exists('DB')) {
 
 			global $wpdb;
 
-			return $this->sanitize_db_response( $wpdb->query($query), 'WP Shopify Error - General database query failed on table: ' . $this->table_name);
+			$results = $wpdb->query($query);
+
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Database query failed on table: ' . $this->table_name, 'query');
 
 		}
 
@@ -827,8 +991,9 @@ if (!class_exists('DB')) {
 			if ( $this->table_exists($this->table_name) ) {
 
 				$sql = "DROP TABLE IF EXISTS " . $this->table_name;
+				$results = $wpdb->query($sql);
 
-				return $this->sanitize_db_response( $wpdb->query($sql), 'WP Shopify Error - Failed to delete table: ' . $this->table_name . '. Please clear the plugin cache and try again.');
+				return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete table: ' . $this->table_name . '. Please clear the plugin cache and try again.', 'query');
 
 			}
 
@@ -848,8 +1013,9 @@ if (!class_exists('DB')) {
 			if ( $this->table_exists($this->table_name . $table_suffix) ) {
 
 				$sql = "DROP TABLE IF EXISTS " . $this->table_name . $table_suffix;
+				$results = $wpdb->query($sql);
 
-				return $this->sanitize_db_response( $wpdb->query($sql), 'WP Shopify Error - Failed to delete table: ' . $this->table_name . $table_suffix . '. Please clear the plugin cache and try again.');
+				return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete table: ' . $this->table_name . $table_suffix . '. Please clear the plugin cache and try again.', 'query');
 
 			}
 
@@ -872,10 +1038,9 @@ if (!class_exists('DB')) {
 			}
 
 			$query = "RENAME TABLE " . $this->table_name . WPS_TABLE_MIGRATION_SUFFIX . ' TO ' . $this->table_name;
-
 			$results = $wpdb->get_results($query);
 
-			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to rename migration table back to: ' . $this->table_name . '. Please clear the plugin cache and try again.');
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to rename migration table back to: ' . $this->table_name . '. Please clear the plugin cache and try again.', 'get_results');
 
 		}
 
@@ -903,11 +1068,10 @@ if (!class_exists('DB')) {
 				if ($result !== true) {
 
 					if ( $this->has_mysql_error() ) {
-						return new \WP_Error('error', __($wpdb->last_error, WPS_PLUGIN_TEXT_DOMAIN));
+						return Utils::wp_error( __($wpdb->last_error, WPS_PLUGIN_TEXT_DOMAIN) );
 
 					} else {
-						return new \WP_Error('error', __('Unable to create migration table. Unknown reason.', WPS_PLUGIN_TEXT_DOMAIN));
-
+						return Utils::wp_error( __('Unable to create migration table. Unknown reason.', WPS_PLUGIN_TEXT_DOMAIN) );
 					}
 
 				}
@@ -915,7 +1079,7 @@ if (!class_exists('DB')) {
 				return $result;
 
       } else {
-				return new \WP_Error('error', __('Unable to create migration table. Already exists.', WPS_PLUGIN_TEXT_DOMAIN));
+				return Utils::wp_error( __('Unable to create migration table. Already exists.', WPS_PLUGIN_TEXT_DOMAIN) );
 
 			}
 
@@ -927,27 +1091,26 @@ if (!class_exists('DB')) {
 		Delete a row(s) identified by column value
 
 		*/
-		public function delete_rows($column, $column_value) {
+		public function delete_rows($column_name, $column_value) {
 
 			global $wpdb;
-			$column = esc_sql($column);
+
+			$column_name = esc_sql($column_name);
 
 			if (gettype($column_value) === 'integer') {
-				$query = "DELETE FROM $this->table_name WHERE $column = %d";
+				$query = "DELETE FROM $this->table_name WHERE $column_name = %d";
 
 			} else if (gettype($column_value) === 'double') {
-				$query = "DELETE FROM $this->table_name WHERE $column = %f";
+				$query = "DELETE FROM $this->table_name WHERE $column_name = %f";
 
 			} else {
-				$query = "DELETE FROM $this->table_name WHERE $column = %s";
+				$query = "DELETE FROM $this->table_name WHERE $column_name = %s";
 			}
 
+			$prepared = $wpdb->prepare($query, $column_value);
+			$results = $wpdb->query($prepared);
 
-			$results = $wpdb->query(
-				$wpdb->prepare($query, $column_value)
-			);
-
-			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete database rows. Please clear the plugin cache and try again.');
+			return $this->sanitize_db_response($results, 'WP Shopify Error - Failed to delete database rows. Please clear the plugin cache and try again.', 'query');
 
 		}
 
@@ -980,7 +1143,7 @@ if (!class_exists('DB')) {
 				$wpdb->prepare($query, $ids)
 			);
 
-			return $this->sanitize_db_response($result, 'WP Shopify Error - Failed to delete database rows by value. Please clear the plugin cache and try again.');
+			return $this->sanitize_db_response($result, 'WP Shopify Error - Failed to delete database rows by value. Please clear the plugin cache and try again.', 'get_results');
 
 		}
 
@@ -1079,22 +1242,39 @@ if (!class_exists('DB')) {
 		}
 
 
+		public function sanitize_update_post_meta_response($response, $post_id, $meta_key, $new_meta_value) {
+
+			if ( !is_wp_error($response) ) {
+				return true;
+			}
+
+			// Not a real error
+			if ( get_post_meta($post_id, $meta_key, true) === $new_meta_value ) {
+				return true;
+
+			} else {
+				return $result;
+
+			}
+
+		}
+
+
 		/*
 
 		Wrapper function for updating post meta
 
 		*/
-		public function update_post_meta($post_id, $meta_key, $meta_value) {
+		public function update_post_meta_helper($post_id, $meta_key, $meta_value) {
 
-			return $this->sanitize_db_response(
-				update_post_meta($post_id, $meta_key, $meta_value)
+			$response = $this->sanitize_db_response(
+				update_post_meta($post_id, $meta_key, $meta_value),
+				'Failed to update post meta table with key value',
+				'update_post_meta'
 			);
 
-		}
+			return $this->sanitize_update_post_meta_response($response, $post_id, $meta_key, $meta_value);
 
-
-		public function convert_array_to_in_string($array) {
-			return "('" .  implode("', '", $array) . "')";
 		}
 
 
@@ -1133,7 +1313,7 @@ if (!class_exists('DB')) {
 			$results = $wpdb->get_results( "SHOW FULL COLUMNS FROM $table" );
 
 			if (!$results) {
-				return new \WP_Error('WP Shopify Error - Unable to get charset for table ' . $table);
+				return Utils::wp_error('WP Shopify Error - Unable to get charset for table ' . $table);
 
 			} else {
 				return $results;
@@ -1498,8 +1678,325 @@ if (!class_exists('DB')) {
 
 
 		public function insert_default_values() {
-			return $this->insert( $this->get_column_defaults(), $this->cache_group );
+			return $this->insert( $this->get_column_defaults() );
 		}
+
+
+
+
+
+
+
+		public function get_lookup_value($item) {
+
+			// product_id, variant_id, image_id, etc
+			if (Utils::has($item, $this->lookup_key)) {
+				return $item->{$this->lookup_key};
+			}
+
+			if (Utils::has($item, WPS_SHOPIFY_PAYLOAD_KEY)) {
+				return $item->{WPS_SHOPIFY_PAYLOAD_KEY};
+			}
+
+		}
+
+
+
+
+
+
+
+		public function get_current_items($method_name, $options) {
+			return $this->$method_name( $options['item']->{WPS_SHOPIFY_PAYLOAD_KEY} );
+		}
+
+
+
+
+
+
+
+
+
+		/*
+
+		Gathers items for modification.
+
+		* Important * WPS_SHOPIFY_PAYLOAD_KEY is used to build the get_{items}_from_product_id
+
+		$options
+
+			- $item 									-- $product, $variant, $image, etc
+			- $prop_to_access 				-- prop to fetch on latest items
+			- $payload_key 		-- old primary key from payload (id)
+			- $lookup_key 				-- primary key to we assign (product_id, variant_id, etc)
+
+		*/
+		public function gather_items_for_modification($options) {
+
+			$method_name_get_type_from = 'get_' . $options['prop_to_access'] . '_from_' . $options['item_lookup_key'];
+
+      $current_items = $this->get_current_items($method_name_get_type_from, $options);
+
+			$latest_items = $this->get_latest_items_from_payload($options['item'], $options['prop_to_access']);
+			$latest_items = $this->rename_to_lookup_keys($latest_items, WPS_SHOPIFY_PAYLOAD_KEY, $this->lookup_key);
+
+			return [
+				'current'		=>	Utils::convert_object_to_array($current_items),
+				'latest'		=>	Utils::convert_object_to_array($latest_items)
+			];
+
+		}
+
+
+		public function no_items($options) {
+			return empty($options['item']);
+		}
+
+
+		public function get_latest_items_from_payload($payload, $prop) {
+
+			if ( !Utils::has($payload, $prop) ) {
+				return [];
+			}
+
+			return $payload->{$prop};
+
+		}
+
+
+		/*
+
+		If no items were returned from Shopify, then that means we need to delete any current
+		items that we have based on the item value
+
+		*/
+		public function gather_items_for_deletion($options) {
+
+			$items = $this->gather_items_for_modification($options);
+
+			return Utils::find_items_to_delete($items['current'], $items['latest'], true, $this->lookup_key);
+
+	  }
+
+
+		/*
+
+		If no items were returned from Shopify, then we know we don't need to perform an update.
+
+		*/
+		public function gather_items_for_insertion($options) {
+
+			if ($this->no_items($options)) {
+				return [];
+			}
+
+			$items = $this->gather_items_for_modification($options);
+
+			return Utils::find_items_to_add($items['current'], $items['latest'], true, $this->lookup_key);
+
+		}
+
+
+		/*
+
+		If no items were returned from Shopify, then we know we don't need to perform an update.
+
+		*/
+		public function gather_items_for_updating($options) {
+
+			if ($this->no_items($options)) {
+				return [];
+			}
+
+			return $options['item']->{$options['prop_to_access']};
+		}
+
+
+		/*
+
+		Deletes item if not empty
+
+		*/
+		public function maybe_delete($items_to_delete, $type) {
+			return $this->delete_items_of_type($items_to_delete, $type);
+		}
+
+
+		/*
+
+		Inserts item if not empty
+
+		*/
+		public function maybe_insert($items_to_add, $type) {
+
+			if ( Utils::is_empty($items_to_add) ) {
+				return [];
+      }
+
+			return $this->insert_items_of_type($items_to_add, $type);
+
+		}
+
+
+		/*
+
+		Updates item if not empty
+
+		*/
+		public function maybe_update($items_to_update, $type) {
+
+			if ( Utils::is_empty($items_to_update) ) {
+				return [];
+      }
+
+			return $this->update_items_of_type($items_to_update, $type);
+
+		}
+
+
+		/*
+
+		Performs the actual insert, update, or delete
+
+		*/
+		public function change_item($item, $method_name) {
+
+			if ( method_exists($this, $method_name) ) {
+				return $this->$method_name($item);
+			}
+
+		}
+
+
+		/*
+
+		change_items_of_type
+
+		Generalized wrapper for:
+
+		- insert_{items}
+		- update_{items}
+		- delete_{items}
+
+		Returns array of modification results or WP_Error
+
+		*/
+		public function change_items_of_type($items, $method_name) {
+
+			$results = [];
+
+			if ( !is_array($items) ) {
+				return $this->change_item($items, $method_name);
+			}
+
+			foreach ($items as $item) {
+
+				$result = $this->change_item($item, $method_name);
+
+				if ( is_wp_error($result) ) {
+					return $result;
+				}
+
+				$results[] = $result;
+
+			}
+
+			return $results;
+
+		}
+
+
+		/*
+
+		Inserts items of a specific type
+
+		*/
+		public function insert_items_of_type($items) {
+			return $this->change_items_of_type($items, 'insert_' . $this->type);
+		}
+
+
+		/*
+
+		Deletes items of a specific type
+
+		Usually calls delete_rows as last step
+
+		*/
+		public function delete_items_of_type($items) {
+			return $this->change_items_of_type($items, 'delete_' . $this->type);
+		}
+
+
+		/*
+
+		Updates items of a specific type
+
+		*/
+		public function update_items_of_type($items) {
+			return $this->change_items_of_type($items, 'update_' . $this->type);
+		}
+
+
+		/*
+
+		Main entry point for webhooks
+
+		Returns WP_Error object on error or the number of rows affected on success
+
+		In order to handle an update being initated by _new_ data (e.g., when a new variant is added),
+		we need to compare what's currently in the database with what gets sent back via the
+		product/update webhook.
+
+		*/
+		public function modify_from_shopify($options) {
+
+			$results 				= [];
+			$insert_options = $this->copy($options);
+			$update_options = $this->copy($options);
+			$delete_options = $this->copy($options);
+
+			$items_to_insert = $this->gather_items_for_insertion($insert_options);
+			$items_to_delete = $this->gather_items_for_deletion($update_options);
+			$items_to_update = $this->gather_items_for_updating($delete_options);
+
+			// Insertions
+			$insert_result = $this->maybe_insert($items_to_insert, $options['change_type'] );
+
+			if ( is_wp_error($insert_result) ) {
+				return $insert_result;
+
+			} else {
+				$results['created'][] = $insert_result;
+			}
+
+
+			// Deletions
+			$delete_result = $this->maybe_delete($items_to_delete, $options['change_type'] );
+
+			if ( is_wp_error($delete_result) ) {
+				return $delete_result;
+
+			} else {
+				$results['deleted'][] = $delete_result;
+			}
+
+
+			// Updates
+			$update_result = $this->maybe_update($items_to_update, $options['change_type'] );
+
+			if ( is_wp_error($update_result) ) {
+				return $update_result;
+
+			} else {
+				$results['updated'][] = $update_result;
+			}
+
+	    return $results;
+
+		}
+
 
 	}
 

@@ -5,7 +5,8 @@ namespace WPS\Factories;
 use WPS\WS\Settings_License as WS_Settings_License;
 
 use WPS\Factories\DB_Settings_License_Factory;
-use WPS\Factories\Messages_Factory;
+use WPS\Factories\HTTP_Factory;
+
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -23,7 +24,7 @@ if (!class_exists('WS_Settings_License_Factory')) {
 
 				$WS_Settings_License = new WS_Settings_License(
 					DB_Settings_License_Factory::build(),
-					Messages_Factory::build()
+					HTTP_Factory::build()
 				);
 
 				self::$instantiated = $WS_Settings_License;

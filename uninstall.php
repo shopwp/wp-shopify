@@ -17,11 +17,13 @@ require_once('vendor/autoload.php'); // Composer autoloader
 use WPS\Transients;
 use WPS\Factories\Async_Processing_Database_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\License_Factory;
+use WPS\Factories\DB_Settings_License_Factory;
+use WPS\Factories\WS_Settings_License_Factory;
 
-$Async_Processing_Database = Async_Processing_Database_Factory::build();
-$DB_Settings_General = DB_Settings_General_Factory::build();
-$License = License_Factory::build();
+$Async_Processing_Database 	= Async_Processing_Database_Factory::build();
+$DB_Settings_General 				= DB_Settings_General_Factory::build();
+$DB_Settings_License 				= DB_Settings_License_Factory::build();
+$WS_Settings_License 				= WS_Settings_License_Factory::build();
 
 
 if ($DB_Settings_General->is_free_tier() && $DB_Settings_General->is_pro_tier() ) {

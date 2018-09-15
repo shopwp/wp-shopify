@@ -16,18 +16,30 @@ if (!class_exists('Variants')) {
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
 			$this->table_name         				= WPS_TABLE_NAME_VARIANTS;
+			$this->version            				= '1.0';
       $this->primary_key        				= 'id';
-      $this->version            				= '1.0';
+			$this->lookup_key        					= 'variant_id';
       $this->cache_group        				= 'wps_db_variants';
+			$this->type        								= 'variant';
 
     }
 
 
+		/*
+
+		Table column name / formats
+
+		Important: Used to determine when new columns are added
+
+		*/
   	public function get_columns() {
 
       return [
@@ -61,6 +73,11 @@ if (!class_exists('Variants')) {
     }
 
 
+		/*
+
+		Table default values
+
+		*/
   	public function get_column_defaults() {
 
       return [
@@ -94,167 +111,73 @@ if (!class_exists('Variants')) {
     }
 
 
+		/*
 
-		public function insert_variant($variant) {
-			return $this->insert( $this->rename_primary_key($variant, 'variant_id'), 'variant');
-		}
+		The modify options used for inserting / updating / deleting
 
+		*/
+		public function modify_options($shopify_item, $item_lookup_key = WPS_PRODUCTS_LOOKUP_KEY) {
 
-		public function insert_variants($variants) {
-
-			$results = [];
-
-			foreach ($variants as $variant) {
-
-				$insertion_result = $this->insert_variant($variant);
-
-				if (is_wp_error($insertion_result)) {
-					return $insertion_result;
-				}
-
-				$results[] = $insertion_result;
-
-			}
-
-			return $results;
+			return [
+			  'item'											=> $shopify_item,
+				'item_lookup_key'						=> $item_lookup_key,
+				'item_lookup_value'					=> $shopify_item->id,
+			  'prop_to_access'						=> 'variants',
+			  'change_type'				    		=> 'variant'
+			];
 
 		}
-
-
-    /*
-
-    Insert variant
-
-    */
-    public function insert_variants_from_product($product) {
-
-      $results = [];
-			$product = Utils::convert_array_to_object($product);
-
-      if (isset($product->variants) && $product->variants) {
-				return $this->insert_variants($product->variants);
-      }
-
-      return $results;
-
-    }
-
-
-    /*
-
-    Get single shop info value
-		Returns (array) of insertion results or WP_Error
-
-    */
-  	public function insert_variants_from_products($products) {
-
-      $results = [];
-
-			$products = Utils::wrap_in_array($products);
-
-      foreach ($products as $key => $product) {
-
-				$insertion_result = $this->insert_variants_from_product($product);
-
-				if (is_wp_error($insertion_result)) {
-					return $insertion_result;
-				}
-
-				$results[] = $insertion_result;
-
-      }
-
-      return $results;
-
-    }
 
 
 		/*
 
-		Get Product Variants
+		Mod before change
 
 		*/
-		public function get_variants_from_post_id($postID = null) {
+		public function mod_before_change($variant) {
 
-			global $wpdb;
+			$variant_copy = $this->copy($variant);
+			$variant_copy = $this->maybe_rename_to_lookup_key($variant_copy);
 
-			if ($postID === null) {
-				$postID = get_the_ID();
-			}
-
-			if (get_transient('wps_product_single_variants_' . $postID)) {
-				$variants = get_transient('wps_product_single_variants_' . $postID);
-
-			} else {
-
-				$query = "SELECT variants.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_VARIANTS . " as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
-
-				$variants = $wpdb->get_results( $wpdb->prepare($query, $postID) );
-
-				$variants = Utils::product_inventory(false, $variants);
-
-				set_transient('wps_product_single_variants_' . $postID, $variants);
-
-			}
-
-			return $variants;
+			return $variant_copy;
 
 		}
 
 
-    /*
+		/*
 
-    Update variant from product
+		Inserts a single variant
 
-		In order to handle an update being initated by _new_ data (e.g., when a new variant is added),
-		we need to compare what's currently in the database with what gets sent back via the
-		product/update webhook.
+		$variant comes straight from Shopify
 
-    */
-  	public function update_variants_from_product($product) {
-
-      $results = [];
-      $variantsFromShopify = $product->variants;
-
-      $currentVariants = $this->get_rows('product_id', $product->id);
-      $currentVariantsArray = Utils::convert_object_to_array($currentVariants);
-      $variantsFromShopify = Utils::convert_object_to_array($variantsFromShopify);
-
-      $variantsToAdd = Utils::wps_find_items_to_add($currentVariantsArray, $variantsFromShopify, true);
-      $variantsToDelete = Utils::wps_find_items_to_delete($currentVariantsArray, $variantsFromShopify, true);
+		*/
+		public function insert_variant($variant) {
+			return $this->insert($variant);
+		}
 
 
-      if (count($variantsToAdd) > 0) {
+		/*
 
-        foreach ($variantsToAdd as $key => $newVariant) {
-          $results['created'][] = $this->insert($newVariant, 'variant');
-        }
+		Updates a single variant
 
-      }
+		$variant comes straight from Shopify
 
-
-      if (count($variantsToDelete) > 0) {
-
-        foreach ($variantsToDelete as $key => $oldVariant) {
-
-          if (is_array($oldVariant) && isset($oldVariant['variant_id'])) {
-            $results['deleted'][] = $this->delete($oldVariant['variant_id']);
-          }
-
-        }
-
-      }
+		*/
+		public function update_variant($variant) {
+			return $this->update($this->lookup_key, $this->get_lookup_value($variant), $variant);
+		}
 
 
-      foreach ($product->variants as $key => $variant) {
-        $results['updated'] = $this->update($variant->id, $variant);
-    	}
+		/*
 
+		Deletes a single variant
 
-      return $results;
+		$variant comes straight from Shopify
 
-    }
-
+		*/
+		public function delete_variant($variant) {
+			return $this->delete_rows($this->lookup_key, $this->get_lookup_value($variant));
+		}
 
 
 		/*
@@ -263,9 +186,168 @@ if (!class_exists('Variants')) {
 
 	  */
 	  public function delete_variants_from_product_id($product_id) {
-			return $this->delete_rows('product_id', $product_id);
+			return $this->delete_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
 	  }
 
+
+		/*
+
+		Gets variants based on a Shopify product id
+
+		*/
+		public function get_variants_from_product_id($product_id) {
+			return $this->get_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
+		}
+
+
+		/*
+
+		Get Product Variants
+
+		Note: only gets variants that are in stock, perhaps we change
+
+		*/
+		public function get_in_stock_variants_from_post_id($post_id = null) {
+
+			global $wpdb;
+
+			if ($post_id === null) {
+				$post_id = get_the_ID();
+			}
+
+			if (get_transient('wps_product_single_variants_in_stock_' . $post_id)) {
+				return get_transient('wps_product_single_variants_in_stock_' . $post_id);
+			}
+
+			$query = $this->get_variants_from_post_id_query();
+			$query_prepared = $wpdb->prepare($query, $post_id);
+
+			$variants = $wpdb->get_results($query_prepared);
+
+			$variants = Utils::product_inventory(false, $variants);
+
+			set_transient('wps_product_single_variants_in_stock_' . $post_id, $variants);
+
+			return $variants;
+
+		}
+
+
+		/*
+
+		Get Product Variants
+
+		Note: only gets variants that are in stock, perhaps we change
+
+		*/
+		public function get_all_variants_from_post_id($post_id = null) {
+
+			global $wpdb;
+
+			if ( $post_id === null ) {
+				$post_id = get_the_ID();
+			}
+
+			if ( get_transient('wps_product_single_all_variants_' . $post_id) ) {
+				return get_transient('wps_product_single_all_variants_' . $post_id);
+			}
+
+			$query = $this->get_variants_from_post_id_query();
+			$query_prepared = $wpdb->prepare($query, $post_id);
+
+			$variants = $wpdb->get_results($query_prepared);
+
+			set_transient('wps_product_single_all_variants_' . $post_id, $variants);
+
+			return $variants;
+
+		}
+
+
+		/*
+
+		Get Product Variants
+
+		Note: only gets variants that are in stock, perhaps we change
+
+		*/
+		public function get_variants_from_post_id_query() {
+			return "SELECT variants.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_VARIANTS . " as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
+		}
+
+
+		/*
+
+		Responsible for getting the variants amount
+
+		*/
+		public function get_variants_amount($variants) {
+			return count($variants);
+		}
+
+
+		/*
+
+		Responsible for sorting by price
+
+		*/
+		public function sort_by_price($item_a, $item_b) {
+			return $item_a->price > $item_b->price;
+		}
+
+
+		/*
+
+		Responsible for sorting variants by price
+
+		*/
+		public function sort_variants_by_price($variants) {
+
+			usort($variants, [__CLASS__, 'sort_by_price']);
+
+			return $variants;
+
+		}
+
+
+		/*
+
+		Responsible for retrieving the first variant price in a list of product variants
+
+		*/
+		public function get_first_variant_price($variants) {
+			return $variants[0]->price;
+		}
+
+
+		/*
+
+		Responsible for checking if all variant prices match
+
+		*/
+		public function check_if_all_variant_prices_match($last_variant_price, $first_variant_price) {
+			return $last_variant_price === $first_variant_price;
+		}
+
+
+		/*
+
+		Responsible for getting the last variant index
+
+		*/
+		public function get_last_variant_index($variants_amount) {
+			return $variants_amount - 1;
+		}
+
+
+		/*
+
+		Responsible for getting the last variant price
+
+		*/
+		public function get_last_variant_price($variants, $last_variant_index) {
+			return $variants[$last_variant_index]->price;
+		}
 
 
     /*

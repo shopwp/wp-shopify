@@ -16,20 +16,30 @@ if (!class_exists('Collects')) {
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      global $wpdb;
-
-      $this->table_name         			= WPS_TABLE_NAME_COLLECTS;
-      $this->primary_key        			= 'id';
-      $this->version            			= '1.0';
-      $this->cache_group        			= 'wps_db_collects';
+      $this->table_name         	= WPS_TABLE_NAME_COLLECTS;
+			$this->version            	= '1.0';
+      $this->primary_key        	= 'id';
+			$this->lookup_key        		= 'collect_id';
+      $this->cache_group        	= 'wps_db_collects';
+			$this->type        					= 'collect';
 
     }
 
 
+		/*
+
+		Table column name / formats
+
+		Important: Used to determine when new columns are added
+
+		*/
   	public function get_columns() {
 
       return [
@@ -47,6 +57,11 @@ if (!class_exists('Collects')) {
     }
 
 
+		/*
+
+		Table default values
+
+		*/
   	public function get_column_defaults() {
 
       return [
@@ -64,77 +79,89 @@ if (!class_exists('Collects')) {
     }
 
 
-		public function insert_collect($collect) {
-			return $this->insert( $this->rename_primary_key($collect, 'collect_id'), 'collect');
-		}
-
-
-    /*
-
-    Insert Collects
-
-    */
-  	public function insert_collects($collects) {
-
-      $results = [];
-
-      if (Utils::array_not_empty($collects)) {
-
-        foreach ($collects as $key => $collect) {
-          $results[] = $this->insert_collect($collect);
-        }
-
-      }
-
-      return $results;
-
-    }
-
-
 		/*
 
-    Insert Collects
-
-    */
-  	public function delete_collects($collects) {
-
-      $results = [];
-
-      if (Utils::array_not_empty($collects)) {
-
-        foreach ($collects as $key => $collect) {
-          $results[] = $this->delete($collect->collect_id);
-        }
-
-      }
-
-      return $results;
-
-    }
-
-
-
-
-		/*
-
-		Gets collects by product ID
+		The modify options used for inserting / updating / deleting
 
 		*/
-		public function get_collects_by_product_id($productID) {
+		public function modify_options($shopify_item, $item_lookup_key = WPS_PRODUCTS_LOOKUP_KEY) {
 
-			global $wpdb;
-
-			$collects_table_name = WPS_TABLE_NAME_COLLECTS;
-
-			$query = "SELECT * FROM $collects_table_name collects WHERE collects.product_id = %d;";
-
-      return $wpdb->get_results(
-        $wpdb->prepare($query, $productID)
-      );
+			return [
+			  'item'									=> $shopify_item,
+				'item_lookup_key'				=> $item_lookup_key,
+				'item_lookup_value'			=> $shopify_item->id,
+			  'prop_to_access'				=> 'collects',
+			  'change_type'				    => 'collect'
+			];
 
 		}
 
 
+		/*
+
+		Mod before change
+
+		*/
+		public function mod_before_change($collect) {
+
+			$collect_copy = $this->copy($collect);
+			$collect_copy = $this->maybe_rename_to_lookup_key($collect_copy);
+
+			return $collect_copy;
+
+		}
+
+
+		/*
+
+		Insert single collect
+
+		*/
+		public function insert_collect($collect) {
+			return $this->insert($collect);
+		}
+
+
+		/*
+
+		Updates a single collect
+
+		*/
+		public function update_collect($collect) {
+			return $this->update($this->lookup_key, $this->get_lookup_value($collect), $collect);
+		}
+
+
+		/*
+
+		Deletes a single image
+
+		The two params to delete_rows must match
+
+		*/
+		public function delete_collect($collect) {
+			return $this->delete_rows($this->lookup_key, $this->get_lookup_value($collect));
+		}
+
+
+		/*
+
+		Delete collects by collection ID
+
+		*/
+		public function delete_collects_from_collection_id($collection_id) {
+			return $this->delete_rows(WPS_COLLECTIONS_LOOKUP_KEY, $collection_id);
+		}
+
+
+		/*
+
+    Delete collects from product ID
+
+    */
+		public function delete_collects_from_product_id($product_id) {
+			return $this->delete_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
+		}
 
 
 		/*
@@ -147,28 +174,18 @@ if (!class_exists('Collects')) {
 			$collect_ids = Utils::extract_ids_from_object($collects);
 			$collect_ids = Utils::convert_to_comma_string($collect_ids);
 
-			return $this->delete_rows_in('collect_id', $collect_ids);
+			return $this->delete_rows_in($this->lookup_key, $collect_ids);
 
 		}
 
 
-		/*
-
-		Delete collects by collection ID
-
-		*/
-		public function delete_collects_from_collection_id($collection_id) {
-			return $this->delete_rows('collection_id', $collection_id);
+		public function get_collects_from_product_id($product_id) {
+			return $this->get_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
 		}
 
 
-		/*
-
-    Delete collects from product ID
-
-    */
-		public function delete_collects_from_product_id($product_id) {
-			return $this->delete_rows('product_id', $product_id);
+		public function get_collects_from_collection_id($collection_id) {
+			return $this->get_rows(WPS_COLLECTIONS_LOOKUP_KEY, $collection_id);
 		}
 
 

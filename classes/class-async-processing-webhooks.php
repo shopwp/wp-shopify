@@ -14,13 +14,11 @@ if ( !class_exists('Async_Processing_Webhooks') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $Webhooks;
-		protected $WS;
 
 
-		public function __construct($DB_Settings_Syncing, $WS, $Webhooks) {
+		public function __construct($DB_Settings_Syncing, $Webhooks) {
 
 			$this->DB_Settings_Syncing				=	$DB_Settings_Syncing;
-			$this->WS													=	$WS;
 			$this->Webhooks 									= $Webhooks;
 
 			parent::__construct();
@@ -42,11 +40,10 @@ if ( !class_exists('Async_Processing_Webhooks') ) {
 			}
 
 			// Actual work
-			$result = $this->Webhooks->register_webhook($topic, $this->Webhooks->get_callback_name_from_topic($topic));
-
+			$result = $this->Webhooks->register_webhook( $topic, $this->Webhooks->get_callback_name_from_topic($topic) );
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -63,6 +60,12 @@ if ( !class_exists('Async_Processing_Webhooks') ) {
 
 		public function insert_webhooks_batch($webhooks) {
 
+			if ( $this->DB_Settings_Syncing->max_packet_size_reached($webhooks) ) {
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+			}
+
 			foreach ($webhooks as $topic => $status_code) {
 				$this->push_to_queue($topic);
 			}
@@ -75,7 +78,7 @@ if ( !class_exists('Async_Processing_Webhooks') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

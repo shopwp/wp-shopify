@@ -14,9 +14,11 @@ if (!class_exists('Settings_Connection')) {
   class Settings_Connection extends \WPS\DB {
 
     public $table_name;
-		public $primary_key;
   	public $version;
+  	public $primary_key;
+		public $lookup_key;
 		public $cache_group;
+		public $type;
 
 		public $id;
 		public $domain;
@@ -35,9 +37,11 @@ if (!class_exists('Settings_Connection')) {
       global $wpdb;
 
       $this->table_name      					= WPS_TABLE_NAME_SETTINGS_CONNECTION;
+			$this->version         					= '1.0';
       $this->primary_key     					= 'id';
-      $this->version         					= '1.0';
+      $this->lookup_key     					= 'id';
       $this->cache_group     					= 'wps_db_connection';
+			$this->type     								= 'settings_connection';
 
 			$this->id 											= 1;
 			$this->domain 									= '';
@@ -98,18 +102,17 @@ if (!class_exists('Settings_Connection')) {
 
       if (isset($connectionData['domain']) && $connectionData['domain']) {
 
-        if ($this->get_by('domain', $connectionData['domain'])) {
+        if ($this->get_row_by('domain', $connectionData['domain'])) {
 
-          $rowID = $this->get_column_by('id', 'domain', $connectionData['domain']);
-          $results = $this->update($rowID, $connectionData);
+          $row_id = $this->get_column_by('id', 'domain', $connectionData['domain']);
+          $results = $this->update($this->lookup_key, $row_id, $connectionData);
 
         } else {
-          $results = $this->insert($connectionData, 'connection');
+          $results = $this->insert($connectionData);
         }
 
       } else {
-
-				$results = new \WP_Error('error', __('Please make sure you\'ve entered your Shopify domain.', WPS_PLUGIN_TEXT_DOMAIN));
+				$results = Utils::wp_error( __('Please make sure you\'ve entered your Shopify domain.', WPS_PLUGIN_TEXT_DOMAIN) );
 
       }
 

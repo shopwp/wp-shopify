@@ -6,7 +6,6 @@ use WPS\Async_Processing_Products;
 
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Products_Factory;
-use WPS\Factories\WS_Factory;
 
 
 if (!defined('ABSPATH')) {
@@ -25,8 +24,7 @@ if (!class_exists('Async_Processing_Products_Factory')) {
 
 				$Async_Processing_Products = new Async_Processing_Products(
 					DB_Settings_Syncing_Factory::build(),
-					DB_Products_Factory::build(),
-					WS_Factory::build()
+					DB_Products_Factory::build()
 				);
 
 				self::$instantiated = $Async_Processing_Products;

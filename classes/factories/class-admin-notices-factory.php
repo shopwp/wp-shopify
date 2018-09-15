@@ -5,7 +5,6 @@ namespace WPS\Factories;
 use WPS\Admin_Notices;
 
 use WPS\Factories\WS_Factory;
-use WPS\Factories\Messages_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 
 
@@ -25,7 +24,6 @@ if (!class_exists('Admin_Notices_Factory')) {
 
 				$Admin_Notices = new Admin_Notices(
 					WS_Factory::build(),
-					Messages_Factory::build(),
 					DB_Settings_General_Factory::build()
 				);
 

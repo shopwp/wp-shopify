@@ -3,6 +3,7 @@
 namespace WPS\WS;
 
 use WPS\Utils;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -15,15 +16,14 @@ if (!class_exists('Settings_Connection')) {
   class Settings_Connection extends \WPS\WS {
 
 		protected $DB_Settings_Connection;
-		protected $Messages;
 		protected $DB_Settings_General;
+		protected $HTTP;
 
-  	public function __construct($DB_Settings_Connection, $Messages, $Guzzle, $DB_Settings_General) {
+  	public function __construct($DB_Settings_Connection, $DB_Settings_General, $HTTP) {
 
 			$this->DB_Settings_Connection				= $DB_Settings_Connection;
-			$this->Messages											= $Messages;
-			$this->Guzzle												= $Guzzle;
 			$this->DB_Settings_General					= $DB_Settings_General;
+			$this->HTTP													= $HTTP;
 
     }
 
@@ -36,8 +36,8 @@ if (!class_exists('Settings_Connection')) {
 		*/
 		public function delete_settings_connection() {
 
-			if ( !$this->DB_Settings_Connection->delete() ) {
-				return new \WP_Error('error', $this->Messages->message_delete_connection_error . ' (delete_settings_connection)');
+			if ( !$this->DB_Settings_Connection->truncate() ) {
+				return Utils::wp_error( Messages::get('delete_connection_error') );
 
 			} else {
 				return true;
@@ -54,7 +54,7 @@ if (!class_exists('Settings_Connection')) {
 	  public function get_connection() {
 
 			if (!Utils::valid_backend_nonce($_GET['nonce'])) {
-			  $this->send_error($this->Messages->message_nonce_invalid . ' (get_connection)');
+			  $this->send_error( Messages::get('nonce_invalid') . ' (get_connection)' );
 			}
 
 	    if (get_transient('wps_settings_connection')) {
@@ -80,7 +80,7 @@ if (!class_exists('Settings_Connection')) {
 		public function remove_connection() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-			  $this->send_error($this->Messages->message_nonce_invalid . ' (remove_connection)');
+			  $this->send_error( Messages::get('nonce_invalid') . ' (remove_connection)' );
 			}
 
 			$response_connection_settings = $this->delete_settings_connection();
@@ -106,7 +106,7 @@ if (!class_exists('Settings_Connection')) {
 	  public function save_connection() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (save_connection)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (save_connection)' );
 			}
 
 			$data_to_send_back = [];
@@ -123,7 +123,7 @@ if (!class_exists('Settings_Connection')) {
 
 
 			if (is_wp_error($insert_result)) {
-	      $this->send_error($this->Messages->message_connection_save_error . ' (save_connection)');
+	      $this->send_error( Messages::get('connection_save_error') . ' (save_connection)' );
 
 	    } else {
 	      $this->send_success($data_to_send_back);
@@ -166,12 +166,51 @@ if (!class_exists('Settings_Connection')) {
 
 
 
+
+		/*
+
+		Checks for a valid (open) connection to the web server based on a URL. Useful to check
+		whether the syncing will even work before starting ...
+
+		WP Shopify addon
+
+		@param string $url
+		@return boolean
+
+		*/
+		public function has_valid_server_connection() {
+
+		  $url = $_SERVER['HTTP_REFERER'];
+
+		  $url_parts = @parse_url($url);
+
+		  if (!$url_parts) return false;
+		  if (!isset($url_parts['host'])) return false; //can't process relative URLs
+		  if (!isset($url_parts['path'])) $url_parts['path'] = '/';
+
+		  $socket = fsockopen($url_parts['host'], (isset($url_parts['port']) ? (int)$url_parts['port'] : 80), $errno, $errstr, 30);
+
+		  if (!$socket) {
+		    return Utils::wp_error( Messages::get('invalid_server_connection') );
+
+		  } else {
+		    return true;
+		  }
+
+		}
+
+
+		/*
+
+		Responsible for checking for a valid server connection
+
+		*/
 		public function check_valid_server_connection() {
 
 			$active_connection = $this->has_valid_server_connection();
 
 			if ( is_wp_error($active_connection) ) {
-				$this->send_error($active_connection->get_error_message() . ' (check_valid_server_connection)');
+				$this->send_error( $active_connection->get_error_message() . ' (check_valid_server_connection)' );
 			}
 
 			$this->send_success();
@@ -182,10 +221,10 @@ if (!class_exists('Settings_Connection')) {
 
 		public function check_connection() {
 
-			$storefront_tokens = $this->get('/admin/storefront_access_tokens.json');
+			$storefront_tokens = $this->HTTP->get('/admin/storefront_access_tokens.json');
 
 			if ( is_wp_error($storefront_tokens) ) {
-				$this->send_error($storefront_tokens->get_error_message() . ' (check_connection)');
+				$this->send_error( $storefront_tokens->get_error_message() . ' (check_connection)' );
 			}
 
 			$this->send_success();

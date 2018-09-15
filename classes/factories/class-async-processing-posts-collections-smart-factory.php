@@ -9,10 +9,7 @@ if (!defined('ABSPATH')) {
 use WPS\Async_Processing_Posts_Collections_Smart;
 
 use WPS\Factories\DB_Settings_Syncing_Factory;
-use WPS\Factories\WS_Factory;
 use WPS\Factories\CPT_Query_Factory;
-use WPS\Factories\DB_Collections_Smart_Factory;
-
 
 if (!class_exists('Async_Processing_Posts_Collections_Smart_Factory')) {
 
@@ -26,9 +23,7 @@ if (!class_exists('Async_Processing_Posts_Collections_Smart_Factory')) {
 
 				$Async_Processing_Posts_Collections_Smart = new Async_Processing_Posts_Collections_Smart(
 					DB_Settings_Syncing_Factory::build(),
-					WS_Factory::build(),
-					CPT_Query_Factory::build(),
-					DB_Collections_Smart_Factory::build()
+					CPT_Query_Factory::build()
 				);
 
 				self::$instantiated = $Async_Processing_Posts_Collections_Smart;

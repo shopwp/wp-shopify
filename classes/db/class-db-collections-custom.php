@@ -13,21 +13,24 @@ if (!defined('ABSPATH')) {
 
 if (!class_exists('Collections_Custom')) {
 
-  class Collections_Custom extends \WPS\DB\Collections {
+  class Collections_Custom extends \WPS\DB {
 
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      global $wpdb;
-
-      $this->table_name         				= WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
-      $this->primary_key        				= 'id';
-      $this->version            				= '1.0';
-      $this->cache_group        				= 'wps_db_collections_custom';
+      $this->table_name         		= WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+			$this->version            		= '1.0';
+      $this->primary_key        		= 'id';
+      $this->lookup_key        			= WPS_COLLECTIONS_LOOKUP_KEY;
+      $this->cache_group        		= 'wps_db_collections_custom';
+			$this->type        						= 'collection';
 
     }
 
@@ -84,45 +87,6 @@ if (!class_exists('Collections_Custom')) {
     }
 
 
-
-    /*
-
-    Inserts Single Collection + associated Collects
-    @param object
-
-    */
-  	public function insert_custom_collection($collection) {
-
-			$collection = Utils::flatten_collections_image_prop($collection);
-			$collection = $this->rename_primary_key($collection, 'collection_id');
-
-      return $this->insert($collection, 'custom_collection');
-
-    }
-
-
-    /*
-
-    update_custom_collection
-    @param Object
-
-    */
-    public function update_custom_collection($collection) {
-      return $this->update_collection($collection);
-    }
-
-
-    /*
-
-    delete_custom_collection
-    @param Object
-
-    */
-    public function delete_custom_collection($collection) {
-      return $this->delete($collection->id);
-    }
-
-
     /*
 
     Default Custom Collections Query
@@ -143,26 +107,6 @@ if (!class_exists('Collections_Custom')) {
       );
 
     }
-
-
-		/*
-
-		Assigns a post id to the product data
-
-		*/
-		public function assign_post_id_to_custom_collection($post_id, $collection_id) {
-
-			global $wpdb;
-
-			return $wpdb->update(
-				$this->table_name,
-				['post_id' => $post_id],
-				['collection_id' => $collection_id],
-				['%d'],
-				['%d']
-			);
-
-		}
 
 
     /*

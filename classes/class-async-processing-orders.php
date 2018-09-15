@@ -16,13 +16,11 @@ if ( !class_exists('Async_Processing_Orders') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Orders;
-		protected $WS;
 
-		public function __construct($DB_Settings_Syncing, $DB_Orders, $WS) {
+		public function __construct($DB_Settings_Syncing, $DB_Orders) {
 
 			$this->DB_Settings_Syncing				=	$DB_Settings_Syncing;
 			$this->DB_Orders 									= $DB_Orders;
-			$this->WS													= $WS;
 
 			parent::__construct();
 
@@ -42,13 +40,16 @@ if ( !class_exists('Async_Processing_Orders') ) {
 				return false;
 			}
 
-
 			// Actual work
-			$result = $this->DB_Orders->insert_order($order);
+			$result = $this->DB_Orders->insert_items_of_type( $this->DB_Orders->mod_before_change($order) );
+
+
+			// Save warnings if exist ...
+			$this->DB_Settings_Syncing->maybe_save_warning_from_insert($result, 'Order', $order->id);
 
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -65,6 +66,15 @@ if ( !class_exists('Async_Processing_Orders') ) {
 
 		public function insert_orders_batch($orders) {
 
+			if ( $this->DB_Orders->max_packet_size_reached($orders) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			foreach ($orders as $order) {
 				$this->push_to_queue($order);
 			}
@@ -77,7 +87,7 @@ if ( !class_exists('Async_Processing_Orders') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

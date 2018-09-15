@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Transients;
+use WPS\Messages;
 use WPS\Utils;
 
 
@@ -14,7 +15,6 @@ if ( !class_exists('Cart') ) {
 
 	class Cart {
 
-		private $Messages;
 		private $WS;
 
 	  /*
@@ -22,9 +22,8 @@ if ( !class_exists('Cart') ) {
 	  Initialize the class and set its properties.
 
 	  */
-	  public function __construct($Messages, $WS) {
-			$this->Messages		= $Messages;
-			$this->WS					= $WS;
+	  public function __construct($WS) {
+			$this->WS = $WS;
 	  }
 
 
@@ -36,7 +35,7 @@ if ( !class_exists('Cart') ) {
 		public function get_checkout_cache() {
 
 			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (get_checkout_cache)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (get_checkout_cache)');
 			}
 
 			if (isset($_POST['checkoutID']) && $_POST['checkoutID']) {
@@ -66,7 +65,7 @@ if ( !class_exists('Cart') ) {
 		public function set_checkout_cache() {
 
 			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (set_checkout_cache)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (set_checkout_cache)');
 			}
 
 			$checkoutName = 'wps_cart_' . $_POST['checkoutID'];
@@ -85,12 +84,12 @@ if ( !class_exists('Cart') ) {
 					$this->WS->send_success($checkoutName);
 
 				} else {
-					$this->WS->send_error( $this->Messages->message_unable_to_cache_checkout . ' (set_checkout_cache)' );
+					$this->WS->send_error( Messages::get('unable_to_cache_checkout') . ' (set_checkout_cache)' );
 				}
 
 
 			} else {
-				$this->WS->send_error( $this->Messages->message_missing_checkout_id . ' (set_checkout_cache)' );
+				$this->WS->send_error( Messages::get('missing_checkout_id') . ' (set_checkout_cache)' );
 
 			}
 

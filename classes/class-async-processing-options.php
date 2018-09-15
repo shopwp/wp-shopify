@@ -14,14 +14,12 @@ if ( !class_exists('Async_Processing_Options') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Options;
-		protected $WS;
 
 
-		public function __construct($DB_Settings_Syncing, $DB_Options, $WS) {
+		public function __construct($DB_Settings_Syncing, $DB_Options) {
 
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
 			$this->DB_Options 								= $DB_Options;
-			$this->WS 												= $WS;
 
 			parent::__construct();
 
@@ -41,13 +39,11 @@ if ( !class_exists('Async_Processing_Options') ) {
 				return false;
 			}
 
-
 			// Actual work
-			$result = $this->DB_Options->insert_option($product);
-
+			$result = $this->DB_Options->insert_items_of_type($product->options);
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -64,6 +60,12 @@ if ( !class_exists('Async_Processing_Options') ) {
 
 		public function insert_options_batch($products) {
 
+			if ( $this->DB_Settings_Syncing->max_packet_size_reached($products) ) {
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+			}
+
 			foreach ($products as $product) {
 				$this->push_to_queue($product);
 			}
@@ -76,7 +78,7 @@ if ( !class_exists('Async_Processing_Options') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

@@ -13,14 +13,13 @@ if ( !class_exists('Async_Processing_Collections_Custom') ) {
 		protected $action = 'wps_background_processing_collections_custom';
 
 		protected $DB_Settings_Syncing;
-		protected $DB_Collections_Custom;
-		protected $WS;
+		protected $DB_Collections;
 
-		public function __construct($DB_Settings_Syncing, $DB_Collections_Custom, $WS) {
+
+		public function __construct($DB_Settings_Syncing, $DB_Collections) {
 
 			$this->DB_Settings_Syncing				=	$DB_Settings_Syncing;
-			$this->DB_Collections_Custom 			= $DB_Collections_Custom;
-			$this->WS													=	$WS;
+			$this->DB_Collections 						= $DB_Collections;
 
 			parent::__construct();
 
@@ -40,14 +39,21 @@ if ( !class_exists('Async_Processing_Collections_Custom') ) {
 				return false;
 			}
 
-
 			// Actual work
-			$result = $this->DB_Collections_Custom->insert_custom_collection($custom_collection);
+			$result = $this->DB_Collections->insert_items_of_type( $this->DB_Collections->mod_before_change($custom_collection) );
+
+
+			if ($custom_collection->id === 19451019300) {
+				$result = false;
+			}
+
+			// Save warnings if exist ...
+			$this->DB_Settings_Syncing->maybe_save_warning_from_insert($result, 'Collection', $custom_collection->title);
 
 
 			if (is_wp_error($result)) {
 
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 
@@ -70,6 +76,15 @@ if ( !class_exists('Async_Processing_Collections_Custom') ) {
 		*/
 		public function insert_custom_collections_batch($custom_collections) {
 
+			if ( $this->DB_Settings_Syncing->max_packet_size_reached($custom_collections) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			foreach ($custom_collections as $key => $custom_collection) {
 				$this->push_to_queue($custom_collection);
       }
@@ -82,7 +97,7 @@ if ( !class_exists('Async_Processing_Collections_Custom') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

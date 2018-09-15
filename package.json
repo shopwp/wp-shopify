@@ -57,6 +57,7 @@
     "chosen-js": "^1.8.7",
     "cls-bluebird": "^2.1.0",
     "copy-webpack-plugin": "^4.5.1",
+    "core-js": "^2.5.7",
     "css-loader": "^1.0.0",
     "css-mqpacker": "^7.0.0",
     "cssnano": "^4.0.5",

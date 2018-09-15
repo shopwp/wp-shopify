@@ -4,7 +4,6 @@ namespace WPS\Factories;
 
 use WPS\Cart;
 
-use WPS\Factories\Messages_Factory;
 use WPS\Factories\WS_Factory;
 
 if (!defined('ABSPATH')) {
@@ -22,7 +21,6 @@ if (!class_exists('Cart_Factory')) {
 			if (is_null(self::$instantiated)) {
 
 				$Cart = new Cart(
-					Messages_Factory::build(),
 					WS_Factory::build()
 				);
 

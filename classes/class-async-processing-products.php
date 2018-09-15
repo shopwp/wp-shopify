@@ -16,16 +16,13 @@ if ( !class_exists('Async_Processing_Products') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Products;
-		protected $WS;
 		protected $compatible_charset;
 
-		public function __construct($DB_Settings_Syncing, $DB_Products, $WS) {
+		public function __construct($DB_Settings_Syncing, $DB_Products) {
 
 			$this->DB 												= $DB_Settings_Syncing; // used only for readability
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
 			$this->DB_Products 								= $DB_Products;
-			$this->WS 												= $WS;
-
 			$this->compatible_charsets				= true;
 
 			parent::__construct();
@@ -42,11 +39,19 @@ if ( !class_exists('Async_Processing_Products') ) {
 			}
 
 			// Actual work
-			$result = $this->DB_Products->insert_product($product);
-			
+			$result = $this->DB_Products->insert_items_of_type( $this->DB_Products->mod_before_change($product) );
+
+
+			if ($product->id === 663507370020) {
+				$result = false;
+			}
+
+			// Save warnings if exist ...
+			$this->DB_Settings_Syncing->maybe_save_warning_from_insert($result, 'Product', $product->title);
+
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -89,6 +94,14 @@ if ( !class_exists('Async_Processing_Products') ) {
 		*/
 		public function insert_products_batch($products) {
 
+			if ( $this->DB->max_packet_size_reached($products) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
 			$products_filtered = Utils::filter_data_by($products, ['variants', 'options']);
 
 			foreach ($products_filtered as $product) {
@@ -108,7 +121,7 @@ if ( !class_exists('Async_Processing_Products') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

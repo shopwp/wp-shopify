@@ -4,6 +4,7 @@ namespace WPS\WS;
 
 use WPS\Utils;
 use WPS\Transients;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -13,16 +14,10 @@ if (!class_exists('Tools')) {
 
   class Tools extends \WPS\WS {
 
-
 		protected $DB_Settings_Syncing;
-		protected $Messages;
 
-
-		public function __construct($DB_Settings_Syncing, $Messages) {
-
-			$this->DB_Settings_Syncing		= $DB_Settings_Syncing;
-			$this->Messages								= $Messages;
-
+		public function __construct($DB_Settings_Syncing) {
+			$this->DB_Settings_Syncing = $DB_Settings_Syncing;
 		}
 
 
@@ -38,8 +33,8 @@ if (!class_exists('Tools')) {
 		*/
 		public function clear_cache() {
 
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid  . ' (clear_cache)');
+			if ( !Utils::valid_backend_nonce($_POST['nonce']) ) {
+				$this->send_error( Messages::get('nonce_invalid')  . ' (clear_cache)' );
 			}
 
 			$results_cache = $this->DB_Settings_Syncing->reset_syncing_cache();

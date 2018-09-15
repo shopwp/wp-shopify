@@ -4,6 +4,7 @@ namespace WPS\DB;
 
 use WPS\Utils;
 use WPS\Transients;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -14,9 +15,12 @@ if (!class_exists('Settings_Syncing')) {
   class Settings_Syncing extends \WPS\DB {
 
     public $table_name;
+  	public $version;
   	public $primary_key;
-		public $version;
+		public $lookup_key;
 		public $cache_group;
+		public $type;
+
 		public $is_syncing;
 		public $syncing_step_total;
 		public $syncing_step_current;
@@ -50,10 +54,12 @@ if (!class_exists('Settings_Syncing')) {
 
       global $wpdb;
 
-      $this->table_name      = WPS_TABLE_NAME_SETTINGS_SYNCING;
-      $this->primary_key     = 'id';
-      $this->version         = '1.0';
-      $this->cache_group     = 'wps_db_syncing';
+      $this->table_name      															= WPS_TABLE_NAME_SETTINGS_SYNCING;
+			$this->version         															= '1.0';
+      $this->primary_key     															= 'id';
+      $this->lookup_key     															= 'id';
+      $this->cache_group     															= 'wps_db_syncing';
+			$this->type     																		= 'settings_syncing';
 
 			$this->is_syncing 																	= 0;
 
@@ -1122,11 +1128,11 @@ if (!class_exists('Settings_Syncing')) {
 		Saves an error notice
 
 		*/
-		public function save_error($error_message, $type) {
+		public function save_error($error_message) {
 
 			$current_errors = $this->get_syncing_errors();
 
-			$serialized_errors = $this->prepare_notice_for_save($current_errors, $error_message, $type);
+			$serialized_errors = $this->prepare_notice_for_save($current_errors, $error_message, 'error');
 
 			return $this->update_column_single(['syncing_errors' => $serialized_errors], ['id' => 1]);
 
@@ -1138,10 +1144,10 @@ if (!class_exists('Settings_Syncing')) {
 		Saves an warning notice
 
 		*/
-		public function save_warning($error_message, $type) {
+		public function save_warning($error_message) {
 
 			$current_warnings = $this->get_syncing_warnings();
-			$serialized_warnings = $this->prepare_notice_for_save($current_warnings, $error_message, $type);
+			$serialized_warnings = $this->prepare_notice_for_save($current_warnings, $error_message, 'warning');
 
 			return $this->update_column_single(['syncing_warnings' => $serialized_warnings], ['id' => 1]);
 
@@ -1153,20 +1159,56 @@ if (!class_exists('Settings_Syncing')) {
 		Wrapper for saving a notice (error or warning)
 
 		*/
-		public function save_notice($error_message = false, $type) {
+		public function save_notice($WP_Error) {
+
+			$error_message 	= $WP_Error->get_error_message();
+			$type						= $WP_Error->get_error_code();
 
 			if ($error_message) {
 
 				if ($type === 'error') {
-					return $this->save_error($error_message, $type);
+					return $this->save_error($error_message);
 				}
 
 				if ($type === 'warning') {
-					return $this->save_warning($error_message, $type);
+					return $this->save_warning($error_message);
 				}
 
 			}
 
+		}
+
+
+		/*
+
+		Saves error and stops the syncing process
+
+		*/
+		public function save_notice_and_stop_sync($WP_Error) {
+
+			$this->save_notice($WP_Error);
+			$this->expire_sync();
+
+		}
+
+
+		/*
+
+		Ends a progress bar instance
+
+		*/
+		public function expire_sync() {
+
+			if ($this->is_syncing()) {
+				$this->reset_all_syncing_totals();
+				$this->reset_syncing_cache();
+			}
+
+		}
+
+
+		public function throw_max_allowed_packet() {
+			return Utils::wp_error( Messages::get('max_allowed_packet') );
 		}
 
 
@@ -1230,6 +1272,20 @@ if (!class_exists('Settings_Syncing')) {
 
 		/*
 
+		Helper for saving warnings during syncing
+
+		*/
+		public function maybe_save_warning_from_insert($result, $type, $identifier) {
+
+			if ($result === false) {
+				$this->save_warning("Unable to sync " . $type . ": " . $identifier);
+			}
+
+		}
+
+
+		/*
+
 		Initializes table with default row
 
 		*/
@@ -1238,7 +1294,7 @@ if (!class_exists('Settings_Syncing')) {
       $results = [];
 
 			if ( !$this->table_has_been_initialized('id') ) {
-				$results = $this->insert($this->get_column_defaults(), 'syncing');
+				$results = $this->insert( $this->get_column_defaults() );
 			}
 
       return $results;

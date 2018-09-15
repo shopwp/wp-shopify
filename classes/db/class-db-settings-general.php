@@ -15,8 +15,12 @@ if (!class_exists('Settings_General')) {
   class Settings_General extends \WPS\DB {
 
     public $table_name;
-    public $primary_key;
   	public $version;
+  	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
+
   	public $webhooks;
     public $plugin_version;
     public $plugin_author;
@@ -24,22 +28,20 @@ if (!class_exists('Settings_General')) {
     public $plugin_name;
 		public $title_as_alt;
     public $num_posts;
-    public $cache_group;
     public $selective_sync_status;
 		public $products_link_to_shopify;
 		public $show_breadcrumbs;
 		public $hide_pagination;
 		public $is_pro;
 		public $is_free;
-
 		public $related_products_show;
 		public $related_products_sort;
 		public $related_products_amount;
 		public $allow_insecure_webhooks;
-
 		public $sync_by_collections;
 		public $save_connection_only;
 		public $app_uninstalled;
+		public $items_per_request;
 
 
   	public function __construct() {
@@ -47,24 +49,24 @@ if (!class_exists('Settings_General')) {
       global $wpdb;
 
       $this->table_name                     						= WPS_TABLE_NAME_SETTINGS_GENERAL;
+			$this->version                        						= '1.0';
       $this->primary_key                    						= 'id';
-      $this->version                        						= '1.0';
+			$this->lookup_key                    							= 'id';
+      $this->cache_group                    						= 'wps_db_general';
+			$this->type     																	= 'settings_general';
+
       $this->webhooks                       						= Utils::convert_to_https_url( get_home_url() );
       $this->plugin_version                 						= WPS_NEW_PLUGIN_VERSION;
       $this->plugin_author                  						= WPS_NEW_PLUGIN_AUTHOR;
       $this->plugin_textdomain              						= WPS_PLUGIN_NAME;
       $this->plugin_name                    						= WPS_PLUGIN_NAME_FULL;
-      $this->cache_group                    						= 'wps_db_general';
       $this->num_posts                      						= get_option('posts_per_page');
-
 			$this->title_as_alt                    						= 0;
       $this->cart_loaded                    						= 1;
       $this->price_with_currency            						= 0;
-
       $this->styles_all                     						= 1;
       $this->styles_core                    						= 0;
       $this->styles_grid                    						= 0;
-
       $this->selective_sync_all             						= 1;
       $this->selective_sync_products        						= 0;
 			$this->sync_by_collections 												= '';
@@ -72,21 +74,18 @@ if (!class_exists('Settings_General')) {
       $this->selective_sync_customers       						= 0;
       $this->selective_sync_orders          						= 0;
       $this->selective_sync_shop            						= 1;
-
 			$this->products_link_to_shopify       						= 0;
 			$this->show_breadcrumbs       										= 0;
 			$this->hide_pagination       											= 0;
-
 			$this->is_free        														= 0;
 			$this->is_pro        															= 0;
-
 			$this->related_products_show        							= 1;
 			$this->related_products_sort        							= 'random';
 			$this->related_products_amount        						= 4;
-
 			$this->allow_insecure_webhooks        						= 0;
 			$this->save_connection_only        								= 0;
 			$this->app_uninstalled        										= 0;
+			$this->items_per_request        									= WPS_MAX_ITEMS_PER_REQUEST;
 
     }
 
@@ -126,7 +125,8 @@ if (!class_exists('Settings_General')) {
 				'allow_insecure_webhooks'       						=> '%d',
 				'save_connection_only'       								=> '%d',
 				'title_as_alt'       												=> '%d',
-				'app_uninstalled'       										=> '%d'
+				'app_uninstalled'       										=> '%d',
+				'items_per_request'       									=> '%d'
       ];
 
     }
@@ -167,7 +167,8 @@ if (!class_exists('Settings_General')) {
 				'allow_insecure_webhooks'       						=> $this->allow_insecure_webhooks,
 				'save_connection_only'       								=> $this->save_connection_only,
 				'title_as_alt'       												=> $this->title_as_alt,
-				'app_uninstalled'       										=> $this->app_uninstalled
+				'app_uninstalled'       										=> $this->app_uninstalled,
+				'items_per_request'       									=> $this->items_per_request
       ];
 
     }
@@ -196,8 +197,8 @@ if (!class_exists('Settings_General')) {
     Insert connection data
 
     */
-    public function update_general($generalData) {
-      return $this->update(1, $generalData);
+    public function update_general($general_data) {
+      return $this->update($this->lookup_key, 1, $general_data);
     }
 
 
@@ -717,6 +718,25 @@ if (!class_exists('Settings_General')) {
 
 		/*
 
+		Gets the status of selective_sync_shop
+
+		*/
+		public function get_items_per_request() {
+
+			$items_per_request = $this->get_column_single('items_per_request');
+
+			if ( Utils::array_not_empty($items_per_request) && isset($items_per_request[0]->items_per_request) ) {
+				return (int) $items_per_request[0]->items_per_request;
+
+			} else {
+				return WPS_MAX_ITEMS_PER_REQUEST;
+			}
+
+		}
+
+
+		/*
+
 		Updates the plugin version
 
 		*/
@@ -759,6 +779,16 @@ if (!class_exists('Settings_General')) {
 		*/
 		public function update_webhooks_callback_url_to_https() {
 			return $this->update_column_single( ['url_webhooks' => Utils::convert_to_https_url( get_home_url() )], ['id' => 1] );
+		}
+
+
+		/*
+
+		Grabs the ids that we saved to the db column
+
+		*/
+		public function get_sync_by_collections_ids() {
+			return maybe_unserialize( $this->sync_by_collections() );
 		}
 
 
@@ -809,6 +839,7 @@ if (!class_exists('Settings_General')) {
 				allow_insecure_webhooks tinyint(1) unsigned NOT NULL DEFAULT '{$this->allow_insecure_webhooks}',
 				save_connection_only tinyint(1) unsigned NOT NULL DEFAULT '{$this->save_connection_only}',
 				app_uninstalled tinyint(1) unsigned NOT NULL DEFAULT '{$this->app_uninstalled}',
+				items_per_request bigint(10) NOT NULL DEFAULT '{$this->items_per_request}',
   		  PRIMARY KEY  (id)
   		) ENGINE=InnoDB $collate";
 

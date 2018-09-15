@@ -231,6 +231,48 @@ if (!class_exists('Templates')) {
 
 		/*
 
+		Responsible for getting data for a multple prices
+
+		*/
+		public function gather_multi_price_template_data($price_markup, $price_first, $price_last, $product) {
+
+			return [
+				'price'				=> $price_markup,
+				'price_first' => $price_first,
+				'price_last' 	=> $price_last,
+				'product' 		=> $product
+			];
+
+		}
+
+
+		/*
+
+		Responsible for getting data for a single price
+
+		*/
+		public function gather_single_price_data($price, $product) {
+
+			return [
+				'price'		=> $price,
+				'product' => $product
+			];
+
+		}
+
+
+		/*
+
+		Responsible for getting markup for multiple prices
+
+		*/
+		public function get_multi_price_markup($price_first, $price_last) {
+			return apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">' . esc_html__('From: ', WPS_PLUGIN_TEXT_DOMAIN) . '</small>') . apply_filters('wps_products_price_multi_first', $price_first) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $price_last);
+		}
+
+
+		/*
+
 		Template: partials/products/loop/item-price
 
 		*/
@@ -238,66 +280,31 @@ if (!class_exists('Templates')) {
 
 			$product = Utils::convert_array_to_object($product);
 
-			/*
+			$post_id 								= $this->DB_Products->get_post_id_from_product($product);
+			$variants_in_stock 			= $this->DB_Variants->get_all_variants_from_post_id($post_id);
+			$variants_amount 				= $this->DB_Variants->get_variants_amount($variants_in_stock);
+			$variants_sorted 				= $this->DB_Variants->sort_variants_by_price($variants_in_stock);
 
-			Only needed because the data structure coming from the product single template is
-			different from the other templates. We should standardize but need to do it in such
-			a way that nothing breaks.
+			$first_price 						= $this->DB_Variants->get_first_variant_price($variants_sorted);
+			$last_price 						= $this->DB_Variants->get_last_variant_price($variants_sorted, Utils::get_last_index($variants_amount) );
 
-			*/
-			if ( isset($product->details->post_id) && !isset($product->post_id) ) {
-				$product->post_id = $product->details->post_id;
-			}
-
-			$variants = $this->DB_Variants->get_variants_from_post_id($product->post_id);
+			$first_price_formatted 	= $this->Money->format_price($first_price, $product->product_id);
+			$last_price_formatted 	= $this->Money->format_price($last_price, $product->product_id);
 
 
-			// $variants = json_decode(json_encode($variants), true);
+			if ( $this->Money->has_more_than_one_price($variants_amount) ) {
 
-			// $productNew = array(
-			// 	'variants' => $variants
-			// );
+				if ( $this->DB_Variants->check_if_all_variant_prices_match($last_price, $first_price) ) {
 
-
-			$amountOfVariantPrices = count($variants);
-
-			usort($variants, function ($a, $b) {
-
-				$result = $a->price - $b->price;
-
-				return $result;
-
-			});
-
-
-			if ($amountOfVariantPrices > 1) {
-
-				$lastVariantIndex = $amountOfVariantPrices - 1;
-				$lastVariantPrice = $variants[$lastVariantIndex]->price;
-				$firstVariantPrice = $variants[0]->price;
-
-				if ($lastVariantPrice === $firstVariantPrice) {
-
-					$data = [
-						'price'		=> $this->Money->format_money($firstVariantPrice, $product),
-						'product' => $product
-					];
+					$data = $this->gather_single_price_data($first_price_formatted, $product);
 
 					return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'one' );
 
 				} else {
 
-					$priceFirst = $this->Money->format_money($firstVariantPrice, $product);
-					$priceLast = $this->Money->format_money($lastVariantPrice, $product);
+					$price_markup = $this->get_multi_price_markup($first_price_formatted, $last_price_formatted);
 
-					$price = apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">' . esc_html__('From: ', WPS_PLUGIN_TEXT_DOMAIN) . '</small>') . apply_filters('wps_products_price_multi_first', $priceFirst) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $priceLast);
-
-					$data = [
-						'price'				=> $price,
-						'price_first' => $priceFirst,
-						'price_last' 	=> $priceLast,
-						'product' 		=> $product
-					];
+					$data = $this->gather_multi_price_template_data($price_markup, $first_price_formatted, $last_price_formatted, $product);
 
 					return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'multi' );
 
@@ -305,10 +312,7 @@ if (!class_exists('Templates')) {
 
 			} else {
 
-				$data = [
-					'price'		=> $this->Money->format_money($variants[0]->price, $product),
-					'product' => $product
-				];
+				$data = $this->gather_single_price_data($first_price_formatted, $product);
 
 				return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'one' );
 
@@ -464,7 +468,7 @@ if (!class_exists('Templates')) {
 				$variants_with_options = $this->connect_options_to_variants($product->variants);
 
 
-				$sorted_options = Utils::wps_sort_by($product->options, 'position');
+				$sorted_options = Utils::sort_by($product->options, 'position');
 
 
 				foreach ($sorted_options as $sorted_option) {
@@ -1686,12 +1690,11 @@ if (!class_exists('Templates')) {
 				return $product_data_cache;
 			}
 
-
 			$results = new \stdClass;
 			$results->details = $this->DB_Products->get_product_from_post_id($postID);
       $results->images = $this->DB_Images->get_images_from_post_id($postID);
       $results->tags = $this->DB_Tags->get_tags_from_post_id($postID);
-      $results->variants = $this->DB_Variants->get_variants_from_post_id($postID);
+      $results->variants = $this->DB_Variants->get_in_stock_variants_from_post_id($postID);
       $results->options = $this->DB_Options->get_options_from_post_id($postID);
       $results->details->tags = $this->DB_Tags->construct_only_tag_names($results->tags);
 
@@ -1731,7 +1734,7 @@ if (!class_exists('Templates')) {
 
 			  */
 			  foreach ($products as $key => $product) {
-			    $product->variants = $this->DB_Variants->get_variants_from_post_id($product->post_id);
+			    $product->variants = $this->DB_Variants->get_in_stock_variants_from_post_id($product->post_id);
 			    $product->feat_image = $this->DB_Images->get_feat_image_by_post_id($product->post_id);
 			  }
 

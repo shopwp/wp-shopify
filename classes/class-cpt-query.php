@@ -65,23 +65,7 @@ if ( !class_exists('CPT_Query') ) {
 		}
 
 
-		/*
 
-		Grabs the current author ID
-
-		*/
-		public function return_author_id() {
-
-			if (get_current_user_id() === 0) {
-				$author_id = 1;
-
-			} else {
-				$author_id = get_current_user_id();
-			}
-
-			return intval($author_id);
-
-		}
 
 		public function return_post_date() {
 			return sanitize_text_field( date_i18n('Y-m-d H:i:s') );
@@ -190,7 +174,7 @@ if ( !class_exists('CPT_Query') ) {
 				}
 
 				$post_id 									= esc_sql( $this->return_post_id($post) );
-				$post_author_id 					= esc_sql( $this->return_author_id() );
+				$post_author_id 					= esc_sql( CPT::return_author_id() );
 				$post_date 								= esc_sql( $this->return_post_date() );
 				$post_date_gmt 						= esc_sql( $this->return_post_date_gmt() );
 				$post_content 						= esc_sql( $this->return_post_content($post) );
@@ -505,23 +489,20 @@ if ( !class_exists('CPT_Query') ) {
 			// If we didn't find any posts to update , return false and don't perform the query.
 			if (empty($post_values_to_update)) {
 				return false;
-
-			} else {
-
-				global $wpdb;
-
-				// Start of the query
-				$update_query = $this->start_update_query();
-
-				$columns = $this->construct_post_case_columns_query($post_values_to_update);
-				$columns = $this->set_default_case_values($columns);
-				$where = $this->set_where_clause($post_values_to_update);
-
-				$update_query = $this->join_query_with_commas($update_query, $columns, $where);
-
-				return $update_query;
-
 			}
+
+			global $wpdb;
+
+			// Start of the query
+			$update_query = $this->start_update_query();
+
+			$columns = $this->construct_post_case_columns_query($post_values_to_update);
+			$columns = $this->set_default_case_values($columns);
+			$where = $this->set_where_clause($post_values_to_update);
+
+			$update_query = $this->join_query_with_commas($update_query, $columns, $where);
+
+			return $update_query;
 
 		}
 
@@ -568,7 +549,7 @@ if ( !class_exists('CPT_Query') ) {
 
 				$insertion_result = $wpdb->query($query);
 
-				return $this->DB_Settings_General->sanitize_db_response($insertion_result);
+				return $this->DB_Settings_General->sanitize_db_response($insertion_result, 'Failed to execute query for ' . $type, 'query');
 
 			}
 
@@ -581,12 +562,25 @@ if ( !class_exists('CPT_Query') ) {
 
 		*/
 		public function insert_posts($items_from_shopify, $existing_posts, $post_type) {
-			return $this->DB->query( $this->construct_posts_insert_query($items_from_shopify, $existing_posts, $post_type) );
+
+			$query = $this->construct_posts_insert_query($items_from_shopify, $existing_posts, $post_type);
+
+			if ($query) {
+				return $this->DB->query($query);
+			}
+
+
 		}
 
 
 		public function update_posts($posts_to_update, $post_type) {
-			return $this->DB->query( $this->construct_posts_update_query( $this->format_posts_for_update($posts_to_update, $post_type) ) );
+
+			$query = $this->construct_posts_update_query( $this->format_posts_for_update($posts_to_update, $post_type) );
+
+			if ($query) {
+				return $this->DB->query($query);
+			}
+
 		}
 
 

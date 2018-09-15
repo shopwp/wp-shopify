@@ -24,7 +24,6 @@ import {
 } from '../ws/localstorage';
 
 import {
-  deleteAllData,
   removeWebhooks,
   checkForActiveConnection,
   deleteOnlySyncedData,
@@ -117,7 +116,7 @@ function onClearSubmit() {
       No active connection exists. Just drop data and clear cache.
 
       */
-      if (!hasConnection()) {
+      if ( !hasConnection() ) {
 
 
         try {

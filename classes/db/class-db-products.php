@@ -19,20 +19,30 @@ if (!class_exists('Products')) {
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      global $wpdb;
-
-      $this->table_name         				= WPS_TABLE_NAME_PRODUCTS;
-      $this->primary_key        				= 'id';
-      $this->version            				= '1.0';
-      $this->cache_group        				= 'wps_db_products';
+      $this->table_name         		= WPS_TABLE_NAME_PRODUCTS;
+			$this->version            		= '1.0';
+      $this->primary_key        		= 'id';
+			$this->lookup_key        			= WPS_PRODUCTS_LOOKUP_KEY;
+      $this->cache_group        		= 'wps_db_products';
+			$this->type        						= 'product';
 
     }
 
 
+		/*
+
+		Table column name / formats
+
+		Important: Used to determine when new columns are added
+
+		*/
   	public function get_columns() {
 
       return [
@@ -56,6 +66,11 @@ if (!class_exists('Products')) {
     }
 
 
+		/*
+
+		Table default values
+
+		*/
   	public function get_column_defaults() {
 
       return [
@@ -81,22 +96,94 @@ if (!class_exists('Products')) {
 
 		/*
 
+		The modify options used for inserting / updating / deleting
+
+		*/
+		public function modify_options($shopify_item, $item_lookup_key = WPS_PRODUCTS_LOOKUP_KEY) {
+
+			return [
+			  'item'									=> $shopify_item,
+				'item_lookup_key'				=> $item_lookup_key,
+				'item_lookup_value'			=> $shopify_item->id,
+			  'prop_to_access'				=> 'products',
+			  'change_type'				    => 'product'
+			];
+
+		}
+
+
+		/*
+
+		Mod before change
+
+		*/
+		public function mod_before_change($product, $post_id = false) {
+
+			$product_copy = $this->copy($product);
+			$product_copy = $this->maybe_rename_to_lookup_key($product_copy);
+			$product_copy = Utils::flatten_image_prop($product_copy);
+
+			if ($post_id) {
+				$product_copy = CPT::set_post_id($product_copy, $post_id);
+			}
+
+			return $product_copy;
+
+		}
+
+
+		/*
+
 		Insert Product Data
 
 		$product comes directly from Shopify
 
 		*/
-		public function insert_product($product = false, $cpt_id = false) {
+		public function insert_product($product) {
+			return $this->insert($product);
+		}
 
-			$insertionResults = [];
 
-			$product = Utils::convert_array_to_object($product);
-			$product = $this->rename_primary_key($product, 'product_id');
-			$product = $this->add_image_to_product($product);
-			$product = $this->add_post_id_to_product($product, $cpt_id);
+		/*
 
-			return $this->insert($product, 'product');
+		Updates a single variant
 
+		*/
+		public function update_product($product) {
+			return $this->update($this->lookup_key, $this->get_lookup_value($product), $product);
+		}
+
+
+		/*
+
+		Deletes a single product
+
+		The reason we can use $product->product_id is because the Utils::find_items_to_delete method
+		will return the current item data structure if found for deletion, not the shopify item data structure
+
+		*/
+		public function delete_product($product) {
+			return $this->delete_rows($this->lookup_key, $this->get_lookup_value($product));
+		}
+
+
+		/*
+
+	  Delete products from product ID
+
+	  */
+	  public function delete_products_from_product_id($product_id) {
+			return $this->delete_rows($this->lookup_key, $product_id);
+	  }
+
+
+		/*
+
+		Gets products based on a Shopify product id
+
+		*/
+		public function get_products_from_product_id($product_id) {
+			return $this->get_rows($this->lookup_key, $product_id);
 		}
 
 
@@ -161,23 +248,6 @@ if (!class_exists('Products')) {
     }
 
 
-    /*
-
-    Add Image To Product
-
-    */
-    public function add_image_to_product($product) {
-
-      // If product has an image
-      if (property_exists($product, 'image') && is_object($product->image)) {
-        $product->image = $product->image->src;
-      }
-
-      return $product;
-
-    }
-
-
 		/*
 
     Add Post ID To Product
@@ -204,7 +274,7 @@ if (!class_exists('Products')) {
 			return $wpdb->update(
 				$this->table_name,
 				['post_id' => $post_id],
-				['product_id' => $product_id],
+				[$this->lookup_key => $product_id],
 				['%d'],
 				['%d']
 			);
@@ -233,51 +303,18 @@ if (!class_exists('Products')) {
 
 		/*
 
-  	Responsible for assigning a post_id to collection_id
-
-  	*/
-		public function set_post_id_to_product($post_id, $product_id) {
-
-			$product = Utils::convert_array_to_object($product);
-
-			$update_result = $this->update_column_single(['post_id' => $post_id], ['product_id' => $product_id]);
-
-			return $this->sanitize_db_response($update_result);
-
-		}
-
-
-		/*
-
-		Returns the image src of a product
-
-		Needed to update 'image' col in products table. Object is returned from Shopify
-		so we need to only save image src. Rest of product images live in Images table.
-
-		*/
-		public function flatten_product_image($product) {
-
-			if (property_exists($product, 'image') && !empty($product->image)) {
-				return $product->image->src;
-			}
-
-		}
-
-
-		/*
-
     Find a post ID from a product ID
 
     */
 		public function find_post_id_from_product_id($product_id) {
 
-			$product = $this->get($product_id);
+			$product = $this->get_products_from_product_id($product_id);
 
 			if (empty($product)) {
 				return [];
 			}
 
-			return [$product->post_id];
+			return $product[0]->post_id;
 
 		}
 
@@ -316,7 +353,7 @@ if (!class_exists('Products')) {
       ));
 
       if ($response === 0) {
-        return new \WP_Error('error', sprintf(esc_html__('Warning: Unable to update product: %s', WPS_PLUGIN_TEXT_DOMAIN), $product->title));
+        return Utils::wp_error( sprintf( esc_html__('Warning: Unable to update product: %s', WPS_PLUGIN_TEXT_DOMAIN), $product->title) );
 
       } else {
         return $response;
@@ -366,6 +403,27 @@ if (!class_exists('Products')) {
     }
 
 
+		/*
+
+		Only needed because the data structure coming from the product single template is
+		different from the other templates. We should standardize but need to do it in such
+		a way that nothing breaks.
+
+		*/
+		public function get_post_id_from_product($product) {
+
+			// If $product is a post object with a post id, just return it
+			if ( !empty($product->post_id) ) {
+				return $product->post_id;
+			}
+
+			if ( !empty($product->details->post_id) ) {
+				return $product->details->post_id;
+			}
+
+		}
+
+
     /*
 
     Param 1: The product variable (coming from wps_products table)
@@ -378,10 +436,10 @@ if (!class_exists('Products')) {
       if ($cpt) {
 
         $post = get_post( $this->get_post_id_from_object($product) );
-        return Utils::wps_hash($post->{$content});
+        return Utils::hash_unique($post->{$content});
 
       } else {
-        return Utils::wps_hash($product->{$content});
+        return Utils::hash_unique($product->{$content});
 
       }
 
@@ -398,7 +456,7 @@ if (!class_exists('Products')) {
       $result = [];
 
       foreach ($products as $key => $product) {
-        $result[] = $this->update($product['id'], $product);
+        $result[] = $this->update($this->lookup_key, $product['id'], $product);
       }
 
       return $result;
@@ -431,27 +489,7 @@ if (!class_exists('Products')) {
     }
 
 
-		/*
 
-	  Delete products from product ID
-
-	  */
-	  public function delete_products_from_product_id($product_id) {
-			return $this->delete_rows('product_id', $product_id);
-	  }
-
-
-		/*
-		Updates products from product ID
-		*/
-		public function update_products_from_product_id($product_id, $product) {
-
-			if (Utils::is_data_published($product)) {
-				$product->image = $this->flatten_product_image($product);
-				return $this->update($product_id, $product);
-			}
-
-		}
 
 
 		/*

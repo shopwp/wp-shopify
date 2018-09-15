@@ -279,8 +279,8 @@ gulp.task('build:zip', done => {
   var zipName = config.buildTier === 'pro' ? 'wp-shopify-pro.zip' : 'wpshopify.zip';
 
   return gulp
-    .src(config.files.tmp, { base: "./" })
-    .pipe(zip(zipName))
+    .src( config.files.tmp, { base: "./" } )
+    .pipe( zip(zipName) )
     .pipe( gulp.dest(config.folders[config.buildTier]) );
 
 });

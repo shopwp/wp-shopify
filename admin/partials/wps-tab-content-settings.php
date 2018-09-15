@@ -17,6 +17,10 @@ Tab Content: Settings
     </li>
 
     <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-pricing">Pricing</a> |
+    </li>
+
+    <li>
       <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-related-products">Related Products</a> |
     </li>
 
@@ -32,7 +36,6 @@ Tab Content: Settings
 
 
   <form method="post" name="wps_settings_general" action="options.php" id="wps-settings" class="wps-admin-form">
-
 
     <!--
 
@@ -52,7 +55,6 @@ Tab Content: Settings
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-product-urls.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-collections-urls.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-price-formatter.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-link-products-to-shopify.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-show-breadcrumbs.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-hide-pagination.php';
@@ -80,9 +82,34 @@ Tab Content: Settings
           <?php
 
 
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-items-per-request.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-save-connection-only.php';
 
 
+
+          ?>
+
+      </div>
+
+    </div>
+
+
+    <!--
+
+    Pricing Settings
+
+    -->
+    <div class="wps-admin-sub-section" id="wps-admin-section-pricing">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Pricing ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-pricing.php';
 
           ?>
 
@@ -97,7 +124,6 @@ Tab Content: Settings
 
     -->
     <div class="wps-admin-sub-section" id="wps-admin-section-related-products">
-
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Related Products ', WPS_PLUGIN_TEXT_DOMAIN ); ?>

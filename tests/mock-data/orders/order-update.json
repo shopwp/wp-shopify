@@ -1,0 +1,238 @@
+{
+  "id": 585466511383,
+  "email": "arobbins@simpleblend.net UPDATED",
+  "closed_at": "1970-01-01 00:00:00",
+  "created_at": "2017-09-29 21:05:10",
+  "updated_at": "2017-09-29 21:05:10",
+  "number": 7,
+  "note": null,
+  "token": "2a7c4c960fe9d373311885cfb9aa5ae5",
+  "gateway": null,
+  "test": "",
+  "total_price": "0.000000",
+  "subtotal_price": "0.000000",
+  "total_weight": 763,
+  "total_tax": "0.00",
+  "taxes_included": 0,
+  "currency": "USD",
+  "financial_status": "paid",
+  "confirmed": 1,
+  "total_discounts": "6.41",
+  "total_line_items_price": "0.000000",
+  "cart_token": null,
+  "buyer_accepts_marketing": 0,
+  "name": "#1007",
+  "referring_site": "http://wpstest.dev/products/enormous-plastic-table/",
+  "landing_site": "/cart/1102351335447:1?access_token=9596a847f3f4669fa8f4335a13386bd0&_fd=0&_ga=2.164795903.179326096.1506704288-127972611.1506704288",
+  "cancelled_at": "1970-01-01 00:00:00",
+  "cancel_reason": null,
+  "total_price_usd": "0.000000",
+  "checkout_token": "41fb351922a044e07c644567bde7872b",
+  "reference": null,
+  "user_id": null,
+  "location_id": null,
+  "source_identifier": null,
+  "source_url": null,
+  "processed_at": "2017-09-29 21:05:10",
+  "device_id": null,
+  "phone": null,
+  "customer_locale": "en",
+  "app_id": 88312,
+  "browser_ip": null,
+  "landing_site_ref": null,
+  "discount_applications": [
+      {
+          "type": "discount_code",
+          "value": "100.0",
+          "value_type": "percentage",
+          "allocation_method": "each",
+          "target_selection": "all",
+          "target_type": "shipping_line",
+          "code": "FREE"
+      }
+  ],
+  "discount_codes": [
+      {
+          "code": "FREE",
+          "amount": "6.89",
+          "type": "shipping"
+      }
+  ],
+  "note_attributes": [],
+  "payment_gateway_names": [],
+  "processing_method": "free",
+  "checkout_id": 3722600382487,
+  "source_name": "2489557",
+  "fulfillment_status": null,
+  "tax_lines": [],
+  "tags": "",
+  "contact_email": "arobbins@simpleblend.net",
+  "order_status_url": "https://wpslitetest10.myshopify.com/24007681/orders/cd5db862af0011981aa2f7ec69a98d5d/authenticate?key=51c75e3d4abff8803d3adf7a5607063e",
+  "total_tip_received": "0.0",
+  "admin_graphql_api_id": "gid://shopify/Order/585466511383",
+  "line_items": [
+      {
+          "id": 1420871303191,
+          "variant_id": 12518344556567,
+          "title": "Tyrel Ryan DVM",
+          "quantity": 1,
+          "price": "0.00",
+          "sku": "",
+          "variant_title": "Extra Small",
+          "vendor": "Funk, Collier and McKenzie",
+          "fulfillment_service": "manual",
+          "product_id": null,
+          "requires_shipping": true,
+          "taxable": true,
+          "gift_card": false,
+          "name": "Tyrel Ryan DVM - Extra Small",
+          "variant_inventory_management": null,
+          "properties": [],
+          "product_exists": false,
+          "fulfillable_quantity": 1,
+          "grams": 549,
+          "total_discount": "0.00",
+          "fulfillment_status": null,
+          "discount_allocations": [],
+          "admin_graphql_api_id": "gid://shopify/LineItem/1420871303191",
+          "tax_lines": [
+              {
+                  "title": "MN State Tax",
+                  "price": "0.00",
+                  "rate": 0.06875
+              },
+              {
+                  "title": "Hennepin County Tax",
+                  "price": "0.00",
+                  "rate": 0.0065
+              },
+              {
+                  "title": "Minneapolis Municipal Tax",
+                  "price": "0.00",
+                  "rate": 0.005
+              }
+          ]
+      }
+  ],
+  "shipping_lines": [
+      {
+          "id": 461146095639,
+          "title": "Priority Mail",
+          "price": "6.89",
+          "code": "Priority",
+          "source": "usps",
+          "phone": null,
+          "requested_fulfillment_service_id": null,
+          "delivery_category": null,
+          "carrier_identifier": null,
+          "discounted_price": "6.89",
+          "discount_allocations": [
+              {
+                  "amount": "6.89",
+                  "discount_application_index": 0
+              }
+          ],
+          "tax_lines": [
+              {
+                  "title": "MN State Tax",
+                  "price": "0.00",
+                  "rate": 0.06875
+              },
+              {
+                  "title": "Hennepin County Tax",
+                  "price": "0.00",
+                  "rate": 0.0065
+              },
+              {
+                  "title": "Minneapolis Municipal Tax",
+                  "price": "0.00",
+                  "rate": 0.005
+              }
+          ]
+      }
+  ],
+  "billing_address": {
+      "first_name": "Andrew",
+      "address1": "123 West Lake Street",
+      "phone": null,
+      "city": "Minneapolis",
+      "zip": "55408",
+      "province": "Minnesota",
+      "country": "United States",
+      "last_name": "Robbins",
+      "address2": "",
+      "company": null,
+      "latitude": 44.9481616,
+      "longitude": -93.28088009999999,
+      "name": "Andrew Robbins",
+      "country_code": "US",
+      "province_code": "MN"
+  },
+  "shipping_address": {
+      "first_name": "Andrew",
+      "address1": "123 West Lake Street",
+      "phone": null,
+      "city": "Minneapolis",
+      "zip": "55408",
+      "province": "Minnesota",
+      "country": "United States",
+      "last_name": "Robbins",
+      "address2": "",
+      "company": null,
+      "latitude": 44.9481616,
+      "longitude": -93.28088009999999,
+      "name": "Andrew Robbins",
+      "country_code": "US",
+      "province_code": "MN"
+  },
+  "fulfillments": [],
+  "client_details": {
+      "browser_ip": "107.4.236.70",
+      "accept_language": "en-US,en;q=0.9,nb;q=0.8,la;q=0.7",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36",
+      "session_hash": null,
+      "browser_width": 1680,
+      "browser_height": 931
+  },
+  "refunds": [],
+  "customer": {
+      "id": 311604871191,
+      "email": "arobbins@simpleblend.net",
+      "accepts_marketing": false,
+      "created_at": "2018-01-22T11:35:38-06:00",
+      "updated_at": "2018-08-13T15:46:20-05:00",
+      "first_name": "Andrew",
+      "last_name": "Robbins",
+      "orders_count": 10,
+      "state": "disabled",
+      "total_spent": "0.00",
+      "last_order_id": 585466511383,
+      "note": "sdfsdf sdf sdf",
+      "verified_email": true,
+      "multipass_identifier": null,
+      "tax_exempt": false,
+      "phone": null,
+      "tags": "",
+      "last_order_name": "#1062",
+      "admin_graphql_api_id": "gid://shopify/Customer/311604871191",
+      "default_address": {
+          "id": 783808266263,
+          "customer_id": 311604871191,
+          "first_name": "Andrew",
+          "last_name": "Robbins",
+          "company": null,
+          "address1": "123 West Lake Street",
+          "address2": "",
+          "city": "Minneapolis",
+          "province": "Minnesota",
+          "country": "United States",
+          "zip": "55408",
+          "phone": null,
+          "name": "Andrew Robbins",
+          "province_code": "MN",
+          "country_code": "US",
+          "country_name": "United States",
+          "default": true
+      }
+  }
+}

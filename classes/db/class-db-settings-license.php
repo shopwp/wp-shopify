@@ -16,15 +16,19 @@ if (!class_exists('Settings_License')) {
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      global $wpdb;
       $this->table_name         = WPS_TABLE_NAME_SETTINGS_LICENSE;
+			$this->version            = '1.0';
       $this->primary_key        = 'license_key';
-      $this->version            = '1.0';
+      $this->lookup_key        	= 'license_key';
       $this->cache_group        = 'wps_db_license';
+			$this->type     					= 'settings_license';
 
     }
 
@@ -84,18 +88,23 @@ if (!class_exists('Settings_License')) {
     Get single shop info value
 
     */
-  	public function get_license() {
-
-			$license_key = $this->get_column_single('license_key');
-
-			if ( Utils::array_not_empty($license_key) && isset($license_key[0]->license_key) ) {
-				return $license_key[0]->license_key;
-
-			} else {
-				return false;
-			}
-
-    }
+  	// public function get_license() {
+		//
+		// 	$license_key = $this->get_column_single('license_key');
+		//
+		// 	if ( Utils::array_not_empty($license_key) && isset($license_key[0]->license_key) ) {
+		// 		return $license_key[0]->license_key;
+		//
+		// 	} else {
+		// 		return false;
+		// 	}
+		//
+    // }
+		//
+		//
+		public function get_license() {
+			return $this->get();
+		}
 
 
     /*
@@ -104,38 +113,18 @@ if (!class_exists('Settings_License')) {
 
   	*/
   	public function insert_license($licenseData) {
-      return $this->insert($licenseData, 'license');
+      return $this->insert($licenseData);
   	}
 
 
     /*
 
-    delete_license
+    Deletes a license
 
     */
     public function delete_license() {
-      return $this->delete('license_key');
+      return $this->truncate();
     }
-
-
-		/*
-
-		Gets license key data
-
-		*/
-		public function get_license_data() {
-
-			$license_data = Utils::convert_array_to_object( $this->get() );
-
-			// Legacy 1.x.x t0 1.2 migration code ...
-			if ( !Utils::has($license_data, 'license_key') && Utils::has($license_data, 'key') ) {
-				$license_data->license_key = $license_data->key;
-				unset($license_data->key);
-			}
-
-			return $license_data;
-
-		}
 
 
     /*

@@ -4,6 +4,7 @@ namespace WPS\WS;
 
 use WPS\Utils;
 use WPS\Transients;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -13,59 +14,72 @@ if (!class_exists('Collects')) {
 
   class Collects extends \WPS\WS {
 
-		protected $WS;
+		protected $DB_Collects;
+		protected $DB_Settings_General;
+		protected $DB_Settings_Syncing;
+		protected $Async_Processing_Collects;
+		protected $HTTP;
 
-  	public function __construct($DB_Collects, $DB_Settings_General, $DB_Settings_Connection, $DB_Settings_Syncing, $WS, $Messages, $Guzzle, $Async_Processing_Collects) {
+  	public function __construct($DB_Collects, $DB_Settings_General, $DB_Settings_Syncing, $Async_Processing_Collects, $HTTP) {
 
 			$this->DB_Collects											= $DB_Collects;
 			$this->DB_Settings_General							= $DB_Settings_General;
-			$this->DB_Settings_Connection						= $DB_Settings_Connection;
 			$this->DB_Settings_Syncing							= $DB_Settings_Syncing;
-			$this->WS																= $WS;
-			$this->Messages													= $Messages;
 			$this->Async_Processing_Collects				=	$Async_Processing_Collects;
-
-			parent::__construct($Guzzle, $Messages, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_Syncing);
+			$this->HTTP															=	$HTTP;
 
     }
 
 
+
+		public function get_collects_count_by_collection_id_endpoint($collection_id) {
+			return '/admin/collects/count.json?collection_id=' . $collection_id;
+		}
+
+
 		/*
 
-	  delete_collects
+		Responsible for getting an array of API endpoints for given collection ids
 
-	  */
-	  public function delete_collects() {
+		*/
+		public function get_collects_count_urls_by_collection_ids() {
 
-			$syncStates = $this->DB_Settings_General->selective_sync_status();
+			$urls = [];
+			$collection_ids = $this->DB_Settings_General->get_sync_by_collections_ids();
 
-			if ($syncStates['all']) {
+			foreach ($collection_ids as $collection_id) {
+		    $urls[] = $this->get_collects_count_by_collection_id_endpoint($collection_id);
+		  }
 
-				if (!$this->DB_Collects->delete()) {
-		      return new \WP_Error('error', $this->Messages->message_delete_collects_error . ' (delete_collects)');
+		  return $urls;
 
-		    } else {
-		      return true;
-		    }
+		}
 
-			} else {
 
-				if ($syncStates['products']) {
+		/*
 
-					if (!$this->DB_Collects->delete()) {
-			      return new \WP_Error('error', $this->Messages->message_delete_collects_error . ' (delete_collects 2)');
+		Responsible for calling the Shopify API multiple times based on count URLs
 
-			    } else {
-			      return true;
-			    }
+		*/
+		public function get_total_counts_from_urls($urls) {
 
-				} else {
-					return true;
+		  $products_count = [];
+
+		  foreach ($urls as $url) {
+
+		    $count = $this->HTTP->get($url);
+
+		    if (!empty($count) && Utils::has($count, 'count')) {
+					$products_count[] = $count->count;
 				}
 
-			}
+		  }
 
-	  }
+		  return array_sum($products_count);
+
+		}
+
+
 
 
 		/*
@@ -76,23 +90,23 @@ if (!class_exists('Collects')) {
 	  public function get_collects_count() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_collects_count)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_collects_count)' );
 			}
 
 			// User is syncing by collection
 			if ($this->DB_Settings_General->is_syncing_by_collection()) {
 
-				$urls = $this->construct_sync_by_collections_count_url('collects');
-				$collects_count = $this->get_counts_from_urls($urls);
+				$urls = $this->get_collects_count_urls_by_collection_ids();
+				$collects_count = $this->get_total_counts_from_urls($urls);
 
 				$this->send_success(['collects' => $collects_count]);
 
 			} else {
 
-				$collects = $this->get('/admin/collects/count.json');
+				$collects = $this->get_collects_total_count();
 
 				if ( is_wp_error($collects) ) {
-					$this->WS->save_notice_and_stop_sync($collects);
+					$this->DB_Settings_Syncing->save_notice_and_stop_sync($collects);
 					$this->send_error($collects->get_error_message() . ' (get_collects_count)');
 				}
 
@@ -101,7 +115,7 @@ if (!class_exists('Collects')) {
 					$this->send_success(['collects' => $collects->count]);
 
 				} else {
-					$this->send_warning($this->Messages->message_collects_not_found . ' (get_collects_count)');
+					$this->send_warning( Messages::get('collects_not_found') . ' (get_collects_count)' );
 
 				}
 
@@ -111,37 +125,25 @@ if (!class_exists('Collects')) {
 	  }
 
 
-		/*
 
-		Gets products by page
-
-		*/
-		public function get_collects_by_page($currentPage) {
-			return $this->get("/admin/collects.json", "?limit=250&page=" . $currentPage);
+		public function get_collects_by_page($current_page) {
+			return $this->HTTP->get("/admin/collects.json", "?limit=" . $this->DB_Settings_General->get_items_per_request() . "&page=" . $current_page);
 		}
 
+		public function get_collects_total_count() {
+			return $this->HTTP->get('/admin/collects/count.json');
+		}
 
+		public function get_collects_by_product_id($product_id) {
+			return $this->HTTP->get("/admin/collects.json", "?product_id=" . $product_id);
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		public function get_collects_from_collection_id($collection_id) {
+			return $this->HTTP->get("/admin/collects.json", "?collection_id=" . $collection_id);
+		}
 
 		public function get_collects_by_collection_and_page($products_url_param) {
-			return $this->get("/admin/collects.json", $products_url_param);
+			return $this->HTTP->get("/admin/collects.json", $products_url_param);
 		}
 
 
@@ -175,24 +177,24 @@ if (!class_exists('Collects')) {
 
 	  Get Bulk Collects
 
-		Runs for each "page" of the Shopify API (250 per page)
+		Runs for each "page" of the Shopify API
 
 	  */
 		public function get_bulk_collects() {
 
 			// First make sure nonce is valid
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_bulk_collects)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_bulk_collects)' );
 			}
 
 			// Check if user is syncing from collections -- returns proper products
 			if ($this->DB_Settings_General->is_syncing_by_collection()) {
 
 				$collection_ids = maybe_unserialize($this->DB_Settings_General->sync_by_collections());
-				$collects_url_params = $this->construct_sync_by_collections_api_urls($collection_ids, Utils::get_current_page($_POST));
+				$collects_url_params = $this->get_endpoint_params_collection_id($collection_ids, Utils::get_current_page($_POST));
 
 				$collects = $this->get_collects_by_collections_page($collects_url_params);
-				$collects = $this->flatten_data_from_sync_by_collections($collects, 'collects');
+				$collects = Utils::flatten_array_into_object($collects, 'collects');
 
 
 			} else {
@@ -215,7 +217,7 @@ if (!class_exists('Collects')) {
 			} else {
 
 				// This page of collects was empty, show warning to user
-				$this->DB_Settings_Syncing->save_notice($this->Messages->message_missing_collects_for_page, 'warning');
+				$this->DB_Settings_Syncing->save_notice( Messages::get('missing_collects_for_page'), 'warning' );
 				$this->send_success();
 
 			}
@@ -236,220 +238,16 @@ if (!class_exists('Collects')) {
 
 		/*
 
-		Get a list of collects by product ID
+		Responsible for adding collects to $data
 
 		*/
-		public function get_collects() {
+		public function add_collects_to_item($item, $collects) {
 
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_collects)');
-			}
+			$item->collects = $collects;
 
-			if (!$this->DB_Settings_Syncing->is_syncing()) {
-				$this->send_error($this->Messages->message_connection_not_syncing . ' (get_collects)');
-			}
-
-
-			if (!isset($_POST['currentPage']) || !$_POST['currentPage']) {
-				$currentPage = 1;
-
-			} else {
-				$currentPage = $_POST['currentPage'];
-			}
-
-
-			$collects = $this->get("/admin/collects.json", "?limit=250&page=" . $currentPage);
-
-			if ( is_wp_error($collects) ) {
-				$this->send_error($collects->get_error_message() . ' (get_collects)');
-			}
-
-
-			if (Utils::has($collects, 'collects')) {
-
-				$resultCollects = $this->DB_Collects->insert_collects($collects->collects);
-
-				if (empty($resultCollects)) {
-					$this->send_error($this->Messages->message_insert_collects_error . ' (get_collects)');
-
-				} else {
-					$this->send_success($resultCollects);
-
-				}
-
-			} else {
-				$this->send_warning($this->Messages->message_insert_collects_error_missing . ' (get_collects)');
-
-			}
+			return $item;
 
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		/*
-
-		Update Collects
-
-		*/
-		public function update_collects_from_product($product) {
-
-			if (Utils::has($product, 'id')) {
-				$product_id = $product->id;
-
-			} else {
-				$product_id = $product->product_id;
-			}
-
-
-			$results = [];
-			$collects_from_shopify = $this->get_collects_from_product($product_id);
-
-			if (!$collects_from_shopify) {
-				return false;
-			}
-
-
-			/*
-
-			In order to handle image creation / deletions, we need to compare what's
-			currently in the database with what gets sent back via the
-			product/update webhook.
-
-			*/
-			$current_collects_for_product = $this->DB_Collects->get_rows('product_id', $product_id);
-			$current_collects_for_product_array = Utils::convert_object_to_array($current_collects_for_product);
-			$collects_from_shopify = Utils::convert_object_to_array($collects_from_shopify->collects);
-
-			$collects_to_add = Utils::wps_find_items_to_add($current_collects_for_product_array, $collects_from_shopify, true);
-			$collects_to_delete = Utils::wps_find_items_to_delete($current_collects_for_product_array, $collects_from_shopify, true);
-
-			// Collects to add ...
-			if (count($collects_to_add) > 0) {
-				$this->DB_Collects->insert_collects($collects_to_add);
-			}
-
-			// Collects to delete ...
-			if (count($collects_to_delete) > 0) {
-				$this->DB_Collects->delete_collects($collects_to_delete);
-			}
-
-			return $results;
-
-		}
-
-
-		/*
-
-		Update Collects from collection ID
-
-		*/
-		public function update_collects_from_collection_id($collection_id) {
-
-			// Collects from Plugin
-			$results = [];
-			$current_collection_collects = $this->DB_Collects->get_rows('collection_id', $collection_id);
-			$new_collection_collects = $this->get_collects_from_collection($collection_id);
-
-			// Responsible for updating Collects associated with the Collection
-			if (Utils::array_not_empty($new_collection_collects)) {
-
-				$collectsToAdd = Utils::wps_find_items_to_add($current_collection_collects, $new_collection_collects, true);
-				$collectsToDelete = Utils::wps_find_items_to_delete($current_collection_collects, $new_collection_collects, true);
-
-
-				// Collects to add ...
-				if (count($collectsToAdd) > 0) {
-					$results['collects_created'][] = $this->DB_Collects->insert_collects($collectsToAdd);
-				}
-
-				// Collects to delete ...
-				if (count($collectsToDelete) > 0) {
-					$results['collects_deleted'][] = $this->DB_Collects->delete_collects($collectsToDelete);
-				}
-
-
-			}
-
-			return $results;
-
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 		/*
@@ -457,25 +255,18 @@ if (!class_exists('Collects')) {
 		Get a list of collects by product ID
 
 		*/
-		public function get_collects_from_product($productID = null) {
+		public function get_collects_from_product($item = null) {
 
-			if ($productID === null) {
-				return false;
-			}
+			$collects = $this->get_collects_by_product_id($item->id);
 
-			$collects = $this->get("/admin/collects.json", "?product_id=" . $productID);
-
-			if ( is_wp_error($collects) ) {
-				return false;
-			}
-
-			if (Utils::has($collects, 'collects')) {
-				return $collects;
+			if ( is_wp_error($collects) || Utils::object_is_empty($collects) ) {
+				$collects_to_add = [];
 
 			} else {
-				return false;
+				$collects_to_add = $collects->collects;
 			}
 
+			return $this->add_collects_to_item($item, $collects_to_add);
 
 		}
 
@@ -485,46 +276,18 @@ if (!class_exists('Collects')) {
 		Get a list of collects by collection ID
 
 		*/
-		public function get_collects_from_collection($collectionID = null) {
+		public function get_collects_from_collection($item) {
 
-			$ajax = true;
+			$collects = $this->get_collects_from_collection_id($item->id);
 
-			if ($collectionID === null) {
-				$collectionID = $_POST['collectionID'];
-
-			} else {
-				$ajax = false;
-			}
-
-
-			if ($ajax) {
-
-				if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-					$this->send_error($this->Messages->message_nonce_invalid . ' (get_collects_from_collection)');
-				}
-
-			}
-
-
-			$collects = $this->get("/admin/collects.json", "?collection_id=" . $collectionID);
-
-			if ( is_wp_error($collects) ) {
-				$data = $this->get_error_message($collects) . ' (get_collects_from_collection)';
-			}
-
-			if (Utils::has($collects, 'collects')) {
-				$data = $collects->collects;
-			}
-
-			if ($ajax) {
-
-				$this->send_success($data);
+			if ( is_wp_error($collects) || Utils::object_is_empty($collects) ) {
+				$collects_to_add = [];
 
 			} else {
-				return $data;
-
+				$collects_to_add = $collects->collects;
 			}
 
+			return $this->add_collects_to_item($item, $collects_to_add);
 
 		}
 
@@ -535,9 +298,6 @@ if (!class_exists('Collects')) {
 
 		*/
 		public function hooks() {
-
-			add_action('wp_ajax_get_collects_from_collection', [$this, 'get_collects_from_collection'] );
-			add_action('wp_ajax_nopriv_get_collects_from_collection', [$this, 'get_collects_from_collection'] );
 
 			add_action('wp_ajax_insert_collects_queue_count', [$this, 'insert_collects_queue_count']);
 			add_action('wp_ajax_nopriv_insert_collects_queue_count', [$this, 'insert_collects_queue_count']);

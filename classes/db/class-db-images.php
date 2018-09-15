@@ -17,20 +17,30 @@ if (!class_exists('Images')) {
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      global $wpdb;
-
-      $this->table_name         			= WPS_TABLE_NAME_IMAGES;
-      $this->primary_key        			= 'id';
-      $this->version            			= '1.0';
-      $this->cache_group        			= 'wps_db_images';
+      $this->table_name         	= WPS_TABLE_NAME_IMAGES;
+			$this->version            	= '1.0';
+      $this->primary_key        	= 'id';
+			$this->lookup_key        		= 'image_id';
+      $this->cache_group        	= 'wps_db_images';
+			$this->type        					= 'image';
 
     }
 
 
+		/*
+
+		Table column name / formats
+
+		Important: Used to determine when new columns are added
+
+		*/
   	public function get_columns() {
 
 			return [
@@ -48,6 +58,11 @@ if (!class_exists('Images')) {
     }
 
 
+		/*
+
+		Table default values
+
+		*/
   	public function get_column_defaults() {
 
       return [
@@ -65,147 +80,94 @@ if (!class_exists('Images')) {
     }
 
 
-    /*
+		/*
 
-    Insert images
-    TODO: Create a map function for insert_product instead of nested loops
+		The modify options used for inserting / updating / deleting
 
-    */
-  	public function insert_images($products) {
+		*/
+		public function modify_options($shopify_item, $item_lookup_key = WPS_PRODUCTS_LOOKUP_KEY) {
 
-      $results = [];
-			$products = Utils::wrap_in_array($products);
+			return [
+			  'item'											=> $shopify_item,
+				'item_lookup_key'						=> $item_lookup_key,
+				'item_lookup_value'					=> $shopify_item->id,
+			  'prop_to_access'						=> 'images',
+			  'change_type'				    		=> 'image'
+			];
 
-      foreach ($products as $key => $product) {
+		}
 
-        if (isset($product->images) && $product->images) {
 
-          foreach ($product->images as $key => $image) {
-						$results[] = $this->insert( $this->rename_primary_key($image, 'image_id'), 'image');
+		/*
 
-          }
+		Mod before change
 
-        }
+		*/
+		public function mod_before_change($image) {
 
-      }
+			$image_copy = $this->copy($image);
+			$image_copy = $this->maybe_rename_to_lookup_key($image_copy);
 
-      return $results;
+			return $image_copy;
 
-    }
+		}
 
 
-    /*
+		/*
 
-    Insert Images
+		Inserts a single option
 
-    */
-    public function insert_image($product) {
+		*/
+		public function insert_image($image) {
+			return $this->insert($image);
+		}
 
-      $results = [];
-			$product = Utils::convert_array_to_object($product);
 
-      if (isset($product->images) && $product->images) {
+		/*
 
-        foreach ($product->images as $key => $image) {
+		Updates a single image
 
-					$result = $this->insert( $this->rename_primary_key($image, 'image_id'), 'image');
+		*/
+		public function update_image($image) {
+			return $this->update($this->lookup_key, $this->get_lookup_value($image), $image);
+		}
 
-					if (is_wp_error($result)) {
-						return $result;
-					}
 
-					$results[] = $result;
+		/*
 
-        }
+		Deletes a single image
 
-      }
+		*/
+		public function delete_image($image) {
+			return $this->delete_rows($this->lookup_key, $this->get_lookup_value($image));
+		}
 
-      return $results;
 
-    }
+		/*
 
+		Delete images from product ID
 
-    /*
+		*/
+		public function delete_images_from_product_id($product_id) {
+			return $this->delete_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
+		}
 
-    Update Image
 
-		In order to handle image creation / deletions, we need to compare what's
-		currently in the database with what gets sent back via the
-		product/update webhook.
+		/*
 
-    */
-  	public function update_images_from_product($product) {
+		Gets all images associated with a given product, by product id
 
-      $results = [];
-      $imagesFromShopify = $product->images;
+		*/
+		public function get_images_from_product_id($product_id) {
+			return $this->get_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
+		}
 
-      $currentImagesArray = $this->get_rows('product_id', $product->id);
 
-      $imagesToAdd = Utils::wps_find_items_to_add($currentImagesArray, $imagesFromShopify, true);
-      $imagesToDelete = Utils::wps_find_items_to_delete($currentImagesArray, $imagesFromShopify, true);
+		/*
 
-      $imagesToAdd = Utils::convert_object_to_array($imagesToAdd);
-      $imagesToDelete = Utils::convert_object_to_array($imagesToDelete);
+		Gets variants from an image
 
-
-      /*
-
-      Insert
-
-      */
-      if (count($imagesToAdd) > 0) {
-
-        foreach ($imagesToAdd as $key => $new_image) {
-          $results['created'] = $this->insert( $this->rename_primary_key($new_image, 'image_id'), 'image');
-        }
-
-      }
-
-
-      /*
-
-      Delete
-
-      */
-      if (count($imagesToDelete) > 0) {
-
-        foreach ($imagesToDelete as $key => $oldImage) {
-
-					$oldImage = Utils::convert_object_to_array($oldImage);
-
-					if (isset($oldImage['image_id'])) {
-						$results['deleted'] = $this->delete($oldImage['image_id']);
-					}
-
-        }
-
-      }
-
-
-      /*
-
-      Update
-
-      */
-      foreach ($imagesFromShopify as $key => $image) {
-        $results['updated'] = $this->update($image->image_id, $image);
-      }
-
-      return $results;
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+		*/
     public static function get_variants_from_image($image) {
 
 			if (is_array($image)) {
@@ -374,16 +336,6 @@ if (!class_exists('Images')) {
 
 			return $results;
 
-		}
-
-
-		/*
-
-		Delete Images from product ID
-
-		*/
-		public function delete_images_from_product_id($product_id) {
-			return $this->delete_rows('product_id', $product_id);
 		}
 
 

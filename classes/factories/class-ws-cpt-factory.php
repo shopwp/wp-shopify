@@ -4,8 +4,7 @@ namespace WPS\Factories;
 
 use WPS\WS\CPT as WS_CPT;
 
-use WPS\Factories\Messages_Factory;
-use WPS\Factories\DB_Products_Factory;
+use WPS\Factories\DB_Factory;
 use WPS\Factories\Async_Processing_Posts_Products_Relationships_Factory;
 use WPS\Factories\Async_Processing_Posts_Collections_Relationships_Factory;
 
@@ -24,8 +23,7 @@ if (!class_exists('WS_CPT_Factory')) {
 			if (is_null(self::$instantiated)) {
 
 				$WS_CPT = new WS_CPT(
-					Messages_Factory::build(),
-					DB_Products_Factory::build(),
+					DB_Factory::build(),
 					Async_Processing_Posts_Products_Relationships_Factory::build(),
 					Async_Processing_Posts_Collections_Relationships_Factory::build()
 				);

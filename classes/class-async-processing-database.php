@@ -71,6 +71,8 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 		Tested
 
+		NOT USING BACKGROUND PROCESS
+
 		*/
 		public function drop_custom_tables() {
 
@@ -101,6 +103,8 @@ if ( !class_exists('Async_Processing_Database') ) {
 		Drop custom migration tables
 
 		Tested
+
+		NOT USING BACKGROUND PROCESS
 
 		*/
 		public function drop_custom_migration_tables($table_suffix) {
@@ -136,58 +140,6 @@ if ( !class_exists('Async_Processing_Database') ) {
 		*/
 		public function delete_posts() {
 			return $this->WS_CPT->delete_posts();
-		}
-
-
-		/*
-
-		Uninstalls plugin
-		Returns: Response object
-
-		Need to do a few things here ...
-
-		1. Remove webhooks
-		3. Remove the wps config values from the database
-		4. Delete cache
-
-
-		TODO: Since invalidating the main Shopify API connection is
-		performed asynchronously, we should break that into its own
-		request; perhaps after this one.
-
-		Each deletion returns either type boolean of TRUE or a type
-		STRING containing the error message.
-
-		*/
-		public function delete_all_data() {
-
-			$this->push_to_queue('License');
-			$this->push_to_queue('WS_CPT');
-			$this->push_to_queue('DB_Collections_Custom');
-			$this->push_to_queue('DB_Collections_Smart');
-			$this->push_to_queue('DB_Collects');
-			$this->push_to_queue('DB_Images');
-			$this->push_to_queue('DB_Options');
-			$this->push_to_queue('DB_Products');
-			$this->push_to_queue('DB_Shop');
-			$this->push_to_queue('DB_Tags');
-			$this->push_to_queue('DB_Variants');
-			$this->push_to_queue('Transients');
-			$this->push_to_queue('DB_Settings_Connection');
-			$this->push_to_queue('DB_Settings_Syncing');
-
-
-			$this->save()->dispatch();
-
-		}
-
-
-		public function delete_only_posts() {
-
-			$this->push_to_queue('WS_CPT');
-
-			$this->save()->dispatch();
-
 		}
 
 
@@ -274,11 +226,12 @@ if ( !class_exists('Async_Processing_Database') ) {
 				} else if ($object_name === 'DB_Settings_Syncing') {
 					$class_object->reset_syncing_current_amounts();
 
-				} else if ($object_name === 'WS_Webhooks') {
+				} else if ($object_name === 'WS_Webhooks' || $object_name === 'Transients') {
 					return false;
 
 				} else {
-					$class_object->delete();
+					$class_object->truncate();
+
 				}
 
 			}
@@ -387,12 +340,6 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 			add_action('wp_ajax_delete_only_synced_data', [$this, 'delete_only_synced_data']);
 			add_action('wp_ajax_nopriv_delete_only_synced_data', [$this, 'delete_only_synced_data']);
-
-			add_action('wp_ajax_delete_all_data', [$this, 'delete_all_data']);
-			add_action('wp_ajax_nopriv_delete_all_data', [$this, 'delete_all_data']);
-
-			add_action('wp_ajax_delete_only_posts', [$this, 'delete_only_posts']);
-			add_action('wp_ajax_nopriv_delete_only_posts', [$this, 'delete_only_posts']);
 
 			add_action('wp_ajax_delete_posts_and_synced_data', [$this, 'delete_posts_and_synced_data']);
 			add_action('wp_ajax_nopriv_delete_posts_and_synced_data', [$this, 'delete_posts_and_synced_data']);

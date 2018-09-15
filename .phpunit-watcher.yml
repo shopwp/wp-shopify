@@ -1,0 +1,10 @@
+watch:
+  directories:
+    - classes
+    - tests
+  fileMask: '*.php'
+notifications:
+  passingTests: true
+  failingTests: true
+phpunit:
+  binaryPath: /usr/local/bin/phpunit

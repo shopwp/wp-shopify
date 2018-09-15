@@ -14,23 +14,17 @@ if (!class_exists('CPT')) {
 
   class CPT extends \WPS\WS {
 
-		protected $Messages;
 		protected $DB;
-		protected $DB_Products;
+		protected $Async_Processing_Posts_Products_Relationships;
+		protected $Async_Processing_Posts_Collections_Relationships;
 
-		public function __construct($Messages, $DB_Products, $Async_Processing_Posts_Products_Relationships, $Async_Processing_Posts_Collections_Relationships) {
+		public function __construct($DB, $Async_Processing_Posts_Products_Relationships, $Async_Processing_Posts_Collections_Relationships) {
 
-			$this->Messages				= $Messages;
-			$this->DB							= $DB_Products;
-			$this->DB_Products		= $DB_Products;
-
+			$this->DB																									= $DB;
 			$this->Async_Processing_Posts_Products_Relationships			= $Async_Processing_Posts_Products_Relationships;
 			$this->Async_Processing_Posts_Collections_Relationships		=	$Async_Processing_Posts_Collections_Relationships;
 
 		}
-
-
-
 
 
 		/*
@@ -59,6 +53,10 @@ if (!class_exists('CPT')) {
 
 			global $wpdb;
 
+			if ( !is_array($ids) ) {
+				$ids = Utils::wrap_in_array($ids);
+			}
+
 			// how many entries will we select?
 			$how_many = count($ids);
 
@@ -66,11 +64,13 @@ if (!class_exists('CPT')) {
 			$placeholders = array_fill(0, $how_many, '%d');
 
 			// $format = '%d, %d, %d, %d, %d, [...]'
-			$format = implode(', ', $placeholders);
+			$format = Utils::convert_to_comma_string($placeholders);
 
 			$query = "DELETE posts, pt, pm FROM " . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.ID IN($format)";
 
-			return $wpdb->query( $wpdb->prepare($query, $ids) );
+			$query_prepared = $wpdb->prepare($query, $ids);
+
+			return $wpdb->query($query_prepared);
 
 		}
 
@@ -176,8 +176,7 @@ if (!class_exists('CPT')) {
 			$this->hooks();
 	  }
 
-
-
   }
+
 
 }

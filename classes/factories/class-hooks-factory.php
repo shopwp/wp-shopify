@@ -13,8 +13,6 @@ use WPS\Factories\Pagination_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Settings_License_Factory;
 use WPS\Factories\Activator_Factory;
-use WPS\Factories\Messages_Factory;
-
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -39,8 +37,7 @@ if (!class_exists('Hooks_Factory')) {
 					Pagination_Factory::build(),
 					DB_Settings_Syncing_Factory::build(),
 					DB_Settings_License_Factory::build(),
-					Activator_Factory::build(),
-					Messages_Factory::build()
+					Activator_Factory::build()
 				);
 
 				self::$instantiated = $Hooks;

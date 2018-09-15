@@ -25,7 +25,6 @@ if ( !defined('ABSPATH') ) {
 
 <section
   class="wps-product-meta wps-is-disabled wps-is-loading <?= apply_filters('wps_product_single_meta_class', ''); ?>"
-  data-product-price="<?= $data->product->variants[0]->price; ?>"
   data-product-quantity="1"
   data-product-variants-count="<?= count($data->product->variants); ?>"
   data-product-post-id="<?= $data->product->details->post_id; ?>"

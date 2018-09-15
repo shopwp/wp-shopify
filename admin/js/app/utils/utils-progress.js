@@ -570,7 +570,7 @@ Gets a text version of the actual percent total
 */
 function getPercentTextFromNumber(percentNumber) {
 
-  if (isFinite(percentNumber)) {
+  if ( isFinite(percentNumber) ) {
     return percentNumber + '%';
 
   } else {

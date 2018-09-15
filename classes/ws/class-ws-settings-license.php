@@ -3,6 +3,7 @@
 namespace WPS\WS;
 
 use WPS\Utils;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -11,16 +12,16 @@ if (!defined('ABSPATH')) {
 
 if (!class_exists('Settings_License')) {
 
-
   class Settings_License extends \WPS\WS {
 
 		protected $DB_Settings_License;
-		protected $Messages;
+		protected $HTTP;
 
+  	public function __construct($DB_Settings_License, $HTTP) {
 
-  	public function __construct($DB_Settings_License, $Messages) {
 			$this->DB_Settings_License		= $DB_Settings_License;
-			$this->Messages								= $Messages;
+			$this->HTTP										= $HTTP;
+
     }
 
 
@@ -32,7 +33,7 @@ if (!class_exists('Settings_License')) {
 	  public function license_save() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (license_save)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (license_save)' );
 			}
 
 			$newLicenseData = [
@@ -67,22 +68,57 @@ if (!class_exists('Settings_License')) {
 
 		/*
 
+		Deactivate License
+
+		*/
+		public function deactivate_license($license_key) {
+
+			if (empty($license_key)) {
+				return false;
+			}
+
+			// Deletes the key locally
+			$this->DB_Settings_License->truncate();
+
+			$url = WPS_PLUGIN_ENV . '/edd-sl?edd_action=deactivate_license&item_name=' . WPS_PLUGIN_NAME_ENCODED . '&license=' . $license_key . '&url=' . home_url();
+
+			return $this->HTTP->get($url);
+
+		}
+
+
+		/*
+
+		Helper method
+
+		*/
+		public function delete_and_deactivate_license($license_data) {
+
+			if (!empty($license_data) && property_exists($license_data, 'license_key')) {
+				return $this->deactivate_license($license_data->license_key);
+			}
+
+		}
+
+
+		/*
+
 		Delete License Key
 
 		*/
 		public function license_delete() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (license_delete)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (license_delete)' );
 			}
 
-			$keyDeleted = $this->DB_Settings_License->delete_license();
+			$keyDeleted = $this->delete_and_deactivate_license( $this->DB_Settings_License->get_license() );
 
 			if ($keyDeleted) {
 				$this->send_success($keyDeleted);
 
 			} else {
-				$this->send_error($this->Messages->message_license_unable_to_delete . ' (license_delete)');
+				$this->send_error( Messages::get('license_unable_to_delete') . ' (license_delete)' );
 			}
 
 		}
@@ -104,11 +140,38 @@ if (!class_exists('Settings_License')) {
 					$this->send_success($license->license_key);
 
 				} else {
-					$this->send_error($this->Messages->message_license_invalid_or_missing . ' (license_get)');
+					$this->send_error( Messages::get('license_invalid_or_missing') . ' (license_get)' );
 				}
 
 			} else {
 				return $license;
+			}
+
+		}
+
+
+		/*
+
+		Check for valid license key
+		- Predicate function (returns boolean)
+
+		*/
+		public function has_valid_key() {
+
+			$license = $this->license_get(false);
+
+			if (!empty($license->license_key) && $license->license_key) {
+
+				if ($license->license === 'valid') {
+					return true;
+
+				} else {
+					return false;
+				}
+
+			} else {
+				return false;
+
 			}
 
 		}

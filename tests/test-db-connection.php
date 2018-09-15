@@ -12,18 +12,20 @@ Connection key currently doesn't update -- only adds or deletes
 class Test_Sync_Connection extends WP_UnitTestCase {
 
   protected static $DB_Settings_Connection;
-  protected static $mockDataConnection;
-  protected static $mockDataConnectionUpdate;
-  protected static $mockDataConnectionID;
+  protected static $mock_connection;
+  protected static $mock_connection_update;
+  protected static $mock_connection_id;
+  protected static $lookup_key;
 
 
   static function setUpBeforeClass() {
 
     // Assemble
-    self::$DB_Settings_Connection         = DB_Settings_Connection_Factory::build();
-    self::$mockDataConnection             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection.json") );
-    self::$mockDataConnectionUpdate       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection-update.json") );
-    self::$mockDataConnectionID           = self::$mockDataConnection->id;
+    self::$DB_Settings_Connection       = DB_Settings_Connection_Factory::build();
+    self::$mock_connection              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection.json") );
+    self::$mock_connection_update       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection-update.json") );
+    self::$mock_connection_id           = self::$mock_connection->id;
+    self::$lookup_key                   = self::$DB_Settings_Connection->lookup_key;
 
   }
 
@@ -35,7 +37,10 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   */
   function test_connection_create() {
 
-    $result = self::$DB_Settings_Connection->insert(self::$mockDataConnection, 'connection');
+    // Clear it out first
+    self::$DB_Settings_Connection->delete();
+
+    $result = self::$DB_Settings_Connection->insert(self::$mock_connection);
     $this->assertEquals(1, $result);
 
   }
@@ -48,7 +53,7 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   */
   function test_connection_update() {
 
-    $results = self::$DB_Settings_Connection->update( self::$mockDataConnectionID, self::$mockDataConnectionUpdate );
+    $results = self::$DB_Settings_Connection->update(self::$lookup_key, self::$mock_connection_id, self::$mock_connection_update);
     $this->assertEquals(1, $results);
 
   }
@@ -61,7 +66,7 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   */
   function test_connection_delete() {
 
-    $results = self::$DB_Settings_Connection->delete( self::$mockDataConnectionID );
+    $results = self::$DB_Settings_Connection->delete();
     $this->assertEquals(1, $results);
 
   }

@@ -3,6 +3,7 @@
 namespace WPS\WS;
 
 use WPS\Utils;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -11,34 +12,25 @@ if (!defined('ABSPATH')) {
 
 if (!class_exists('Customers')) {
 
-
   class Customers extends \WPS\WS {
 
 		protected $DB_Customers;
-		protected $DB_Settings_Connection;
 		protected $DB_Settings_Syncing;
 		protected $DB_Settings_General;
-		protected $Messages;
-		protected $WS;
+		protected $Async_Processing_Customers;
+		protected $HTTP;
 
-  	public function __construct($DB_Customers, $DB_Settings_Connection, $DB_Settings_Syncing, $DB_Settings_General, $Messages, $Guzzle, $WS, $Async_Processing_Customers) {
+  	public function __construct($DB_Customers, $DB_Settings_Syncing, $DB_Settings_General, $Async_Processing_Customers, $HTTP) {
 
 			$this->DB_Customers									= $DB_Customers;
-			$this->DB_Settings_Connection				= $DB_Settings_Connection;
 			$this->DB_Settings_Syncing					= $DB_Settings_Syncing;
 			$this->DB_Settings_General					= $DB_Settings_General;
-			$this->Messages											= $Messages;
-			$this->Guzzle												= $Guzzle;
-			$this->WS														= $WS;
 			$this->Async_Processing_Customers		=	$Async_Processing_Customers;
-
-			parent::__construct($Guzzle, $Messages, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_Syncing);
+			$this->HTTP													=	$HTTP;
 
     }
 
 
-
-		
 
 
   }

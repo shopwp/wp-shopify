@@ -122,9 +122,7 @@ if ( ! class_exists( 'Vendor_Background_Process' ) ) {
 			$key = $this->generate_key();
 
 			if ( !empty( $this->data) ) {
-
-				update_site_option( $key, $this->before_queue_item_save($this->data));
-
+				$updated_site_option = update_site_option( $key, $this->before_queue_item_save($this->data) );
 			}
 
 			return $this;

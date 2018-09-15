@@ -17,16 +17,19 @@ if (!class_exists('Collections_Smart')) {
     public $table_name;
   	public $version;
   	public $primary_key;
+		public $lookup_key;
+		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      global $wpdb;
-
       $this->table_name         			= WPS_TABLE_NAME_COLLECTIONS_SMART;
+			$this->version            			= '1.0';
       $this->primary_key        			= 'id';
-      $this->version            			= '1.0';
+      $this->lookup_key        				= WPS_COLLECTIONS_LOOKUP_KEY;
       $this->cache_group        			= 'wps_db_collections_smart';
+			$this->type											= 'collection';
 
     }
 
@@ -68,54 +71,6 @@ if (!class_exists('Collections_Smart')) {
         'updated_at'          => date_i18n( 'Y-m-d H:i:s' )
       ];
 
-    }
-
-
-		public function collection_was_deleted($collection) {
-
-			if (Utils::has($collection, 'published_at') && $collection->published_at !== null) {
-				return false;
-
-			} else {
-				return true;
-			}
-
-		}
-
-
-    /*
-
-    Only responsible for inserting a smart collection into the wps_collections_smart table
-
-    */
-    public function insert_smart_collection($smart_collection) {
-
-			$smart_collection = Utils::flatten_collections_image_prop($smart_collection);
-			$smart_collection = $this->rename_primary_key($smart_collection, 'collection_id');
-
-			return $this->insert($smart_collection, 'smart_collection');
-
-    }
-
-
-    /*
-
-    @param Object
-
-    */
-    public function update_smart_collection($collection) {
-      return $this->update_collection($collection);
-    }
-
-
-    /*
-
-    delete_smart_collection
-    @param Object
-
-    */
-    public function delete_smart_collection($collection) {
-      return $this->delete($collection->id);
     }
 
 

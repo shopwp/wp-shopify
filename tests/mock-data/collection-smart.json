@@ -1,9 +1,8 @@
 {
-  "collection_id": 1083201610775,
-  "post_id": 989235,
+  "id": 10801610775,
   "title": "11collection",
   "handle": "11collection",
-  "body_html": "11coll😃ection",
+  "body_html": "11collection",
   "image": "",
   "rules": [
     {
@@ -15,5 +14,5 @@
   "disjunctive": "",
   "sort_order": "best-selling",
   "published_at": "2017-10-21 19:50:06",
-  "updated_at": "2018-04-26 01:56:40"
+  "updated_at": "2018-07-21 20:17:22"
 }

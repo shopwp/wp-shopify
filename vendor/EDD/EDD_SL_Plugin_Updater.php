@@ -357,7 +357,7 @@ class EDD_SL_Plugin_Updater {
 			'beta'       => ! empty( $data['beta'] ),
 		);
 
-		// TODO: We made need to change this to Guzzle as-well. Additional testing is needed
+	
 		$request = wp_remote_post( $this->api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
 
 		if ( ! is_wp_error( $request ) ) {

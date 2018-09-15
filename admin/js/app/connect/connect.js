@@ -250,7 +250,7 @@ function connectionFormSubmitHandler(form) {
     1. Clear all plugin cache
 
     */
-    var [clearAllCacheError, clearAllCacheResponse] = await to( clearAllCache() ); // insert_customers
+    var [clearAllCacheError, clearAllCacheResponse] = await to( clearAllCache() );
 
     if (clearAllCacheError) {
       cleanUpAfterSync( syncingConfigJavascriptError(clearAllCacheError) );

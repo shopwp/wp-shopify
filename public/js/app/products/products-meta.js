@@ -136,9 +136,11 @@ function resetOptionsSelection() {
 Get Deselected Dropdowns
 
 */
-function getDeselectedDropdowns() {
+function getDeselectedDropdowns($trigger) {
 
-  return filter(jQuery('.wps-btn-dropdown'), function($option) {
+  var $deselectedDropdowns = $trigger.closest('.wps-product-actions-group').find('.wps-btn-dropdown[data-selected="false"]');
+
+  return filter( $deselectedDropdowns, function($option) {
     return jQuery($option).data('selected') === false;
   });
 

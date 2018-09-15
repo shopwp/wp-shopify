@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\Messages;
+
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -10,7 +12,6 @@ if ( !class_exists('Checkouts') ) {
 
 	class Checkouts {
 
-	  private $Messages;
 		private $WS;
 
 		/*
@@ -18,8 +19,7 @@ if ( !class_exists('Checkouts') ) {
 		Initialize the class and set its properties.
 
 		*/
-		public function __construct($Messages, $WS) {
-			$this->Messages = $Messages;
+		public function __construct($WS) {
 			$this->WS = $WS;
 		}
 
@@ -43,7 +43,7 @@ if ( !class_exists('Checkouts') ) {
 		public function get_cart_checkout_attrs() {
 
 			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (get_cart_checkout_attrs)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (get_cart_checkout_attrs)');
 			}
 
 			$defaultAttrs = [
@@ -83,14 +83,14 @@ if ( !class_exists('Checkouts') ) {
 		public function add_checkout_before_hook() {
 
 			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (add_checkout_before_hook)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (add_checkout_before_hook)');
 			}
 
 			$cart = $_POST['cart'];
 			$exploded = explode($cart['domain'], $cart['checkoutUrl']);
 			$landing_site = $exploded[1];
 
-			$landing_site_hash = Utils::wps_hash($landing_site);
+			$landing_site_hash = Utils::hash_unique($landing_site);
 
 			$this->WS->send_success();
 

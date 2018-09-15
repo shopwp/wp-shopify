@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -15,18 +16,13 @@ if (!class_exists('Progress_Bar')) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Settings_General;
-		protected $Messages;
 		protected $WS;
-		protected $WS_Syncing;
 
-
-		public function __construct($DB_Settings_Syncing, $DB_Settings_General, $Messages, $WS, $WS_Syncing) {
+		public function __construct($DB_Settings_Syncing, $DB_Settings_General, $WS) {
 
 			$this->DB_Settings_Syncing 			= $DB_Settings_Syncing;
 			$this->DB_Settings_General 			= $DB_Settings_General;
-			$this->Messages 								= $Messages;
 			$this->WS 											= $WS;
-			$this->WS_Syncing								= $WS_Syncing;
 
 		}
 
@@ -39,11 +35,10 @@ if (!class_exists('Progress_Bar')) {
 		public function progress_session_create() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_session_create)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (progress_session_create)' );
 			}
 
 			$this->DB_Settings_Syncing->toggle_syncing(1);
-
 			$startingSyncTotals = [];
 
 
@@ -210,11 +205,11 @@ if (!class_exists('Progress_Bar')) {
 		public function progress_status() {
 
 			if (!Utils::valid_backend_nonce($_GET['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (progress_status)' );
 			}
 
 			if ($this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS_Syncing->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			$this->WS->send_success([
@@ -235,7 +230,7 @@ if (!class_exists('Progress_Bar')) {
 		public function get_syncing_notices() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (get_syncing_notices)' );
 			}
 
 			$syncing_notices = $this->DB_Settings_Syncing->syncing_notices();
@@ -248,7 +243,7 @@ if (!class_exists('Progress_Bar')) {
 		public function get_webhooks_removal_status() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (get_webhooks_removal_status)' );
 			}
 
 			$this->WS->send_success( $this->DB_Settings_Syncing->webhooks_removal_status() );
@@ -259,7 +254,7 @@ if (!class_exists('Progress_Bar')) {
 		public function get_data_removal_status() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (get_data_removal_status)' );
 			}
 
 			$this->WS->send_success( $this->DB_Settings_Syncing->data_removal_status() );
@@ -270,7 +265,7 @@ if (!class_exists('Progress_Bar')) {
 		public function get_posts_relationships_status() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->WS->send_error($this->Messages->message_nonce_invalid . ' (progress_status)');
+				$this->WS->send_error( Messages::get('nonce_invalid') . ' (get_posts_relationships_status)' );
 			}
 
 			$this->WS->send_success( $this->DB_Settings_Syncing->posts_relationships_status() );

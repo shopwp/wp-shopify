@@ -421,7 +421,7 @@ function showAdminNotice(message, type = 'error') {
   var $notice = jQuery('<div class="wps-notice notice is-dismissible ' + type + '"><p>' + message_decoded + '</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>');
 
   $msgContainer.empty().removeClass('wps-is-hidden').append($notice);
-  slideInDown($notice);
+  // slideInDown($notice);
 
   initDismissNoticeEvents();
 
@@ -601,7 +601,7 @@ function appendNotice(notice) {
 
   jQuery('.wps-connector-heading').after($notice);
 
-  slideInDown($notice);
+  // slideInDown($notice);
 
 }
 

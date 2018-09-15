@@ -5,7 +5,6 @@ namespace WPS\Factories;
 use WPS\Async_Processing_Posts_Products;
 
 use WPS\Factories\DB_Settings_Syncing_Factory;
-use WPS\Factories\WS_Factory;
 use WPS\Factories\DB_Products_Factory;
 use WPS\Factories\CPT_Query_Factory;
 
@@ -25,7 +24,6 @@ if (!class_exists('Async_Processing_Posts_Products_Factory')) {
 
 				$Async_Processing_Posts = new Async_Processing_Posts_Products(
 					DB_Settings_Syncing_Factory::build(),
-					WS_Factory::build(),
 					DB_Products_Factory::build(),
 					CPT_Query_Factory::build()
 				);

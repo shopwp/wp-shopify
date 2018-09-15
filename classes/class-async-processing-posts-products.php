@@ -15,18 +15,14 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 		protected $action = 'wps_background_processing_posts_products';
 
 		protected $DB_Settings_Syncing;
-		protected $WS;
 		protected $DB_Products;
 		protected $CPT_Query;
 
-
-		public function __construct($DB_Settings_Syncing, $WS, $DB_Products, $CPT_Query) {
+		public function __construct($DB_Settings_Syncing, $DB_Products, $CPT_Query) {
 
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
-			$this->WS 												= $WS;
 			$this->DB_Products 								= $DB_Products;
 			$this->CPT_Query 									= $CPT_Query;
-
 
 			parent::__construct();
 
@@ -56,7 +52,7 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 				$result = $this->CPT_Query->insert_posts( $products_from_shopify, false, WPS_PRODUCTS_POST_TYPE_SLUG );
 
 				if (is_wp_error($result)) {
-					$this->WS->save_notice_and_stop_sync($result);
+					$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 					$this->complete();
 					return false;
 				}
@@ -91,7 +87,7 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 					$result = $this->CPT_Query->update_posts($products_to_update, WPS_PRODUCTS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result)) {
-						$this->WS->save_notice_and_stop_sync($result);
+						$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 						$this->complete();
 						return false;
 					}
@@ -103,7 +99,7 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 					$result_insert = $this->CPT_Query->insert_posts( $products_from_shopify, $existing_products, WPS_PRODUCTS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_insert)) {
-						$this->WS->save_notice_and_stop_sync($result_insert);
+						$this->DB_Settings_Syncing->save_notice_and_stop_sync($result_insert);
 						$this->complete();
 						return false;
 					}
@@ -112,7 +108,7 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 					$result_update = $this->CPT_Query->update_posts($products_to_update, WPS_PRODUCTS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result_update)) {
-						$this->WS->save_notice_and_stop_sync($result_update);
+						$this->DB_Settings_Syncing->save_notice_and_stop_sync($result_update);
 						$this->complete();
 						return false;
 					}
@@ -133,6 +129,15 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 
 		public function insert_posts_products_batch($products) {
 
+			if ( $this->DB_Products->max_packet_size_reached($products) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			$this->push_to_queue($products);
 			$this->save()->dispatch();
 
@@ -147,7 +152,7 @@ if ( !class_exists('Async_Processing_Posts_Products') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

@@ -58,9 +58,11 @@ if ( !class_exists('Config') ) {
 		public $plugin_table_name_wp_postmeta;
 		public $plugin_table_name_wp_term_relationships;
 		public $plugin_table_name_wp_options;
-
 		public $fallback_image_alt_text;
 		public $total_webhooks_count;
+		public $plugin_products_lookup_key;
+		public $plugin_collections_lookup_key;
+
 
 		public function __construct() {
 
@@ -73,7 +75,7 @@ if ( !class_exists('Config') ) {
 			$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 			$this->plugin_name_js 													= 'WP_Shopify';
 			$this->plugin_text_domain 											= 'wp-shopify';
-			$this->plugin_version 													= '1.2.2';
+			$this->plugin_version 													= '1.2.3';
 			$this->plugin_author 														= 'WP Shopify';
 
 			$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -106,7 +108,10 @@ if ( !class_exists('Config') ) {
 			$this->total_webhooks_count 										= 27;
 			$this->shopify_domain_suffix 										= '.myshopify.com';
 			$this->shopify_header_verify_webhooks 					= 'HTTP_X_SHOPIFY_HMAC_SHA256';
+			$this->shopify_header_api_call_limit 						= 'HTTP_X_SHOPIFY_SHOP_API_CALL_LIMIT';
 			$this->shopify_header_verify_domain 						= 'X-Shopify-Shop-Domain';
+			$this->max_items_per_request 										= 250;
+			$this->shopify_payload_key 											= 'id';
 
 			// Settings
 			$this->settings_connection_option_name 					= $this->plugin_name . '_settings_connection';
@@ -135,14 +140,16 @@ if ( !class_exists('Config') ) {
 			$this->plugin_table_migration_suffix						=	'_migrate';
 			$this->plugin_table_migration_suffix_tests			=	'_migrate_tests';
 
-
-			// $this->plugin_table_name_collections_smart,
-			// $this->plugin_table_name_collections_custom,
-			// $this->plugin_table_name_shop
+			$this->plugin_products_lookup_key								=	'product_id';
+			$this->plugin_collections_lookup_key						=	'collection_id';
 
 
 			if ( !defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') ) {
 				define('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS', $this->shopify_header_verify_webhooks);
+			}
+
+			if ( !defined('WPS_SHOPIFY_HEADER_API_CALL_LIMIT') ) {
+				define('WPS_SHOPIFY_HEADER_API_CALL_LIMIT', $this->shopify_header_api_call_limit);
 			}
 
 			if ( !defined('WPS_SHOPIFY_HEADER_VERIFY_DOMAIN') ) {
@@ -369,6 +376,21 @@ if ( !class_exists('Config') ) {
 				define('WPS_FREE_SUBDIRECTORY_NAME', $this->plugin_free_subdirectory_name);
 			}
 
+			if ( !defined('WPS_MAX_ITEMS_PER_REQUEST') ) {
+				define('WPS_MAX_ITEMS_PER_REQUEST', $this->max_items_per_request);
+			}
+
+			if ( !defined('WPS_SHOPIFY_PAYLOAD_KEY') ) {
+				define('WPS_SHOPIFY_PAYLOAD_KEY', $this->shopify_payload_key);
+			}
+
+			if ( !defined('WPS_PRODUCTS_LOOKUP_KEY') ) {
+				define('WPS_PRODUCTS_LOOKUP_KEY', $this->plugin_products_lookup_key);
+			}
+
+			if ( !defined('WPS_COLLECTIONS_LOOKUP_KEY') ) {
+				define('WPS_COLLECTIONS_LOOKUP_KEY', $this->plugin_collections_lookup_key);
+			}
 
 		}
 

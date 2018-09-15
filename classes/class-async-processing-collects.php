@@ -14,13 +14,12 @@ if ( !class_exists('Async_Processing_Collects') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Collects;
-		protected $WS;
 
-		public function __construct($DB_Settings_Syncing, $DB_Collects, $WS) {
+
+		public function __construct($DB_Settings_Syncing, $DB_Collects) {
 
 			$this->DB_Settings_Syncing				=	$DB_Settings_Syncing;
 			$this->DB_Collects 								= $DB_Collects;
-			$this->WS 												= $WS;
 
 			parent::__construct();
 
@@ -41,11 +40,10 @@ if ( !class_exists('Async_Processing_Collects') ) {
 			}
 
 			// Actual work
-			$result = $this->DB_Collects->insert_collect($collect);
-
+			$result = $this->DB_Collects->insert_items_of_type($collect);
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -56,6 +54,15 @@ if ( !class_exists('Async_Processing_Collects') ) {
 
 
 		public function insert_collects_batch($collects) {
+
+			if ( $this->DB_Settings_Syncing->max_packet_size_reached($collects) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
 
 			foreach ($collects as $collect) {
 				$this->push_to_queue($collect);
@@ -74,7 +81,7 @@ if ( !class_exists('Async_Processing_Collects') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

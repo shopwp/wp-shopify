@@ -31,5 +31,6 @@
   "related_products_amount": 3,
   "allow_insecure_webhooks": 0,
   "save_connection_only": 0,
-  "app_uninstalled": 0
+  "app_uninstalled": 0,
+  "items_per_request": 250
 }

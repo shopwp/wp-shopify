@@ -116,7 +116,7 @@ if ( !is_front_page() ) {
 		// Tag page
 
 		// Get tag information
-		$term_id        = get_query_var('tag_id');
+		$term_id        = get_query_var('id');
 		$taxonomy       = 'post_tag';
 		$args           = 'include=' . $term_id;
 		$terms          = get_terms( $taxonomy, $args );

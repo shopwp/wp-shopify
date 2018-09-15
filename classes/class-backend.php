@@ -32,6 +32,10 @@ if ( !class_exists('Backend') ) {
 
 				wp_enqueue_style('wp-color-picker');
 
+				//Enqueue the jQuery UI theme css file from google:
+				wp_enqueue_style('jquery-ui-css','//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css', false, "1.9.0", false);
+
+
 				wp_enqueue_style(
 					'animate-css',
 					WPS_PLUGIN_URL . 'admin/css/vendor/animate.min.css',
@@ -108,6 +112,9 @@ if ( !class_exists('Backend') ) {
 			// Only loading admin scripts if we're on the correct page ...
 			if ( $this->admin_pages_for_loading() ) {
 
+				//Enqueue date picker UI from WP core:
+				wp_enqueue_script('jquery-ui-slider');
+
 				wp_enqueue_script(
 					'promise-polyfill',
 					WPS_PLUGIN_URL . 'admin/js/vendor/es6-promise.auto.min.js',
@@ -160,22 +167,24 @@ if ( !class_exists('Backend') ) {
 					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-backend',
 					WPS_PLUGIN_NAME_JS,
 					[
-						'ajax' 										=> __(admin_url('admin-ajax.php')),
-						'pluginsPath' 						=> __(plugins_url()),
-						'siteUrl' 								=> site_url(),
-						'pluginsDirURL' 					=> plugin_dir_url(dirname(__FILE__)),
-						'nonce'										=> wp_create_nonce(WPS_BACKEND_NONCE_ACTION),
-						'selective_sync' 					=> $this->get_selective_sync_value(),
-						'reconnectingWebhooks' 		=> false,
-						'hasConnection' 					=> $this->DB_Settings_Connection->has_connection(),
-						'isSyncing' 							=> false,
-						'manuallyCanceled' 				=> false,
-						'isClearing' 							=> false,
-						'isDisconnecting' 				=> false,
-						'isConnecting' 						=> false,
-						'latestVersion'						=> WPS_NEW_PLUGIN_VERSION,
-						'latestVersionCombined'		=> str_replace('.', '', WPS_NEW_PLUGIN_VERSION),
-						'migrationNeeded'					=> get_option('wp_shopify_migration_needed')
+						'ajax' 											=> __(admin_url('admin-ajax.php')),
+						'pluginsPath' 							=> __(plugins_url()),
+						'siteUrl' 									=> site_url(),
+						'pluginsDirURL' 						=> plugin_dir_url(dirname(__FILE__)),
+						'nonce'											=> wp_create_nonce(WPS_BACKEND_NONCE_ACTION),
+						'selective_sync' 						=> $this->get_selective_sync_value(),
+						'reconnectingWebhooks' 			=> false,
+						'hasConnection' 						=> $this->DB_Settings_Connection->has_connection(),
+						'isSyncing' 								=> false,
+						'manuallyCanceled' 					=> false,
+						'isClearing' 								=> false,
+						'isDisconnecting' 					=> false,
+						'isConnecting' 							=> false,
+						'latestVersion'							=> WPS_NEW_PLUGIN_VERSION,
+						'latestVersionCombined'			=> str_replace('.', '', WPS_NEW_PLUGIN_VERSION),
+						'migrationNeeded'						=> get_option('wp_shopify_migration_needed'),
+						'itemsPerRequest'						=> $this->DB_Settings_General->get_items_per_request(),
+						'maxItemsPerRequest'				=> WPS_MAX_ITEMS_PER_REQUEST
 					]
 				);
 

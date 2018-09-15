@@ -3,6 +3,7 @@
 namespace WPS\WS;
 
 use WPS\Utils;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -13,23 +14,16 @@ if (!class_exists('Shop')) {
   class Shop extends \WPS\WS {
 
 		protected $DB_Settings_Connection;
-		protected $DB_Settings_General;
 		protected $DB_Settings_Syncing;
-
 		protected $DB_Shop;
-		protected $Messages;
+		protected $HTTP;
 
-
-  	public function __construct($DB_Settings_Connection, $DB_Settings_General, $DB_Settings_Syncing, $DB_Shop, $Messages, $Guzzle) {
+  	public function __construct($DB_Settings_Connection, $DB_Settings_Syncing, $DB_Shop, $HTTP) {
 
 			$this->DB_Settings_Connection				= $DB_Settings_Connection;
-			$this->DB_Settings_General					= $DB_Settings_General;
 			$this->DB_Settings_Syncing					= $DB_Settings_Syncing;
-
 			$this->DB_Shop											= $DB_Shop;
-			$this->Messages											= $Messages;
-
-			parent::__construct($Guzzle, $Messages, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_Syncing);
+			$this->HTTP													= $HTTP;
 
     }
 
@@ -46,52 +40,14 @@ if (!class_exists('Shop')) {
 			$connection = $this->DB_Settings_Connection->get();
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_shop_count)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_shop_count)' );
 			}
 
 			if (Utils::emptyConnection($connection)) {
-				$this->send_error($this->Messages->message_connection_not_found . ' (get_shop_count)');
+				$this->send_error( Messages::get('connection_not_found') . ' (get_shop_count)' );
 			}
 
 			$this->send_success(['shop' => 1]);
-
-		}
-
-
-		/*
-
-		Delete Shop Data
-
-		*/
-		public function delete_shop() {
-
-			$syncStates = $this->DB_Settings_General->selective_sync_status(); // This property was not set for users ...
-
-			if ($syncStates['all']) {
-
-				if ( !$this->DB_Shop->delete() ) {
-					return new \WP_Error('error', $this->Messages->message_delete_shop_error . ' (delete_shop)');
-
-				} else {
-					return true;
-				}
-
-			} else {
-
-				if ($syncStates['shop']) {
-
-					if ( !$this->DB_Shop->delete() ) {
-						return new \WP_Error('error', $this->Messages->message_delete_shop_error . ' (delete_shop)');
-
-					} else {
-						return true;
-					}
-
-				} else {
-					return true;
-				}
-
-			}
 
 		}
 
@@ -104,24 +60,32 @@ if (!class_exists('Shop')) {
 		public function insert_shop() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (insert_shop)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (insert_shop)' );
 			}
 
-			$shopData = $_POST['shopData'];
+			$shop_data = $_POST['shopData'];
 
 			// Actual work
-			$results = $this->DB_Shop->insert_shop($shopData);
+			$results = $this->DB_Shop->insert_shop($shop_data);
 			$this->DB_Settings_Syncing->increment_current_amount('shop');
 
-
 			if (empty($results)) {
-				$this->send_error($this->message_connection_save_error . ' (insert_shop)');
+				$this->send_error( Messages::get('connection_save_error') . ' (insert_shop)' );
 
 			} else {
 				$this->send_success($results);
 			}
 
+		}
 
+
+		public function get_shop_endpoint() {
+			return "/admin/shop.json";
+		}
+
+
+		public function get_shop_data() {
+			return $this->HTTP->get( $this->get_shop_endpoint() );
 		}
 
 
@@ -136,11 +100,11 @@ if (!class_exists('Shop')) {
 
 			// First make sure nonce is valid
 			if (!Utils::valid_backend_nonce($_GET['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_shop)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_shop)' );
 			}
 
 			// Get shop data from Shopify
-			$shop = $this->get("/admin/shop.json");
+			$shop = $this->get_shop_data();
 
 			// Check if error occured during request
 			if ( is_wp_error($shop) ) {
@@ -154,7 +118,7 @@ if (!class_exists('Shop')) {
 			} else {
 
 				// We can't use the plugin withtout the general Shop data so we fail hard here
-				$this->send_error($this->Messages->message_missing_shop_for_page . ' (get_shop)');
+				$this->send_error( Messages::get('missing_shop_for_page') . ' (get_shop)' );
 			}
 
 	  }

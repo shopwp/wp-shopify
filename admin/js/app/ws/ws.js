@@ -16,36 +16,6 @@ import {
 
 /*
 
-Removing all data
-
-*/
-function deleteAllData() {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'delete_all_data';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
 Get all products from Shopify
 Returns: Promise
 
@@ -374,38 +344,6 @@ function getProductsFromCollection(collection) {
       data: {
         action: action_name,
         collectionID: collection.collectionId,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
-Get all products from Shopify
-Returns: Promise
-
-*/
-function getCollectsFromCollection(collectionID) {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'get_collects_from_collection';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        collectionID: collectionID,
         nonce: WP_Shopify.nonce
       },
       success: data => resolve(data),
@@ -776,9 +714,9 @@ Deleting License Key
 Returns Promise
 
 */
-function deleteLicenseKey(key) {
+function deleteLicenseKey() {
 
-  return new Promise((resolve, reject) => {
+  return new Promise( (resolve, reject) => {
 
     const action_name = 'license_delete';
 
@@ -787,7 +725,6 @@ function deleteLicenseKey(key) {
       url: WP_Shopify.ajax,
       data: {
         action: action_name,
-        key: key,
         nonce: WP_Shopify.nonce
       },
       success: data => resolve(data),
@@ -906,37 +843,6 @@ function deletePostsAndSyncedData() {
   return new Promise((resolve, reject) => {
 
     const action_name = 'delete_posts_and_synced_data';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
-Deletes product and collection posts only
-Returns Promise
-
-*/
-function deleteOnlyPostData() {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'delete_only_posts';
 
     jQuery.ajax({
       method: 'POST',
@@ -1172,68 +1078,6 @@ function clearCache() {
 
 /*
 
-Insert Orders
-
-*/
-function insertOrders(currentPage = false) {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'insert_orders';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        currentPage: currentPage,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
-Insert Customers
-
-*/
-function insertCustomers(currentPage = false) {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'insert_customers';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        currentPage: currentPage,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
 Insert Customers
 
 */
@@ -1438,7 +1282,7 @@ function getBulkProducts(currentPage) {
 
 function getBulkOrders(currentPage) {
 
-  return new Promise((resolve, reject) => {
+  return new Promise( (resolve, reject) => {
 
     const action_name = 'get_bulk_orders';
 
@@ -1871,7 +1715,6 @@ function migrateTables() {
 
 export {
   getProductsFromCollection,
-  getCollectsFromCollection,
   insertProductsData,
   getWebhooks,
   setPluginSettings,
@@ -1894,13 +1737,10 @@ export {
   deleteOnlySyncedData,
   setSyncingIndicator,
   clearCache,
-  insertOrders,
   getOrdersCount,
-  insertCustomers,
   getCustomersCount,
   startProgress,
   registerWebhooks,
-  deleteAllData,
   insertAltText,
   getProgressCount,
   getSmartCollectionsCount,
@@ -1930,7 +1770,6 @@ export {
   getSelectedCollections,
   checkForActiveConnection,
   resetNoticeFlags,
-  deleteOnlyPostData,
   deletePostsAndSyncedData,
   checkForValidServerConnection,
   migrateTables

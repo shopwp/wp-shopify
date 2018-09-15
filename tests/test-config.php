@@ -24,6 +24,10 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') );
   }
 
+  function test_is_defined_wps_shopify_header_api_call_limit() {
+    $this->assertTrue( defined('WPS_SHOPIFY_HEADER_API_CALL_LIMIT') );
+  }
+
   function test_shopify_header_verify_webhooks() {
     $this->assertTrue( defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') );
   }
@@ -252,5 +256,20 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_FREE_SUBDIRECTORY_NAME') );
   }
 
+  function test_plugin_shopify_max_items_per_page() {
+    $this->assertTrue( defined('WPS_MAX_ITEMS_PER_REQUEST') );
+  }
+
+  function test_plugin_shopify_primary_key() {
+    $this->assertTrue( defined('WPS_SHOPIFY_PAYLOAD_KEY') );
+  }
+
+  function test_plugin_products_lookup_key() {
+    $this->assertTrue( defined('WPS_PRODUCTS_LOOKUP_KEY') );
+  }
+
+  function test_plugin_collections_lookup_key() {
+    $this->assertTrue( defined('WPS_COLLECTIONS_LOOKUP_KEY') );
+  }
 
 }

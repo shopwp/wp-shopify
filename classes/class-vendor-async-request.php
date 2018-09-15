@@ -94,15 +94,6 @@ if ( ! class_exists( 'Vendor_Async_Request' ) ) {
 
 			wp_remote_post( esc_url_raw( $url ), $args );
 
-			// If error occurs, try one more time
-			// if (is_wp_error($result)) {
-			//
-			// 	error_log('---- WP_ERRRRROR -----');
-			// 	error_log(print_r($result, true));
-			// 	error_log('---- /WP_ERRRRROR -----');
-			// 	// wp_remote_post( esc_url_raw( $url ), $args );
-			// }
-
 		}
 
 		/**
@@ -142,6 +133,7 @@ if ( ! class_exists( 'Vendor_Async_Request' ) ) {
 		 * @return array
 		 */
 		protected function get_post_args() {
+			
 			if ( property_exists( $this, 'post_args' ) ) {
 				return $this->post_args;
 			}

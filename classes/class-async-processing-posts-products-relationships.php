@@ -18,15 +18,12 @@ if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 		protected $DB_Products;
 		protected $DB_Settings_Syncing;
 		protected $DB_Tags;
-		protected $WS_Syncing;
 
-
-		public function __construct($DB_Products, $DB_Settings_Syncing, $DB_Tags, $WS_Syncing) {
+		public function __construct($DB_Products, $DB_Settings_Syncing, $DB_Tags) {
 
 			$this->DB_Products 											= $DB_Products;
 			$this->DB_Settings_Syncing 							= $DB_Settings_Syncing;
 			$this->DB_Tags 													= $DB_Tags;
-			$this->WS_Syncing 											= $WS_Syncing;
 
 			parent::__construct();
 
@@ -59,24 +56,20 @@ if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 
 		*/
 		protected function update_products_post_meta($post) {
-			return $this->DB_Products->update_post_meta($post['post_id'], 'product_id', $post['product_id']);
+			return $this->DB_Products->update_post_meta_helper($post['post_id'], WPS_PRODUCTS_LOOKUP_KEY, $post[WPS_PRODUCTS_LOOKUP_KEY]);
 		}
 
 
 		protected function update_products_table($post) {
 
-			return $this->DB_Products->sanitize_db_response(
-				$this->DB_Products->update_column_single(['post_id' => $post['post_id']], ['product_id' => $post['product_id']])
-			);
+			return $this->DB_Products->update_column_single(['post_id' => $post['post_id']], [WPS_PRODUCTS_LOOKUP_KEY => $post[WPS_PRODUCTS_LOOKUP_KEY]]);
 
 		}
 
 
 		protected function update_tags_table($post) {
 
-			return $this->DB_Tags->sanitize_db_response(
-				$this->DB_Tags->update_column_single(['post_id' => $post['post_id']], ['product_id' => $post['product_id']])
-			);
+			return $this->DB_Tags->update_column_single(['post_id' => $post['post_id']], [WPS_PRODUCTS_LOOKUP_KEY => $post[WPS_PRODUCTS_LOOKUP_KEY]]);
 
 		}
 
@@ -85,11 +78,11 @@ if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 
 			if (is_wp_error($result)) {
 
-				$existing_value = get_post_meta($post['post_id'], 'product_id', true);
+				$existing_value = get_post_meta($post['post_id'], WPS_PRODUCTS_LOOKUP_KEY, true);
 
-				if ($existing_value !== $post['product_id']) {
+				if ($existing_value !== $post[WPS_PRODUCTS_LOOKUP_KEY]) {
 
-					$this->WS_Syncing->save_notice($result);
+					$this->DB_Settings_Syncing->save_notice($result);
 					$this->complete();
 					return true;
 
@@ -118,21 +111,17 @@ if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 
 			foreach ($product_data as $post) {
 
-
-
 				$update_post_meta_result = $this->update_products_post_meta($post);
 
 				if ($this->has_error($update_post_meta_result, $post)) {
 					return false;
 				}
 
-
 				$products_table_updated = $this->update_products_table($post);
 
 				if ($this->has_error($products_table_updated, $post)) {
 					return false;
 				}
-
 
 				$tags_table_updated = $this->update_tags_table($post);
 
@@ -147,7 +136,6 @@ if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 
 			}
 
-
 			return false;
 
 
@@ -157,23 +145,27 @@ if ( !class_exists('Async_Processing_Posts_Products_Relationships') ) {
 
 		public function insert_posts_products_relationships($posts) {
 
-			// First check if the wholte data object exceeds packet size ...
-			if ($this->DB_Products->max_packet_size_reached($posts)) {
+			if ( $this->DB_Products->max_packet_size_reached($posts) ) {
 
-				$posts_chunked = array_chunk($posts, 50);
+				// $posts_chunked = array_chunk($posts, 50);
+				//
+				// foreach ($posts_chunked as $chunk) {
+				// 	$this->push_to_queue($chunk);
+				// 	$this->save();
+				//
+				// }
+				//
+				// $this->dispatch();
 
-				foreach ($posts_chunked as $chunk) {
-					$this->push_to_queue($chunk);
-					$this->save();
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
 
-				}
-
-				$this->dispatch();
-
-			} else {
-				$this->push_to_queue($posts);
-				$this->save()->dispatch();
 			}
+
+
+			$this->push_to_queue($posts);
+			$this->save()->dispatch();
 
 
 		}

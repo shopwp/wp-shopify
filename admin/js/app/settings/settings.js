@@ -109,8 +109,7 @@ function onSettingsFormSubmit() {
       var relatedProductsShow = 0;
 
       var syncByCollectionsValue = jQuery(form).find("#wps-sync-by-collections").val();
-
-
+      var itemsPerRequest = parseInt( jQuery(form).find("#wps-items-per-request-amount").text() );
 
       var $selectiveSyncAll = jQuery(form).find("#wps_settings_general_selective_sync_all");
 
@@ -344,6 +343,7 @@ function onSettingsFormSubmit() {
         wps_settings_general_related_products_show: relatedProductsShow,
         wps_settings_general_related_products_sort: relatedProductsSort,
         wps_settings_general_related_products_amount: relatedProductsAmount,
+        wps_settings_general_items_per_request: itemsPerRequest,
 
 
       }
@@ -399,6 +399,11 @@ function onSettingsFormSubmit() {
         return;
 
       }
+
+
+      // Needed to keep the global updated during AJAX requests
+      WP_Shopify.itemsPerRequest = itemsPerRequest;
+
 
       showAdminNotice('Successfully updated settings', 'updated');
 
@@ -572,6 +577,24 @@ async function populateSyncByCollections() {
 }
 
 
+function initItemsPerRequest() {
+
+  var $slider = jQuery('.wps-slider-items-per-request');
+  var $sliderAmount = jQuery('#wps-items-per-request-amount');
+
+  $slider.slider({
+    range: "max",
+    value: parseInt( $sliderAmount.text() ),
+    min: 1,
+    max: parseInt(WP_Shopify.maxItemsPerRequest),
+    slide: function( event, ui ) {
+      $sliderAmount.text( ui.value );
+    }
+  });
+
+}
+
+
 /*
 
 Form Events Init
@@ -584,6 +607,8 @@ function settingsInit() {
   toggleActiveSubSection();
   chosenInit();
   populateSyncByCollections();
+
+  initItemsPerRequest();
 
 }
 

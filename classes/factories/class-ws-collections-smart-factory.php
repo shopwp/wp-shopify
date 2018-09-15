@@ -6,20 +6,15 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-
 use WPS\WS\Collections_Smart as WS_Collections_Smart;
 
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Collections_Smart_Factory;
-use WPS\Factories\Messages_Factory;
 use WPS\Factories\CPT_Model_Factory;
-use WPS\Factories\WS_Factory;
 use WPS\Factories\Async_Processing_Collections_Smart_Factory;
 use WPS\Factories\Async_Processing_Posts_Collections_Smart_Factory;
-use WPS\Vendor\GuzzleHttp\Client as GuzzleClient;
-
+use WPS\Factories\HTTP_Factory;
 
 if (!class_exists('WS_Collections_Smart_Factory')) {
 
@@ -34,14 +29,11 @@ if (!class_exists('WS_Collections_Smart_Factory')) {
 				$WS_Collections_Smart = new WS_Collections_Smart(
 					DB_Settings_Syncing_Factory::build(),
 					DB_Settings_General_Factory::build(),
-					DB_Settings_Connection_Factory::build(),
 					DB_Collections_Smart_Factory::build(),
-					Messages_Factory::build(),
-					new GuzzleClient(),
 					CPT_Model_Factory::build(),
-					WS_Factory::build(),
 					Async_Processing_Collections_Smart_Factory::build(),
-					Async_Processing_Posts_Collections_Smart_Factory::build()
+					Async_Processing_Posts_Collections_Smart_Factory::build(),
+					HTTP_Factory::build()
 				);
 
 				self::$instantiated = $WS_Collections_Smart;

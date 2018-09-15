@@ -435,14 +435,15 @@ function onLoad() {
 
     } catch (error) {
 
+
       /*
 
-      Deleting key locally
+      Deleting key locally and remotelly
 
       */
       try {
 
-        var deletedKey = await deleteLicenseKey(currentLicenseKey);
+        var deletedKey = await deleteLicenseKey();
 
         if (isWordPressError(deletedKey)) {
           throw deletedKey.data;
@@ -464,7 +465,7 @@ function onLoad() {
     Step 4. If invalid key, delete and clear form, otherwise just show form.
 
     */
-    if (!validKey) {
+    if ( !validKey ) {
 
       /*
 
@@ -473,10 +474,10 @@ function onLoad() {
       */
       try {
 
-        var deletedKey = await deleteLicenseKey(currentLicenseKey);
+        var deletedResponse = await deleteLicenseKey();
 
-        if (isWordPressError(deletedKey)) {
-          throw deletedKey.data;
+        if (isWordPressError(deletedResponse)) {
+          throw deletedResponse.data;
         }
 
       } catch(error) {

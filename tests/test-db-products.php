@@ -1,6 +1,7 @@
 <?php
 
 use WPS\Factories\DB_Products_Factory;
+use WPS\Factories\Templates_Factory;
 
 /*
 
@@ -15,20 +16,37 @@ https://help.shopify.com/api/reference/webhook
 class Test_Sync_Products extends WP_UnitTestCase {
 
   protected static $DB_Products;
+  protected static $Templates;
   protected static $mock_data_product;
   protected static $mock_data_product_for_update;
   protected static $mock_data_product_id;
   protected static $mock_data_product_sync_insert;
+  protected static $mock_product_insert;
+  protected static $mock_product_update;
+  protected static $mock_product_delete;
+  protected static $mock_product;
+  protected static $mock_product_without_image_src;
+  protected static $lookup_key;
 
 
   static function setUpBeforeClass() {
 
     // Assemble
     self::$DB_Products                      = DB_Products_Factory::build();
+    self::$Templates                        = Templates_Factory::build();
     self::$mock_data_product                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product.json") );
     self::$mock_data_product_sync_insert    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-sync-insert.json") );
     self::$mock_data_product_for_update     = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-update.json") );
-    self::$mock_data_product_id             = self::$mock_data_product_for_update->product_id;
+
+    self::$mock_product                     = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );
+    self::$mock_product_insert              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products/products-insert.json") );
+    self::$mock_product_update              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products/products-update.json") );
+    self::$mock_product_delete              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products/products-delete.json") );
+
+    self::$mock_product_without_image_src   = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products/product-without-image-src.json") );
+
+    self::$mock_data_product_id             = self::$mock_data_product_for_update->id;
+    self::$lookup_key                       = self::$DB_Products->lookup_key;
 
   }
 
@@ -40,7 +58,7 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_create() {
 
-    $result = self::$DB_Products->insert( self::$mock_data_product, 'product' );
+    $result = self::$DB_Products->insert(self::$mock_data_product);
 
     $this->assertEquals(1, $result);
 
@@ -55,7 +73,7 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_update() {
 
-    $results = self::$DB_Products->update( self::$mock_data_product_id, self::$mock_data_product_for_update );
+    $results = self::$DB_Products->update(self::$lookup_key, self::$mock_data_product_id, self::$mock_data_product_for_update);
 
     $this->assertEquals(1, $results);
 
@@ -69,21 +87,106 @@ class Test_Sync_Products extends WP_UnitTestCase {
   */
   function test_product_delete() {
 
-    $results = self::$DB_Products->delete( self::$mock_data_product_id );
+    $results = self::$DB_Products->delete_rows(self::$lookup_key, self::$mock_data_product_id );
 
     $this->assertEquals(1, $results);
 
   }
 
 
+  /*
+
+  Should find products to insert based on mock product
+
+  */
   function test_it_should_insert_product() {
 
-    $results = self::$DB_Products->insert_product( self::$mock_data_product_sync_insert );
+    $insert_item_result = self::$DB_Products->insert_items_of_type( self::$mock_product_insert);
 
-    $this->assertEquals(1, $results);
-  
+    $this->assertEquals(1, $insert_item_result);
 
   }
 
+
+  /*
+
+  Should find products to update based on mock product
+
+  */
+  function test_it_should_update_product() {
+
+    $update_item_result = self::$DB_Products->update_items_of_type( self::$mock_product_update);
+
+    $this->assertEquals(1, $update_item_result);
+
+  }
+
+
+  /*
+
+  Should update order
+
+  */
+  function test_it_should_delete_product() {
+
+    $delete_item_result = self::$DB_Products->delete_items_of_type( self::$mock_product);
+
+    $this->assertEquals(1, $delete_item_result);
+
+  }
+
+
+  /*
+
+  Should find all products to delete based on mock product id
+
+  */
+  function test_it_should_delete_all_products_by_product_id() {
+
+    $delete_result = self::$DB_Products->delete_products_from_product_id(self::$mock_product->id);
+
+    $this->assertEquals(1, $delete_result);
+
+  }
+
+
+  function test_it_should_find_post_id_from_product_id() {
+
+    $post_id = self::$DB_Products->find_post_id_from_product_id(self::$mock_product->id);
+
+    $this->assertEquals(18353, $post_id);
+
+  }
+
+
+  /*
+
+  Should rename payload key to lookup key
+
+  */
+  function test_it_should_maybe_rename_to_lookup_key() {
+
+    $rename_result = self::$DB_Products->maybe_rename_to_lookup_key(self::$mock_product);
+
+    $this->assertObjectHasAttribute(self::$DB_Products->lookup_key, $rename_result);
+
+  }
+
+
+  /*
+
+  Should rename payload key to lookup key
+
+  */
+  function test_it_should_get_post_id_from_product() {
+
+    $product_data = self::$Templates->get_product_data(18352);
+
+    $result = self::$DB_Products->get_post_id_from_product($product_data);
+
+    $this->assertEquals(18352, $result);
+
+  }
+  
 
 }

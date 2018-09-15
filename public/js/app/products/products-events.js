@@ -258,7 +258,7 @@ function onProductAddToCart(client) {
     if (!product) {
 
       logNotice('getProductByHandle', productError, 'error');
-      showSingleNotice('Sorry, it looks like this product is currently unavailable to purchase. Please clear your browser cache and try again.', $addToCartButton);
+      showSingleNotice('Sorry, it looks like this product is currently unavailable to purchase. Please ensure that the correct Sales Channel is assigned and try again.', $addToCartButton);
 
       resetVariantSelection($addToCartButton);
 
@@ -641,10 +641,6 @@ function emptyPriceDOM($metaContainer) {
   $metaContainer.parent().find('.wps-products-price').empty();
 }
 
-function getSelectedVariantPrice() {
-  return jQuery('.wps-product-meta').data('product-price');
-}
-
 
 function showVariantPrice(price, $metaContainer) {
 
@@ -704,7 +700,7 @@ Param   => selectedVariant    => Object             => { option1: "Extra Small" 
 Param   => availableVariants  => Array of Objects   => [{ option1: "Extra Small", option2: "Large", option3: "Black" }]
 
 */
-function toggleAvailableVariantSelections(selectedVariant, availableVariants) {
+function toggleAvailableVariantSelections($trigger, selectedVariant, availableVariants) {
 
 
   /*
@@ -721,7 +717,7 @@ function toggleAvailableVariantSelections(selectedVariant, availableVariants) {
   Represents the options so we can have up to three
 
   */
-  var $deselectedDropdowns = getDeselectedDropdowns();
+  var $deselectedDropdowns = getDeselectedDropdowns($trigger);
 
 
   /*
@@ -904,6 +900,7 @@ function onProductVariantChange() {
 
 
     toggleAvailableVariantSelections(
+      $trigger,
       constructSelectedVariantOptions($trigger),
       availableVariants
     );
@@ -942,6 +939,8 @@ function onProductVariantChange() {
 
       if (foundVariantError) {
 
+        console.log('foundVariantError: ', foundVariantError);
+
         logNotice('getVariantIdFromOptions', foundVariantError, 'error');
         showSingleNotice(foundVariantError, $trigger);
 
@@ -959,6 +958,8 @@ function onProductVariantChange() {
 
 
       if (isWordPressError(foundVariantResponse)) {
+
+        console.log('foundVariantResponse: ', foundVariantResponse);
 
         logNotice('getVariantIdFromOptions', foundVariantResponse, 'error');
         showSingleNotice(foundVariantResponse, $trigger);

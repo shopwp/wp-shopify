@@ -14,9 +14,11 @@ if (!class_exists('Shop')) {
 	class Shop extends \WPS\DB {
 
 		public $table_name;
-		public $version;
-		public $primary_key;
+  	public $version;
+  	public $primary_key;
+		public $lookup_key;
 		public $cache_group;
+		public $type;
 
 		public $domain;
 		public $source;
@@ -52,10 +54,11 @@ if (!class_exists('Shop')) {
 	    global $wpdb;
 
 			$this->table_name 		 												= WPS_TABLE_NAME_SHOP;
-
+			$this->version     		 												= '1.0';
 	    $this->primary_key 		 												= 'id';
-	    $this->version     		 												= '1.0';
+			$this->lookup_key															= 'id';
 			$this->cache_group     												= 'wps_db_shop';
+			$this->type     															= 'shop';
 
 			$this->id                          						= 0;
 			$this->name                        						= '';
@@ -285,11 +288,11 @@ if (!class_exists('Shop')) {
 
 			if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
 
-				if ($this->get_by('id', $shopData['shop']['id'])) {
-					$results = $this->update($shopData['shop']['id'], $shopData['shop']);
+				if ($this->get_row_by('id', $shopData['shop']['id'])) {
+					$results = $this->update($this->lookup_key, $shopData['shop']['id'], $shopData['shop']);
 
 				} else {
-					$results = $this->insert($shopData['shop'], 'shop');
+					$results = $this->insert($shopData['shop']);
 				}
 
 			} else {
@@ -365,7 +368,7 @@ if (!class_exists('Shop')) {
 
 	  */
 	  public function update_shop($shopData) {
-	    return $this->update( $this->get_shop('id')[0]->id, $shopData);
+	    return $this->update( $this->lookup_key, $this->get_shop('id')[0]->id, $shopData);
 	  }
 
 

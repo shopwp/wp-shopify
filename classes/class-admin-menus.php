@@ -80,7 +80,7 @@ if ( !class_exists('Admin_Menus') ) {
 			$product = $this->DB_Products->get_product_from_post_id($post->ID);
 
 			if (Utils::has($product, 'product_id')) {
-				$collects = $this->DB_Collects->get_collects_by_product_id($product->product_id); ?>
+				$collects = $this->DB_Collects->get_collects_from_product_id($product->product_id); ?>
 
 				<ul id="categorychecklist" data-wp-lists="list:category" class="categorychecklist form-no-clear">
 

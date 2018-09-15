@@ -6,7 +6,6 @@ use WPS\Async_Processing_Customers;
 
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Customers_Factory;
-use WPS\Factories\WS_Factory;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -24,8 +23,7 @@ if (!class_exists('Async_Processing_Customers_Factory')) {
 
 				$Async_Processing_Customers = new Async_Processing_Customers(
 					DB_Settings_Syncing_Factory::build(),
-					DB_Customers_Factory::build(),
-					WS_Factory::build()
+					DB_Customers_Factory::build()
 				);
 
 				self::$instantiated = $Async_Processing_Customers;

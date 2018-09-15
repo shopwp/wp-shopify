@@ -4,8 +4,6 @@ import {
   getShopData,
   getTotalCountsFromSession,
   insertShopData,
-  insertOrders,
-  insertCustomers,
   getBulkProducts,
   getBulkCollects,
   getBulkOrders,
@@ -46,7 +44,7 @@ itemCount = (int)
 */
 function constructStreamingOptions(itemCount) {
 
-  var pageSize = 250;
+  var pageSize = parseInt(WP_Shopify.itemsPerRequest);
 
   // Important to coerce ... can sometimes be a string
   itemCount = parseInt(itemCount);

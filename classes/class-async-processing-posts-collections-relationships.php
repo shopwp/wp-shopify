@@ -15,21 +15,14 @@ if ( !class_exists('Async_Processing_Posts_Collections_Relationships') ) {
 		protected $action = 'wps_background_processing_collections_r';
 
 		protected $DB_Collections;
-		protected $DB_Collections_Custom;
-		protected $DB_Collections_Smart;
 		protected $DB_Settings_Connection;
 		protected $DB_Settings_Syncing;
-		protected $WS_Syncing;
 
-
-		public function __construct($DB_Collections, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Settings_Connection, $DB_Settings_Syncing, $WS_Syncing) {
+		public function __construct($DB_Collections, $DB_Settings_Connection, $DB_Settings_Syncing) {
 
 			$this->DB_Collections 						= $DB_Collections;
-			$this->DB_Collections_Custom 			= $DB_Collections_Custom;
-			$this->DB_Collections_Smart 			= $DB_Collections_Smart;
 			$this->DB_Settings_Connection 		= $DB_Settings_Connection;
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
-			$this->WS_Syncing 								= $WS_Syncing;
 
 			parent::__construct();
 
@@ -43,29 +36,9 @@ if ( !class_exists('Async_Processing_Posts_Collections_Relationships') ) {
 		*/
 		protected function task($posts) {
 
-			$collections = [];
 			$insertion_results = [];
 
-			foreach ($posts as $post) {
-
-				$collection = $this->DB_Collections->get_collection_from_post_name($post->post_name);
-
-				if (!empty($collection)) {
-					$collections[$post->ID]['collection_id'] = $collection->collection_id;
-
-				} else {
-					$collections[$post->ID]['collection_id'] = 0;
-				}
-
-				$collections[$post->ID]['post_id'] = $post->ID;
-
-				if (!empty($collection->rules)) {
-					$collections[$post->ID]['rules'] = $collection->rules;
-				}
-
-			}
-
-
+			$collections = $this->DB_Collections->get_collections_from_posts($posts);
 
 			foreach ($collections as $collection) {
 
@@ -74,14 +47,14 @@ if ( !class_exists('Async_Processing_Posts_Collections_Relationships') ) {
 				Update post meta
 
 				*/
-				$update_post_meta_result = $this->DB_Collections->update_post_meta($collection['post_id'], 'collection_id', $collection['collection_id']);
+				$update_post_meta_result = $this->DB_Collections->update_post_meta_helper($collection['post_id'], WPS_COLLECTIONS_LOOKUP_KEY, $collection[WPS_COLLECTIONS_LOOKUP_KEY]);
 
 				if (is_wp_error($update_post_meta_result)) {
 
-					$existing_value = get_post_meta($collection['post_id'], 'collection_id', true);
+					$existing_value = get_post_meta($collection['post_id'], WPS_COLLECTIONS_LOOKUP_KEY, true);
 
-					if ($existing_value !== $collection['collection_id']) {
-						$this->WS_Syncing->save_notice($update_post_meta_result);
+					if ($existing_value !== $collection[WPS_COLLECTIONS_LOOKUP_KEY]) {
+						$this->DB_Settings_Syncing->save_notice($update_post_meta_result);
 						$this->complete();
 						return false;
 					}
@@ -97,7 +70,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Relationships') ) {
 				$post_id_collection = $this->DB_Collections->set_post_id_to_collection($collection['post_id'], $collection);
 
 				if (is_wp_error($post_id_collection)) {
-					$this->WS_Syncing->save_notice($post_id_collection);
+					$this->DB_Settings_Syncing->save_notice($post_id_collection);
 					$this->complete();
 					return false;
 				}
@@ -113,26 +86,23 @@ if ( !class_exists('Async_Processing_Posts_Collections_Relationships') ) {
 		}
 
 
+		/*
+
+		Responsible for kicking off the batch
+
+		*/
 		public function insert_posts_collections_relationships($posts) {
 
-			// First check if the wholte data object exceeds packet size ...
-			if ($this->DB_Settings_Connection->max_packet_size_reached($posts)) {
+			if ( $this->DB_Settings_Connection->max_packet_size_reached($posts) ) {
 
-				// $items_per_chunk = $this->WS_Syncing->find_amount_to_chunk($posts);
-				$posts_chunked = array_chunk($posts, 50);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
 
-				foreach ($posts_chunked as $chunk) {
-					$this->push_to_queue($chunk);
-					$this->save();
-
-				}
-
-				$this->dispatch();
-
-			} else {
-				$this->push_to_queue($posts);
-				$this->save()->dispatch();
 			}
+
+			$this->push_to_queue($posts);
+			$this->save()->dispatch();
 
 		}
 

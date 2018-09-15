@@ -227,6 +227,16 @@ div[class^="wps-postbox-"] {
   display: block;
   margin-bottom: 10px;
   max-width: 70%;
+
+  &[for="wps_settings_general_save_connection_only"] {
+
+    input {
+      position: relative;
+      top: 8px;
+    }
+
+  }
+
 }
 
 
@@ -300,8 +310,7 @@ div[class^="wps-postbox-"] {
   margin-top: 15px;
   padding: 1em;
   max-height: 900px;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  overflow: hidden;
 
   .notice {
     padding: 1em;
@@ -390,6 +399,7 @@ div[class^="wps-postbox-"] {
   padding: 20px;
   position: relative;
   min-height: 300px;
+  margin-top: 25px;
 }
 
 
@@ -646,7 +656,7 @@ div[class^="wps-postbox-"] {
 
   .spinner {
     position: absolute;
-    right: -3px;
+    right: -4px;
     top: 0;
     margin-top: 0;
   }
@@ -1241,14 +1251,22 @@ input.code {
 
     .dashicons-yes {
       opacity: 1;
+
+      &:before {
+        font-size: 0.9em;
+        top: -1px;
+        position: absolute;
+        right: -3px;
+      }
+
     }
 
   }
 
   .dashicons-yes {
     position: absolute;
-    right: .3em;
-    top: 0.12em;
+    right: .15em;
+    top: 0.05em;
     z-index: 20;
     opacity: 0;
     background: #333;
@@ -1263,40 +1281,44 @@ input.code {
 
 }
 
-.dashicons-no,
-.dashicons-yes {
-  width: .75em;
-  height: .75em;
+.dashicons.dashicons-no,
+.dashicons.dashicons-yes {
+  width: .7em;
+  height: .7em;
   border-radius: 50%;
-  text-indent: -.18em;
-  line-height: .8;
-  vertical-align: 2.2em;
+  text-indent: -0.15em;
+  line-height: 0.9;
   font-size: 2.6em;
   transition: opacity .2s ease-in;
   float: right;
   position: relative;
-  top: -12px;
+  // top: -12px;
 }
 
-.dashicons-yes {
+.dashicons.dashicons-yes {
   color: #85d937;
-  opacity: 0.1;
+
+  &:before {
+    font-size: 1em;
+    top: -7px;
+    position: absolute;
+    right: -4px;
+  }
+
 }
 
-.dashicons-no {
+.dashicons.dashicons-no {
   color: #ea5f5f;
-  width: 31px;
-  height: 31px;
 
   + .dashicons-yes {
     display: none;
   }
 
   &:before {
-    font-size: 36px;
+    font-size: 0.8em;
     left: 2px;
     position: relative;
-    top: 0px;
+    top: -11px;
   }
 
 }
@@ -1433,6 +1455,8 @@ tr.active[data-slug="wp-shopify"] + .plugin-update-tr {
 
 #wps_sync_by_collections_chosen {
   visibility: hidden;
+  position: relative;
+  top: -6px;
 
   &.wps-is-visible {
     visibility: visible;
@@ -1456,4 +1480,61 @@ tr.active[data-slug="wp-shopify"] + .plugin-update-tr {
 
 .wps-chosen {
   display: none !important;
+}
+
+
+
+/*
+
+Slider
+
+Taken from Migrate DB Pro
+
+*/
+
+
+
+.wps-admin-section .ui-slider {
+  max-width: 345px;
+  border:2px solid #fff;
+  // background:#fff;
+  height:10px;
+  border-radius:2px;
+  position:relative;
+  opacity:1;
+  background:#ade7b5;
+}
+
+.wps-admin-section .ui-slider-handle {
+  width:20px;
+  height:20px;
+  background:#ade7b5;
+  border:2px solid #fff;
+  border-radius:50%;
+  display:block;
+  position:absolute;
+  top:-7px;
+  outline:none;
+  margin-left:-11px
+}
+
+.wps-admin-section .ui-slider-range {
+    background: #fff;
+    height: 100%;
+}
+
+.wps-admin-section .ui-slider-handle:active {
+  background:#86db91;
+  border-color:#eee
+}
+
+.wps-slider-label-wrapper {
+  max-width: 345px;
+  position: relative;
+}
+
+.wps-slider-amount {
+  position: absolute;
+  right: -47px;
+  top: -3px;
 }

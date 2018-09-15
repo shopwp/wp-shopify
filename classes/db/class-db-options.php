@@ -14,22 +14,28 @@ if (!class_exists('Options')) {
   class Options extends \WPS\DB {
 
     public $table_name;
-		public $primary_key;
   	public $version;
+  	public $primary_key;
+		public $lookup_key;
 		public $cache_group;
+		public $type;
 
 
   	public function __construct() {
 
-      $this->table_name         				= WPS_TABLE_NAME_OPTIONS;
-      $this->primary_key        				= 'id';
-      $this->version            				= '1.0';
-      $this->cache_group        				= 'wps_db_options';
+      $this->table_name         	= WPS_TABLE_NAME_OPTIONS;
+			$this->version            	= '1.0';
+      $this->primary_key        	= 'id';
+      $this->lookup_key        		= 'option_id';
+      $this->cache_group        	= 'wps_db_options';
+			$this->type        					= 'option';
 
     }
 
 
 		/*
+
+		Table column name / formats
 
 		Important: Used to determine when new columns are added
 
@@ -48,6 +54,11 @@ if (!class_exists('Options')) {
     }
 
 
+		/*
+
+		Table default values
+
+		*/
   	public function get_column_defaults() {
 
 			return [
@@ -62,80 +73,87 @@ if (!class_exists('Options')) {
     }
 
 
-    /*
+		/*
 
-    Get single shop info value
+		The modify options used for inserting / updating / deleting
 
-    */
-  	public function insert_option($product) {
+		*/
+		public function modify_options($shopify_item, $item_lookup_key = WPS_PRODUCTS_LOOKUP_KEY) {
 
-      $results = [];
-			$product = Utils::convert_array_to_object($product);
+			return [
+			  'item'											=> $shopify_item,
+				'item_lookup_key'						=> $item_lookup_key,
+				'item_lookup_value'					=> $shopify_item->id,
+			  'prop_to_access'						=> 'options',
+			  'change_type'				    		=> 'option'
+			];
 
-      if (isset($product->options) && $product->options) {
-
-        foreach ($product->options as $key => $option) {
-
-					$result = $this->insert( $this->rename_primary_key($option, 'option_id'), 'option' );
-
-					if (is_wp_error($result)) {
-						return $result;
-					}
-
-					$results[] = $result;
-
-        }
-
-      }
-
-			return $results;
-
-    }
+		}
 
 
-    /*
+		/*
 
-    Get single shop info value
+		Mod before change
 
-    */
-  	public function insert_options($products) {
+		*/
+		public function mod_before_change($option) {
 
-      $results = [];
+			$option_copy = $this->copy($option);
+			$option_copy = $this->maybe_rename_to_lookup_key($option_copy);
 
-			$products = Utils::wrap_in_array($products);
+			return $option_copy;
 
-      foreach ($products as $key => $product) {
-				$results[] = $this->insert_option($product);
-      }
-
-      return $results;
-
-    }
+		}
 
 
-    /*
+		/*
 
-    Delete Option
+		Inserts a single option
 
-    */
-  	public function delete_option($product) {
+		*/
+		public function insert_option($option) {
+			return $this->insert($option);
+		}
 
-      $results = [];
 
-      if (count($product->options) > 0) {
+		/*
 
-        foreach ($product->options as $key => $option) {
-          $results[] = $this->update($option->option_id, $option);
-        }
+		Updates a single option
 
-      } else {
-        $results[] = $this->delete_rows('product_id', $product->product_id);
+		*/
+		public function update_option($option) {
+			return $this->update($this->lookup_key, $this->get_lookup_value($option), $option);
+		}
 
-      }
 
-      return $results;
+		/*
 
-    }
+		Deletes a single option
+
+		*/
+		public function delete_option($option) {
+			return $this->delete_rows($this->lookup_key, $this->get_lookup_value($option));
+		}
+
+
+		/*
+
+		Delete options from product ID
+
+		*/
+		public function delete_options_from_product_id($product_id) {
+			return $this->delete_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
+		}
+
+
+		/*
+
+		Gets all options associated with a given product, by product id
+
+		*/
+		public function get_options_from_product_id($product_id) {
+			return $this->get_rows(WPS_PRODUCTS_LOOKUP_KEY, $product_id);
+		}
 
 
     /*
@@ -167,62 +185,6 @@ if (!class_exists('Options')) {
       return $results;
 
     }
-
-
-		/*
-
-		Delete options from product ID
-
-		*/
-		public function delete_options_from_product_id($product_id) {
-			return $this->delete_rows('product_id', $product_id);
-		}
-
-
-
-
-
-
-
-
-
-		/*
-
-		update_option
-
-		*/
-		public function update_options_from_product($product) {
-
-			$results = [];
-			$options_from_shopify = $product->options;
-			$current_options = $this->get_rows('product_id', $product->product_id);
-
-			$options_to_add = Utils::wps_find_items_to_add($current_options, $options_from_shopify, true);
-			$options_to_delete = Utils::wps_find_items_to_delete($current_options, $options_from_shopify, true);
-
-			if (count($options_to_add) > 0) {
-
-				foreach ($options_to_add as $key => $new_option) {
-					$results['created'][] = $this->insert( $this->rename_primary_key($new_option, 'option_id'), 'option');
-				}
-
-			}
-
-			if (count($options_to_delete) > 0) {
-
-				foreach ($options_to_delete as $key => $old_option) {
-					$results['deleted'][] = $this->delete($old_option->option_id);
-				}
-
-			}
-
-			foreach ($product->options as $key => $option) {
-				$results['updated'] = $this->update($option->option_id, $option);
-			}
-
-			return $results;
-
-		}
 
 
     /*

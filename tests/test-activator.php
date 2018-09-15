@@ -25,16 +25,26 @@ class Test_Activator extends WP_UnitTestCase {
   }
 
 
-	function test_it_should_set_default_table_values() {
+	function test_it_should_set_default_settings_general_table_values() {
 
-		$results = [];
+		// Need to delete before inserting since data already exists in these tables
+		self::$DB_Settings_General->delete();
 
-		$results[] = self::$DB_Settings_General->insert_default_values();
-		$results[] = self::$DB_Settings_Syncing->insert_default_values();
+		$settings_general_result = self::$DB_Settings_General->insert_default_values();
 
-		foreach ($results as $value) {
-			$this->assertEquals(1, $value);
-		}
+		$this->assertEquals(1, $settings_general_result);
+
+  }
+
+
+	function test_it_should_set_default_settings_syncing_table_values() {
+
+		// Need to delete before inserting since data already exists in these tables
+		self::$DB_Settings_Syncing->delete();
+
+		$settings_syncing_result = self::$DB_Settings_Syncing->insert_default_values();
+
+		$this->assertEquals(1, $settings_syncing_result);
 
   }
 

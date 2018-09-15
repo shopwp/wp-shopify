@@ -316,8 +316,8 @@ if ( !class_exists('CPT') ) {
 				$numberString1 = (int) substr(strval($newSavedCollectionID), 0, -4);
 				$numberString2 = (int) substr(strval($productID), 0, -4);
 
-				$newCollect = [
-					'id'                   => $numberString1 . $numberString2 . 1111,
+				$collect = [
+					'collect_id'           => $numberString1 . $numberString2 . 1111,
 					'product_id'           => $product->product_id,
 					'collection_id'        => $newSavedCollectionID,
 					'featured'             => '',
@@ -328,7 +328,7 @@ if ( !class_exists('CPT') ) {
 				];
 
 				// Inserts any new collects
-				$insertionResults[] = $this->DB_Collects->insert($newCollect, 'collect');
+				$insertionResults[] = $this->DB_Collects->insert_collect($collect);
 
 			}
 
@@ -343,18 +343,18 @@ if ( !class_exists('CPT') ) {
 		We need to now create the proper collects row connection
 
 		*/
-		public function add_tags_to_post($savedTags, $product) {
+		public function add_tags_to_post($saved_tags, $product) {
 
 			$insertionResults = [];
 
-			foreach ($savedTags as $savedTag => $savedTagValue) {
+			foreach ($saved_tags as $saved_tag => $saved_tag_value) {
 
-				$productID = (int) $product->product_id;
-				$numberString1 = (int) ord($savedTag);
-				$numberString2 = (int) substr(strval($productID), 0, -4);
+				$product_id = (int) $product->product_id;
+				$numberString1 = (int) ord($saved_tag);
+				$numberString2 = (int) substr(strval($product_id), 0, -4);
 
 				// Inserts any new collects
-				$insertionResults[] = $this->DB_Tags->insert( $this->DB_Tags->construct_tag_model($savedTag, $product, $product->post_id), 'tag');
+				$insertionResults[] = $this->DB_Tags->insert_tag( $this->DB_Tags->construct_tag_model($saved_tag, $product, $product->post_id) );
 
 			}
 
@@ -369,12 +369,12 @@ if ( !class_exists('CPT') ) {
 		Removing collects row from post
 
 		*/
-		public function remove_collects_from_post($collectsToRemove) {
+		public function remove_collects_from_post($collects_to_remove) {
 
 			$removalResult = [];
 
-			foreach ($collectsToRemove as $collectID) {
-				$removalResult[] = $this->DB_Collects->delete_rows_in('id', $collectID);
+			foreach ($collects_to_remove as $collect_id) {
+				$removalResult[] = $this->DB_Collects->delete_rows_in($this->DB_Collects->lookup_key, $collect_id);
 			}
 
 			return $removalResult;
@@ -387,12 +387,12 @@ if ( !class_exists('CPT') ) {
 		Removing tags row from post
 
 		*/
-		public function remove_tags_from_post($tagsToRemove) {
+		public function remove_tags_from_post($tags_to_remove) {
 
 			$removalResult = [];
 
-			foreach ($tagsToRemove as $key => $tagID) {
-				$removalResult[] = $this->DB_Tags->delete_rows_in('id', $tagID);
+			foreach ($tags_to_remove as $key => $tag_id) {
+				$removalResult[] = $this->DB_Tags->delete_rows_in($this->DB_Tags->lookup_key, $tag_id);
 			}
 
 			return $removalResult;
@@ -451,23 +451,23 @@ if ( !class_exists('CPT') ) {
 		Fires when custom post type `wps_collections` is updated
 
 		*/
-		public function on_save_collections($postID, $post, $update) {
+		public function on_save_collections($post_id, $post, $update) {
 
 			if (function_exists('get_current_screen') && !empty(get_current_screen()) && get_current_screen()->id === WPS_COLLECTIONS_POST_TYPE_SLUG) {
 
 				// Update custom product table data
-				$customTitle = $this->DB_Collections_Custom->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
-				$customBodyContent = $this->DB_Collections_Custom->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+				$customTitle = $this->DB_Collections_Custom->update_column_single(['title' => $post->post_title], ['post_id' => $post_id]);
+				$customBodyContent = $this->DB_Collections_Custom->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $post_id]);
 
-				$smartTitle = $this->DB_Collections_Smart->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
-				$smartBodyContent = $this->DB_Collections_Smart->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+				$smartTitle = $this->DB_Collections_Smart->update_column_single(['title' => $post->post_title], ['post_id' => $post_id]);
+				$smartBodyContent = $this->DB_Collections_Smart->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $post_id]);
 
 				// Clear product cache
-				$transientsDeletion = Transients::delete_cached_single_collection_by_id($postID);
+				$transients_deletion = Transients::delete_cached_single_collection_by_id($post_id);
 
 				// Log error if one exists
-				if (is_wp_error($transientsDeletion)) {
-					error_log($transientsDeletion->get_error_message());
+				if (is_wp_error($transients_deletion)) {
+					error_log($transients_deletion->get_error_message());
 				}
 
 			}
@@ -482,7 +482,7 @@ if ( !class_exists('CPT') ) {
 		*/
 		public function save_collects_to_post($product) {
 
-			$collects = $this->DB_Collects->get_collects_by_product_id($product->product_id);
+			$collects = $this->DB_Collects->get_collects_from_product_id($product->product_id);
 			$collections = $this->establish_items_for_post('collections');
 
 			$collectsAdded = $this->add_collects_to_post( $this->find_items_to_add($collects, $collections['saved']), $product);
@@ -533,12 +533,12 @@ if ( !class_exists('CPT') ) {
 		Creating array of collects to potentially remove
 
 		*/
-		public function find_items_to_remove($currentItems, $savedItemsOrig) {
+		public function find_items_to_remove($current_items, $savedItemsOrig) {
 
-			$currentItemsOrig = json_decode(json_encode($currentItems), true);
+			$current_items_orig = Utils::convert_to_assoc_array($current_items);
 			$itemsToRemove = [];
 
-			foreach ($currentItemsOrig as $item) {
+			foreach ($current_items_orig as $item) {
 
 				if (isset($item['collection_id']) && $item['collection_id']) {
 					if (!array_key_exists($item['collection_id'], $savedItemsOrig)) {
@@ -614,7 +614,7 @@ if ( !class_exists('CPT') ) {
 	  */
 	  public static function find_existing_post_id_from_collection($existing_collections, $collection) {
 
-	    $found_post = self::find_only_existing_posts($existing_collections, $collection->collection_id, 'collection');
+	    $found_post = self::find_only_existing_posts($existing_collections, $collection->{WPS_SHOPIFY_PAYLOAD_KEY}, 'collection');
 			$found_post_id = self::find_existing_post_id($found_post);
 
 			return $found_post_id;
@@ -629,7 +629,7 @@ if ( !class_exists('CPT') ) {
 		*/
 		public static function find_existing_post_id_from_product($existing_products, $product) {
 
-			$found_post = self::find_only_existing_posts($existing_products, $product->product_id, 'product');
+			$found_post = self::find_only_existing_posts($existing_products, $product->{WPS_SHOPIFY_PAYLOAD_KEY}, 'product');
 			$found_post_id = self::find_existing_post_id($found_post);
 
 			return $found_post_id;
@@ -729,6 +729,39 @@ if ( !class_exists('CPT') ) {
 			if ($post_type !== 'wps_products' && $post_type !== 'wps_collections') {
 				return $html;
 			}
+
+		}
+
+
+		/*
+
+		Grabs the current author ID
+
+		*/
+		public static function return_author_id() {
+
+			if (get_current_user_id() === 0) {
+				$author_id = 1;
+
+			} else {
+				$author_id = get_current_user_id();
+			}
+
+			return intval($author_id);
+
+		}
+
+
+		/*
+
+  	Responsible for assigning a post_id to a post
+
+  	*/
+		public static function set_post_id($post, $post_id) {
+
+			$post->post_id = $post_id;
+
+			return $post;
 
 		}
 

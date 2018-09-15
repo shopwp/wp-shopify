@@ -12,67 +12,15 @@ if (!class_exists('License')) {
 
 	class License {
 
-		private $Messages;
-		private $WS;
 		private $DB_Settings_License;
-		private $DB_Settings_General;
 		private $WS_Settings_License;
 
 
-		public function __construct($Messages, $WS, $WS_Settings_License, $DB_Settings_License, $DB_Settings_General) {
+		public function __construct($WS_Settings_License, $DB_Settings_License) {
 
-			$this->Messages 									= $Messages;
-			$this->WS 												= $WS;
 			$this->WS_Settings_License				= $WS_Settings_License;
 			$this->DB_Settings_License				= $DB_Settings_License;
-			$this->DB_Settings_General				= $DB_Settings_General;
 
-		}
-
-
-		public function get_license() {
-			return $this->DB_Settings_License->get();
-		}
-
-
-		/*
-
-		Deactivate License
-
-		*/
-		public function deactivate_license($license_key) {
-
-			if (empty($license_key)) {
-				return false;
-			}
-
-			$url = WPS_PLUGIN_ENV . '/edd-sl?edd_action=deactivate_license&item_name=' . WPS_PLUGIN_NAME_ENCODED . '&license=' . $license_key . '&url=' . home_url();
-
-			try {
-
-				$response = $this->WS->wps_request('GET', $url, [], false);
-
-				// Deletes the key locally
-				$this->DB_Settings_License->delete_license();
-
-				return $response;
-
-
-			} catch (\Exception $e) {
-				return new \WP_Error('error', $this->Messages->message_license_unable_to_delete . ' (deactivate_license)');
-
-			}
-
-		}
-
-
-		/*
-
-		Helper method
-
-		*/
-		public function delete($license_key) {
-			return $this->deactivate_license($license_key);
 		}
 
 
@@ -158,33 +106,6 @@ if (!class_exists('License')) {
 
 		/*
 
-		Check for valid license key
-		- Predicate function (returns boolean)
-
-		*/
-		public function has_valid_key() {
-
-			$license = $this->WS_Settings_License->license_get(false);
-
-			if (!empty($license->license_key) && $license->license_key) {
-
-				if ($license->license === 'valid') {
-					return true;
-
-				} else {
-					return false;
-				}
-
-			} else {
-				return false;
-
-			}
-
-		}
-
-
-		/*
-
 	  Init
 
 	  */
@@ -202,7 +123,7 @@ if (!class_exists('License')) {
 
 			if (is_admin()) {
 
-				if ($this->has_valid_key()) {
+				if ( $this->WS_Settings_License->has_valid_key() ) {
 
 					$EDD_Updater = $this->check_for_updates();
 

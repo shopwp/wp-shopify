@@ -17,14 +17,12 @@ if ( !class_exists('Async_Processing_Customers') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Customers;
-		protected $WS;
 
 
-		public function __construct($DB_Settings_Syncing, $DB_Customers, $WS) {
+		public function __construct($DB_Settings_Syncing, $DB_Customers) {
 
 			$this->DB_Settings_Syncing				=	$DB_Settings_Syncing;
 			$this->DB_Customers 							= $DB_Customers;
-			$this->WS 												= $WS;
 
 			parent::__construct();
 
@@ -40,11 +38,15 @@ if ( !class_exists('Async_Processing_Customers') ) {
 			}
 
 
-			$result = $this->DB_Customers->insert_customer($customer);
+			// Actual work
+			$result = $this->DB_Customers->insert_items_of_type($customer);
+
+			// Save warnings if exist ...
+			$this->DB_Settings_Syncing->maybe_save_warning_from_insert($result, 'Customer', $customer->id);
 
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -62,6 +64,15 @@ if ( !class_exists('Async_Processing_Customers') ) {
 
 		public function insert_customers_batch($customers) {
 
+			if ( $this->DB_Settings_Syncing->max_packet_size_reached($customers) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			foreach ($customers as $customer) {
 				$this->push_to_queue($customer);
 			}
@@ -74,12 +85,13 @@ if ( !class_exists('Async_Processing_Customers') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();
 
 		}
+		
 
 
   }

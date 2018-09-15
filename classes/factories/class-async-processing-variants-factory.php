@@ -6,7 +6,6 @@ use WPS\Async_Processing_Variants;
 
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Variants_Factory;
-use WPS\Factories\WS_Factory;
 
 
 if (!defined('ABSPATH')) {
@@ -25,8 +24,7 @@ if (!class_exists('Async_Processing_Variants_Factory')) {
 
 				$Async_Processing_Variants = new Async_Processing_Variants(
 					DB_Settings_Syncing_Factory::build(),
-					DB_Variants_Factory::build(),
-					WS_Factory::build()
+					DB_Variants_Factory::build()
 				);
 
 				self::$instantiated = $Async_Processing_Variants;

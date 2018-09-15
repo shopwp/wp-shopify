@@ -3,6 +3,7 @@
 namespace WPS\WS;
 
 use WPS\Transients;
+use WPS\Messages;
 use WPS\Utils;
 
 if (!defined('ABSPATH')) {
@@ -14,15 +15,13 @@ if (!class_exists('Settings_General')) {
 
   class Settings_General extends \WPS\WS {
 
-		protected $Messages;
 		protected $DB_Settings_General;
 		protected $DB_Shop;
 		protected $DB_Collections;
 
 
-  	public function __construct($Messages, $DB_Settings_General, $DB_Shop, $DB_Collections) {
+  	public function __construct($DB_Settings_General, $DB_Shop, $DB_Collections) {
 
-			$this->Messages								= $Messages;
 			$this->DB_Settings_General		= $DB_Settings_General;
 			$this->DB_Shop								= $DB_Shop;
 			$this->DB_Collections					= $DB_Collections;
@@ -39,7 +38,7 @@ if (!class_exists('Settings_General')) {
 
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-			  $this->send_error($this->Messages->message_nonce_invalid . ' (update_settings_general)');
+			  $this->send_error( Messages::get('nonce_invalid') . ' (update_settings_general)' );
 			}
 
 			if (!isset($_POST['data'])) {
@@ -155,6 +154,10 @@ if (!class_exists('Settings_General')) {
 				$newGeneralSettings['related_products_amount'] = (int)$form_data['wps_settings_general_related_products_amount'];
 			}
 
+			if (isset($form_data['wps_settings_general_items_per_request'])) {
+				$newGeneralSettings['items_per_request'] = (int)$form_data['wps_settings_general_items_per_request'];
+			}
+
 
 			/*
 
@@ -214,7 +217,7 @@ if (!class_exists('Settings_General')) {
 		public function get_currency_format() {
 
 			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_currency_format)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_currency_format)' );
 			}
 
 
@@ -224,7 +227,7 @@ if (!class_exists('Settings_General')) {
 				$this->send_success($price_with_currency[0]->price_with_currency);
 
 			} else {
-				$this->send_error($this->Messages->message_products_curency_format_not_found . ' (get_currency_format)');
+				$this->send_error( Messages::get('products_curency_format_not_found') . ' (get_currency_format)' );
 			}
 
 		}
@@ -238,7 +241,7 @@ if (!class_exists('Settings_General')) {
 		public function get_currency_formats() {
 
 			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_currency_formats)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_currency_formats)' );
 			}
 
 			$price_with_currency = $this->DB_Settings_General->get_column_single('price_with_currency');
@@ -288,7 +291,7 @@ if (!class_exists('Settings_General')) {
 		public function has_money_format_changed() {
 
 			if (!Utils::valid_frontend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (has_money_format_changed)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (has_money_format_changed)' );
 			}
 
 
@@ -329,7 +332,7 @@ if (!class_exists('Settings_General')) {
 		public function get_money_format() {
 
 			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_money_format)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_money_format)' );
 			}
 
 			$moneyFormat = $this->DB_Shop->get_shop('money_format');
@@ -355,7 +358,7 @@ if (!class_exists('Settings_General')) {
 		public function get_money_format_with_currency() {
 
 			if (!Utils::valid_frontend_nonce($_GET['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_money_format_with_currency)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_money_format_with_currency)' );
 			}
 
 			$moneyFormat = $this->DB_Shop->get_shop('money_with_currency_format');
@@ -376,7 +379,7 @@ if (!class_exists('Settings_General')) {
 		public function get_selected_collections() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_selected_collections)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_selected_collections)' );
 			}
 
 			$collections = $this->DB_Settings_General->sync_by_collections();

@@ -4,7 +4,6 @@ namespace WPS;
 
 use WPS\Utils;
 
-
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -17,16 +16,13 @@ if ( !class_exists('Async_Processing_Variants') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Variants;
-		protected $WS;
 
 
-		public function __construct($DB_Settings_Syncing, $DB_Variants, $WS) {
+		public function __construct($DB_Settings_Syncing, $DB_Variants) {
 
 			$this->DB 												= $DB_Settings_Syncing; // used only for readability
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
 			$this->DB_Variants 								= $DB_Variants;
-			$this->WS 												= $WS;
-
 			$this->compatible_charsets				= true;
 
 			parent::__construct();
@@ -43,10 +39,10 @@ if ( !class_exists('Async_Processing_Variants') ) {
 			}
 
 			// Actual work
-			$result = $this->DB_Variants->insert_variants_from_product($product);
+			$result = $this->DB_Variants->insert_items_of_type($product->variants );
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -86,6 +82,15 @@ if ( !class_exists('Async_Processing_Variants') ) {
 		*/
 		public function insert_variants_batch($products) {
 
+			if ( $this->DB->max_packet_size_reached($products) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			$products_filtered = Utils::filter_data_except($products, 'variants');
 
 			foreach ($products_filtered as $product) {
@@ -105,7 +110,7 @@ if ( !class_exists('Async_Processing_Variants') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

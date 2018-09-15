@@ -19,22 +19,123 @@ if (!class_exists('Collections')) {
 		private $WS_Collects;
 		private $CPT_Model;
 
-		private $Collections_Smart;
-		private $Collections_Custom;
+		private $DB_Collections_Smart;
+		private $DB_Collections_Custom;
+
+		public $lookup_key;
+		public $type;
 
 
-  	public function __construct($DB_Collects, $WS_Collects, $CPT_Model, $Collections_Smart, $Collections_Custom) {
+
+  	public function __construct($DB_Collects, $WS_Collects, $CPT_Model, $DB_Collections_Smart, $DB_Collections_Custom) {
 
 			$this->DB_Collects 								= $DB_Collects;
 			$this->WS_Collects 								= $WS_Collects;
 			$this->CPT_Model 									= $CPT_Model;
 
-			$this->Collections_Smart 					= $Collections_Smart;
-			$this->Collections_Custom 				= $Collections_Custom;
+			$this->DB_Collections_Smart 			= $DB_Collections_Smart;
+			$this->DB_Collections_Custom 			= $DB_Collections_Custom;
+
+			$this->lookup_key        					= WPS_COLLECTIONS_LOOKUP_KEY;
+			$this->type												= 'collection';
 
     }
 
 
+		/*
+
+		Mod before change
+
+		*/
+		public function mod_before_change($collection, $post_id = false) {
+
+			$collection_copy = $this->copy($collection);
+
+			$collection_copy = $this->maybe_rename_to_lookup_key($collection_copy);
+			$collection_copy = Utils::flatten_image_prop($collection_copy);
+
+			if ($post_id) {
+				$collection_copy = CPT::set_post_id($collection_copy, $post_id);
+			}
+
+			return $collection_copy;
+
+		}
+
+
+		/*
+
+    Inserts a single collection
+
+    */
+  	public function insert_collection($collection) {
+
+			if ($this->is_smart_collection($collection)) {
+				return $this->DB_Collections_Smart->insert($collection);
+
+			} else {
+				return $this->DB_Collections_Custom->insert($collection);
+			}
+
+    }
+
+
+		/*
+
+    Updates a single collection
+
+    */
+    public function update_collection($collection) {
+
+			if ($this->is_smart_collection($collection)) {
+				return $this->DB_Collections_Smart->update($this->DB_Collections_Smart->lookup_key, $this->DB_Collections_Smart->get_lookup_value($collection), $collection);
+
+			} else {
+				return $this->DB_Collections_Custom->update($this->DB_Collections_Custom->lookup_key, $this->DB_Collections_Custom->get_lookup_value($collection), $collection);
+			}
+
+    }
+
+
+    /*
+
+    Deletes a single collection
+
+    */
+    public function delete_collection($collection) {
+
+			if ($this->is_smart_collection($collection)) {
+				return $this->DB_Collections_Smart->delete_rows($this->DB_Collections_Smart->lookup_key, $this->DB_Collections_Smart->get_lookup_value($collection));
+
+			} else {
+				return $this->DB_Collections_Custom->delete_rows($this->DB_Collections_Custom->lookup_key, $this->DB_Collections_Custom->get_lookup_value($collection));
+			}
+
+    }
+
+
+		/*
+
+	  Delete products from product ID
+
+	  */
+	  public function delete_collection_from_collection_id($collection_id) {
+
+			$results = [];
+
+			$results['collections_smart'] 	= $this->DB_Collections_Smart->delete_rows(WPS_COLLECTIONS_LOOKUP_KEY, $collection_id);
+			$results['collections_custom'] 	= $this->DB_Collections_Custom->delete_rows(WPS_COLLECTIONS_LOOKUP_KEY, $collection_id);
+
+			return $results;
+
+	  }
+
+
+	  /*
+
+	  Get all collections query
+
+	  */
 		public function get_all_collections_query() {
 
 			return "SELECT
@@ -167,13 +268,13 @@ if (!class_exists('Collections')) {
 				return $results_cached;
 			}
 
-			$collects = $this->DB_Collects->get_collects_by_product_id($product_id);
-			$allCollections = $this->get_collections();
+			$collects = $this->DB_Collects->get_collects_from_product_id($product_id);
+			$all_collections = $this->get_collections();
 			$results = [];
 
-			foreach ( $allCollections as $collection ) {
+			foreach ( $all_collections as $collection ) {
 
-				if (in_array($collection->collection_id, array_column($collects, 'collection_id'))) {
+				if (in_array($collection->collection_id, array_column($collects, WPS_COLLECTIONS_LOOKUP_KEY))) {
 					$results[] = $collection;
 				}
 
@@ -254,7 +355,6 @@ if (!class_exists('Collections')) {
 		}
 
 
-
 		/*
 
 	  Used to check the type of collection
@@ -267,34 +367,20 @@ if (!class_exists('Collections')) {
 
 
 
-		public function standardize_id($collection) {
-
-			if (Utils::has($collection, 'id') && !Utils::has($collection, 'collection_id')) {
-				$collection->collection_id = $collection->id;
-				return $collection;
-			}
-
-			if (Utils::has($collection, 'collection_id') && !Utils::has($collection, 'id')) {
-				$collection->id = $collection->collection_id;
-				return $collection;
-			}
-
-		}
-
 
 
 
 		public function set_default_collection_image($collection) {
 
-			$collection = Utils::flatten_collections_image_prop($collection);
+			$collection = Utils::flatten_image_prop($collection);
 
 			if (!isset($collection->image)) {
 
 				if ($this->is_smart_collection($collection)) {
-					return $this->Collections_Smart->update_column_single( ['image' => null], ['collection_id' => $collection->collection_id] );
+					return $this->update_column_single( ['image' => null], [WPS_COLLECTIONS_LOOKUP_KEY => $collection->collection_id] );
 
 				} else {
-					return $this->Collections_Custom->update_column_single( ['image' => null], ['collection_id' => $collection->collection_id] );
+					return $this->update_column_single( ['image' => null], [WPS_COLLECTIONS_LOOKUP_KEY => $collection->collection_id] );
 
 				}
 
@@ -307,111 +393,20 @@ if (!class_exists('Collections')) {
 		public function find_post_id_from_collection_id($collection) {
 
 			if ($this->is_smart_collection($collection)) {
-				$collection_found = $this->Collections_Smart->get($collection->id);
+				$collection_found = $this->DB_Collections_Smart->get_row_by(WPS_COLLECTIONS_LOOKUP_KEY, $collection->id);
 
 			} else {
-				$collection_found = $this->Collections_Custom->get($collection->id);
+				$collection_found = $this->DB_Collections_Custom->get_row_by(WPS_COLLECTIONS_LOOKUP_KEY, $collection->id);
 			}
+
 
 			if (empty($collection_found)) {
-				return [];
+				return false;
 			}
 
-			return [$collection_found->post_id];
+			return $collection_found->post_id;
 
 		}
-
-
-		/*
-
-		Responsible only for determining which type of collection to insert.
-
-		*/
-		public function create_collection($collection) {
-
-			if ($this->collection_exists_by_id($collection->collection_id)) {
-				return [];
-			}
-
-			$results = [];
-			$all_collections = CPT::get_all_posts_by_type(WPS_COLLECTIONS_POST_TYPE_SLUG);
-
-			if ($this->is_smart_collection($collection)) {
-				$results['create_smart_table'] = $this->Collections_Smart->insert_smart_collection($collection);
-
-			} else {
-				$results['create_custom_table'] = $this->Collections_Custom->insert_custom_collection($collection);
-			}
-
-			$results['create_post'] = $this->CPT_Model->insert_or_update_collection($all_collections, $collection);
-			$results['create_post_meta'] = $this->update_post_meta($results['create_post'], 'collection_id', $collection->collection_id);
-
-			$results['create_collects'] = $this->WS_Collects->update_collects_from_collection_id($collection->collection_id);
-			$results['create_set_default_image'] = $this->set_default_collection_image($collection);
-
-			$results['set_post_id_custom_table'] = $this->set_post_id_to_collection($results['create_post'], $collection);
-
-			return $results;
-
-		}
-
-
-		/*
-
-	  Fired when product is deleted at Shopify
-
-		Deletes collection from custom table
-
-	  */
-	  public function delete_collection($collection) {
-
-			$results = [];
-
-			if ($this->is_smart_collection($collection)) {
-				$results['delete_smart_table'] = $this->Collections_Smart->delete($collection->id);
-
-			} else {
-				$results['delete_custom_table'] = $this->Collections_Custom->delete($collection->id);
-			}
-
-			$results['delete_collects'] = $this->DB_Collects->delete_collects_from_collection_id($collection->id);
-
-			return $results;
-
-	  }
-
-
-		/*
-
-		Responsible only for determining which type of collection to insert.
-
-		Need to update:
-
-		1. Custom table
-		2. Posts and Post meta
-		3. Collects table
-
-		*/
-		public function update_collection($collection) {
-
-			$results = [];
-			$all_collections = CPT::get_all_posts_by_type(WPS_COLLECTIONS_POST_TYPE_SLUG);
-			$collection = Utils::flatten_collections_image_prop($collection);
-
-			if ($this->is_smart_collection($collection)) {
-				$results['update_smart_table'] = $this->Collections_Smart->update($collection->id, $collection);
-
-			} else {
-				$results['update_custom_table'] = $this->Collections_Custom->update($collection->id, $collection);
-			}
-
-			$results['update_post'] = $this->CPT_Model->insert_or_update_collection($all_collections, $collection);
-			$results['update_collects'] = $this->WS_Collects->update_collects_from_collection_id($collection->id);
-
-			return $results;
-
-		}
-
 
 
 		public function collection_exists_by_id($collection_id) {
@@ -420,8 +415,8 @@ if (!class_exists('Collections')) {
 				return false;
 			}
 
-			$smart_collection_found = $this->Collections_Smart->get($collection_id);
-			$custom_collection_found = $this->Collections_Custom->get($collection_id);
+			$smart_collection_found = $this->DB_Collections_Smart->get($collection_id);
+			$custom_collection_found = $this->DB_Collections_Custom->get($collection_id);
 
 			if ( empty($smart_collection_found) && empty($custom_collection_found)) {
 		    return false;
@@ -443,13 +438,13 @@ if (!class_exists('Collections')) {
 			$collection = Utils::convert_array_to_object($collection);
 
 			if ($this->is_smart_collection($collection)) {
-				$update_result = $this->Collections_Smart->update_column_single(['post_id' => $post_id], ['collection_id' => $collection->collection_id]);
+				$update_result = $this->DB_Collections_Smart->update_column_single(['post_id' => $post_id], [WPS_COLLECTIONS_LOOKUP_KEY => $collection->collection_id]);
 
 			} else {
-				$update_result = $this->Collections_Custom->update_column_single(['post_id' => $post_id], ['collection_id' => $collection->collection_id]);
+				$update_result = $this->DB_Collections_Custom->update_column_single(['post_id' => $post_id], [WPS_COLLECTIONS_LOOKUP_KEY => $collection->collection_id]);
 			}
 
-			return $this->sanitize_db_response($update_result);
+			return $update_result;
 
 		}
 
@@ -479,9 +474,7 @@ if (!class_exists('Collections')) {
 			NULL as rules
 			FROM " . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.handle = %s;";
 
-			$results = $wpdb->get_row( $wpdb->prepare($query, $post_name, $post_name) );
-
-	    return $results;
+			return $wpdb->get_row( $wpdb->prepare($query, $post_name, $post_name) );
 
 		}
 
@@ -500,7 +493,7 @@ if (!class_exists('Collections')) {
 			}
 
 			$collection_ids = maybe_unserialize($collection_ids);
-			$collection_ids = $this->convert_array_to_in_string($collection_ids);
+			$collection_ids = Utils::convert_array_to_in_string($collection_ids);
 
 			$query = "SELECT
 			smart.collection_id
@@ -515,6 +508,38 @@ if (!class_exists('Collections')) {
 			return $wpdb->get_results($query, ARRAY_A);
 
 		}
+
+
+		public function get_collections_from_posts($posts) {
+
+			$collections = [];
+
+			foreach ($posts as $post) {
+
+				$collections[$post->ID]['post_id'] = $post->ID;
+
+				$collection = $this->get_collection_from_post_name($post->post_name);
+
+				if (!empty($collection)) {
+					$collections[$post->ID]['collection_id'] = $collection->collection_id;
+
+				} else {
+					$collections[$post->ID]['collection_id'] = 0;
+				}
+
+				if (!empty($collection->rules)) {
+					$collections[$post->ID]['rules'] = $collection->rules;
+				}
+
+			}
+
+			return $collections;
+
+		}
+
+
+
+
 
 
   }

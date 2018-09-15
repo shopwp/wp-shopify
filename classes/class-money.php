@@ -30,7 +30,14 @@ if ( !class_exists('Money') ) {
 		/*
 
 		Array of money formatting options from Shopify.
-		TODO: Can we pull this in dynamically from the API?
+
+		As of Sept. 2018, formats are listed here: https://help.shopify.com/en/manual/payments/currency-formatting#currency-formatting-options
+
+		{{ amount }}																					1,134.65
+		{{ amount_no_decimals }}															1,135
+		{{ amount_with_comma_separator }}											1.134,65
+		{{ amount_no_decimals_with_comma_separator }}					1.135
+		{{ amount_with_apostrophe_separator }} 								1'134.65
 
 		*/
 		public function get_avail_money_formats() {
@@ -40,8 +47,6 @@ if ( !class_exists('Money') ) {
 				'amount_no_decimals',
 				'amount_with_comma_separator',
 				'amount_no_decimals_with_comma_separator',
-				'amount_with_space_separator',
-				'amount_no_decimals_with_space_separator',
 				'amount_with_apostrophe_separator'
 			];
 
@@ -54,11 +59,11 @@ if ( !class_exists('Money') ) {
 	  - Predicate Function (returns boolean)
 
 	  */
-	  public function is_using_money_with_currency_format() {
+	  public function showing_price_with_currency_code() {
 
 	    $priceWithCurrency = $this->DB_Settings_General->get_column_single('price_with_currency');
 
-	    if (Utils::array_not_empty($priceWithCurrency) && isset($priceWithCurrency[0]->price_with_currency)) {
+	    if ( !empty($priceWithCurrency[0]->price_with_currency) ) {
 	      return true;
 
 	    } else {
@@ -70,32 +75,123 @@ if ( !class_exists('Money') ) {
 
 		/*
 
-		Extracts amount format
+		Gets the currently saved money format
 
 		*/
-		public function extract_amount_format() {
+		public function get_current_money_format() {
 
-			// Need to check what field to use
-			if ($this->is_using_money_with_currency_format()) {
-				$settingsMoneyFormat = $this->DB_Shop->get_money_with_currency_format();
+			if ($this->showing_price_with_currency_code()) {
+				return $this->DB_Shop->get_money_with_currency_format();
 
 			} else {
-				$settingsMoneyFormat = $this->DB_Shop->get_money_format();
+				return $this->DB_Shop->get_money_format();
 			}
 
-			$formatNoFrontDelimiter = explode("{{", $settingsMoneyFormat);
+		}
 
-			if (count($formatNoFrontDelimiter) >= 2) {
 
-				$formatNoBackDelimiter = explode("}}", $formatNoFrontDelimiter[1]);
-				$finalFormatNoSpaces = str_replace(' ', '', $formatNoBackDelimiter[0]);
+		/*
 
-				return $finalFormatNoSpaces;
+		Replaces amount front delimiter
+
+		*/
+		public function replace_amount_front_delimiter($price_with_format) {
+			return str_replace('{', ' ', $price_with_format);
+		}
+
+
+		/*
+
+		Replaces amount back delimiter
+
+		*/
+		public function replace_amount_back_delimiter($price_with_format) {
+			return str_replace('}', ' ', $price_with_format);
+		}
+
+
+		/*
+
+		Replaces amount space delimiter
+
+		*/
+		public function replace_amount_space_delimiter($price_with_format) {
+			return str_replace(' ', '', $price_with_format);
+		}
+
+
+		/*
+
+		Replaces amount space delimiter
+
+		*/
+		public function replace_amount_double_space_delimiter($price_with_format) {
+			return str_replace('  ', '', $price_with_format);
+		}
+
+
+		public function seperate_format_by_spaces($format) {
+			return explode(' ', $format);
+		}
+
+
+		public function return_only_format_name($value) {
+
+			if ( is_string($value) ) {
+				return strpos( $value, 'amount') !== false;
+			}
+
+		}
+
+
+		public function search_format_from_avail_list($amount_format_to_use, $avail_money_formats) {
+			return array_search($amount_format_to_use, $avail_money_formats);
+		}
+
+
+		public function return_format_from_found_key($array_key_of_found_format, $avail_money_formats) {
+
+			if ($array_key_of_found_format >= 0) {
+				return $avail_money_formats[$array_key_of_found_format];
 
 			} else {
 				return false;
-
 			}
+
+		}
+
+
+		public function find_format_from_explosion($format_after_explosion) {
+
+			$match = array_values( array_filter($format_after_explosion, [__CLASS__, 'return_only_format_name']) );
+
+			if ( empty($match) ) {
+				return false;
+			}
+
+			return $match[0];
+
+		}
+
+
+		/*
+
+		Extracts amount format
+
+		$format : ${{amount_no_decimals}} USD
+
+		*/
+		public function extract_format_name($format) {
+
+			// $amount_no_decimals}} USD
+			$format_no_front_delimiter 			= $this->replace_amount_front_delimiter($format);
+
+			// $amount_no_decimals USD
+			$format_no_back_delimiter 			= $this->replace_amount_back_delimiter($format_no_front_delimiter);
+
+			$exploded = $this->seperate_format_by_spaces($format_no_back_delimiter);
+
+			return $this->find_format_from_explosion($exploded);
 
 		}
 
@@ -106,43 +202,32 @@ if ( !class_exists('Money') ) {
 	  Since: 1.0.1
 
 	  */
-	  public function construct_format_money($shop_currency, $moneyFormat, $price) {
+	  public function get_price($currency_code, $money_format, $price) {
 
-	    if ($moneyFormat === 'amount') {
+	    if ($money_format === 'amount') {
 	      $money = new Money_Gerardo($price);
 
-	    } else if ($moneyFormat === 'amount_no_decimals') {
+	    } else if ($money_format === 'amount_no_decimals') {
 
-	      $currency = new Currency_Gerardo($shop_currency);
+	      $currency = new Currency_Gerardo($currency_code);
 	      $currency->setPrecision(0);
 	      $money = new Money_Gerardo(round($price, 2), $currency);
 
-	    } else if ($moneyFormat === 'amount_with_comma_separator') {
+	    } else if ($money_format === 'amount_with_comma_separator') {
 
-	      $currency = new Currency_Gerardo($shop_currency);
+	      $currency = new Currency_Gerardo($currency_code);
 	      $currency->setDecimalSeparator(',');
 	      $money = new Money_Gerardo($price, $currency);
 
-	    } else if ($moneyFormat === 'amount_no_decimals_with_comma_separator') {
+	    } else if ($money_format === 'amount_no_decimals_with_comma_separator') {
 
-	      $currency = new Currency_Gerardo($shop_currency);
+	      $currency = new Currency_Gerardo($currency_code);
 	      $currency->setPrecision(0);
 	      $currency->setDecimalSeparator(',');
 	      $money = new Money_Gerardo(round($price, 2), $currency);
 
-	    } else if ($moneyFormat === 'amount_with_space_separator') {
-	      $currency = new Currency_Gerardo($shop_currency);
-	      $currency->setThousandSeparator(' ');
-	      $money = new Money_Gerardo($price, $currency);
-
-	    } else if ($moneyFormat === 'amount_no_decimals_with_space_separator') {
-	      $currency = new Currency_Gerardo($shop_currency);
-	      $currency->setPrecision(0);
-	      $currency->setThousandSeparator(' ');
-	      $money = new Money_Gerardo(round($price, 2), $currency);
-
-	    } else if ($moneyFormat === 'amount_with_apostrophe_separator') {
-	      $currency = new Currency_Gerardo($shop_currency);
+	    } else if ($money_format === 'amount_with_apostrophe_separator') {
+	      $currency = new Currency_Gerardo($currency_code);
 	      $currency->setThousandSeparator('\'');
 	      $money = new Money_Gerardo($price, $currency);
 
@@ -150,9 +235,17 @@ if ( !class_exists('Money') ) {
 	      $money = new Money_Gerardo($price);
 	    }
 
-	    return $money;
+	    return $money->amount();
 
 	  }
+
+
+
+		public function replace_format_with_real_price($money_format_current, $format_name, $price) {
+			return str_replace($format_name, $price, $money_format_current);
+		}
+
+
 
 
 	  /*
@@ -160,16 +253,17 @@ if ( !class_exists('Money') ) {
 	  Handles replacing delimiters with the correctly formatted money
 
 	  */
-	  public function replace_delimiters_with_formatted_money($money_format_current = '${{amount}}', $shop_currency = 'USD', $price) {
+	  public function get_final_price($money_format_current = '${{amount}}', $shop_currency = 'USD', $price) {
 
-	    $moneyFormat = $this->wps_find_amount_format();
-	    $money = $this->construct_format_money($shop_currency, $moneyFormat, $price);
+	    $format_name 									= $this->find_amount_format();
+	    $price 												= $this->get_price($shop_currency, $format_name, $price);
 
-	    $priceReplaced = strtr($money_format_current, array ($moneyFormat => $money->amount()));
-	    $priceWithoutFrontDelimiter = str_replace('{{', '', $priceReplaced);
-	    $priceWithoutBackDelimiter = str_replace('}}', '', $priceWithoutFrontDelimiter);
+	    $price_replaced 							= $this->replace_format_with_real_price($money_format_current, $format_name, $price);
+	    $priceWithoutFrontDelimiter 	= $this->replace_amount_front_delimiter($price_replaced);
+			$priceWithoutBackDelimiter 		= $this->replace_amount_back_delimiter($priceWithoutFrontDelimiter);
+			$final_price_with_format 			= $this->replace_amount_double_space_delimiter($priceWithoutBackDelimiter);
 
-	    return $priceWithoutBackDelimiter;
+	    return $final_price_with_format;
 
 	  }
 
@@ -196,6 +290,57 @@ if ( !class_exists('Money') ) {
 	  }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		public function get_currency_code() {
+
+			$shop_currency = $this->DB_Shop->get_shop('currency');
+
+			if (empty($shop_currency)) {
+				$shop_currency = WPS_DEFAULT_CURRENCY; // default fallback incase user doesn't sync shop data
+
+			} else {
+				$shop_currency = $shop_currency[0]->currency;
+			}
+
+			return $shop_currency;
+
+		}
+
+
+
+
+
+
+
+
+
+		public function get_currency_symbol($currency_code) {
+
+			$currency = new Currency_Gerardo($currency_code);
+
+			return $currency->getSymbol();
+
+		}
+
+
+
 		/*
 
 	  -- Main Format Money Function --
@@ -208,102 +353,45 @@ if ( !class_exists('Money') ) {
 		template returns an object for $product.
 
 	  */
-	  public function format_money($price, $product) {
+	  public function format_price($price, $product_id) {
 
-	    if (is_array($product)) {
-
-	      if (isset($product['variants']) && count($product['variants']) > 1) {
-	        $matchedVariant = $this->find_variant_by_price($price, $product['variants']);
-	        $productID = $matchedVariant->variant_id;
-
-	      } else {
-	        $productID = $product['variants'][0]['variant_id'];
-	      }
-
-	    } else {
-
-	      if (!isset($product->post_id) && isset($product->option1)) {
-	        $variants = array($product);
-
-	      } else {
-	        $variants = $this->DB_Variants->get_variants_from_post_id($product->post_id);
-	      }
-
-	      if (count($variants) > 1) {
-
-	        $variants = Utils::convert_object_to_array($variants);
-	        $matchedVariant = $this->find_variant_by_price($price, $variants);
-	        $productID = $matchedVariant->variant_id;
-
-	      } else {
-
-					$productID = $product->product_id;
-
-	      }
-
+	    if ( get_transient('wps_product_price_id_' . $product_id . '_' . $price) ) {
+	      return get_transient('wps_product_price_id_' . $product_id . '_' . $price);
 	    }
 
+			$currency_code = $this->get_currency_code();
 
-	    if (get_transient('wps_product_price_id_' . $productID)) {
-	      return get_transient('wps_product_price_id_' . $productID);
+			$format_name = $this->find_amount_format();
 
-	    } else {
+			$price_only = $this->get_price($currency_code, $format_name, $price);
 
-	      $shop_currency = $this->DB_Shop->get_shop('currency');
+			$symbol = $this->get_currency_symbol($currency_code);
 
-				if (empty($shop_currency)) {
-					$shop_currency = WPS_DEFAULT_CURRENCY; // default fallback incase user doesn't sync shop data
+			$price_markup = $this->get_symbol_markup($symbol) . $this->get_price_markup($price_only);
 
-				} else {
-					$shop_currency = $shop_currency[0]->currency;
-				}
+			// Only show currency code if the user sets it
+			if ( $this->showing_price_with_currency_code() ) {
+				$price_markup .= $this->get_code_markup($currency_code);
+			}
 
+			set_transient('wps_product_price_id_' . $product_id . '_' . $price, $price_markup);
 
-	      if ($this->is_using_money_with_currency_format()) {
-	        $money_format_current = $this->DB_Shop->get_money_with_currency_format();
-
-	      } else {
-	        $money_format_current = $this->DB_Shop->get_money_format();
-
-	      }
-
-	      $finalPrice = $this->replace_delimiters_with_formatted_money($money_format_current, $shop_currency, $price);
-	      $currency_symbols = explode('{{amount}}', $money_format_current);
-
-	      if (empty($currency_symbols[0])) {
-	        $symbol = WPS_DEFAULT_CURRENCY_SYMBOL; // default fallback incase user doesn't sync shop data
-
-	      } else {
-	        $symbol = $currency_symbols[0];
-	      }
-
-
-	      $priceFormatted = explode($symbol, $finalPrice);
-
-
-				if (isset($currency_symbols[1]) && !empty($currency_symbols[1])) {
-					$currency_acronym = trim($currency_symbols[1]);
-
-				} else {
-					$currency_acronym = false;
-				}
-
-
-				$price_markup = '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $symbol . '</span>' . '<span itemprop="price" class="wps-product-individual-price">' . $price .'</span>';
-
-
-				if ($currency_acronym) {
-					$price_markup .= '<span itemprop="priceCurrency" class="wps-product-individual-price-format">' . trim($currency_symbols[1]) .'</span>';
-				}
-
-
-	      set_transient('wps_product_price_id_' . $productID, $price_markup);
-
-	      return $price_markup;
-
-	    }
+			return $price_markup;
 
 	  }
+
+
+		public function get_symbol_markup($symbol) {
+			return '<span class="wps-product-price-currency" itemprop="priceCurrency">' . $symbol . '</span>';
+		}
+
+		public function get_price_markup($price) {
+			return '<span itemprop="price" class="wps-product-individual-price">' . $price .'</span>';
+		}
+
+		public function get_code_markup($currency_code) {
+			return '<span itemprop="priceCurrency" class="wps-product-individual-price-format">' . $currency_code .'</span>';
+		}
 
 
 		/*
@@ -311,18 +399,31 @@ if ( !class_exists('Money') ) {
 		Checks if the amount value exists within Shopify array
 
 		*/
-		public function wps_find_amount_format() {
+		public function find_amount_format() {
 
-			$amountFormatCurrent = $this->extract_amount_format();
-			$availMoneyFormats = $this->get_avail_money_formats();
-			$key = array_search($amountFormatCurrent, $availMoneyFormats);
+			$amount_format_to_use = $this->extract_format_name( $this->get_current_money_format() );
 
-			if ($key >= 0) {
-				return $availMoneyFormats[$key];
+			$avail_money_formats = $this->get_avail_money_formats();
 
-			} else {
-				return false;
+			$array_key_of_found_format = $this->search_format_from_avail_list($amount_format_to_use, $avail_money_formats);
+
+			return $this->return_format_from_found_key($array_key_of_found_format, $avail_money_formats);
+
+		}
+
+
+		/*
+
+		Responsible for checking if more than one price exists
+
+		*/
+		public function has_more_than_one_price($variants_amount) {
+
+			if ($variants_amount > 1) {
+				return true;
 			}
+
+			return false;
 
 		}
 

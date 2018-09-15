@@ -14,14 +14,12 @@ if ( !class_exists('Async_Processing_Tags') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $DB_Tags;
-		protected $WS;
 
 
-		public function __construct($DB_Settings_Syncing, $DB_Tags, $WS) {
+		public function __construct($DB_Settings_Syncing, $DB_Tags) {
 
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
 			$this->DB_Tags 										= $DB_Tags;
-			$this->WS 												= $WS;
 
 			parent::__construct();
 
@@ -37,10 +35,10 @@ if ( !class_exists('Async_Processing_Tags') ) {
 			}
 
 			// Actual work
-			$result = $this->DB_Tags->insert_tags($product);
+			$result = $this->DB_Tags->insert_items_of_type( $this->DB_Tags->construct_tags_for_insert($product) );
 
 			if (is_wp_error($result)) {
-				$this->WS->save_notice_and_stop_sync($result);
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 				$this->complete();
 				return false;
 			}
@@ -57,6 +55,15 @@ if ( !class_exists('Async_Processing_Tags') ) {
 
 		public function insert_tags_batch($products) {
 
+			if ( $this->DB_Tags->max_packet_size_reached($products) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			foreach ($products as $product) {
 				$this->push_to_queue($product);
 			}
@@ -69,7 +76,7 @@ if ( !class_exists('Async_Processing_Tags') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

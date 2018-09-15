@@ -23,7 +23,6 @@ if (!class_exists('Hooks')) {
 		private $DB_Settings_Syncing;
 		private $DB_Settings_License;
 		private $Activator;
-		private $Messages;
 
 
     /*
@@ -31,7 +30,7 @@ if (!class_exists('Hooks')) {
     Initialize the class and set its properties.
 
     */
-    public function __construct($Utils, $DB_Settings_General, $DB_Shop, $Templates, $Async_Processing_Database, $Pagination, $DB_Settings_Syncing, $DB_Settings_License, $Activator, $Messages) {
+    public function __construct($Utils, $DB_Settings_General, $DB_Shop, $Templates, $Async_Processing_Database, $Pagination, $DB_Settings_Syncing, $DB_Settings_License, $Activator) {
 
 			$this->Utils 												= $Utils;
 			$this->DB_Settings_General 					= $DB_Settings_General;
@@ -42,7 +41,6 @@ if (!class_exists('Hooks')) {
 			$this->DB_Settings_Syncing					=	$DB_Settings_Syncing;
 			$this->DB_Settings_License					=	$DB_Settings_License;
 			$this->Activator										=	$Activator;
-			$this->Messages											=	$Messages;
 
     }
 
@@ -679,7 +677,7 @@ if (!class_exists('Hooks')) {
 			$new_version_number = WPS_NEW_PLUGIN_VERSION;
 			$current_version_number = $this->DB_Settings_General->get_current_plugin_version();
 
-			// // $new_version_number = '15.52334.0';
+			// // $new_version_number = '1.2.3';
 
 			// If current version is behind new version
 			if (version_compare($current_version_number, $new_version_number, '<')) {

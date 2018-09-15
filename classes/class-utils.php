@@ -66,6 +66,16 @@ if (!class_exists('Utils')) {
 
 		/*
 
+		Helper for throwing WP_Errors
+
+		*/
+		public static function wp_error($message) {
+			return new \WP_Error('error', $message);
+		}
+
+
+		/*
+
 		Loops through items and returns only those with values
 		of WP_Error instances
 
@@ -112,8 +122,28 @@ if (!class_exists('Utils')) {
 	  Generate and return hash
 
 	  */
-	  public static function wps_hash($content) {
+	  public static function hash_unique($content) {
 	    return wp_hash($content);
+	  }
+
+
+		/*
+
+	  Generate and return hash
+
+	  */
+	  public static function hash_static($content) {
+	    return md5($content);
+	  }
+
+
+		/*
+
+	  Generate and return hash
+
+	  */
+	  public static function hash_static_num($content) {
+			return crc32( self::hash_static($content) );
 	  }
 
 
@@ -251,7 +281,7 @@ if (!class_exists('Utils')) {
 	  Construct proper path to wp-admin folder
 
 	  */
-	  public static function wps_construct_admin_path_from_urls($homeURL, $adminURL) {
+	  public static function construct_admin_path_from_urls($homeURL, $adminURL) {
 
 			if (strpos($homeURL, 'https://') !== false) {
 				$homeProtocol = 'https';
@@ -360,48 +390,19 @@ if (!class_exists('Utils')) {
 	  Get single shop info value
 
 	  */
-	  public static function flatten_collections_image_prop($customCollections) {
+	  public static function flatten_image_prop($items) {
 
-	    $newCustomCollections = $customCollections;
+	    $items_copy = $items;
+			$items_copy = Utils::convert_array_to_object($items_copy);
 
-	    /*
+	    if ( self::has($items_copy, 'image') && self::has($items_copy->image, 'src') ) {
+				$items_copy->image = $items_copy->image->src;
 
-	    If multiple collections are passed ... AKA an Array
+			} else {
+				$items_copy->image = '';
+			}
 
-	    */
-	    if (is_array($newCustomCollections)) {
-
-	      foreach ($newCustomCollections as $key => $newCustomCollection) {
-	        if (isset($newCustomCollection->image)) {
-	          $newCustomCollection->image = $newCustomCollection->image->src;
-	        }
-	      }
-
-	    }
-
-
-	    /*
-
-	    If a single collection is passed ... AKA an Object
-
-	    */
-	    if (is_object($newCustomCollections)) {
-
-	      if (isset($newCustomCollections->image)) {
-
-	        // TODO: Revist why we need to check for src property
-	        if (isset($newCustomCollections->image->src)) {
-	          $newCustomCollections->image = $newCustomCollections->image->src;
-
-	        } else {
-	          $newCustomCollections->image = $newCustomCollections->image;
-	        }
-
-	      }
-
-	    }
-
-	    return $newCustomCollections;
+	    return $items_copy;
 
 	  }
 
@@ -416,7 +417,7 @@ if (!class_exists('Utils')) {
 		TODO: This could be slow if we need to loop through all products ... revist
 
 	  */
-	  public static function wps_filter_items_by_id($items, $diff, $keyToCheck = 'id') {
+	  public static function filter_items_by_id($items, $diff, $keyToCheck = 'id') {
 
 	    $finalResuts = [];
 
@@ -447,6 +448,16 @@ if (!class_exists('Utils')) {
 	  }
 
 
+		public static function gather_item_ids($current_items, $new_items, $num_dimensions, $key_to_check) {
+
+			return [
+				'current'	=> self::get_item_ids($current_items, $num_dimensions, $key_to_check),
+				'new'			=> self::get_item_ids($new_items, $num_dimensions, $key_to_check)
+			];
+
+		}
+
+
 	  /*
 
 	  Find Items to Delete
@@ -454,71 +465,71 @@ if (!class_exists('Utils')) {
 		Returns Array
 
 	  */
-	  public static function wps_find_items_to_delete($currentItemsArray, $newItemsArray, $numDimensions = false, $keyToCheck = 'id') {
+	  public static function find_items_to_delete($current_items, $new_items, $num_dimensions = false, $key_to_check = 'id') {
 
-	    $arrayOfIDsFromCurrent = self::wps_get_item_ids($currentItemsArray, $numDimensions, $keyToCheck);
-	    $arrayOfIDsFromShopify = self::wps_get_item_ids($newItemsArray, $numDimensions, $keyToCheck);
+			$ids_to_check = self::gather_item_ids($current_items, $new_items, $num_dimensions, $key_to_check);
 
-	    $diff = array_diff($arrayOfIDsFromCurrent, $arrayOfIDsFromShopify);
-	    $diff = array_values($diff);
+			// Deletes ids in 'current' that arent in 'new'
+	    $difference = array_values( array_diff($ids_to_check['current'], $ids_to_check['new']) );
 
-	    return self::wps_filter_items_by_id($currentItemsArray, $diff, $keyToCheck);
+	    return self::filter_items_by_id($current_items, $difference, $key_to_check);
 
 	  }
 
 
 	  /*
 
-	  @param $currentItemsArray = array of arrays
-	  @param $newItemsArray = array of arrays
+	  @param $current_items = array of arrays
+	  @param $new_items = array of arrays
 
 		Returns Array
 
 	  */
-	  public static function wps_find_items_to_add($currentItemsArray, $newItemsArray, $numDimensions = false, $keyToCheck = 'id') {
+	  public static function find_items_to_add($current_items, $new_items, $num_dimensions = false, $key_to_check = 'id') {
 
-	    $arrayOfIDsFromCurrent = self::wps_get_item_ids($currentItemsArray, $numDimensions, $keyToCheck);
-	    $arrayOfIDsFromShopify = self::wps_get_item_ids($newItemsArray, $numDimensions, $keyToCheck);
+			$ids_to_check = self::gather_item_ids($current_items, $new_items, $num_dimensions, $key_to_check);
 
-	    $diff = array_diff($arrayOfIDsFromShopify, $arrayOfIDsFromCurrent);
-	    $diff = array_values($diff);
+			// Adds ids from 'new' that arent in 'current'
+	    $difference = array_values( array_diff($ids_to_check['new'], $ids_to_check['current']) );
 
-	    return self::wps_filter_items_by_id($newItemsArray, $diff, $keyToCheck);
+	    return self::filter_items_by_id($new_items, $difference, $key_to_check);
 
 	  }
 
 
 	  /*
 
-	  wps_get_item_ids
+	  get_item_ids
 
 	  */
-	  public static function wps_get_item_ids($arr, $oneDimension = false, $keyToCheck = 'id') {
+	  public static function get_item_ids($items, $one_dimension = false, $key_to_check = 'id') {
 
-	    // Converting to associative array
-	    $arr  = json_encode($arr);
-	    $arr  = json_decode($arr, true);
+	    $items = self::convert_to_assoc_array($items);
 
-	    $results = array();
+	    $results = [];
 
-	    if ($oneDimension) {
+	    if ($one_dimension) {
 
-	      foreach ($arr as $key => $value) {
+	      foreach ($items as $item) {
 
-	        if (isset($value[$keyToCheck]) && $value[$keyToCheck]) {
-	          $results[] = $value[$keyToCheck];
+	        if (isset($item[$key_to_check]) && $item[$key_to_check]) {
+	          $results[] = $item[$key_to_check];
 	        }
+
 	      }
 
 	    } else {
 
-	      foreach ($arr as $key => $subarray) {
+	      foreach ($items as $sub_array) {
 
-	        foreach ($subarray as $key => $value) {
-	          if (isset($value[$keyToCheck]) && $value[$keyToCheck]) {
-	            $results[] = $value[$keyToCheck];
+	        foreach ($sub_array as $item) {
+
+	          if (isset($item[$key_to_check]) && $item[$key_to_check]) {
+	            $results[] = $item[$key_to_check];
 	          }
+
 	        }
+
 	      }
 
 	    }
@@ -533,26 +544,18 @@ if (!class_exists('Utils')) {
 	  convert_object_to_array
 
 	  */
-	  public static function convert_object_to_array($object) {
+	  public static function convert_object_to_array($maybe_object) {
 
-			if (is_array($object)) {
-				return $object;
+			if ( is_array($maybe_object) ) {
+				return $maybe_object;
 			}
 
 			// Unable to convert to Object from these. Return false.
-			if (is_float($object) || is_int($object) || is_bool($object)) {
-				return new \WP_Error('error', __('Unabled to convert data type to Array', WPS_PLUGIN_TEXT_DOMAIN ) );
+			if (is_float($maybe_object) || is_int($maybe_object) || is_bool($maybe_object)) {
+				return self::wp_error( __('Unabled to convert data type to Array', WPS_PLUGIN_TEXT_DOMAIN ) );
 			}
 
-	    // $array = array();
-			//
-	    // foreach ($object as $key => $value) {
-	    //   $array[] = (array) $value;
-	    // }
-			//
-	    // return $array;
-
-			return (array) $object;
+			return (array) $maybe_object;
 
 	  }
 
@@ -570,11 +573,11 @@ if (!class_exists('Utils')) {
 
 			// Unable to convert to Object from these. Return false.
 			if (is_float($maybe_array) || is_int($maybe_array) || is_bool($maybe_array)) {
-				return new \WP_Error('error', __('Unabled to convert data type to Object', WPS_PLUGIN_TEXT_DOMAIN ) );
+				return self::wp_error( __('Unabled to convert data type to Object', WPS_PLUGIN_TEXT_DOMAIN ) );
 			}
 
 			if (is_array($maybe_array)) {
-				return json_decode(json_encode($maybe_array), false);
+				return json_decode( json_encode($maybe_array), false );
 			}
 
 	  }
@@ -582,11 +585,11 @@ if (!class_exists('Utils')) {
 
 		/*
 
-	  Converts to associative array
+	  Converts to an associative array
 
 	  */
 		public static function convert_to_assoc_array($items) {
-			return json_decode(json_encode($items), true);
+			return json_decode( json_encode($items), true );
 		}
 
 
@@ -595,7 +598,7 @@ if (!class_exists('Utils')) {
 	  Maybe serialize data
 
 	  */
-	  public static function wps_serialize_data_for_db($data) {
+	  public static function serialize_data_for_db($data) {
 
 	    $dataSerialized = array();
 
@@ -669,6 +672,41 @@ if (!class_exists('Utils')) {
 
 
 
+		public static function construct_flattened_object($items_flattened, $type) {
+
+			$items_obj = new \stdClass;
+			$items_obj->{$type} = $items_flattened;
+
+			return $items_obj;
+
+		}
+
+
+
+		public static function flatten_array_into_object($items, $type) {
+
+			// Need to check since $items comes directly from a request
+			if (is_wp_error($items)) {
+				return $items;
+			}
+
+			$items_flattened = [];
+
+			foreach ($items as $item_wrap) {
+
+				foreach ($item_wrap as $single_item) {
+					$items_flattened[] = $single_item;
+				}
+
+			}
+
+			return self::construct_flattened_object($items_flattened, $type);
+
+		}
+
+
+
+
 
 
 
@@ -727,147 +765,147 @@ if (!class_exists('Utils')) {
 			//
 			// Order
 			//
-			if (isset($shortcodeArgs['order']) && $shortcodeArgs['order']) {
+			if ( !empty($shortcodeArgs['order']) ) {
 				$shortcode_args['custom']['order'] = $shortcodeArgs['order'];
 			}
 
 			//
 			// Order by
 			//
-			if (isset($shortcodeArgs['orderby']) && $shortcodeArgs['orderby']) {
+			if ( !empty($shortcodeArgs['orderby']) ) {
 				$shortcode_args['custom']['orderby'] = $shortcodeArgs['orderby'];
 			}
 
 			//
 			// IDs
 			//
-			if (isset($shortcodeArgs['ids']) && $shortcodeArgs['ids']) {
+			if ( !empty($shortcodeArgs['ids']) ) {
 				$shortcode_args['custom']['ids'] = $shortcodeArgs['ids'];
 			}
 
 			//
 			// Meta Slugs
 			//
-			if (isset($shortcodeArgs['slugs']) && $shortcodeArgs['slugs']) {
+			if ( !empty($shortcodeArgs['slugs']) ) {
 				$shortcode_args['custom']['slugs'] = $shortcodeArgs['slugs'];
 			}
 
 			//
 			// Meta Title
 			//
-			if (isset($shortcodeArgs['titles']) && $shortcodeArgs['titles']) {
+			if ( !empty($shortcodeArgs['titles']) ) {
 				$shortcode_args['custom']['titles'] = $shortcodeArgs['titles'];
 			}
 
 			//
 			// Descriptions
 			//
-			if (isset($shortcodeArgs['desc']) && $shortcodeArgs['desc']) {
+			if ( !empty($shortcodeArgs['desc']) ) {
 				$shortcode_args['custom']['desc'] = $shortcodeArgs['desc'];
 			}
 
 			//
 			// Tags
 			//
-			if (isset($shortcodeArgs['tags']) && $shortcodeArgs['tags']) {
+			if ( !empty($shortcodeArgs['tags']) ) {
 				$shortcode_args['custom']['tags'] = $shortcodeArgs['tags'];
 			}
 
 			//
 			// Vendors
 			//
-			if (isset($shortcodeArgs['vendors']) && $shortcodeArgs['vendors']) {
+			if ( !empty($shortcodeArgs['vendors']) ) {
 				$shortcode_args['custom']['vendors'] = $shortcodeArgs['vendors'];
 			}
 
 			//
 			// Variants
 			//
-			if (isset($shortcodeArgs['variants']) && $shortcodeArgs['variants']) {
+			if ( !empty($shortcodeArgs['variants']) ) {
 				$shortcode_args['custom']['variants'] = $shortcodeArgs['variants'];
 			}
 
 			//
 			// Type
 			//
-			if (isset($shortcodeArgs['types']) && $shortcodeArgs['types']) {
+			if ( !empty($shortcodeArgs['types']) ) {
 				$shortcode_args['custom']['types'] = $shortcodeArgs['types'];
 			}
 
 			//
 			// Options
 			//
-			if (isset($shortcodeArgs['options']) && $shortcodeArgs['options']) {
+			if ( !empty($shortcodeArgs['options']) ) {
 				$shortcode_args['custom']['options'] = $shortcodeArgs['options'];
 			}
 
 			//
 			// Available
 			//
-			if (isset($shortcodeArgs['available']) && $shortcodeArgs['available']) {
+			if ( !empty($shortcodeArgs['available']) ) {
 				$shortcode_args['custom']['available'] = $shortcodeArgs['available'];
 			}
 
 			//
 			// Collections
 			//
-			if (isset($shortcodeArgs['collections']) && $shortcodeArgs['collections']) {
+			if ( !empty($shortcodeArgs['collections']) ) {
 				$shortcode_args['custom']['collections'] = $shortcodeArgs['collections'];
 			}
 
 			//
 			// Collection Slugs
 			//
-			if (isset($shortcodeArgs['collection_slugs']) && $shortcodeArgs['collection_slugs']) {
+			if ( !empty($shortcodeArgs['collection_slugs']) ) {
 				$shortcode_args['custom']['collection_slugs'] = $shortcodeArgs['collection_slugs'];
 			}
 
 			//
 			// Limit
 			//
-			if (isset($shortcodeArgs['limit']) && $shortcodeArgs['limit']) {
+			if ( !empty($shortcodeArgs['limit']) ) {
 				$shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
 			}
 
 			//
 			// Items per row
 			//
-			if (isset($shortcodeArgs['items-per-row']) && $shortcodeArgs['items-per-row']) {
+			if ( !empty($shortcodeArgs['items-per-row']) ) {
 				$shortcode_args['custom']['items-per-row'] = $shortcodeArgs['items-per-row'];
 			}
 
 			//
 			// Pagination
 			//
-			if (isset($shortcodeArgs['pagination'])) {
+			if ( !empty($shortcodeArgs['pagination']) ) {
 				$shortcode_args['custom']['pagination'] = false;
 			}
 
 			//
 			// Page
 			//
-			if (isset($shortcodeArgs['page']) && $shortcodeArgs['page']) {
+			if ( !empty($shortcodeArgs['page']) ) {
 				$shortcode_args['paged'] = $shortcodeArgs['page'];
 			}
 
 			//
 			// Add to cart
 			//
-			if (isset($shortcodeArgs['add-to-cart']) && $shortcodeArgs['add-to-cart']) {
+			if ( !empty($shortcodeArgs['add-to-cart']) ) {
 				$shortcode_args['custom']['add-to-cart'] = $shortcodeArgs['add-to-cart'];
 			}
 
 			//
 			// Breadcrumbs
 			//
-			if (isset($shortcodeArgs['breadcrumbs']) && $shortcodeArgs['breadcrumbs']) {
+			if ( !empty($shortcodeArgs['breadcrumbs']) ) {
 				$shortcode_args['custom']['breadcrumbs'] = $shortcodeArgs['breadcrumbs'];
 			}
 
 			//
 			// Keep permalinks
 			//
-			if (isset($shortcodeArgs['keep-permalinks']) && $shortcodeArgs['keep-permalinks']) {
+			if ( !empty($shortcodeArgs['keep-permalinks']) ) {
 				$shortcode_args['custom']['keep-permalinks'] = $shortcodeArgs['keep-permalinks'];
 			}
 
@@ -991,7 +1029,7 @@ if (!class_exists('Utils')) {
 	      foreach ($shortcodeArgs as $key => $arg) {
 
 	        if (strpos($arg, ',') !== false) {
-	          $shortcodeArgs[$key] = self::wps_comma_list_to_array( trim($arg) );
+	          $shortcodeArgs[$key] = self::comma_list_to_array( trim($arg) );
 
 	        } else {
 	          $shortcodeArgs[$key] = trim($arg);
@@ -1028,7 +1066,7 @@ if (!class_exists('Utils')) {
 	      foreach ($shortcodeArgs as $key => $arg) {
 
 	        if (strpos($arg, ',') !== false) {
-	          $shortcodeArgs[$key] = self::wps_comma_list_to_array( trim($arg) );
+	          $shortcodeArgs[$key] = self::comma_list_to_array( trim($arg) );
 
 	        } else {
 	          $shortcodeArgs[$key] = trim($arg);
@@ -1054,9 +1092,16 @@ if (!class_exists('Utils')) {
 		Turns comma seperated list into array
 
 		*/
-		public static function wps_comma_list_to_array($string) {
+		public static function comma_list_to_array($string) {
 	    return array_map('trim', explode(',', $string));
 		}
+
+
+
+		public static function is_empty($array_or_object) {
+			return count($array_or_object) <= 0;
+		}
+
 
 
 	  /*
@@ -1209,7 +1254,7 @@ if (!class_exists('Utils')) {
 	      }
 
 
-	      // $collectionIDs = self::wps_comma_list_to_array($collections);
+	      // $collectionIDs = self::comma_list_to_array($collections);
 
 	      $args = array(
 	        'post_type' => WPS_PRODUCTS_POST_TYPE_SLUG,
@@ -1228,7 +1273,7 @@ if (!class_exists('Utils')) {
 
 	      if( isset($wps_shortcode_atts['products']) && $wps_shortcode_atts['products'] ) {
 	        $products = Utils::wps_remove_spaces_from_string($wps_shortcode_atts['products']);
-	        $productIDs = self::wps_comma_list_to_array($products);
+	        $productIDs = self::comma_list_to_array($products);
 
 	        $args = array(
 	          'post__in' => $productIDs,
@@ -1401,7 +1446,7 @@ if (!class_exists('Utils')) {
 	  Generic function to sort by a specific key / value
 
 	  */
-	  public static function wps_sort_by($array, $key) {
+	  public static function sort_by($array, $key) {
 
 			$array = self::convert_object_to_array($array);
 
@@ -1511,11 +1556,16 @@ if (!class_exists('Utils')) {
 
 		/*
 
-		Check is Object has a property
+		Check is an Object has a property
 
 		*/
-		public static function has($block, $property) {
-			return is_object($block) && property_exists($block, $property) ? true : false;
+		public static function has($item, $property) {
+
+			if ( is_array($item) ) {
+				$item = self::convert_array_to_object($item);
+			}
+
+			return is_object($item) && property_exists($item, $property) ? true : false;
 		}
 
 
@@ -1544,6 +1594,26 @@ if (!class_exists('Utils')) {
 		public static function array_is_empty($maybe_array) {
 
 			if (is_array($maybe_array) && empty($maybe_array)) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		/*
+
+		Checks if item is an empty array
+
+		*/
+		public static function object_is_empty($object) {
+
+			$object_copy = $object;
+			$object_copy = (array) $object_copy;
+
+			if ( count( array_filter($object_copy) ) == 0 ) {
 				return true;
 
 			} else {
@@ -1794,6 +1864,50 @@ if (!class_exists('Utils')) {
 		*/
 		public static function different_row_amount($columns_new, $columns_current) {
 			return count($columns_new) > count($columns_current);
+		}
+
+
+		public static function flatten_array($array) {
+
+			$result = [];
+
+			if ( !is_array($array) ) {
+			  $array = func_get_args();
+			}
+
+			foreach ($array as $key => $value) {
+
+				if (is_array($value)) {
+					$result = array_merge($result, self::flatten_array($value));
+
+			  } else {
+					$result = array_merge($result, array($key => $value));
+
+			  }
+
+			}
+
+			return $result;
+
+		}
+
+
+		public static function convert_array_to_in_string($array) {
+			return "('" . implode("', '", $array) . "')";
+		}
+
+
+		public static function first_num($num) {
+
+			$num_split = str_split($num);
+
+			return (int) $num_split[0];
+
+		}
+
+
+		public static function get_last_index($array_size) {
+			return $array_size - 1;
 		}
 
 

@@ -4,6 +4,7 @@ namespace WPS\Migrations;
 
 use WPS\Utils;
 use WPS\Transients;
+use WPS\Messages;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -553,7 +554,7 @@ if (!class_exists('Migrations_122')) {
     public function run_table_migration_122() {
 
       if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-        wp_send_json_error($this->Messages->message_nonce_invalid  . ' (migrate_tables)');
+        wp_send_json_error( Messages::get('nonce_invalid')  . ' (migrate_tables)' );
       }
 
 
@@ -584,7 +585,7 @@ if (!class_exists('Migrations_122')) {
 				Transients::delete_all_cache();
 				wp_send_json_error($rename_tables_result);
 			}
-			
+
 
 			Transients::delete_all_cache();
 			delete_option('wp_shopify_migration_needed');

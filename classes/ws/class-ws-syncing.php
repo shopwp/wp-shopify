@@ -3,11 +3,12 @@
 namespace WPS\WS;
 
 use WPS\Utils;
+use WPS\Messages;
+
 
 if (!defined('ABSPATH')) {
 	exit;
 }
-
 
 
 if (!class_exists('Syncing')) {
@@ -17,10 +18,8 @@ if (!class_exists('Syncing')) {
 
 		protected $DB_Settings_Syncing;
 
-
 		public function __construct($DB_Settings_Syncing) {
-			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
-
+			$this->DB_Settings_Syncing = $DB_Settings_Syncing;
 		}
 
 
@@ -57,7 +56,7 @@ if (!class_exists('Syncing')) {
 		Checks if network request generated an error, if so, expires
 		the sync and saves the error to the db.
 
-		Only runs for Guzzle request esceptions. Does not run for warnings.
+		Only runs for request esceptions. Does not run for warnings.
 
 		*/
 		public function expire_sync_if_error($response) {
@@ -66,7 +65,7 @@ if (!class_exists('Syncing')) {
 
 				$saveResponse = $this->DB_Settings_Syncing->save_notice($response->get_error_message(), 'error');
 
-				return $this->expire_sync();
+				return $this->DB_Settings_Syncing->expire_sync();
 
 			} else {
 				return $response;
@@ -83,7 +82,7 @@ if (!class_exists('Syncing')) {
 		public function get_syncing_totals() {
 
 			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (get_syncing_totals)');
+				$this->send_error( Messages::get('nonce_invalid') . ' (get_syncing_totals)' );
 			}
 
 			$this->send_success( $this->DB_Settings_Syncing->syncing_totals() );
@@ -99,8 +98,8 @@ if (!class_exists('Syncing')) {
 		public function insert_syncing_totals() {
 
 
-			if (!Utils::valid_backend_nonce($_POST['nonce'])) {
-				$this->send_error($this->Messages->message_nonce_invalid . ' (insert_syncing_totals)');
+			if ( !Utils::valid_backend_nonce($_POST['nonce']) ) {
+				$this->send_error( Messages::get('nonce_invalid') . ' (insert_syncing_totals)' );
 			}
 
 
@@ -156,7 +155,7 @@ if (!class_exists('Syncing')) {
 		public function set_syncing_indicator() {
 
 			if (!isset($_POST['syncing'])) {
-				$this->send_error($this->Messages->message_syncing_status_missing . ' (set_syncing_indicator 1)');
+				$this->send_error( Messages::get('syncing_status_missing') . ' (set_syncing_indicator 1)' );
 			}
 
 
@@ -170,7 +169,7 @@ if (!class_exists('Syncing')) {
 
 			// If the DB update was successful ...
 			if ( !$this->DB_Settings_Syncing->toggle_syncing($flag) ) {
-				$this->send_error($this->Messages->message_syncing_status_missing . ' (set_syncing_indicator 2)');
+				$this->send_error( Messages::get('syncing_status_missing') . ' (set_syncing_indicator 2)' );
 			}
 
 			$this->send_success();

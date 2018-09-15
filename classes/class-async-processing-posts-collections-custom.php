@@ -15,18 +15,12 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 		protected $action = 'wps_background_processing_posts_collections_custom';
 
 		protected $DB_Settings_Syncing;
-		protected $WS;
 		protected $CPT_Query;
-		protected $DB_Collections_Custom;
 
-		protected $timer;
-
-		public function __construct($DB_Settings_Syncing, $WS, $CPT_Query, $DB_Collections_Custom) {
+		public function __construct($DB_Settings_Syncing, $CPT_Query) {
 
 			$this->DB_Settings_Syncing 				= $DB_Settings_Syncing;
-			$this->WS 												= $WS;
 			$this->CPT_Query 									= $CPT_Query;
-			$this->DB_Collections_Custom 			= $DB_Collections_Custom;
 
 			parent::__construct();
 
@@ -68,7 +62,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 				$result = $this->CPT_Query->insert_posts( $collections_from_shopify, false, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 				if (is_wp_error($result)) {
-					$this->WS->save_notice_and_stop_sync($result);
+					$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 					$this->complete();
 					return false;
 				}
@@ -116,7 +110,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 					$result = $this->CPT_Query->update_posts($collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG);
 
 					if (is_wp_error($result)) {
-						$this->WS->save_notice_and_stop_sync($result);
+						$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
 						$this->complete();
 						return false;
 					}
@@ -128,7 +122,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 					$result_insert = $this->CPT_Query->insert_posts( $collections_from_shopify, $existing_collections, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_insert)) {
-						$this->WS->save_notice_and_stop_sync($result_insert);
+						$this->DB_Settings_Syncing->save_notice_and_stop_sync($result_insert);
 						$this->complete();
 						return false;
 					}
@@ -137,7 +131,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 					$result_update = $this->CPT_Query->update_posts( $collections_to_update, WPS_COLLECTIONS_POST_TYPE_SLUG );
 
 					if (is_wp_error($result_update)) {
-						$this->WS->save_notice_and_stop_sync($result_update);
+						$this->DB_Settings_Syncing->save_notice_and_stop_sync($result_update);
 						$this->complete();
 						return false;
 					}
@@ -160,6 +154,15 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 
 		public function insert_posts_collections_custom_batch($collections) {
 
+			if ( $this->DB_Settings_Syncing->max_packet_size_reached($collections) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+				$this->DB_Settings_Syncing->expire_sync();
+				$this->complete();
+
+			}
+
+
 			$this->push_to_queue($collections);
 			$this->save()->dispatch();
 
@@ -174,7 +177,7 @@ if ( !class_exists('Async_Processing_Posts_Collections_Custom') ) {
 		protected function complete() {
 
 			if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
-				$this->WS->expire_sync();
+				$this->DB_Settings_Syncing->expire_sync();
 			}
 
 			parent::complete();

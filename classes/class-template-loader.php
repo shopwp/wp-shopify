@@ -59,6 +59,7 @@ if ( !class_exists('Template_Loader') ) {
 			// Use $template_names as a cache key - either first element of array or the variable itself if it's a string
 			$cache_key = is_array( $template_names ) ? $template_names[0] : $template_names;
 
+
 			// If the key is in the cache array, we've already located this file.
 			if ( isset( $this->template_path_cache[$cache_key] ) ) {
 
@@ -99,6 +100,8 @@ if ( !class_exists('Template_Loader') ) {
 					}
 				}
 			}
+
+
 
 			if ( $load && $located ) {
 				load_template( $located, $require_once );

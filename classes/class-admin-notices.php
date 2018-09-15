@@ -16,7 +16,6 @@ if ( !class_exists('Admin_Notices') ) {
 	class Admin_Notices {
 
 		private $WS;
-		private $Messages;
 		private $DB_Settings_General;
 		private $admin_notices;
 
@@ -26,11 +25,10 @@ if ( !class_exists('Admin_Notices') ) {
 	  Initialize the class and set its properties.
 
 	  */
-	  public function __construct($WS, $Messages, $DB_Settings_General) {
+	  public function __construct($WS, $DB_Settings_General) {
 
 			// Dependencies
 			$this->WS 								 					= $WS;
-			$this->Messages 					 					= $Messages;
 			$this->DB_Settings_General 					= $DB_Settings_General;
 
 			$this->admin_notices 								= new \stdClass();
@@ -151,7 +149,7 @@ if ( !class_exists('Admin_Notices') ) {
 		public function show_database_migration_needed_notice() {
 
 			if ( get_option('wp_shopify_migration_needed') ) {
-				$this->warning($this->Messages->message_database_migration_needed, 'notice_warning_database_migration_needed' );
+				$this->warning( Messages::get('database_migration_needed'), 'notice_warning_database_migration_needed' );
 			}
 
 		}
@@ -165,7 +163,7 @@ if ( !class_exists('Admin_Notices') ) {
 		public function show_cpt_data_erase_notice() {
 
 			if ($this->is_wp_shopify_cpt_page()) {
-				$this->warning($this->Messages->message_saving_native_cpt_data, 'notice_warning_post_data_eraser' );
+				$this->warning( Messages::get('saving_native_cpt_data'), 'notice_warning_post_data_eraser' );
 			}
 
 		}
@@ -185,7 +183,7 @@ if ( !class_exists('Admin_Notices') ) {
 			}
 
 			if ($this->is_wp_shopify_cpt_page() || $this->is_wp_shopify_settings_page()) {
-				$this->warning($this->Messages->message_app_uninstalled, 'notice_warning_app_uninstalled' );
+				$this->warning( Messages::get('app_uninstalled'), 'notice_warning_app_uninstalled' );
 			}
 
 		}

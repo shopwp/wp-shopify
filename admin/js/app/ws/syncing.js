@@ -71,8 +71,6 @@ function syncCollects() {
 
 Sync Smart Collections
 
-get_smart_collections
-
 */
 function syncSmartCollections() {
   return streamSmartCollections();
@@ -83,8 +81,6 @@ function syncSmartCollections() {
 
 Syncing Collections
 
-get_custom_collections
-
 */
 function syncCustomCollections() {
   return streamCustomCollections();
@@ -94,7 +90,6 @@ function syncCustomCollections() {
 /*
 
 Syncing Orders
-insert_orders
 
 */
 function syncOrders() {
@@ -105,7 +100,6 @@ function syncOrders() {
 /*
 
 Syncing Customers
-insert_customers
 
 */
 function syncCustomers() {

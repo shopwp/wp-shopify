@@ -45,6 +45,7 @@ if ( !class_exists('CPT_Model') ) {
 				'post_title'    => property_exists($collection, 'title') ? __($collection->title) : '',
 				'post_content'  => property_exists($collection, 'body_html') && $collection->body_html !== null  ? __($collection->body_html) : '',
 				'post_status'   => 'publish',
+				'post_author'		=> CPT::return_author_id(),
 				'post_type'     => WPS_COLLECTIONS_POST_TYPE_SLUG,
 				'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
 				'meta_input' => [
@@ -198,7 +199,10 @@ if ( !class_exists('CPT_Model') ) {
 		Only currently used in webhooks
 
 		*/
-		public function insert_or_update_product($all_products, $product, $menu_order = 0) {
+
+		public function insert_or_update_product_post($product, $menu_order = 0) {
+
+			$all_products = CPT::get_all_posts_by_type(WPS_PRODUCTS_POST_TYPE_SLUG);
 
 			$model = $this->build_products_model_for_update($all_products, $product, $menu_order);
 			return wp_insert_post($model, true);
@@ -212,7 +216,9 @@ if ( !class_exists('CPT_Model') ) {
 	  $product, $existingProducts, $index = false
 
 	  */
-	  public function insert_or_update_collection($all_collections, $collection, $menu_order = 0) {
+	  public function insert_or_update_collection_post($collection, $menu_order = 0) {
+
+			$all_collections = CPT::get_all_posts_by_type(WPS_COLLECTIONS_POST_TYPE_SLUG);
 
 			$model = $this->build_collections_model_for_update($all_collections, $collection, $menu_order);
 			return wp_insert_post($model, true);

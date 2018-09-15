@@ -47,7 +47,7 @@ $image = Images::get_image_details_from_product($data->product);
 		<?php do_action('wps_product_single_header_price_before', $data->product); ?>
 
     <h3 class="wps-products-price">
-      <?= $Money->format_money($data->product->variants[0]->price, $data->product->variants[0]); ?>
+      <?= $Money->format_price($data->product->variants[0]->price, $data->product->product_id); ?>
     </h3>
 
 		<?php do_action('wps_product_single_header_price_after', $data->product); ?>
