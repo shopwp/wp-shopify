@@ -15,7 +15,7 @@ class Test_Sync_General extends WP_UnitTestCase {
   protected static $mock_general_update;
   protected static $mock_general_id;
   protected static $lookup_key;
-  
+
 
   static function setUpBeforeClass() {
 
@@ -40,5 +40,35 @@ class Test_Sync_General extends WP_UnitTestCase {
 
   }
 
+
+  /*
+
+  Test it should get enable beta setting
+
+  */
+  function test_it_should_get_enable_beta() {
+
+    $result = self::$DB_Settings_General->get_enable_beta();
+
+    $this->assertInternalType('boolean', $result);
+    $this->assertEquals(false, $result);
+
+  }
+
+
+  /*
+
+  Test it should get enable beta setting
+
+  */
+  function test_it_should_update_enable_beta() {
+
+    $result = self::$DB_Settings_General->update_general(['enable_beta' => 1]);
+    $after_update = self::$DB_Settings_General->get_enable_beta();
+
+    $this->assertInternalType('boolean', $after_update);
+    $this->assertEquals(true, $after_update);
+
+  }
 
 }

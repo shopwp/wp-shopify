@@ -181,13 +181,7 @@ if (!class_exists('DB')) {
 
 		*/
 		public function copy($maybe_object) {
-
-			if ( is_object($maybe_object) ) {
-				return deep_copy($maybe_object);
-			}
-
-			return $maybe_object;
-
+			return deep_copy($maybe_object);
 		}
 
 
@@ -1694,6 +1688,7 @@ if (!class_exists('DB')) {
 				return $item->{$this->lookup_key};
 			}
 
+			// id
 			if (Utils::has($item, WPS_SHOPIFY_PAYLOAD_KEY)) {
 				return $item->{WPS_SHOPIFY_PAYLOAD_KEY};
 			}

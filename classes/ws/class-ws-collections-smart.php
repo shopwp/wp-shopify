@@ -20,9 +20,9 @@ if (!class_exists('Collections_Smart')) {
 		protected $CPT_Model;
 		protected $Async_Processing_Collections_Smart;
 		protected $Async_Processing_Posts_Collections_Smart;
-		protected $HTTP;
+		protected $Shopify_API;
 
-  	public function __construct($DB_Settings_Syncing, $DB_Settings_General, $DB_Collections_Smart, $CPT_Model, $Async_Processing_Collections_Smart, $Async_Processing_Posts_Collections_Smart, $HTTP) {
+  	public function __construct($DB_Settings_Syncing, $DB_Settings_General, $DB_Collections_Smart, $CPT_Model, $Async_Processing_Collections_Smart, $Async_Processing_Posts_Collections_Smart, $Shopify_API) {
 
 			$this->DB_Settings_Syncing 															= $DB_Settings_Syncing;
 			$this->DB_Settings_General 															= $DB_Settings_General;
@@ -32,7 +32,7 @@ if (!class_exists('Collections_Smart')) {
 			$this->Async_Processing_Collections_Smart								= $Async_Processing_Collections_Smart;
 			$this->Async_Processing_Posts_Collections_Smart					= $Async_Processing_Posts_Collections_Smart;
 
-			$this->HTTP																							= $HTTP;
+			$this->Shopify_API																			= $Shopify_API;
 
     }
 
@@ -48,17 +48,19 @@ if (!class_exists('Collections_Smart')) {
 				$this->send_error( Messages::get('nonce_invalid') . ' (get_smart_collections_count)' );
 			}
 
-			$collections = $this->HTTP->get('/admin/smart_collections/count.json');
 
-			if ( is_wp_error($collections) ) {
+			// Get smart collections count
+			$collections_count = $this->Shopify_API->get_smart_collections_count();
 
-				$this->DB_Settings_Syncing->save_notice_and_stop_sync($collections);
-				$this->send_error($collections->get_error_message() . ' (get_smart_collections_count)');
+			if ( is_wp_error($collections_count) ) {
+
+				$this->DB_Settings_Syncing->save_notice_and_stop_sync($collections_count);
+				$this->send_error($collections_count->get_error_message() . ' (get_smart_collections_count)');
 			}
 
 
-			if (Utils::has($collections, 'count')) {
-				$this->send_success(['smart_collections' => $collections->count]);
+			if (Utils::has($collections_count, 'count')) {
+				$this->send_success(['smart_collections' => $collections_count->count]);
 
 			} else {
 				$this->send_warning( Messages::get('smart_collections_not_found') . ' (get_smart_collections_count)' );
@@ -70,9 +72,7 @@ if (!class_exists('Collections_Smart')) {
 
 
 
-		public function get_smart_collections_by_page($currentPage, $async = false) {
-			return $this->HTTP->get("/admin/smart_collections.json", "?limit=" . $this->DB_Settings_General->get_items_per_request() . "&page=" . $currentPage, $async);
-		}
+
 
 
 		/*
@@ -89,8 +89,11 @@ if (!class_exists('Collections_Smart')) {
 				$this->send_error( Messages::get('nonce_invalid') . ' (get_bulk_smart_collections)' );
 			}
 
+			$param_limit 				= $this->DB_Settings_General->get_items_per_request();
+			$param_current_page = Utils::get_current_page($_POST);
+
 			// Grab smart collections from Shopify
-			$collections = $this->get_smart_collections_by_page( Utils::get_current_page($_POST) );
+			$collections = $this->Shopify_API->get_smart_collections_per_page($param_limit, $param_current_page);
 
 			// Check if error occured during request
 			if (is_wp_error($collections)) {

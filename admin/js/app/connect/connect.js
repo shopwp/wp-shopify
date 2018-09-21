@@ -95,7 +95,8 @@ import {
   setSyncingIndicator,
   endProgress,
   removeWebhooks,
-  checkForValidServerConnection
+  checkForValidServerConnection,
+  getPublishedProductIds
 } from '../ws/ws';
 
 import {
@@ -471,6 +472,32 @@ function connectionFormSubmitHandler(form) {
 
         if (isWordPressError(itemCountsResp)) {
           cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(itemCountsResp) ) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+        }
+
+
+        /*
+
+        Grabs the getPublishedProductIds and saved them to the DB
+
+        */
+        var [publishedIdsError, publishedIdsData] = await to( getPublishedProductIds() );
+
+        if (publishedIdsError) {
+          cleanUpAfterSync( syncingConfigJavascriptError(publishedIdsError) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(publishedIdsData)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(publishedIdsData) );
           resolve();
           return;
         }

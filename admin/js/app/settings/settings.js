@@ -92,6 +92,7 @@ function onSettingsFormSubmit() {
       var stylesGridAttr = jQuery(form).find("#wps_settings_general_styles_grid").attr("checked");
       var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
       var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
+      var enableBetaAttr = jQuery(form).find("#wps_settings_general_enable_beta").attr("checked");
       // var titlesAsAltAttr = jQuery(form).find("#wps_settings_general_title_as_alt").attr("checked");
       var productsLinkToShopifyAttr = jQuery(form).find("#wps_settings_general_products_link_to_shopify").attr("checked");
       var showBreadcrumbsAttr = jQuery(form).find("#wps_settings_general_show_breadcrumbs").attr("checked");
@@ -290,6 +291,14 @@ function onSettingsFormSubmit() {
       }
 
 
+      if (typeof enableBetaAttr !== typeof undefined && enableBetaAttr !== false) {
+        var enableBeta = 1;
+
+      } else {
+        var enableBeta = 0;
+      }
+
+
       if (typeof stylesAllAttr !== typeof undefined && stylesAllAttr !== false) {
         var stylesAll = 1;
 
@@ -323,7 +332,6 @@ function onSettingsFormSubmit() {
 
 
 
-
       var settings = {
 
         wps_settings_general_products_url: productsURL,
@@ -339,6 +347,7 @@ function onSettingsFormSubmit() {
         wps_settings_general_styles_grid: stylesGrid,
         wps_settings_general_price_with_currency: priceFormat,
         wps_settings_general_cart_loaded: cartLoaded,
+        wps_settings_general_enable_beta: enableBeta,
         wps_settings_general_save_connection_only: saveConnectionOnly,
         wps_settings_general_related_products_show: relatedProductsShow,
         wps_settings_general_related_products_sort: relatedProductsSort,

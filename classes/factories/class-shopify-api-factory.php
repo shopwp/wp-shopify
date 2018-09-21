@@ -2,18 +2,17 @@
 
 namespace WPS\Factories;
 
-use WPS\Webhooks;
-
 use WPS\Factories\DB_Settings_Connection_Factory;
-use WPS\Factories\DB_Settings_General_Factory;
+
+use WPS\Shopify_API;
 
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Webhooks_Factory')) {
+if (!class_exists('Shopify_API_Factory')) {
 
-  class Webhooks_Factory {
+  class Shopify_API_Factory {
 
 		protected static $instantiated = null;
 
@@ -21,12 +20,11 @@ if (!class_exists('Webhooks_Factory')) {
 
 			if (is_null(self::$instantiated)) {
 
-				$Webhooks = new Webhooks(
-					DB_Settings_Connection_Factory::build(),
-					DB_Settings_General_Factory::build()
+				$Shopify_API = new Shopify_API(
+					DB_Settings_Connection_Factory::Build()
 				);
 
-				self::$instantiated = $Webhooks;
+				self::$instantiated = $Shopify_API;
 
 			}
 

@@ -1322,15 +1322,16 @@ CREATE TABLE `wptests_wps_settings_general` (
   `save_connection_only` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `app_uninstalled` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `items_per_request` bigint(10) DEFAULT '250',
+  `enable_beta` bigint(10) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 LOCK TABLES `wptests_wps_settings_general` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_settings_general` DISABLE KEYS */;
 
-INSERT INTO `wptests_wps_settings_general` (`id`, `url_products`, `url_collections`, `url_webhooks`, `num_posts`, `styles_all`, `styles_core`, `styles_grid`, `plugin_name`, `plugin_textdomain`, `plugin_version`, `plugin_author`, `price_with_currency`, `cart_loaded`, `title_as_alt`, `selective_sync_all`, `selective_sync_products`, `sync_by_collections`, `selective_sync_collections`, `selective_sync_customers`, `selective_sync_orders`, `selective_sync_shop`, `products_link_to_shopify`, `show_breadcrumbs`, `hide_pagination`, `is_free`, `is_pro`, `related_products_show`, `related_products_sort`, `related_products_amount`, `allow_insecure_webhooks`, `save_connection_only`, `app_uninstalled`, `items_per_request`)
+INSERT INTO `wptests_wps_settings_general` (`id`, `url_products`, `url_collections`, `url_webhooks`, `num_posts`, `styles_all`, `styles_core`, `styles_grid`, `plugin_name`, `plugin_textdomain`, `plugin_version`, `plugin_author`, `price_with_currency`, `cart_loaded`, `title_as_alt`, `selective_sync_all`, `selective_sync_products`, `sync_by_collections`, `selective_sync_collections`, `selective_sync_customers`, `selective_sync_orders`, `selective_sync_shop`, `products_link_to_shopify`, `show_breadcrumbs`, `hide_pagination`, `is_free`, `is_pro`, `related_products_show`, `related_products_sort`, `related_products_amount`, `allow_insecure_webhooks`, `save_connection_only`, `app_uninstalled`, `items_per_request`, `enable_beta`)
 VALUES
-	(1,'products','collections','https://wpstest.test/wp',12,1,0,0,'WP Shopify','wps','15.52334.0','WP Shopify',0,1,0,1,0,'',0,0,0,1,0,1,0,1,0,1,'random',3,0,0,0, 250);
+	(1,'products','collections','https://wpstest.test/wp',12,1,0,0,'WP Shopify','wps','15.52334.0','WP Shopify',0,1,0,1,0,'',0,0,0,1,0,1,0,1,0,1,'random',3,0,0,0, 250, 0);
 
 /*!40000 ALTER TABLE `wptests_wps_settings_general` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1407,15 +1408,16 @@ CREATE TABLE `wptests_wps_settings_syncing` (
   `finished_product_posts_relationships` tinyint(1) DEFAULT '0',
   `finished_collection_posts_relationships` tinyint(1) DEFAULT '0',
   `finished_data_deletions` tinyint(1) DEFAULT '0',
+  `published_product_ids` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 LOCK TABLES `wptests_wps_settings_syncing` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_settings_syncing` DISABLE KEYS */;
 
-INSERT INTO `wptests_wps_settings_syncing` (`id`, `is_syncing`, `syncing_totals_shop`, `syncing_totals_smart_collections`, `syncing_totals_custom_collections`, `syncing_totals_products`, `syncing_totals_collects`, `syncing_totals_orders`, `syncing_totals_customers`, `syncing_totals_webhooks`, `syncing_step_total`, `syncing_step_current`, `syncing_current_amounts_shop`, `syncing_current_amounts_smart_collections`, `syncing_current_amounts_custom_collections`, `syncing_current_amounts_products`, `syncing_current_amounts_collects`, `syncing_current_amounts_orders`, `syncing_current_amounts_customers`, `syncing_current_amounts_webhooks`, `syncing_start_time`, `syncing_end_time`, `syncing_errors`, `syncing_warnings`, `finished_webhooks_deletions`, `finished_product_posts_relationships`, `finished_collection_posts_relationships`, `finished_data_deletions`)
+INSERT INTO `wptests_wps_settings_syncing` (`id`, `is_syncing`, `syncing_totals_shop`, `syncing_totals_smart_collections`, `syncing_totals_custom_collections`, `syncing_totals_products`, `syncing_totals_collects`, `syncing_totals_orders`, `syncing_totals_customers`, `syncing_totals_webhooks`, `syncing_step_total`, `syncing_step_current`, `syncing_current_amounts_shop`, `syncing_current_amounts_smart_collections`, `syncing_current_amounts_custom_collections`, `syncing_current_amounts_products`, `syncing_current_amounts_collects`, `syncing_current_amounts_orders`, `syncing_current_amounts_customers`, `syncing_current_amounts_webhooks`, `syncing_start_time`, `syncing_end_time`, `syncing_errors`, `syncing_warnings`, `finished_webhooks_deletions`, `finished_product_posts_relationships`, `finished_collection_posts_relationships`, `finished_data_deletions`, `published_product_ids`)
 VALUES
-	(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0);
+	(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'');
 
 /*!40000 ALTER TABLE `wptests_wps_settings_syncing` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1579,6 +1581,7 @@ CREATE TABLE `wptests_wps_variants` (
   `option1` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `option2` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `option3` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `option_values` longtext DEFAULT NULL,
   `taxable` tinyint(1) DEFAULT NULL,
   `sku` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `inventory_policy` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
@@ -1599,68 +1602,68 @@ CREATE TABLE `wptests_wps_variants` (
 LOCK TABLES `wptests_wps_variants` WRITE;
 /*!40000 ALTER TABLE `wptests_wps_variants` DISABLE KEYS */;
 
-INSERT INTO `wptests_wps_variants` (`id`, `variant_id`, `product_id`, `image_id`, `title`, `price`, `compare_at_price`, `position`, `option1`, `option2`, `option3`, `taxable`, `sku`, `inventory_policy`, `inventory_quantity`, `old_inventory_quantity`, `inventory_management`, `fulfillment_service`, `barcode`, `weight`, `weight_unit`, `requires_shipping`, `created_at`, `updated_at`, `admin_graphql_api_id`)
+INSERT INTO `wptests_wps_variants` (`id`, `variant_id`, `product_id`, `image_id`, `title`, `price`, `compare_at_price`, `position`, `option1`, `option2`, `option3`, `option_values`, `taxable`, `sku`, `inventory_policy`, `inventory_quantity`, `old_inventory_quantity`, `inventory_management`, `fulfillment_service`, `barcode`, `weight`, `weight_unit`, `requires_shipping`, `created_at`, `updated_at`, `admin_graphql_api_id`)
 VALUES
-	(1,12523743674391,1403917762583,NULL,'Extra Small',70.84,NULL,1,'Extra Small',NULL,NULL,1,'','deny',0,0,'shopify','manual','',1,'lb',1,'2018-08-14 14:49:59','2018-08-17 18:41:07','gid://shopify/ProductVariant/12523743674391'),
-	(2,12523743707159,1403917762583,NULL,'Small',43.92,70.84,2,'Small',NULL,NULL,1,'alfreda-ullrich-iii-small','deny',0,0,'shopify','manual','',1,'lb',1,'2018-08-14 14:49:59','2018-08-17 18:41:16','gid://shopify/ProductVariant/12523743707159'),
-	(3,12523743739927,1403917762583,NULL,'Medium',94.89,70.84,3,'Medium',NULL,NULL,1,'alfreda-ullrich-iii-medium','deny',0,0,'shopify','manual','',0,'lb',1,'2018-08-14 14:49:59','2018-08-17 19:09:12','gid://shopify/ProductVariant/12523743739927'),
-	(4,12523743772695,1403917762583,NULL,'Large',73.25,70.84,4,'Large',NULL,NULL,1,'alfreda-ullrich-iii-large','deny',1,1,'shopify','manual','',1,'lb',1,'2018-08-14 14:49:59','2018-08-17 18:41:35','gid://shopify/ProductVariant/12523743772695'),
-	(5,12523742887959,1403917533207,NULL,'Extra Small',87.72,NULL,1,'Extra Small',NULL,NULL,1,'','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742887959'),
-	(6,12523742920727,1403917533207,NULL,'Small',86.32,87.72,2,'Small',NULL,NULL,1,'annie-zieme-small','deny',2,2,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742920727'),
-	(7,12523742953495,1403917533207,NULL,'Medium',26.82,87.72,3,'Medium',NULL,NULL,1,'annie-zieme-medium','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742953495'),
-	(8,12523742986263,1403917533207,NULL,'Large',18.08,87.72,4,'Large',NULL,NULL,1,'annie-zieme-large','deny',6,6,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742986263'),
-	(9,12523742134295,1403917336599,NULL,'Extra Small',49.99,NULL,1,'Extra Small',NULL,NULL,1,'','deny',4,4,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:45','2018-08-14 14:49:45','gid://shopify/ProductVariant/12523742134295'),
-	(10,12523742167063,1403917336599,NULL,'Small',51.38,49.99,2,'Small',NULL,NULL,1,'carlotta-bauch-small','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:45','2018-08-14 14:49:45','gid://shopify/ProductVariant/12523742167063'),
-	(11,12523742199831,1403917336599,NULL,'Medium',20.79,49.99,3,'Medium',NULL,NULL,1,'carlotta-bauch-medium','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:46','2018-08-14 14:49:46','gid://shopify/ProductVariant/12523742199831'),
-	(12,12523742232599,1403917336599,NULL,'Large',6.81,49.99,4,'Large',NULL,NULL,1,'carlotta-bauch-large','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:46','2018-08-14 14:49:46','gid://shopify/ProductVariant/12523742232599'),
-	(13,12523743019031,1403917565975,NULL,'Extra Small',51.92,NULL,1,'Extra Small',NULL,NULL,1,'','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743019031'),
-	(14,12523743051799,1403917565975,NULL,'Small',46.20,51.92,2,'Small',NULL,NULL,1,'dr.-alene-corkery-small','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743051799'),
-	(15,12523743084567,1403917565975,NULL,'Medium',14.96,51.92,3,'Medium',NULL,NULL,1,'dr.-alene-corkery-medium','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743084567'),
-	(16,12523743117335,1403917565975,NULL,'Large',25.48,51.92,4,'Large',NULL,NULL,1,'dr.-alene-corkery-large','deny',3,3,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743117335'),
-	(17,12523741151255,1403917074455,NULL,'Extra Small',18.60,NULL,1,'Extra Small',NULL,NULL,1,'','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741151255'),
-	(18,12523741184023,1403917074455,NULL,'Small',96.97,18.60,2,'Small',NULL,NULL,1,'emmalee-kovacek-small','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741184023'),
-	(19,12523741216791,1403917074455,NULL,'Medium',52.50,18.60,3,'Medium',NULL,NULL,1,'emmalee-kovacek-medium','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741216791'),
-	(20,12523741249559,1403917074455,NULL,'Large',36.13,18.60,4,'Large',NULL,NULL,1,'emmalee-kovacek-large','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741249559'),
-	(21,12523741642775,1403917205527,NULL,'Extra Small',35.95,NULL,1,'Extra Small',NULL,NULL,1,'','deny',2,2,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741642775'),
-	(22,12523741675543,1403917205527,NULL,'Small',61.25,35.95,2,'Small',NULL,NULL,1,'jamar-kirlin-small','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741675543'),
-	(23,12523741708311,1403917205527,NULL,'Medium',9.00,35.95,3,'Medium',NULL,NULL,1,'jamar-kirlin-medium','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741708311'),
-	(24,12523741741079,1403917205527,NULL,'Large',76.20,35.95,4,'Large',NULL,NULL,1,'jamar-kirlin-large','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741741079'),
-	(25,12523740725271,1403916943383,NULL,'Extra Small',40.86,NULL,1,'Extra Small',NULL,NULL,1,'','deny',0,0,NULL,'manual','',2,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740725271'),
-	(26,12523740758039,1403916943383,NULL,'Small',66.45,40.86,2,'Small',NULL,NULL,1,'maryse-keeling-small','deny',2,2,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740758039'),
-	(27,12523740790807,1403916943383,NULL,'Medium',79.50,40.86,3,'Medium',NULL,NULL,1,'maryse-keeling-medium','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740790807'),
-	(28,12523740823575,1403916943383,NULL,'Large',66.63,40.86,4,'Large',NULL,NULL,1,'maryse-keeling-large','deny',3,3,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740823575'),
-	(29,12523741282327,1403917107223,NULL,'Extra Small',48.88,NULL,1,'Extra Small',NULL,NULL,1,'','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741282327'),
-	(30,12523741315095,1403917107223,NULL,'Small',44.52,48.88,2,'Small',NULL,NULL,1,'maryse-ward-small','deny',5,5,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741315095'),
-	(31,12523741347863,1403917107223,NULL,'Medium',71.09,48.88,3,'Medium',NULL,NULL,1,'maryse-ward-medium','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741347863'),
-	(32,12523741380631,1403917107223,NULL,'Large',81.79,48.88,4,'Large',NULL,NULL,1,'maryse-ward-large','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741380631'),
-	(33,12523741970455,1403917271063,NULL,'Extra Small',96.56,NULL,1,'Extra Small',NULL,NULL,1,'','deny',8,8,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523741970455'),
-	(34,12523742003223,1403917271063,NULL,'Small',76.21,96.56,2,'Small',NULL,NULL,1,'miss-judson-bruen-small','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523742003223'),
-	(35,12523742035991,1403917271063,NULL,'Medium',72.18,96.56,3,'Medium',NULL,NULL,1,'miss-judson-bruen-medium','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523742035991'),
-	(36,12523742068759,1403917271063,NULL,'Large',50.13,96.56,4,'Large',NULL,NULL,1,'miss-judson-bruen-large','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523742068759'),
-	(37,12523741020183,1403917041687,NULL,'Extra Small',20.75,NULL,1,'Extra Small',NULL,NULL,1,'','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741020183'),
-	(38,12523741052951,1403917041687,NULL,'Small',10.85,20.75,2,'Small',NULL,NULL,1,'mona-trantow-small','deny',1,1,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741052951'),
-	(39,12523741085719,1403917041687,NULL,'Medium',82.10,20.75,3,'Medium',NULL,NULL,1,'mona-trantow-medium','deny',2,2,NULL,'manual','',2,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741085719'),
-	(40,12523741118487,1403917041687,NULL,'Large',5.90,20.75,4,'Large',NULL,NULL,1,'mona-trantow-large','deny',0,0,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741118487'),
-	(41,12523743445015,1403917664279,NULL,'Extra Small',55.83,NULL,1,'Extra Small',NULL,NULL,1,'','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743445015'),
-	(42,12523743477783,1403917664279,NULL,'Small',16.55,55.83,2,'Small',NULL,NULL,1,'oceane-rutherford-small','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743477783'),
-	(43,12523743510551,1403917664279,NULL,'Medium',93.84,55.83,3,'Medium',NULL,NULL,1,'oceane-rutherford-medium','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743510551'),
-	(44,12523743543319,1403917664279,NULL,'Large',95.55,55.83,4,'Large',NULL,NULL,1,'oceane-rutherford-large','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743543319'),
-	(45,12523740364823,1403916746775,NULL,'Extra Small',5.47,NULL,1,'Extra Small',NULL,NULL,1,'','deny',5,5,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740364823'),
-	(46,12523740397591,1403916746775,NULL,'Small',83.54,5.47,2,'Small',NULL,NULL,1,'olen-koepp-small','deny',4,4,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740397591'),
-	(47,12523740463127,1403916746775,NULL,'Medium',96.71,5.47,3,'Medium',NULL,NULL,1,'olen-koepp-medium','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740463127'),
-	(48,12523740528663,1403916746775,NULL,'Large',6.74,5.47,4,'Large',NULL,NULL,1,'olen-koepp-large','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740528663'),
-	(49,12523741413399,1403917139991,NULL,'Extra Small',14.83,NULL,1,'Extra Small',NULL,NULL,1,'','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741413399'),
-	(50,12523741446167,1403917139991,NULL,'Small',41.20,14.83,2,'Small',NULL,NULL,1,'rashawn-bahringer-iii-small','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741446167'),
-	(51,12523741478935,1403917139991,NULL,'Medium',67.24,14.83,3,'Medium',NULL,NULL,1,'rashawn-bahringer-iii-medium','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741478935'),
-	(52,12523741544471,1403917139991,NULL,'Large',20.99,14.83,4,'Large',NULL,NULL,1,'rashawn-bahringer-iii-large','deny',3,3,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741544471'),
-	(53,12523742461975,1403917402135,3844620484631,'Extra Small / Dark',120.00,NULL,1,'Extra Small','Dark',NULL,1,'','deny',8,8,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:14:28','gid://shopify/ProductVariant/12523742461975'),
-	(54,12523742494743,1403917402135,3844620517399,'Small / Dark',130.00,43.90,2,'Small','Dark',NULL,1,'brenden-connelly-small','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:14:36','gid://shopify/ProductVariant/12523742494743'),
-	(55,12523742527511,1403917402135,NULL,'Medium / Dark',99.99,43.90,3,'Medium','Dark',NULL,1,'brenden-connelly-medium','deny',1,1,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:09:54','gid://shopify/ProductVariant/12523742527511'),
-	(56,12523742560279,1403917402135,NULL,'Large / Dark',170.00,43.90,4,'Large','Dark',NULL,1,'brenden-connelly-large','deny',3,3,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:09:54','gid://shopify/ProductVariant/12523742560279'),
-	(57,12523740889111,1403917008919,NULL,'Extra Small',46.60,NULL,1,'Extra Small',NULL,NULL,1,'','deny',3,3,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740889111'),
-	(58,12523740921879,1403917008919,NULL,'Small',32.34,46.60,2,'Small',NULL,NULL,1,'tyrel-ryan-dvm-small','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740921879'),
-	(59,12523740954647,1403917008919,NULL,'Medium',54.04,46.60,3,'Medium',NULL,NULL,1,'tyrel-ryan-dvm-medium','deny',5,5,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740954647'),
-	(60,12523740987415,1403917008919,NULL,'Large',47.28,46.60,4,'Large',NULL,NULL,1,'tyrel-ryan-dvm-large','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740987415');
+	(1,12523743674391,1403917762583,NULL,'Extra Small',70.84,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',0,0,'shopify','manual','',1,'lb',1,'2018-08-14 14:49:59','2018-08-17 18:41:07','gid://shopify/ProductVariant/12523743674391'),
+	(2,12523743707159,1403917762583,NULL,'Small',43.92,70.84,2,'Small',NULL,NULL,NULL,1,'alfreda-ullrich-iii-small','deny',0,0,'shopify','manual','',1,'lb',1,'2018-08-14 14:49:59','2018-08-17 18:41:16','gid://shopify/ProductVariant/12523743707159'),
+	(3,12523743739927,1403917762583,NULL,'Medium',94.89,70.84,3,'Medium',NULL,NULL,NULL,1,'alfreda-ullrich-iii-medium','deny',0,0,'shopify','manual','',0,'lb',1,'2018-08-14 14:49:59','2018-08-17 19:09:12','gid://shopify/ProductVariant/12523743739927'),
+	(4,12523743772695,1403917762583,NULL,'Large',73.25,70.84,4,'Large',NULL,NULL,NULL,1,'alfreda-ullrich-iii-large','deny',1,1,'shopify','manual','',1,'lb',1,'2018-08-14 14:49:59','2018-08-17 18:41:35','gid://shopify/ProductVariant/12523743772695'),
+	(5,12523742887959,1403917533207,NULL,'Extra Small',87.72,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742887959'),
+	(6,12523742920727,1403917533207,NULL,'Small',86.32,87.72,2,'Small',NULL,NULL,NULL,1,'annie-zieme-small','deny',2,2,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742920727'),
+	(7,12523742953495,1403917533207,NULL,'Medium',26.82,87.72,3,'Medium',NULL,NULL,NULL,1,'annie-zieme-medium','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742953495'),
+	(8,12523742986263,1403917533207,NULL,'Large',18.08,87.72,4,'Large',NULL,NULL,NULL,1,'annie-zieme-large','deny',6,6,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:51','2018-08-14 14:49:51','gid://shopify/ProductVariant/12523742986263'),
+	(9,12523742134295,1403917336599,NULL,'Extra Small',49.99,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',4,4,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:45','2018-08-14 14:49:45','gid://shopify/ProductVariant/12523742134295'),
+	(10,12523742167063,1403917336599,NULL,'Small',51.38,49.99,2,'Small',NULL,NULL,NULL,1,'carlotta-bauch-small','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:45','2018-08-14 14:49:45','gid://shopify/ProductVariant/12523742167063'),
+	(11,12523742199831,1403917336599,NULL,'Medium',20.79,49.99,3,'Medium',NULL,NULL,NULL,1,'carlotta-bauch-medium','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:46','2018-08-14 14:49:46','gid://shopify/ProductVariant/12523742199831'),
+	(12,12523742232599,1403917336599,NULL,'Large',6.81,49.99,4,'Large',NULL,NULL,NULL,1,'carlotta-bauch-large','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:46','2018-08-14 14:49:46','gid://shopify/ProductVariant/12523742232599'),
+	(13,12523743019031,1403917565975,NULL,'Extra Small',51.92,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743019031'),
+	(14,12523743051799,1403917565975,NULL,'Small',46.20,51.92,2,'Small',NULL,NULL,NULL,1,'dr.-alene-corkery-small','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743051799'),
+	(15,12523743084567,1403917565975,NULL,'Medium',14.96,51.92,3,'Medium',NULL,NULL,NULL,1,'dr.-alene-corkery-medium','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743084567'),
+	(16,12523743117335,1403917565975,NULL,'Large',25.48,51.92,4,'Large',NULL,NULL,NULL,1,'dr.-alene-corkery-large','deny',3,3,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:54','2018-08-14 14:49:54','gid://shopify/ProductVariant/12523743117335'),
+	(17,12523741151255,1403917074455,NULL,'Extra Small',18.60,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741151255'),
+	(18,12523741184023,1403917074455,NULL,'Small',96.97,18.60,2,'Small',NULL,NULL,NULL,1,'emmalee-kovacek-small','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741184023'),
+	(19,12523741216791,1403917074455,NULL,'Medium',52.50,18.60,3,'Medium',NULL,NULL,NULL,1,'emmalee-kovacek-medium','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741216791'),
+	(20,12523741249559,1403917074455,NULL,'Large',36.13,18.60,4,'Large',NULL,NULL,NULL,1,'emmalee-kovacek-large','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:32','2018-08-14 14:49:32','gid://shopify/ProductVariant/12523741249559'),
+	(21,12523741642775,1403917205527,NULL,'Extra Small',35.95,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',2,2,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741642775'),
+	(22,12523741675543,1403917205527,NULL,'Small',61.25,35.95,2,'Small',NULL,NULL,NULL,1,'jamar-kirlin-small','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741675543'),
+	(23,12523741708311,1403917205527,NULL,'Medium',9.00,35.95,3,'Medium',NULL,NULL,NULL,1,'jamar-kirlin-medium','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741708311'),
+	(24,12523741741079,1403917205527,NULL,'Large',76.20,35.95,4,'Large',NULL,NULL,NULL,1,'jamar-kirlin-large','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:40','2018-08-14 14:49:40','gid://shopify/ProductVariant/12523741741079'),
+	(25,12523740725271,1403916943383,NULL,'Extra Small',40.86,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',0,0,NULL,'manual','',2,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740725271'),
+	(26,12523740758039,1403916943383,NULL,'Small',66.45,40.86,2,'Small',NULL,NULL,NULL,1,'maryse-keeling-small','deny',2,2,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740758039'),
+	(27,12523740790807,1403916943383,NULL,'Medium',79.50,40.86,3,'Medium',NULL,NULL,NULL,1,'maryse-keeling-medium','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740790807'),
+	(28,12523740823575,1403916943383,NULL,'Large',66.63,40.86,4,'Large',NULL,NULL,NULL,1,'maryse-keeling-large','deny',3,3,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:25','2018-08-14 14:49:25','gid://shopify/ProductVariant/12523740823575'),
+	(29,12523741282327,1403917107223,NULL,'Extra Small',48.88,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741282327'),
+	(30,12523741315095,1403917107223,NULL,'Small',44.52,48.88,2,'Small',NULL,NULL,NULL,1,'maryse-ward-small','deny',5,5,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741315095'),
+	(31,12523741347863,1403917107223,NULL,'Medium',71.09,48.88,3,'Medium',NULL,NULL,NULL,1,'maryse-ward-medium','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741347863'),
+	(32,12523741380631,1403917107223,NULL,'Large',81.79,48.88,4,'Large',NULL,NULL,NULL,1,'maryse-ward-large','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:35','2018-08-14 14:49:35','gid://shopify/ProductVariant/12523741380631'),
+	(33,12523741970455,1403917271063,NULL,'Extra Small',96.56,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',8,8,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523741970455'),
+	(34,12523742003223,1403917271063,NULL,'Small',76.21,96.56,2,'Small',NULL,NULL,NULL,1,'miss-judson-bruen-small','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523742003223'),
+	(35,12523742035991,1403917271063,NULL,'Medium',72.18,96.56,3,'Medium',NULL,NULL,NULL,1,'miss-judson-bruen-medium','deny',6,6,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523742035991'),
+	(36,12523742068759,1403917271063,NULL,'Large',50.13,96.56,4,'Large',NULL,NULL,NULL,1,'miss-judson-bruen-large','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:44','2018-08-14 14:49:44','gid://shopify/ProductVariant/12523742068759'),
+	(37,12523741020183,1403917041687,NULL,'Extra Small',20.75,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741020183'),
+	(38,12523741052951,1403917041687,NULL,'Small',10.85,20.75,2,'Small',NULL,NULL,NULL,1,'mona-trantow-small','deny',1,1,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741052951'),
+	(39,12523741085719,1403917041687,NULL,'Medium',82.10,20.75,3,'Medium',NULL,NULL,NULL,1,'mona-trantow-medium','deny',2,2,NULL,'manual','',2,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741085719'),
+	(40,12523741118487,1403917041687,NULL,'Large',5.90,20.75,4,'Large',NULL,NULL,NULL,1,'mona-trantow-large','deny',0,0,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:29','2018-08-14 14:49:29','gid://shopify/ProductVariant/12523741118487'),
+	(41,12523743445015,1403917664279,NULL,'Extra Small',55.83,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743445015'),
+	(42,12523743477783,1403917664279,NULL,'Small',16.55,55.83,2,'Small',NULL,NULL,NULL,1,'oceane-rutherford-small','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743477783'),
+	(43,12523743510551,1403917664279,NULL,'Medium',93.84,55.83,3,'Medium',NULL,NULL,NULL,1,'oceane-rutherford-medium','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743510551'),
+	(44,12523743543319,1403917664279,NULL,'Large',95.55,55.83,4,'Large',NULL,NULL,NULL,1,'oceane-rutherford-large','deny',5,5,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:56','2018-08-14 14:49:56','gid://shopify/ProductVariant/12523743543319'),
+	(45,12523740364823,1403916746775,NULL,'Extra Small',5.47,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',5,5,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740364823'),
+	(46,12523740397591,1403916746775,NULL,'Small',83.54,5.47,2,'Small',NULL,NULL,NULL,1,'olen-koepp-small','deny',4,4,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740397591'),
+	(47,12523740463127,1403916746775,NULL,'Medium',96.71,5.47,3,'Medium',NULL,NULL,NULL,1,'olen-koepp-medium','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740463127'),
+	(48,12523740528663,1403916746775,NULL,'Large',6.74,5.47,4,'Large',NULL,NULL,NULL,1,'olen-koepp-large','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:22','2018-08-14 14:49:22','gid://shopify/ProductVariant/12523740528663'),
+	(49,12523741413399,1403917139991,NULL,'Extra Small',14.83,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',7,7,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741413399'),
+	(50,12523741446167,1403917139991,NULL,'Small',41.20,14.83,2,'Small',NULL,NULL,NULL,1,'rashawn-bahringer-iii-small','deny',2,2,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741446167'),
+	(51,12523741478935,1403917139991,NULL,'Medium',67.24,14.83,3,'Medium',NULL,NULL,NULL,1,'rashawn-bahringer-iii-medium','deny',4,4,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741478935'),
+	(52,12523741544471,1403917139991,NULL,'Large',20.99,14.83,4,'Large',NULL,NULL,NULL,1,'rashawn-bahringer-iii-large','deny',3,3,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:38','2018-08-14 14:49:38','gid://shopify/ProductVariant/12523741544471'),
+	(53,12523742461975,1403917402135,3844620484631,'Extra Small / Dark',120.00,NULL,1,'Extra Small','Dark',NULL,NULL,1,'','deny',8,8,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:14:28','gid://shopify/ProductVariant/12523742461975'),
+	(54,12523742494743,1403917402135,3844620517399,'Small / Dark',130.00,43.90,2,'Small','Dark',NULL,NULL,1,'brenden-connelly-small','deny',1,1,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:14:36','gid://shopify/ProductVariant/12523742494743'),
+	(55,12523742527511,1403917402135,NULL,'Medium / Dark',99.99,43.90,3,'Medium','Dark',NULL,NULL,1,'brenden-connelly-medium','deny',1,1,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:09:54','gid://shopify/ProductVariant/12523742527511'),
+	(56,12523742560279,1403917402135,NULL,'Large / Dark',170.00,43.90,4,'Large','Dark',NULL,NULL,1,'brenden-connelly-large','deny',3,3,NULL,'manual','',0,'lb',1,'2018-08-14 14:49:48','2018-08-14 23:09:54','gid://shopify/ProductVariant/12523742560279'),
+	(57,12523740889111,1403917008919,NULL,'Extra Small',46.60,NULL,1,'Extra Small',NULL,NULL,NULL,1,'','deny',3,3,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740889111'),
+	(58,12523740921879,1403917008919,NULL,'Small',32.34,46.60,2,'Small',NULL,NULL,NULL,1,'tyrel-ryan-dvm-small','deny',9,9,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740921879'),
+	(59,12523740954647,1403917008919,NULL,'Medium',54.04,46.60,3,'Medium',NULL,NULL,NULL,1,'tyrel-ryan-dvm-medium','deny',5,5,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740954647'),
+	(60,12523740987415,1403917008919,NULL,'Large',47.28,46.60,4,'Large',NULL,NULL,NULL,1,'tyrel-ryan-dvm-large','deny',0,0,NULL,'manual','',1,'lb',1,'2018-08-14 14:49:27','2018-08-14 14:49:27','gid://shopify/ProductVariant/12523740987415');
 
 /*!40000 ALTER TABLE `wptests_wps_variants` ENABLE KEYS */;
 UNLOCK TABLES;

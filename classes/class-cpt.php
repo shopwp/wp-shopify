@@ -629,7 +629,9 @@ if ( !class_exists('CPT') ) {
 		*/
 		public static function find_existing_post_id_from_product($existing_products, $product) {
 
-			$found_post = self::find_only_existing_posts($existing_products, $product->{WPS_SHOPIFY_PAYLOAD_KEY}, 'product');
+			$product_id = Utils::find_product_id($product);
+
+			$found_post = self::find_only_existing_posts($existing_products, $product_id, 'product');
 			$found_post_id = self::find_existing_post_id($found_post);
 
 			return $found_post_id;

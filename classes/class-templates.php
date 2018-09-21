@@ -351,7 +351,7 @@ if (!class_exists('Templates')) {
 
 			$data = [
 				'product' 					=> $product,
-				'filtered_options'	=> Utils::filter_variants_to_options_values($product->variants)
+				'filtered_options'	=> Utils::normalize_option_values($product->variants)
 			];
 
 			return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/meta', 'start' );
@@ -413,38 +413,7 @@ if (!class_exists('Templates')) {
 
 
 
-		public function connect_options_to_variants($variants) {
 
-			$options_and_values = [];
-
-			foreach ($variants as $variant) {
-
-				if (Utils::has($variant, 'option1')) {
-					$options_and_values['option1'][] = $variant->option1;
-				}
-
-				if (Utils::has($variant, 'option2')) {
-					$options_and_values['option2'][] = $variant->option2;
-				}
-
-				if (Utils::has($variant, 'option3')) {
-					$options_and_values['option3'][] = $variant->option3;
-				}
-
-			}
-
-			return $this->remove_duplicate_variant_names($options_and_values);
-
-		}
-
-
-		public function remove_duplicate_variant_names($options_and_values) {
-
-			return array_map(function($options_and_value) {
-				return array_unique($options_and_value, SORT_REGULAR);
-			}, $options_and_values);
-
-		}
 
 
 		/*
@@ -454,32 +423,13 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_products_options($product) {
 
+			// Only show product options if more than one variant exists, otherwise just shoe add to cart button
 			if (count($product->variants) > 1) {
-
-				if (count($product->options) === 1) {
-				  $button_width = 2;
-
-				} else {
-				  $button_width = count($product->options);
-
-				}
-
-
-				$variants_with_options = $this->connect_options_to_variants($product->variants);
-
-
-				$sorted_options = Utils::sort_by($product->options, 'position');
-
-
-				foreach ($sorted_options as $sorted_option) {
-					$position = $sorted_option->position;
-					$sorted_option->values = $variants_with_options['option' . $position];
-				}
 
 				$data = [
 					'product' 									=> $product,
-					'button_width'							=> $button_width,
-					'sorted_options'						=> $sorted_options,
+					'button_width'							=> Utils::get_options_button_width($product->options),
+					'sorted_options'						=> Utils::get_sorted_options($product),
 					'option_number'							=> 1,
 					'variant_number'						=> 0
 				];
@@ -498,7 +448,7 @@ if (!class_exists('Templates')) {
 		*/
 		public function wps_products_button_add_to_cart($product) {
 
-			$button_width = Utils::get_product_button_width($product);
+			$button_width = Utils::get_add_to_cart_button_width($product);
 
 			$data = [
 				'product' 			=> $product,
@@ -1689,6 +1639,7 @@ if (!class_exists('Templates')) {
 			if ( !empty($product_data_cache) ) {
 				return $product_data_cache;
 			}
+			
 
 			$results = new \stdClass;
 			$results->details = $this->DB_Products->get_product_from_post_id($postID);

@@ -132,12 +132,24 @@ Returns error to client
 */
 async function streamProducts(itemCount) {
 
-  return new Promise(async function streamProductsHandler(resolve, reject) {
+  return new Promise( async function streamProductsHandler(resolve, reject) {
 
     if (!WP_Shopify.selective_sync.all && !WP_Shopify.selective_sync.products) {
       resolve();
       return;
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     var { currentPage, pages, items } = constructStreamingOptions(itemCount);

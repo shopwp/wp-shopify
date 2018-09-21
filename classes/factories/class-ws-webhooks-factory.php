@@ -12,7 +12,7 @@ use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\Webhooks_Factory;
 use WPS\Factories\Async_Processing_Webhooks_Factory;
 use WPS\Factories\Async_Processing_Webhooks_Deletions_Factory;
-use WPS\Factories\HTTP_Factory;
+use WPS\Factories\Shopify_API_Factory;
 
 if (!class_exists('WS_Webhooks_Factory')) {
 
@@ -29,7 +29,7 @@ if (!class_exists('WS_Webhooks_Factory')) {
 					Webhooks_Factory::build(),
 					Async_Processing_Webhooks_Factory::build(),
 					Async_Processing_Webhooks_Deletions_Factory::build(),
-					HTTP_Factory::build()
+					Shopify_API_Factory::build()
 				);
 
 				self::$instantiated = $Webhooks;

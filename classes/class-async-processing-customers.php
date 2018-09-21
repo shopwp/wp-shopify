@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 
+
 if ( !class_exists('Async_Processing_Customers') ) {
 
   class Async_Processing_Customers extends Vendor_Background_Process {
@@ -91,7 +92,7 @@ if ( !class_exists('Async_Processing_Customers') ) {
 			parent::complete();
 
 		}
-		
+
 
 
   }

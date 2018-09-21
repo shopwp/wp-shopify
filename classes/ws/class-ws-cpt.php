@@ -39,7 +39,9 @@ if (!class_exists('CPT')) {
 
 			$query = "DELETE posts, pt, pm FROM " . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.post_type = %s";
 
-			return $this->DB->query( $wpdb->prepare($query, $post_type) );
+			$query_prepared = $wpdb->prepare($query, $post_type);
+
+			return $this->DB->query( $query_prepared );
 
 		}
 
@@ -55,6 +57,10 @@ if (!class_exists('CPT')) {
 
 			if ( !is_array($ids) ) {
 				$ids = Utils::wrap_in_array($ids);
+			}
+
+			if ( empty($ids) ) {
+				return false;
 			}
 
 			// how many entries will we select?

@@ -30,6 +30,11 @@ if ( !class_exists('Async_Processing_Variants') ) {
 		}
 
 
+		/*
+
+		$product represents an array of "products" with only one property -- "variants"
+
+		*/
 		protected function task($product) {
 
 			// Stops background process if syncing stops
@@ -39,7 +44,7 @@ if ( !class_exists('Async_Processing_Variants') ) {
 			}
 
 			// Actual work
-			$result = $this->DB_Variants->insert_items_of_type($product->variants );
+			$result = $this->DB_Variants->insert_items_of_type($product->variants);
 
 			if (is_wp_error($result)) {
 				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);
@@ -90,8 +95,11 @@ if ( !class_exists('Async_Processing_Variants') ) {
 
 			}
 
+			// Need to copy so as to not change the data undernearth other processes
+			$products_copy = $this->DB_Variants->copy($products);
 
-			$products_filtered = Utils::filter_data_except($products, 'variants');
+			$products_filtered = Utils::filter_data_except($products_copy, 'variants');
+
 
 			foreach ($products_filtered as $product) {
 				$this->push_to_queue($product);

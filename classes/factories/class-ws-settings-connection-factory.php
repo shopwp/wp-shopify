@@ -10,7 +10,7 @@ use WPS\WS\Settings_Connection as WS_Settings_Connection;
 
 use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\HTTP_Factory;
+use WPS\Factories\Shopify_API_Factory;
 
 
 if (!class_exists('WS_Settings_Connection_Factory')) {
@@ -26,7 +26,7 @@ if (!class_exists('WS_Settings_Connection_Factory')) {
 				$WS_Settings_Connection = new WS_Settings_Connection(
 					DB_Settings_Connection_Factory::build(),
 					DB_Settings_General_Factory::build(),
-					HTTP_Factory::build()
+					Shopify_API_Factory::build()
 				);
 
 				self::$instantiated = $WS_Settings_Connection;

@@ -54,6 +54,7 @@ if (!class_exists('Variants')) {
         'option1'                   => '%s',
         'option2'                   => '%s',
         'option3'                   => '%s',
+				'option_values'             => '%s',
         'taxable'                   => '%d',
         'weight'                    => '%d',
         'weight_unit'               => '%s',
@@ -92,6 +93,7 @@ if (!class_exists('Variants')) {
         'option1'                   => '',
         'option2'                   => '',
         'option3'                   => '',
+				'option_values'             => '',
         'taxable'                   => '',
         'weight'                    => '',
         'weight_unit'               => '',
@@ -350,6 +352,75 @@ if (!class_exists('Variants')) {
 		}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		public function add_product_id_to_variants($variants, $product) {
+
+			foreach ($variants as $variant) {
+
+				if ( !Utils::has($variant, 'product_id') ) {
+
+					if (Utils::has($product, 'product_id')) {
+						$variant->product_id = $product->product_id;
+
+					} else if (Utils::has($product, 'id')) {
+						$variant->product_id = $product->id;
+					}
+
+				}
+
+			}
+
+			return $variants;
+
+		}
+
+
+		/*
+
+		Maybe renames primary key of data before update / insert
+
+		*/
+		public function maybe_add_product_id_to_variants($maybe_products) {
+
+			if ( is_array($maybe_products) ) {
+
+				foreach ($maybe_products as $product) {
+					$product->variants = $this->add_product_id_to_variants($product->variants, $product);
+				}
+
+			} else {
+				$maybe_products->variants = $this->add_product_id_to_variants($maybe_products->variants, $maybe_products);
+			}
+
+			return $maybe_products;
+
+		}
+
+
     /*
 
     Creates a table query string
@@ -375,6 +446,7 @@ if (!class_exists('Variants')) {
         option1 varchar(100) DEFAULT NULL,
         option2 varchar(100) DEFAULT NULL,
         option3 varchar(100) DEFAULT NULL,
+				option_values longtext DEFAULT NULL,
         taxable tinyint(1) DEFAULT NULL,
         sku varchar(255) DEFAULT NULL,
         inventory_policy varchar(255) DEFAULT NULL,

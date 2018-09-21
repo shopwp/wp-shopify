@@ -16,14 +16,14 @@ if (!class_exists('Shop')) {
 		protected $DB_Settings_Connection;
 		protected $DB_Settings_Syncing;
 		protected $DB_Shop;
-		protected $HTTP;
+		protected $Shopify_API;
 
-  	public function __construct($DB_Settings_Connection, $DB_Settings_Syncing, $DB_Shop, $HTTP) {
+  	public function __construct($DB_Settings_Connection, $DB_Settings_Syncing, $DB_Shop, $Shopify_API) {
 
 			$this->DB_Settings_Connection				= $DB_Settings_Connection;
 			$this->DB_Settings_Syncing					= $DB_Settings_Syncing;
 			$this->DB_Shop											= $DB_Shop;
-			$this->HTTP													= $HTTP;
+			$this->Shopify_API									= $Shopify_API;
 
     }
 
@@ -79,16 +79,6 @@ if (!class_exists('Shop')) {
 		}
 
 
-		public function get_shop_endpoint() {
-			return "/admin/shop.json";
-		}
-
-
-		public function get_shop_data() {
-			return $this->HTTP->get( $this->get_shop_endpoint() );
-		}
-
-
 		/*
 
 	  Get Shop Data
@@ -104,7 +94,7 @@ if (!class_exists('Shop')) {
 			}
 
 			// Get shop data from Shopify
-			$shop = $this->get_shop_data();
+			$shop = $this->Shopify_API->get_shop();
 
 			// Check if error occured during request
 			if ( is_wp_error($shop) ) {

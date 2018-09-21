@@ -233,6 +233,7 @@ function onProductAddToCart(client) {
         productStorefrontID = $container.attr('data-product-storefront-id'),
         selectedGraphOptions = $container.attr('data-product-selected-options-and-variants');
 
+
     // Stop if all variants are not selected
     if ( !allProductVariantsSelected($container) ) {
 
@@ -289,6 +290,7 @@ function onProductAddToCart(client) {
     var availVariants = getAvailableVariants(product);
 
     if ( size(availVariants) > 1) {
+
       var constructedSelectedGraphOptions = buildSelectedOptionsData(selectedGraphOptions);
       var variant = variantForOptions(product, constructedSelectedGraphOptions);
 
@@ -922,7 +924,6 @@ function onProductVariantChange() {
       var $addToCartButton = $newProductMetaContainer.find('.wps-add-to-cart');
 
 
-
       disable($optionButtons);
       disableNoLoader($addToCartButton);
 
@@ -934,12 +935,18 @@ function onProductVariantChange() {
       // All variants selected, find actual variant ID
 
 
+      /*
+
+
+      I don't think we need to get the variant ID anymore with the new Shopify SDK. Revisit.
+
+
+      */
+
       // Calls get_variant_id_from_product_options
       var [foundVariantError, foundVariantResponse] = await to( getVariantIdFromOptions(newCurrentProductID, selectedOptions) );
 
       if (foundVariantError) {
-
-        console.log('foundVariantError: ', foundVariantError);
 
         logNotice('getVariantIdFromOptions', foundVariantError, 'error');
         showSingleNotice(foundVariantError, $trigger);
@@ -958,8 +965,6 @@ function onProductVariantChange() {
 
 
       if (isWordPressError(foundVariantResponse)) {
-
-        console.log('foundVariantResponse: ', foundVariantResponse);
 
         logNotice('getVariantIdFromOptions', foundVariantResponse, 'error');
         showSingleNotice(foundVariantResponse, $trigger);
@@ -983,10 +988,10 @@ function onProductVariantChange() {
 
       var foundVariant = foundVariantResponse.data;
 
-      $newProductMetaContainer.data('product-selected-variant', foundVariant.id);
-      $newProductMetaContainer.attr('data-product-selected-variant', foundVariant.id);
+      $newProductMetaContainer.data('product-selected-variant', foundVariant.variant_id);
+      $newProductMetaContainer.attr('data-product-selected-variant', foundVariant.variant_id);
 
-      showVariantImage(foundVariant.id);
+      showVariantImage(foundVariant.variant_id);
 
       setFromPricing();
       showVariantPrice( formatAsMoney(foundVariant.price), $newProductMetaContainer );

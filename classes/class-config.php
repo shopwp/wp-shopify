@@ -75,7 +75,7 @@ if ( !class_exists('Config') ) {
 			$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 			$this->plugin_name_js 													= 'WP_Shopify';
 			$this->plugin_text_domain 											= 'wp-shopify';
-			$this->plugin_version 													= '1.2.3';
+			$this->plugin_version 													= '1.2.4';
 			$this->plugin_author 														= 'WP Shopify';
 
 			$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -112,6 +112,7 @@ if ( !class_exists('Config') ) {
 			$this->shopify_header_verify_domain 						= 'X-Shopify-Shop-Domain';
 			$this->max_items_per_request 										= 250;
 			$this->shopify_payload_key 											= 'id';
+			$this->max_ids_per_request 											= 10000;
 
 			// Settings
 			$this->settings_connection_option_name 					= $this->plugin_name . '_settings_connection';
@@ -378,6 +379,10 @@ if ( !class_exists('Config') ) {
 
 			if ( !defined('WPS_MAX_ITEMS_PER_REQUEST') ) {
 				define('WPS_MAX_ITEMS_PER_REQUEST', $this->max_items_per_request);
+			}
+
+			if ( !defined('WPS_MAX_IDS_PER_REQUEST') ) {
+				define('WPS_MAX_IDS_PER_REQUEST', $this->max_ids_per_request);
 			}
 
 			if ( !defined('WPS_SHOPIFY_PAYLOAD_KEY') ) {

@@ -18,15 +18,15 @@ if (!class_exists('Customers')) {
 		protected $DB_Settings_Syncing;
 		protected $DB_Settings_General;
 		protected $Async_Processing_Customers;
-		protected $HTTP;
+		protected $Shopify_API;
 
-  	public function __construct($DB_Customers, $DB_Settings_Syncing, $DB_Settings_General, $Async_Processing_Customers, $HTTP) {
+  	public function __construct($DB_Customers, $DB_Settings_Syncing, $DB_Settings_General, $Async_Processing_Customers, $Shopify_API) {
 
 			$this->DB_Customers									= $DB_Customers;
 			$this->DB_Settings_Syncing					= $DB_Settings_Syncing;
 			$this->DB_Settings_General					= $DB_Settings_General;
 			$this->Async_Processing_Customers		=	$Async_Processing_Customers;
-			$this->HTTP													=	$HTTP;
+			$this->Shopify_API									=	$Shopify_API;
 
     }
 

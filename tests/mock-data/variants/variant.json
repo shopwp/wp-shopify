@@ -9,6 +9,7 @@
   "option1": "Medium",
   "option2": null,
   "option3": null,
+  "option_values": null,
   "taxable": 1,
   "sku": "annie-zieme-medium",
   "inventory_policy": "deny",

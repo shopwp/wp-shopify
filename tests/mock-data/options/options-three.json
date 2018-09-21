@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "option_id": 1871955132439,
+    "product_id": 1403917533207,
+    "name": "Material",
+    "position": 1,
+    "values": ""
+  },
+  {
+    "id": 2,
+    "option_id": 1922686287895,
+    "product_id": 1403917533207,
+    "name": "Size",
+    "position": 2,
+    "values": ""
+  },
+  {
+    "id": 3,
+    "option_id": 1922686320663,
+    "product_id": 1403917533207,
+    "name": "Color",
+    "position": 3,
+    "values": ""
+  }
+]

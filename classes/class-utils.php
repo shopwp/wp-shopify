@@ -238,7 +238,7 @@ if (!class_exists('Utils')) {
 	  - Predicate Function (returns boolean)
 
 	  */
-	  public static function wps_is_manually_sorted($shortcodeArgs) {
+	  public static function is_manually_sorted($shortcodeArgs) {
 
 	    if (isset($shortcodeArgs['custom']) && isset($shortcodeArgs['custom']['titles']) && isset($shortcodeArgs['custom']['orderby']) && is_array($shortcodeArgs['custom']['titles']) && $shortcodeArgs['custom']['orderby'] === 'manual') {
 	      return true;
@@ -252,10 +252,32 @@ if (!class_exists('Utils')) {
 
 	  /*
 
+		Check if user is using the "collections" attribute. If they are, they we should
+		default to the order they've established within Shopify.
+
+		To do this, we need to first get the list of collects associated with the query.
+		This could be thousands of products. From there, we sort the collects by position
+		and then grab the posts based on the product IDs.
+
+		*/
+	  public static function is_collections_sorted($shortcode_args) {
+
+	    if ( empty($shortcode_args['custom']['collections']) ) {
+	      return false;
+
+	    } else {
+	      return true;
+	    }
+
+	  }
+
+
+	  /*
+
 	  Construct proper path to wp-admin folder
 
 	  */
-	  public static function wps_manually_sort_posts_by_title($sortedArray, $unsortedArray) {
+	  public static function manually_sort_posts_by_title($sortedArray, $unsortedArray) {
 
 	    $finalArray = array();
 
@@ -272,6 +294,31 @@ if (!class_exists('Utils')) {
 	    }
 
 	    return $finalArray;
+
+	  }
+
+
+		public static function sort_by_position($a, $b) {
+
+			if ($a->position == $b->position) {
+			  return 0;
+			}
+
+			return ($a->position < $b->position) ? -1 : 1;
+
+		}
+
+
+		/*
+
+	  Construct proper path to wp-admin folder
+
+	  */
+	  public static function sort_posts_by_position($posts) {
+
+			usort($posts, [ __CLASS__, 'sort_by_position'] );
+
+			return $posts;
 
 	  }
 
@@ -385,6 +432,20 @@ if (!class_exists('Utils')) {
 	  }
 
 
+
+
+
+
+
+		public static function get_first_image_if_exists($product) {
+
+			if ( self::has($product, 'images') && !empty($product->images) ) {
+				return $product->images[0]->src;
+			}
+
+		}
+
+
 	  /*
 
 	  Get single shop info value
@@ -399,7 +460,8 @@ if (!class_exists('Utils')) {
 				$items_copy->image = $items_copy->image->src;
 
 			} else {
-				$items_copy->image = '';
+				$items_copy->image = self::get_first_image_if_exists($items_copy);
+
 			}
 
 	    return $items_copy;
@@ -656,7 +718,7 @@ if (!class_exists('Utils')) {
 		Remove all spaces from string
 
 		*/
-		public static function wps_remove_spaces_from_string($string) {
+		public static function remove_spaces_from_string($string) {
 			return str_replace(' ', '', $string);
 		}
 
@@ -1244,7 +1306,7 @@ if (!class_exists('Utils')) {
 	    if( isset($wps_shortcode_atts['collections']) && $wps_shortcode_atts['collections']) {
 
 	      // Removing all spaces
-	      // $collections = Utils::wps_remove_spaces_from_string($wps_shortcode_atts['collections']);
+	      // $collections = Utils::remove_spaces_from_string($wps_shortcode_atts['collections']);
 
 	      // If user passed in collection as handle, find ID version
 	      if(!ctype_digit($wps_shortcode_atts['collections'])) {
@@ -1272,7 +1334,7 @@ if (!class_exists('Utils')) {
 	    } else {
 
 	      if( isset($wps_shortcode_atts['products']) && $wps_shortcode_atts['products'] ) {
-	        $products = Utils::wps_remove_spaces_from_string($wps_shortcode_atts['products']);
+	        $products = Utils::remove_spaces_from_string($wps_shortcode_atts['products']);
 	        $productIDs = self::comma_list_to_array($products);
 
 	        $args = array(
@@ -1417,6 +1479,102 @@ if (!class_exists('Utils')) {
 	  }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		public static function has_option_values_set($variant) {
+
+			$variant_copy = (array) $variant;
+
+			if ( isset($variant_copy['option_values']) && !empty($variant_copy['option_values']) ) {
+				return true;
+
+			} else {
+				return false;
+			}
+
+		}
+
+		public static function clean_option_values($option_values) {
+
+			$clean_option_values = [];
+
+			foreach ($option_values as $key => $option_value) {
+				$clean_option_values['option' . ($key + 1)] = $option_value->value;
+			}
+
+			return $clean_option_values;
+
+		}
+
+
+		/*
+
+		Responsible for checking whether a property contains the word "option"
+
+		UNDER TEST
+
+		*/
+		public static function has_option_property($key, $property) {
+			return strpos($property, 'option') !== false;
+		}
+
+
+		public static function only_option_properties($variant) {
+			return array_filter( (array) $variant, [__CLASS__, 'has_option_property'], ARRAY_FILTER_USE_BOTH);
+		}
+
+		public static function get_options_values($option_values) {
+			return maybe_unserialize($option_values);
+		}
+
+		public static function build_numbered_options_from_option_values($option) {
+
+			$option_values = self::get_options_values($option['option_values']);
+
+			$clean_option_values = self::clean_option_values($option_values);
+
+			return $clean_option_values;
+
+		}
+
+
+		public static function maybe_build_numbered_options_from_option_values($option) {
+
+			if ( self::has_option_values_set($option) ) {
+				return self::build_numbered_options_from_option_values($option);
+			}
+
+			return $option;
+
+		}
+
+
+		public static function normalize_option_values($variants) {
+
+			$options = self::filter_variants_to_options_values($variants);
+
+			$options_built = array_map( [__CLASS__, 'maybe_build_numbered_options_from_option_values'], $options );
+
+			return $options_built;
+
+		}
+
+
 	  /*
 
 	  Filter Variants To Options Values
@@ -1424,19 +1582,11 @@ if (!class_exists('Utils')) {
 	  */
 	  public static function filter_variants_to_options_values($variants) {
 
-			$variants = self::convert_object_to_array($variants);
+			if ( is_object($variants) ) {
+				$variants = self::convert_object_to_array($variants);
+			}
 
-	    return array_map(function($variant) {
-
-				$variant = (array) $variant;
-
-	      return array_filter($variant, function($k, $v) {
-
-	        return strpos($v, 'option') !== false;
-
-	      }, ARRAY_FILTER_USE_BOTH );
-
-	    }, $variants);
+	    return array_map( [__CLASS__, 'only_option_properties'], $variants );
 
 	  }
 
@@ -1511,10 +1661,10 @@ if (!class_exists('Utils')) {
 
 		/*
 
-		Gets the number of button columns per product
+		Gets the add to cart button width
 
 		*/
-		public static function get_product_button_width($product) {
+		public static function get_add_to_cart_button_width($product) {
 
 			if (count($product->options) === 1) {
 
@@ -1538,6 +1688,154 @@ if (!class_exists('Utils')) {
 			return $col;
 
 		}
+
+
+		/*
+
+		Gets the product options button width (different from the add to cart width)
+
+		UNDER TEST
+
+		*/
+		public static function get_options_button_width($options) {
+
+			// This means the add to cart button will be to the right of the only option
+			if (count($options) === 1) {
+				return 2; // 50%
+
+			} else {
+				return count($options); // Either 100%, 50%, or 33%
+			}
+
+		}
+
+
+		/*
+
+		Responsible for connecting legacy option props to variants
+
+		*/
+		public static function connect_legacy_option_to_variant($variant, $options_and_values) {
+
+			if (self::has($variant, 'option1')) {
+				$options_and_values['option1'][] = $variant->option1;
+			}
+
+			if (self::has($variant, 'option2')) {
+				$options_and_values['option2'][] = $variant->option2;
+			}
+
+			if (self::has($variant, 'option3')) {
+				$options_and_values['option3'][] = $variant->option3;
+			}
+
+			return $options_and_values;
+
+		}
+
+
+		public static function connect_option_to_variant_from_option_values($variant, $options_and_values) {
+
+			$option_values = self::get_options_values($variant->option_values);
+
+			foreach ($option_values as $key => $option_value) {
+				$options_and_values['option' . ($key + 1)][] = $option_value->value;
+			}
+
+			return $options_and_values;
+
+
+		}
+
+
+
+
+		public static function connect_options_to_variants($variants) {
+
+			$options_and_values = [];
+
+			foreach ($variants as $variant) {
+
+				if  (self::has_option_values_set($variant) ) {
+					$options_and_values = self::connect_option_to_variant_from_option_values($variant, $options_and_values);
+
+				} else {
+					$options_and_values = self::connect_legacy_option_to_variant($variant, $options_and_values);
+				}
+
+			}
+
+			return self::remove_duplicate_variant_names($options_and_values);
+
+		}
+
+
+
+
+
+		public static function remove_duplicate_variant_names($options_and_values) {
+
+			return array_map( function($options_and_value) {
+				return array_unique($options_and_value, SORT_REGULAR);
+			}, $options_and_values );
+
+		}
+
+
+
+
+		public static function get_sorted_options($product) {
+
+			$variants_with_options = self::connect_options_to_variants($product->variants);
+
+
+			$sorted_options = self::sort_by($product->options, 'position');
+
+			foreach ($sorted_options as $sorted_option) {
+				$position = $sorted_option->position;
+				$sorted_option->values = $variants_with_options['option' . $position];
+			}
+
+			return $sorted_options;
+
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		/*
@@ -1819,6 +2117,10 @@ if (!class_exists('Utils')) {
 				return $items;
 			}
 
+			if ( is_object($items) ) {
+				$items = self::convert_object_to_array($items);
+			}
+
 			return array_map(function($item) use ($criteria) {
 				return self::unset_by($item, $criteria);
 			}, $items);
@@ -1838,6 +2140,10 @@ if (!class_exists('Utils')) {
 
 			if (!$exception) {
 				return $items;
+			}
+
+			if ( is_object($items) ) {
+				$items = self::convert_object_to_array($items);
 			}
 
 			return array_map(function($item) use ($exception) {
@@ -1908,6 +2214,22 @@ if (!class_exists('Utils')) {
 
 		public static function get_last_index($array_size) {
 			return $array_size - 1;
+		}
+
+
+
+		public static function find_product_id($product_object) {
+
+			if ( self::has($product_object, 'product_id') ) {
+				return $product_object->product_id;
+			}
+
+			if ( self::has($product_object, 'id') ) {
+				return $product_object->id;
+			}
+
+			return false;
+
 		}
 
 

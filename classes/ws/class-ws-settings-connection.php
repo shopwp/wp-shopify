@@ -17,13 +17,14 @@ if (!class_exists('Settings_Connection')) {
 
 		protected $DB_Settings_Connection;
 		protected $DB_Settings_General;
-		protected $HTTP;
+		protected $Shopify_API;
 
-  	public function __construct($DB_Settings_Connection, $DB_Settings_General, $HTTP) {
+
+  	public function __construct($DB_Settings_Connection, $DB_Settings_General, $Shopify_API) {
 
 			$this->DB_Settings_Connection				= $DB_Settings_Connection;
 			$this->DB_Settings_General					= $DB_Settings_General;
-			$this->HTTP													= $HTTP;
+			$this->Shopify_API									= $Shopify_API;
 
     }
 
@@ -221,7 +222,7 @@ if (!class_exists('Settings_Connection')) {
 
 		public function check_connection() {
 
-			$storefront_tokens = $this->HTTP->get('/admin/storefront_access_tokens.json');
+			$storefront_tokens = $this->Shopify_API->get_storefront_access_tokens();
 
 			if ( is_wp_error($storefront_tokens) ) {
 				$this->send_error( $storefront_tokens->get_error_message() . ' (check_connection)' );

@@ -12,7 +12,7 @@ use WPS\Factories\DB_Customers_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 use WPS\Factories\Async_Processing_Customers_Factory;
-use WPS\Factories\HTTP_Factory;
+use WPS\Factories\Shopify_API_Factory;
 
 
 if (!class_exists('WS_Customers_Factory')) {
@@ -30,7 +30,7 @@ if (!class_exists('WS_Customers_Factory')) {
 					DB_Settings_Syncing_Factory::build(),
 					DB_Settings_General_Factory::build(),
 					Async_Processing_Customers_Factory::build(),
-					HTTP_Factory::build()
+					Shopify_API_Factory::build()
 				);
 
 				self::$instantiated = $WS_Customers;

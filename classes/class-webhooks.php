@@ -16,13 +16,12 @@ if (!class_exists('Webhooks')) {
 
 		private $DB_Settings_Connection;
 		private $DB_Settings_General;
-		private $HTTP;
 
-		public function __construct($DB_Settings_Connection, $DB_Settings_General, $HTTP) {
+
+		public function __construct($DB_Settings_Connection, $DB_Settings_General) {
 
 			$this->DB_Settings_Connection 	= $DB_Settings_Connection;
 			$this->DB_Settings_General 			= $DB_Settings_General;
-			$this->HTTP 										= $HTTP;
 
 		}
 

@@ -90,7 +90,6 @@ if (!class_exists('Query')) {
 		*/
 		public function wps_clauses_mod($clauses, $query) {
 
-
 			// Only runs on the front-end
 			if ( !is_admin() ) {
 
@@ -135,7 +134,7 @@ if (!class_exists('Query')) {
 					}
 
 
-					if (empty($clauses['limits'])) {
+					if ( empty($clauses['limits']) ) {
 
 						/*
 
@@ -158,7 +157,7 @@ if (!class_exists('Query')) {
 					TODO: Need the ability to allow customers to change.
 
 					*/
-					if ($this->is_related_products_query($query)) {
+					if ( $this->is_related_products_query($query) ) {
 
 
 						/*
@@ -251,8 +250,8 @@ if (!class_exists('Query')) {
 				}
 
 
-				if (Utils::wps_is_manually_sorted($args)) {
-					$collections = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
+				if (Utils::is_manually_sorted($args)) {
+					$collections = Utils::manually_sort_posts_by_title($args['custom']['titles'], $collectionsQuery->posts);
 
 
 				} else {
@@ -346,7 +345,6 @@ if (!class_exists('Query')) {
 						$custom_order_by = false;
 					}
 
-
 					if ( $custom_order_by !== 'rand' ) {
 						Transients::set('wps_products_query_hash_cache_' . $product_query_hash, $products_query);
 					}
@@ -357,19 +355,26 @@ if (!class_exists('Query')) {
 
 				$wps_products_cached = Transients::get('wps_products_query_data_hash_' . $product_query_hash);
 
+
 				if ( empty($wps_products_cached) ) {
 
-					if (Utils::wps_is_manually_sorted($args)) {
-						$wps_products = Utils::wps_manually_sort_posts_by_title($args['custom']['titles'], $products_query->posts);
+					if ( Utils::is_collections_sorted($args) ) {
+
+						$wps_products = Utils::sort_posts_by_position($products_query->posts);
+
+					} else if ( Utils::is_manually_sorted($args) ) {
+						$wps_products = Utils::manually_sort_posts_by_title($args['custom']['titles'], $products_query->posts);
 
 					} else {
 						$wps_products = $products_query->posts;
 					}
 
+
 					// Adding feature imaged to object
 					foreach ($wps_products as $wps_product) {
 			      $wps_product->feat_image = $this->DB_Images->get_feat_image_by_post_id($wps_product->post_id);
 			    }
+
 
 					/*
 
@@ -698,7 +703,7 @@ if (!class_exists('Query')) {
 		*/
 		public function construct_collections_clauses($shortcode_query, $slugs) {
 
-			if (!empty($slugs)) {
+			if ( !empty($slugs) ) {
 
 				$products_table_name = WPS_TABLE_NAME_PRODUCTS;
 				$collections_smart_table_name = WPS_TABLE_NAME_COLLECTIONS_SMART;
@@ -719,7 +724,7 @@ if (!class_exists('Query')) {
 				)';
 
 				$shortcode_query['join'] .= ' INNER JOIN ' . WPS_TABLE_NAME_COLLECTS . ' collects ON collects.product_id = products.product_id';
-				$shortcode_query['fields'] .= ', collection_id';
+				$shortcode_query['fields'] .= ', collection_id, collects.position';
 
 			}
 

@@ -14,12 +14,14 @@ if (!class_exists('License')) {
 
 		private $DB_Settings_License;
 		private $WS_Settings_License;
+		private $DB_Settings_General;
 
 
-		public function __construct($WS_Settings_License, $DB_Settings_License) {
+		public function __construct($WS_Settings_License, $DB_Settings_License, $DB_Settings_General) {
 
 			$this->WS_Settings_License				= $WS_Settings_License;
 			$this->DB_Settings_License				= $DB_Settings_License;
+			$this->DB_Settings_General				= $DB_Settings_General;
 
 		}
 
@@ -66,7 +68,7 @@ if (!class_exists('License')) {
 			    'item_id'     	=> EDD_SAMPLE_ITEM_ID,
 			    'author' 				=> WPS_PLUGIN_NAME_FULL,
 			    'url'           => home_url(),
-			    'beta'          => false
+			    'beta'          => $this->DB_Settings_General->get_enable_beta()
 			  )
 			);
 

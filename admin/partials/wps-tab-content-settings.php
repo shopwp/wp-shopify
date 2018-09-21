@@ -29,7 +29,7 @@ Tab Content: Settings
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-plugin-assets">Plugin Assets</a>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-plugin">Plugin</a>
     </li>
 
   </ul>
@@ -171,10 +171,10 @@ Tab Content: Settings
     Assets Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-plugin-assets">
+    <div class="wps-admin-sub-section" id="wps-admin-section-plugin">
 
       <h2 class="wps-admin-section-heading">
-        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Plugin Assets ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+        <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Plugin ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
       </h2>
 
       <div class="wps-admin-section">
@@ -182,6 +182,7 @@ Tab Content: Settings
           <?php
 
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-beta-enable.php';
 
           ?>
 

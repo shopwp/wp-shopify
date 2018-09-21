@@ -14,27 +14,24 @@ if (!class_exists('Collects')) {
 
   class Collects extends \WPS\WS {
 
-		protected $DB_Collects;
 		protected $DB_Settings_General;
 		protected $DB_Settings_Syncing;
 		protected $Async_Processing_Collects;
-		protected $HTTP;
+		protected $Shopify_API;
 
-  	public function __construct($DB_Collects, $DB_Settings_General, $DB_Settings_Syncing, $Async_Processing_Collects, $HTTP) {
 
-			$this->DB_Collects											= $DB_Collects;
+  	public function __construct($DB_Settings_General, $DB_Settings_Syncing, $Async_Processing_Collects, $Shopify_API) {
+
 			$this->DB_Settings_General							= $DB_Settings_General;
 			$this->DB_Settings_Syncing							= $DB_Settings_Syncing;
 			$this->Async_Processing_Collects				=	$Async_Processing_Collects;
-			$this->HTTP															=	$HTTP;
+			$this->Shopify_API											=	$Shopify_API;
 
     }
 
 
 
-		public function get_collects_count_by_collection_id_endpoint($collection_id) {
-			return '/admin/collects/count.json?collection_id=' . $collection_id;
-		}
+
 
 
 		/*
@@ -42,44 +39,25 @@ if (!class_exists('Collects')) {
 		Responsible for getting an array of API endpoints for given collection ids
 
 		*/
-		public function get_collects_count_urls_by_collection_ids() {
+		public function get_collects_count_by_collection_ids() {
 
-			$urls = [];
+			$collects_count = [];
 			$collection_ids = $this->DB_Settings_General->get_sync_by_collections_ids();
 
 			foreach ($collection_ids as $collection_id) {
-		    $urls[] = $this->get_collects_count_by_collection_id_endpoint($collection_id);
-		  }
 
-		  return $urls;
+				$count = $this->Shopify_API->get_collects_count_by_collection_id($collection_id);
 
-		}
-
-
-		/*
-
-		Responsible for calling the Shopify API multiple times based on count URLs
-
-		*/
-		public function get_total_counts_from_urls($urls) {
-
-		  $products_count = [];
-
-		  foreach ($urls as $url) {
-
-		    $count = $this->HTTP->get($url);
-
-		    if (!empty($count) && Utils::has($count, 'count')) {
-					$products_count[] = $count->count;
+				if ( Utils::has($count, 'count') ) {
+					$collects_count[] = $count->count;
 				}
 
+
 		  }
 
-		  return array_sum($products_count);
+		  return array_sum($collects_count);
 
 		}
-
-
 
 
 		/*
@@ -94,16 +72,15 @@ if (!class_exists('Collects')) {
 			}
 
 			// User is syncing by collection
-			if ($this->DB_Settings_General->is_syncing_by_collection()) {
+			if ( $this->DB_Settings_General->is_syncing_by_collection() ) {
 
-				$urls = $this->get_collects_count_urls_by_collection_ids();
-				$collects_count = $this->get_total_counts_from_urls($urls);
+				$collects_count = $this->get_collects_count_by_collection_ids();
 
 				$this->send_success(['collects' => $collects_count]);
 
 			} else {
 
-				$collects = $this->get_collects_total_count();
+				$collects = $this->Shopify_API->get_collects_count();
 
 				if ( is_wp_error($collects) ) {
 					$this->DB_Settings_Syncing->save_notice_and_stop_sync($collects);
@@ -126,41 +103,46 @@ if (!class_exists('Collects')) {
 
 
 
-		public function get_collects_by_page($current_page) {
-			return $this->HTTP->get("/admin/collects.json", "?limit=" . $this->DB_Settings_General->get_items_per_request() . "&page=" . $current_page);
-		}
+		public function get_collects_per_page($current_page) {
 
-		public function get_collects_total_count() {
-			return $this->HTTP->get('/admin/collects/count.json');
-		}
+			$param_limit = $this->DB_Settings_General->get_items_per_request();
 
-		public function get_collects_by_product_id($product_id) {
-			return $this->HTTP->get("/admin/collects.json", "?product_id=" . $product_id);
-		}
+			return $this->Shopify_API->get_collects_per_page($param_limit, $current_page);
 
-		public function get_collects_from_collection_id($collection_id) {
-			return $this->HTTP->get("/admin/collects.json", "?collection_id=" . $collection_id);
-		}
-
-		public function get_collects_by_collection_and_page($products_url_param) {
-			return $this->HTTP->get("/admin/collects.json", $products_url_param);
 		}
 
 
-		public function get_collects_by_collections_page($collects_url_params) {
 
-			$collects = [];
+		public function normalize_collects_response($response) {
 
-			foreach ($collects_url_params as $product_url_param) {
+			if ( is_array($response) ) {
+				return $response;
+			}
 
-				$result = $this->get_collects_by_collection_and_page($product_url_param)->collects;
+			if ( is_object($response) && property_exists($response, 'collects') ) {
+				return $response->collects;
+			}
+
+		}
+
+
+
+		public function get_collects_from_collections($current_page) {
+
+			$collects					= [];
+			$collection_ids 	= maybe_unserialize( $this->DB_Settings_General->sync_by_collections() );
+			$param_limit 			= $this->DB_Settings_General->get_items_per_request();
+
+			foreach ($collection_ids as $collection_id) {
+
+				$result = $this->Shopify_API->get_collects_from_collection_per_page($collection_id, $param_limit, $current_page);
+				$result = $this->normalize_collects_response($result);
 
 				if (is_wp_error($result)) {
 					return $result;
-
-				} else {
-					$collects[] = $result;
 				}
+
+				$collects = array_merge($collects, $result);
 
 			}
 
@@ -187,19 +169,16 @@ if (!class_exists('Collects')) {
 				$this->send_error( Messages::get('nonce_invalid') . ' (get_bulk_collects)' );
 			}
 
+			$current_page = Utils::get_current_page($_POST);
+
 			// Check if user is syncing from collections -- returns proper products
-			if ($this->DB_Settings_General->is_syncing_by_collection()) {
-
-				$collection_ids = maybe_unserialize($this->DB_Settings_General->sync_by_collections());
-				$collects_url_params = $this->get_endpoint_params_collection_id($collection_ids, Utils::get_current_page($_POST));
-
-				$collects = $this->get_collects_by_collections_page($collects_url_params);
-				$collects = Utils::flatten_array_into_object($collects, 'collects');
-
+			if ( $this->DB_Settings_General->is_syncing_by_collection() ) {
+				$collects = $this->get_collects_from_collections( $current_page );
 
 			} else {
-				$collects = $this->get_collects_by_page( Utils::get_current_page($_POST) );
+				$collects = $this->get_collects_per_page( $current_page );
 			}
+
 
 			// Check if error occured during request
 			if (is_wp_error($collects)) {
@@ -207,12 +186,14 @@ if (!class_exists('Collects')) {
 			}
 
 
+			$collects = $this->normalize_collects_response($collects);
+
+
 			// Fire off our async processing builds ...
-			if (Utils::has($collects, 'collects')) {
+			if ( !empty($collects) ) {
 
-				$this->Async_Processing_Collects->insert_collects_batch($collects->collects);
-
-				$this->send_success($collects->collects);
+				$this->Async_Processing_Collects->insert_collects_batch($collects);
+				$this->send_success($collects);
 
 			} else {
 
@@ -257,7 +238,7 @@ if (!class_exists('Collects')) {
 		*/
 		public function get_collects_from_product($item = null) {
 
-			$collects = $this->get_collects_by_product_id($item->id);
+			$collects = $this->Shopify_API->get_collects_by_product_id($item->id);
 
 			if ( is_wp_error($collects) || Utils::object_is_empty($collects) ) {
 				$collects_to_add = [];
@@ -278,7 +259,7 @@ if (!class_exists('Collects')) {
 		*/
 		public function get_collects_from_collection($item) {
 
-			$collects = $this->get_collects_from_collection_id($item->id);
+			$collects = $this->Shopify_API->get_collects_from_collection_id($item->id);
 
 			if ( is_wp_error($collects) || Utils::object_is_empty($collects) ) {
 				$collects_to_add = [];

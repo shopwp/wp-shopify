@@ -27,7 +27,8 @@ import {
 
 import {
   setSyncingIndicator,
-  checkForValidServerConnection
+  checkForValidServerConnection,
+  getPublishedProductIds
 } from '../ws/ws';
 
 import {
@@ -321,6 +322,33 @@ function onResyncSubmit() {
 
         /*
 
+        Grabs the getPublishedProductIds and saved them to the DB
+
+        */
+        var [publishedIdsError, publishedIdsData] = await to( getPublishedProductIds() );
+
+        if (publishedIdsError) {
+          cleanUpAfterSync( syncingConfigJavascriptError(publishedIdsError) );
+          resolve();
+          return;
+        }
+
+        if (isWordPressError(publishedIdsData)) {
+          cleanUpAfterSync( syncingConfigErrorBeforeSync(publishedIdsData) );
+          resolve();
+          return;
+        }
+
+        if (manuallyCanceled()) {
+          cleanUpAfterSync( syncingConfigManualCancel() );
+          resolve();
+          return;
+        }
+
+
+
+        /*
+
         6. Start progress bar
 
         */
@@ -343,7 +371,6 @@ function onResyncSubmit() {
           resolve();
           return;
         }
-
 
 
         /*

@@ -677,7 +677,7 @@ if (!class_exists('Hooks')) {
 			$new_version_number = WPS_NEW_PLUGIN_VERSION;
 			$current_version_number = $this->DB_Settings_General->get_current_plugin_version();
 
-			// // $new_version_number = '1.2.3';
+			// // $new_version_number = '1.2.99';
 
 			// If current version is behind new version
 			if (version_compare($current_version_number, $new_version_number, '<')) {

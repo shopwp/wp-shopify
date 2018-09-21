@@ -8,6 +8,8 @@ use WPS\Factories\WS_Collections_Smart_Factory;
 use WPS\Factories\WS_Collections_Custom_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 use WPS\Factories\DB_Settings_Connection_Factory;
+use WPS\Factories\Shopify_API_Factory;
+
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -28,7 +30,8 @@ if (!class_exists('WS_Collections_Factory')) {
 					WS_Collections_Smart_Factory::build(),
 					WS_Collections_Custom_Factory::build(),
 					DB_Settings_General_Factory::build(),
-					DB_Settings_Connection_Factory::build()
+					DB_Settings_Connection_Factory::build(),
+					Shopify_API_Factory::build()
 				);
 
 				self::$instantiated = $WS_Collections;

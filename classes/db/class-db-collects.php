@@ -189,6 +189,47 @@ if (!class_exists('Collects')) {
 		}
 
 
+
+
+
+
+
+		public function get_published_collects($collects, $published_product_ids) {
+
+			return array_filter($collects, function($collect) use($published_product_ids) {
+				return $this->is_collect_published($collect, $published_product_ids);
+			});
+
+		}
+
+
+		public function is_collect_published($collect, $published_product_ids) {
+
+			if ( in_array($collect->product_id, $published_product_ids) ) {
+				return true;
+			}
+
+			return false;
+
+		}
+
+
+
+
+		// Need to do a comparison as some collects could have been found within
+		// the batch of 250. So we just need to find the difference and then add that number.
+		public function find_published_difference_to_add($items, $published_items) {
+
+			$original_total = count($items);
+			$after_filter_total = count($published_items);
+
+			return $original_total - $after_filter_total;
+
+		}
+
+
+
+
 		/*
 
 		Creates a table query string

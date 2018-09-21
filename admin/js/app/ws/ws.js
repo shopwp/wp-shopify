@@ -20,6 +20,37 @@ Get all products from Shopify
 Returns: Promise
 
 */
+function getPublishedProductIds() {
+
+  return new Promise( (resolve, reject) => {
+
+    const action_name = 'get_published_product_ids_by_page';
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
+
+/*
+
+Get all products from Shopify
+Returns: Promise
+
+*/
 function getProductsCount() {
 
   return new Promise((resolve, reject) => {
@@ -327,70 +358,6 @@ function getWebhooksCount() {
 
 /*
 
-Get all products from Shopify
-Returns: Promise
-
-*/
-function getProductsFromCollection(collection) {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'get_products_from_collection';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        collectionID: collection.collectionId,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
-Get all products from Shopify
-Returns: Promise
-
-*/
-function getSingleCollection(collectionID) {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'get_single_collection';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        collectionID: collectionID,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
-
-
-/*
-
 Inserting Shop data
 
 */
@@ -518,7 +485,7 @@ Insert Products Data
 */
 function insertProductsData(currentPage = false) {
 
-  return new Promise((resolve, reject) => {
+  return new Promise( (resolve, reject) => {
 
     const action_name = 'insert_products';
 
@@ -1230,7 +1197,7 @@ function getTotalCountsFromSession() {
 
 function getBulkCollects(currentPage) {
 
-  return new Promise((resolve, reject) => {
+  return new Promise( (resolve, reject) => {
 
     const action_name = 'get_bulk_collects';
 
@@ -1714,12 +1681,10 @@ function migrateTables() {
 
 
 export {
-  getProductsFromCollection,
   insertProductsData,
   getWebhooks,
   setPluginSettings,
   delWebhooks,
-  getSingleCollection,
   deactivateLicenseKey,
   activateLicenseKey,
   getLicenseKeyStatus,
@@ -1772,5 +1737,6 @@ export {
   resetNoticeFlags,
   deletePostsAndSyncedData,
   checkForValidServerConnection,
-  migrateTables
+  migrateTables,
+  getPublishedProductIds
 }

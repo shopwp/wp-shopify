@@ -32,38 +32,6 @@ if (!class_exists('HTTP')) {
 
 		/*
 
-		Responsible for building the Basic Auth header value used during requests
-
-		*/
-		public static function build_auth_token($api_key, $api_password) {
-			return base64_encode($api_key . ':' . $api_password);
-		}
-
-
-		/*
-
-		Builds an auth token used for Shopify API requests
-
-		*/
-		public function get_auth_token() {
-
-			$connection = $this->DB_Settings_Connection->get();
-
-			if ( Utils::has($connection, 'api_key') && Utils::has($connection, 'password') ) {
-				return $this->build_auth_token($connection->api_key, $connection->password);
-
-			} else {
-				return false;
-			}
-
-		}
-
-
-
-
-
-		/*
-
 		Grab the total call amount from the header response
 
 		*/
@@ -258,7 +226,7 @@ if (!class_exists('HTTP')) {
 		*/
 		public function maybe_set_request_arg_headers($request_args) {
 
-			$request_args['headers'] = $this->default_request_headers($request_args, $this->get_auth_token() );
+			$request_args['headers'] = $this->default_request_headers($request_args, $this->DB_Settings_Connection->get_auth_token() );
 
 			return $request_args;
 		}
@@ -337,40 +305,6 @@ if (!class_exists('HTTP')) {
 
 		/*
 
-		Lowest level request wrapper
-
-		Param 1: $method
-		Param 1: $url
-		Param 1: $body
-		Param 1: $blocking
-
-		Returns response object on success or WP_Error on fail
-
-		*/
-		public function request($method, $url, $body = false, $blocking = false) {
-
-			$request_args = $this->build_request_args($method, $body, $blocking);
-
-			$response = wp_remote_request($url, $request_args);
-
-			if ( $this->is_client_error($response) ) {
-				return Utils::wp_error( __( $this->get_client_error_message($response), WPS_PLUGIN_TEXT_DOMAIN ) );
-			}
-
-			if ( $this->is_server_error($response) ) {
-				return Utils::wp_error( __( $this->get_server_error_message($response), WPS_PLUGIN_TEXT_DOMAIN ) );
-			}
-
-			// Throttles API calls if needed to stay under limit
-			$this->check_rate_limit($response);
-
-			return json_decode( wp_remote_retrieve_body($response) );
-
-		}
-
-
-		/*
-
 		Responsible for inserting data <type> into DB
 
 		Returns response object on success or WP_Error on fail
@@ -402,6 +336,49 @@ if (!class_exists('HTTP')) {
 		*/
 		public function get($endpoint, $params = false, $blocking = false) {
 			return $this->request('GET', $this->get_request_url($endpoint, $params), [], $blocking);
+		}
+
+
+		/*
+
+		Lowest level request wrapper
+
+		Param 1: $method
+		Param 1: $url
+		Param 1: $body
+		Param 1: $blocking
+
+		Returns response object on success or WP_Error on fail
+
+		*/
+		public function request($method, $url, $body = false, $blocking = false) {
+
+			$request_args = $this->build_request_args($method, $body, $blocking);
+
+			$url = apply_filters('wps_remote_request_url', $url, $request_args);
+
+			do_action('wps_before_remote_request', $url, $request_args);
+
+			if (!$url) {
+				return false;
+			}
+
+			$response = wp_remote_request($url, $request_args);
+
+
+			if ( $this->is_client_error($response) ) {
+				return Utils::wp_error( __( $this->get_client_error_message($response), WPS_PLUGIN_TEXT_DOMAIN ) );
+			}
+
+			if ( $this->is_server_error($response) ) {
+				return Utils::wp_error( __( $this->get_server_error_message($response), WPS_PLUGIN_TEXT_DOMAIN ) );
+			}
+
+			// Throttles API calls if needed to stay under limit
+			$this->check_rate_limit($response);
+
+			return json_decode( wp_remote_retrieve_body($response) );
+
 		}
 
 

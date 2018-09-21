@@ -78,11 +78,21 @@ if (!class_exists('Variants')) {
 				// TODO -- Breakout into own function
 				$found = false;
 
+
 				foreach ($refinedVariants as $key => $variant) {
 
-					$cleanVariants = array_filter($variant['options']);
 
-					if ( $cleanVariants === $constructedOptions ) {
+
+					$clean_variants = array_filter($variant['options']);
+
+					if (Utils::has_option_values_set($clean_variants)) {
+						$option_values = Utils::get_options_values($clean_variants['option_values']);
+						$clean_variants = Utils::clean_option_values($option_values);
+					}
+
+
+
+					if ( $clean_variants === $constructedOptions ) {
 
 						$variant_obj = $this->DB_Variants->get_row_by('variant_id', $variant['variant_id']);
 						$productData->variants = $variantData;

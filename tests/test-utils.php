@@ -12,11 +12,16 @@ class Test_Utils extends WP_UnitTestCase {
   protected static $WS;
 	protected static $mock_products;
 	protected static $mock_product_without_image_src;
+  protected static $options_one;
+  protected static $options_three;
 
   static function setUpBeforeClass() {
 
     self::$mock_products     								 = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products.json") );
 		self::$mock_product_without_image_src    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products/product-without-image-src.json") );
+
+    self::$options_one = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/options/options-one.json") );
+    self::$options_three = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/options/options-three.json") );
 
   }
 
@@ -179,5 +184,56 @@ class Test_Utils extends WP_UnitTestCase {
 
   }
 
+
+
+  function test_it_should_get_options_button_width_three() {
+
+    $width = Utils::get_options_button_width(self::$options_three);
+
+    $this->assertEquals(3, $width);
+
+
+  }
+
+
+  function test_it_should_get_options_button_width_two() {
+
+    $width = Utils::get_options_button_width(self::$options_one);
+
+    $this->assertEquals(2, $width);
+
+  }
+
+
+  function test_it_has_option_property() {
+
+    $result_one = Utils::has_option_property(0, 'option');
+    $result_two = Utils::has_option_property(0, 'option_values');
+    $result_three = Utils::has_option_property(0, '');
+    $result_four = Utils::has_option_property(0, false);
+    $result_five = Utils::has_option_property(0, true);
+    $result_six = Utils::has_option_property(0, 'optionalloneword');
+
+    $this->assertTrue($result_one);
+    $this->assertTrue($result_two);
+    $this->assertFalse($result_three);
+    $this->assertFalse($result_four);
+    $this->assertFalse($result_five);
+    $this->assertTrue($result_six);
+
+  }
+
+  function test_that_it_is_collections_sorted() {
+
+    $result_true = Utils::is_collections_sorted(['custom' => ['collections' => "Test"]]);
+    $result_false = Utils::is_collections_sorted(['custom' => ['titles' => "Test"]]);
+
+    $this->assertInternalType('boolean', $result_true);
+    $this->assertEquals(true, $result_true);
+
+    $this->assertInternalType('boolean', $result_false);
+    $this->assertEquals(false, $result_false);
+
+  }
 
 }

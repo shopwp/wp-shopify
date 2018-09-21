@@ -489,9 +489,6 @@ if (!class_exists('Products')) {
     }
 
 
-
-
-
 		/*
 
     Default Products Query

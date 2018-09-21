@@ -49,7 +49,6 @@ function syncShop() {
 /*
 
 Syncing Products
-get_bulk_products
 
 */
 function syncProducts() {

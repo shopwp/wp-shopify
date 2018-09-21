@@ -42,7 +42,7 @@ if (!class_exists('Settings_General')) {
 		public $save_connection_only;
 		public $app_uninstalled;
 		public $items_per_request;
-
+		public $enable_beta;
 
   	public function __construct() {
 
@@ -86,6 +86,7 @@ if (!class_exists('Settings_General')) {
 			$this->save_connection_only        								= 0;
 			$this->app_uninstalled        										= 0;
 			$this->items_per_request        									= WPS_MAX_ITEMS_PER_REQUEST;
+			$this->enable_beta        												= 0;
 
     }
 
@@ -126,7 +127,8 @@ if (!class_exists('Settings_General')) {
 				'save_connection_only'       								=> '%d',
 				'title_as_alt'       												=> '%d',
 				'app_uninstalled'       										=> '%d',
-				'items_per_request'       									=> '%d'
+				'items_per_request'       									=> '%d',
+				'enable_beta'       												=> '%d'
       ];
 
     }
@@ -168,7 +170,8 @@ if (!class_exists('Settings_General')) {
 				'save_connection_only'       								=> $this->save_connection_only,
 				'title_as_alt'       												=> $this->title_as_alt,
 				'app_uninstalled'       										=> $this->app_uninstalled,
-				'items_per_request'       									=> $this->items_per_request
+				'items_per_request'       									=> $this->items_per_request,
+				'enable_beta'       												=> $this->enable_beta
       ];
 
     }
@@ -582,6 +585,31 @@ if (!class_exists('Settings_General')) {
 		}
 
 
+		/*
+
+		Gets the enable beta updates setting
+
+		*/
+		public function get_enable_beta() {
+
+			$enable_beta = $this->get_column_single('enable_beta');
+
+			if ( Utils::array_not_empty($enable_beta) && isset($enable_beta[0]->enable_beta) ) {
+
+				if ($enable_beta[0]->enable_beta == '1') {
+					return true;
+					
+				} else {
+					return false;
+				}
+
+			} else {
+				return false;
+			}
+
+		}
+
+
     /*
 
     selective_sync_status
@@ -840,10 +868,12 @@ if (!class_exists('Settings_General')) {
 				save_connection_only tinyint(1) unsigned NOT NULL DEFAULT '{$this->save_connection_only}',
 				app_uninstalled tinyint(1) unsigned NOT NULL DEFAULT '{$this->app_uninstalled}',
 				items_per_request bigint(10) NOT NULL DEFAULT '{$this->items_per_request}',
+				enable_beta tinyint(1) unsigned NOT NULL DEFAULT '{$this->enable_beta}',
   		  PRIMARY KEY  (id)
   		) ENGINE=InnoDB $collate";
 
     }
+
 
 
   }

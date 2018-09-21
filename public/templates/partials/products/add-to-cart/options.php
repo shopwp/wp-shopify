@@ -20,7 +20,10 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<?php foreach ($data->sorted_options as $option) { ?>
+<?php
+
+
+foreach ($data->sorted_options as $option) { ?>
 
   <div
     class="wps-btn-dropdown wps-col wps-col-<?= $data->button_width; ?> <?= apply_filters('wps_options_class', ''); ?>"
@@ -41,7 +44,9 @@ if ( !defined('ABSPATH') ) {
 
     <ul class="wps-modal">
 
-      <?php foreach ($option->values as $key => $variant) { ?>
+      <?php
+
+			foreach ($option->values as $key => $variant) { ?>
 
         <li
           itemprop="category"

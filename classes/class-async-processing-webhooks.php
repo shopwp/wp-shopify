@@ -14,12 +14,14 @@ if ( !class_exists('Async_Processing_Webhooks') ) {
 
 		protected $DB_Settings_Syncing;
 		protected $Webhooks;
+		protected $Shopify_API;
 
 
-		public function __construct($DB_Settings_Syncing, $Webhooks) {
+		public function __construct($DB_Settings_Syncing, $Webhooks, $Shopify_API) {
 
 			$this->DB_Settings_Syncing				=	$DB_Settings_Syncing;
 			$this->Webhooks 									= $Webhooks;
+			$this->Shopify_API 								= $Shopify_API;
 
 			parent::__construct();
 
@@ -40,7 +42,7 @@ if ( !class_exists('Async_Processing_Webhooks') ) {
 			}
 
 			// Actual work
-			$result = $this->Webhooks->register_webhook( $topic, $this->Webhooks->get_callback_name_from_topic($topic) );
+			$result = $this->Shopify_API->register_webhook( $this->Webhooks->get_webhook_body_from_topic($topic) );
 
 			if (is_wp_error($result)) {
 				$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);

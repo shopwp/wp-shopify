@@ -104,6 +104,10 @@ if (!class_exists('Settings_General')) {
 	      $newGeneralSettings['cart_loaded'] = (int)$form_data['wps_settings_general_cart_loaded'];
 	    }
 
+			if (isset($form_data['wps_settings_general_enable_beta'])) {
+	      $newGeneralSettings['enable_beta'] = (int)$form_data['wps_settings_general_enable_beta'];
+	    }
+
 			if (isset($form_data['wps_settings_general_sync_by_collections'])) {
 	      $newGeneralSettings['sync_by_collections'] = maybe_serialize($form_data['wps_settings_general_sync_by_collections']);
 	    }

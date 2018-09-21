@@ -41,11 +41,6 @@ if ( !class_exists('Async_Processing_Products') ) {
 			// Actual work
 			$result = $this->DB_Products->insert_items_of_type( $this->DB_Products->mod_before_change($product) );
 
-
-			if ($product->id === 663507370020) {
-				$result = false;
-			}
-
 			// Save warnings if exist ...
 			$this->DB_Settings_Syncing->maybe_save_warning_from_insert($result, 'Product', $product->title);
 
@@ -102,7 +97,10 @@ if ( !class_exists('Async_Processing_Products') ) {
 
 			}
 
-			$products_filtered = Utils::filter_data_by($products, ['variants', 'options']);
+			// Need to copy so as to not change the data undernearth other processes
+			$products_copy = $this->DB_Products->copy($products);
+
+			$products_filtered = Utils::filter_data_by($products_copy, ['variants', 'options']);
 
 			foreach ($products_filtered as $product) {
 				$this->push_to_queue($product);

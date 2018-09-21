@@ -94,6 +94,8 @@ if (!class_exists('Settings_Syncing')) {
 			$this->finished_collection_posts_relationships 			= 0;
 			$this->finished_data_deletions 											= 0;
 
+			$this->published_product_ids 														= '';
+
     }
 
 
@@ -127,7 +129,8 @@ if (!class_exists('Settings_Syncing')) {
 				'finished_webhooks_deletions'										=> '%d',
 				'finished_product_posts_relationships'					=> '%d',
 				'finished_collection_posts_relationships'				=> '%d',
-				'finished_data_deletions'												=> '%d'
+				'finished_data_deletions'												=> '%d',
+				'published_product_ids'															=> '%s'
       ];
 
     }
@@ -163,7 +166,8 @@ if (!class_exists('Settings_Syncing')) {
 				'finished_webhooks_deletions'										=> $this->finished_webhooks_deletions,
 				'finished_product_posts_relationships'					=> $this->finished_product_posts_relationships,
 				'finished_collection_posts_relationships'				=> $this->finished_collection_posts_relationships,
-				'finished_data_deletions'												=> $this->finished_data_deletions
+				'finished_data_deletions'												=> $this->finished_data_deletions,
+				'published_product_ids'															=> $this->published_product_ids
       ];
 
     }
@@ -413,6 +417,16 @@ if (!class_exists('Settings_Syncing')) {
 
 		/*
 
+		Reset syncing posts relationships
+
+		*/
+		public function reset_syncing_published_product_ids() {
+			return $this->update_column_single(['published_product_ids' => NULL], ['id' => 1]);
+		}
+
+
+		/*
+
 		Reset syncing notices + errors
 
 		*/
@@ -617,6 +631,22 @@ if (!class_exists('Settings_Syncing')) {
 			} else {
 				return 0;
 			}
+
+		}
+
+
+		public function add_to_current_collects_amount($collects_to_increment) {
+
+			// Don't update if not needed
+			if ($collects_to_increment <= 0) {
+				return;
+			}
+
+			$current_amount_total = $this->get_syncing_current_amounts_collects();
+
+			$current_amount_total_new = $current_amount_total + $collects_to_increment;
+
+			return $this->update_column_single(['syncing_current_amounts_collects' => $current_amount_total_new], ['id' => 1]);
 
 		}
 
@@ -871,6 +901,25 @@ if (!class_exists('Settings_Syncing')) {
 
 		/*
 
+		Gets the get_syncing_current_amounts_smart_collections
+
+		*/
+		public function get_published_product_ids() {
+
+			$published_product_ids = $this->get_column_single('published_product_ids');
+
+			if ( Utils::array_not_empty($published_product_ids) && isset($published_product_ids[0]->published_product_ids) ) {
+				return maybe_unserialize($published_product_ids[0]->published_product_ids);
+
+			} else {
+				return [];
+			}
+
+		}
+
+
+		/*
+
 		Represents the actual (true) number of custom collections that exist in Shopify
 
 		*/
@@ -984,6 +1033,21 @@ if (!class_exists('Settings_Syncing')) {
 		*/
 		public function set_finished_product_posts_relationships($status) {
 			return $this->update_column_single(['finished_product_posts_relationships' => $status], ['id' => 1]);
+		}
+
+
+		/*
+
+		Sets post relationships status
+
+		*/
+		public function set_published_product_ids($published_product_ids) {
+
+			// Reset first
+			$this->reset_syncing_published_product_ids();
+
+			return $this->update_column_single(['published_product_ids' => maybe_serialize($published_product_ids)], ['id' => 1]);
+
 		}
 
 
@@ -1344,6 +1408,7 @@ if (!class_exists('Settings_Syncing')) {
 				finished_product_posts_relationships tinyint(1) DEFAULT 0,
 				finished_collection_posts_relationships tinyint(1) DEFAULT 0,
 				finished_data_deletions tinyint(1) DEFAULT 0,
+				published_product_ids longtext DEFAULT NULL,
         PRIMARY KEY  (id)
       ) ENGINE=InnoDB $collate";
 

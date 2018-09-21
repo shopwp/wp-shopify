@@ -18,14 +18,16 @@ if (!class_exists('Collections')) {
 		protected $WS_Collections_Smart;
 		protected $DB_Settings_General;
 		protected $DB_Settings_Connection;
+		protected $Shopify_API;
 
 
-  	public function __construct($WS_Collections_Smart, $WS_Collections_Custom, $DB_Settings_General, $DB_Settings_Connection) {
+  	public function __construct($WS_Collections_Smart, $WS_Collections_Custom, $DB_Settings_General, $DB_Settings_Connection, $Shopify_API) {
 
 			$this->WS_Collections_Smart 		= $WS_Collections_Smart;
 			$this->WS_Collections_Custom 		= $WS_Collections_Custom;
 			$this->DB_Settings_General 			= $DB_Settings_General;
 			$this->DB_Settings_Connection 	= $DB_Settings_Connection;
+			$this->Shopify_API							= $Shopify_API;
 
     }
 
@@ -52,8 +54,10 @@ if (!class_exists('Collections')) {
 			}
 
 
-			$smart_collections 		= $this->WS_Collections_Smart->get_smart_collections_by_page(1, false);
-			$custom_collections 	= $this->WS_Collections_Custom->get_custom_collections_by_page(1, false);
+			$param_limit 					= $this->DB_Settings_General->get_items_per_request();
+			$smart_collections 		= $this->Shopify_API->get_smart_collections_per_page($param_limit, 1);
+			$custom_collections 	= $this->Shopify_API->get_custom_collections_per_page($param_limit, 1);
+
 
 			if (Utils::has($smart_collections, 'errors')) {
 				$this->send_error($smart_collections->errors);
@@ -94,23 +98,7 @@ if (!class_exists('Collections')) {
 
 
 
-		public function get_endpoint_param_collection_id_by_page($collection_id, $limit, $current_page) {
-			return "?collection_id=" . $collection_id . "&limit=" . $limit . "&page=" . $current_page;
-		}
 
-
-		public function get_endpoint_params_collection_id($collection_ids, $current_page) {
-
-		  $urls 	= [];
-			$limit 	= $this->DB_Settings_General->get_items_per_request();
-
-		  foreach ($collection_ids as $collection_id) {
-		    $urls[] = $this->get_endpoint_param_collection_id_by_page($collection_id, $limit, $current_page);
-		  }
-
-		  return $urls;
-
-		}
 
 
 		/*

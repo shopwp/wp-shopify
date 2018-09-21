@@ -80,34 +80,6 @@ async function getCollectionIDs(collections) {
 
 /*
 
-Map Products Model
-
-*/
-function mapProductsModel(product) {
-
-  if (product !== undefined) {
-
-    return {
-      productTitle: product.title,
-      productDescription: product.body_html,
-      productId: product.id,
-      productHandle: product.handle,
-      productImages: getProductImages(product),
-      productTags: product.tags,
-      productVendor: product.vendor,
-      productVariants: product.variants,
-      productType: product.product_type,
-      productOptions: product.options,
-      productCollection: []
-    };
-
-  }
-
-};
-
-
-/*
-
 * NEW *
 Add collection IDs to products
 
@@ -158,43 +130,6 @@ function mapCollectsToCollections(collects, collections) {
   return collectionsWithProducts;
 
 }
-
-
-/*
-
-Create the actual products model
-
-*/
-function createProductsModel(products) {
-
-  if (products !== undefined) {
-    return products.map(mapProductsModel);
-  }
-
-}
-
-
-/*
-
-Map Collections Model
-
-*/
-function mapCollectionsModel(collection) {
-
-  if (collection !== undefined) {
-
-    return {
-      collectionTitle: collection.title,
-      collectionDescription: collection.body_html,
-      collectionId: collection.id,
-      collectionHandle: collection.handle,
-      collectionImage: setCollectionImage(collection),
-      collectionProducts: []
-    };
-
-  }
-
-};
 
 
 /*
@@ -871,13 +806,10 @@ function formatBytes(a, b) {
 
 export {
   getProductImages,
-  mapProductsModel,
-  mapCollectionsModel,
   setCollectionImage,
   mergeNewDataIntoCurrent,
   convertAuthDataToString,
   addCollectionsToProduct,
-  createProductsModel,
   rejectedPromise,
   mapCollectsToProducts,
   mapCollectsToCollections,

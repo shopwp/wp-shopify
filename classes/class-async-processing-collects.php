@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\Utils;
+
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -53,6 +55,9 @@ if ( !class_exists('Async_Processing_Collects') ) {
 		}
 
 
+
+
+
 		public function insert_collects_batch($collects) {
 
 			if ( $this->DB_Settings_Syncing->max_packet_size_reached($collects) ) {
@@ -64,11 +69,32 @@ if ( !class_exists('Async_Processing_Collects') ) {
 			}
 
 
-			foreach ($collects as $collect) {
+			$published_collects = $this->DB_Collects->get_published_collects( $collects, $this->DB_Settings_Syncing->get_published_product_ids() );
+
+
+			// Only empty if all 250 are missing from published products
+			// in which case we return 0 for the total count
+			if ( empty($published_collects) ) {
+				return $this->DB_Settings_Syncing->add_to_current_collects_amount( count($collects) );
+			}
+
+			$difference = $this->DB_Collects->find_published_difference_to_add( $collects, $published_collects );
+
+
+			$this->DB_Settings_Syncing->add_to_current_collects_amount( $difference );
+
+
+			/*
+
+			Now that have only the published collects, let's insert them.
+
+			*/
+			foreach ($published_collects as $collect) {
 				$this->push_to_queue($collect);
 			}
 
 			$this->save()->dispatch();
+
 
 		}
 

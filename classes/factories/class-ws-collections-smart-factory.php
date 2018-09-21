@@ -14,7 +14,7 @@ use WPS\Factories\DB_Collections_Smart_Factory;
 use WPS\Factories\CPT_Model_Factory;
 use WPS\Factories\Async_Processing_Collections_Smart_Factory;
 use WPS\Factories\Async_Processing_Posts_Collections_Smart_Factory;
-use WPS\Factories\HTTP_Factory;
+use WPS\Factories\Shopify_API_Factory;
 
 if (!class_exists('WS_Collections_Smart_Factory')) {
 
@@ -33,7 +33,7 @@ if (!class_exists('WS_Collections_Smart_Factory')) {
 					CPT_Model_Factory::build(),
 					Async_Processing_Collections_Smart_Factory::build(),
 					Async_Processing_Posts_Collections_Smart_Factory::build(),
-					HTTP_Factory::build()
+					Shopify_API_Factory::build()
 				);
 
 				self::$instantiated = $WS_Collections_Smart;

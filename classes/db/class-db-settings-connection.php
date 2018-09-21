@@ -162,6 +162,49 @@ if (!class_exists('Settings_Connection')) {
 
 		/*
 
+		Responsible for building the Basic Auth header value used during requests
+
+		*/
+		public function build_auth_token($api_key, $api_password) {
+			return base64_encode($api_key . ':' . $api_password);
+		}
+
+
+		/*
+
+		Builds an auth token used for Shopify API requests
+
+		wp_shopify_auth_token Transient cache is cleared after each sync
+
+		*/
+		public function get_auth_token() {
+
+			$auth_token = Transients::get('wp_shopify_auth_token');
+
+			if ( !empty($auth_token) ) {
+				return $auth_token;
+			}
+
+
+			$connection = $this->get();
+
+			if ( Utils::has($connection, 'api_key') && Utils::has($connection, 'password') ) {
+
+				$built_auth_token = $this->build_auth_token($connection->api_key, $connection->password);
+
+				Transients::set('wp_shopify_auth_token', $built_auth_token);
+
+				return $built_auth_token;
+
+			}
+
+			return false;
+
+		}
+
+
+		/*
+
 		Creates a table query string
 
 		*/
