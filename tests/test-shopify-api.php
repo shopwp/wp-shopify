@@ -11,7 +11,7 @@ class Test_Shopify_API extends WP_UnitTestCase {
 
 	protected static $Shopify_API;
 
-	static function setUpBeforeClass() {
+	static function wpSetUpBeforeClass() {
 
 	  // Assemble
 	  self::$Shopify_API = Shopify_API_Factory::build();

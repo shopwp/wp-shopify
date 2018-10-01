@@ -13,7 +13,7 @@ class Test_CPT_Model extends WP_UnitTestCase {
 	protected static $mock_products;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
 		self::$CPT_Model								= CPT_Model_Factory::build();
 		self::$mock_products            = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products-insert.json") );

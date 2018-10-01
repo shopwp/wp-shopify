@@ -280,4 +280,33 @@ class Test_Sync_Variants extends WP_UnitTestCase {
   }
 
 
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Variants->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_variants', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Variants->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_variants', $table_name_suffix );
+
+  }
+
 }

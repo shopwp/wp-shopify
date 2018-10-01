@@ -3,7 +3,7 @@
 Load cart
 
 -->
-<div class="wps-form-group wps-form-group-tight wps-form-group-align-top">
+<div class="wps-form-group wps-form-group-align-top">
 
   <table class="form-table">
 
@@ -16,9 +16,7 @@ Load cart
         </th>
 
         <td class="forminp forminp-text">
-          <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_hide_pagination" class="wps-label-block">
-            <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_hide_pagination]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_hide_pagination" type="checkbox" <?php echo $general->hide_pagination ? 'checked' : ''; ?>>
-          </label>
+          <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_hide_pagination]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_hide_pagination" type="checkbox" <?php echo $general->hide_pagination ? 'checked' : ''; ?>>
         </td>
 
       </tr>

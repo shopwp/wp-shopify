@@ -15,9 +15,7 @@ Pricing
         </th>
 
         <td class="forminp forminp-text">
-          <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_price_with_currency" class="wps-label-block">
-            <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_price_with_currency]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_price_with_currency" type="checkbox" <?php echo $general->price_with_currency ? 'checked' : ''; ?>>
-          </label>
+          <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_price_with_currency]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_price_with_currency" type="checkbox" <?php echo $general->price_with_currency ? 'checked' : ''; ?>>
         </td>
 
       </tr>

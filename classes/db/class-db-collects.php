@@ -13,6 +13,7 @@ if (!class_exists('Collects')) {
 
   class Collects extends \WPS\DB {
 
+		public $table_name_suffix;
     public $table_name;
   	public $version;
   	public $primary_key;
@@ -23,7 +24,8 @@ if (!class_exists('Collects')) {
 
   	public function __construct() {
 
-      $this->table_name         	= WPS_TABLE_NAME_COLLECTS;
+      $this->table_name_suffix  	= WPS_TABLE_NAME_COLLECTS;
+			$this->table_name         	= $this->get_table_name();
 			$this->version            	= '1.0';
       $this->primary_key        	= 'id';
 			$this->lookup_key        		= 'collect_id';

@@ -13,7 +13,8 @@ if (!class_exists('Variants')) {
 
   class Variants extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -23,12 +24,13 @@ if (!class_exists('Variants')) {
 
   	public function __construct() {
 
-			$this->table_name         				= WPS_TABLE_NAME_VARIANTS;
-			$this->version            				= '1.0';
-      $this->primary_key        				= 'id';
-			$this->lookup_key        					= 'variant_id';
-      $this->cache_group        				= 'wps_db_variants';
-			$this->type        								= 'variant';
+			$this->table_name_suffix    = WPS_TABLE_NAME_VARIANTS;
+			$this->table_name         	= $this->get_table_name();
+			$this->version            	= '1.0';
+      $this->primary_key        	= 'id';
+			$this->lookup_key        		= 'variant_id';
+      $this->cache_group        	= 'wps_db_variants';
+			$this->type        					= 'variant';
 
     }
 
@@ -274,7 +276,11 @@ if (!class_exists('Variants')) {
 
 		*/
 		public function get_variants_from_post_id_query() {
-			return "SELECT variants.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_VARIANTS . " as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
+
+			global $wpdb;
+
+			return "SELECT variants.* FROM " . $wpdb->prefix . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . $this->table_name . " as variants ON products.product_id = variants.product_id WHERE products.post_id = %d";
+			
 		}
 
 

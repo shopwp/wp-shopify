@@ -12,7 +12,7 @@ General key currently doesn't update -- only adds or deletes
 class Test_Config extends WP_UnitTestCase {
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     // self::$Config                      = Config_Factory::build();
@@ -270,6 +270,10 @@ class Test_Config extends WP_UnitTestCase {
 
   function test_plugin_collections_lookup_key() {
     $this->assertTrue( defined('WPS_COLLECTIONS_LOOKUP_KEY') );
+  }
+
+  function test_plugin_default_cart_terms_content() {
+    $this->assertTrue( defined('WPS_DEFAULT_CART_TERMS_CONTENT') );
   }
 
 }

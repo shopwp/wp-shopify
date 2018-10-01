@@ -44,9 +44,11 @@ Rejected Promise
 
 */
 function rejectedPromise(reason) {
+
   return new Promise(function (resolve, reject) {
     reject(reason);
   });
+  
 }
 
 

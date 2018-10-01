@@ -914,5 +914,6 @@ export {
   manuallyCanceled,
   reconnectingWebhooks,
   setConnectionFieldsState,
-  setConnectorFinishState
+  setConnectorFinishState,
+  checkForNoticeTypeInNoticeList
 }

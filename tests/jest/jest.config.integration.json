@@ -1,0 +1,21 @@
+{
+  "rootDir": "../../",
+  "verbose": false,
+  "testURL": "http://wpstest.test",
+  "modulePathIgnorePatterns": [
+    "<rootDir>/node_modules",
+    "<rootDir>/classes",
+    "<rootDir>/vendor",
+    "<rootDir>/.git"
+  ],
+  "roots": [
+    "<rootDir>/admin/js/app",
+    "<rootDir>/public/js/app"
+  ],
+  "notify": true,
+  "setupFiles": [
+    "<rootDir>/jest-test-env.js"
+  ],
+  "setupTestFrameworkScriptFile": "<rootDir>/jest-test-setup.js",
+  "testRegex": "integration.test.js"
+}

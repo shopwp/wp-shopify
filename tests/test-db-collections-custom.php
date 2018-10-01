@@ -20,7 +20,7 @@ class Test_Sync_Collections_Custom extends WP_UnitTestCase {
   protected static $mock_collections_id;
   protected static $lookup_key;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Collections_Custom             = DB_Collections_Custom_Factory::build();
@@ -81,6 +81,36 @@ class Test_Sync_Collections_Custom extends WP_UnitTestCase {
     $rename_result = self::$DB_Collections_Custom->maybe_rename_to_lookup_key(self::$mock_collections);
 
     $this->assertObjectHasAttribute(self::$DB_Collections_Custom->lookup_key, $rename_result);
+
+  }
+
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Collections_Custom->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_collections_custom', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Collections_Custom->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_collections_custom', $table_name_suffix );
 
   }
 

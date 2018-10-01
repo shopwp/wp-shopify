@@ -687,6 +687,34 @@ if (!class_exists('Utils')) {
 	  }
 
 
+		/*
+
+	  Maybe serialize data
+
+	  */
+	  public static function data_values_size_limit_reached($data, $table_name) {
+
+			global $wpdb;
+
+			foreach ($data as $key => $value) {
+
+				$db_col_size = $wpdb->get_col_length( $table_name, $key );
+
+				if ($db_col_size !== false && !is_wp_error($db_col_size) ) {
+
+					if ( mb_strlen($value) > $db_col_size['length'] ) {
+						return true;
+					}
+
+				}
+
+			}
+
+			return false;
+
+	  }
+
+
 	  /*
 
 	  Add product data to database

@@ -30,7 +30,7 @@ class Test_DB extends WP_UnitTestCase {
   protected static $mock_data_order_sync_insert;
   protected static $mock_data_variant_sync_insert;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB                                       = DB_Factory::build();
@@ -154,5 +154,6 @@ class Test_DB extends WP_UnitTestCase {
     $this->assertObjectHasAttribute('product_id', $product);
 
   }
+
 
 }

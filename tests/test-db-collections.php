@@ -8,7 +8,7 @@ class Test_DB_Collections extends WP_UnitTestCase {
   protected static $mock_posts_collections;
   protected static $mock_collection_to_delete;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Collections             = DB_Collections_Factory::build();

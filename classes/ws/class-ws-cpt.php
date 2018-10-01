@@ -37,7 +37,7 @@ if (!class_exists('CPT')) {
 
 			global $wpdb;
 
-			$query = "DELETE posts, pt, pm FROM " . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.post_type = %s";
+			$query = "DELETE posts, pt, pm FROM " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . $wpdb->prefix . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.post_type = %s";
 
 			$query_prepared = $wpdb->prepare($query, $post_type);
 
@@ -72,7 +72,7 @@ if (!class_exists('CPT')) {
 			// $format = '%d, %d, %d, %d, %d, [...]'
 			$format = Utils::convert_to_comma_string($placeholders);
 
-			$query = "DELETE posts, pt, pm FROM " . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.ID IN($format)";
+			$query = "DELETE posts, pt, pm FROM " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . " posts LEFT JOIN " . $wpdb->prefix . WPS_TABLE_NAME_WP_TERM_RELATIONSHIPS . " pt ON pt.object_id = posts.ID LEFT JOIN " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTMETA . " pm ON pm.post_id = posts.ID WHERE posts.ID IN($format)";
 
 			$query_prepared = $wpdb->prepare($query, $ids);
 

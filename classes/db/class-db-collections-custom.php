@@ -15,6 +15,7 @@ if (!class_exists('Collections_Custom')) {
 
   class Collections_Custom extends \WPS\DB {
 
+		public $table_name_suffix;
     public $table_name;
   	public $version;
   	public $primary_key;
@@ -25,7 +26,8 @@ if (!class_exists('Collections_Custom')) {
 
   	public function __construct() {
 
-      $this->table_name         		= WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+      $this->table_name_suffix    	= WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+			$this->table_name         		= $this->get_table_name();
 			$this->version            		= '1.0';
       $this->primary_key        		= 'id';
       $this->lookup_key        			= WPS_COLLECTIONS_LOOKUP_KEY;
@@ -99,7 +101,7 @@ if (!class_exists('Collections_Custom')) {
       return array(
         'where' => '',
         'groupby' => '',
-        'join' => ' INNER JOIN ' . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . ' custom ON ' . $wpdb->posts . '.ID = custom.post_id',
+        'join' => ' INNER JOIN ' . $this->table_name . ' custom ON ' . $wpdb->posts . '.ID = custom.post_id',
         'orderby' => '',
         'distinct' => '',
         'fields' => 'custom .*',

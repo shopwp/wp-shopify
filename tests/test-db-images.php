@@ -27,7 +27,7 @@ class Test_Sync_Images extends WP_UnitTestCase {
   protected static $lookup_key;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Images                     = DB_Images_Factory::build();
@@ -188,5 +188,37 @@ class Test_Sync_Images extends WP_UnitTestCase {
     $this->assertObjectHasAttribute(self::$DB_Images->lookup_key, $rename_result);
 
   }
+
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Images->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_images', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Images->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_images', $table_name_suffix );
+
+  }
+
+
 
 }

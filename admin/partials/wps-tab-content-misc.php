@@ -21,7 +21,7 @@ Tab Content: Tools
         'id' => 'wps-button-migrate'
       ];
 
-      if ( get_option('wp_shopify_migration_needed') != true ) {
+      if ( get_site_option('wp_shopify_migration_needed') != true ) {
         $attributes['disabled'] = true;
       }
 

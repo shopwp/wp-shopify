@@ -13,7 +13,8 @@ if (!class_exists('Settings_License')) {
 
   class Settings_License extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -23,7 +24,8 @@ if (!class_exists('Settings_License')) {
 
   	public function __construct() {
 
-      $this->table_name         = WPS_TABLE_NAME_SETTINGS_LICENSE;
+			$this->table_name_suffix  = WPS_TABLE_NAME_SETTINGS_LICENSE;
+			$this->table_name         = $this->get_table_name();
 			$this->version            = '1.0';
       $this->primary_key        = 'license_key';
       $this->lookup_key        	= 'license_key';

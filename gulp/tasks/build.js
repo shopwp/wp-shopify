@@ -14,6 +14,7 @@ import rsync from 'gulp-rsync';
 import childProcess from 'child_process';
 import del from 'del';
 import git from 'gulp-git';
+import shell from 'gulp-shell';
 
 
 /*
@@ -250,8 +251,11 @@ Runs tests for js via Jest
 gulp.task('test:js', () => {
 
   return gulp
-  .src(config.folders.plugin)
-  .pipe( jest(config.jestConfig() ));
+    .src(config.folders.plugin)
+    .pipe( shell([
+      'npm run tests-client-unit-no-watch',
+      'npm run tests-client-integration'
+    ]));
 
 });
 

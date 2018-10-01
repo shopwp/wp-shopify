@@ -13,13 +13,13 @@ if (!class_exists('Shop')) {
 
 	class Shop extends \WPS\DB {
 
+		public $table_name_suffix;
 		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
 		public $cache_group;
 		public $type;
-
 		public $domain;
 		public $source;
 		public $customer_email;
@@ -53,7 +53,8 @@ if (!class_exists('Shop')) {
 
 	    global $wpdb;
 
-			$this->table_name 		 												= WPS_TABLE_NAME_SHOP;
+			$this->table_name_suffix  										= WPS_TABLE_NAME_SHOP;
+			$this->table_name         										= $this->get_table_name();
 			$this->version     		 												= '1.0';
 	    $this->primary_key 		 												= 'id';
 			$this->lookup_key															= 'id';
@@ -282,17 +283,17 @@ if (!class_exists('Shop')) {
 		insert_shop
 
 		*/
-		public function insert_shop($shopData) {
+		public function insert_shop($shop_data) {
 
 			global $wpdb;
 
-			if (is_array($shopData) && isset($shopData['shop']['id']) && $shopData['shop']['id']) {
+			if (is_array($shop_data) && isset($shop_data['shop']['id']) && $shop_data['shop']['id']) {
 
-				if ($this->get_row_by('id', $shopData['shop']['id'])) {
-					$results = $this->update($this->lookup_key, $shopData['shop']['id'], $shopData['shop']);
+				if ($this->get_row_by('id', $shop_data['shop']['id'])) {
+					$results = $this->update($this->lookup_key, $shop_data['shop']['id'], $shop_data['shop']);
 
 				} else {
-					$results = $this->insert($shopData['shop']);
+					$results = $this->insert($shop_data['shop']);
 				}
 
 			} else {
@@ -389,7 +390,7 @@ if (!class_exists('Shop')) {
 				id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
 				name varchar(255) DEFAULT '{$this->name}',
 				myshopify_domain varchar(255) DEFAULT '{$this->myshopify_domain}',
-				shop_owner varchar(100) DEFAULT '{$this->shop_owner}',
+				shop_owner varchar(200) DEFAULT '{$this->shop_owner}',
 				phone varchar(100) DEFAULT '{$this->phone}',
 				email varchar(100) DEFAULT '{$this->email}',
 				address1 varchar(100) DEFAULT '{$this->address1}',
@@ -406,7 +407,7 @@ if (!class_exists('Shop')) {
 				money_with_currency_format varchar(200) DEFAULT '{$this->money_with_currency_format}',
 				weight_unit varchar(20) DEFAULT '{$this->weight_unit}',
 				primary_locale varchar(20) DEFAULT '{$this->primary_locale}',
-				province varchar(20) DEFAULT '{$this->province}',
+				province varchar(200) DEFAULT '{$this->province}',
 				province_code varchar(20) DEFAULT '{$this->province_code}',
 				timezone varchar(200) DEFAULT '{$this->timezone}',
 				created_at datetime,
@@ -418,7 +419,7 @@ if (!class_exists('Shop')) {
 				taxes_included tinyint(1) DEFAULT '{$this->taxes_included}',
 				tax_shipping varchar(100) DEFAULT '{$this->tax_shipping}',
 				county_taxes varchar(100) DEFAULT '{$this->county_taxes}',
-				plan_display_name varchar(100) DEFAULT '{$this->plan_display_name}',
+				plan_display_name varchar(200) DEFAULT '{$this->plan_display_name}',
 				plan_name varchar(100) DEFAULT '{$this->plan_name}',
 				has_discounts tinyint(1) DEFAULT '{$this->has_discounts}',
 				has_gift_cards tinyint(1) DEFAULT '{$this->has_gift_cards}',

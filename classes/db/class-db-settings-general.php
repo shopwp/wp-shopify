@@ -14,7 +14,8 @@ if (!class_exists('Settings_General')) {
 
   class Settings_General extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -43,50 +44,59 @@ if (!class_exists('Settings_General')) {
 		public $app_uninstalled;
 		public $items_per_request;
 		public $enable_beta;
+		public $enable_cart_terms;
+		public $cart_terms_content;
+
+
 
   	public function __construct() {
 
       global $wpdb;
 
-      $this->table_name                     						= WPS_TABLE_NAME_SETTINGS_GENERAL;
-			$this->version                        						= '1.0';
-      $this->primary_key                    						= 'id';
-			$this->lookup_key                    							= 'id';
-      $this->cache_group                    						= 'wps_db_general';
-			$this->type     																	= 'settings_general';
+      $this->table_name_suffix  							= WPS_TABLE_NAME_SETTINGS_GENERAL;
+			$this->table_name         							= $this->get_table_name();
+			$this->version                        	= '1.0';
+      $this->primary_key                    	= 'id';
+			$this->lookup_key                    		= 'id';
+      $this->cache_group                    	= 'wps_db_general';
+			$this->type     												= 'settings_general';
 
-      $this->webhooks                       						= Utils::convert_to_https_url( get_home_url() );
-      $this->plugin_version                 						= WPS_NEW_PLUGIN_VERSION;
-      $this->plugin_author                  						= WPS_NEW_PLUGIN_AUTHOR;
-      $this->plugin_textdomain              						= WPS_PLUGIN_NAME;
-      $this->plugin_name                    						= WPS_PLUGIN_NAME_FULL;
-      $this->num_posts                      						= get_option('posts_per_page');
-			$this->title_as_alt                    						= 0;
-      $this->cart_loaded                    						= 1;
-      $this->price_with_currency            						= 0;
-      $this->styles_all                     						= 1;
-      $this->styles_core                    						= 0;
-      $this->styles_grid                    						= 0;
-      $this->selective_sync_all             						= 1;
-      $this->selective_sync_products        						= 0;
-			$this->sync_by_collections 												= '';
-      $this->selective_sync_collections     						= 0;
-      $this->selective_sync_customers       						= 0;
-      $this->selective_sync_orders          						= 0;
-      $this->selective_sync_shop            						= 1;
-			$this->products_link_to_shopify       						= 0;
-			$this->show_breadcrumbs       										= 0;
-			$this->hide_pagination       											= 0;
-			$this->is_free        														= 0;
-			$this->is_pro        															= 0;
-			$this->related_products_show        							= 1;
-			$this->related_products_sort        							= 'random';
-			$this->related_products_amount        						= 4;
-			$this->allow_insecure_webhooks        						= 0;
-			$this->save_connection_only        								= 0;
-			$this->app_uninstalled        										= 0;
-			$this->items_per_request        									= WPS_MAX_ITEMS_PER_REQUEST;
-			$this->enable_beta        												= 0;
+      $this->webhooks                       	= Utils::convert_to_https_url( get_home_url() );
+
+      $this->plugin_version                 	= WPS_NEW_PLUGIN_VERSION;
+      $this->plugin_author                  	= WPS_NEW_PLUGIN_AUTHOR;
+      $this->plugin_textdomain              	= WPS_PLUGIN_NAME;
+      $this->plugin_name                    	= WPS_PLUGIN_NAME_FULL;
+      $this->num_posts                      	= get_option('posts_per_page');
+			$this->title_as_alt                    	= 0;
+      $this->cart_loaded                    	= 1;
+      $this->price_with_currency            	= 0;
+      $this->styles_all                     	= 1;
+      $this->styles_core                    	= 0;
+      $this->styles_grid                    	= 0;
+      $this->selective_sync_all             	= 1;
+      $this->selective_sync_products        	= 0;
+			$this->sync_by_collections 							= '';
+      $this->selective_sync_collections     	= 0;
+      $this->selective_sync_customers       	= 0;
+      $this->selective_sync_orders          	= 0;
+      $this->selective_sync_shop            	= 1;
+			$this->products_link_to_shopify       	= 0;
+			$this->show_breadcrumbs       					= 0;
+			$this->hide_pagination       						= 0;
+			$this->is_free        									= 0;
+			$this->is_pro        										= 0;
+			$this->related_products_show        		= 1;
+			$this->related_products_sort        		= 'random';
+			$this->related_products_amount        	= 4;
+			$this->allow_insecure_webhooks        	= 0;
+			$this->save_connection_only        			= 0;
+			$this->app_uninstalled        					= 0;
+			$this->items_per_request        				= WPS_MAX_ITEMS_PER_REQUEST;
+			$this->enable_beta        							= 0;
+			$this->enable_cart_terms        				= 0;
+			$this->cart_terms_content        				= WPS_DEFAULT_CART_TERMS_CONTENT;
+
 
     }
 
@@ -128,7 +138,9 @@ if (!class_exists('Settings_General')) {
 				'title_as_alt'       												=> '%d',
 				'app_uninstalled'       										=> '%d',
 				'items_per_request'       									=> '%d',
-				'enable_beta'       												=> '%d'
+				'enable_beta'       												=> '%d',
+				'enable_cart_terms'       									=> '%d',
+				'cart_terms_content'       									=> '%s'
       ];
 
     }
@@ -171,28 +183,65 @@ if (!class_exists('Settings_General')) {
 				'title_as_alt'       												=> $this->title_as_alt,
 				'app_uninstalled'       										=> $this->app_uninstalled,
 				'items_per_request'       									=> $this->items_per_request,
-				'enable_beta'       												=> $this->enable_beta
+				'enable_beta'       												=> $this->enable_beta,
+				'enable_cart_terms'       									=> $this->enable_cart_terms,
+				'cart_terms_content'       									=> $this->cart_terms_content
       ];
 
     }
 
 
-    /*
+		/*
 
-    Runs on plugin activation, sets default row
+		Runs on plugin activation, sets default row
+
+		*/
+		public function init($network_wide = false) {
+
+			// Creates custom tables for each blog
+			if ( is_multisite() && $network_wide ) {
+
+				$blog_ids = $this->get_network_sites();
+				$result = [];
+
+				// $site_blog_id is a string!
+				foreach ( $blog_ids as $site_blog_id ) {
+
+					switch_to_blog( $site_blog_id );
+
+					$result = $this->init_table_defaults();
+
+					restore_current_blog();
+
+				}
+
+			} else {
+
+				$result = $this->init_table_defaults();
+
+			}
+
+			return $result;
+
+		}
+
+
+		/*
+
+    Sets table defaults
 
     */
-    public function init() {
+		public function init_table_defaults() {
 
-      $results = [];
+			$results = [];
 
 			if ( !$this->table_has_been_initialized('id') ) {
 				$results = $this->insert_default_values();
 			}
 
-      return $results;
+			return $results;
 
-    }
+		}
 
 
     /*
@@ -219,7 +268,7 @@ if (!class_exists('Settings_General')) {
 
       } else {
 
-        $query = "SELECT num_posts FROM " . WPS_TABLE_NAME_SETTINGS_GENERAL;
+        $query = "SELECT num_posts FROM " . $this->table_name;
         $data = $wpdb->get_results($query);
 
         if (isset($data[0]->num_posts) && $data[0]->num_posts) {
@@ -338,6 +387,44 @@ if (!class_exists('Settings_General')) {
 
 		/*
 
+		Show cart terms
+
+		*/
+		public function enable_cart_terms() {
+
+			$enable_cart_terms = $this->get_column_single('enable_cart_terms');
+
+			if ( Utils::array_not_empty($enable_cart_terms) && isset($enable_cart_terms[0]->enable_cart_terms) ) {
+				return $enable_cart_terms[0]->enable_cart_terms;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		/*
+
+		Show cart terms
+
+		*/
+		public function cart_terms_content() {
+
+			$cart_terms_content = $this->get_column_single('cart_terms_content');
+
+			if ( Utils::array_not_empty($cart_terms_content) && isset($cart_terms_content[0]->cart_terms_content) ) {
+				return $cart_terms_content[0]->cart_terms_content;
+
+			} else {
+				return false;
+			}
+
+		}
+
+
+		/*
+
 		Gets free tier status
 
 		*/
@@ -422,12 +509,11 @@ if (!class_exists('Settings_General')) {
 
 		*/
 		public function related_products_show() {
-			return $this->get_column_single('related_products_show')[0]->related_products_show;
 
-			$related_products_amount = $this->get_column_single('related_products_amount');
+			$related_products_show = $this->get_column_single('related_products_show');
 
-			if ( Utils::array_not_empty($related_products_amount) && isset($related_products_amount[0]->related_products_amount) ) {
-				return $related_products_amount[0]->related_products_amount;
+			if ( Utils::array_not_empty($related_products_show) && isset($related_products_show[0]->related_products_show) ) {
+				return $related_products_show[0]->related_products_show;
 
 			} else {
 				return false;
@@ -598,7 +684,7 @@ if (!class_exists('Settings_General')) {
 
 				if ($enable_beta[0]->enable_beta == '1') {
 					return true;
-					
+
 				} else {
 					return false;
 				}
@@ -869,6 +955,8 @@ if (!class_exists('Settings_General')) {
 				app_uninstalled tinyint(1) unsigned NOT NULL DEFAULT '{$this->app_uninstalled}',
 				items_per_request bigint(10) NOT NULL DEFAULT '{$this->items_per_request}',
 				enable_beta tinyint(1) unsigned NOT NULL DEFAULT '{$this->enable_beta}',
+				enable_cart_terms tinyint(1) unsigned NOT NULL DEFAULT '{$this->enable_cart_terms}',
+				cart_terms_content LONGTEXT NULL,
   		  PRIMARY KEY  (id)
   		) ENGINE=InnoDB $collate";
 

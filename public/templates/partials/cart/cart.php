@@ -57,6 +57,8 @@ if ( !defined('ABSPATH') ) {
 
       <div class="wps-cart-actions-container wps-cart-section type--center">
 
+				<?php do_action('wps_cart_terms'); ?>
+
         <div class="wps-cart-discount-notice wps-cart-info__small">
           <?= apply_filters('wps_cart_shipping_text', esc_html__('Shipping and discount codes are added at checkout.', WPS_PLUGIN_TEXT_DOMAIN)); ?>
         </div>

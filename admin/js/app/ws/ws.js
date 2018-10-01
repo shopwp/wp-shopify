@@ -1021,7 +1021,7 @@ Clear Cache
 */
 function clearCache() {
 
-  return new Promise((resolve, reject) => {
+  return new Promise( (resolve, reject) => {
 
     const action_name = 'clear_cache';
 

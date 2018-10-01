@@ -11,7 +11,7 @@ import has from 'lodash/has';
 
 
 import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount } from '../utils/utils-common';
-import { createLineItemsFromVariants, createLineItemsMarkup } from '../ws/ws-cart';
+import { createLineItemsFromVariants, createLineItemsMarkup, cartTermsState } from '../ws/ws-cart';
 import { getMoneyFormat, getShop } from '../ws/ws-shop';
 import { enable, disable } from '../utils/utils-ux';
 import { bounceIn, slideInLeft, slideOutRight, pulse } from '../utils/utils-animations';
@@ -70,10 +70,83 @@ function enableCartItem($cartItem) {
 }
 
 
+/*
+
+Checks the state of the has cart terms flag. Updated within plugin settings.
+
+Under test
+
+*/
+function hasCartTerms() {
+
+  var cartTerms = WP_Shopify.hasCartTerms;
+
+  if (cartTerms == 1) {
+    return true;
+  }
+
+  if (cartTerms == 0) {
+    return false;
+  }
+
+}
+
+
+/*
+
+Gets the current value of the terms checkbox
+
+Under test
+
+*/
+function cartTermsAccepted() {
+  return jQuery('#wps-terms-checkbox').prop('checked');
+}
+
+
+/*
+
+Checkout conditions met
+
+Under test
+
+*/
+function checkoutConditionsMet() {
+
+  if ( hasCartTerms() ) {
+
+    if ( cartTermsAccepted() ) {
+      return true;
+    }
+
+    return false;
+
+  }
+
+  return true;
+
+}
+
+
+/*
+
+Enable checkout button
+
+Under test
+
+*/
 function enableCheckoutButton() {
   enable( jQuery('.wps-btn-checkout').removeClass('wps-is-disabled wps-is-loading') );
 }
 
+
+/*
+
+Disable checkout button
+
+Under test
+
+*/
 function disableCheckoutButton() {
   disable( jQuery('.wps-btn-checkout').addClass('wps-is-disabled') );
 }
@@ -866,6 +939,51 @@ function addLineItemIDs($lastLineItem, variant, checkout) {
 
 
 
+function setCartTermsCheckboxState() {
+  jQuery('#wps-terms-checkbox').prop('checked', cartTermsState());
+}
+
+
+function hasCartElements() {
+
+  var emptyNotice = jQuery('.wps-cart-item-container').find('.wps-cart-empty-notice').length;
+
+  if (emptyNotice === 0) {
+    return true;
+  }
+
+  return false;
+
+}
+
+
+function renderCartState() {
+
+  setCartTermsCheckboxState();
+
+  if ( hasCartTerms() ) {
+
+    if ( cartTermsState() && hasCartElements() ) {
+      enableCheckoutButton();
+
+    } else {
+      disableCheckoutButton();
+    }
+
+  }
+
+}
+
+
+function getCheckoutSubmit() {
+  return jQuery('#wps-btn-checkout');
+}
+
+function getTermsCheckbox() {
+  return jQuery('#wps-terms-checkbox');
+}
+
+
 export {
   updateTotalCartPricing,
   updateCartCounter,
@@ -887,5 +1005,12 @@ export {
   getLineItemFromVariantID,
   getStoredWordPressURLs,
   setStoredWordPressURLs,
-  buildWordPressURLsObj
+  buildWordPressURLsObj,
+  checkoutConditionsMet,
+  renderCartState,
+  getCheckoutSubmit,
+  getTermsCheckbox,
+  hasCartElements,
+  hasCartTerms,
+  cartTermsAccepted
 }

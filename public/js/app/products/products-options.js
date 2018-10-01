@@ -124,6 +124,7 @@ function buildSelectedOptions($newProductMetaContainer, prevSelected, variantOpt
   var indexOfExisting = checkForExistingObjectOption(prevSelected, newlySelected);
 
   prevSelected = addOrReplaceVariantSelection(indexOfExisting, prevSelected, newlySelected)
+
   prevSelected = removeDuplicateSelections(prevSelected);
 
   addNewSelectionToMetaContainer( $newProductMetaContainer, JSON.stringify(prevSelected) )

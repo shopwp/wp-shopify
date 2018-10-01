@@ -1346,6 +1346,26 @@ if (!class_exists('Templates')) {
 
 		/*
 
+		Template - cart-button-checkout
+
+		*/
+		public function wps_cart_terms() {
+
+			if ( apply_filters('wps_cart_terms_show', $this->DB_Settings_General->enable_cart_terms() ) ) {
+
+				$data = [
+					'terms_content' => $this->DB_Settings_General->cart_terms_content()
+				];
+
+				return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/cart/cart', 'terms' );
+
+			}
+
+		}
+
+
+		/*
+
 		Template - partials/cart/button
 		Shortcode [wps_cart]
 
@@ -1639,7 +1659,7 @@ if (!class_exists('Templates')) {
 			if ( !empty($product_data_cache) ) {
 				return $product_data_cache;
 			}
-			
+
 
 			$results = new \stdClass;
 			$results->details = $this->DB_Products->get_product_from_post_id($postID);
@@ -1723,6 +1743,8 @@ if (!class_exists('Templates')) {
 			add_action('wps_cart_icon', [$this, 'wps_cart_icon']);
 			add_action('wps_cart_counter', [$this, 'wps_cart_counter']);
 			add_action('wps_cart_checkout_btn', [$this, 'wps_cart_checkout_btn']);
+			add_action('wps_cart_terms', [$this, 'wps_cart_terms']);
+
 
 			/*
 

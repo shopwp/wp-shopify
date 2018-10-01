@@ -8,5 +8,7 @@
     "imposter": {
       "namespace": "WPS\\Vendor"
     }
+  },
+  "require-dev": {
   }
 }

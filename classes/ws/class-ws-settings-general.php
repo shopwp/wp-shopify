@@ -108,6 +108,28 @@ if (!class_exists('Settings_General')) {
 	      $newGeneralSettings['enable_beta'] = (int)$form_data['wps_settings_general_enable_beta'];
 	    }
 
+			if (isset($form_data['wps_settings_general_enable_cart_terms'])) {
+	      $newGeneralSettings['enable_cart_terms'] = (int)$form_data['wps_settings_general_enable_cart_terms'];
+	    }
+
+			if (isset($form_data['wps_settings_general_cart_terms_content'])) {
+
+				$terms_string = (string) $form_data['wps_settings_general_cart_terms_content'];
+
+				$newGeneralSettings['cart_terms_content'] = wp_kses($terms_string, [
+					'strong' => [],
+					'b' => [],
+					'i' => [],
+					'em' => [],
+					'a' => [
+		        'href' => [],
+		        'title' => [],
+						'target' => []
+			    ]
+				]);
+
+	    }
+
 			if (isset($form_data['wps_settings_general_sync_by_collections'])) {
 	      $newGeneralSettings['sync_by_collections'] = maybe_serialize($form_data['wps_settings_general_sync_by_collections']);
 	    }

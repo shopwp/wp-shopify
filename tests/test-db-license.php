@@ -16,7 +16,7 @@ class Test_Sync_License extends WP_UnitTestCase {
   protected static $mock_license_key;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Settings_License      = DB_Settings_License_Factory::build();
@@ -54,6 +54,36 @@ class Test_Sync_License extends WP_UnitTestCase {
 
     $results = self::$DB_Settings_License->delete(self::$mock_license_key);
     $this->assertEquals(1, $results);
+
+  }
+
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Settings_License->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_settings_license', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Settings_License->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_settings_license', $table_name_suffix );
 
   }
 

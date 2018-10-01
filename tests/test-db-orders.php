@@ -24,7 +24,7 @@ class Test_Sync_Orders extends WP_UnitTestCase {
   protected static $lookup_key;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Orders                 = DB_Orders_Factory::build();
@@ -133,6 +133,36 @@ class Test_Sync_Orders extends WP_UnitTestCase {
     $rename_result = self::$DB_Orders->maybe_rename_to_lookup_key(self::$mock_order_insert);
 
     $this->assertObjectHasAttribute(self::$DB_Orders->lookup_key, $rename_result);
+
+  }
+
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Orders->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_orders', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Orders->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_orders', $table_name_suffix );
 
   }
 

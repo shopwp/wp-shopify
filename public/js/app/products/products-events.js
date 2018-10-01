@@ -98,7 +98,8 @@ import {
   getLineItemFromVariantID,
   getStoredWordPressURLs,
   setStoredWordPressURLs,
-  buildWordPressURLsObj
+  buildWordPressURLsObj,
+  checkoutConditionsMet
 } from '../cart/cart-ui';
 
 import {
@@ -357,7 +358,11 @@ function onProductAddToCart(client) {
     resetVariantSelection($addToCartButton);
     showVariantPrice( getFromPricing(), $container );
 
-    enableCheckoutButton();
+
+    if ( checkoutConditionsMet() ) {
+      enableCheckoutButton();
+    }
+
 
     updateTotalCartPricing(checkout);
 

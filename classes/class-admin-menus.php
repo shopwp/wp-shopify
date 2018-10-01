@@ -77,6 +77,15 @@ if ( !class_exists('Admin_Menus') ) {
 			$collections = $this->DB_Collections->get_collections();
 			$name = '';
 
+			if ( empty($collections) ) { ?>
+
+				<span class="wps-no-data-found">No Collections found. Try re-syncing.</span>
+
+			<?php return;
+
+			}
+
+
 			$product = $this->DB_Products->get_product_from_post_id($post->ID);
 
 			if (Utils::has($product, 'product_id')) {
@@ -101,7 +110,7 @@ if ( !class_exists('Admin_Menus') ) {
 				</ul>
 
 			<?php } else { ?>
-				<span>No product found. Try clearing the WP Shopify cache.</span>
+				<span class="wps-no-data-found">No product found. Try clearing the WP Shopify cache.</span>
 			<?php } ?>
 
 		<?php }
@@ -114,22 +123,30 @@ if ( !class_exists('Admin_Menus') ) {
 		*/
 		public function wps_products_meta_box_tags($post) {
 
-			$allTags = $this->DB_Tags->get_unique_tags();
-			$currentTags = $this->DB_Tags->get_tags_from_post_id($post->ID);
+			$all_tags = $this->DB_Tags->get_tags();
+			$current_tags = $this->DB_Tags->get_tags_from_post_id($post->ID);
+
+			if ( empty($all_tags) ) { ?>
+
+				<span class="wps-no-data-found">No Tags found. Try re-syncing.</span>
+
+			<?php return;
+
+			}
 
 			?>
 
 			<ul id="categorychecklist" data-wp-lists="list:category" class="categorychecklist form-no-clear">
 
-			<?php foreach ($allTags as $tag) {
+			<?php foreach ($all_tags as $tag) {
 
-				$selectedTag = in_array($tag, array_column($currentTags, 'tag'));
+				$selected_tag = in_array($tag->tag, array_column($current_tags, 'tag'));
 
 				?>
 
-				<li id="tag-wrapper-<?= $tag; ?>" class="popular-tag">
-					<label class="selectit" for="tag-<?= $tag; ?>">
-						<input <?= $selectedTag ? 'checked="checked"' : ''; ?> value="16" type="checkbox" name="tags[<?= $tag; ?>]" id="tag-<?= $tag; ?>"> <?php esc_html_e( $tag ); ?>
+				<li id="tag-wrapper-<?= $tag->tag; ?>" class="popular-tag">
+					<label class="selectit" for="tag-<?= $tag->tag; ?>">
+						<input <?= $selected_tag ? 'checked="checked"' : ''; ?> value="<?= $tag->tag_id; ?>" type="checkbox" name="tags[<?= $tag->tag; ?>]" id="tag-<?= $tag->tag; ?>"> <?php esc_html_e( $tag->tag ); ?>
 					</label>
 				</li>
 
@@ -252,7 +269,7 @@ if ( !class_exists('Admin_Menus') ) {
 
 			add_filter('wp_setup_nav_menu_item', [$this, 'add_custom_nav_fields'] );
 			add_action('admin_init', [$this, 'add_nav_menu_meta_boxes']);
-			add_action('admin_init', [$this, 'add_posts_meta_boxes']);
+			// add_action('admin_init', [$this, 'add_posts_meta_boxes']);
 			add_filter('walker_nav_menu_start_el', [$this, 'walker_nav_menu_start_el_callback'], 10, 2);
 
 		}

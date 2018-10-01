@@ -21,6 +21,7 @@ if (!class_exists('Query')) {
 		private $Pagination;
 		private $DB_Products;
 
+
 		public function __construct($Template_loader, $DB_Collections, $DB_Settings_General, $DB_Images, $Pagination, $DB_Products) {
 
 			$this->Template_loader				= $Template_loader;
@@ -188,19 +189,14 @@ if (!class_exists('Query')) {
 
 						}
 
-
 					}
 
-
-
 				}
-
 
 			}
 
 
 			return $clauses;
-
 
 
 		}
@@ -264,7 +260,6 @@ if (!class_exists('Query')) {
 				foreach ($collections as $collection) {
 					$collection->feat_image = $this->DB_Images->get_feat_image_by_post_id($collection->post_id);
 				}
-
 
 
 				$data = [
@@ -527,9 +522,13 @@ if (!class_exists('Query')) {
 		*/
 		public function construct_tag_clauses($shortcode_query, $tags, $table_name) {
 
-			if (!empty($tags)) {
+			if ( !empty($tags) ) {
+
+				global $wpdb;
+
 				$shortcode_query['where'] .= ' AND tags.tag IN (' . $tags . ')';
-				$shortcode_query['join'] .= ' INNER JOIN ' . WPS_TABLE_NAME_TAGS . ' tags ON ' . $table_name . '.product_id = tags.product_id';
+				$shortcode_query['join'] .= ' INNER JOIN ' . $wpdb->prefix . WPS_TABLE_NAME_TAGS . ' tags ON ' . $table_name . '.product_id = tags.product_id';
+
 			}
 
 			return $shortcode_query;
@@ -544,12 +543,14 @@ if (!class_exists('Query')) {
 		*/
 		public function construct_variants_clauses($shortcode_query, $variants, $table_name) {
 
-			if (!empty($variants)) {
+			if ( !empty($variants) ) {
+
+				global $wpdb;
 
 				$shortcode_query['where'] .= ' AND variants.title IN (' . $variants . ')';
 
 				if (!$this->variants_already_joined($shortcode_query['join'])) {
-					$shortcode_query['join'] .= ' INNER JOIN ' . WPS_TABLE_NAME_VARIANTS . ' variants ON ' . $table_name . '.product_id = variants.product_id';
+					$shortcode_query['join'] .= ' INNER JOIN ' . $wpdb->prefix . WPS_TABLE_NAME_VARIANTS . ' variants ON ' . $table_name . '.product_id = variants.product_id';
 				}
 
 			}
@@ -567,8 +568,11 @@ if (!class_exists('Query')) {
 		public function construct_options_clauses($shortcode_query, $options, $table_name) {
 
 			if (!empty($options)) {
+
+				global $wpdb;
+
 				$shortcode_query['where'] .= ' AND options.name IN (' . $options . ')';
-				$shortcode_query['join'] .= ' INNER JOIN ' . WPS_TABLE_NAME_OPTIONS . ' options ON ' . $table_name . '.product_id = options.product_id';
+				$shortcode_query['join'] .= ' INNER JOIN ' . $wpdb->prefix . WPS_TABLE_NAME_OPTIONS . ' options ON ' . $table_name . '.product_id = options.product_id';
 			}
 
 			return $shortcode_query;
@@ -668,9 +672,11 @@ if (!class_exists('Query')) {
 
 			if (!empty($slugs)) {
 
-				$products_table_name = WPS_TABLE_NAME_PRODUCTS;
-				$collections_smart_table_name = WPS_TABLE_NAME_COLLECTIONS_SMART;
-				$collections_custom_table_name = WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+				global $wpdb;
+
+				$collections_smart_table_name 	= $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART;
+				$collections_custom_table_name 	= $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+				$collects_custom_table_name 		= $wpdb->prefix . WPS_TABLE_NAME_COLLECTS;
 
 				$shortcode_query['where'] .= ' AND collection_id in (
 				SELECT
@@ -686,7 +692,7 @@ if (!class_exists('Query')) {
 				WHERE custom.handle IN (' . $slugs . ')
 				)';
 
-				$shortcode_query['join'] .= ' INNER JOIN ' . WPS_TABLE_NAME_COLLECTS . ' collects ON collects.product_id = products.product_id';
+				$shortcode_query['join'] .= ' INNER JOIN ' . $collects_custom_table_name . ' collects ON collects.product_id = products.product_id';
 				$shortcode_query['fields'] .= ', collection_id';
 
 			}
@@ -705,9 +711,11 @@ if (!class_exists('Query')) {
 
 			if ( !empty($slugs) ) {
 
-				$products_table_name = WPS_TABLE_NAME_PRODUCTS;
-				$collections_smart_table_name = WPS_TABLE_NAME_COLLECTIONS_SMART;
-				$collections_custom_table_name = WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+				global $wpdb;
+
+				$collections_smart_table_name 	= $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART;
+				$collections_custom_table_name 	= $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM;
+				$collects_custom_table_name 		= $wpdb->prefix . WPS_TABLE_NAME_COLLECTS;
 
 				$shortcode_query['where'] .= ' AND collection_id in (
 				SELECT
@@ -723,7 +731,7 @@ if (!class_exists('Query')) {
 				WHERE custom.title IN (' . $slugs . ')
 				)';
 
-				$shortcode_query['join'] .= ' INNER JOIN ' . WPS_TABLE_NAME_COLLECTS . ' collects ON collects.product_id = products.product_id';
+				$shortcode_query['join'] .= ' INNER JOIN ' . $collects_custom_table_name . ' collects ON collects.product_id = products.product_id';
 				$shortcode_query['fields'] .= ', collection_id, collects.position';
 
 			}

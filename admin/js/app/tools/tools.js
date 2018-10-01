@@ -13,9 +13,10 @@ function toolsInit() {
   onResyncSubmit();
   onCacheClear();
   onClearSubmit();
-  
+
 
 }
+
 
 function activateToolButtons() {
 

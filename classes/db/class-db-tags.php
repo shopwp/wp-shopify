@@ -13,7 +13,8 @@ if (!class_exists('Tags')) {
 
   class Tags extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -23,9 +24,8 @@ if (!class_exists('Tags')) {
 
   	public function __construct() {
 
-      global $wpdb;
-
-      $this->table_name         = WPS_TABLE_NAME_TAGS;
+			$this->table_name_suffix  = WPS_TABLE_NAME_TAGS;
+			$this->table_name         = $this->get_table_name();
 			$this->version            = '1.0';
       $this->primary_key        = 'id';
 			$this->lookup_key        	= 'tag_id';
@@ -220,6 +220,16 @@ if (!class_exists('Tags')) {
 		public function return_tag($tag_obj) {
 			return $tag_obj->tag;
 		}
+		
+
+		/*
+
+  	Returns tag_id from tag object
+
+  	*/
+		public function return_tag_id($tag_obj) {
+			return $tag_obj->tag_id;
+		}
 
 
 		/*
@@ -271,7 +281,7 @@ if (!class_exists('Tags')) {
 
       } else {
 
-        $query = "SELECT tags.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_TAGS . " as tags ON products.product_id = tags.product_id WHERE products.post_id = %d";
+        $query = "SELECT tags.* FROM " . $wpdb->prefix . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . $wpdb->prefix . WPS_TABLE_NAME_TAGS . " as tags ON products.product_id = tags.product_id WHERE products.post_id = %d";
 
         $results = $wpdb->get_results( $wpdb->prepare($query, $postID) );
 

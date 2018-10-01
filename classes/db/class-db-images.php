@@ -14,6 +14,7 @@ if (!class_exists('Images')) {
 
   class Images extends \WPS\DB {
 
+    public $table_name_suffix;
     public $table_name;
   	public $version;
   	public $primary_key;
@@ -24,7 +25,8 @@ if (!class_exists('Images')) {
 
   	public function __construct() {
 
-      $this->table_name         	= WPS_TABLE_NAME_IMAGES;
+      $this->table_name_suffix    = WPS_TABLE_NAME_IMAGES;
+			$this->table_name         	= $this->get_table_name();
 			$this->version            	= '1.0';
       $this->primary_key        	= 'id';
 			$this->lookup_key        		= 'image_id';
@@ -324,9 +326,7 @@ if (!class_exists('Images')) {
 
 			} else {
 
-				$table_products = WPS_TABLE_NAME_PRODUCTS;
-
-				$query = "SELECT images.* FROM " . $table_products . " AS products INNER JOIN " . $this->table_name . " AS images ON images.product_id = products.product_id WHERE products.post_id = %d";
+				$query = "SELECT images.* FROM " . $wpdb->prefix . WPS_TABLE_NAME_PRODUCTS . " AS products INNER JOIN " . $this->table_name . " AS images ON images.product_id = products.product_id WHERE products.post_id = %d";
 
 				$results = $wpdb->get_results($wpdb->prepare($query, $postID));
 

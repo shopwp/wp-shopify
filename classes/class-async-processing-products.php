@@ -71,7 +71,9 @@ if ( !class_exists('Async_Processing_Products') ) {
 
 		protected function before_queue_item_save($items) {
 
-			if ($this->DB->has_compatible_charsets([WPS_TABLE_NAME_WP_OPTIONS, WPS_TABLE_NAME_PRODUCTS])) {
+			global $wpdb;
+
+			if ($this->DB->has_compatible_charsets( [$wpdb->prefix . WPS_TABLE_NAME_WP_OPTIONS, $wpdb->prefix . WPS_TABLE_NAME_PRODUCTS] ) ) {
 				return $items;
 			}
 

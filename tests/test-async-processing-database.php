@@ -20,7 +20,7 @@ class Test_Async_Processing_Database extends WP_UnitTestCase {
   protected static $CPT_Model;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$Async_Processing_Database      = Async_Processing_Database_Factory::build();

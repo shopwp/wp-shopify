@@ -1323,6 +1323,8 @@ CREATE TABLE `wptests_wps_settings_general` (
   `app_uninstalled` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `items_per_request` bigint(10) DEFAULT '250',
   `enable_beta` bigint(10) DEFAULT '0',
+  `enable_cart_terms` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `cart_terms_content` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
@@ -1449,7 +1451,7 @@ CREATE TABLE `wptests_wps_shop` (
   `money_with_currency_format` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
   `weight_unit` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
   `primary_locale` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
-  `province` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
+  `province` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
   `province_code` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
   `timezone` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT '',
   `created_at` datetime DEFAULT NULL,

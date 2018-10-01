@@ -11,7 +11,7 @@ class Test_Migrations extends WP_UnitTestCase {
 
 	protected static $Migrations_122;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
 		self::$Migrations_122		= Migrations_122_Factory::build();
 

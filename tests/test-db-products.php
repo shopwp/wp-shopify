@@ -29,7 +29,7 @@ class Test_Sync_Products extends WP_UnitTestCase {
   protected static $lookup_key;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Products                      = DB_Products_Factory::build();
@@ -187,6 +187,61 @@ class Test_Sync_Products extends WP_UnitTestCase {
     $this->assertEquals(18352, $result);
 
   }
-  
+
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Products->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_products', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Products->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_products', $table_name_suffix );
+
+  }
+
+
+  function test_it_should_create_new_table() {
+
+    $result = self::$DB_Products->create_table_if_doesnt_exist('this_is_a_new_table');
+
+    $created_table_transient = get_transient('wp_shopify_table_exists_this_is_a_new_table');
+
+    $this->assertInternalType('string', $created_table_transient);
+    $this->assertEquals(1, $created_table_transient);
+
+    $this->assertInternalType('array', $result);
+    $this->assertEquals(['this_is_a_new_table' => 'Created table this_is_a_new_table'], $result);
+
+  }
+
+
+  function test_it_should_not_create_existing_table() {
+
+    $result = self::$DB_Products->create_table_if_doesnt_exist('wptests_wps_products');
+
+    $this->assertInternalType('boolean', $result);
+    $this->assertFalse($result);
+
+  }
+
 
 }

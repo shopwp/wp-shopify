@@ -100,9 +100,7 @@ if (!class_exists('Transients')) {
 
 	  */
 	  public static function database_migration_needed() {
-
-			return get_option('wp_shopify_migration_needed');
-
+			return get_site_option('wp_shopify_migration_needed');
 	  }
 
 
@@ -113,8 +111,12 @@ if (!class_exists('Transients')) {
 	  */
 		public static function delete_custom_options() {
 
-			delete_option('wp_shopify_is_ready');
-			delete_option('wp_shopify_migration_needed');
+			$results = [];
+			
+			$results['wp_shopify_is_ready'] 					= delete_option('wp_shopify_is_ready');
+			$results['wp_shopify_migration_needed'] 	= delete_site_option('wp_shopify_migration_needed');
+
+			return $results;
 
 		}
 
@@ -221,8 +223,14 @@ if (!class_exists('Transients')) {
 
 		*/
 		public static function delete_all_cache() {
-			self::delete_short_term_cache();
-			self::delete_long_term_cache();
+
+			$results = [];
+
+			$results['delete_short_term_cache'] 	= self::delete_short_term_cache();
+			$results['delete_long_term_cache'] 		= self::delete_long_term_cache();
+
+			return $results;
+
 		}
 
 

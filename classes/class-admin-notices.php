@@ -148,7 +148,7 @@ if ( !class_exists('Admin_Notices') ) {
 
 		public function show_database_migration_needed_notice() {
 
-			if ( get_option('wp_shopify_migration_needed') ) {
+			if ( get_site_option('wp_shopify_migration_needed') ) {
 				$this->warning( Messages::get('database_migration_needed'), 'notice_warning_database_migration_needed' );
 			}
 

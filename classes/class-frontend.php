@@ -148,7 +148,8 @@ if (!class_exists('Frontend')) {
 						'post_id' 								=> is_object($post) ? $post->ID : false,
 						'nonce'										=> wp_create_nonce(WPS_FRONTEND_NONCE_ACTION),
 						'note_attributes'					=> '',
-						'checkoutAttributes' 			=> []
+						'checkoutAttributes' 			=> [],
+						'hasCartTerms' 						=> $this->Settings_General->enable_cart_terms(),
 					]
 				);
 

@@ -138,6 +138,8 @@ if (!class_exists('Collections')) {
 	  */
 		public function get_all_collections_query() {
 
+			global $wpdb;
+
 			return "SELECT
 			smart.collection_id,
 			smart.post_id,
@@ -149,7 +151,7 @@ if (!class_exists('Collections')) {
 			smart.published_at,
 			smart.updated_at,
 			smart.rules
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart
 
 			UNION
 
@@ -164,7 +166,7 @@ if (!class_exists('Collections')) {
 			custom.published_at,
 			custom.updated_at,
 			NULL as rules
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom";
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom";
 
 		}
 
@@ -184,7 +186,9 @@ if (!class_exists('Collections')) {
 
 			global $wpdb;
 
-			$results = $wpdb->get_results( $this->get_all_collections_query() );
+			$query_string = $this->get_all_collections_query();
+
+			$results = $wpdb->get_results($query_string);
 
 			Transients::set('wps_all_collections', $results);
 
@@ -203,6 +207,7 @@ if (!class_exists('Collections')) {
 	    global $wpdb;
 			global $post;
 
+
 	    if ($postID === null && is_object($post)) {
 	      $postID = $post->ID;
 	    }
@@ -218,7 +223,7 @@ if (!class_exists('Collections')) {
 			smart.published_at,
 			smart.updated_at,
 			smart.rules
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.post_id = $postID
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.post_id = $postID
 
 			UNION
 
@@ -233,7 +238,7 @@ if (!class_exists('Collections')) {
 			custom.published_at,
 			custom.updated_at,
 			NULL as rules
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.post_id = $postID;";
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.post_id = $postID;";
 
 
 			/*
@@ -314,7 +319,7 @@ if (!class_exists('Collections')) {
 				smart.sort_order,
 				smart.published_at,
 				smart.updated_at
-				FROM ' . WPS_TABLE_NAME_COLLECTIONS_SMART . ' smart
+				FROM ' . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . ' smart
 
 				UNION ALL
 
@@ -328,9 +333,9 @@ if (!class_exists('Collections')) {
 				custom.sort_order,
 				custom.published_at,
 				custom.updated_at
-				FROM ' . WPS_TABLE_NAME_COLLECTIONS_CUSTOM .' custom
+				FROM ' . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM .' custom
 
-			) as collections ON ' . WPS_TABLE_NAME_WP_POSTS . '.ID = collections.post_id',
+			) as collections ON ' . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . '.ID = collections.post_id',
 				'orderby' => $wpdb->posts . '.menu_order',
 				'distinct' => '',
 				'fields' => 'collections.*',
@@ -465,14 +470,14 @@ if (!class_exists('Collections')) {
 			$query = "SELECT
 			smart.collection_id,
 			smart.rules
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.handle = %s
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.handle = %s
 
 			UNION
 
 			SELECT
 			custom.collection_id,
 			NULL as rules
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.handle = %s;";
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.handle = %s;";
 
 			return $wpdb->get_row( $wpdb->prepare($query, $post_name, $post_name) );
 
@@ -497,13 +502,13 @@ if (!class_exists('Collections')) {
 
 			$query = "SELECT
 			smart.collection_id
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.collection_id IN " . $collection_ids . "
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.collection_id IN " . $collection_ids . "
 
 			UNION
 
 			SELECT
 			custom.collection_id
-			FROM " . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.collection_id IN " . $collection_ids .  ";";
+			FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.collection_id IN " . $collection_ids .  ";";
 
 			return $wpdb->get_results($query, ARRAY_A);
 

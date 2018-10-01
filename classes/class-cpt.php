@@ -306,20 +306,20 @@ if ( !class_exists('CPT') ) {
 		We need to now create the proper collects row connection
 
 		*/
-		public function add_collects_to_post($savedCollections, $product) {
+		public function add_collects_to_post($saved_collections, $product) {
 
-			$insertionResults = [];
+			$insertion_results = [];
 
-			foreach ($savedCollections as $newSavedCollectionID => $value) {
+			foreach ($saved_collections as $new_saved_collection_id => $value) {
 
-				$productID = (int) $product->product_id;
-				$numberString1 = (int) substr(strval($newSavedCollectionID), 0, -4);
-				$numberString2 = (int) substr(strval($productID), 0, -4);
+				$product_id = (int) $product->product_id;
+				$number_string_1 = (int) substr(strval($new_saved_collection_id), 0, -4);
+				$number_string_2 = (int) substr(strval($product_id), 0, -4);
 
 				$collect = [
-					'collect_id'           => $numberString1 . $numberString2 . 1111,
+					'collect_id'           => $number_string_1 . $number_string_2 . 1111,
 					'product_id'           => $product->product_id,
-					'collection_id'        => $newSavedCollectionID,
+					'collection_id'        => $new_saved_collection_id,
 					'featured'             => '',
 					'position'             => '',
 					'sort_value'           => '',
@@ -328,11 +328,11 @@ if ( !class_exists('CPT') ) {
 				];
 
 				// Inserts any new collects
-				$insertionResults[] = $this->DB_Collects->insert_collect($collect);
+				$insertion_results[] = $this->DB_Collects->insert_collect($collect);
 
 			}
 
-			return $insertionResults;
+			return $insertion_results;
 
 		}
 
@@ -345,7 +345,7 @@ if ( !class_exists('CPT') ) {
 		*/
 		public function add_tags_to_post($saved_tags, $product) {
 
-			$insertionResults = [];
+			$insertion_results = [];
 
 			foreach ($saved_tags as $saved_tag => $saved_tag_value) {
 
@@ -353,12 +353,16 @@ if ( !class_exists('CPT') ) {
 				$numberString1 = (int) ord($saved_tag);
 				$numberString2 = (int) substr(strval($product_id), 0, -4);
 
-				// Inserts any new collects
-				$insertionResults[] = $this->DB_Tags->insert_tag( $this->DB_Tags->construct_tag_model($saved_tag, $product, $product->post_id) );
+				$product->id = $product->product_id;
+
+				$final_tags_to_add = $this->DB_Tags->add_tag_id_to_tag( $this->DB_Tags->construct_tag_model($saved_tag, $product, $product->post_id) );
+
+				// Inserts any new tags
+				$insertion_results[] = $this->DB_Tags->insert_tag( $final_tags_to_add );
 
 			}
 
-			return $insertionResults;
+			return $insertion_results;
 
 		}
 
@@ -392,7 +396,9 @@ if ( !class_exists('CPT') ) {
 			$removalResult = [];
 
 			foreach ($tags_to_remove as $key => $tag_id) {
+
 				$removalResult[] = $this->DB_Tags->delete_rows_in($this->DB_Tags->lookup_key, $tag_id);
+
 			}
 
 			return $removalResult;
@@ -405,14 +411,13 @@ if ( !class_exists('CPT') ) {
 		Fires when custom post type `wps_products` is saved / updated
 
 		*/
-		public function on_save_products($postID, $post, $update) {
+		public function on_save_products($post_id, $post, $update) {
 
 			if (function_exists('get_current_screen') && !empty(get_current_screen()) && get_current_screen()->id === WPS_PRODUCTS_POST_TYPE_SLUG) {
 
-				$product = $this->DB_Products->get_product_from_post_id($postID);
-
-				$collectsResults = $this->save_collects_to_post($product);
-				$tagsResults = $this->save_tags_to_post($product);
+				$product = $this->DB_Products->get_product_from_post_id($post_id);
+				$collects_results = $this->save_collects_to_post($product);
+				$tags_results = $this->save_tags_to_post($product);
 
 
 				/*
@@ -420,8 +425,8 @@ if ( !class_exists('CPT') ) {
 				Updates the product title and post content
 
 				*/
-				$title = $this->DB_Products->update_column_single(['title' => $post->post_title], ['post_id' => $postID]);
-				$body_content = $this->DB_Products->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $postID]);
+				$title = $this->DB_Products->update_column_single(['title' => $post->post_title], ['post_id' => $post_id]);
+				$body_content = $this->DB_Products->update_column_single(['body_html' => wpautop($post->post_content)], ['post_id' => $post_id]);
 
 
 				/*
@@ -429,7 +434,7 @@ if ( !class_exists('CPT') ) {
 				Clear product cache and log errors if present
 
 				*/
-				$transientSingleProductDeletion = Transients::delete_cached_single_product_by_id($postID);
+				$transientSingleProductDeletion = Transients::delete_cached_single_product_by_id($post_id);
 				$transientProductQueriesDeletion = Transients::delete_cached_product_queries();
 
 				if (is_wp_error($transientSingleProductDeletion)) {
@@ -485,12 +490,14 @@ if ( !class_exists('CPT') ) {
 			$collects = $this->DB_Collects->get_collects_from_product_id($product->product_id);
 			$collections = $this->establish_items_for_post('collections');
 
-			$collectsAdded = $this->add_collects_to_post( $this->find_items_to_add($collects, $collections['saved']), $product);
-			$collectsRemoved = $this->remove_collects_from_post( $this->find_items_to_remove($collects, $collections['saved_orig']) );
+			$collects_added = $this->add_collects_to_post( $this->find_items_to_add($collects, $collections['saved']), $product);
+			$collects_to_remove = $this->find_items_to_remove($collects, $collections['saved_orig']);
+
+			$collects_removed = $this->remove_collects_from_post($collects_to_remove);
 
 			return [
-				'collects_added' => $collectsAdded,
-				'collects_removed' => $collectsRemoved
+				'collects_added' => $collects_added,
+				'collects_removed' => $collects_removed
 			];
 
 		}
@@ -501,31 +508,36 @@ if ( !class_exists('CPT') ) {
 		Creating array of collects to potentially remove
 
 		*/
-		public function find_items_to_add($currentItems, $savedItems) {
+		public function find_items_to_add($current_items, $saved_items) {
 
-			foreach ($currentItems as $key => $currentItem) {
+			foreach ($current_items as $key => $current_item) {
 
-				if (isset($currentItem->collection_id) && $currentItem->collection_id) {
+				if (isset($current_item->collection_id) && $current_item->collection_id) {
 
-					if (isset($savedItems[$currentItem->collection_id])) {
-						unset($savedItems[$currentItem->collection_id]);
+					if (isset($saved_items[$current_item->collection_id])) {
+						unset($saved_items[$current_item->collection_id]);
 					}
 
 				}
 
-				if (isset($currentItem->id) && $currentItem->id) {
-
-					if (isset($savedItems[$currentItem->tag])) {
-						unset($savedItems[$currentItem->tag]);
+				if (isset($current_item->tag) && $current_item->tag) {
+					if (isset($saved_items[$current_item->tag])) {
+						unset($saved_items[$current_item->tag]);
 					}
 
 				}
 
 			}
 
-			return $savedItems;
+			return $saved_items;
 
 		}
+
+
+		public function found_item_to_remove($current_item_id, $saved_items) {
+			return in_array($current_item_id, $saved_items, true);
+		}
+
 
 
 		/*
@@ -533,28 +545,36 @@ if ( !class_exists('CPT') ) {
 		Creating array of collects to potentially remove
 
 		*/
-		public function find_items_to_remove($current_items, $savedItemsOrig) {
+		public function find_items_to_remove($current_items, $saved_items) {
 
 			$current_items_orig = Utils::convert_to_assoc_array($current_items);
-			$itemsToRemove = [];
+			$current_items_to_remove = [];
 
-			foreach ($current_items_orig as $item) {
 
-				if (isset($item['collection_id']) && $item['collection_id']) {
-					if (!array_key_exists($item['collection_id'], $savedItemsOrig)) {
-						$itemsToRemove[] = $item['id'];
+			foreach ($current_items_orig as $current_item) {
+
+				// Collects
+				if ( !empty($current_item['collection_id']) ) {
+
+					if ( !$this->found_item_to_remove($current_item['collection_id'], $saved_items) ) {
+						$current_items_to_remove[] = $current_item['collect_id'];
 					}
+
 				}
 
-				if (isset($item['id']) && $item['id']) {
-					if (!array_key_exists($item['tag'], $savedItemsOrig)) {
-						$itemsToRemove[] = $item['id'];
+				// Tags
+				if ( !empty($current_item['tag_id']) ) {
+
+					if ( !$this->found_item_to_remove($current_item['tag_id'], $saved_items) ) {
+						$current_items_to_remove[] = $current_item['tag_id'];
 					}
+
 				}
 
 			}
 
-			return $itemsToRemove;
+
+			return $current_items_to_remove;
 
 		}
 
@@ -566,15 +586,19 @@ if ( !class_exists('CPT') ) {
 		*/
 		public function save_tags_to_post($product) {
 
-			$currentTags = $this->DB_Tags->get_tags_from_post_id($product->post_id);
-			$savedTags = $this->establish_items_for_post('tags');
+			$current_tags = $this->DB_Tags->get_tags_from_post_id($product->post_id);
+			$saved_tags = $this->establish_items_for_post('tags');
 
-			$tagsAdded = $this->add_tags_to_post( $this->find_items_to_add($currentTags, $savedTags['saved']), $product);
-			$tagsRemoved = $this->remove_tags_from_post( $this->find_items_to_remove($currentTags, $savedTags['saved_orig']) );
+			$tags_to_add = $this->find_items_to_add($current_tags, $saved_tags['saved']);
+			$tags_added = $this->add_tags_to_post($tags_to_add, $product);
+			$tags_to_remove = $this->find_items_to_remove($current_tags, $saved_tags['saved']);
+
+
+			$tags_removed = $this->remove_tags_from_post($tags_to_remove);
 
 			return [
-				'tags_added' => $tagsAdded,
-				'tags_removed' => $tagsRemoved
+				'tags_added' => $tags_added,
+				'tags_removed' => $tags_removed
 			];
 
 		}
@@ -587,21 +611,21 @@ if ( !class_exists('CPT') ) {
 		*/
 		public function establish_items_for_post($type) {
 
-			if (isset($_POST[$type]) && $_POST[$type]) {
-				$savedItems = $_POST[$type];
-				$savedItemsOrig = $_POST[$type];
+			if ( isset($_POST[$type]) && $_POST[$type] ) {
+				$saved_items = $_POST[$type];
+				$saved_items_orig = $_POST[$type];
 
 			} else {
 
 				// Should never be empty, but just incase ...
-				$savedItems = [];
-				$savedItemsOrig = [];
+				$saved_items = [];
+				$saved_items_orig = [];
 
 			}
 
 			return [
-				'saved' 			=> $savedItems,
-				'saved_orig'	=> $savedItemsOrig
+				'saved' 			=> $saved_items,
+				'saved_orig'	=> $saved_items_orig
 			];
 
 		}

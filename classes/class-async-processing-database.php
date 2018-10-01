@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Transients;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -33,10 +34,11 @@ if ( !class_exists('Async_Processing_Database') ) {
 		protected $Transients;
 		protected $WS_Webhooks;
 		protected $WS_CPT;
+		protected $WS_Settings_License;
 		protected $License;
 
 
-		public function __construct($Config, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Collects, $DB_Customers, $DB_Images, $DB_Options, $DB_Orders, $DB_Products, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_License, $DB_Settings_Syncing, $DB_Shop, $DB_Tags, $DB_Variants, $Transients, $WS_Webhooks, $WS_CPT, $License) {
+		public function __construct($Config, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Collects, $DB_Customers, $DB_Images, $DB_Options, $DB_Orders, $DB_Products, $DB_Settings_Connection, $DB_Settings_General, $DB_Settings_License, $DB_Settings_Syncing, $DB_Shop, $DB_Tags, $DB_Variants, $Transients, $WS_Webhooks, $WS_CPT, $WS_Settings_License, $License) {
 
 			$this->Config 														= $Config;
 			$this->DB_Collections_Custom 							= $DB_Collections_Custom;
@@ -58,9 +60,66 @@ if ( !class_exists('Async_Processing_Database') ) {
 
 			$this->WS_Webhooks 												= $WS_Webhooks;
 			$this->WS_CPT 														= $WS_CPT;
+			$this->WS_Settings_License 								= $WS_Settings_License;
 			$this->License 														= $this->License;
 
+			$this->DB 																= $DB_Variants; // Convenience
+
 			parent::__construct();
+
+		}
+
+
+		/*
+
+		When uninstalling the plugin
+
+		*/
+		public function uninstall_plugin() {
+
+			$results = [];
+
+			if ($this->DB_Settings_General->is_free_tier() && $this->DB_Settings_General->is_pro_tier() ) {
+				$this->DB_Settings_General->set_free_tier(0);
+
+			} else {
+
+
+				$results['delete_posts'] 									= $this->delete_posts();
+				$results['drop_custom_tables'] 						= $this->drop_custom_tables();
+				$results['drop_custom_migration_tables'] 	= $this->drop_custom_migration_tables(WPS_TABLE_MIGRATION_SUFFIX);
+
+			}
+
+			$results['delete_all_cache'] 								= Transients::delete_all_cache();
+			$results['delete_custom_options'] 					= Transients::delete_custom_options();
+
+			return $results;
+
+		}
+
+
+		/*
+
+		When uninstalling the plugin
+
+		*/
+		public function uninstall_plugin_multisite() {
+
+			$results = [];
+			$blog_ids = $this->DB->get_network_sites();
+
+			foreach ( $blog_ids as $site_blog_id ) {
+
+				switch_to_blog( $site_blog_id );
+
+				$results['blog_' . $site_blog_id] = $this->uninstall_plugin();
+
+				restore_current_blog();
+
+			}
+
+			return $results;
 
 		}
 

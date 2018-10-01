@@ -13,6 +13,7 @@ if (!class_exists('Options')) {
 
   class Options extends \WPS\DB {
 
+		public $table_name_suffix;
     public $table_name;
   	public $version;
   	public $primary_key;
@@ -23,7 +24,8 @@ if (!class_exists('Options')) {
 
   	public function __construct() {
 
-      $this->table_name         	= WPS_TABLE_NAME_OPTIONS;
+			$this->table_name_suffix  	= WPS_TABLE_NAME_OPTIONS;
+      $this->table_name         	= $this->get_table_name();
 			$this->version            	= '1.0';
       $this->primary_key        	= 'id';
       $this->lookup_key        		= 'option_id';
@@ -174,7 +176,7 @@ if (!class_exists('Options')) {
 
       } else {
 
-        $query = "SELECT options.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . WPS_TABLE_NAME_OPTIONS . " as options ON products.product_id = options.product_id WHERE products.post_id = %d";
+        $query = "SELECT options.* FROM " . $wpdb->prefix . WPS_TABLE_NAME_PRODUCTS . " as products INNER JOIN " . $wpdb->prefix . WPS_TABLE_NAME_OPTIONS . " as options ON products.product_id = options.product_id WHERE products.post_id = %d";
 
         $results = $wpdb->get_results( $wpdb->prepare($query, $postID) );
 

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6791811f112c0aa670ac0a8bccace538",
-    "content-hash": "0a29fbbd731943c0dbef3e192feb6f4b",
+    "hash": "70e70f664cf86f08822a9fce0b2226b9",
+    "content-hash": "a47f52073c6e886f839ca9ffa226edd0",
     "packages": [
         {
             "name": "gamajo/template-loader",

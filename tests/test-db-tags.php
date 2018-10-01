@@ -26,7 +26,7 @@ class Test_Sync_Tags extends WP_UnitTestCase {
   protected static $mock_tag_delete;
   protected static $lookup_key;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Tags                        = DB_Tags_Factory::build();
@@ -151,6 +151,35 @@ class Test_Sync_Tags extends WP_UnitTestCase {
 
   }
 
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Tags->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_tags', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Tags->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_tags', $table_name_suffix );
+
+  }
 
 
 }

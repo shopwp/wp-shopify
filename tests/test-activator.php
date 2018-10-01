@@ -16,7 +16,13 @@ class Test_Activator extends WP_UnitTestCase {
 	protected static $DB_Settings_Syncing;
 	protected static $Activator;
 
-  static function setUpBeforeClass() {
+
+	/*
+
+	Setup ...
+
+	*/
+  static function wpSetUpBeforeClass() {
 
 		self::$DB_Settings_General		= DB_Settings_General_Factory::build();
 		self::$DB_Settings_Syncing		= DB_Settings_Syncing_Factory::build();

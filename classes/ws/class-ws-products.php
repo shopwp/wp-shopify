@@ -377,6 +377,7 @@ if (!class_exists('Products')) {
 				return $combined_product_ids;
 			}
 
+
 			$result = $this->Shopify_API->get_products_listing_product_ids_per_page($current_page);
 
 			if (is_wp_error($result)) {
@@ -417,7 +418,9 @@ if (!class_exists('Products')) {
 				$this->send_error( $product_ids->get_error_message() . ' (get_product_ids_by_collection_ids)' );
 			}
 
+
 			$this->DB_Settings_Syncing->set_published_product_ids($product_ids);
+
 			$this->send_success($product_ids);
 
 		}
@@ -473,7 +476,7 @@ if (!class_exists('Products')) {
 			$current_page = Utils::get_current_page($_POST);
 
 			$products = $this->get_products_per_page( $current_page );
-			
+
 
 			// Check if error occured during request
 			if ( is_wp_error($products) ) {

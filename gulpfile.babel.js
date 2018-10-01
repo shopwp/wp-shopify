@@ -1,7 +1,6 @@
 /////////////
 // Imports //
 /////////////
-
 import jsAdmin from "./gulp/tasks/js-admin";
 import jsPublic from "./gulp/tasks/js-public";
 
@@ -15,7 +14,7 @@ import imagesAdmin from "./gulp/tasks/images-admin";
 
 import server from "./gulp/tasks/server";
 import watch from "./gulp/tasks/watch";
-import init from "./gulp/tasks/init";
+
 
 import cleanTmp from "./gulp/tasks/clean-tmp";
 import cleanFreeRepo from "./gulp/tasks/clean-free-repo";
@@ -27,3 +26,5 @@ import cleanFree from "./gulp/tasks/clean-free";
 import cleanPro from "./gulp/tasks/clean-pro";
 
 import cleanBuilds from "./gulp/tasks/clean-builds";
+
+import init from "./gulp/tasks/init";

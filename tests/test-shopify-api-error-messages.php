@@ -15,7 +15,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
 	protected static $HTTP;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
     // Assemble
     self::$HTTP = HTTP_Factory::build();
 

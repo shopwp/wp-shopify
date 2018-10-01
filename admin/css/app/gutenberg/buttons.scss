@@ -1,0 +1,84 @@
+.wps-button-group,
+.wp-core-ui .wps-button-group.button-group {
+
+  .button.button-primary {
+    box-shadow: rgb(0, 100, 140) 0px -1px 0px 0px inset;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: flex;
+    min-height: auto;
+    min-width: auto;
+    text-decoration: none solid rgb(255, 255, 255);
+    text-shadow: rgb(0, 93, 130) 0px -1px 1px, rgb(0, 93, 130) 1px 0px 1px, rgb(0, 93, 130) 0px 1px 1px, rgb(0, 93, 130) -1px 0px 1px;
+    vertical-align: top;
+    white-space: nowrap;
+    column-rule-color: rgb(255, 255, 255);
+    perspective-origin: 35.1719px 16.5px;
+    transform-origin: 35.1719px 16.5px;
+    caret-color: rgb(255, 255, 255);
+    background: rgb(0, 133, 186) none repeat scroll 0% 0% / auto padding-box border-box;
+    border-top: 1px solid rgb(0, 106, 149);
+    border-right: 1px solid rgb(0, 100, 140);
+    border-bottom: 1px solid rgb(0, 100, 140);
+    border-left: 1px solid rgb(0, 100, 140);
+    border-radius: 4px 4px 4px 4px;
+    font: normal normal 400 normal 13px / 32px -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    margin: 0px 12px 0px 0;
+    outline: rgb(255, 255, 255) none 0px;
+    padding: 0px 12px 2px;
+    height: 33px;
+    font-size: 13px;
+    line-height: 2;
+
+    &:hover {
+      background: #007eb1;
+      border-color: #00435d;
+      box-shadow: inset 0 -1px 0 #00435d;
+      color: #fff;
+    }
+
+    &:active:not(:disabled):not([aria-disabled=true]) {
+      background: #006a95;
+      border-color: #00435d;
+      box-shadow: inset 0 1px 0 #00435d;
+      vertical-align: top;
+      transform: translateY(0px);
+    }
+
+    &:after {
+      box-sizing: border-box;
+      color: rgb(255, 255, 255);
+      cursor: pointer;
+      display: block;
+      min-height: auto;
+      min-width: auto;
+      text-decoration: none solid rgb(255, 255, 255);
+      text-shadow: rgb(0, 93, 130) 0px -1px 1px, rgb(0, 93, 130) 1px 0px 1px, rgb(0, 93, 130) 0px 1px 1px, rgb(0, 93, 130) -1px 0px 1px;
+      white-space: nowrap;
+      column-rule-color: rgb(255, 255, 255);
+      caret-color: rgb(255, 255, 255);
+      border: 0px none rgb(255, 255, 255);
+      font: normal normal 400 normal 13px / 32px -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      outline: rgb(255, 255, 255) none 0px;
+    }
+
+    &:before {
+      box-sizing: border-box;
+      color: rgb(255, 255, 255);
+      cursor: pointer;
+      display: block;
+      min-height: auto;
+      min-width: auto;
+      text-decoration: none solid rgb(255, 255, 255);
+      text-shadow: rgb(0, 93, 130) 0px -1px 1px, rgb(0, 93, 130) 1px 0px 1px, rgb(0, 93, 130) 0px 1px 1px, rgb(0, 93, 130) -1px 0px 1px;
+      white-space: nowrap;
+      column-rule-color: rgb(255, 255, 255);
+      caret-color: rgb(255, 255, 255);
+      border: 0px none rgb(255, 255, 255);
+      font: normal normal 400 normal 13px / 32px -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      outline: rgb(255, 255, 255) none 0px;
+    }
+
+  }
+
+}

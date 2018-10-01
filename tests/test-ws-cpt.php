@@ -12,7 +12,7 @@ class Test_WS_CPT extends WP_UnitTestCase {
 	protected static $WS_CPT;
 	protected static $mock_product;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
 		self::$WS_CPT								= WS_CPT_Factory::build();
 		self::$mock_product        	= json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );

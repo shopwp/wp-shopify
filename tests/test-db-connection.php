@@ -18,7 +18,7 @@ class Test_Sync_Connection extends WP_UnitTestCase {
   protected static $lookup_key;
 
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     // Assemble
     self::$DB_Settings_Connection       = DB_Settings_Connection_Factory::build();
@@ -68,6 +68,36 @@ class Test_Sync_Connection extends WP_UnitTestCase {
 
     $results = self::$DB_Settings_Connection->delete();
     $this->assertEquals(1, $results);
+
+  }
+
+
+  /*
+
+  It should return the complete table name with suffix as string
+
+  */
+  function test_it_should_get_table_name() {
+
+    $table_name = self::$DB_Settings_Connection->get_table_name();
+
+    $this->assertInternalType('string', $table_name );
+    $this->assertEquals('wptests_wps_settings_connection', $table_name );
+
+  }
+
+
+  /*
+
+  It should return only the table name suffix as string
+
+  */
+  function test_it_should_get_table_name_suffix() {
+
+    $table_name_suffix = self::$DB_Settings_Connection->table_name_suffix;
+
+    $this->assertInternalType('string', $table_name_suffix );
+    $this->assertEquals('wps_settings_connection', $table_name_suffix );
 
   }
 

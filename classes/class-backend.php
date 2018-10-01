@@ -182,7 +182,7 @@ if ( !class_exists('Backend') ) {
 						'isConnecting' 							=> false,
 						'latestVersion'							=> WPS_NEW_PLUGIN_VERSION,
 						'latestVersionCombined'			=> str_replace('.', '', WPS_NEW_PLUGIN_VERSION),
-						'migrationNeeded'						=> get_option('wp_shopify_migration_needed'),
+						'migrationNeeded'						=> get_site_option('wp_shopify_migration_needed'),
 						'itemsPerRequest'						=> $this->DB_Settings_General->get_items_per_request(),
 						'maxItemsPerRequest'				=> WPS_MAX_ITEMS_PER_REQUEST
 					]

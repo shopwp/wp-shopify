@@ -16,7 +16,8 @@ if (!class_exists('Orders')) {
 
   class Orders extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -26,7 +27,8 @@ if (!class_exists('Orders')) {
 
   	public function __construct() {
 
-			$this->table_name         	= WPS_TABLE_NAME_ORDERS;
+			$this->table_name_suffix  	= WPS_TABLE_NAME_ORDERS;
+			$this->table_name         	= $this->get_table_name();
 			$this->version            	= '1.0';
       $this->primary_key        	= 'id';
 			$this->lookup_key        		= 'order_id';

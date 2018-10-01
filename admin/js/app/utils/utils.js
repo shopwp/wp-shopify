@@ -9,6 +9,7 @@ import isURL from 'validator/lib/isURL';
 import dateFormat from 'dateformat';
 import { stopSpinner } from './utils-dom';
 
+
 /*
 
 Is WordPress Error
@@ -256,9 +257,11 @@ function containsTrailingForwardSlash(url) {
     return false;
   }
 
-  if(url[url.length - 1] === '/') {
+  if ( url[url.length - 1] === '/') {
     return true;
   }
+
+  return false;
 
 }
 

@@ -7,7 +7,7 @@ import { isCheckoutEmpty } from '../utils/utils-cart';
 import { getClient } from '../utils/utils-client';
 import { pulse } from '../utils/utils-animations';
 import { logNotice, showSingleCartNotice, noticeConfigEmptyLineItemsBeforeUpdate, isWordPressError } from '../utils/utils-notices';
-import { getCheckout, updateLineItems, addCheckoutAttributes } from '../ws/ws-cart';
+import { getCheckout, updateLineItems, addCheckoutAttributes, cartTermsState, setCartTermsState } from '../ws/ws-cart';
 import { quantityFinder, convertCustomAttrsToQueryString, containsInvalidLineItemProps } from '../utils/utils-common';
 
 import {
@@ -22,10 +22,47 @@ import {
   disableCheckoutButton,
   cartIsOpen,
   closeCart,
-  enableCartIcon
+  enableCartIcon,
+  checkoutConditionsMet,
+  getCheckoutSubmit,
+  getTermsCheckbox,
+  hasCartElements
 } from './cart-ui';
 
 import { anyCustomAttrs } from '../ws/ws-checkout';
+
+
+
+
+
+
+function onCartTermsChange(client) {
+
+  jQuery('#wps-terms-checkbox').change( async function() {
+
+    if (this.checked) {
+
+      setCartTermsState(true);
+
+      if ( hasCartElements() ) {
+        enableCheckoutButton();
+
+      } else {
+        disableCheckoutButton();
+      }
+
+    } else {
+
+      disableCheckoutButton();
+      setCartTermsState(false);
+
+    }
+
+  });
+
+}
+
+
 
 /*
 
@@ -207,10 +244,15 @@ function onManualQuantityChange(client, checkout) {
 
 
 function enableCartFunctionality($lineItem) {
+
   enableCartItem($lineItem);
-  enableCheckoutButton();
   enableAllQuantityInputs();
   enableCartIcon();
+
+  if ( checkoutConditionsMet() ) {
+    enableCheckoutButton();
+  }
+
 }
 
 
@@ -409,6 +451,7 @@ function cartEvents(client, checkout) {
   onOpenCart();
   onCloseCart();
   onCartQuantity(client, checkout);
+  onCartTermsChange(client);
 }
 
 function onCartQuantity(client, checkout) {

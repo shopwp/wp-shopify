@@ -11,7 +11,7 @@ class Test_WS_Products extends WP_UnitTestCase {
 
 	protected static $WS_Products;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
 		self::$WS_Products = WS_Products_Factory::build();
 

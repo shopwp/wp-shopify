@@ -347,7 +347,11 @@ if ( !class_exists('CPT_Query') ) {
 
 		*/
 		public function start_update_query() {
-			return "UPDATE " . WPS_TABLE_NAME_WP_POSTS . " SET ";
+
+			global $wpdb;
+
+			return "UPDATE " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . " SET ";
+
 		}
 
 
@@ -518,6 +522,8 @@ if ( !class_exists('CPT_Query') ) {
 				return false;
 			}
 
+			global $wpdb;
+
 			$posts_column_names = $this->construct_posts_col_names_as_string();
 
 			// Should return an array of Shopify items
@@ -530,7 +536,7 @@ if ( !class_exists('CPT_Query') ) {
 
 			$posts_column_values_insert = $this->construct_posts_col_values_as_string($items_to_insert, $post_type);
 
-			return "INSERT INTO " . WPS_TABLE_NAME_WP_POSTS . $posts_column_names . " VALUES " . $posts_column_values_insert . ";";
+			return "INSERT INTO " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . $posts_column_names . " VALUES " . $posts_column_values_insert . ";";
 
 		}
 

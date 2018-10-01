@@ -222,6 +222,23 @@ function flushCacheIfNeeded(client, checkout) {
 // }
 
 
+function cartTermsState() {
+
+  var cartTermsState = localStorage.getItem('wps-cart-terms-accepted');
+
+  if (cartTermsState === 'true') {
+    return true;
+  }
+
+  return false;
+}
+
+
+function setCartTermsState(state) {
+  localStorage.setItem('wps-cart-terms-accepted', state);
+}
+
+
 export {
   getCheckout,
   createCheckout,
@@ -234,5 +251,7 @@ export {
   updateLineItems,
   removeAllLineItems,
   checkoutCompleted,
-  addCheckoutAttributes
+  addCheckoutAttributes,
+  cartTermsState,
+  setCartTermsState
 }

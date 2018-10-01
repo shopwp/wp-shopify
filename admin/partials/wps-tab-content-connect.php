@@ -25,7 +25,7 @@ Tab Content: Connect
 
   <div class="wps-admin-section">
 
-    <p><?php printf(__('Enter your Shopify private app API keys below. Need help finding these? Watch our <a href="%s" target="_blank"> video tutorial</a>!', WPS_PLUGIN_TEXT_DOMAIN), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
+    <p><?php printf(__('Enter your Shopify private app API keys below. Need help finding these? Watch our <a href="%s" target="_blank"> video tutorial</a>.', WPS_PLUGIN_TEXT_DOMAIN), esc_url('https://www.youtube.com/watch?v=lYm6G35e8sI'));  ?></p>
 
     <form method="post" name="cleanup_options" action="options.php" id="wps-connect" class="wps-admin-form">
 
@@ -119,10 +119,12 @@ Tab Content: Connect
 
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
+
         <?php if($connected) { ?>
-          <?php submit_button(esc_html__('Disconnect your Shopify store', WPS_PLUGIN_TEXT_DOMAIN), 'primary large', 'submitDisconnect', false, array()); ?>
+          <?php submit_button( esc_html__('Disconnect your Shopify store', WPS_PLUGIN_TEXT_DOMAIN), 'primary large', 'submitDisconnect', false, array()); ?>
+
         <?php } else { ?>
-          <?php submit_button(esc_html__('Connect your Shopify store', WPS_PLUGIN_TEXT_DOMAIN), 'primary large', 'submitConnect', false, array()); ?>
+          <?php submit_button( esc_html__('Connect your Shopify store', WPS_PLUGIN_TEXT_DOMAIN), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
         <div class="spinner"></div>
 

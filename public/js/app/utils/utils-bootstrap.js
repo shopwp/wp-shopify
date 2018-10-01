@@ -10,7 +10,7 @@ import { isCheckoutEmpty, clearLS } from './utils-cart';
 import { globalEvents } from './utils-events';
 import { logNotice, noticeConfigUnableToBuildCheckout, noticeConfigUnableToFlushCache, noticeConfigUnableToCreateNewShoppingSession } from './utils-notices';
 import { triggerEventAfterBootstrap, triggerEventBeforeBootstrap } from './utils-triggers';
-import { updateCartCounter, updateTotalCartPricing, renderCartItems, emptyCartUI, enableCartIcon } from '../cart/cart-ui';
+import { updateCartCounter, updateTotalCartPricing, renderCartItems, emptyCartUI, enableCartIcon, renderCartState } from '../cart/cart-ui';
 import { removeProductOptionIds, getCheckoutID } from '../ws/ws-products';
 
 
@@ -54,6 +54,8 @@ function bootstrapCartUI(client, checkout) {
     renderCartItems(checkout);
 
   }
+
+  renderCartState();
 
 }
 
@@ -141,7 +143,6 @@ function bootstrap() {
       checkout = newCheckout;
 
     }
-
 
     cacheGlobalObjects(shop, checkout);
 

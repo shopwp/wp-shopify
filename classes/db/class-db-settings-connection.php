@@ -13,7 +13,8 @@ if (!class_exists('Settings_Connection')) {
 
   class Settings_Connection extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -34,9 +35,8 @@ if (!class_exists('Settings_Connection')) {
 
   	public function __construct() {
 
-      global $wpdb;
-
-      $this->table_name      					= WPS_TABLE_NAME_SETTINGS_CONNECTION;
+			$this->table_name_suffix  			= WPS_TABLE_NAME_SETTINGS_CONNECTION;
+			$this->table_name         			= $this->get_table_name();
 			$this->version         					= '1.0';
       $this->primary_key     					= 'id';
       $this->lookup_key     					= 'id';

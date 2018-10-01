@@ -1,0 +1,106 @@
+.wps-form-group {
+
+  input,
+  .chosen-container-multi .chosen-choices {
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif;
+    font-size: 13px;
+    padding: 6px 8px;
+    box-shadow: 0 0 0 transparent;
+    transition: box-shadow .1s linear;
+    border-radius: 4px;
+    border: 1px solid #cecece;
+    background-image: none;
+
+    &:focus {
+      color: #191e23;
+      border-color: #00a0d2;
+      box-shadow: 0 0 0 1px #00a0d2;
+      outline: 2px solid transparent;
+      outline-offset: -2px;
+    }
+
+    &[type="radio"] {
+      border-radius: 50%;
+      border: 2px solid #6c7781;
+      line-height: 10px;
+      transition: none;
+
+      &:disabled {
+        opacity: 0.3;
+      }
+
+      &:checked {
+        background: #11a0d2;
+        border-color: #11a0d2;
+
+        &:before {
+          margin: 3px 0 0 3px;
+          background-color: #fff;
+          text-indent: -9999px;
+          border-radius: 50px;
+          font-size: 24px;
+          width: 6px;
+          height: 6px;
+          line-height: 16px;
+        }
+
+      }
+
+      &:checked:focus {
+        box-shadow: 0 0 0 2px #555d66;
+      }
+
+    }
+
+    &[type=checkbox] {
+      border-radius: 2px;
+      border: 2px solid #6c7781;
+      margin-right: 12px;
+      transition: none;
+      background: #fff;
+      color: #555;
+      clear: none;
+      cursor: pointer;
+      line-height: 0;
+      height: 16px;
+      margin: -4px 4px 0 0;
+      outline: 0;
+      padding: 0!important;
+      text-align: center;
+      vertical-align: middle;
+      width: 16px;
+      min-width: 16px;
+      -webkit-appearance: none;
+
+      &:disabled {
+        opacity: 0.3;
+      }
+
+      &:focus {
+        border-color: #6c7781;
+        box-shadow: 0 0 0 1px #6c7781;
+        color: #191e23;
+        outline: 2px solid transparent;
+        outline-offset: -2px;
+      }
+
+      &:checked {
+        background: #11a0d2;
+        border-color: #11a0d2;
+
+        &:before {
+          margin: -4px 0 0 -5px;
+          color: #fff;
+        }
+
+      }
+
+      &:checked:focus {
+        box-shadow: 0 0 0 2px #555d66;
+      }
+
+    }
+
+  }
+
+}

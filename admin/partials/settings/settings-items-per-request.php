@@ -1,4 +1,4 @@
-<div class="wps-form-group wps-form-group-tight wps-form-group-align-top">
+<div class="wps-form-group wps-form-group-align-top">
 
   <table class="form-table">
     <tbody>

@@ -158,6 +158,8 @@ Tab Content: Settings
           <?php
 
           require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-enable-cart-terms.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-cart-terms-content.php';
 
           ?>
 

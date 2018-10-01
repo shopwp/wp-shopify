@@ -17,7 +17,7 @@ class Test_CPT extends WP_UnitTestCase {
 	protected static $mock_product;
 	protected static $mock_collection;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
 		self::$CPT_Model								= CPT_Model_Factory::build();
 		self::$CPT_Query								= CPT_Query_Factory::build();

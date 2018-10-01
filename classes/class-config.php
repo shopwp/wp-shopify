@@ -75,7 +75,7 @@ if ( !class_exists('Config') ) {
 			$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 			$this->plugin_name_js 													= 'WP_Shopify';
 			$this->plugin_text_domain 											= 'wp-shopify';
-			$this->plugin_version 													= '1.2.4';
+			$this->plugin_version 													= '1.2.5';
 			$this->plugin_author 														= 'WP Shopify';
 
 			$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -119,30 +119,33 @@ if ( !class_exists('Config') ) {
 			$this->settings_general_option_name 						= $this->plugin_name . '_settings_general';
 			$this->settings_license_option_name 						= $this->plugin_name . '_settings_license';
 
-			$this->plugin_table_name_images									=	$wpdb->prefix . 'wps_images';
-			$this->plugin_table_name_variants								=	$wpdb->prefix . 'wps_variants';
-			$this->plugin_table_name_tags										=	$wpdb->prefix . 'wps_tags';
-			$this->plugin_table_name_shop										=	$wpdb->prefix . 'wps_shop';
-			$this->plugin_table_name_settings_license				=	$wpdb->prefix . 'wps_settings_license';
-			$this->plugin_table_name_settings_general				=	$wpdb->prefix . 'wps_settings_general';
-			$this->plugin_table_name_settings_connection		=	$wpdb->prefix . 'wps_settings_connection';
-			$this->plugin_table_name_settings_syncing				=	$wpdb->prefix . 'wps_settings_syncing';
-			$this->plugin_table_name_products								=	$wpdb->prefix . 'wps_products';
-			$this->plugin_table_name_orders									=	$wpdb->prefix . 'wps_orders';
-			$this->plugin_table_name_options								=	$wpdb->prefix . 'wps_options';
-			$this->plugin_table_name_customers							=	$wpdb->prefix . 'wps_customers';
-			$this->plugin_table_name_collects								=	$wpdb->prefix . 'wps_collects';
-			$this->plugin_table_name_collections_custom			=	$wpdb->prefix . 'wps_collections_custom';
-			$this->plugin_table_name_collections_smart			=	$wpdb->prefix . 'wps_collections_smart';
-			$this->plugin_table_name_wp_posts								=	$wpdb->prefix . 'posts';
-			$this->plugin_table_name_wp_postmeta						=	$wpdb->prefix . 'postmeta';
-			$this->plugin_table_name_wp_term_relationships	=	$wpdb->prefix . 'term_relationships';
-			$this->plugin_table_name_wp_options							=	$wpdb->prefix . 'options';
+			$this->plugin_table_name_images 								= 'wps_images';
+			$this->plugin_table_name_variants								=	'wps_variants';
+			$this->plugin_table_name_tags										=	'wps_tags';
+			$this->plugin_table_name_shop										=	'wps_shop';
+			$this->plugin_table_name_settings_license				=	'wps_settings_license';
+			$this->plugin_table_name_settings_general				=	'wps_settings_general';
+			$this->plugin_table_name_settings_connection		=	'wps_settings_connection';
+			$this->plugin_table_name_settings_syncing				=	'wps_settings_syncing';
+			$this->plugin_table_name_products								=	'wps_products';
+			$this->plugin_table_name_orders									=	'wps_orders';
+			$this->plugin_table_name_options								=	'wps_options';
+			$this->plugin_table_name_customers							=	'wps_customers';
+			$this->plugin_table_name_collects								=	'wps_collects';
+			$this->plugin_table_name_collections_custom			=	'wps_collections_custom';
+			$this->plugin_table_name_collections_smart			=	'wps_collections_smart';
+			
+			$this->plugin_table_name_wp_posts								=	'posts';
+			$this->plugin_table_name_wp_postmeta						=	'postmeta';
+			$this->plugin_table_name_wp_term_relationships	=	'term_relationships';
+			$this->plugin_table_name_wp_options							=	'options';
+
 			$this->plugin_table_migration_suffix						=	'_migrate';
 			$this->plugin_table_migration_suffix_tests			=	'_migrate_tests';
 
 			$this->plugin_products_lookup_key								=	'product_id';
 			$this->plugin_collections_lookup_key						=	'collection_id';
+			$this->plugin_cart_default_terms_content				=	'I agree with the terms and conditions.';
 
 
 			if ( !defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') ) {
@@ -396,6 +399,12 @@ if ( !class_exists('Config') ) {
 			if ( !defined('WPS_COLLECTIONS_LOOKUP_KEY') ) {
 				define('WPS_COLLECTIONS_LOOKUP_KEY', $this->plugin_collections_lookup_key);
 			}
+
+			if ( !defined('WPS_DEFAULT_CART_TERMS_CONTENT') ) {
+				define('WPS_DEFAULT_CART_TERMS_CONTENT', $this->plugin_cart_default_terms_content);
+			}
+
+
 
 		}
 

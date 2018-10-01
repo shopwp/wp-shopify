@@ -3,7 +3,7 @@
 Load cart
 
 -->
-<div class="wps-form-group wps-form-group-tight wps-form-group-align-top">
+<div class="wps-form-group wps-form-group-align-top">
 
   <table class="form-table">
 
@@ -16,9 +16,7 @@ Load cart
         </th>
 
         <td class="forminp forminp-text">
-          <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_products_link_to_shopify" class="wps-label-block">
-            <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_products_link_to_shopify]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_products_link_to_shopify" type="checkbox" <?php echo $general->products_link_to_shopify ? 'checked' : ''; ?>>
-          </label>
+          <input name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_products_link_to_shopify]" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_products_link_to_shopify" type="checkbox" <?php echo $general->products_link_to_shopify ? 'checked' : ''; ?>>
         </td>
 
       </tr>

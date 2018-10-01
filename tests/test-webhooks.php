@@ -11,7 +11,7 @@ class Test_Webhooks extends WP_UnitTestCase {
 
 	protected static $Webhooks;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 		self::$Webhooks = Webhooks_Factory::build();
   }
 

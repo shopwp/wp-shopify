@@ -15,7 +15,7 @@ class Test_Utils extends WP_UnitTestCase {
   protected static $options_one;
   protected static $options_three;
 
-  static function setUpBeforeClass() {
+  static function wpSetUpBeforeClass() {
 
     self::$mock_products     								 = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products.json") );
 		self::$mock_product_without_image_src    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/products/product-without-image-src.json") );

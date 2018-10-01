@@ -93,6 +93,8 @@ function onSettingsFormSubmit() {
       var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
       var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
       var enableBetaAttr = jQuery(form).find("#wps_settings_general_enable_beta").attr("checked");
+      var enableCartTermsAttr = jQuery(form).find("#wps_settings_general_enable_cart_terms").attr("checked");
+      var cartTermsContent = jQuery(form).find("#wps_settings_general_cart_terms_content").val();
       // var titlesAsAltAttr = jQuery(form).find("#wps_settings_general_title_as_alt").attr("checked");
       var productsLinkToShopifyAttr = jQuery(form).find("#wps_settings_general_products_link_to_shopify").attr("checked");
       var showBreadcrumbsAttr = jQuery(form).find("#wps_settings_general_show_breadcrumbs").attr("checked");
@@ -299,6 +301,14 @@ function onSettingsFormSubmit() {
       }
 
 
+      if (typeof enableCartTermsAttr !== typeof undefined && enableCartTermsAttr !== false) {
+        var enableCartTerms = 1;
+
+      } else {
+        var enableCartTerms = 0;
+      }
+
+
       if (typeof stylesAllAttr !== typeof undefined && stylesAllAttr !== false) {
         var stylesAll = 1;
 
@@ -348,10 +358,13 @@ function onSettingsFormSubmit() {
         wps_settings_general_price_with_currency: priceFormat,
         wps_settings_general_cart_loaded: cartLoaded,
         wps_settings_general_enable_beta: enableBeta,
+        wps_settings_general_enable_cart_terms: enableCartTerms,
+        wps_settings_general_enable_cart_terms: enableCartTerms,
         wps_settings_general_save_connection_only: saveConnectionOnly,
         wps_settings_general_related_products_show: relatedProductsShow,
         wps_settings_general_related_products_sort: relatedProductsSort,
         wps_settings_general_related_products_amount: relatedProductsAmount,
+        wps_settings_general_cart_terms_content: cartTermsContent,
         wps_settings_general_items_per_request: itemsPerRequest,
 
 
@@ -509,19 +522,6 @@ function chosenInit() {
 
 
 
-function preselectCollections(selectedCollections) {
-
-  forEach(selectedCollections, collectionID => {
-
-    jQuery('#wps-sync-by-collections option[value="' + collectionID + '"]')
-      .attr('selected', true)
-      .prop('selected', true);
-
-  });
-
-}
-
-
 
 function populateCollectionOptions(allCollections) {
 
@@ -568,20 +568,11 @@ async function populateSyncByCollections() {
   if (allCollections.success && has(allCollections, 'data')) {
     populateCollectionOptions(allCollections.data);
 
-    if (has(selectedCollections, 'data')) {
-      preselectCollections(selectedCollections.data);
-
-    } else {
-      resetSyncByCollectionOptions();
-    }
 
   } else {
     showSyncByCollectionsNotice();
   }
 
-  jQuery("#wps-sync-by-collections").trigger("chosen:updated");
-  jQuery("#wps-sync-by-collections-wrapper .spinner").hide();
-  jQuery("#wps_sync_by_collections_chosen").addClass('wps-is-visible');
 
 }
 

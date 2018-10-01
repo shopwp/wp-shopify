@@ -24,6 +24,7 @@ use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\WS_Webhooks_Factory;
 use WPS\Factories\WS_CPT_Factory;
+use WPS\Factories\WS_Settings_License_Factory;
 
 
 if (!defined('ABSPATH')) {
@@ -60,6 +61,7 @@ if (!class_exists('Async_Processing_Database_Factory')) {
 					Transients_Factory::build(),
 					WS_Webhooks_Factory::build(),
 					WS_CPT_Factory::build(),
+					WS_Settings_License_Factory::build(),
 					License_Factory::build()
 				);
 

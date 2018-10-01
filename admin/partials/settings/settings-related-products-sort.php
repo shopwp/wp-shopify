@@ -19,25 +19,59 @@ Related Products Sort Type
 
           <td class="forminp forminp-text wps-checkbox-wrapper">
 
-            <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_random" class="wps-label-block wps-checkbox-all">
-              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_random" class="tog" value="random" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'random' ? 'checked' : ''; ?>> <?php esc_html_e( 'Random', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-            </label>
+            <div class="wps-label-block-wrapper wps-checkbox-all">
 
-            <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_collections" class="wps-label-block wps-checkbox-all">
-              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_collections" class="tog" value="collections" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'collections' ? 'checked' : ''; ?>> <?php esc_html_e( 'Collections', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-            </label>
+              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_random" class="tog" value="random" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'random' ? 'checked' : ''; ?>>
 
-            <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_tags" class="wps-label-block wps-checkbox-all">
-              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_tags" class="tog" value="tags" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'tags' ? 'checked' : ''; ?>> <?php esc_html_e( 'Tags', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-            </label>
+              <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_random" class="wps-label-block wps-checkbox-all">
+                 <?php esc_html_e( 'Random', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+              </label>
 
-            <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_vendors" class="wps-label-block wps-checkbox-all">
-              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_vendors" class="tog" value="vendors" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'vendors' ? 'checked' : ''; ?>> <?php esc_html_e( 'Vendors', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-            </label>
+            </div>
 
-            <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_types" class="wps-label-block wps-checkbox-all">
-              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_types" class="tog" value="types" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'types' ? 'checked' : ''; ?>> <?php esc_html_e( 'Types', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-            </label>
+
+            <div class="wps-label-block-wrapper">
+
+              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_collections" class="tog" value="collections" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'collections' ? 'checked' : ''; ?>>
+
+              <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_collections" class="wps-label-block wps-checkbox-all">
+                <?php esc_html_e( 'Collections', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+              </label>
+
+            </div>
+
+
+            <div class="wps-label-block-wrapper">
+
+              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_tags" class="tog" value="tags" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'tags' ? 'checked' : ''; ?>>
+
+              <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_tags" class="wps-label-block wps-checkbox-all">
+                <?php esc_html_e( 'Tags', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+              </label>
+
+            </div>
+
+
+            <div class="wps-label-block-wrapper">
+
+              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_vendors" class="tog" value="vendors" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'vendors' ? 'checked' : ''; ?>>
+
+              <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_vendors" class="wps-label-block wps-checkbox-all">
+                <?php esc_html_e( 'Vendors', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+              </label>
+
+            </div>
+
+
+            <div class="wps-label-block-wrapper">
+
+              <input id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_types" class="tog" value="types" type="radio" name="related_proudcts_filter" <?php echo $general->related_products_sort === 'types' ? 'checked' : ''; ?>>
+
+              <label for="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_types" class="wps-label-block wps-checkbox-all">
+                 <?php esc_html_e( 'Types', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+              </label>
+
+            </div>
 
           </td>
 

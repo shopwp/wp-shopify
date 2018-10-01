@@ -14,6 +14,7 @@ if (!class_exists('Collections_Smart')) {
 
   class Collections_Smart extends \WPS\DB {
 
+		public $table_name_suffix;
     public $table_name;
   	public $version;
   	public $primary_key;
@@ -24,7 +25,8 @@ if (!class_exists('Collections_Smart')) {
 
   	public function __construct() {
 
-      $this->table_name         			= WPS_TABLE_NAME_COLLECTIONS_SMART;
+      $this->table_name_suffix  			= WPS_TABLE_NAME_COLLECTIONS_SMART;
+			$this->table_name         			= $this->get_table_name();
 			$this->version            			= '1.0';
       $this->primary_key        			= 'id';
       $this->lookup_key        				= WPS_COLLECTIONS_LOOKUP_KEY;
@@ -86,7 +88,7 @@ if (!class_exists('Collections_Smart')) {
   		return array(
   			'where' => '',
   			'groupby' => '',
-  			'join' => ' INNER JOIN ' . WPS_TABLE_NAME_COLLECTIONS_SMART . ' smart ON ' . $wpdb->posts . '.ID = smart.post_id',
+  			'join' => ' INNER JOIN ' . $this->table_name . ' smart ON ' . $wpdb->posts . '.ID = smart.post_id',
   			'orderby' => '',
   			'distinct' => '',
   			'fields' => 'smart .*',

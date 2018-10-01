@@ -14,7 +14,8 @@ if (!class_exists('Settings_Syncing')) {
 
   class Settings_Syncing extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -54,7 +55,8 @@ if (!class_exists('Settings_Syncing')) {
 
       global $wpdb;
 
-      $this->table_name      															= WPS_TABLE_NAME_SETTINGS_SYNCING;
+      $this->table_name_suffix         										= WPS_TABLE_NAME_SETTINGS_SYNCING;
+			$this->table_name         													= $this->get_table_name();
 			$this->version         															= '1.0';
       $this->primary_key     															= 'id';
       $this->lookup_key     															= 'id';
@@ -94,7 +96,7 @@ if (!class_exists('Settings_Syncing')) {
 			$this->finished_collection_posts_relationships 			= 0;
 			$this->finished_data_deletions 											= 0;
 
-			$this->published_product_ids 														= '';
+			$this->published_product_ids 												= '';
 
     }
 
@@ -972,7 +974,7 @@ if (!class_exists('Settings_Syncing')) {
 				$amount_to_increment = 1;
 			}
 
-			$query = 'UPDATE ' . WPS_TABLE_NAME_SETTINGS_SYNCING . ' SET syncing_current_amounts_' . $key . ' = syncing_current_amounts_' . $key . ' + ' . $amount_to_increment;
+			$query = 'UPDATE ' . $this->table_name . ' SET syncing_current_amounts_' . $key . ' = syncing_current_amounts_' . $key . ' + ' . $amount_to_increment;
 
 			return $wpdb->query($query);
 
@@ -994,7 +996,7 @@ if (!class_exists('Settings_Syncing')) {
 				$amount_to_increment = 1;
 			}
 
-			$query = 'UPDATE ' . WPS_TABLE_NAME_SETTINGS_SYNCING . ' SET syncing_current_deletion_amounts_' . $key . ' = syncing_current_deletion_amounts_' . $key . ' + ' . $amount_to_increment;
+			$query = 'UPDATE ' . $this->table_name . ' SET syncing_current_deletion_amounts_' . $key . ' = syncing_current_deletion_amounts_' . $key . ' + ' . $amount_to_increment;
 
 			return $wpdb->query($query);
 
@@ -1350,20 +1352,55 @@ if (!class_exists('Settings_Syncing')) {
 
 		/*
 
-		Initializes table with default row
+		Runs on plugin activation, sets default row
 
 		*/
-		public function init() {
+		public function init($network_wide = false) {
 
-      $results = [];
+			// Creates custom tables for each blog
+			if ( is_multisite() && $network_wide ) {
 
-			if ( !$this->table_has_been_initialized('id') ) {
-				$results = $this->insert( $this->get_column_defaults() );
+				$blog_ids = $this->get_network_sites();
+				$result = [];
+
+				// $site_blog_id is a string!
+				foreach ( $blog_ids as $site_blog_id ) {
+
+					switch_to_blog( $site_blog_id );
+
+					$result = $this->init_table_defaults();
+
+					restore_current_blog();
+
+				}
+
+			} else {
+
+				$result = $this->init_table_defaults();
+
 			}
 
-      return $results;
+			return $result;
 
-    }
+		}
+
+
+		/*
+
+    Sets table defaults
+
+    */
+		public function init_table_defaults() {
+
+			$results = [];
+
+			if ( !$this->table_has_been_initialized('id') ) {
+				$results = $this->insert_default_values();
+			}
+
+			return $results;
+
+		}
 
 
 		/*

@@ -16,7 +16,8 @@ if (!class_exists('Products')) {
 
   class Products extends \WPS\DB {
 
-    public $table_name;
+    public $table_name_suffix;
+		public $table_name;
   	public $version;
   	public $primary_key;
 		public $lookup_key;
@@ -26,7 +27,8 @@ if (!class_exists('Products')) {
 
   	public function __construct() {
 
-      $this->table_name         		= WPS_TABLE_NAME_PRODUCTS;
+			$this->table_name_suffix  		= WPS_TABLE_NAME_PRODUCTS;
+			$this->table_name         		= $this->get_table_name();
 			$this->version            		= '1.0';
       $this->primary_key        		= 'id';
 			$this->lookup_key        			= WPS_PRODUCTS_LOOKUP_KEY;
@@ -205,7 +207,7 @@ if (!class_exists('Products')) {
         $results = get_transient('wps_product_single_' . $postID);
 
       } else {
-        $query = "SELECT products.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products WHERE products.post_id = %d";
+        $query = "SELECT products.* FROM " . $this->table_name . " as products WHERE products.post_id = %d";
         $results = $wpdb->get_row( $wpdb->prepare($query, $postID) );
 
         set_transient('wps_product_single_' . $postID, $results);
@@ -230,7 +232,7 @@ if (!class_exists('Products')) {
         return;
       }
 
-      $query = "SELECT products.* FROM " . WPS_TABLE_NAME_PRODUCTS . " as products WHERE products.handle = %s";
+      $query = "SELECT products.* FROM " . $this->table_name . " as products WHERE products.handle = %s";
 			$results = $wpdb->get_row( $wpdb->prepare($query, $post_name) );
 
       return $results;
@@ -473,13 +475,9 @@ if (!class_exists('Products')) {
 
       global $wpdb;
 
-      $query = "SELECT products.* FROM " . WPS_TABLE_NAME_PRODUCTS ." products INNER JOIN " . WPS_TABLE_NAME_COLLECTS . " collects ON products.product_id = collects.product_id WHERE collects.collection_id = %d order by collects.position asc;";
+      $query = "SELECT products.* FROM " . $this->table_name . " products INNER JOIN " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTS . " collects ON products.product_id = collects.product_id WHERE collects.collection_id = %d order by collects.position asc;";
 
-      /*
-
-      Get the products
-
-      */
+      // Get the products
       $products = $wpdb->get_results(
         $wpdb->prepare($query, $collection_id)
       );
@@ -501,8 +499,8 @@ if (!class_exists('Products')) {
       return [
         'where' => '',
         'groupby' => '',
-        'join' => ' INNER JOIN ' . WPS_TABLE_NAME_PRODUCTS . ' products ON ' .
-           $wpdb->posts . '.ID = products.post_id INNER JOIN ' . WPS_TABLE_NAME_VARIANTS . ' variants ON products.product_id = variants.product_id AND variants.position = 1',
+        'join' => ' INNER JOIN ' . $this->table_name . ' products ON ' .
+           $wpdb->posts . '.ID = products.post_id INNER JOIN ' . $wpdb->prefix . WPS_TABLE_NAME_VARIANTS . ' variants ON products.product_id = variants.product_id AND variants.position = 1',
         'orderby' => $wpdb->posts . '.menu_order',
         'distinct' => '',
         'fields' => 'products.*, variants.price',
