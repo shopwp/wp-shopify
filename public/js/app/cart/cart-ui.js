@@ -586,7 +586,7 @@ Get Line Item Image
 function getLineItemImage(lineItem) {
 
   if ( !lineItemExists(lineItem) || !lineItem.variant.image ) {
-    return WP_Shopify.pluginsPath + '/wp-shopify/public/imgs/placeholder.png';
+    return WP_Shopify.pluginsDirURL + 'public/imgs/placeholder.png';
 
   } else {
     return lineItem.variant.image.src;

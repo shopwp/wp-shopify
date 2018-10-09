@@ -9,8 +9,8 @@ set -o errexit
 # Setting up our variables ...
 #
 PLUGINS_FOLDER="/Users/arobbins/www/wpstest/public/wp-content/plugins/"
-PLUGIN_PATH="/Users/arobbins/www/wpstest/public/wp-content/plugins/wp-shopify/"
-BUILD_FOLDER="/Users/arobbins/www/wpstest/assets/_build/wp-shopify"
+PLUGIN_PATH="/Users/arobbins/www/wpstest/public/wp-content/plugins/wp-shopify-pro/"
+BUILD_FOLDER="/Users/arobbins/www/wpstest/assets/_build/wp-shopify-pro"
 
 GREEN='\033[0;32m'
 NC='\033[0m'
@@ -33,7 +33,7 @@ printf "${GREEN}Success: ${NC}Copied plugin to build folder\n"
 #
 cd $BUILD_FOLDER
 cd ..
-zip -rq $BUILD_FOLDER/wpshopify.zip ./wp-shopify
+zip -rq $BUILD_FOLDER/wpshopify.zip ./wp-shopify-pro
 printf "${GREEN}Success: ${NC}Created .zip\n"
 
 #

@@ -113,6 +113,7 @@ class Transients {
 
 		$results['wp_shopify_is_ready'] 					= delete_option('wp_shopify_is_ready');
 		$results['wp_shopify_migration_needed'] 	= delete_site_option('wp_shopify_migration_needed');
+		$results['wps_settings_general'] 					= delete_site_option('wps_settings_general');
 
 		return $results;
 

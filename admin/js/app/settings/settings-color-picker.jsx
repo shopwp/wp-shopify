@@ -54,7 +54,7 @@ Picker: Variant button
 */
 class ColorPickerVariant extends React.Component {
 
-  updateColor = colorData => {
+  updateColor = (colorData) => {
     return updateSettingVariantColor(colorData);
   };
 
@@ -78,7 +78,7 @@ Picker: Add to cart button
 */
 class ColorPickerAddToCart extends React.Component {
 
-  updateColor = colorData => {
+  updateColor = (colorData) => {
     return updateSettingAddToCartColor(colorData);
   };
 
@@ -102,7 +102,7 @@ Picker: Checkout button
 */
 class ColorPickerCheckout extends React.Component {
 
-  updateColor = colorData => {
+  updateColor = (colorData) => {
     return updateSettingCheckoutColor(colorData);
   };
 
@@ -126,7 +126,7 @@ Picker: Cart Counter
 */
 class ColorPickerCartCounter extends React.Component {
 
-  updateColor = colorData => {
+  updateColor = (colorData) => {
     return updateSettingCartCounterColor(colorData);
   };
 
@@ -150,7 +150,7 @@ Picker: Cart Counter
 */
 class ColorPickerCartIcon extends React.Component {
 
-  updateColor = colorData => {
+  updateColor = (colorData) => {
     return updateSettingCartIconColor(colorData);
   };
 

@@ -11,7 +11,7 @@ import uglify from 'gulp-uglify';
 gulp.task('js', done => {
 
   return gulp
-    .src( config.files.js )
+    .src( config.files.jsEntryAdmin )
     .pipe( webpackStream( config.webpackConfig(), webpack) )
     .pipe( gulp.dest(config.folders.dist) );
 

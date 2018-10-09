@@ -88,11 +88,12 @@ function getItemCounts() {
 
   return Promise.all([
 
-    getSmartCollectionsCount(), // get_smart_collections_count
-    getCustomCollectionsCount(), // get_custom_collections_count
-    getProductsCount(), // get_products_count & // get_product_listings_count
-    getCollectsCount(), // get_collects_count
-    getShopCount() // get_shop_count
+
+    getSmartCollectionsCount(),
+    getCustomCollectionsCount(),
+    getProductsCount(),
+    getCollectsCount(),
+    getShopCount()
 
   ]);
 

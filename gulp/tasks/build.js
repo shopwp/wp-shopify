@@ -70,11 +70,11 @@ gulp.task('build:preprocess', () => {
 
   return gulp
     .src( config.files.toBeProcessed, { base: "./" } )
-    .pipe(preprocess({
+    .pipe( preprocess({
       context: {
         NODE_ENV: config.buildTier
       }
-    }))
+    }) )
     .pipe(replace('<?php ?>', function(match, p1, offset, string) {
       console.log('\x1b[33m%s\x1b[0m', 'Notice: replaced ' + match + ' in file: ' + this.file.relative);
       return '';

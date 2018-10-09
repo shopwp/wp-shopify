@@ -21,7 +21,7 @@ global.WP_Shopify = {
   maxItemsPerRequest: "250",
   migrationNeeded: "",
   nonce: "2488872091",
-  pluginsDirURL: "http://wpstest.test/wp-content/plugins/wp-shopify/",
+  pluginsDirURL: "http://wpstest.test/wp-content/plugins/wp-shopify-pro/",
   pluginsPath: "http://wpstest.test/wp-content/plugins",
   reconnectingWebhooks: "",
   hasCartTerms: "0",

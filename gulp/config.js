@@ -67,11 +67,9 @@ var config = {
       '!./.eslintrc',
       '!./**/*.DS_Store',
       '!./**/*.babelrc',
-      '!./admin.min.js',
       '!./package.json',
       '!./phpunit.xml.dist',
       '!./postcss.config.js',
-      '!./public.min.js',
       '!./gulpfile.babel.js'
     ],
     // Represents all the files needed for other developers to work with. What gets commited to the free repo.
@@ -225,9 +223,11 @@ function webpackConfig(outputFinalname) {
     watch: false,
     mode: config.isBuilding ? 'production' : 'development',
     cache: true,
+
+    // IMPORTANT: This entry will override an entry set within webpack stream
     entry: {
-      public: './public/js/app/app',
-      admin: './admin/js/app/app'
+      public: config.isBuilding ? './_tmp/public/js/app/app' : './public/js/app/app',
+      admin: config.isBuilding ? './_tmp/admin/js/app/app' : './admin/js/app/app'
     },
     output: {
       filename: '[name].min.js',
@@ -277,6 +277,7 @@ function webpackConfig(outputFinalname) {
             {
               loader: 'babel-loader',
               options: {
+                babelrcRoots:  [".", "./_tmp/*"],
                 presets: [
                   '@babel/preset-env',
                   '@babel/preset-react'
@@ -288,11 +289,14 @@ function webpackConfig(outputFinalname) {
         {
           test: /\.jsx?$/,
           exclude: /node_modules/,
+          enforce: 'pre',
           use: [
             {
               loader: 'babel-loader',
               options: {
+                babelrcRoots:  [".", "./_tmp/*"],
                 presets: [
+                  '@babel/preset-env',
                   '@babel/preset-react'
                 ]
               }
