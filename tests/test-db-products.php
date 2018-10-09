@@ -13,7 +13,7 @@ the example output Shopify uses within their documentation found here:
 https://help.shopify.com/api/reference/webhook
 
 */
-class Test_Sync_Products extends WP_UnitTestCase {
+class Test_DB_Products extends WP_UnitTestCase {
 
   protected static $DB_Products;
   protected static $Templates;
@@ -240,6 +240,65 @@ class Test_Sync_Products extends WP_UnitTestCase {
 
     $this->assertInternalType('boolean', $result);
     $this->assertFalse($result);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_product_id', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_post_id', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_title', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_body_html', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_handle', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_image', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_images', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_vendor', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_product_type', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_published_scope', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_published_at', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_updated_at', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_created_at', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_admin_graphql_api_id', self::$DB_Products);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Products);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Products);
+    $this->assertObjectHasAttribute('version', self::$DB_Products);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Products);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Products);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Products);
+    $this->assertObjectHasAttribute('type', self::$DB_Products);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Products->get_columns() );
+    $default_cols_count = count( self::$DB_Products->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
 
   }
 

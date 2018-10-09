@@ -12,7 +12,7 @@ the example output Shopify uses within their documentation found here:
 https://help.shopify.com/api/reference/webhook
 
 */
-class Test_Sync_Collections_Smart extends WP_UnitTestCase {
+class Test_DB_Collections_Smart extends WP_UnitTestCase {
 
   protected static $DB_Collections_Smart;
   protected static $mock_collections;
@@ -112,6 +112,62 @@ class Test_Sync_Collections_Smart extends WP_UnitTestCase {
 
     $this->assertInternalType('string', $table_name_suffix );
     $this->assertEquals('wps_collections_smart', $table_name_suffix );
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_collection_id', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_post_id', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_title', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_handle', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_body_html', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_image', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_rules', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_disjunctive', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_sort_order', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_published_at', self::$DB_Collections_Smart);
+		$this->assertObjectHasAttribute('default_updated_at', self::$DB_Collections_Smart);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Collections_Smart);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Collections_Smart);
+    $this->assertObjectHasAttribute('version', self::$DB_Collections_Smart);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Collections_Smart);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Collections_Smart);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Collections_Smart);
+    $this->assertObjectHasAttribute('type', self::$DB_Collections_Smart);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Collections_Smart->get_columns() );
+    $default_cols_count = count( self::$DB_Collections_Smart->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
 
   }
 

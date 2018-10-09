@@ -8,27 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('DB_Collections_Custom_Factory')) {
+class DB_Collections_Custom_Factory {
 
-  class DB_Collections_Custom_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+  public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$DB_Collections_Custom = new DB_Collections_Custom();
 
-				$DB_Collections_Custom = new DB_Collections_Custom();
-
-				self::$instantiated = $DB_Collections_Custom;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $DB_Collections_Custom;
 
 		}
 
+		return self::$instantiated;
 
-  }
+	}
 
 }

@@ -3,6 +3,12 @@ global.$ = global.jQuery = $;
 
 global.WP_Shopify = {
   ajax: "http://wpstest.test/wp/wp-admin/admin-ajax.php",
+  API: {
+    baseUrl: "http://wpstest.test/wp",
+    namespace: "wpshopify/v1",
+    restUrl: "http://wpstest.test/wp/api/",
+    urlPrefix: "api"
+  },
   hasConnection: "",
   isClearing: "",
   isConnecting: "",
@@ -29,4 +35,7 @@ global.WP_Shopify = {
     smart_collections: 0,
   },
   siteUrl: "http://wpstest.test/wp",
+  settings: {
+    colorAddToCart: "#FFFFFF"
+  }
 }

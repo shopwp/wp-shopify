@@ -15,32 +15,28 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Admin_Menus_Factory')) {
+class Admin_Menus_Factory {
 
-  class Admin_Menus_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Admin_Menus = new Admin_Menus(
+				Template_Loader_Factory::build(),
+				DB_Collections_Factory::build(),
+				DB_Products_Factory::build(),
+				DB_Tags_Factory::build(),
+				DB_Collects_Factory::build()
+			);
 
-				$Admin_Menus = new Admin_Menus(
-					Template_Loader_Factory::build(),
-					DB_Collections_Factory::build(),
-					DB_Products_Factory::build(),
-					DB_Tags_Factory::build(),
-					DB_Collects_Factory::build()
-				);
-
-				self::$instantiated = $Admin_Menus;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Admin_Menus;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

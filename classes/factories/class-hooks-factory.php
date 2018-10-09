@@ -18,36 +18,32 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Hooks_Factory')) {
+class Hooks_Factory {
 
-  class Hooks_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Hooks = new Hooks(
+				Utils_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				DB_Shop_Factory::build(),
+				Templates_Factory::build(),
+				Async_Processing_Database_Factory::build(),
+				Pagination_Factory::build(),
+				DB_Settings_Syncing_Factory::build(),
+				DB_Settings_License_Factory::build(),
+				Activator_Factory::build()
+			);
 
-				$Hooks = new Hooks(
-					Utils_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					DB_Shop_Factory::build(),
-					Templates_Factory::build(),
-					Async_Processing_Database_Factory::build(),
-					Pagination_Factory::build(),
-					DB_Settings_Syncing_Factory::build(),
-					DB_Settings_License_Factory::build(),
-					Activator_Factory::build()
-				);
-
-				self::$instantiated = $Hooks;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Hooks;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

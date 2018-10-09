@@ -16,34 +16,31 @@ use WPS\Factories\Async_Processing_Collections_Smart_Factory;
 use WPS\Factories\Async_Processing_Posts_Collections_Smart_Factory;
 use WPS\Factories\Shopify_API_Factory;
 
-if (!class_exists('WS_Collections_Smart_Factory')) {
 
-  class WS_Collections_Smart_Factory {
+class WS_Collections_Smart_Factory {
 
-		protected static $instantiated = null;
+	protected static $instantiated = null;
 
-    public static function build() {
+	public static function build() {
 
-			if (is_null(self::$instantiated)) {
+		if (is_null(self::$instantiated)) {
 
-				$WS_Collections_Smart = new WS_Collections_Smart(
-					DB_Settings_Syncing_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					DB_Collections_Smart_Factory::build(),
-					CPT_Model_Factory::build(),
-					Async_Processing_Collections_Smart_Factory::build(),
-					Async_Processing_Posts_Collections_Smart_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+			$WS_Collections_Smart = new WS_Collections_Smart(
+				DB_Settings_Syncing_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				DB_Collections_Smart_Factory::build(),
+				CPT_Model_Factory::build(),
+				Async_Processing_Collections_Smart_Factory::build(),
+				Async_Processing_Posts_Collections_Smart_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-				self::$instantiated = $WS_Collections_Smart;
+			self::$instantiated = $WS_Collections_Smart;
 
-			}
+		}
 
-			return self::$instantiated;
+		return self::$instantiated;
 
-    }
-
-  }
+	}
 
 }

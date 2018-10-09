@@ -26,43 +26,39 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Activator_Factory')) {
+class Activator_Factory {
 
-  class Activator_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Activator = new Activator(
+				DB_Settings_Connection_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				DB_Settings_License_Factory::build(),
+				DB_Shop_Factory::build(),
+				DB_Products_Factory::build(),
+				DB_Variants_Factory::build(),
+				DB_Collects_Factory::build(),
+				DB_Options_Factory::build(),
+				DB_Collections_Custom_Factory::build(),
+				DB_Collections_Smart_Factory::build(),
+				DB_Images_Factory::build(),
+				DB_Tags_Factory::build(),
+				CPT_Factory::build(),
+				DB_Customers_Factory::build(),
+				DB_Orders_Factory::build(),
+				DB_Settings_Syncing_Factory::build()
+			);
 
-				$Activator = new Activator(
-					DB_Settings_Connection_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					DB_Settings_License_Factory::build(),
-					DB_Shop_Factory::build(),
-					DB_Products_Factory::build(),
-					DB_Variants_Factory::build(),
-					DB_Collects_Factory::build(),
-					DB_Options_Factory::build(),
-					DB_Collections_Custom_Factory::build(),
-					DB_Collections_Smart_Factory::build(),
-					DB_Images_Factory::build(),
-					DB_Tags_Factory::build(),
-					CPT_Factory::build(),
-					DB_Customers_Factory::build(),
-					DB_Orders_Factory::build(),
-					DB_Settings_Syncing_Factory::build()
-				);
+			self::$instantiated = $Activator;
 
-				self::$instantiated = $Activator;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

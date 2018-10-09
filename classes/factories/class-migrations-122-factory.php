@@ -21,37 +21,33 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Migrations_122_Factory')) {
+class Migrations_122_Factory {
 
-  class Migrations_122_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Migrations_122 = new Migrations_122(
+				DB_Products_Factory::build(),
+				DB_Variants_Factory::build(),
+				DB_Collects_Factory::build(),
+				DB_Options_Factory::build(),
+				DB_Collections_Custom_Factory::build(),
+				DB_Collections_Smart_Factory::build(),
+				DB_Images_Factory::build(),
+				DB_Tags_Factory::build(),
+				DB_Customers_Factory::build(),
+				DB_Orders_Factory::build()
+			);
 
-				$Migrations_122 = new Migrations_122(
-					DB_Products_Factory::build(),
-					DB_Variants_Factory::build(),
-					DB_Collects_Factory::build(),
-					DB_Options_Factory::build(),
-					DB_Collections_Custom_Factory::build(),
-					DB_Collections_Smart_Factory::build(),
-					DB_Images_Factory::build(),
-					DB_Tags_Factory::build(),
-					DB_Customers_Factory::build(),
-					DB_Orders_Factory::build()
-				);
+			self::$instantiated = $Migrations_122;
 
-				self::$instantiated = $Migrations_122;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

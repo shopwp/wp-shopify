@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Utils_Factory')) {
+class Utils_Factory {
 
-  class Utils_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Utils = new Utils();
 
-				$Utils = new Utils();
-
-				self::$instantiated = $Utils;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Utils;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

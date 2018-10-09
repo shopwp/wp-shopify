@@ -10,28 +10,24 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Checkouts_Factory')) {
+class Checkouts_Factory {
 
-  class Checkouts_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Checkouts = new Checkouts(
+				WS_Factory::build()
+			);
 
-				$Checkouts = new Checkouts(
-					WS_Factory::build()
-				);
-
-				self::$instantiated = $Checkouts;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Checkouts;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

@@ -1,8 +1,10 @@
-/////////////
-// Imports //
-/////////////
-import jsAdmin from "./gulp/tasks/js-admin";
-import jsPublic from "./gulp/tasks/js-public";
+/*
+
+Bootstrapping the build
+
+*/
+
+import js from "./gulp/tasks/js";
 
 import cssAdmin from "./gulp/tasks/css-admin";
 import cssPublic from "./gulp/tasks/css-public";
@@ -24,7 +26,6 @@ import build from "./gulp/tasks/build";
 // Clean builds
 import cleanFree from "./gulp/tasks/clean-free";
 import cleanPro from "./gulp/tasks/clean-pro";
-
 import cleanBuilds from "./gulp/tasks/clean-builds";
 
 import init from "./gulp/tasks/init";

@@ -9,28 +9,24 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('CPT_Factory')) {
+class CPT_Model_Factory {
 
-  class CPT_Model_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$CPT_Model = new CPT_Model(
+				DB_Settings_General_Factory::build()
+			);
 
-				$CPT_Model = new CPT_Model(
-					DB_Settings_General_Factory::build()
-				);
+			self::$instantiated = $CPT_Model;
 
-				self::$instantiated = $CPT_Model;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

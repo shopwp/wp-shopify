@@ -151,9 +151,7 @@ function getJavascriptErrorMessage(error) {
 
     var died_at = has(error, 'action_name') ? error.action_name : 'unknown location';
 
-    console.error('error ', error);
-
-    return error.statusCode + ' Error: ' + capitalizeFirstLetter(error.message) + ' while calling ' + died_at + '. Please clear the plugin transient cache and try again.';
+    return capitalizeFirstLetter(error.message) + ' while calling ' + died_at + '. Please clear the plugin transient cache and try again.' + ' Error status code: ' + error.statusCode;
   }
 
   else {

@@ -8,27 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Template_Loader_Factory')) {
+class Template_Loader_Factory {
 
-  class Template_Loader_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Template_Loader = new Template_Loader();
 
-				$Template_Loader = new Template_Loader();
+			self::$instantiated = $Template_Loader;
 
-				self::$instantiated = $Template_Loader;
+		}
 
-			}
+		return self::$instantiated;
 
-      return self::$instantiated;
-
-    }
-
-
-  }
+	}
 
 }

@@ -16,6 +16,12 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 #
+# Clear out old tmp wp folders
+#
+sudo rm -rf /tmp/wordpress-tests-lib && rm -rf /tmp/wordpress
+printf "${GREEN}Success: ${NC}Removed /tmp/wordpress and /tmp/wordpress-tests-lib\n"
+
+#
 # First drop testing database if it exists
 #
 mysqladmin -u root -p drop wps_unit_testing
@@ -30,7 +36,7 @@ printf "${GREEN}Success: ${NC}Installed testing database\n"
 #
 # Import the test sql data
 #
-mysql -u root -p wps_unit_testing < ./tests/mock-data/sql/wps-unit-testing-db-bootstrap.sql
+mysql -u root -p wps_unit_testing < ./tests/mock-data/_db/unit-testing-db-bootstrap.sql
 printf "${GREEN}Success: ${NC}Imported test data\n"
 
 #
@@ -50,3 +56,9 @@ printf "${GREEN}Success: ${NC}Updated permissions\n"
 #
 svn co https://develop.svn.wordpress.org/tags/4.9.8/tests/phpunit/data/ /tmp/wordpress-tests-lib/data/
 printf "${GREEN}Success: ${NC}Checked out data folder from SVN\n"
+
+#
+# Creates empty uploads folder if absent
+#
+sudo mkdir /tmp/wordpress/wp-content/uploads
+printf "${GREEN}Success: ${NC}Created uploads folder\n"

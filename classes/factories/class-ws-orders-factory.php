@@ -14,32 +14,28 @@ use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\Async_Processing_Orders_Factory;
 use WPS\Factories\Shopify_API_Factory;
 
-if (!class_exists('WS_Orders_Factory')) {
+class WS_Orders_Factory {
 
-  class WS_Orders_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS_Orders = new WS_Orders(
+				DB_Orders_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				DB_Settings_Syncing_Factory::build(),
+				Async_Processing_Orders_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-				$WS_Orders = new WS_Orders(
-					DB_Orders_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					DB_Settings_Syncing_Factory::build(),
-					Async_Processing_Orders_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+			self::$instantiated = $WS_Orders;
 
-				self::$instantiated = $WS_Orders;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

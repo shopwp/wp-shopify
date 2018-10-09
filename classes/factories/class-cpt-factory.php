@@ -15,33 +15,29 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('CPT_Factory')) {
+class CPT_Factory {
 
-  class CPT_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$CPT = new CPT(
+				DB_Settings_General_Factory::build(),
+				DB_Products_Factory::build(),
+				DB_Collections_Custom_Factory::build(),
+				DB_Collections_Smart_Factory::build(),
+				DB_Collects_Factory::build(),
+				DB_Tags_Factory::build()
+			);
 
-				$CPT = new CPT(
-					DB_Settings_General_Factory::build(),
-					DB_Products_Factory::build(),
-					DB_Collections_Custom_Factory::build(),
-					DB_Collections_Smart_Factory::build(),
-					DB_Collects_Factory::build(),
-					DB_Tags_Factory::build()
-				);
+			self::$instantiated = $CPT;
 
-				self::$instantiated = $CPT;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

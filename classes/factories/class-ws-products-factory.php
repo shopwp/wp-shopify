@@ -24,43 +24,38 @@ use WPS\Factories\Async_Processing_Images_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\Shopify_API_Factory;
 
+class WS_Products_Factory {
 
-if (!class_exists('WS_Products_Factory')) {
+	protected static $instantiated = null;
 
-  class WS_Products_Factory {
+	public static function build() {
 
-		protected static $instantiated = null;
+		if (is_null(self::$instantiated)) {
 
-    public static function build() {
+			$WS_Products = new WS_Products(
+				DB_Settings_General_Factory::build(),
+				DB_Products_Factory::build(),
+				DB_Tags_Factory::build(),
+				DB_Variants_Factory::build(),
+				DB_Options_Factory::build(),
+				DB_Images_Factory::build(),
+				CPT_Model_Factory::build(),
+				Async_Processing_Posts_Products_Factory::build(),
+				Async_Processing_Products_Factory::build(),
+				Async_Processing_Tags_Factory::build(),
+				Async_Processing_Variants_Factory::build(),
+				Async_Processing_Options_Factory::build(),
+				Async_Processing_Images_Factory::build(),
+				DB_Settings_Syncing_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-			if (is_null(self::$instantiated)) {
+			self::$instantiated = $WS_Products;
 
-				$WS_Products = new WS_Products(
-					DB_Settings_General_Factory::build(),
-					DB_Products_Factory::build(),
-					DB_Tags_Factory::build(),
-					DB_Variants_Factory::build(),
-					DB_Options_Factory::build(),
-					DB_Images_Factory::build(),
-					CPT_Model_Factory::build(),
-					Async_Processing_Posts_Products_Factory::build(),
-					Async_Processing_Products_Factory::build(),
-					Async_Processing_Tags_Factory::build(),
-					Async_Processing_Variants_Factory::build(),
-					Async_Processing_Options_Factory::build(),
-					Async_Processing_Images_Factory::build(),
-					DB_Settings_Syncing_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+		}
 
-				self::$instantiated = $WS_Products;
+		return self::$instantiated;
 
-			}
-
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

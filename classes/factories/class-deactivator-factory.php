@@ -8,28 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Deactivator_Factory')) {
+class Deactivator_Factory {
 
-  class Deactivator_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Deactivator = new Deactivator();
 
-				$Deactivator = new Deactivator();
+			self::$instantiated = $Deactivator;
 
-				self::$instantiated = $Deactivator;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-
-    }
-
-
-  }
+	}
 
 }

@@ -4,7 +4,7 @@ import { tabsInit } from './utils/utils-tabs';
 import { licenseInit } from './license/license';
 import { connectInit, onAuthRedirect } from './connect/connect';
 import { disconnectInit } from './disconnect/disconnect';
-import { settingsInit } from './settings/settings';
+import { settingsInit } from './settings/settings.jsx';
 import { initAdmin } from './admin/admin';
 import { toolsInit } from './tools/tools';
 import { initMisc } from './misc/misc';

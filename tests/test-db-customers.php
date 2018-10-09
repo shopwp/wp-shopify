@@ -1,6 +1,8 @@
 <?php
 
+
 use WPS\Factories\DB_Customers_Factory;
+
 
 /*
 
@@ -12,7 +14,7 @@ the example output Shopify uses within their documentation found here:
 https://help.shopify.com/api/reference/webhook
 
 */
-class Test_Sync_Customers extends WP_UnitTestCase {
+class Test_DB_Customers extends WP_UnitTestCase {
 
   protected static $DB_Customers;
   protected static $mock_data_customer;
@@ -99,6 +101,71 @@ class Test_Sync_Customers extends WP_UnitTestCase {
 
     $this->assertInternalType('string', $table_name_suffix );
     $this->assertEquals('wps_customers', $table_name_suffix );
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_customer_id', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_email', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_accepts_marketing', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_created_at', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_updated_at', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_first_name', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_last_name', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_orders_count', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_state', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_total_spent', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_last_order_id', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_note', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_verified_email', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_multipass_identifier', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_tax_exempt', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_phone', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_tags', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_last_order_name', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_default_address', self::$DB_Customers);
+    $this->assertObjectHasAttribute('default_addresses', self::$DB_Customers);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Customers);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Customers);
+    $this->assertObjectHasAttribute('version', self::$DB_Customers);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Customers);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Customers);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Customers);
+    $this->assertObjectHasAttribute('type', self::$DB_Customers);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Customers->get_columns() );
+    $default_cols_count = count( self::$DB_Customers->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
 
   }
 

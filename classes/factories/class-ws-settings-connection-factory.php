@@ -12,31 +12,26 @@ use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Settings_General_Factory;
 use WPS\Factories\Shopify_API_Factory;
 
+class WS_Settings_Connection_Factory {
 
-if (!class_exists('WS_Settings_Connection_Factory')) {
+	protected static $instantiated = null;
 
-  class WS_Settings_Connection_Factory {
+	public static function build() {
 
-		protected static $instantiated = null;
+		if (is_null(self::$instantiated)) {
 
-    public static function build() {
+			$WS_Settings_Connection = new WS_Settings_Connection(
+				DB_Settings_Connection_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-			if (is_null(self::$instantiated)) {
+			self::$instantiated = $WS_Settings_Connection;
 
-				$WS_Settings_Connection = new WS_Settings_Connection(
-					DB_Settings_Connection_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+		}
 
-				self::$instantiated = $WS_Settings_Connection;
+		return self::$instantiated;
 
-			}
-
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

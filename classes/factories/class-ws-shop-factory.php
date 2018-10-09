@@ -13,32 +13,27 @@ use WPS\Factories\DB_Settings_Syncing_Factory;
 use WPS\Factories\DB_Shop_Factory;
 use WPS\Factories\Shopify_API_Factory;
 
+class WS_Shop_Factory {
 
-if (!class_exists('WS_Shop_Factory')) {
+	protected static $instantiated = null;
 
-  class WS_Shop_Factory {
+	public static function build() {
 
-		protected static $instantiated = null;
+		if (is_null(self::$instantiated)) {
 
-    public static function build() {
+			$WS_Shop = new WS_Shop(
+				DB_Settings_Connection_Factory::build(),
+				DB_Settings_Syncing_Factory::build(),
+				DB_Shop_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-			if (is_null(self::$instantiated)) {
+			self::$instantiated = $WS_Shop;
 
-				$WS_Shop = new WS_Shop(
-					DB_Settings_Connection_Factory::build(),
-					DB_Settings_Syncing_Factory::build(),
-					DB_Shop_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+		}
 
-				self::$instantiated = $WS_Shop;
+		return self::$instantiated;
 
-			}
-
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

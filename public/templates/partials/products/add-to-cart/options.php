@@ -22,7 +22,6 @@ if ( !defined('ABSPATH') ) {
 
 <?php
 
-
 foreach ($data->sorted_options as $option) { ?>
 
   <div
@@ -38,7 +37,8 @@ foreach ($data->sorted_options as $option) { ?>
       href="#!"
       class="wps-btn wps-icon wps-icon-dropdown wps-modal-trigger"
       data-option="<?php esc_attr_e($option->name, WPS_PLUGIN_TEXT_DOMAIN); ?>"
-      data-option-id="<?= $option->id; ?>">
+      data-option-id="<?= $option->id; ?>"
+			style="<?= !empty($data->button_color) ? 'background-color: ' . $data->button_color . ';' : ''; ?>">
       <?php esc_html_e($option->name, WPS_PLUGIN_TEXT_DOMAIN); ?>
     </a>
 

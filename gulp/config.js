@@ -109,14 +109,28 @@ var config = {
       './admin/js/app/tools/tools.js',
       './admin/partials/wps-tab-content-tools.php'
     ],
+    js: [
+      './public/js/app/**/*.js',
+      './public/js/app/**/*.jsx',
+      '!./public/js/app.min.js',
+      '!./public/js/vendor.min.js',
+      '!./public/js/app.min.js.map',
+      './admin/js/app/**/*.js',
+      './admin/js/app/**/*.jsx',
+      '!./admin/js/app.min.js',
+      '!./admin/js/vendor.min.js',
+      '!./admin/js/app.min.js.map'
+    ],
     jsPublic: [ // doesnt need tmp check
       './public/js/app/**/*.js',
+      './public/js/app/**/*.jsx',
       '!./public/js/app.min.js',
       '!./public/js/vendor.min.js',
       '!./public/js/app.min.js.map'
     ],
     jsAdmin: [ // doesnt need tmp check
       './admin/js/app/**/*.js',
+      './admin/js/app/**/*.jsx',
       '!./admin/js/app.min.js',
       '!./admin/js/vendor.min.js',
       '!./admin/js/app.min.js.map'
@@ -207,12 +221,17 @@ Webpack Config
 */
 function webpackConfig(outputFinalname) {
 
-  return {
+  var webpackConfigObj = {
     watch: false,
     mode: config.isBuilding ? 'production' : 'development',
     cache: true,
+    entry: {
+      public: './public/js/app/app',
+      admin: './admin/js/app/app'
+    },
     output: {
-      filename: outputFinalname
+      filename: '[name].min.js',
+      chunkFilename: '[name].min.js',
     },
     resolve: {
       extensions: ['.js']
@@ -222,6 +241,16 @@ function webpackConfig(outputFinalname) {
       new ProgressBarPlugin()
     ],
     optimization: {
+      splitChunks: {
+        name: true,
+        cacheGroups: {
+  				vendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'vendor',
+            chunks: 'all',
+          }
+  			}
+      },
       minimizer: [
         new UglifyJsPlugin({
           parallel: true,
@@ -245,12 +274,46 @@ function webpackConfig(outputFinalname) {
           exclude: /(node_modules)/,
           enforce: 'pre',
           use: [
-            'babel-loader?presets[]=es2015&plugins[]=transform-async-to-generator'
-          ],
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  '@babel/preset-env',
+                  '@babel/preset-react'
+                ]
+              }
+            }
+          ]
+        },
+        {
+          test: /\.jsx?$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  '@babel/preset-react'
+                ]
+              }
+            }
+          ]
         }
       ]
     }
   }
+
+  if (config.isBuilding) {
+
+    webpackConfigObj.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('production')
+      })
+    );
+
+  }
+
+  return webpackConfigObj;
 
 }
 

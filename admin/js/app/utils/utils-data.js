@@ -38,6 +38,17 @@ function getErrorContents(xhr, err, action_name) {
 }
 
 
+function getRestErrorContents(error) {
+
+  return {
+    statusCode: error.status,
+    message: error.data.message,
+    action_name: error.data.code
+  }
+
+}
+
+
 /*
 
 Rejected Promise
@@ -48,7 +59,7 @@ function rejectedPromise(reason) {
   return new Promise(function (resolve, reject) {
     reject(reason);
   });
-  
+
 }
 
 
@@ -838,5 +849,6 @@ export {
   getErrorContents,
   filterForErrors,
   returnOnlyFirstError,
-  getConnectionStatus
+  getConnectionStatus,
+  getRestErrorContents
 }

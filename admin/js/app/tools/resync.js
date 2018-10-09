@@ -60,7 +60,7 @@ import {
 
 import {
   getSelectiveSyncOptions
-} from '../settings/settings';
+} from '../settings/settings.jsx';
 
 import {
   startProgressBar,

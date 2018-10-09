@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('I18N_Factory')) {
+class I18N_Factory {
 
-  class I18N_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$I18N = new I18N();
 
-				$I18N = new I18N();
+			self::$instantiated = $I18N;
 
-				self::$instantiated = $I18N;
+		}
 
-			}
+		return self::$instantiated;
 
-      return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

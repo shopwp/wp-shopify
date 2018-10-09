@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('WS_Options_Factory')) {
+class WS_Options_Factory {
 
-  class WS_Options_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS_Options = new WS_Options();
 
-				$WS_Options = new WS_Options();
+			self::$instantiated = $WS_Options;
 
-				self::$instantiated = $WS_Options;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

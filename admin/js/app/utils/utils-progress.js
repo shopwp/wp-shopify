@@ -96,7 +96,7 @@ import {
 
 import {
   populateSyncByCollections
-} from '../settings/settings';
+} from '../settings/settings.jsx';
 
 /*
 

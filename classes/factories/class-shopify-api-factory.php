@@ -10,28 +10,24 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Shopify_API_Factory')) {
+class Shopify_API_Factory {
 
-  class Shopify_API_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Shopify_API = new Shopify_API(
+				DB_Settings_Connection_Factory::Build()
+			);
 
-				$Shopify_API = new Shopify_API(
-					DB_Settings_Connection_Factory::Build()
-				);
-
-				self::$instantiated = $Shopify_API;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Shopify_API;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

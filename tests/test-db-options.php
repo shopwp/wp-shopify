@@ -14,7 +14,7 @@ the example output Shopify uses within their documentation found here:
 https://help.shopify.com/api/reference/webhook
 
 */
-class Test_Sync_Options extends WP_UnitTestCase {
+class Test_DB_Options extends WP_UnitTestCase {
 
   protected static $DB_Options;
   protected static $mock_data_option;
@@ -209,6 +209,56 @@ class Test_Sync_Options extends WP_UnitTestCase {
 
     $this->assertInternalType('string', $table_name_suffix );
     $this->assertEquals('wps_options', $table_name_suffix );
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Options);
+    $this->assertObjectHasAttribute('default_option_id', self::$DB_Options);
+    $this->assertObjectHasAttribute('default_product_id', self::$DB_Options);
+    $this->assertObjectHasAttribute('default_name', self::$DB_Options);
+    $this->assertObjectHasAttribute('default_position', self::$DB_Options);
+    $this->assertObjectHasAttribute('default_values', self::$DB_Options);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Options);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Options);
+    $this->assertObjectHasAttribute('version', self::$DB_Options);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Options);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Options);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Options);
+    $this->assertObjectHasAttribute('type', self::$DB_Options);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Options->get_columns() );
+    $default_cols_count = count( self::$DB_Options->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
 
   }
 

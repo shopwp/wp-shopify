@@ -5,6 +5,8 @@ import {
 
 it('Should true check create checkmark', async () => {
 
+  jest.setTimeout(7000);
+
   const arrayHasMoreThanOne = arr => arr.length > 1;
   const response = await getPublishedProductIds();
 

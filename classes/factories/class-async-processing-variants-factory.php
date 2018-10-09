@@ -12,29 +12,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Async_Processing_Variants_Factory')) {
+class Async_Processing_Variants_Factory {
 
-  class Async_Processing_Variants_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Async_Processing_Variants = new Async_Processing_Variants(
+				DB_Settings_Syncing_Factory::build(),
+				DB_Variants_Factory::build()
+			);
 
-				$Async_Processing_Variants = new Async_Processing_Variants(
-					DB_Settings_Syncing_Factory::build(),
-					DB_Variants_Factory::build()
-				);
+			self::$instantiated = $Async_Processing_Variants;
 
-				self::$instantiated = $Async_Processing_Variants;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

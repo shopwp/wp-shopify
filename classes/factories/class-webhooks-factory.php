@@ -11,29 +11,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Webhooks_Factory')) {
+class Webhooks_Factory {
 
-  class Webhooks_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Webhooks = new Webhooks(
+				DB_Settings_Connection_Factory::build(),
+				DB_Settings_General_Factory::build()
+			);
 
-				$Webhooks = new Webhooks(
-					DB_Settings_Connection_Factory::build(),
-					DB_Settings_General_Factory::build()
-				);
-
-				self::$instantiated = $Webhooks;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Webhooks;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

@@ -8,27 +8,22 @@ if (!defined('ABSPATH')) {
 
 use WPS\WS\Images as WS_Images;
 
+class WS_Images_Factory {
 
-if (!class_exists('WS_Images_Factory')) {
+	protected static $instantiated = null;
 
-  class WS_Images_Factory {
+	public static function build() {
 
-		protected static $instantiated = null;
+		if (is_null(self::$instantiated)) {
 
-    public static function build() {
+			$WS_Images = new WS_Images();
 
-			if (is_null(self::$instantiated)) {
+			self::$instantiated = $WS_Images;
 
-				$WS_Images = new WS_Images();
+		}
 
-				self::$instantiated = $WS_Images;
+		return self::$instantiated;
 
-			}
-
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

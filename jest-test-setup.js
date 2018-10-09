@@ -1,6 +1,9 @@
-require('jest-extended');
-require('jest-chain');
+import 'jest-extended';
+import 'jest-chain';
 import * as matchers from 'jest-jquery-matchers';
+
+// this is basically: afterEach(cleanup)
+import 'react-testing-library/cleanup-after-each'
 
 jest.addMatchers(matchers);
 
@@ -31,3 +34,5 @@ expect.extend({
   }
 
 });
+
+HTMLCanvasElement.prototype.getContext = () => {}

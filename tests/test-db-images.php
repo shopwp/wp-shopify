@@ -14,7 +14,7 @@ the example output Shopify uses within their documentation found here:
 https://help.shopify.com/api/reference/webhook
 
 */
-class Test_Sync_Images extends WP_UnitTestCase {
+class Test_DB_Images extends WP_UnitTestCase {
 
   protected static $DB_Images;
   protected static $mock_data_image;
@@ -219,6 +219,58 @@ class Test_Sync_Images extends WP_UnitTestCase {
 
   }
 
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_image_id', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_product_id', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_variant_ids', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_src', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_alt', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_position', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_created_at', self::$DB_Images);
+    $this->assertObjectHasAttribute('default_updated_at', self::$DB_Images);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Images);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Images);
+    $this->assertObjectHasAttribute('version', self::$DB_Images);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Images);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Images);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Images);
+    $this->assertObjectHasAttribute('type', self::$DB_Images);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Images->get_columns() );
+    $default_cols_count = count( self::$DB_Images->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
+
+  }
 
 
 }

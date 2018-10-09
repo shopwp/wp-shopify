@@ -1,6 +1,8 @@
-//////////////////
-// Initializing //
-//////////////////
+/*
+
+Initializing
+
+*/
 
 import gulp from "gulp";
 import config from "../config";
@@ -8,10 +10,10 @@ import config from "../config";
 gulp.task('default', done => {
 
   if (config.isBuilding) {
-    gulp.parallel('js-admin', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin')(done);
+    gulp.series('js', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin');
 
   } else {
-    gulp.series(gulp.parallel('js-admin', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid'), 'watch')(done);
+    gulp.series( gulp.parallel('js', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid'), 'server', 'watch' )(done);
   }
 
 });

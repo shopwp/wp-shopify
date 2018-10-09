@@ -731,7 +731,6 @@ Tabs
 }
 
 .tab-content {
-  max-width: 700px;
   display: none;
   margin-top: 1em;
 }
@@ -743,6 +742,13 @@ Tabs
 .tab-content-active {
   display: block;
 }
+
+.tab-content .metabox-holder #post-body-content,
+.tab-content .wps-admin-section p,
+.tab-content[data-tab-content="tab-connect"] .wps-admin-section-heading-group {
+  max-width: 700px;
+}
+
 
 
 .wps-admin-wrap {
@@ -1602,6 +1608,19 @@ Taken from Migrate DB Pro
   display: block;
   padding-top: 1em;
 }
+
+.wps-color-swatch-wrapper {
+  transition: all .2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+}
+
+
+
+
 
 
 /*

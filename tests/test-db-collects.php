@@ -16,7 +16,7 @@ https://help.shopify.com/api/reference/webhook
 Collects are not updated -- only created or deleted
 
 */
-class Test_Sync_Collects extends WP_UnitTestCase {
+class Test_DB_Collects extends WP_UnitTestCase {
 
   protected static $DB_Collects;
   protected static $mock_data_collect;
@@ -176,6 +176,60 @@ class Test_Sync_Collects extends WP_UnitTestCase {
     $this->assertEquals('wps_collects', $table_name_suffix );
 
   }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_collect_id', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_product_id', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_collection_id', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_featured', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_position', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_sort_value', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_created_at', self::$DB_Collects);
+    $this->assertObjectHasAttribute('default_updated_at', self::$DB_Collects);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Collects);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Collects);
+    $this->assertObjectHasAttribute('version', self::$DB_Collects);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Collects);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Collects);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Collects);
+    $this->assertObjectHasAttribute('type', self::$DB_Collects);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Collects->get_columns() );
+    $default_cols_count = count( self::$DB_Collects->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
+
+  }
+
 
 
 }

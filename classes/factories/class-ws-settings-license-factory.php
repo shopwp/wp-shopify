@@ -12,29 +12,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('WS_Settings_License_Factory')) {
+class WS_Settings_License_Factory {
 
-  class WS_Settings_License_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS_Settings_License = new WS_Settings_License(
+				DB_Settings_License_Factory::build(),
+				HTTP_Factory::build()
+			);
 
-				$WS_Settings_License = new WS_Settings_License(
-					DB_Settings_License_Factory::build(),
-					HTTP_Factory::build()
-				);
+			self::$instantiated = $WS_Settings_License;
 
-				self::$instantiated = $WS_Settings_License;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

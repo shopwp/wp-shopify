@@ -4,16 +4,21 @@
 
 import gulp from 'gulp';
 import config from '../config';
-import reload from "./reload";
+
+function reload(done) {
+  config.bs.reload();
+  done();
+}
 
 gulp.task('watch', (done) => {
 
-  // Public Watches
-  gulp.watch(config.files.cssPublic, gulp.series(gulp.parallel('css-public'), reload));
-  gulp.watch(config.files.jsPublic, gulp.series('js-public', reload));
+  // JS
+  gulp.watch( config.files.js, gulp.series('js', reload) );
 
-  // Admin Watches
-  gulp.watch(config.files.cssAdmin, gulp.series('css-admin', reload));
-  gulp.watch(config.files.jsAdmin, gulp.series('js-admin', reload));
+  // Public CSS
+  gulp.watch( config.files.cssPublic, gulp.series('css-public', reload) );
+
+  // Admin CSS
+  gulp.watch( config.files.cssAdmin, gulp.series('css-admin', reload) );
 
 });

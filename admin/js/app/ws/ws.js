@@ -1680,6 +1680,36 @@ function migrateTables() {
 }
 
 
+/*
+
+Kicks off the table migration process
+
+*/
+function saveAddToCartColor(color) {
+
+  return new Promise( (resolve, reject) => {
+
+    const action_name = 'run_table_migration_' + WP_Shopify.latestVersionCombined;
+
+    jQuery.ajax({
+      method: 'POST',
+      url: WP_Shopify.ajax,
+      dataType: 'json',
+      data: {
+        action: action_name,
+        nonce: WP_Shopify.nonce,
+        color: color,
+      },
+      success: data => resolve(data),
+      error: (xhr, txt, err) => {
+        reject( getErrorContents(xhr, err, action_name) );
+      }
+    });
+
+  });
+
+}
+
 export {
   insertProductsData,
   getWebhooks,

@@ -2,32 +2,28 @@
 
 namespace WPS\Factories;
 
-use WPS\WS\Tags as WS_Tags;
+use WPS\WS\Tags;
 
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('WS_Tags_Factory')) {
+class WS_Tags_Factory {
 
-  class WS_Tags_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS_Tags = new Tags();
 
-				$WS_Tags = new WS_Tags();
+			self::$instantiated = $WS_Tags;
 
-				self::$instantiated = $WS_Tags;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Transients_Factory')) {
+class Transients_Factory {
 
-  class Transients_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Transients = new Transients();
 
-				$Transients = new Transients();
-
-				self::$instantiated = $Transients;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Transients;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

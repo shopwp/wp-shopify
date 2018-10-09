@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('DB_Settings_License_Factory')) {
+class DB_Settings_License_Factory {
 
-  class DB_Settings_License_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$DB_Settings_License = new DB_Settings_License();
 
-      	$DB_Settings_License = new DB_Settings_License();
+			self::$instantiated = $DB_Settings_License;
 
-				self::$instantiated = $DB_Settings_License;
+		}
 
-			}
+		return self::$instantiated;
 
-      return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

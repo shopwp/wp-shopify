@@ -11,29 +11,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Frontend_Factory')) {
+class Frontend_Factory {
 
-  class Frontend_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Frontend = new Frontend(
+				DB_Settings_General_Factory::build(),
+				DB_Settings_Connection_Factory::build()
+			);
 
-				$Frontend = new Frontend(
-					DB_Settings_General_Factory::build(),
-					DB_Settings_Connection_Factory::build()
-				);
-
-				self::$instantiated = $Frontend;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Frontend;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

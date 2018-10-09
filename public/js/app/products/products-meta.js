@@ -2,8 +2,8 @@ import to from 'await-to-js';
 import { setCurrentlySelectedVariants } from '../ws/ws-products';
 import { getClient } from '../utils/utils-client';
 import { isGraphqlError, logNotice } from '../utils/utils-notices';
-
 import filter from 'lodash/filter';
+
 
 
 /*

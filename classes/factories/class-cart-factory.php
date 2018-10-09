@@ -10,28 +10,24 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Cart_Factory')) {
+class Cart_Factory {
 
-  class Cart_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Cart = new Cart(
+				WS_Factory::build()
+			);
 
-				$Cart = new Cart(
-					WS_Factory::build()
-				);
+			self::$instantiated = $Cart;
 
-				self::$instantiated = $Cart;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

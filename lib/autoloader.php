@@ -1,123 +1,238 @@
 <?php
 
-/*
-
-Automatically loads the specified file.
-@package WACATL\Lib
-
-*/
 namespace WPS\Lib;
 
+
 /*
 
-Automatically loads the specified file.
-
-Examines the fully qualified class name, separates it into components, then creates
-a string that represents where the file is loaded on disk.
+get_last_index
 
 */
-spl_autoload_register(function($filename) {
+function get_last_index($namespace_chunks) {
 
-	// First, separate the components of the incoming file.
-	$file_path = explode( '\\', $filename );
-	$is_factories = false;
-
-	if (isset($file_path[1]) && $file_path[1] === 'DB') {
-		$is_sub_folder = true;
-
-	} else if (isset($file_path[1]) && $file_path[1] === 'WS') {
-		$is_sub_folder = true;
-
-	} else if (isset($file_path[1]) && $file_path[1] === 'Factories') {
-		$is_sub_folder = true;
-		$is_factories = true;
-
-	} else {
-		$is_sub_folder = false;
-
+	if ( empty($namespace_chunks) ) {
+		return 0;
 	}
 
+	return count($namespace_chunks) - 1;
 
-	/*
-
-  - The first index will always be WCATL since it's part of the plugin.
-  - All but the last index will be the path to the file.
-
-	*/
-
-	// Get the last index of the array. This is the class we're loading.
-	if ( isset( $file_path[ count( $file_path ) - 1 ] ) ) {
-
-		$class_file = strtolower(
-			$file_path[ count( $file_path ) - 1 ]
-		);
-
-		$class_file = str_ireplace( '_', '-', $class_file);
+}
 
 
-		// The classname has an underscore, so we need to replace it with a hyphen for the file name.
-		if ($is_sub_folder && $class_file !== 'db') {
+/*
 
-			if ($class_file === 'db' || $class_file === 'ws') {
-				$class_file = "class-" . strtolower($file_path[1]) . ".php";
+get_last_value
 
-			} else if ($is_factories) {
-				$class_file = "class-$class_file.php";
+*/
+function get_last_value($namespace_chunks) {
 
-			} else {
-				$class_file = "class-" . strtolower($file_path[1]) . "-" . $class_file . ".php";
-			}
+	if ( empty($namespace_chunks) ) {
+		return '';
+	}
 
-		} else {
+	return strtolower( $namespace_chunks[ get_last_index($namespace_chunks) ] );
 
-			$class_file = "class-$class_file.php";
+}
+
+
+/*
+
+is_large_chunk
+
+*/
+function is_large_chunk($namespace_chunks) {
+	return count($namespace_chunks) > 1;
+}
+
+
+/*
+
+split_namespace_into_chunks
+
+*/
+function split_namespace_into_chunks($namespace) {
+	return array_filter( explode('\\', $namespace) );
+}
+
+
+/*
+
+replace_underscores_with_dashes
+
+*/
+function replace_underscores_with_dashes($chunk_name) {
+	return str_ireplace( '_', '-', $chunk_name);
+}
+
+
+/*
+
+replace_spaces_with_dashes
+
+*/
+function replace_spaces_with_dashes($chunk_name) {
+	return str_ireplace( ' ', '-', $chunk_name);
+}
+
+
+/*
+
+get_plugin_classes_path
+
+*/
+function get_plugin_classes_path() {
+	return trailingslashit( dirname( dirname( __FILE__ ) ) ) . 'classes/';
+}
+
+
+/*
+
+add_folder_name
+
+*/
+function add_folder_name($folder_name) {
+	return strtolower( trailingslashit( replace_spaces_with_dashes($folder_name) ) );
+}
+
+
+/*
+
+remove_packagename_from_chunks
+
+*/
+function remove_packagename_from_chunks($namespace_chunks, $packagename) {
+
+	return array_values( array_filter($namespace_chunks, function($namespace_chunk) use ($packagename) {
+
+		if ($namespace_chunk === false) {
+			return false;
 		}
 
+		return $packagename !== $namespace_chunk;
+
+	}));
+
+}
+
+
+/*
+
+remove_filename_from_chunks
+
+*/
+function remove_filename_from_chunks($namespace_chunks) {
+
+	array_pop($namespace_chunks);
+
+	return $namespace_chunks;
+
+}
+
+
+/*
+
+build_folder_structure
+
+*/
+function build_folder_structure($namespace_chunks) {
+
+	// We know it's a top-level file
+	if ( !is_array($namespace_chunks) || empty($namespace_chunks) ) {
+		return '';
 	}
 
+	$folder_path = '';
 
-
-
-	/*
-
-  Find the fully qualified path to the class file by iterating through the $file_path array.
-  We ignore the first index since it's always the top-level package. The last index is always
-  the file so we append that at the end.
-
-  */
-	$fully_qualified_path = trailingslashit(
-		dirname(
-			dirname( __FILE__ )
-		)
-	);
-
-	$fully_qualified_path = $fully_qualified_path . 'classes/';
-
-	for ( $i = 1; $i < count($file_path) - 1; $i++ ) {
-		$dir = strtolower( $file_path[ $i ] );
-		$fully_qualified_path .= trailingslashit( $dir );
+	foreach ($namespace_chunks as $namespace_chunk) {
+		$folder_path .= add_folder_name($namespace_chunk);
 	}
 
-	if ($class_file === 'class-db.php') {
-		$fully_qualified_path .= 'db/';
-		$fully_qualified_path .= $class_file;
+	return $folder_path;
 
-	} else if ($class_file === 'class-ws.php') {
-		$fully_qualified_path .= 'ws/';
-		$fully_qualified_path .= $class_file;
+}
 
-	} else {
-		$fully_qualified_path .= $class_file;
 
+/*
+
+build_filename
+
+*/
+function build_filename($filename) {
+
+	if ( !is_string($filename) ) {
+		return '';
 	}
 
+	return "class-" . replace_spaces_with_dashes( replace_underscores_with_dashes( strtolower($filename) ) ) . ".php";
+
+}
+
+
+/*
+
+combine_folder_and_filename
+
+*/
+function combine_folder_and_filename($folder_structure, $file_name) {
+	return $folder_structure . $file_name;
+}
+
+
+/*
+
+Removes any trailing dashes
+
+*/
+function remove_trailing_dash($string) {
+	return rtrim($string, "-");
+}
+
+
+/*
+
+Find file to load
+
+*/
+function find_file_to_autoload($namespace, $plugin_path) {
+
+	// Separates the components of the incoming namespace
+	$namespace_chunks 				= split_namespace_into_chunks($namespace);
+	$chunks_no_packagename 		= remove_packagename_from_chunks($namespace_chunks, 'WPS');
+	$chunks_no_filename 			= remove_filename_from_chunks($chunks_no_packagename);
+	$folder_structure 				= build_folder_structure($chunks_no_filename);
+	$file_name 								= build_filename( get_last_value($namespace_chunks) );
+
+	$plugin_path 							.= combine_folder_and_filename($folder_structure, $file_name);
 
 	// Now we include the file.
-	if ( file_exists( $fully_qualified_path ) ) {
-		include_once( $fully_qualified_path );
-
-	} else {
-
+	if ( file_exists( $plugin_path ) ) {
+		return $plugin_path;
 	}
 
-});
+	return false;
+
+}
+
+
+/*
+
+Let's load this thing
+
+*/
+function autoload() {
+
+	$plugin_path = get_plugin_classes_path();
+
+	spl_autoload_register( function($namespace) use ($plugin_path) {
+
+		$file_path = find_file_to_autoload($namespace, $plugin_path);
+
+		if ($file_path) {
+			include_once($file_path);
+		}
+
+	});
+
+}
+
+autoload();

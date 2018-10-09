@@ -11,38 +11,33 @@ use WPS\Factories\DB_Images_Factory;
 use WPS\Factories\Pagination_Factory;
 use WPS\Factories\DB_Products_Factory;
 
-
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Query_Factory')) {
+class Query_Factory {
 
-  class Query_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Query = new Query(
+				Template_loader_Factory::build(),
+				DB_Collections_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				DB_Images_Factory::build(),
+				Pagination_Factory::build(),
+				DB_Products_Factory::build()
+			);
 
-				$Query = new Query(
-					Template_loader_Factory::build(),
-					DB_Collections_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					DB_Images_Factory::build(),
-					Pagination_Factory::build(),
-					DB_Products_Factory::build()
-				);
-
-				self::$instantiated = $Query;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Query;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

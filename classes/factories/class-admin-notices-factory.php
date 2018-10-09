@@ -12,29 +12,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Admin_Notices_Factory')) {
+class Admin_Notices_Factory {
 
-  class Admin_Notices_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Admin_Notices = new Admin_Notices(
+				WS_Factory::build(),
+				DB_Settings_General_Factory::build()
+			);
 
-				$Admin_Notices = new Admin_Notices(
-					WS_Factory::build(),
-					DB_Settings_General_Factory::build()
-				);
-
-				self::$instantiated = $Admin_Notices;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Admin_Notices;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

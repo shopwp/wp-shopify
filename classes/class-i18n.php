@@ -6,29 +6,26 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('I18N')) {
 
-	class I18N {
+class I18N {
 
-		/*
+	/*
 
-		Load the plugin text domain for translation.
+	Load the plugin text domain for translation.
 
-		*/
-		public function load_textdomain() {
-			load_plugin_textdomain(WPS_PLUGIN_TEXT_DOMAIN, false, dirname(dirname(plugin_basename(__FILE__))) . WPS_LANGUAGES_FOLDER);
-		}
+	*/
+	public function load_textdomain() {
+		load_plugin_textdomain(WPS_PLUGIN_TEXT_DOMAIN, false, dirname(dirname(plugin_basename(__FILE__))) . WPS_LANGUAGES_FOLDER);
+	}
 
 
-		/*
+	/*
 
-		init
+	init
 
-		*/
-		public function init() {
-			add_action('plugins_loaded', array($this, 'load_textdomain') );
-		}
-
+	*/
+	public function init() {
+		add_action('plugins_loaded', array($this, 'load_textdomain') );
 	}
 
 }

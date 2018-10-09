@@ -19,7 +19,6 @@ class Test_Config extends WP_UnitTestCase {
 
   }
 
-
   function test_is_defined_wps_shopify_header_verify_webhooks() {
     $this->assertTrue( defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') );
   }
@@ -274,6 +273,22 @@ class Test_Config extends WP_UnitTestCase {
 
   function test_plugin_default_cart_terms_content() {
     $this->assertTrue( defined('WPS_DEFAULT_CART_TERMS_CONTENT') );
+  }
+
+  function test_plugin_default_add_to_cart_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_ADD_TO_CART_COLOR') );
+  }
+
+  function test_plugin_default_variant_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_VARIANT_COLOR') );
+  }
+
+  function test_plugin_default_cart_counter_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_CART_COUNTER_COLOR') );
+  }
+
+  function test_plugin_default_cart_icon_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_CART_ICON_COLOR') );
   }
 
 }

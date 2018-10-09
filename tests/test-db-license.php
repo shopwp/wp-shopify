@@ -9,7 +9,7 @@ Tests the webhooks for License
 License license_key currently doesn't update -- only adds or deletes
 
 */
-class Test_Sync_License extends WP_UnitTestCase {
+class Test_DB_License extends WP_UnitTestCase {
 
   protected static $DB_Settings_License;
   protected static $mock_license;
@@ -84,6 +84,67 @@ class Test_Sync_License extends WP_UnitTestCase {
 
     $this->assertInternalType('string', $table_name_suffix );
     $this->assertEquals('wps_settings_license', $table_name_suffix );
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_license_key', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_is_local', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_expires', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_site_count', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_checksum', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_customer_email', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_customer_name', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_item_name', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_license', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_license_limit', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_payment_id', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_success', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_nonce', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_activations_left', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_is_free', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_is_pro', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('default_beta_access', self::$DB_Settings_License);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('version', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Settings_License);
+    $this->assertObjectHasAttribute('type', self::$DB_Settings_License);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Settings_License->get_columns() );
+    $default_cols_count = count( self::$DB_Settings_License->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
 
   }
 

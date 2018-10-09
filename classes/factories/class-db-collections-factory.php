@@ -14,32 +14,28 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('DB_Collections_Factory')) {
+class DB_Collections_Factory {
 
-  class DB_Collections_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$DB_Collections = new DB_Collections(
+				DB_Collects_Factory::build(),
+				WS_Collects_Factory::build(),
+				CPT_Model_Factory::build(),
+				DB_Collections_Smart_Factory::build(),
+				DB_Collections_Custom_Factory::build()
+			);
 
-				$DB_Collections = new DB_Collections(
-					DB_Collects_Factory::build(),
-					WS_Collects_Factory::build(),
-					CPT_Model_Factory::build(),
-					DB_Collections_Smart_Factory::build(),
-					DB_Collections_Custom_Factory::build()
-				);
-
-				self::$instantiated = $DB_Collections;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $DB_Collections;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

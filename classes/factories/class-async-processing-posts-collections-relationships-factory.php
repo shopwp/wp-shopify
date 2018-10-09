@@ -8,36 +8,31 @@ use WPS\Factories\DB_Collections_Factory;
 use WPS\Factories\DB_Settings_Connection_Factory;
 use WPS\Factories\DB_Settings_Syncing_Factory;
 
-
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Async_Processing_Posts_Collections_Relationships_Factory')) {
+class Async_Processing_Posts_Collections_Relationships_Factory {
 
-  class Async_Processing_Posts_Collections_Relationships_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Async_Processing_Posts_Collections_Relationships = new Async_Processing_Posts_Collections_Relationships(
+				DB_Collections_Factory::build(),
+				DB_Settings_Connection_Factory::build(),
+				DB_Settings_Syncing_Factory::build()
+			);
 
-				$Async_Processing_Posts_Collections_Relationships = new Async_Processing_Posts_Collections_Relationships(
-					DB_Collections_Factory::build(),
-					DB_Settings_Connection_Factory::build(),
-					DB_Settings_Syncing_Factory::build()
-				);
+			self::$instantiated = $Async_Processing_Posts_Collections_Relationships;
 
-				self::$instantiated = $Async_Processing_Posts_Collections_Relationships;
+		}
 
-			}
-
-			return self::$instantiated;
+		return self::$instantiated;
 
 
-    }
-
-  }
+	}
 
 }

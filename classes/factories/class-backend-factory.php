@@ -10,29 +10,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Backend_Factory')) {
+class Backend_Factory {
 
-  class Backend_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Backend = new Backend(
+				DB_Settings_General_Factory::build(),
+				DB_Settings_Connection_Factory::build()
+			);
 
-				$Backend = new Backend(
-					DB_Settings_General_Factory::build(),
-					DB_Settings_Connection_Factory::build()
-				);
-
-				self::$instantiated = $Backend;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Backend;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

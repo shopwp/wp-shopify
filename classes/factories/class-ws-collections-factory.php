@@ -16,32 +16,28 @@ if (!defined('ABSPATH')) {
 }
 
 
-if (!class_exists('WS_Collections_Factory')) {
+class WS_Collections_Factory {
 
-  class WS_Collections_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS_Collections = new WS_Collections(
+				WS_Collections_Smart_Factory::build(),
+				WS_Collections_Custom_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				DB_Settings_Connection_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-				$WS_Collections = new WS_Collections(
-					WS_Collections_Smart_Factory::build(),
-					WS_Collections_Custom_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					DB_Settings_Connection_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+			self::$instantiated = $WS_Collections;
 
-				self::$instantiated = $WS_Collections;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

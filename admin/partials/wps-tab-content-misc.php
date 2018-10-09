@@ -27,7 +27,7 @@ Tab Content: Tools
 
       ?>
 
-      <?php submit_button( esc_html__('Upgrade Database Tables', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, $attributes) ; ?>
+      <?php submit_button( esc_html__('Upgrade Database Tables', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitSettings', false, $attributes) ; ?>
 
       <div class="spinner"></div>
 

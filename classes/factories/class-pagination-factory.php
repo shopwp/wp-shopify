@@ -11,29 +11,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Pagination_Factory')) {
+class Pagination_Factory {
 
-  class Pagination_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Pagination = new Pagination(
+				DB_Settings_General_Factory::build(),
+				Templates_Factory::build()
+			);
 
-				$Pagination = new Pagination(
-					DB_Settings_General_Factory::build(),
-					Templates_Factory::build()
-				);
+			self::$instantiated = $Pagination;
 
-				self::$instantiated = $Pagination;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

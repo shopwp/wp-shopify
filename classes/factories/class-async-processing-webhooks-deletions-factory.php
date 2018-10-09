@@ -11,29 +11,25 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Async_Processing_Webhooks_Deletions_Factory')) {
+class Async_Processing_Webhooks_Deletions_Factory {
 
-  class Async_Processing_Webhooks_Deletions_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Async_Processing_Webhooks_Deletions = new Async_Processing_Webhooks_Deletions(
+				DB_Settings_Syncing_Factory::build(),
+				Shopify_API_Factory::build()
+			);
 
-				$Async_Processing_Webhooks_Deletions = new Async_Processing_Webhooks_Deletions(
-					DB_Settings_Syncing_Factory::build(),
-					Shopify_API_Factory::build()
-				);
+			self::$instantiated = $Async_Processing_Webhooks_Deletions;
 
-				self::$instantiated = $Async_Processing_Webhooks_Deletions;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

@@ -22,6 +22,17 @@ function messageErrorClient() {
   return '400 Error: The request sent to Shopify was either malformed or corrupt. Please check <a href="https://wpshop.io/docs/syncing-errors">our documentation</a> for a potential solution.';
 }
 
+
+/*
+
+Successfully updated WP Shopify settings
+
+*/
+function messageSettingsSuccessfulSave() {
+  return 'Successfully updated WP Shopify settings';
+}
+
+
 /*
 
 Get message error
@@ -52,5 +63,6 @@ function getMessageError(error) {
 
 
 export {
-  getMessageError
+  getMessageError,
+  messageSettingsSuccessfulSave
 }

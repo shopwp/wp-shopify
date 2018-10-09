@@ -12,30 +12,26 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('WS_CPT_Factory')) {
+class WS_CPT_Factory {
 
-  class WS_CPT_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS_CPT = new WS_CPT(
+				DB_Factory::build(),
+				Async_Processing_Posts_Products_Relationships_Factory::build(),
+				Async_Processing_Posts_Collections_Relationships_Factory::build()
+			);
 
-				$WS_CPT = new WS_CPT(
-					DB_Factory::build(),
-					Async_Processing_Posts_Products_Relationships_Factory::build(),
-					Async_Processing_Posts_Collections_Relationships_Factory::build()
-				);
+			self::$instantiated = $WS_CPT;
 
-				self::$instantiated = $WS_CPT;
+		}
 
-			}
+		return self::$instantiated;
 
-      return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

@@ -7,111 +7,107 @@ if (!defined('ABSPATH')) {
 }
 
 
-if ( !class_exists('Template_Loader') ) {
+class Template_Loader extends \WPS\Vendor_Template_Loader_Gamajo {
 
-  class Template_Loader extends \WPS\Vendor_Template_Loader_Gamajo {
-
-		// Prefix for filter names.
-    protected $filter_prefix = 'wps';
+	// Prefix for filter names.
+	protected $filter_prefix = 'wps';
 
 
-    // Directory name where custom templates for this plugin should be found in the theme.
-    protected $theme_template_directory = 'wps-templates';
+	// Directory name where custom templates for this plugin should be found in the theme.
+	protected $theme_template_directory = 'wps-templates';
 
 
-    /*
+	/*
 
-    Reference to the root directory path of this plugin.
+	Reference to the root directory path of this plugin.
 
-    Can either be a defined constant, or a relative reference from where the subclass lives.
+	Can either be a defined constant, or a relative reference from where the subclass lives.
 
-    In this case, `MEAL_PLANNER_PLUGIN_DIR` would be defined in the root plugin file as:
+	In this case, `MEAL_PLANNER_PLUGIN_DIR` would be defined in the root plugin file as:
 
-    ~~~
-    define( 'MEAL_PLANNER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-    ~~~
+	~~~
+	define( 'MEAL_PLANNER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+	~~~
 
-    @since 1.0.0
-    @var string
+	@since 1.0.0
+	@var string
 
-    */
-    protected $plugin_directory = WPS_PLUGIN_DIR_PATH;
+	*/
+	protected $plugin_directory = WPS_PLUGIN_DIR_PATH;
 
 
-    /*
+	/*
 
-    Directory name where templates are found in this plugin.
+	Directory name where templates are found in this plugin.
 
-    Can either be a defined constant, or a relative reference from where the subclass lives.
+	Can either be a defined constant, or a relative reference from where the subclass lives.
 
-    e.g. 'templates' or 'includes/templates', etc.
+	e.g. 'templates' or 'includes/templates', etc.
 
-    @since 1.1.0
-    @var string
+	@since 1.1.0
+	@var string
 
-    */
-    protected $plugin_template_directory = WPS_RELATIVE_TEMPLATE_DIR;
+	*/
+	protected $plugin_template_directory = WPS_RELATIVE_TEMPLATE_DIR;
 
 
 
-		public function locate_template( $template_names, $load = false, $require_once = true ) {
+	public function locate_template( $template_names, $load = false, $require_once = true ) {
 
-			// Use $template_names as a cache key - either first element of array or the variable itself if it's a string
-			$cache_key = is_array( $template_names ) ? $template_names[0] : $template_names;
-
-
-			// If the key is in the cache array, we've already located this file.
-			if ( isset( $this->template_path_cache[$cache_key] ) ) {
-
-				$located = $this->template_path_cache[$cache_key];
-
-			} else {
-
-				// No file found yet.
-				$located = false;
-
-				// Remove empty entries.
-				$template_names = array_filter( (array) $template_names );
-				$template_paths = $this->get_template_paths();
-
-				// Try to find a template file.
-				foreach ( $template_names as $template_name ) {
-
-					// Trim off any slashes from the template name.
-					$template_name = ltrim( $template_name, '/' );
-
-					/*
-
-					Only looks inside the plugin folder
-
-					*/
-					$newTemplatePaths = [end($template_paths)];
+		// Use $template_names as a cache key - either first element of array or the variable itself if it's a string
+		$cache_key = is_array( $template_names ) ? $template_names[0] : $template_names;
 
 
-					foreach ( $newTemplatePaths as $template_path ) {
+		// If the key is in the cache array, we've already located this file.
+		if ( isset( $this->template_path_cache[$cache_key] ) ) {
 
-						if ( file_exists( $template_path . $template_name ) ) {
+			$located = $this->template_path_cache[$cache_key];
 
-							$located = $template_path . $template_name;
-							// Store the template path in the cache
-							$this->template_path_cache[$cache_key] = $located;
-							break 2;
-						}
+		} else {
+
+			// No file found yet.
+			$located = false;
+
+			// Remove empty entries.
+			$template_names = array_filter( (array) $template_names );
+			$template_paths = $this->get_template_paths();
+
+			// Try to find a template file.
+			foreach ( $template_names as $template_name ) {
+
+				// Trim off any slashes from the template name.
+				$template_name = ltrim( $template_name, '/' );
+
+				/*
+
+				Only looks inside the plugin folder
+
+				*/
+				$newTemplatePaths = [end($template_paths)];
+
+
+				foreach ( $newTemplatePaths as $template_path ) {
+
+					if ( file_exists( $template_path . $template_name ) ) {
+
+						$located = $template_path . $template_name;
+						// Store the template path in the cache
+						$this->template_path_cache[$cache_key] = $located;
+						break 2;
 					}
 				}
 			}
-
-
-
-			if ( $load && $located ) {
-				load_template( $located, $require_once );
-			}
-
-			return $located;
-
 		}
 
 
-  }
+
+		if ( $load && $located ) {
+			load_template( $located, $require_once );
+		}
+
+		return $located;
+
+	}
+
 
 }

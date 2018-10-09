@@ -31,7 +31,7 @@ Tab Content: Tools
 
       }
 
-      submit_button(esc_html__('Resync Shopify data', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Resync Shopify data', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitSettings', false, $props); ?>
 
       <div class="spinner"></div>
 
@@ -53,7 +53,7 @@ Tab Content: Tools
         'id' => 'wps-button-clear-cache'
       );
 
-      submit_button(esc_html__('Clear WP Shopify Transient Cache', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Clear WP Shopify Transient Cache', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitSettings', false, $props); ?>
 
       <div class="spinner"></div>
 
@@ -75,7 +75,7 @@ Tab Content: Tools
         'id' => 'wps-button-clear-all-data'
       );
 
-      submit_button(esc_html__('Remove all synced data from WordPress', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitURLs', false, $props); ?>
+      submit_button(esc_html__('Remove all synced data from WordPress', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitSettings', false, $props); ?>
 
       <div class="spinner"></div>
 

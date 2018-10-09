@@ -12,30 +12,26 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('Progress_Bar_Factory')) {
+class Progress_Bar_Factory {
 
-  class Progress_Bar_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$Progress_Bar = new Progress_Bar(
+				DB_Settings_Syncing_Factory::build(),
+				DB_Settings_General_Factory::build(),
+				WS_Factory::build()
+			);
 
-				$Progress_Bar = new Progress_Bar(
-					DB_Settings_Syncing_Factory::build(),
-					DB_Settings_General_Factory::build(),
-					WS_Factory::build()
-				);
-
-				self::$instantiated = $Progress_Bar;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $Progress_Bar;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

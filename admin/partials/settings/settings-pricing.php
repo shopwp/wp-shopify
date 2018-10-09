@@ -11,7 +11,7 @@ Pricing
 
         <th scope="row" class="titledesc">
           <?php esc_attr_e( 'Show currency code', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-          <span class="wps-help-tip" title="<?php esc_attr_e( 'Enabling this will show a currency code next to the price like this: $19.99 USD. (USD in this example).', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
+          <span class="wps-help-tip" title="<?php esc_attr_e( 'Enabling will show the currency code next to product prices. For example, $19.99 turns into $19.99 USD.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
         <td class="forminp forminp-text">

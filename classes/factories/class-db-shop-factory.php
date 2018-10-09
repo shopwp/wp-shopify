@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('DB_Shop_Factory')) {
+class DB_Shop_Factory {
 
-  class DB_Shop_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$DB_Shop = new DB_Shop();
 
-				$DB_Shop = new DB_Shop();
-
-				self::$instantiated = $DB_Shop;
-
-			}
-
-			return self::$instantiated;
+			self::$instantiated = $DB_Shop;
 
 		}
 
-  }
+		return self::$instantiated;
+
+	}
 
 }

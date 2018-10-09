@@ -466,9 +466,7 @@ gulp.task('build', done => {
     'build:rename:class',
     'build:rename:misc',
     'build:remove:testversion',
-    'js-admin',
-    'js-public',
-    gulp.parallel('css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    gulp.parallel('js', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:dist',
     'build:update:edd',
     'clean:tmp'
@@ -500,9 +498,7 @@ gulp.task('build:free', done => {
     'build:rename:misc',
     'build:remove:testversion',
     'build:clear:free',
-    'js-admin',
-    'js-public',
-    gulp.parallel('css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    gulp.parallel('js', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:free:repo',
     'build:free:repo:copy',
     'clean:tmp'
@@ -533,9 +529,7 @@ gulp.task('build:prerelease', done => {
     'build:rename:class',
     'build:rename:misc',
     'build:remove:testversion',
-    'js-admin',
-    'js-public',
-    gulp.parallel('css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
+    gulp.parallel('js', 'css-admin', 'css-public', 'css-public-core', 'css-public-grid', 'images-public', 'images-admin'),
     'build:clear:free',
     'build:clear:superfluous',
     'build:zip'

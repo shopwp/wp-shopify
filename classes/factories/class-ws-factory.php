@@ -8,26 +8,22 @@ if (!defined('ABSPATH')) {
 
 use WPS\WS;
 
-if (!class_exists('WS_Factory')) {
+class WS_Factory {
 
-  class WS_Factory {
+	protected static $instantiated = null;
 
-		protected static $instantiated = null;
+	public static function build() {
 
-    public static function build() {
+		if (is_null(self::$instantiated)) {
 
-			if (is_null(self::$instantiated)) {
+			$WS = new WS();
 
-				$WS = new WS();
+			self::$instantiated = $WS;
 
-				self::$instantiated = $WS;
+		}
 
-			}
+		return self::$instantiated;
 
-			return self::$instantiated;
-
-    }
-
-  }
+	}
 
 }

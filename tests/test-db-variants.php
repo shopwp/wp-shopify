@@ -14,7 +14,7 @@ the example output Shopify uses within their documentation found here:
 https://help.shopify.com/api/reference/webhook
 
 */
-class Test_Sync_Variants extends WP_UnitTestCase {
+class Test_DB_Variants extends WP_UnitTestCase {
 
   protected static $DB_Variants;
   protected static $mock_variant;
@@ -56,6 +56,7 @@ class Test_Sync_Variants extends WP_UnitTestCase {
   function test_variant_create() {
 
     $result = self::$DB_Variants->insert(self::$mock_variant);
+
     $this->assertEquals(1, $result);
 
   }
@@ -308,5 +309,76 @@ class Test_Sync_Variants extends WP_UnitTestCase {
     $this->assertEquals('wps_variants', $table_name_suffix );
 
   }
+  
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_have_default_values() {
+
+    $this->assertObjectHasAttribute('default_id', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_variant_id', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_product_id', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_image_id', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_title', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_price', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_compare_at_price', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_position', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_option1', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_option2', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_option3', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_option_values', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_taxable', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_weight', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_weight_unit', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_sku', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_inventory_policy', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_inventory_quantity', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_old_inventory_quantity', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_inventory_management', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_requires_shipping', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_fulfillment_service', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_barcode', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_created_at', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_updated_at', self::$DB_Variants);
+    $this->assertObjectHasAttribute('default_admin_graphql_api_id', self::$DB_Variants);
+
+  }
+
+
+  /*
+
+  It should have table info props
+
+  */
+  function test_it_should_have_table_info_props() {
+
+    $this->assertObjectHasAttribute('table_name_suffix', self::$DB_Variants);
+    $this->assertObjectHasAttribute('table_name', self::$DB_Variants);
+    $this->assertObjectHasAttribute('version', self::$DB_Variants);
+    $this->assertObjectHasAttribute('primary_key', self::$DB_Variants);
+    $this->assertObjectHasAttribute('lookup_key', self::$DB_Variants);
+    $this->assertObjectHasAttribute('cache_group', self::$DB_Variants);
+    $this->assertObjectHasAttribute('type', self::$DB_Variants);
+
+  }
+
+
+  /*
+
+  It should update the current add to cart color
+
+  */
+  function test_it_should_match_default_values_and_cols_amount() {
+
+    $cols_count = count( self::$DB_Variants->get_columns() );
+    $default_cols_count = count( self::$DB_Variants->get_column_defaults() );
+
+    $this->assertEquals($cols_count, $default_cols_count);
+
+  }
+
 
 }
