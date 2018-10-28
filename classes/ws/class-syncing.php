@@ -61,7 +61,6 @@ class Syncing extends \WPS\WS {
 		if (is_wp_error($response) && $this->DB_Settings_Syncing->is_syncing() ) {
 
 			$saveResponse = $this->DB_Settings_Syncing->save_notice($response->get_error_message(), 'error');
-
 			return $this->DB_Settings_Syncing->expire_sync();
 
 		} else {
@@ -114,8 +113,6 @@ class Syncing extends \WPS\WS {
 		} else {
 			$syncing_exclusions = [];
 		}
-
-
 
 
 		if (!empty($syncing_totals)) {

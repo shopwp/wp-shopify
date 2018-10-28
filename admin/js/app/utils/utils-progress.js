@@ -7,6 +7,7 @@ import forOwn from 'lodash/forOwn';
 import forEach from 'lodash/forEach';
 import orderBy from 'lodash/orderBy';
 import has from 'lodash/has';
+import isEqual from 'lodash/isEqual';
 import to from 'await-to-js';
 
 import {
@@ -337,8 +338,7 @@ Start Progress Loader
 */
 async function cleanUpAfterSync(options = false) {
 
-
-  if (isConnectionInProgress()) {
+  if ( isConnectionInProgress() ) {
 
     try {
       await killSyncing();
@@ -647,6 +647,11 @@ function forceProgressBarsComplete() {
 }
 
 
+function syncingTotalsMatch(totals, currentAmounts) {
+  return isEqual(totals, currentAmounts);
+}
+
+
 /*
 
 Progress Status
@@ -659,12 +664,15 @@ async function progressStatus(setRelationships = false) {
 
 
   if (statusError) {
+
     forceProgressBarsComplete();
+
     return cleanUpAfterSync(
       syncingConfigJavascriptError(statusError)
     );
 
   }
+
 
   if ( !has(status, 'data') ) {
     forceProgressBarsComplete();
@@ -672,14 +680,11 @@ async function progressStatus(setRelationships = false) {
   }
 
 
-  var stillSyncing = status.data.is_syncing;
-
   updateProgressBarTotals(status.data.syncing_totals);
   updateProgressBarCurrentAmounts(status.data.syncing_current_amounts);
 
 
-  if (stillSyncing) {
-
+  if ( !syncingTotalsMatch(status.data.syncing_totals, status.data.syncing_current_amounts) ) {
     setTimeout(progressStatus, 800);
 
   } else {
@@ -724,7 +729,6 @@ async function progressStatus(setRelationships = false) {
 
       } else {
 
-
         forceProgressBarsComplete();
 
         insertCheckmark();
@@ -745,7 +749,6 @@ async function progressStatus(setRelationships = false) {
         if (isWordPressError(postsData)) {
           return cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(postsData) ) );
         }
-
 
         afterPostRelationships(async () => {
 

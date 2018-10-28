@@ -18,6 +18,11 @@ import Visualizer from 'webpack-visualizer-plugin';
 import ParallelUglifyPlugin from 'webpack-parallel-uglify-plugin';
 import ProgressBarPlugin from 'progress-bar-webpack-plugin';
 import path from 'path';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
+import OptimizeCSSClassnamesPlugin from 'optimize-css-classnames-plugin';
+import BundleAnalyzerPlugin from 'webpack-bundle-analyzer';
+
 
 /*
 
@@ -221,7 +226,8 @@ function webpackConfig(outputFinalname) {
 
   var webpackConfigObj = {
     watch: false,
-    mode: config.isBuilding ? 'production' : 'development',
+    // mode: config.isBuilding ? 'production' : 'development',
+    mode: 'production',
     cache: true,
 
     // IMPORTANT: This entry will override an entry set within webpack stream
@@ -238,56 +244,51 @@ function webpackConfig(outputFinalname) {
     },
     plugins: [
       new webpack.optimize.ModuleConcatenationPlugin(),
-      new ProgressBarPlugin()
+      new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+      new ProgressBarPlugin(),
+      new MiniCssExtractPlugin({
+        filename: "gutenberg-components.min.css",
+        chunkFilename: "gutenberg-components.min.css"
+      })
     ],
     optimization: {
       splitChunks: {
-        name: true,
-        cacheGroups: {
-  				vendor: {
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'vendor',
-            chunks: 'all',
-          }
-  			}
+        chunks: "all",
+        minSize: 0,
+        automaticNameDelimiter: '-'
       },
+      occurrenceOrder: true,
       minimizer: [
         new UglifyJsPlugin({
           parallel: true,
           cache: true,
-          parallel: true,
-          extractComments: config.isBuilding ? true : false,
+          extractComments: false,
           uglifyOptions: {
-            compress: config.isBuilding ? true : false,
+            compress: true,
             ecma: 6,
-            mangle: config.isBuilding ? true : false,
-            safari10: true
+            mangle: {
+              keep_fnames: false
+            },
+            safari10: true,
+            ie8: false,
+            warnings: false
           },
-          sourceMap: config.isBuilding ? false : true,
-        })
+          sourceMap: false,
+        }),
+        new OptimizeCSSAssetsPlugin({})
       ]
     },
     module: {
       rules: [
         {
-          test: /\.js$/,
-          exclude: /(node_modules)/,
-          enforce: 'pre',
+          test: /\.css$/,
           use: [
-            {
-              loader: 'babel-loader',
-              options: {
-                babelrcRoots:  [".", "./_tmp/*"],
-                presets: [
-                  '@babel/preset-env',
-                  '@babel/preset-react'
-                ]
-              }
-            }
+            MiniCssExtractPlugin.loader,
+            "css-loader"
           ]
         },
         {
-          test: /\.jsx?$/,
+          test: /\.(js|jsx)$/i,
           exclude: /node_modules/,
           enforce: 'pre',
           use: [

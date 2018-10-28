@@ -50,6 +50,20 @@ class CPT {
 	}
 
 
+	public static function get_post_name($data) {
+
+		if ( !empty($data->product->post_name) ) {
+			$post_name = $data->product->post_name;
+
+		} else {
+			$post_name = $data->product->handle;
+		}
+
+		return $post_name;
+
+	}
+
+
 	public static function get_all_posts($type) {
 
 		return get_posts([

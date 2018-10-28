@@ -20,7 +20,7 @@ class Test_Bootstrap extends WP_UnitTestCase {
 
 		}
 
-		$this->assertCount(39, $builds);
+		$this->assertCount(44, $builds);
 
   }
 

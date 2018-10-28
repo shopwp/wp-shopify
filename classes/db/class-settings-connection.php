@@ -204,6 +204,26 @@ class Settings_Connection extends \WPS\DB {
 
 	/*
 
+	Get the current myshopify domain
+
+	*/
+	public function get_domain() {
+
+		$domain = $this->get_column_single('domain');
+
+		if ( Utils::array_not_empty($domain) && isset($domain[0]->domain) ) {
+			return $domain[0]->domain;
+
+		} else {
+			return false;
+		}
+
+
+	}
+
+
+	/*
+
 	Creates a table query string
 
 	*/

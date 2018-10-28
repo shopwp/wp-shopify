@@ -198,7 +198,7 @@ class Variants extends \WPS\DB {
 
 		$variant_copy = $this->copy($variant);
 		$variant_copy = $this->maybe_rename_to_lookup_key($variant_copy);
-
+		
 		return $variant_copy;
 
 	}
@@ -380,7 +380,13 @@ class Variants extends \WPS\DB {
 
 	*/
 	public function get_first_variant_price($variants) {
+
+		if ( empty($variants) ) {
+			return false;
+		}
+
 		return $variants[0]->price;
+
 	}
 
 
@@ -410,7 +416,13 @@ class Variants extends \WPS\DB {
 
 	*/
 	public function get_last_variant_price($variants, $last_variant_index) {
+
+		if ($last_variant_index < 0) {
+			return false;
+		}
+
 		return $variants[$last_variant_index]->price;
+
 	}
 
 

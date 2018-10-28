@@ -22,9 +22,13 @@ if ( !defined('ABSPATH') ) {
 
   <?php do_action('wps_products_heading_before', $data->query); ?>
 
-  <h1 class="wps-products-heading <?= apply_filters('wps_products_heading_class', ''); ?>">
-    <?= apply_filters('wps_products_heading', esc_html__('Products', WPS_PLUGIN_TEXT_DOMAIN)); ?>
-  </h1>
+	<?php if ( apply_filters('wps_products_heading_show', true) ) { ?>
+
+		<h1 class="wps-products-heading <?= apply_filters('wps_products_heading_class', ''); ?>">
+	    <?= $data->heading; ?>
+	  </h1>
+
+	<?php } ?>
 
   <?php do_action('wps_products_heading_after', $data->query); ?>
 

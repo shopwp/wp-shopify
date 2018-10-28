@@ -416,7 +416,31 @@ class Utils {
 
 	*/
 	public static function convert_to_comma_string($items) {
-		return implode(', ', $items);
+
+		if ( is_string($items) ) {
+			return $items;
+		}
+
+		if ( is_array($items) ) {
+			return implode(', ', $items);
+		}
+
+		return false;
+
+	}
+
+
+	/*
+
+	Is multi dimensional array
+
+	*/
+	public static function is_multi_array($array) {
+
+		rsort($array);
+
+		return isset( $array[0] ) && is_array( $array[0] );
+
 	}
 
 
@@ -1012,7 +1036,7 @@ class Utils {
 	The returned value eventually gets passed to wps_clauses_mod
 
 	*/
-	public static function map_collections_args_to_query($shortcodeArgs) {
+	public static function map_collections_args_to_query($shortcode_args) {
 
 		$query = array(
 			'post_type'         => WPS_COLLECTIONS_POST_TYPE_SLUG,
@@ -1023,78 +1047,78 @@ class Utils {
 		//
 		// Order
 		//
-		if (isset($shortcodeArgs['order']) && $shortcodeArgs['order']) {
-			$shortcode_args['custom']['order'] = $shortcodeArgs['order'];
+		if (isset($shortcode_args['order']) && $shortcode_args['order']) {
+			$shortcode_args['custom']['order'] = $shortcode_args['order'];
 		}
 
 		//
 		// Order by
 		//
-		if (isset($shortcodeArgs['orderby']) && $shortcodeArgs['orderby']) {
-			$shortcode_args['custom']['orderby'] = $shortcodeArgs['orderby'];
+		if (isset($shortcode_args['orderby']) && $shortcode_args['orderby']) {
+			$shortcode_args['custom']['orderby'] = $shortcode_args['orderby'];
 		}
 
 		//
 		// IDs
 		//
-		if (isset($shortcodeArgs['ids']) && $shortcodeArgs['ids']) {
-			$shortcode_args['custom']['ids'] = $shortcodeArgs['ids'];
+		if (isset($shortcode_args['ids']) && $shortcode_args['ids']) {
+			$shortcode_args['custom']['ids'] = $shortcode_args['ids'];
 		}
 
 		//
 		// Meta Slugs
 		//
-		if (isset($shortcodeArgs['slugs']) && $shortcodeArgs['slugs']) {
-			$shortcode_args['custom']['slugs'] = $shortcodeArgs['slugs'];
+		if (isset($shortcode_args['slugs']) && $shortcode_args['slugs']) {
+			$shortcode_args['custom']['slugs'] = $shortcode_args['slugs'];
 		}
 
 		//
 		// Meta Title
 		//
-		if (isset($shortcodeArgs['titles']) && $shortcodeArgs['titles']) {
-			$shortcode_args['custom']['titles'] = $shortcodeArgs['titles'];
+		if (isset($shortcode_args['titles']) && $shortcode_args['titles']) {
+			$shortcode_args['custom']['titles'] = $shortcode_args['titles'];
 		}
 
 		//
 		// Descriptions
 		//
-		if (isset($shortcodeArgs['desc']) && $shortcodeArgs['desc']) {
-			$shortcode_args['custom']['desc'] = $shortcodeArgs['desc'];
+		if (isset($shortcode_args['desc']) && $shortcode_args['desc']) {
+			$shortcode_args['custom']['desc'] = $shortcode_args['desc'];
 		}
 
 		//
 		// Limit
 		//
-		if (isset($shortcodeArgs['limit']) && $shortcodeArgs['limit']) {
-			$shortcode_args['custom']['limit'] = $shortcodeArgs['limit'];
+		if (isset($shortcode_args['limit']) && $shortcode_args['limit']) {
+			$shortcode_args['custom']['limit'] = $shortcode_args['limit'];
 		}
 
 		//
 		// Items per row
 		//
-		if (isset($shortcodeArgs['items-per-row']) && $shortcodeArgs['items-per-row']) {
-			$shortcode_args['custom']['items-per-row'] = $shortcodeArgs['items-per-row'];
+		if (isset($shortcode_args['items-per-row']) && $shortcode_args['items-per-row']) {
+			$shortcode_args['custom']['items-per-row'] = $shortcode_args['items-per-row'];
 		}
 
 		//
 		// Pagination
 		//
-		if (isset($shortcodeArgs['pagination'])) {
+		if (isset($shortcode_args['pagination'])) {
 			$shortcode_args['custom']['pagination'] = false;
 		}
 
 		//
 		// Breadcrumbs
 		//
-		if (isset($shortcodeArgs['breadcrumbs']) && $shortcodeArgs['breadcrumbs']) {
-			$shortcode_args['custom']['breadcrumbs'] = $shortcodeArgs['breadcrumbs'];
+		if (isset($shortcode_args['breadcrumbs']) && $shortcode_args['breadcrumbs']) {
+			$shortcode_args['custom']['breadcrumbs'] = $shortcode_args['breadcrumbs'];
 		}
 
 		//
 		// Keep permalinks
 		//
-		if (isset($shortcodeArgs['keep-permalinks']) && $shortcodeArgs['keep-permalinks']) {
-			$shortcode_args['custom']['keep-permalinks'] = $shortcodeArgs['keep-permalinks'];
+		if (isset($shortcode_args['keep-permalinks']) && $shortcode_args['keep-permalinks']) {
+			$shortcode_args['custom']['keep-permalinks'] = $shortcode_args['keep-permalinks'];
 		}
 
 		return $shortcode_args;

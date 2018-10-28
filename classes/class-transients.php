@@ -54,10 +54,10 @@ class Transients {
 	*/
 	public static function check_rewrite_rules() {
 
-		if (get_transient('wps_settings_updated') !== false) {
+		if (get_site_option('wps_settings_updated') !== false) {
 
 			flush_rewrite_rules();
-			delete_transient('wps_settings_updated');
+			delete_site_option('wps_settings_updated');
 
 		}
 
@@ -102,6 +102,18 @@ class Transients {
 	}
 
 
+	public static function delete_all_custom_options() {
+
+		global $wpdb;
+
+		$plugin_options = $wpdb->get_results("SELECT option_name FROM $wpdb->options WHERE option_name LIKE 'wp_shopify_%'" );
+
+		foreach($plugin_options as $option) {
+			delete_site_option( $option->option_name );
+		}
+
+	}
+
 	/*
 
 	Deletes custom options
@@ -111,9 +123,9 @@ class Transients {
 
 		$results = [];
 
-		$results['wp_shopify_is_ready'] 					= delete_option('wp_shopify_is_ready');
-		$results['wp_shopify_migration_needed'] 	= delete_site_option('wp_shopify_migration_needed');
+		$results['wp_shopify_custom_options']			= self::delete_all_custom_options();
 		$results['wps_settings_general'] 					= delete_site_option('wps_settings_general');
+		$results['wps_settings_updated'] 					= delete_site_option('wps_settings_updated');
 
 		return $results;
 
@@ -195,6 +207,27 @@ class Transients {
 		global $wpdb;
 
 		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wp_shopify\_%'");
+
+		if ($results === false) {
+			return Utils::wp_error( Messages::get('delete_cache_general') );
+
+		} else {
+			return true;
+		}
+
+	}
+
+
+	/*
+
+	Clears the table exists cache
+
+	*/
+	public static function delete_table_exists_cache() {
+
+		global $wpdb;
+
+		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wp_shopify_table_exists\_%'");
 
 		if ($results === false) {
 			return Utils::wp_error( Messages::get('delete_cache_general') );

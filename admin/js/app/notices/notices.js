@@ -2,6 +2,16 @@ import {
   cacheNoticeDismissal
 } from '../ws/ws';
 
+import { showAdminNotice } from "../utils/utils-dom";
+import { messageSettingsSuccessfulSave } from "../messages/messages";
+
+import {
+  isWordPressError,
+  getJavascriptErrorMessage,
+  getWordPressErrorMessage,
+  getWordPressErrorType
+} from "../utils/utils";
+
 /*
 
 Init
@@ -41,6 +51,29 @@ function initDismissNoticeEvents() {
 
 /*
 
+Admin notice helper
+
+*/
+function showNotice(updateError, updateResponse) {
+
+  if (updateError) {
+    return showAdminNotice( getJavascriptErrorMessage(updateError), "error");
+  }
+
+  if (isWordPressError(updateResponse)) {
+    return showAdminNotice(
+      getWordPressErrorMessage(updateResponse),
+      getWordPressErrorType(updateResponse)
+    );
+  }
+
+  return showAdminNotice( messageSettingsSuccessfulSave(), "updated");
+
+}
+
+
+/*
+
 Init
 
 */
@@ -50,5 +83,6 @@ function noticesInit() {
 
 export {
   noticesInit,
-  initDismissNoticeEvents
+  initDismissNoticeEvents,
+  showNotice
 }

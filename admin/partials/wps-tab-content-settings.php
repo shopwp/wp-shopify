@@ -25,11 +25,19 @@ Tab Content: Settings
     </li>
 
     <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-collections">Collections</a> |
+    </li>
+
+    <li>
       <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-related-products">Related Products</a> |
     </li>
 
     <li>
       <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-cart">Cart</a> |
+    </li>
+
+    <li>
+      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-checkout">Checkout</a> |
     </li>
 
     <li>
@@ -56,10 +64,10 @@ Tab Content: Settings
 
           <?php
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-product-urls.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-collections-urls.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-products-per-page.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-link-products-to-shopify.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/general/settings-general-product-urls.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/general/settings-general-collections-urls.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/general/settings-general-products-per-page.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/general/settings-general-link-products-to-shopify.php';
 
           ?>
 
@@ -84,8 +92,8 @@ Tab Content: Settings
           <?php
 
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-items-per-request.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-save-connection-only.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/syncing/settings-syncing-items-per-request.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/syncing/settings-syncing-save-connection-only.php';
 
 
 
@@ -111,8 +119,8 @@ Tab Content: Settings
 
           <?php
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-show-breadcrumbs.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-hide-pagination.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/layout/settings-layout-show-breadcrumbs.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/layout/settings-layout-hide-pagination.php';
           // require_once plugin_dir_path( __FILE__ ) . 'settings/settings-pricing.php';
 
           ?>
@@ -137,7 +145,7 @@ Tab Content: Settings
 
           <?php
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-pricing.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-pricing.php';
 
           ?>
 
@@ -151,10 +159,88 @@ Tab Content: Settings
 
         <?php
 
-            require_once plugin_dir_path( __FILE__ ) . 'settings/settings-add-to-cart-button-color.php';
-            require_once plugin_dir_path( __FILE__ ) . 'settings/settings-variant-button-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-add-to-cart-button-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-variant-button-color.php';
 
         ?>
+
+      </div>
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-format-aside"></span> <?php esc_html_e( 'Content ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+        <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-heading-toggle.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-heading.php';
+
+        ?>
+
+      </div>
+
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-format-image"></span> <?php esc_html_e( 'Images ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-images-sizing-toggle.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-images-sizing-width.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-images-sizing-height.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-images-sizing-crop.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-images-sizing-scale.php';
+
+          ?>
+
+      </div>
+
+    </div>
+
+
+    <!--
+
+    Collections Settings
+
+    -->
+    <div class="wps-admin-sub-section" id="wps-admin-section-collections">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-format-aside"></span> <?php esc_html_e( 'Content ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+        <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-heading-toggle.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-heading.php';
+
+        ?>
+
+      </div>
+
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-format-image"></span> <?php esc_html_e( 'Images ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-images-sizing-toggle.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-images-sizing-width.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-images-sizing-height.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-images-sizing-crop.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/collections/settings-collections-images-sizing-scale.php';
+
+          ?>
 
       </div>
 
@@ -175,12 +261,45 @@ Tab Content: Settings
 
       <?php
 
-      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-show.php';
-      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-sort.php';
-      require_once plugin_dir_path( __FILE__ ) . 'settings/settings-related-products-amount.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-show.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-sort.php';
+      require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-amount.php';
 
       ?>
 
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-format-aside"></span> <?php esc_html_e( 'Content ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+        <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-heading-toggle.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-heading.php';
+
+        ?>
+
+      </div>
+
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-format-image"></span> <?php esc_html_e( 'Images ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-images-sizing-toggle.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-images-sizing-width.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-images-sizing-height.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-images-sizing-crop.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/related-products/settings-related-products-images-sizing-scale.php';
+
+          ?>
+
+      </div>
 
     </div>
 
@@ -200,9 +319,9 @@ Tab Content: Settings
 
           <?php
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-cart.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-enable-cart-terms.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-cart-terms-content.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-load-cart.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-enable-terms.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-terms-content.php';
 
           ?>
 
@@ -217,11 +336,35 @@ Tab Content: Settings
 
         <?php
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-cart-checkout-button-color.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-cart-icon-color.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-cart-counter-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-checkout-button-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-icon-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-counter-color.php';
 
         ?>
+
+      </div>
+
+    </div>
+
+
+    <!--
+
+    Checkout Settings
+
+    -->
+    <div class="wps-admin-sub-section" id="wps-admin-section-checkout">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-cart"></span> <?php esc_html_e( 'Checkout ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/checkout/settings-checkout-enable-custom-checkout-domain.php';
+
+          ?>
 
       </div>
 
@@ -243,8 +386,8 @@ Tab Content: Settings
 
           <?php
 
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-load-styles.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/settings-beta-enable.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/plugin/settings-plugin-load-styles.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/plugin/settings-plugin-beta-enable.php';
 
           ?>
 

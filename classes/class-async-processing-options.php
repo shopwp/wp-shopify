@@ -60,9 +60,11 @@ class Async_Processing_Options extends Vendor_Background_Process {
 	public function insert_options_batch($products) {
 
 		if ( $this->DB_Settings_Syncing->max_packet_size_reached($products) ) {
+
 			$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
 			$this->DB_Settings_Syncing->expire_sync();
 			$this->complete();
+
 		}
 
 		foreach ($products as $product) {
@@ -76,7 +78,7 @@ class Async_Processing_Options extends Vendor_Background_Process {
 
 	protected function complete() {
 
-		if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
+		if ( !$this->DB_Settings_Syncing->is_syncing() ) {
 			$this->DB_Settings_Syncing->expire_sync();
 		}
 

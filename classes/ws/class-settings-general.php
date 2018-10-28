@@ -203,6 +203,140 @@ class Settings_General extends \WPS\WS {
 		}
 
 
+		if (isset($form_data['wps_settings_general_products_heading_toggle'])) {
+
+			if ($form_data['wps_settings_general_products_heading_toggle'] === 'false') {
+				$newGeneralSettings['products_heading_toggle'] = 0;
+
+			} else {
+				$newGeneralSettings['products_heading_toggle'] = 1;
+			}
+
+		}
+
+		if (isset($form_data['wps_settings_general_collections_heading_toggle'])) {
+
+			if ($form_data['wps_settings_general_collections_heading_toggle'] === 'false') {
+				$newGeneralSettings['collections_heading_toggle'] = 0;
+
+			} else {
+				$newGeneralSettings['collections_heading_toggle'] = 1;
+			}
+
+		}
+
+		if (isset($form_data['wps_settings_general_related_products_heading_toggle'])) {
+
+			if ($form_data['wps_settings_general_related_products_heading_toggle'] === 'false') {
+				$newGeneralSettings['related_products_heading_toggle'] = 0;
+
+			} else {
+				$newGeneralSettings['related_products_heading_toggle'] = 1;
+			}
+
+		}
+
+
+
+
+		if (isset($form_data['wps_settings_products_images_sizing_toggle'])) {
+
+			if ($form_data['wps_settings_products_images_sizing_toggle'] === 'false') {
+				$newGeneralSettings['products_images_sizing_toggle'] = 0;
+
+			} else {
+				$newGeneralSettings['products_images_sizing_toggle'] = 1;
+			}
+
+		}
+
+		if (isset($form_data['wps_settings_products_images_sizing_width'])) {
+			$newGeneralSettings['products_images_sizing_width'] = (int) $form_data['wps_settings_products_images_sizing_width'];
+		}
+
+		if (isset($form_data['wps_settings_products_images_sizing_height'])) {
+			$newGeneralSettings['products_images_sizing_height'] = (int) $form_data['wps_settings_products_images_sizing_height'];
+		}
+
+
+		if (isset($form_data['wps_settings_products_images_sizing_crop'])) {
+			$newGeneralSettings['products_images_sizing_crop'] = (string) $form_data['wps_settings_products_images_sizing_crop'];
+		}
+
+		if (isset($form_data['wps_settings_products_images_sizing_scale'])) {
+			$newGeneralSettings['products_images_sizing_scale'] = (string) $form_data['wps_settings_products_images_sizing_scale'];
+		}
+
+
+
+
+		if (isset($form_data['wps_settings_collections_images_sizing_toggle'])) {
+
+			if ($form_data['wps_settings_collections_images_sizing_toggle'] === 'false') {
+				$newGeneralSettings['collections_images_sizing_toggle'] = 0;
+
+			} else {
+				$newGeneralSettings['collections_images_sizing_toggle'] = 1;
+			}
+
+		}
+
+		if (isset($form_data['wps_settings_collections_images_sizing_width'])) {
+			$newGeneralSettings['collections_images_sizing_width'] = (int) $form_data['wps_settings_collections_images_sizing_width'];
+		}
+
+		if (isset($form_data['wps_settings_collections_images_sizing_height'])) {
+			$newGeneralSettings['collections_images_sizing_height'] = (int) $form_data['wps_settings_collections_images_sizing_height'];
+		}
+
+
+		if (isset($form_data['wps_settings_collections_images_sizing_crop'])) {
+			$newGeneralSettings['collections_images_sizing_crop'] = (string) $form_data['wps_settings_collections_images_sizing_crop'];
+		}
+
+		if (isset($form_data['wps_settings_collections_images_sizing_scale'])) {
+			$newGeneralSettings['collections_images_sizing_scale'] = (string) $form_data['wps_settings_collections_images_sizing_scale'];
+		}
+
+
+
+
+		if (isset($form_data['wps_settings_related_products_images_sizing_toggle'])) {
+
+			if ($form_data['wps_settings_related_products_images_sizing_toggle'] === 'false') {
+				$newGeneralSettings['related_products_images_sizing_toggle'] = 0;
+
+			} else {
+				$newGeneralSettings['related_products_images_sizing_toggle'] = 1;
+			}
+
+		}
+
+		if (isset($form_data['wps_settings_related_products_images_sizing_width'])) {
+			$newGeneralSettings['related_products_images_sizing_width'] = (int) $form_data['wps_settings_related_products_images_sizing_width'];
+		}
+
+		if (isset($form_data['wps_settings_related_products_images_sizing_height'])) {
+			$newGeneralSettings['related_products_images_sizing_height'] = (int) $form_data['wps_settings_related_products_images_sizing_height'];
+		}
+
+
+		if (isset($form_data['wps_settings_related_products_images_sizing_crop'])) {
+			$newGeneralSettings['related_products_images_sizing_crop'] = (string) $form_data['wps_settings_related_products_images_sizing_crop'];
+		}
+
+		if (isset($form_data['wps_settings_related_products_images_sizing_scale'])) {
+			$newGeneralSettings['related_products_images_sizing_scale'] = (string) $form_data['wps_settings_related_products_images_sizing_scale'];
+		}
+
+
+
+
+
+
+
+
+
 
 		/*
 
@@ -236,7 +370,7 @@ class Settings_General extends \WPS\WS {
 			$this->send_error( $results->get_error_message() );
 
 		} else {
-			set_transient('wps_settings_updated', $newGeneralSettings);
+			update_site_option('wps_settings_updated', $newGeneralSettings);
 			$this->send_success($results);
 		}
 

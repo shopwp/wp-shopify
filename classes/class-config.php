@@ -64,11 +64,18 @@ class Config {
 	public $plugin_default_cart_icon_color;
 	public $plugin_default_variant_color;
 	public $plugin_default_add_to_cart_color;
+	public $plugin_default_products_heading;
+	public $plugin_default_collections_heading;
+	public $plugin_default_related_products_heading;
+	public $plugin_default_products_images_sizing_width;
+	public $plugin_default_products_images_sizing_height;
+	public $plugin_default_products_images_sizing_crop;
+	public $plugin_default_products_images_sizing_scale;
+	public $placeholder_image_src;
+
 
 
 	public function __construct() {
-
-		global $wpdb;
 
 		$this->plugin_dir_path 													= plugin_dir_path( __DIR__ );
 		$this->plugin_url 															= plugin_dir_url( __DIR__ );
@@ -77,7 +84,7 @@ class Config {
 		$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 		$this->plugin_name_js 													= 'WP_Shopify';
 		$this->plugin_text_domain 											= 'wp-shopify';
-		$this->plugin_version 													= '1.2.7';
+		$this->plugin_version 													= '1.2.8';
 		$this->plugin_author 														= 'WP Shopify';
 
 		$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -115,6 +122,7 @@ class Config {
 		$this->max_items_per_request 										= 250;
 		$this->shopify_payload_key 											= 'id';
 		$this->max_ids_per_request 											= 10000;
+		$this->placeholder_image_src 										= 'https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image.png?v=1530129081';
 
 		// WP Shopify API
 		$this->api_slug 																= 'wpshopify';
@@ -157,6 +165,25 @@ class Config {
 		$this->plugin_default_variant_color							= '#52a7a6';
 		$this->plugin_default_cart_counter_color				= '#6ae06a';
 		$this->plugin_default_cart_icon_color						= '#000';
+		$this->plugin_default_products_heading					= 'Products';
+		$this->plugin_default_collections_heading				= 'Collections';
+		$this->plugin_default_related_products_heading	= 'Related Products';
+		$this->default_enable_custom_checkout_domain		= 0;
+
+		$this->plugin_default_products_images_sizing_width						= 0;
+		$this->plugin_default_products_images_sizing_height						= 0;
+		$this->plugin_default_products_images_sizing_crop							= 'none';
+		$this->plugin_default_products_images_sizing_scale						= 0;
+
+		$this->plugin_default_collections_images_sizing_width					= 0;
+		$this->plugin_default_collections_images_sizing_height				= 0;
+		$this->plugin_default_collections_images_sizing_crop					= 'none';
+		$this->plugin_default_collections_images_sizing_scale					= 0;
+
+		$this->plugin_default_related_products_images_sizing_width		= 0;
+		$this->plugin_default_related_products_images_sizing_height		= 0;
+		$this->plugin_default_related_products_images_sizing_crop			= 'none';
+		$this->plugin_default_related_products_images_sizing_scale		= 0;
 
 
 		if ( !defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') ) {
@@ -441,6 +468,74 @@ class Config {
 
 		if ( !defined('WP_SHOPIFY_API_NAMESPACE') ) {
 			define('WP_SHOPIFY_API_NAMESPACE', $this->api_namespace);
+		}
+
+		if ( !defined('WPS_DEFAULT_PRODUCTS_HEADING') ) {
+			define('WPS_DEFAULT_PRODUCTS_HEADING', $this->plugin_default_products_heading);
+		}
+
+		if ( !defined('WPS_DEFAULT_COLLECTIONS_HEADING') ) {
+			define('WPS_DEFAULT_COLLECTIONS_HEADING', $this->plugin_default_collections_heading);
+		}
+
+		if ( !defined('WPS_DEFAULT_RELATED_PRODUCTS_HEADING') ) {
+			define('WPS_DEFAULT_RELATED_PRODUCTS_HEADING', $this->plugin_default_related_products_heading);
+		}
+
+		if ( !defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_WIDTH') ) {
+			define('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_WIDTH', $this->plugin_default_products_images_sizing_width);
+		}
+
+		if ( !defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_HEIGHT') ) {
+			define('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_HEIGHT', $this->plugin_default_products_images_sizing_height);
+		}
+
+		if ( !defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_CROP') ) {
+			define('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_CROP', $this->plugin_default_products_images_sizing_crop);
+		}
+
+		if ( !defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_SCALE') ) {
+			define('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_SCALE', $this->plugin_default_products_images_sizing_scale);
+		}
+
+		if ( !defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_WIDTH') ) {
+			define('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_WIDTH', $this->plugin_default_collections_images_sizing_width);
+		}
+
+		if ( !defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_HEIGHT') ) {
+			define('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_HEIGHT', $this->plugin_default_collections_images_sizing_height);
+		}
+
+		if ( !defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_CROP') ) {
+			define('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_CROP', $this->plugin_default_collections_images_sizing_crop);
+		}
+
+		if ( !defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE') ) {
+			define('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE', $this->plugin_default_collections_images_sizing_scale);
+		}
+
+		if ( !defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_WIDTH') ) {
+			define('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_WIDTH', $this->plugin_default_related_products_images_sizing_width);
+		}
+
+		if ( !defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_HEIGHT') ) {
+			define('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_HEIGHT', $this->plugin_default_related_products_images_sizing_height);
+		}
+
+		if ( !defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_CROP') ) {
+			define('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_CROP', $this->plugin_default_related_products_images_sizing_crop);
+		}
+
+		if ( !defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE') ) {
+			define('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE', $this->plugin_default_related_products_images_sizing_scale);
+		}
+
+		if ( !defined('WPS_PLACEHOLDER_IMAGE_SRC') ) {
+			define('WPS_PLACEHOLDER_IMAGE_SRC', $this->placeholder_image_src);
+		}
+
+		if ( !defined('WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN') ) {
+			define('WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN', $this->default_enable_custom_checkout_domain);
 		}
 
 

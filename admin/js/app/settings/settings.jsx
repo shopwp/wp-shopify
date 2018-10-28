@@ -2,7 +2,36 @@ import isError from 'lodash/isError';
 import forEach from 'lodash/forEach';
 import has from 'lodash/has';
 import to from 'await-to-js';
+
 import { initColorPickers } from './settings-color-picker.jsx';
+import { initProductsHeading } from './products/products-heading.jsx';
+import { initCollectionsHeading } from './collections/collections-heading.jsx';
+import { initRelatedProductsHeading } from './related-products/related-products-heading.jsx';
+import { initProductsHeadingToggle } from './products/products-heading-toggle.jsx';
+import { initCollectionsHeadingToggle } from './collections/collections-heading-toggle.jsx';
+import { initRelatedProductsHeadingToggle } from './related-products/related-products-heading-toggle.jsx';
+
+import { initProductsImagesSizingToggle } from './products/products-images-sizing-toggle.jsx';
+import { initProductsImagesSizingWidth } from './products/products-images-sizing-width.jsx';
+import { initProductsImagesSizingHeight } from './products/products-images-sizing-height.jsx';
+import { initProductsImagesSizingCrop } from './products/products-images-sizing-crop.jsx';
+import { initProductsImagesSizingScale } from './products/products-images-sizing-scale.jsx';
+
+import { initCollectionsImagesSizingToggle } from './collections/collections-images-sizing-toggle.jsx';
+import { initCollectionsImagesSizingWidth } from './collections/collections-images-sizing-width.jsx';
+import { initCollectionsImagesSizingHeight } from './collections/collections-images-sizing-height.jsx';
+import { initCollectionsImagesSizingCrop } from './collections/collections-images-sizing-crop.jsx';
+import { initCollectionsImagesSizingScale } from './collections/collections-images-sizing-scale.jsx';
+
+import { initRelatedProductsImagesSizingToggle } from './related-products/related-products-images-sizing-toggle.jsx';
+import { initRelatedProductsImagesSizingWidth } from './related-products/related-products-images-sizing-width.jsx';
+import { initRelatedProductsImagesSizingHeight } from './related-products/related-products-images-sizing-height.jsx';
+import { initRelatedProductsImagesSizingCrop } from './related-products/related-products-images-sizing-crop.jsx';
+import { initRelatedProductsImagesSizingScale } from './related-products/related-products-images-sizing-scale.jsx';
+
+import { initEnableCustomCheckoutDomain } from './checkout/checkout-enable-custom-checkout-domain.jsx';
+
+
 
 import {
   updateSettings
@@ -118,6 +147,28 @@ function onSettingsFormSubmit() {
       var checkoutButtonColor = jQuery(form).find('.wps-color-swatch[data-picker-type="checkout"]').attr('data-color');
       var cartIconColor = jQuery(form).find('.wps-color-swatch[data-picker-type="cart-icon"]').attr('data-color');
       var cartCounterColor = jQuery(form).find('.wps-color-swatch[data-picker-type="cart-counter"]').attr('data-color');
+
+      var productsHeadingToggle = jQuery(form).find('#wps-products-heading-toggle').prop('checked');
+      var collectionsHeadingToggle = jQuery(form).find('#wps-collections-heading-toggle').prop('checked');
+      var relatedProductsHeadingToggle = jQuery(form).find('#wps-related-products-heading-toggle').prop('checked');
+
+      var productsImagesSizingToggle = jQuery(form).find('#wps-products-images-sizing-toggle').prop('checked');
+      var productsImagesSizingWidth = jQuery(form).find('#wps-settings-products-images-sizing-width input').val();
+      var productsImagesSizingHeight = jQuery(form).find('#wps-settings-products-images-sizing-height input').val();
+      var productsImagesSizingCrop = jQuery(form).find('#wps-settings-products-images-sizing-crop select').val();
+      var productsImagesSizingScale = jQuery(form).find('#wps-settings-products-images-sizing-scale select').val();
+
+      var collectionsImagesSizingToggle = jQuery(form).find('#wps-collections-images-sizing-toggle').prop('checked');
+      var collectionsImagesSizingWidth = jQuery(form).find('#wps-settings-collections-images-sizing-width input').val();
+      var collectionsImagesSizingHeight = jQuery(form).find('#wps-settings-collections-images-sizing-height input').val();
+      var collectionsImagesSizingCrop = jQuery(form).find('#wps-settings-collections-images-sizing-crop select').val();
+      var collectionsImagesSizingScale = jQuery(form).find('#wps-settings-collections-images-sizing-scale select').val();
+
+      var relatedProductsImagesSizingToggle = jQuery(form).find('#wps-related-products-images-sizing-toggle').prop('checked');
+      var relatedProductsImagesSizingWidth = jQuery(form).find('#wps-settings-related-products-images-sizing-width input').val();
+      var relatedProductsImagesSizingHeight = jQuery(form).find('#wps-settings-related-products-images-sizing-height input').val();
+      var relatedProductsImagesSizingCrop = jQuery(form).find('#wps-settings-related-products-images-sizing-crop select').val();
+      var relatedProductsImagesSizingScale = jQuery(form).find('#wps-settings-related-products-images-sizing-scale select').val();
 
 
 
@@ -360,6 +411,24 @@ function onSettingsFormSubmit() {
         wps_settings_general_checkout_button_color: checkoutButtonColor,
         wps_settings_general_cart_icon_color: cartIconColor,
         wps_settings_general_cart_counter_color: cartCounterColor,
+        wps_settings_general_products_heading_toggle: productsHeadingToggle,
+        wps_settings_general_collections_heading_toggle: collectionsHeadingToggle,
+        wps_settings_general_related_products_heading_toggle: relatedProductsHeadingToggle,
+        wps_settings_products_images_sizing_toggle: productsImagesSizingToggle,
+        wps_settings_products_images_sizing_width: productsImagesSizingWidth,
+        wps_settings_products_images_sizing_height: productsImagesSizingHeight,
+        wps_settings_products_images_sizing_crop: productsImagesSizingCrop,
+        wps_settings_products_images_sizing_scale: productsImagesSizingScale,
+        wps_settings_collections_images_sizing_toggle: collectionsImagesSizingToggle,
+        wps_settings_collections_images_sizing_width: collectionsImagesSizingWidth,
+        wps_settings_collections_images_sizing_height: collectionsImagesSizingHeight,
+        wps_settings_collections_images_sizing_crop: collectionsImagesSizingCrop,
+        wps_settings_collections_images_sizing_scale: collectionsImagesSizingScale,
+        wps_settings_related_products_images_sizing_toggle: relatedProductsImagesSizingToggle,
+        wps_settings_related_products_images_sizing_width: relatedProductsImagesSizingWidth,
+        wps_settings_related_products_images_sizing_height: relatedProductsImagesSizingHeight,
+        wps_settings_related_products_images_sizing_crop: relatedProductsImagesSizingCrop,
+        wps_settings_related_products_images_sizing_scale: relatedProductsImagesSizingScale,
 
 
       }
@@ -374,6 +443,7 @@ function onSettingsFormSubmit() {
       update_settings_general
 
       */
+
       var [settingsError, settingsData] = await to( updateSettings(settings) );
 
       if (settingsError) {
@@ -506,7 +576,7 @@ function chosenInit() {
 
   jQuery(".wps-chosen").chosen({
     no_results_text: "Oops, nothing found!",
-    width: "350px"
+    width: "300px"
   }).change(function(e) {
 
   });
@@ -606,8 +676,40 @@ function settingsInit() {
   toggleActiveSubSection();
   chosenInit();
   populateSyncByCollections();
+
+  /*
+
+  Begin Rendering React Components ...
+
+  */
   initItemsPerRequest();
   initColorPickers();
+  initProductsHeadingToggle();
+  initProductsHeading();
+  initCollectionsHeadingToggle();
+  initCollectionsHeading();
+  initRelatedProductsHeading();
+  initRelatedProductsHeadingToggle();
+
+  initProductsImagesSizingToggle();
+  initProductsImagesSizingWidth();
+  initProductsImagesSizingHeight();
+  initProductsImagesSizingCrop();
+  initProductsImagesSizingScale();
+
+  initCollectionsImagesSizingToggle();
+  initCollectionsImagesSizingWidth();
+  initCollectionsImagesSizingHeight();
+  initCollectionsImagesSizingCrop();
+  initCollectionsImagesSizingScale();
+
+  initRelatedProductsImagesSizingToggle();
+  initRelatedProductsImagesSizingWidth();
+  initRelatedProductsImagesSizingHeight();
+  initRelatedProductsImagesSizingCrop();
+  initRelatedProductsImagesSizingScale();
+
+  initEnableCustomCheckoutDomain();
 
 }
 

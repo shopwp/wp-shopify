@@ -175,7 +175,7 @@ class Async_Processing_Posts_Collections_Custom extends Vendor_Background_Proces
 	*/
 	protected function complete() {
 
-		if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
+		if ( !$this->DB_Settings_Syncing->is_syncing() ) {
 			$this->DB_Settings_Syncing->expire_sync();
 		}
 

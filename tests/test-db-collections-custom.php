@@ -127,6 +127,7 @@ class Test_DB_Collections_Custom extends WP_UnitTestCase {
     $this->assertObjectHasAttribute('default_post_id', self::$DB_Collections_Custom);
     $this->assertObjectHasAttribute('default_title', self::$DB_Collections_Custom);
     $this->assertObjectHasAttribute('default_handle', self::$DB_Collections_Custom);
+    $this->assertObjectHasAttribute('default_post_name', self::$DB_Collections_Custom);
     $this->assertObjectHasAttribute('default_body_html', self::$DB_Collections_Custom);
     $this->assertObjectHasAttribute('default_image', self::$DB_Collections_Custom);
     $this->assertObjectHasAttribute('default_metafield', self::$DB_Collections_Custom);

@@ -6,6 +6,8 @@ import { enable, disable, showLoader, hideLoader } from '../utils/utils-ux';
 import { isCheckoutEmpty } from '../utils/utils-cart';
 import { getClient } from '../utils/utils-client';
 import { pulse } from '../utils/utils-animations';
+import { swapDomains } from '../utils/utils-common';
+import { hasEnableCustomCheckoutDomain } from '../utils/utils-settings';
 import { logNotice, showSingleCartNotice, noticeConfigEmptyLineItemsBeforeUpdate, isWordPressError } from '../utils/utils-notices';
 import { getCheckout, updateLineItems, addCheckoutAttributes, cartTermsState, setCartTermsState } from '../ws/ws-cart';
 import { quantityFinder, convertCustomAttrsToQueryString, containsInvalidLineItemProps } from '../utils/utils-common';
@@ -62,6 +64,28 @@ function onCartTermsChange(client) {
 
 }
 
+
+function primaryDomainEqualsMyShopifyDomain() {
+  return WP_Shopify.settings.myShopifyDomain === WP_Shopify.shop.primaryDomain.host;
+}
+
+
+function getCheckoutURL(checkout) {
+
+  if ( hasEnableCustomCheckoutDomain() ) {
+
+    if ( primaryDomainEqualsMyShopifyDomain() ) {
+      return checkout.webUrl;
+    }
+
+    return swapDomains(checkout.webUrl, WP_Shopify.settings.myShopifyDomain, WP_Shopify.shop.primaryDomain.host);
+
+
+  } else {
+    return checkout.webUrl;
+  }
+
+}
 
 
 /*
@@ -122,8 +146,7 @@ function onCheckout(client, checkout) {
 
 
       if (isEmpty(WP_Shopify.checkoutAttributes)) {
-        window.open(freshCheckout.webUrl + '&attributes[cartID]=' + getCheckoutID(), '_self');
-        return;
+        return window.open( getCheckoutURL(freshCheckout) + '&attributes[cartID]=' + getCheckoutID(), '_self');
       }
 
 
@@ -135,7 +158,8 @@ function onCheckout(client, checkout) {
         return reject(updatedCheckoutError);
       }
 
-      window.open(updatedCheckout.webUrl + '&attributes[cartID]=' + getCheckoutID(), '_self');
+
+      window.open( getCheckoutURL(updatedCheckout) + '&attributes[cartID]=' + getCheckoutID(), '_self');
 
 
     });

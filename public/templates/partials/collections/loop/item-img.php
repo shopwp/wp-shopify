@@ -20,6 +20,6 @@ if ( !defined('ABSPATH') ) {
 
 <img
   itemprop="image"
-  src="<?= esc_url($data->image->src); ?>"
+  src="<?= esc_url( $data->custom_sizing ? $data->custom_image_src : $data->image->src ); ?>"
   alt="<?php esc_attr_e($data->image->alt); ?>"
   class="<?= apply_filters( 'wps_collections_img_class', '' ); ?>" />

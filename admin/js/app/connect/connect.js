@@ -1,5 +1,4 @@
 import to from 'await-to-js';
-import isError from 'lodash/isError';
 import forEach from 'lodash/forEach';
 
 import {

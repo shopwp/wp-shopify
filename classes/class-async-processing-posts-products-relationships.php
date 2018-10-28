@@ -156,6 +156,7 @@ class Async_Processing_Posts_Products_Relationships extends Vendor_Background_Pr
 			// $this->dispatch();
 
 			$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+
 			$this->DB_Settings_Syncing->expire_sync();
 			$this->complete();
 

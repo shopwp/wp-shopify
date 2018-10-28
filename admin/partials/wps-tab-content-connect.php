@@ -45,6 +45,8 @@ Tab Content: Connect
 
         <h4><?php esc_attr_e('API Key', WPS_PLUGIN_TEXT_DOMAIN); ?></h4>
 
+
+
         <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_api_key" name="api_key" value="<?php if(!empty($connection->api_key)) echo $connection->api_key; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API key you must create a "Private App" within your Shopify account.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span><div class="wps-form-icon wps-animated"></div>
 
       </div>

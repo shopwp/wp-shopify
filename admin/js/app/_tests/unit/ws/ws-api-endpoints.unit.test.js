@@ -9,6 +9,6 @@ it('Should return correct settings add to cart color endpoint', () => {
 
   expect(result)
     .toBeString()
-    .toEqual('http://wpstest.test/wp/api/wpshopify/v1/settings/add_to_cart_color');
+    .toEqual('http://wpstest.test/wp/api/wpshopify/v1/settings/products_add_to_cart_color');
 
 });

@@ -73,7 +73,6 @@ class Async_Processing_Orders extends Vendor_Background_Process {
 
 		}
 
-
 		foreach ($orders as $order) {
 			$this->push_to_queue($order);
 		}
@@ -85,7 +84,7 @@ class Async_Processing_Orders extends Vendor_Background_Process {
 
 	protected function complete() {
 
-		if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
+		if ( !$this->DB_Settings_Syncing->is_syncing() ) {
 			$this->DB_Settings_Syncing->expire_sync();
 		}
 

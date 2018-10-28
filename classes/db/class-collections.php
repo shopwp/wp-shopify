@@ -56,6 +56,9 @@ class Collections extends \WPS\DB {
 			$collection_copy = CPT::set_post_id($collection_copy, $post_id);
 		}
 
+		// Important. If handle doesn't match post_name, the product won't show
+		$collection_copy->post_name = sanitize_title($collection_copy->handle);
+
 		return $collection_copy;
 
 	}
@@ -143,6 +146,7 @@ class Collections extends \WPS\DB {
 		smart.post_id,
 		smart.title,
 		smart.handle,
+		smart.post_name,
 		smart.body_html,
 		smart.image,
 		smart.sort_order,
@@ -158,6 +162,7 @@ class Collections extends \WPS\DB {
 		custom.post_id,
 		custom.title,
 		custom.handle,
+		custom.post_name,
 		custom.body_html,
 		custom.image,
 		custom.sort_order,
@@ -215,6 +220,7 @@ class Collections extends \WPS\DB {
 		smart.post_id,
 		smart.title,
 		smart.handle,
+		smart.post_name,
 		smart.body_html,
 		smart.image,
 		smart.sort_order,
@@ -230,6 +236,7 @@ class Collections extends \WPS\DB {
 		custom.post_id,
 		custom.title,
 		custom.handle,
+		custom.post_name,
 		custom.body_html,
 		custom.image,
 		custom.sort_order,
@@ -312,6 +319,7 @@ class Collections extends \WPS\DB {
 			smart.post_id,
 			smart.title,
 			smart.handle,
+			smart.post_name,
 			smart.body_html,
 			smart.image,
 			smart.sort_order,
@@ -326,6 +334,7 @@ class Collections extends \WPS\DB {
 			custom.post_id,
 			custom.title,
 			custom.handle,
+			custom.post_name,
 			custom.body_html,
 			custom.image,
 			custom.sort_order,
@@ -468,14 +477,14 @@ class Collections extends \WPS\DB {
 		$query = "SELECT
 		smart.collection_id,
 		smart.rules
-		FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.handle = %s
+		FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_SMART . " smart WHERE smart.post_name = %s
 
 		UNION
 
 		SELECT
 		custom.collection_id,
 		NULL as rules
-		FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.handle = %s;";
+		FROM " . $wpdb->prefix . WPS_TABLE_NAME_COLLECTIONS_CUSTOM . " custom WHERE custom.post_name = %s;";
 
 		return $wpdb->get_row( $wpdb->prepare($query, $post_name, $post_name) );
 

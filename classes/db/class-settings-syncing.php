@@ -1014,7 +1014,7 @@ class Settings_Syncing extends \WPS\DB {
 		sort($current_amounts);
 		sort($syncing_totals);
 
-		if (!$this->is_syncing() || $current_amounts == $syncing_totals) {
+		if ( !$this->is_syncing() || $current_amounts == $syncing_totals) {
 			return true;
 
 		} else {
@@ -1130,10 +1130,12 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function reset_all_syncing_totals() {
+
 		$this->reset_syncing_current_amounts();
 		$this->reset_syncing_totals();
 		$this->reset_syncing_timing();
 		$this->reset_syncing_posts_relationships();
+
 	}
 
 
@@ -1151,10 +1153,10 @@ class Settings_Syncing extends \WPS\DB {
 	*/
 	public function reset_syncing_cache() {
 
-		set_transient('wps_settings_updated', true);
-		set_transient('wps_recently_connected', true);
+		update_site_option('wps_settings_updated', true);
 
 		$this->turn_syncing_off();
+
 		$this->reset_all_syncing_totals();
 		$this->reset_all_syncing_status();
 
@@ -1221,10 +1223,14 @@ class Settings_Syncing extends \WPS\DB {
 	Wrapper for saving a notice (error or warning)
 
 	*/
-	public function save_notice($WP_Error) {
+	public function save_notice($maybe_wp_error) {
 
-		$error_message 	= $WP_Error->get_error_message();
-		$type						= $WP_Error->get_error_code();
+		if ( !is_wp_error($maybe_wp_error) ) {
+			return $this->save_error($maybe_wp_error);
+		}
+
+		$error_message 	= $maybe_wp_error->get_error_message();
+		$type						= $maybe_wp_error->get_error_code();
 
 		if ($error_message) {
 

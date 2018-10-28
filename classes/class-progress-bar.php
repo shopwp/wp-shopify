@@ -202,13 +202,15 @@ class Progress_Bar {
 	*/
 	public function progress_status() {
 
-		if (!Utils::valid_backend_nonce($_GET['nonce'])) {
+		if ( !Utils::valid_backend_nonce($_GET['nonce']) ) {
 			$this->WS->send_error( Messages::get('nonce_invalid') . ' (progress_status)' );
 		}
+
 
 		if ($this->DB_Settings_Syncing->all_syncing_complete()) {
 			$this->DB_Settings_Syncing->expire_sync();
 		}
+
 
 		$this->WS->send_success([
 			'is_syncing' 								=> $this->DB_Settings_Syncing->is_syncing(),

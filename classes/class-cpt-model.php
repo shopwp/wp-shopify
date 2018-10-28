@@ -45,7 +45,7 @@ class CPT_Model {
 			'post_status'   => 'publish',
 			'post_author'		=> CPT::return_author_id(),
 			'post_type'     => WPS_COLLECTIONS_POST_TYPE_SLUG,
-			'post_name'			=> property_exists($collection, 'handle') ? __($collection->handle) : '',
+			'post_name'			=> property_exists($collection, 'handle') ? sanitize_title($collection->handle) : '',
 			'meta_input' => [
 				'collection_id' => property_exists($collection, 'id') ? $collection->id : ''
 			]
@@ -70,7 +70,7 @@ class CPT_Model {
 			'post_content'  => property_exists($product, 'body_html') && $product->body_html !== null ? __($product->body_html) : '',
 			'post_status'   => 'publish',
 			'post_type'     => WPS_PRODUCTS_POST_TYPE_SLUG,
-			'post_name'			=> property_exists($product, 'handle') ? __($product->handle) : '',
+			'post_name'			=> property_exists($product, 'handle') ? sanitize_title($product->handle) : '',
 			'meta_input' => [
 				'product_id' => property_exists($product, 'id') ? $product->id : ''
 			]

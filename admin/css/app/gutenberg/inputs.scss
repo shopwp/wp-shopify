@@ -103,4 +103,43 @@
 
   }
 
+
+
+  /*
+
+  Component overrides
+
+  */
+
+  .components-text-control__input,
+  .components-select-control__input {
+    width: 300px;
+  }
+
+  .wps-form-toggle-input {
+
+    .components-form-toggle {
+      margin-right: 1em;
+      position: relative;
+      top: 8px;
+    }
+
+  }
+
+  .components-form-toggle {
+    margin-left: 3px;
+
+    .components-form-toggle__input {
+      width: 36px;
+      height: 18px;
+      margin: 0;
+    }
+
+    .components-form-toggle__thumb {
+      border: none;
+    }
+
+  }
+
+
 }

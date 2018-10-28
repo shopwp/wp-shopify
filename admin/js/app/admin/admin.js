@@ -37,7 +37,6 @@ Init Admin
 
 */
 function initAdmin() {
-  // addAdminNotice();
   initTooltips();
 }
 

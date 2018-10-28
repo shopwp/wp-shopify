@@ -20,7 +20,6 @@ $connection = $DB_Settings_Connection->get();
 $license = $DB_Settings_License->get();
 $general = $DB_Settings_General->get();
 
-
 $plugin_new_version = WPS_NEW_PLUGIN_VERSION;
 
 

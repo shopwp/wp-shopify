@@ -60,59 +60,108 @@ class Settings_General extends \WPS\DB {
 	public $default_checkout_color;
 	public $default_cart_counter_color;
 	public $default_cart_icon_color;
+	public $default_products_heading_toggle;
+	public $default_products_heading;
+	public $default_collections_heading_toggle;
+	public $default_collections_heading;
+	public $default_related_products_heading_toggle;
+	public $default_related_products_heading;
+	public $default_products_images_sizing_toggle;
+	public $default_products_images_sizing_width;
+	public $default_products_images_sizing_height;
+	public $default_products_images_sizing_crop;
+	public $default_products_images_sizing_scale;
+	public $default_collections_images_sizing_toggle;
+	public $default_collections_images_sizing_width;
+	public $default_collections_images_sizing_height;
+	public $default_collections_images_sizing_crop;
+	public $default_collections_images_sizing_scale;
+	public $default_related_products_images_sizing_toggle;
+	public $default_related_products_images_sizing_width;
+	public $default_related_products_images_sizing_height;
+	public $default_related_products_images_sizing_crop;
+	public $default_related_products_images_sizing_scale;
+	public $default_enable_custom_checkout_domain;
+
 
 	public function __construct() {
 
-		$this->table_name_suffix  										= WPS_TABLE_NAME_SETTINGS_GENERAL;
-		$this->table_name         										= $this->get_table_name();
-		$this->version                        				= '1.0';
-		$this->primary_key                    				= 'id';
-		$this->lookup_key                    					= 'id';
-		$this->cache_group                    				= 'wps_db_general';
-		$this->type     															= 'settings_general';
+		$this->table_name_suffix  												= WPS_TABLE_NAME_SETTINGS_GENERAL;
+		$this->table_name         												= $this->get_table_name();
+		$this->version                        						= '1.0';
+		$this->primary_key                    						= 'id';
+		$this->lookup_key                    							= 'id';
+		$this->cache_group                    						= 'wps_db_general';
+		$this->type     																	= 'settings_general';
 
-		$this->default_webhooks                 			= Utils::convert_to_https_url( get_home_url() );
-		$this->default_id                       			= 0;
-		$this->default_plugin_version           			= WPS_NEW_PLUGIN_VERSION;
-		$this->default_plugin_author            			= WPS_NEW_PLUGIN_AUTHOR;
-		$this->default_plugin_textdomain        			= WPS_PLUGIN_NAME;
-		$this->default_plugin_name              			= WPS_PLUGIN_NAME_FULL;
-		$this->default_num_posts                			= get_option('posts_per_page');
-		$this->default_title_as_alt             			= 0;
-		$this->default_cart_loaded              			= 1;
-		$this->default_price_with_currency      			= 0;
-		$this->default_styles_all               			= 1;
-		$this->default_styles_core              			= 0;
-		$this->default_styles_grid              			= 0;
-		$this->default_selective_sync_all      				= 1;
-		$this->default_selective_sync_products  			= 0;
-		$this->default_sync_by_collections 						= '';
-		$this->default_selective_sync_collections 		= 0;
-		$this->default_selective_sync_customers     	= 0;
-		$this->default_selective_sync_orders        	= 0;
-		$this->default_selective_sync_shop          	= 1;
-		$this->default_products_link_to_shopify     	= 0;
-		$this->default_show_breadcrumbs       				= 0;
-		$this->default_hide_pagination       					= 0;
-		$this->default_is_free        								= 0;
-		$this->default_is_pro        									= 0;
-		$this->default_related_products_show        	= 1;
-		$this->default_related_products_sort       		= 'random';
-		$this->default_related_products_amount      	= 4;
-		$this->default_allow_insecure_webhooks      	= 0;
-		$this->default_save_connection_only        		= 0;
-		$this->default_app_uninstalled        				= 0;
-		$this->default_items_per_request        			= WPS_MAX_ITEMS_PER_REQUEST;
-		$this->default_enable_beta        						= 0;
-		$this->default_enable_cart_terms        			= 0;
-		$this->default_url_products        						= 'products';
-		$this->default_url_collections        				= 'collections';
-		$this->default_cart_terms_content        			= WPS_DEFAULT_CART_TERMS_CONTENT;
-		$this->default_add_to_cart_color        			= WPS_DEFAULT_ADD_TO_CART_COLOR;
-		$this->default_variant_color        					= WPS_DEFAULT_VARIANT_COLOR;
-		$this->default_checkout_color									= WPS_DEFAULT_VARIANT_COLOR;
-		$this->default_cart_counter_color							= WPS_DEFAULT_CART_COUNTER_COLOR;
-		$this->default_cart_icon_color								= WPS_DEFAULT_CART_ICON_COLOR;
+		$this->default_webhooks                 					= Utils::convert_to_https_url( get_home_url() );
+		$this->default_id                       					= 0;
+		$this->default_plugin_version           					= WPS_NEW_PLUGIN_VERSION;
+		$this->default_plugin_author            					= WPS_NEW_PLUGIN_AUTHOR;
+		$this->default_plugin_textdomain        					= WPS_PLUGIN_NAME;
+		$this->default_plugin_name              					= WPS_PLUGIN_NAME_FULL;
+		$this->default_num_posts                					= get_option('posts_per_page');
+		$this->default_title_as_alt             					= 0;
+		$this->default_cart_loaded              					= 1;
+		$this->default_price_with_currency      					= 0;
+		$this->default_styles_all               					= 1;
+		$this->default_styles_core              					= 0;
+		$this->default_styles_grid              					= 0;
+		$this->default_selective_sync_all      						= 1;
+		$this->default_selective_sync_products  					= 0;
+		$this->default_sync_by_collections 								= '';
+		$this->default_selective_sync_collections 				= 0;
+		$this->default_selective_sync_customers     			= 0;
+		$this->default_selective_sync_orders        			= 0;
+		$this->default_selective_sync_shop          			= 1;
+		$this->default_products_link_to_shopify     			= 0;
+		$this->default_show_breadcrumbs       						= 0;
+		$this->default_hide_pagination       							= 0;
+		$this->default_is_free        										= 0;
+		$this->default_is_pro        											= 0;
+		$this->default_related_products_show        			= 1;
+		$this->default_related_products_sort       				= 'random';
+		$this->default_related_products_amount      			= 4;
+		$this->default_allow_insecure_webhooks      			= 0;
+		$this->default_save_connection_only        				= 0;
+		$this->default_app_uninstalled        						= 0;
+		$this->default_items_per_request        					= WPS_MAX_ITEMS_PER_REQUEST;
+		$this->default_enable_beta        								= 0;
+		$this->default_enable_cart_terms        					= 0;
+		$this->default_url_products        								= 'products';
+		$this->default_url_collections        						= 'collections';
+		$this->default_cart_terms_content        					= WPS_DEFAULT_CART_TERMS_CONTENT;
+		$this->default_add_to_cart_color        					= WPS_DEFAULT_ADD_TO_CART_COLOR;
+		$this->default_variant_color        							= WPS_DEFAULT_VARIANT_COLOR;
+		$this->default_checkout_color											= WPS_DEFAULT_VARIANT_COLOR;
+		$this->default_cart_counter_color									= WPS_DEFAULT_CART_COUNTER_COLOR;
+		$this->default_cart_icon_color										= WPS_DEFAULT_CART_ICON_COLOR;
+		$this->default_products_heading_toggle						= 1;
+		$this->default_products_heading										= WPS_DEFAULT_PRODUCTS_HEADING;
+		$this->default_collections_heading_toggle					= 1;
+		$this->default_collections_heading								= WPS_DEFAULT_COLLECTIONS_HEADING;
+		$this->default_related_products_heading_toggle		= 1;
+		$this->default_related_products_heading						= WPS_DEFAULT_RELATED_PRODUCTS_HEADING;
+		$this->default_enable_custom_checkout_domain      = WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN;
+
+		$this->default_products_images_sizing_toggle						= 0;
+		$this->default_products_images_sizing_width							= WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_WIDTH;
+		$this->default_products_images_sizing_height						= WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_HEIGHT;
+		$this->default_products_images_sizing_crop							= WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_CROP;
+		$this->default_products_images_sizing_scale							= WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_SCALE;
+
+		$this->default_collections_images_sizing_toggle					= 0;
+		$this->default_collections_images_sizing_width					= WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_WIDTH;
+		$this->default_collections_images_sizing_height					= WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_HEIGHT;
+		$this->default_collections_images_sizing_crop						= WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_CROP;
+		$this->default_collections_images_sizing_scale					= WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE;
+
+		$this->default_related_products_images_sizing_toggle		= 0;
+		$this->default_related_products_images_sizing_width			= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_WIDTH;
+		$this->default_related_products_images_sizing_height		= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_HEIGHT;
+		$this->default_related_products_images_sizing_crop			= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_CROP;
+		$this->default_related_products_images_sizing_scale			= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE;
+
 	}
 
 
@@ -165,7 +214,29 @@ class Settings_General extends \WPS\DB {
 			'variant_color'       											=> '%s',
 			'checkout_color'       											=> '%s',
 			'cart_counter_color'       									=> '%s',
-			'cart_icon_color'       										=> '%s'
+			'cart_icon_color'       										=> '%s',
+			'products_heading_toggle'										=> '%d',
+			'products_heading'       										=> '%s',
+			'collections_heading_toggle'       					=> '%d',
+			'collections_heading'       								=> '%s',
+			'related_products_heading_toggle'     			=> '%d',
+			'related_products_heading'       						=> '%s',
+			'products_images_sizing_toggle'       			=> '%d',
+			'products_images_sizing_width'       				=> '%d',
+			'products_images_sizing_height'       			=> '%d',
+			'products_images_sizing_crop'       				=> '%s',
+			'products_images_sizing_scale'       				=> '%d',
+			'collections_images_sizing_toggle'    			=> '%d',
+			'collections_images_sizing_width'     			=> '%d',
+			'collections_images_sizing_height'    			=> '%d',
+			'collections_images_sizing_crop'      			=> '%s',
+			'collections_images_sizing_scale'     			=> '%d',
+			'related_products_images_sizing_toggle'    	=> '%d',
+			'related_products_images_sizing_width'     	=> '%d',
+			'related_products_images_sizing_height'    	=> '%d',
+			'related_products_images_sizing_crop'      	=> '%s',
+			'related_products_images_sizing_scale'     	=> '%d',
+			'enable_custom_checkout_domain'							=> '%d'
 		];
 
 	}
@@ -220,7 +291,29 @@ class Settings_General extends \WPS\DB {
 			'variant_color'       											=> $this->default_variant_color,
 			'checkout_color'       											=> $this->default_checkout_color,
 			'cart_counter_color'       									=> $this->default_cart_counter_color,
-			'cart_icon_color'														=> $this->default_cart_icon_color
+			'cart_icon_color'														=> $this->default_cart_icon_color,
+			'products_heading_toggle'										=> $this->default_products_heading_toggle,
+			'products_heading'													=> $this->default_products_heading,
+			'collections_heading_toggle'								=> $this->default_collections_heading_toggle,
+			'collections_heading'												=> $this->default_collections_heading,
+			'related_products_heading_toggle'						=> $this->default_related_products_heading_toggle,
+			'related_products_heading'									=> $this->default_related_products_heading,
+			'products_images_sizing_toggle'       			=> $this->default_products_images_sizing_toggle,
+			'products_images_sizing_width'       				=> $this->default_products_images_sizing_width,
+			'products_images_sizing_height'       			=> $this->default_products_images_sizing_height,
+			'products_images_sizing_crop'       				=> $this->default_products_images_sizing_crop,
+			'products_images_sizing_scale'       				=> $this->default_products_images_sizing_scale,
+			'collections_images_sizing_toggle'    			=> $this->default_collections_images_sizing_toggle,
+			'collections_images_sizing_width'     			=> $this->default_collections_images_sizing_width,
+			'collections_images_sizing_height'    			=> $this->default_collections_images_sizing_height,
+			'collections_images_sizing_crop'      			=> $this->default_collections_images_sizing_crop,
+			'collections_images_sizing_scale'     			=> $this->default_collections_images_sizing_scale,
+			'related_products_images_sizing_toggle'    	=> $this->default_related_products_images_sizing_toggle,
+			'related_products_images_sizing_width'     	=> $this->default_related_products_images_sizing_width,
+			'related_products_images_sizing_height'    	=> $this->default_related_products_images_sizing_height,
+			'related_products_images_sizing_crop'      	=> $this->default_related_products_images_sizing_crop,
+			'related_products_images_sizing_scale'     	=> $this->default_related_products_images_sizing_scale,
+			'enable_custom_checkout_domain'     				=> $this->default_enable_custom_checkout_domain
 		];
 
 	}
@@ -297,6 +390,10 @@ class Settings_General extends \WPS\DB {
 	public function get_num_posts() {
 
 		global $wpdb;
+
+		if ( !$this->table_exists($this->table_name) ) {
+			return false;
+		}
 
 		if (get_transient('wps_settings_num_posts')) {
 			$results = get_transient('wps_settings_num_posts');
@@ -775,6 +872,25 @@ class Settings_General extends \WPS\DB {
 	Gets the status of selective_sync_products
 
 	*/
+	public function get_price_with_currency() {
+
+		$price_with_currency = $this->get_column_single('price_with_currency');
+
+		if ( Utils::array_not_empty($price_with_currency) && isset($price_with_currency[0]->price_with_currency) ) {
+			return (bool) $price_with_currency[0]->price_with_currency;
+
+		} else {
+			return 0;
+		}
+
+	}
+
+
+	/*
+
+	Gets the status of selective_sync_products
+
+	*/
 	public function get_selective_sync_products_status() {
 
 		$selective_sync_products = $this->get_column_single('selective_sync_products');
@@ -1038,6 +1154,509 @@ class Settings_General extends \WPS\DB {
 
 	/*
 
+	Gets the products heading
+
+	*/
+	public function get_products_heading() {
+
+		$products_heading = $this->get_column_single('products_heading');
+
+		if ( Utils::array_not_empty($products_heading) && isset($products_heading[0]->products_heading) ) {
+			return $products_heading[0]->products_heading;
+
+		} else {
+			return $products_heading;
+		}
+
+	}
+
+
+	/*
+
+	Gets the collections heading
+
+	*/
+	public function get_collections_heading() {
+
+		$collections_heading = $this->get_column_single('collections_heading');
+
+		if ( Utils::array_not_empty($collections_heading) && isset($collections_heading[0]->collections_heading) ) {
+			return $collections_heading[0]->collections_heading;
+
+		} else {
+			return $collections_heading;
+		}
+
+	}
+
+
+	/*
+
+	Gets the collections heading
+
+	*/
+	public function get_related_products_heading() {
+
+		$related_products_heading = $this->get_column_single('related_products_heading');
+
+		if ( Utils::array_not_empty($related_products_heading) && isset($related_products_heading[0]->related_products_heading) ) {
+			return $related_products_heading[0]->related_products_heading;
+
+		} else {
+			return $related_products_heading;
+		}
+
+	}
+
+
+	/*
+
+	Gets products heading toggle
+
+	*/
+	public function get_products_heading_toggle() {
+
+		$products_heading_toggle = $this->get_column_single('products_heading_toggle');
+
+		if ( Utils::array_not_empty($products_heading_toggle) && isset($products_heading_toggle[0]->products_heading_toggle) ) {
+			return $products_heading_toggle[0]->products_heading_toggle;
+
+		} else {
+			return $products_heading_toggle;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_collections_heading_toggle() {
+
+		$collections_heading_toggle = $this->get_column_single('collections_heading_toggle');
+
+		if ( Utils::array_not_empty($collections_heading_toggle) && isset($collections_heading_toggle[0]->collections_heading_toggle) ) {
+			return $collections_heading_toggle[0]->collections_heading_toggle;
+
+		} else {
+			return $collections_heading_toggle;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_related_products_heading_toggle() {
+
+		$related_products_heading_toggle = $this->get_column_single('related_products_heading_toggle');
+
+		if ( Utils::array_not_empty($related_products_heading_toggle) && isset($related_products_heading_toggle[0]->related_products_heading_toggle) ) {
+			return $related_products_heading_toggle[0]->related_products_heading_toggle;
+
+		} else {
+			return $related_products_heading_toggle;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_products_images_sizing_toggle() {
+
+		$products_images_sizing_toggle = $this->get_column_single('products_images_sizing_toggle');
+
+		if ( Utils::array_not_empty($products_images_sizing_toggle) && isset($products_images_sizing_toggle[0]->products_images_sizing_toggle) ) {
+			return (bool) $products_images_sizing_toggle[0]->products_images_sizing_toggle;
+
+		} else {
+			return $products_images_sizing_toggle;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_products_images_sizing_width() {
+
+		$products_images_sizing_width = $this->get_column_single('products_images_sizing_width');
+
+		if ( Utils::array_not_empty($products_images_sizing_width) && isset($products_images_sizing_width[0]->products_images_sizing_width) ) {
+			return (int) $products_images_sizing_width[0]->products_images_sizing_width;
+
+		} else {
+			return $products_images_sizing_width;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_products_images_sizing_height() {
+
+		$products_images_sizing_height = $this->get_column_single('products_images_sizing_height');
+
+		if ( Utils::array_not_empty($products_images_sizing_height) && isset($products_images_sizing_height[0]->products_images_sizing_height) ) {
+			return (int) $products_images_sizing_height[0]->products_images_sizing_height;
+
+		} else {
+			return $products_images_sizing_height;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_products_images_sizing_crop() {
+
+		$products_images_sizing_crop = $this->get_column_single('products_images_sizing_crop');
+
+		if ( Utils::array_not_empty($products_images_sizing_crop) && isset($products_images_sizing_crop[0]->products_images_sizing_crop) ) {
+
+			$saved_value = $products_images_sizing_crop[0]->products_images_sizing_crop;
+
+			if (empty($saved_value)) {
+				return false;
+			}
+
+			return $saved_value;
+
+		} else {
+			return $products_images_sizing_crop;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_products_images_sizing_scale() {
+
+		$products_images_sizing_scale = $this->get_column_single('products_images_sizing_scale');
+
+		if ( Utils::array_not_empty($products_images_sizing_scale) && isset($products_images_sizing_scale[0]->products_images_sizing_scale) ) {
+
+			$saved_value = $products_images_sizing_scale[0]->products_images_sizing_scale;
+
+			if ($saved_value === 0) {
+				return false;
+			}
+
+			return $saved_value;
+
+
+		} else {
+			return $products_images_sizing_scale;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_collections_images_sizing_toggle() {
+
+		$collections_images_sizing_toggle = $this->get_column_single('collections_images_sizing_toggle');
+
+		if ( Utils::array_not_empty($collections_images_sizing_toggle) && isset($collections_images_sizing_toggle[0]->collections_images_sizing_toggle) ) {
+			return (bool) $collections_images_sizing_toggle[0]->collections_images_sizing_toggle;
+
+		} else {
+			return $collections_images_sizing_toggle;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_collections_images_sizing_width() {
+
+		$collections_images_sizing_width = $this->get_column_single('collections_images_sizing_width');
+
+		if ( Utils::array_not_empty($collections_images_sizing_width) && isset($collections_images_sizing_width[0]->collections_images_sizing_width) ) {
+			return (int) $collections_images_sizing_width[0]->collections_images_sizing_width;
+
+		} else {
+			return $collections_images_sizing_width;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_collections_images_sizing_height() {
+
+		$collections_images_sizing_height = $this->get_column_single('collections_images_sizing_height');
+
+		if ( Utils::array_not_empty($collections_images_sizing_height) && isset($collections_images_sizing_height[0]->collections_images_sizing_height) ) {
+			return (int) $collections_images_sizing_height[0]->collections_images_sizing_height;
+
+		} else {
+			return $collections_images_sizing_height;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_collections_images_sizing_crop() {
+
+		$collections_images_sizing_crop = $this->get_column_single('collections_images_sizing_crop');
+
+		if ( Utils::array_not_empty($collections_images_sizing_crop) && isset($collections_images_sizing_crop[0]->collections_images_sizing_crop) ) {
+
+			$saved_value = $collections_images_sizing_crop[0]->collections_images_sizing_crop;
+
+			if (empty($saved_value)) {
+				return false;
+			}
+
+			return $saved_value;
+
+		} else {
+			return $collections_images_sizing_crop;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_collections_images_sizing_scale() {
+
+		$collections_images_sizing_scale = $this->get_column_single('collections_images_sizing_scale');
+
+		if ( Utils::array_not_empty($collections_images_sizing_scale) && isset($collections_images_sizing_scale[0]->collections_images_sizing_scale) ) {
+
+			$saved_value = $collections_images_sizing_scale[0]->collections_images_sizing_scale;
+
+			if ($saved_value === 0) {
+				return false;
+			}
+
+			return $saved_value;
+
+
+		} else {
+			return $collections_images_sizing_scale;
+		}
+
+	}
+
+
+	/*
+
+	Gets collections heading toggle
+
+	*/
+	public function get_related_products_images_sizing_toggle() {
+
+		$related_products_images_sizing_toggle = $this->get_column_single('related_products_images_sizing_toggle');
+
+		if ( Utils::array_not_empty($related_products_images_sizing_toggle) && isset($related_products_images_sizing_toggle[0]->related_products_images_sizing_toggle) ) {
+			return (bool) $related_products_images_sizing_toggle[0]->related_products_images_sizing_toggle;
+
+		} else {
+			return $related_products_images_sizing_toggle;
+		}
+
+	}
+
+
+	/*
+
+	Gets related_products heading toggle
+
+	*/
+	public function get_related_products_images_sizing_width() {
+
+		$related_products_images_sizing_width = $this->get_column_single('related_products_images_sizing_width');
+
+		if ( Utils::array_not_empty($related_products_images_sizing_width) && isset($related_products_images_sizing_width[0]->related_products_images_sizing_width) ) {
+			return (int) $related_products_images_sizing_width[0]->related_products_images_sizing_width;
+
+		} else {
+			return $related_products_images_sizing_width;
+		}
+
+	}
+
+
+	/*
+
+	Gets related_products heading toggle
+
+	*/
+	public function get_related_products_images_sizing_height() {
+
+		$related_products_images_sizing_height = $this->get_column_single('related_products_images_sizing_height');
+
+		if ( Utils::array_not_empty($related_products_images_sizing_height) && isset($related_products_images_sizing_height[0]->related_products_images_sizing_height) ) {
+			return (int) $related_products_images_sizing_height[0]->related_products_images_sizing_height;
+
+		} else {
+			return $related_products_images_sizing_height;
+		}
+
+	}
+
+
+	/*
+
+	Gets related_products heading toggle
+
+	*/
+	public function get_related_products_images_sizing_crop() {
+
+		$related_products_images_sizing_crop = $this->get_column_single('related_products_images_sizing_crop');
+
+		if ( Utils::array_not_empty($related_products_images_sizing_crop) && isset($related_products_images_sizing_crop[0]->related_products_images_sizing_crop) ) {
+
+			$saved_value = $related_products_images_sizing_crop[0]->related_products_images_sizing_crop;
+
+			if (empty($saved_value)) {
+				return false;
+			}
+
+			return $saved_value;
+
+		} else {
+			return $related_products_images_sizing_crop;
+		}
+
+	}
+
+
+	/*
+
+	Gets related_products heading toggle
+
+	*/
+	public function get_related_products_images_sizing_scale() {
+
+		$related_products_images_sizing_scale = $this->get_column_single('related_products_images_sizing_scale');
+
+		if ( Utils::array_not_empty($related_products_images_sizing_scale) && isset($related_products_images_sizing_scale[0]->related_products_images_sizing_scale) ) {
+
+			$saved_value = $related_products_images_sizing_scale[0]->related_products_images_sizing_scale;
+
+			if ($saved_value === 0) {
+				return false;
+			}
+
+			return $saved_value;
+
+
+		} else {
+			return $related_products_images_sizing_scale;
+		}
+
+	}
+
+
+	/*
+
+	Gets related_products heading toggle
+
+	*/
+	public function get_enable_custom_checkout_domain() {
+
+		$enable_custom_checkout_domain = $this->get_column_single('enable_custom_checkout_domain');
+
+		if ( Utils::array_not_empty($enable_custom_checkout_domain) && isset($enable_custom_checkout_domain[0]->enable_custom_checkout_domain) ) {
+			return (bool) $enable_custom_checkout_domain[0]->enable_custom_checkout_domain;
+
+		} else {
+			return $enable_custom_checkout_domain;
+		}
+
+	}
+
+
+	/*
+
+	Reset syncing timing
+
+	*/
+	public function update_related_products_heading($heading) {
+		return $this->update_column_single( ['related_products_heading' => $heading], ['id' => 1] );
+	}
+
+
+	/*
+
+	Reset syncing timing
+
+	*/
+	public function update_related_products_heading_toggle($heading) {
+		return $this->update_column_single( ['related_products_heading_toggle' => $heading], ['id' => 1] );
+	}
+
+
+	/*
+
+	Reset syncing timing
+
+	*/
+	public function update_collections_heading($heading) {
+		return $this->update_column_single( ['collections_heading' => $heading], ['id' => 1] );
+	}
+
+
+	/*
+
+	Reset syncing timing
+
+	*/
+	public function update_products_heading($heading) {
+		return $this->update_column_single( ['products_heading' => $heading], ['id' => 1] );
+	}
+
+
+	/*
+
 	Reset syncing timing
 
 	*/
@@ -1068,7 +1687,7 @@ class Settings_General extends \WPS\DB {
 
 	/*
 
-	Reset syncing timing
+	update_add_to_cart_color
 
 	*/
 	public function update_add_to_cart_color($color) {
@@ -1078,11 +1697,191 @@ class Settings_General extends \WPS\DB {
 
 	/*
 
-	Reset syncing timing
+	update_cart_icon_color
 
 	*/
 	public function update_cart_icon_color($color) {
 		return $this->update_column_single( ['cart_icon_color' => $color], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_products_heading_toggle
+
+	*/
+	public function update_products_heading_toggle($toggle) {
+		return $this->update_column_single( ['products_heading_toggle' => $toggle], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_collections_heading_toggle
+
+	*/
+	public function update_collections_heading_toggle($toggle) {
+		return $this->update_column_single( ['collections_heading_toggle' => $toggle], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_products_images_sizing_toggle
+
+	*/
+	public function update_products_images_sizing_toggle($toggle) {
+		return $this->update_column_single( ['products_images_sizing_toggle' => $toggle], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_products_images_sizing_width
+
+	*/
+	public function update_products_images_sizing_width($width) {
+		return $this->update_column_single( ['products_images_sizing_width' => $width], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_products_images_sizing_height
+
+	*/
+	public function update_products_images_sizing_height($height) {
+		return $this->update_column_single( ['products_images_sizing_height' => $height], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_products_images_sizing_crop
+
+	*/
+	public function update_products_images_sizing_crop($crop) {
+		return $this->update_column_single( ['products_images_sizing_crop' => $crop], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_products_images_sizing_scale
+
+	*/
+	public function update_products_images_sizing_scale($scale) {
+		return $this->update_column_single( ['products_images_sizing_scale' => $scale], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_collections_images_sizing_toggle
+
+	*/
+	public function update_collections_images_sizing_toggle($toggle) {
+		return $this->update_column_single( ['collections_images_sizing_toggle' => $toggle], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_collections_images_sizing_width
+
+	*/
+	public function update_collections_images_sizing_width($width) {
+		return $this->update_column_single( ['collections_images_sizing_width' => $width], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_collections_images_sizing_height
+
+	*/
+	public function update_collections_images_sizing_height($height) {
+		return $this->update_column_single( ['collections_images_sizing_height' => $height], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_collections_images_sizing_crop
+
+	*/
+	public function update_collections_images_sizing_crop($crop) {
+		return $this->update_column_single( ['collections_images_sizing_crop' => $crop], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_collections_images_sizing_scale
+
+	*/
+	public function update_collections_images_sizing_scale($scale) {
+		return $this->update_column_single( ['collections_images_sizing_scale' => $scale], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_related_products_images_sizing_toggle
+
+	*/
+	public function update_related_products_images_sizing_toggle($toggle) {
+		return $this->update_column_single( ['related_products_images_sizing_toggle' => $toggle], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_related_products_images_sizing_width
+
+	*/
+	public function update_related_products_images_sizing_width($width) {
+		return $this->update_column_single( ['related_products_images_sizing_width' => $width], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_related_products_images_sizing_height
+
+	*/
+	public function update_related_products_images_sizing_height($height) {
+		return $this->update_column_single( ['related_products_images_sizing_height' => $height], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_related_products_images_sizing_crop
+
+	*/
+	public function update_related_products_images_sizing_crop($crop) {
+		return $this->update_column_single( ['related_products_images_sizing_crop' => $crop], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_related_products_images_sizing_scale
+
+	*/
+	public function update_related_products_images_sizing_scale($scale) {
+		return $this->update_column_single( ['related_products_images_sizing_scale' => $scale], ['id' => 1] );
+	}
+
+
+	/*
+
+	update_enable_custom_checkout_domain
+
+	*/
+	public function update_enable_custom_checkout_domain($enable) {
+		return $this->update_column_single( ['enable_custom_checkout_domain' => $enable], ['id' => 1] );
 	}
 
 
@@ -1142,6 +1941,28 @@ class Settings_General extends \WPS\DB {
 			checkout_color varchar(100) NOT NULL DEFAULT '{$this->default_checkout_color}',
 			cart_counter_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_counter_color}',
 			cart_icon_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_icon_color}',
+			products_heading_toggle tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_products_heading_toggle}',
+			products_heading varchar(100) NOT NULL DEFAULT '{$this->default_products_heading}',
+			collections_heading_toggle tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_collections_heading_toggle}',
+			collections_heading varchar(100) NOT NULL DEFAULT '{$this->default_collections_heading}',
+			related_products_heading_toggle tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_related_products_heading_toggle}',
+			related_products_heading varchar(100) NOT NULL DEFAULT '{$this->default_related_products_heading}',
+			products_images_sizing_toggle tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_products_images_sizing_toggle}',
+			products_images_sizing_width int(5) unsigned NOT NULL DEFAULT '{$this->default_products_images_sizing_width}',
+			products_images_sizing_height int(5) unsigned NOT NULL DEFAULT '{$this->default_products_images_sizing_height}',
+			products_images_sizing_crop varchar(100) NOT NULL DEFAULT '{$this->default_products_images_sizing_crop}',
+			products_images_sizing_scale int(1) NOT NULL DEFAULT '{$this->default_products_images_sizing_scale}',
+			collections_images_sizing_toggle tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_collections_images_sizing_toggle}',
+			collections_images_sizing_width int(5) unsigned NOT NULL DEFAULT '{$this->default_collections_images_sizing_width}',
+			collections_images_sizing_height int(5) unsigned NOT NULL DEFAULT '{$this->default_collections_images_sizing_height}',
+			collections_images_sizing_crop varchar(100) NOT NULL DEFAULT '{$this->default_collections_images_sizing_crop}',
+			collections_images_sizing_scale int(1) NOT NULL DEFAULT '{$this->default_collections_images_sizing_scale}',
+			related_products_images_sizing_toggle tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_related_products_images_sizing_toggle}',
+			related_products_images_sizing_width int(5) unsigned NOT NULL DEFAULT '{$this->default_related_products_images_sizing_width}',
+			related_products_images_sizing_height int(5) unsigned NOT NULL DEFAULT '{$this->default_related_products_images_sizing_height}',
+			related_products_images_sizing_crop varchar(100) NOT NULL DEFAULT '{$this->default_related_products_images_sizing_crop}',
+			related_products_images_sizing_scale int(1) NOT NULL DEFAULT '{$this->default_related_products_images_sizing_scale}',
+			enable_custom_checkout_domain tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_enable_custom_checkout_domain}',
 			PRIMARY KEY  (id)
 		) ENGINE=InnoDB $collate";
 

@@ -120,7 +120,7 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 		$key = $this->generate_key();
 
 		if ( !empty( $this->data) ) {
-			$updated_site_option = update_site_option( $key, $this->before_queue_item_save($this->data) );
+			update_site_option( $key, $this->before_queue_item_save($this->data) );
 		}
 
 		return $this;
@@ -190,13 +190,11 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 		session_write_close();
 
 		if ( $this->is_process_running() ) {
-
 			// Background process already running.
 			wp_die();
 		}
 
 		if ( $this->is_queue_empty() ) {
-
 			// No data to process.
 			wp_die();
 		}
@@ -313,13 +311,16 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 		$key = $wpdb->esc_like( $this->identifier . '_batch_' ) . '%';
 
 		$query = $wpdb->get_row( $wpdb->prepare( "
-		SELECT *
-		FROM {$table}
-		WHERE {$column} LIKE %s
-		ORDER BY {$key_column} ASC
-		LIMIT 1
-	", $key ) );
+			SELECT *
+			FROM {$table}
+			WHERE {$column} LIKE %s
+			ORDER BY {$key_column} ASC
+			LIMIT 1
+		", $key ) );
 
+		// error_log('---- $query -----');
+		// error_log(print_r($query, true));
+		// error_log('---- /$query -----');
 
 		if (!is_object($query) || !isset($query, $column)) {
 			error_log('WP Shopify Error - get_batch query failed in some capacity');
@@ -331,6 +332,7 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 		$batch->data = maybe_unserialize( $query->$value_column );
 
 		return $batch;
+
 	}
 
 

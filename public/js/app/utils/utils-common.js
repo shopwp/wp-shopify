@@ -7,6 +7,7 @@ import isNull from 'lodash/isNull';
 import isUndefined from 'lodash/isUndefined';
 import filter from 'lodash/filter';
 import values from 'lodash/values';
+import replace from 'lodash/replace';
 
 
 import {
@@ -20,6 +21,10 @@ import {
 import {
   getClient
 } from '../utils/utils-client';
+
+import {
+  hasCurrencyCode
+} from '../utils/utils-settings';
 
 import {
   setMoneyFormatCache,
@@ -275,7 +280,22 @@ Format product price into format from Shopify
 
 */
 function formatAsMoney(amount) {
-  return formatTotalAmount(amount, getMoneyFormat(getShop()) );
+  return formatTotalAmount(amount, getMoneyFormat( getShop() ) );
+}
+
+
+function maybeAddCurrencyCodeToMoney(formatWithRealAmount) {
+
+  if ( hasCurrencyCode() ) {
+
+    var shop = getShop();
+
+    return formatWithRealAmount + ' ' + shop.currencyCode;
+
+  }
+
+  return formatWithRealAmount;
+
 }
 
 
@@ -288,8 +308,9 @@ function formatTotalAmount(amount, moneyFormat) {
 
   var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
   var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
+  var formatWithRealAmount = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
 
-  return replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
+  return maybeAddCurrencyCodeToMoney(formatWithRealAmount);
 
 }
 
@@ -351,6 +372,12 @@ function containsInvalidLineItemProps(lineItemProps) {
 }
 
 
+function swapDomains(stringToModify, domainOne, domainTwo) {
+  return replace(stringToModify, domainOne, domainTwo);
+}
+
+
+
 export {
   createSelector,
   formatAsMoney,
@@ -360,5 +387,6 @@ export {
   convertCustomAttrsToQueryString,
   update,
   formatTotalAmount,
-  containsInvalidLineItemProps
+  containsInvalidLineItemProps,
+  swapDomains
 };

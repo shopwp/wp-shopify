@@ -190,10 +190,6 @@ class Hooks {
 		echo '';
 	}
 
-	public function wps_products_related_heading_text() {
-		echo 'Related';
-	}
-
 	public function wps_products_related_heading_end_after() {
 		echo '';
 	}
@@ -311,6 +307,63 @@ class Hooks {
 
 		if (isset($related_products_show)) {
 			return $related_products_show;
+
+		} else {
+			return $show;
+		}
+
+	}
+
+
+	/*
+
+	Products heading show
+
+	*/
+	public function wps_products_heading_show($show) {
+
+		$related_products_show = $this->DB_Settings_General->get_products_heading_toggle();
+
+		if (isset($related_products_show)) {
+			return $related_products_show;
+
+		} else {
+			return $show;
+		}
+
+	}
+
+
+	/*
+
+	Products heading show
+
+	*/
+	public function wps_collections_heading_show($show) {
+
+		$related_collections_show = $this->DB_Settings_General->get_collections_heading_toggle();
+
+		if (isset($related_collections_show)) {
+			return $related_collections_show;
+
+		} else {
+			return $show;
+		}
+
+	}
+
+
+	/*
+
+	Products heading show
+
+	*/
+	public function wps_related_products_heading_show($show) {
+
+		$related_related_products_show = $this->DB_Settings_General->get_related_products_heading_toggle();
+
+		if (isset($related_related_products_show)) {
+			return $related_related_products_show;
 
 		} else {
 			return $show;
@@ -453,7 +506,6 @@ class Hooks {
 		}
 
 	}
-
 
 
 	/*
@@ -658,7 +710,6 @@ class Hooks {
 	}
 
 
-
 	/*
 
 	Runs when the plugin updates.
@@ -675,7 +726,7 @@ class Hooks {
 		$new_version_number = WPS_NEW_PLUGIN_VERSION;
 		$current_version_number = $this->DB_Settings_General->get_current_plugin_version();
 
-		// // $new_version_number = '5.3.9';
+		// $new_version_number = '60.3.11';
 
 		// If current version is behind new version
 		if (version_compare($current_version_number, $new_version_number, '<')) {
@@ -749,6 +800,11 @@ class Hooks {
 		add_filter('wps_products_price_one', [$this, 'wps_products_price_one'], 10, 2);
 		add_filter('wps_products_related_args_posts_per_page', [$this, 'wps_products_related_args_posts_per_page']);
 		add_filter('wps_products_related_show', [$this, 'wps_products_related_show']);
+
+		add_filter('wps_products_heading_show', [$this, 'wps_products_heading_show']);
+		add_filter('wps_collections_heading_show', [$this, 'wps_collections_heading_show']);
+		add_filter('wps_related_products_heading_show', [$this, 'wps_related_products_heading_show']);
+
 		add_filter('wps_products_related_filters', [$this, 'wps_products_related_filters'], 10, 2);
 		add_filter('wps_products_related_args_orderby', [$this, 'wps_products_related_args_orderby']);
 		add_filter('wps_products_related_args', [$this, 'wps_products_related_args']);

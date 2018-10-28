@@ -1,4 +1,3 @@
-import 'whatwg-fetch';
 import { getErrorContents } from '../utils/utils-notices';
 
 

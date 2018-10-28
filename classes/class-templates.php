@@ -184,11 +184,39 @@ class Templates {
 	public function wps_products_img($product) {
 
 		$image = Images::get_image_details_from_product($product);
+		$data = [];
 
-		$data = [
-			'product' => $product,
-			'image'	=> $image
-		];
+		if ( !Images::has_placeholder($image->src) ) {
+
+			// If single, then we're on the related products section
+			if ( is_single() ) {
+
+				$custom_sizing = apply_filters( 'wps_related_products_images_sizing', $this->DB_Settings_General->get_related_products_images_sizing_toggle() );
+
+				if ($custom_sizing) {
+					$data['custom_image_src'] = $this->get_related_products_custom_sized_image_url($image);
+				}
+
+
+			} else {
+
+				$custom_sizing = apply_filters( 'wps_products_images_sizing', $this->DB_Settings_General->get_products_images_sizing_toggle() );
+
+				if ($custom_sizing) {
+					$data['custom_image_src'] = $this->get_products_custom_sized_image_url($image);
+				}
+
+			}
+
+		} else {
+			$custom_sizing = false;
+
+		}
+
+
+		$data['product'] 				= $product;
+		$data['image'] 					= $image;
+		$data['custom_sizing'] 	= $custom_sizing;
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/loop/item', 'img' );
 
@@ -327,8 +355,11 @@ class Templates {
 	*/
 	public function wps_products_header($query) {
 
+		$heading = apply_filters( 'wps_products_heading', $this->DB_Settings_General->get_products_heading() );
+
 		$data = [
-			'query' => $query
+			'query' 	=> $query,
+			'heading'	=> $heading
 		];
 
 		if ( !is_single() ) {
@@ -563,7 +594,11 @@ class Templates {
 	*/
 	public function wps_products_related_heading() {
 
-		$data = [];
+		$heading = apply_filters( 'wps_products_related_heading_text', $this->DB_Settings_General->get_related_products_heading() );
+
+		$data = [
+			'heading' => $heading
+		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/related/heading' );
 
@@ -596,7 +631,7 @@ class Templates {
 
 		if (apply_filters('wps_products_related_show', true)) {
 
-			if (!is_single()) {
+			if ( !is_single() ) {
 				return;
 
 			} else {
@@ -742,10 +777,28 @@ class Templates {
 	*/
 	public function wps_collections_img($collection) {
 
+		$image = Images::get_image_details_from_collection($collection);
+
 		$data = [
 			'collection' 	=> $collection,
-			'image'				=> Images::get_image_details_from_collection($collection)
+			'image'				=> $image
 		];
+
+
+		if ( !Images::has_placeholder($image->src) ) {
+
+			$custom_sizing = apply_filters( 'wps_collections_images_sizing', $this->DB_Settings_General->get_collections_images_sizing_toggle() );
+
+			if ($custom_sizing) {
+				$data['custom_image_src'] = $this->get_collections_custom_sized_image_url($image);
+			}
+
+		} else {
+			$custom_sizing = false;
+
+		}
+
+		$data['custom_sizing'] = $custom_sizing;
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/collections/loop/item', 'img' );
 
@@ -791,8 +844,11 @@ class Templates {
 	*/
 	public function wps_collections_header($collections) {
 
+		$heading = apply_filters( 'wps_collections_heading', $this->DB_Settings_General->get_collections_heading() );
+
 		$data = [
-			'collections' 	=> $collections
+			'collections' 	=> $collections,
+			'heading'				=> $heading
 		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/collections/loop/header' );
@@ -900,7 +956,7 @@ class Templates {
 
 	/*
 
-	Template: partials/products/single/imgs
+	Template: partials/products/single/img
 
 	*/
 	public function wps_product_single_img($data, $image) {
@@ -918,6 +974,14 @@ class Templates {
 
 
 		$data->variant_ids = Images::get_variants_from_image($image);
+
+		$custom_sizing = apply_filters( 'wps_products_images_sizing', $this->DB_Settings_General->get_products_images_sizing_toggle() );
+
+		$data->custom_sizing = $custom_sizing;
+
+		if ($custom_sizing) {
+			$data->custom_image_src = $this->get_products_custom_sized_image_url($image);
+		}
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/single/img' );
 
@@ -947,6 +1011,7 @@ class Templates {
 	public function wps_product_single_imgs_feat($data, $image) {
 
 		$image_details = Images::get_image_details_from_image($image, $data->product);
+
 		$data->image_details = $image_details;
 		$data->image_type_class = 'wps-product-gallery-img-feat';
 
@@ -1566,7 +1631,7 @@ class Templates {
 	*/
 	public function wps_single_template($template) {
 
-		if (is_single()) {
+		if ( is_single() ) {
 
 			global $post;
 
@@ -1726,6 +1791,75 @@ class Templates {
 		}
 
 		return $products;
+
+	}
+
+
+	/*
+
+	Helper for getting a custom sized image URL
+
+	*/
+	public function get_products_custom_sized_image_url($image) {
+
+		$custom_width 			= $this->DB_Settings_General->get_products_images_sizing_width();
+		$custom_height 			= $this->DB_Settings_General->get_products_images_sizing_height();
+		$custom_crop 				= $this->DB_Settings_General->get_products_images_sizing_crop();
+		$custom_scale 			= $this->DB_Settings_General->get_products_images_sizing_scale();
+
+		return $this->DB_Images->add_custom_sizing_to_image_url([
+			'src'			=>	$image->src,
+			'width'		=>	$custom_width,
+			'height'	=>	$custom_height,
+			'crop'		=>	$custom_crop,
+			'scale'		=>	$custom_scale
+		]);
+
+	}
+
+
+	/*
+
+	Helper for getting a custom sized image URL
+
+	*/
+	public function get_collections_custom_sized_image_url($image) {
+
+		$custom_width 			= $this->DB_Settings_General->get_collections_images_sizing_width();
+		$custom_height 			= $this->DB_Settings_General->get_collections_images_sizing_height();
+		$custom_crop 				= $this->DB_Settings_General->get_collections_images_sizing_crop();
+		$custom_scale 			= $this->DB_Settings_General->get_collections_images_sizing_scale();
+
+		return $this->DB_Images->add_custom_sizing_to_image_url([
+			'src'			=>	$image->src,
+			'width'		=>	$custom_width,
+			'height'	=>	$custom_height,
+			'crop'		=>	$custom_crop,
+			'scale'		=>	$custom_scale
+		]);
+
+	}
+
+
+	/*
+
+	Helper for getting a custom sized image URL
+
+	*/
+	public function get_related_products_custom_sized_image_url($image) {
+
+		$custom_width 			= $this->DB_Settings_General->get_related_products_images_sizing_width();
+		$custom_height 			= $this->DB_Settings_General->get_related_products_images_sizing_height();
+		$custom_crop 				= $this->DB_Settings_General->get_related_products_images_sizing_crop();
+		$custom_scale 			= $this->DB_Settings_General->get_related_products_images_sizing_scale();
+
+		return $this->DB_Images->add_custom_sizing_to_image_url([
+			'src'			=>	$image->src,
+			'width'		=>	$custom_width,
+			'height'	=>	$custom_height,
+			'crop'		=>	$custom_crop,
+			'scale'		=>	$custom_scale
+		]);
 
 	}
 

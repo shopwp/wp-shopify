@@ -35,7 +35,7 @@ class Test_DB_Collections extends WP_UnitTestCase {
 
     }, ARRAY_FILTER_USE_BOTH);
 
-    $this->assertCount(46, $results);
+    $this->assertCount(10, $results);
 
   }
 

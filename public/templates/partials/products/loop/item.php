@@ -32,9 +32,10 @@ do_action('wps_products_price', $data->product);
 do_action('wps_products_price_after', $data->product);
 
 
-if (is_single()) {
+// If single, then we're on the related products section
+if ( is_single() ) {
 
-  if (apply_filters('wps_products_related_show_add_to_cart', false)) {
+  if ( apply_filters('wps_products_related_show_add_to_cart', false) ) {
 
     if (get_transient('wps_product_with_variants_' . $data->product->product_id)) {
       $productWithVariants = get_transient('wps_product_with_variants_' . $data->product->product_id);
@@ -50,11 +51,12 @@ if (is_single()) {
 
   }
 
+
 } else {
 
-  if (apply_filters('wps_products_show_add_to_cart', false)) {
+  if ( apply_filters('wps_products_show_add_to_cart', false) ) {
 
-    if (get_transient('wps_product_with_variants_' . $data->product->product_id)) {
+    if ( get_transient('wps_product_with_variants_' . $data->product->product_id) ) {
       $productWithVariants = get_transient('wps_product_with_variants_' . $data->product->product_id);
 
     } else {
@@ -66,7 +68,7 @@ if (is_single()) {
     }
 
     // Only shows if total product inventory > 0
-    if (Utils::product_inventory($productWithVariants)) {
+    if ( Utils::product_inventory($productWithVariants) ) {
       do_action('wps_products_add_to_cart', $productWithVariants);
 
     } else {

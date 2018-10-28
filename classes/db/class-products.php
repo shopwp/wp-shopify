@@ -28,6 +28,7 @@ class Products extends \WPS\DB {
 	public $default_title;
 	public $default_body_html;
 	public $default_handle;
+	public $default_post_name;
 	public $default_image;
 	public $default_images;
 	public $default_vendor;
@@ -55,6 +56,7 @@ class Products extends \WPS\DB {
 		$this->default_title									= '';
 		$this->default_body_html							= '';
 		$this->default_handle									= '';
+		$this->default_post_name							= '';
 		$this->default_image									= '';
 		$this->default_images									= '';
 		$this->default_vendor									= '';
@@ -84,6 +86,7 @@ class Products extends \WPS\DB {
 			'title'                 => '%s',
 			'body_html'             => '%s',
 			'handle'                => '%s',
+			'post_name'             => '%s',
 			'image'                 => '%s',
 			'images'                => '%s',
 			'vendor'                => '%s',
@@ -112,6 +115,7 @@ class Products extends \WPS\DB {
 			'title'                 => $this->default_title,
 			'body_html'             => $this->default_body_html,
 			'handle'                => $this->default_handle,
+			'post_name'             => $this->default_post_name,
 			'image'                 => $this->default_image,
 			'images'                => $this->default_images,
 			'vendor'                => $this->default_vendor,
@@ -158,6 +162,9 @@ class Products extends \WPS\DB {
 		if ($post_id) {
 			$product_copy = CPT::set_post_id($product_copy, $post_id);
 		}
+
+		// Important. If handle doesn't match post_name, the product won't show
+		$product_copy->post_name = sanitize_title($product_copy->handle);
 
 		return $product_copy;
 
@@ -262,7 +269,7 @@ class Products extends \WPS\DB {
 			return;
 		}
 
-		$query = "SELECT products.* FROM " . $this->table_name . " as products WHERE products.handle = %s";
+		$query = "SELECT products.* FROM " . $this->table_name . " as products WHERE products.post_name = %s";
 		$results = $wpdb->get_row( $wpdb->prepare($query, $post_name) );
 
 		return $results;
@@ -314,14 +321,13 @@ class Products extends \WPS\DB {
 	}
 
 
-
-	function product_exists_by_id($product_id) {
+	public function product_exists($product_id) {
 
 		if (empty($product_id)) {
 			return false;
 		}
 
-		$product_found = $this->get($product_id);
+		$product_found = $this->get_row_by('product_id', $product_id);
 
 		if (empty($product_found)) {
 			return false;
@@ -424,7 +430,7 @@ class Products extends \WPS\DB {
 		} else {
 
 			// get post ID by looking up value manually
-			if (isset($post->handle)) {
+			if (isset($post->post_name)) {
 
 				return $post->id;
 
@@ -560,6 +566,7 @@ class Products extends \WPS\DB {
 			title varchar(255) DEFAULT '{$this->default_title}',
 			body_html longtext DEFAULT '{$this->default_body_html}',
 			handle varchar(255) DEFAULT '{$this->default_handle}',
+			post_name varchar(255) DEFAULT '{$this->default_post_name}',
 			image longtext DEFAULT '{$this->default_image}',
 			images longtext DEFAULT '{$this->default_images}',
 			vendor varchar(255) DEFAULT '{$this->default_vendor}',

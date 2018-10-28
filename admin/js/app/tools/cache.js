@@ -68,8 +68,6 @@ function onCacheClear() {
 
 Clear All Cache
 
-clear_cache
-
 */
 function clearAllCache() {
   return clearCache(); // Returns a Promise

@@ -5,6 +5,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import has from 'lodash/has';
+import filter from 'lodash/filter';
 import isURL from 'validator/lib/isURL';
 import dateFormat from 'dateformat';
 import { stopSpinner } from './utils-dom';
@@ -110,7 +111,14 @@ function getWordPressErrorMessage(error) {
 
     }
 
+  } else if ( isArray(error) ) {
+
+    var onlyErrors = filter(error, err => !err.success);
+
+    return onlyErrors[0].data.message;
+
   } else {
+
     return 'It looks like something unexpected happened. Please clear the plugin cache and try again.';
 
   }
@@ -659,6 +667,10 @@ function convertArrayWrapToObject(array) {
   return Object.assign({}, ...array);
 }
 
+function toBoolean(value) {
+  return value == true;
+}
+
 export {
   findStatusCodeFirstNum,
   getUrlParamByID,
@@ -691,5 +703,6 @@ export {
   getWordPressErrorMessage,
   getWordPressErrorType,
   getJavascriptErrorMessage,
-  isJavascriptError
+  isJavascriptError,
+  toBoolean
 };

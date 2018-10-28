@@ -285,19 +285,10 @@ class Shop extends \WPS\DB {
 			return;
 		}
 
-		$data = wp_cache_get($column, $this->cache_group);
 
-		if (!$data) {
+		$query = "SELECT $column FROM {$this->table_name};";
 
-			$query = "SELECT $column FROM {$this->table_name};";
-			$data = $wpdb->get_results($query);
-
-			// Cache for 1 hour
-			wp_cache_add($column, $data, $this->cache_group, 3600);
-
-		}
-
-		return $data;
+		return $wpdb->get_results($query);
 
 	}
 

@@ -47,6 +47,7 @@ class DB {
 
 			}
 
+
 		} else {
 
 			$result = $this->create_table_if_doesnt_exist($this->table_name);
@@ -72,7 +73,7 @@ class DB {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 			$result = \dbDelta( $this->create_table_query( $table_name ) );
-			set_transient('wp_shopify_table_exists_' . $table_name, 1);
+			update_site_option('wp_shopify_table_exists_' . $table_name, 1);
 
 		}
 
@@ -380,8 +381,6 @@ class DB {
 	}
 
 
-
-
 	/*
 
 	Retrieve a row by the primary key
@@ -396,12 +395,6 @@ class DB {
 
 		if ($this->table_exists($table_name)) {
 
-			$get_results_cached = Transients::get('wps_table_' . $table_name . '_row_' . $row_id);
-
-			if ( !empty($get_results_cached) ) {
-				return $get_results_cached;
-			}
-
 			if (empty($row_id)) {
 
 				$query = "SELECT * FROM $table_name LIMIT 1;";
@@ -415,8 +408,6 @@ class DB {
 			}
 
 		}
-
-		Transients::set('wps_table_' . $table_name . '_row_' . $row_id, $results);
 
 		return $results;
 
@@ -585,19 +576,6 @@ class DB {
 			return $this->sanitize_db_response(false, 'WP Shopify Error - Database column name does not exist. Please try reinstalling the plugin from scratch', 'get_var');
 		}
 
-		// Check cache for existing record ...
-		$cachedResult = wp_cache_get($column, $this->cache_group);
-
-		/*
-
-		Check to see if the data we want exists already in the cache
-		If so, return and exist immediately
-
-		*/
-		if ($cachedResult) {
-			return $cachedResult;
-		}
-
 
 		// Dont get the column value if it doesnt exist ...
 		if ( !$this->column_exists($column) ) {
@@ -609,14 +587,8 @@ class DB {
 		$results = $wpdb->get_results($query);
 
 		// $result will be false if error or if nothing found
-		$result = $this->sanitize_db_response($results, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.', 'get_results');
+		return $this->sanitize_db_response($results, 'WP Shopify Error - Database column name is not a string. Please clear the plugin cache and try again.', 'get_results');
 
-
-		if ($result !== false) {
-			wp_cache_add($column, $results, $this->cache_group, 3600);
-		}
-
-		return $result;
 
 	}
 
@@ -968,6 +940,12 @@ class DB {
 
 		$table_name = $this->get_table_name();
 
+
+		if ( !$this->table_exists($table_name) ) {
+			return $this->sanitize_db_response(false, 'Failed to update database record. Table does not exist.', 'update');
+		}
+
+
 		/*
 
 		TODO: Currently the below empty check is not working. Will fail silently.
@@ -1011,7 +989,7 @@ class DB {
 		$table_name = $this->get_table_name();
 
 		if ( !$this->table_exists($table_name) ) {
-			return $this->sanitize_db_response(false, 'WP Shopify Error - Tried to truncate table ' . $table_name . ' but table doesn\'t exist.');
+			return $this->sanitize_db_response(false, 'WP Shopify Error - Tried to truncate table ' . $table_name . ' but table doesn\'t exist.', 'get_var');
 		}
 
 		$query = "TRUNCATE TABLE $table_name";
@@ -1036,7 +1014,7 @@ class DB {
 		$table_name = $this->get_table_name();
 
 		if ( !$this->table_exists($table_name) ) {
-			return $this->sanitize_db_response(false, 'WP Shopify Error - Tried to perform deletion on table ' . $table_name . ' but table doesn\'t exist.');
+			return $this->sanitize_db_response(false, 'WP Shopify Error - Tried to perform deletion on table ' . $table_name . ' but table doesn\'t exist.', 'get_var');
 		}
 
 		// Row ID must be positive integer
@@ -1282,7 +1260,7 @@ class DB {
 	*/
 	public function table_exists($table_name) {
 
-		if ( get_transient('wp_shopify_table_exists_' . $table_name) ) {
+		if ( get_site_option('wp_shopify_table_exists_' . $table_name) ) {
 			return true;
 
 		} else {
@@ -1291,7 +1269,7 @@ class DB {
 
 			// Tables exists
 			if ($table_name_from_db === $table_name) {
-				set_transient('wp_shopify_table_exists_' . $table_name, 1);
+				update_site_option('wp_shopify_table_exists_' . $table_name, 1);
 				return true;
 			}
 
@@ -1731,7 +1709,6 @@ class DB {
 		return $items;
 
 	}
-
 
 
 

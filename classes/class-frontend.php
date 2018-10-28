@@ -127,10 +127,28 @@ class Frontend {
 				true
 			);
 
+			// Third-party libs first ...
+			wp_enqueue_script(
+				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-public',
+				WPS_PLUGIN_URL . 'dist/vendors-public.min.js',
+				[],
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-public.min.js' ),
+				true
+			);
+
+			// Commonly shared third-party libs second ...
+			wp_enqueue_script(
+				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common',
+				WPS_PLUGIN_URL . 'dist/vendors-admin-public.min.js',
+				[],
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-admin-public.min.js' ),
+				false
+			);
+
 			wp_enqueue_script(
 				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-frontend',
 				WPS_PLUGIN_URL . 'dist/public.min.js',
-				['jquery', 'promise-polyfill'],
+				['jquery', 'promise-polyfill', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-public', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common'],
 				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/public.min.js' ),
 				true
 			);
@@ -141,23 +159,22 @@ class Frontend {
 				[
 					'ajax' 										=> apply_filters('wps_admin_ajax_url', esc_url( Utils::convert_to_relative_url(admin_url('admin-ajax.php')) )),
 					'pluginsPath' 						=> esc_url(plugins_url()),
+					'pluginsDirURL' 					=> plugin_dir_url(dirname(__FILE__)),
 					'productsSlug' 						=> $this->Settings_General->products_slug(),
 					'is_connected' 						=> $connected,
-					'is_recently_connected' 	=> get_transient('wps_recently_connected'),
 					'post_id' 								=> is_object($post) ? $post->ID : false,
 					'nonce'										=> wp_create_nonce(WPS_FRONTEND_NONCE_ACTION),
 					'note_attributes'					=> '',
 					'checkoutAttributes' 			=> [],
 					'hasCartTerms' 						=> $this->Settings_General->enable_cart_terms(),
+					'settings'								=> [
+						'hasCurrencyCode' 						=> $this->Settings_General->get_price_with_currency(),
+						'enableCustomCheckoutDomain' 	=> $this->Settings_General->get_enable_custom_checkout_domain(),
+						'myShopifyDomain' 						=> $this->Settings_Connection->get_domain()
+					]
 				]
 			);
 
-		}
-
-
-		// Sets recently connected to false by default
-		if (get_transient('wps_recently_connected')) {
-			set_transient('wps_recently_connected', false);
 		}
 
 

@@ -176,6 +176,29 @@ class Test_DB_General extends WP_UnitTestCase {
     $this->assertObjectHasAttribute('default_add_to_cart_color', self::$DB_Settings_General);
     $this->assertObjectHasAttribute('default_variant_color', self::$DB_Settings_General);
     $this->assertObjectHasAttribute('default_checkout_color', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_cart_counter_color', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_cart_icon_color', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_heading_toggle', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_heading', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_collections_heading_toggle', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_collections_heading', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_related_products_heading_toggle', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_related_products_heading', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_images_sizing_toggle', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_images_sizing_width', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_images_sizing_height', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_images_sizing_crop', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_products_images_sizing_scale', self::$DB_Settings_General);
+    $this->assertObjectHasAttribute('default_collections_images_sizing_toggle', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_collections_images_sizing_width', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_collections_images_sizing_height', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_collections_images_sizing_crop', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_collections_images_sizing_scale', self::$DB_Settings_General);
+    $this->assertObjectHasAttribute('default_related_products_images_sizing_toggle', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_related_products_images_sizing_width', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_related_products_images_sizing_height', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_related_products_images_sizing_crop', self::$DB_Settings_General);
+  	$this->assertObjectHasAttribute('default_related_products_images_sizing_scale', self::$DB_Settings_General);
 
   }
 

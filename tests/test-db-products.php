@@ -223,9 +223,9 @@ class Test_DB_Products extends WP_UnitTestCase {
 
     $result = self::$DB_Products->create_table_if_doesnt_exist('this_is_a_new_table');
 
-    $created_table_transient = get_transient('wp_shopify_table_exists_this_is_a_new_table');
+    $created_table_transient = get_site_option('wp_shopify_table_exists_this_is_a_new_table');
 
-    $this->assertInternalType('string', $created_table_transient);
+    $this->assertInternalType('integer', $created_table_transient);
     $this->assertEquals(1, $created_table_transient);
 
     $this->assertInternalType('array', $result);
@@ -257,6 +257,7 @@ class Test_DB_Products extends WP_UnitTestCase {
     $this->assertObjectHasAttribute('default_title', self::$DB_Products);
     $this->assertObjectHasAttribute('default_body_html', self::$DB_Products);
     $this->assertObjectHasAttribute('default_handle', self::$DB_Products);
+    $this->assertObjectHasAttribute('default_post_name', self::$DB_Products);
     $this->assertObjectHasAttribute('default_image', self::$DB_Products);
     $this->assertObjectHasAttribute('default_images', self::$DB_Products);
     $this->assertObjectHasAttribute('default_vendor', self::$DB_Products);
@@ -301,6 +302,78 @@ class Test_DB_Products extends WP_UnitTestCase {
     $this->assertEquals($cols_count, $default_cols_count);
 
   }
+
+
+  /*
+
+  The native wordpres 'post_name' should ALWAYS equal the custom DB_Products 'post_name'
+
+  */
+  function test_it_should_have_matching_post_names() {
+
+
+    /*
+
+    Assemble
+
+    */
+    $product_1 = self::$DB_Products->copy(self::$mock_product_insert);
+    $product_1->product_id = 999999995332079;
+    $product_1->handle = 'example-pants®';
+
+    $post_1_id = $this->factory->post->create([
+      'post_title'    => 'Example Pants',
+      'post_name'     => sanitize_title($product_1->handle),
+			'post_type'     => 'wps_products',
+			'meta_input' => [
+				'product_id' => 999999995332079
+			]
+    ]);
+
+
+    $product_2 = self::$DB_Products->copy(self::$mock_product_insert);
+    $product_2->product_id = 9999999953320799;
+    $product_2->handle = '♥example♥pants♥';
+
+    $post_2_id = $this->factory->post->create([
+      'post_title'    => 'Example Pants',
+      'post_name'     => sanitize_title($product_2->handle),
+			'post_type'     => 'wps_products',
+			'meta_input' => [
+				'product_id' => 9999999953320799
+			]
+    ]);
+
+
+    /*
+
+    Act
+
+    */
+    self::$DB_Products->insert($product_1);
+    $product_1_data = self::$DB_Products->get_products_from_product_id(999999995332079);
+    $post_1_data = get_post($post_1_id);
+
+    self::$DB_Products->insert($product_2);
+    $product_2_data = self::$DB_Products->get_products_from_product_id(9999999953320799);
+    $post_2_data = get_post($post_2_id);
+
+
+    /*
+
+    Assert
+
+    */
+    $this->assertInternalType('string', $post_1_data->post_name);
+    $this->assertInternalType('string', $product_1_data[0]->post_name);
+    $this->assertEquals($post_1_data->post_name, $product_1_data[0]->post_name);
+
+    $this->assertInternalType('string', $post_2_data->post_name);
+    $this->assertInternalType('string', $product_2_data[0]->post_name);
+    $this->assertEquals($post_2_data->post_name, $product_2_data[0]->post_name);
+
+  }
+
 
 
 }

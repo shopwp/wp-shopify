@@ -156,8 +156,10 @@ class Activator {
 
 	/*
 
-	Only runs after bootstrapping has occured. Need this check to check whether
-	DB_Settings_General actually exists first.
+	Only continues executing if bootstrapping has occured. Runs
+	on every admin page load since we're using admin_init
+
+	Need this check to check whether DB_Settings_General actually exists first.
 
 	*/
 	public function toggle_activation_flags() {
@@ -194,7 +196,9 @@ class Activator {
 
 	/*
 
-	Runs when the plugin is activated as a result of register_activation_hook. Runs for both Free and Pro versions
+	Runs when the plugin is activated as a result of register_activation_hook.
+
+	Runs for both Free and Pro versions
 
 	*/
 	public function on_plugin_activate($network_wide) {

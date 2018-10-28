@@ -26,6 +26,7 @@ class Collections_Custom extends \WPS\DB {
 	public $default_post_id;
 	public $default_title;
 	public $default_handle;
+	public $default_post_name;
 	public $default_body_html;
 	public $default_image;
 	public $default_metafield;
@@ -51,6 +52,7 @@ class Collections_Custom extends \WPS\DB {
 		$this->default_post_id            	= 0;
 		$this->default_title              	= '';
 		$this->default_handle             	= '';
+		$this->default_post_name						= '';
 		$this->default_body_html          	= '';
 		$this->default_image              	= '';
 		$this->default_metafield          	= '';
@@ -76,6 +78,7 @@ class Collections_Custom extends \WPS\DB {
       'post_id'             => '%d',
       'title'               => '%s',
       'handle'              => '%s',
+			'post_name'           => '%s',
       'body_html'           => '%s',
       'image'               => '%s',
       'metafield'           => '%s',
@@ -102,6 +105,7 @@ class Collections_Custom extends \WPS\DB {
       'post_id'             => $this->default_post_id,
       'title'               => $this->default_title,
       'handle'              => $this->default_handle,
+			'post_name'           => $this->default_post_name,
       'body_html'           => $this->default_body_html,
       'image'               => $this->default_image,
       'metafield'           => $this->default_metafield,
@@ -156,6 +160,7 @@ class Collections_Custom extends \WPS\DB {
       post_id bigint(100) unsigned DEFAULT '{$this->default_post_id}',
       title varchar(255) DEFAULT '{$this->default_title}',
       handle varchar(255) DEFAULT '{$this->default_handle}',
+			post_name varchar(255) DEFAULT '{$this->default_post_name}',
       body_html longtext DEFAULT '{$this->default_body_html}',
       image longtext DEFAULT '{$this->default_image}',
       metafield longtext DEFAULT '{$this->default_metafield}',

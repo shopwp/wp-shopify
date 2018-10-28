@@ -3,6 +3,7 @@
 namespace WPS\DB;
 
 use WPS\Utils;
+use WPS\Utils\URLs;
 
 
 if (!defined('ABSPATH')) {
@@ -29,7 +30,7 @@ class Images extends \WPS\DB {
 	public $default_position;
 	public $default_created_at;
 	public $default_updated_at;
-	
+
 
 	public function __construct() {
 
@@ -295,6 +296,22 @@ class Images extends \WPS\DB {
 
 	/*
 
+	Checks whether image is placeholder or not
+
+	*/
+	public static function has_placeholder($image) {
+
+		if (strpos($image, 'public/imgs/placeholder.png') !== false) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+
+	/*
+
 	Gets Image details (alt and src) by product object
 	Param: $product Object
 
@@ -377,6 +394,217 @@ class Images extends \WPS\DB {
 	*/
 	public function get_feat_image_by_post_id($post_id) {
 		return array_values( array_filter( $this->get_images_from_post_id($post_id), [$this, "get_featured_image_by_position"] ) );
+	}
+
+
+	/*
+
+	Responsible for getting image extension from image URL
+
+	*/
+	public function get_image_extension_from_url($image_url) {
+		return URLs::get_extension($image_url);
+	}
+
+
+	/*
+
+	Responsible for splitting image into parts
+
+	*/
+	public function split_from_extension($image_url, $extension) {
+
+		$to_explode = '.' . $extension;
+
+		return explode($to_explode, $image_url);
+
+	}
+
+
+	/*
+
+	Responsible for building width and height filter
+
+	*/
+	public function build_width_height_filter($width = 0, $height = 0) {
+
+		if (!is_int($width) || $width < 0) {
+			$width = 0;
+		}
+
+		if (!is_int($height) || $height < 0) {
+			$height = 0;
+		}
+
+		if (empty($width) && empty($height)) {
+			return '';
+		}
+
+		// Both set
+		if ($width !== 0 && $height !== 0) {
+			return '_' . $width . 'x' . $height;
+		}
+
+		// Only width set
+		if ($height === 0 && $width !== 0) {
+			return '_' . $width . 'x';
+		}
+
+		// Only height set
+		if ($width === 0 && $height !== 0) {
+			return '_x' . $height;
+		}
+
+		return '';
+
+	}
+
+
+	/*
+
+	Responsible for taking an $image_url and returning its parts.
+
+	*/
+	public function split_image_url($image_url) {
+
+		$extension = $this->get_image_extension_from_url($image_url);
+
+		if ( empty($extension) ) {
+			return false;
+		}
+
+
+		$image_parts = $this->split_from_extension($image_url, $extension);
+
+		return [
+			'extension'					=>	$extension,
+			'before_extension'	=>	$image_parts[0],
+			'after_extension'		=>	$image_parts[1]
+		];
+
+	}
+
+
+	/*
+
+	Responsible for taking a $crop value and returning the URL string version.
+
+	Empty string is no $crop set
+
+	*/
+	public function build_crop_filter($crop = '') {
+
+		if ( empty($crop) || !is_string($crop) || $crop === 'none' ) {
+			return '';
+		}
+
+		return '_crop_' . $crop;
+
+	}
+
+
+	/*
+
+	Responsible for taking a $scale value and returning the URL string version.
+
+	Empty string is no $scale set
+
+	*/
+	public function build_scale_filter($scale = 0) {
+
+		if ( empty($scale) || !is_int($scale) || $scale <= 1 || $scale > 3 ) {
+			return '';
+		}
+
+		return '@' . $scale . 'x';
+
+	}
+
+
+	/*
+
+	Responsible for adding width and height filter to image URL
+
+	*/
+	public function add_custom_size_to_image_url($width, $height, $image_url) {
+
+		$split_parts = $this->split_image_url($image_url);
+
+		if ($split_parts === false) {
+			return $image_url;
+		}
+
+		return $split_parts['before_extension'] . $this->build_width_height_filter($width, $height) . '.' . $split_parts['extension'] . $split_parts['after_extension'];
+
+	}
+
+
+	/*
+
+	Responsible for adding crop filter to image URL
+
+	*/
+	public function add_custom_crop_to_image_url($crop, $image_url) {
+
+		$split_parts = $this->split_image_url($image_url);
+
+		if ($split_parts === false) {
+			return $image_url;
+		}
+
+		return $split_parts['before_extension'] . $this->build_crop_filter($crop) . '.' . $split_parts['extension'] . $split_parts['after_extension'];
+
+	}
+
+
+	/*
+
+	Responsible for adding scale filter to image URL
+
+	*/
+	public function add_custom_scale_to_image_url($scale, $image_url) {
+
+		$split_parts = $this->split_image_url($image_url);
+
+		if ($split_parts === false || $scale <= 1 || $scale > 3) {
+			return $image_url;
+		}
+
+		return $split_parts['before_extension'] . $this->build_scale_filter($scale) . '.' . $split_parts['extension'] . $split_parts['after_extension'];
+
+	}
+
+
+	/*
+
+	$settings is an array with this structure:
+
+	[
+		'src'			=> 'https://cdn.shopify.com/s/files/1/1405/0664.jpg',
+		'width'		=> 300
+		'height'	=> 0
+		'crop'		=> 'none'
+		'scale'		=> 0
+	]
+
+	*/
+	public function add_custom_sizing_to_image_url($settings) {
+
+		$src 		= $settings['src'];
+		$width 	= $settings['width'];
+		$height = $settings['height'];
+		$crop 	= $settings['crop'];
+		$scale 	= $settings['scale'];
+
+		// Returns a modified image URL
+		return $this->add_custom_scale_to_image_url(
+			$scale,
+			$this->add_custom_crop_to_image_url(
+				$crop,
+				$this->add_custom_size_to_image_url($width, $height, $src)
+			)
+		);
+
 	}
 
 

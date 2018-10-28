@@ -248,7 +248,6 @@ function disconnectionFormSubmitHandler(e) {
     /*
 
     Remove webhooks
-    delete_webhooks
 
     */
 

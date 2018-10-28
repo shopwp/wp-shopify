@@ -163,8 +163,6 @@ class Settings_Connection extends \WPS\WS {
 	}
 
 
-
-
 	/*
 
 	Checks for a valid (open) connection to the web server based on a URL. Useful to check

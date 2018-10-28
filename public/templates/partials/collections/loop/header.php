@@ -4,7 +4,7 @@
 
 @description   Collections header within loop
 
-@version       1.0.1
+@version       1.0.2
 @since         1.0.49
 @path          templates/partials/collections/loop/header.php
 
@@ -24,9 +24,13 @@ if ( !defined('ABSPATH') ) {
 
     <?php do_action('wps_collections_heading_before', $data->collections); ?>
 
-    <h1 class="wps-collections-heading <?= apply_filters('wps_collections_heading_class', ''); ?>">
-      <?= apply_filters('wps_collections_heading', esc_html__('Collections', WPS_PLUGIN_TEXT_DOMAIN), $data->collections); ?>
-    </h1>
+		<?php if ( apply_filters('wps_collections_heading_show', true) ) { ?>
+
+			<h1 class="wps-collections-heading <?= apply_filters('wps_collections_heading_class', ''); ?>">
+	      <?= $data->heading; ?>
+	    </h1>
+
+		<?php } ?>
 
     <?php do_action('wps_collections_heading_after', $data->collections); ?>
 

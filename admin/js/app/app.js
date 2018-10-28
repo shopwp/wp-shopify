@@ -1,3 +1,4 @@
+import "@babel/polyfill";
 import { formEventsInit } from './forms/forms';
 import { vendorInit } from './vendor/vendor';
 import { tabsInit } from './utils/utils-tabs';
@@ -10,6 +11,7 @@ import { toolsInit } from './tools/tools';
 import { initMisc } from './misc/misc';
 import { menusInit } from './menus/menus';
 import { noticesInit } from './notices/notices';
+
 
 (function($) {
 

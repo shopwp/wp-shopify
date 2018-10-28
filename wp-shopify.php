@@ -3,14 +3,14 @@
 /*
 
 @link              https://wpshop.io
-@since             1.2.7
+@since             1.2.8
 @package           wp-shopify
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress.
-Version:           1.2.7
+Version:           1.2.8
 Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
@@ -60,9 +60,20 @@ if ( !function_exists("WP_Shopify_Bootstrap") ) {
 }
 
 
+/*
+
+Performs the plugin bootstrap
+
+*/
 $GLOBALS['WP_Shopify'] = WP_Shopify_Bootstrap();
 
 
+/*
+
+Adds hooks which run on both plugin activation and deactivation.
+The actions here are added during Activator->init() and Deactivator-init().
+
+*/
 register_activation_hook(__FILE__, function($network_wide) {
 	do_action('wps_on_plugin_activate', $network_wide);
 });

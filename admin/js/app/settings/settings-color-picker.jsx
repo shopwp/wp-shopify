@@ -2,15 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import to from "await-to-js";
 import { ChromePicker } from "react-color";
-import { showAdminNotice } from "../utils/utils-dom";
-import { messageSettingsSuccessfulSave } from "../messages/messages";
+import { showNotice } from "../notices/notices";
 import { pickerStyles, swatchStyles } from "./settings-color-picker-styles";
 
 import {
-  isWordPressError,
-  getJavascriptErrorMessage,
-  getWordPressErrorMessage,
-  getWordPressErrorType,
   showLoader,
   hideLoader
 } from "../utils/utils";
@@ -22,29 +17,6 @@ import {
   updateSettingCartCounterColor,
   updateSettingCartIconColor
 } from "../ws/ws-api";
-
-
-/*
-
-Admin notice helper
-
-*/
-function showNotice(updateError, updateResponse) {
-
-  if (updateError) {
-    return showAdminNotice( getJavascriptErrorMessage(updateError), "error");
-  }
-
-  if (isWordPressError(updateResponse)) {
-    return showAdminNotice(
-      getWordPressErrorMessage(updateResponse),
-      getWordPressErrorType(updateResponse)
-    );
-  }
-
-  return showAdminNotice(messageSettingsSuccessfulSave(), "updated");
-
-}
 
 
 /*

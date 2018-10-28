@@ -1,3 +1,16 @@
+body.wp-shopify_page_wps-settings #wpbody {
+
+  box-sizing: border-box;
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+}
+
+
 .wps-animated {
   animation-duration: 0.7s;
   animation-fill-mode: both;
@@ -96,6 +109,10 @@ Animations
   flex-wrap: wrap;
   justify-content: space-between;
   margin-top: 0;
+}
+
+.wps-l-row-start {
+  justify-content: flex-start;
 }
 
 .wps-l-space-between {
@@ -818,6 +835,20 @@ Tabs
     }
   }
 
+  #wps-license {
+    input.valid,
+    textarea.valid {
+      + .wps-form-icon {
+        &:after {
+          left: 0px;
+          top: 0;
+          width: 8px;
+          height: 18px;
+        }
+      }
+    }
+  }
+
 }
 
 
@@ -934,6 +965,9 @@ Extending WP Core styles
 
   input[disabled] {
 
+    border: 1px solid #d9d9d9;
+    color: rgba(51, 51, 51, 0.4);
+
     &:hover {
       cursor: not-allowed;
     }
@@ -991,6 +1025,15 @@ Extending WP Core styles
   label.error {
     margin-left: 10px;
     color: red;
+  }
+
+  .regular-text {
+    width: 300px;
+
+    &.code {
+      width: 15em;
+    }
+
   }
 
 }
@@ -1095,10 +1138,6 @@ TODO: Remove for Phase 2
 */
 .post-type-wps_collections,
 .post-type-wps_products {
-
-  // #post-body {
-  //   opacity: 0.2;
-  // }
 
   .wps-admin-heading {
     text-align: center;
@@ -1216,11 +1255,6 @@ TODO: Remove for Phase 2
 }
 
 
-input.code {
-  width: 20em;
-}
-
-
 .wps-version-pill {
   font-size: 50%;
   position: relative;
@@ -1278,7 +1312,6 @@ input.code {
 
 .wps-progress-bar-wrapper {
   position: relative;
-  // overflow-x: hidden;
   overflow-y: visible;
   height: 28px;
   width: 100%;
@@ -1618,6 +1651,58 @@ Taken from Migrate DB Pro
 
 }
 
+.wps-slider-wrapper {
+  position: relative;
+  top: 4px;
+}
+
+#wps-items-per-request-amount {
+  padding: 5px 10px;
+  font-size: 92%;
+  border-radius: 13px;
+  right: -48px;
+  top: -8px;
+}
+
+
+
+
+.wps-form-group {
+
+  .wps-checkbox-row {
+    margin-top: 1em;
+    display: block;
+
+
+    .wps-checkbox-row-input,
+    .wps-checkbox-row-label {
+      padding-top: 0;
+      vertical-align: top;
+    }
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1630,3 +1715,4 @@ New Gutenberg styles
 */
 @import "gutenberg/inputs";
 @import "gutenberg/buttons";
+// @import "gutenberg/style";

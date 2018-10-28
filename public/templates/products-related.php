@@ -19,7 +19,6 @@ if ( !defined('ABSPATH') ) {
 
 do_action('wps_products_related_before');
 do_action('wps_products_related_start');
-
 do_action('wps_products_related_heading_before');
 do_action('wps_products_related_heading');
 do_action('wps_products_related_heading_after');

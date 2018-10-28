@@ -287,16 +287,29 @@ class HTTP {
 
 		$response_message = json_decode( wp_remote_retrieve_body($response) );
 
+		if ( empty($response_message) ) {
+			return $response['http_response']->get_response_object()->status_code . ' ' . $response['http_response']->get_response_object()->url;
+		}
+
 		if ( Utils::has($response_message, 'error') ) {
 			return $response_message->error;
 		}
 
 		if ( Utils::has($response_message, 'errors') ) {
 
-			$stuff = array_values( Utils::convert_object_to_array($response_message->errors) );
+			$errors = array_values( Utils::convert_object_to_array($response_message->errors) );
 
-			return $stuff[0][0];
+			if ( Utils::is_multi_array($errors) ) {
+				return $errors[0][0];
 
+			} else {
+				return $errors[0];
+			}
+
+		}
+
+		if ( Utils::has($response_message, 'message') ) {
+			return $response_message->message;
 		}
 
 	}

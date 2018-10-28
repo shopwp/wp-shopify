@@ -56,6 +56,13 @@ class Backend {
 			);
 
 			wp_enqueue_style(
+				'gutenberg-components-css',
+				WPS_PLUGIN_URL . 'dist/gutenberg-components.min.css',
+				[],
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/gutenberg-components.min.css' )
+			);
+
+			wp_enqueue_style(
 				WPS_PLUGIN_TEXT_DOMAIN . '-styles-backend',
 				WPS_PLUGIN_URL . 'dist/admin.min.css',
 				['wp-color-picker', 'animate-css', 'tooltipster-css', 'chosen-css'],
@@ -153,18 +160,29 @@ class Backend {
 				false
 			);
 
+
+			// Third-party libs first ...
 			wp_enqueue_script(
-				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendor-backend',
-				WPS_PLUGIN_URL . 'dist/vendor.min.js',
+				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-admin',
+				WPS_PLUGIN_URL . 'dist/vendors-admin.min.js',
 				[],
-				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendor.min.js' ),
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-admin.min.js' ),
+				false
+			);
+
+			// Commonly shared third-party libs second ...
+			wp_enqueue_script(
+				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common',
+				WPS_PLUGIN_URL . 'dist/vendors-admin-public.min.js',
+				[],
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-admin-public.min.js' ),
 				false
 			);
 
 			wp_enqueue_script(
 				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-backend',
 				WPS_PLUGIN_URL . 'dist/admin.min.js',
-				array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js', 'chosen-js', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendor-backend'),
+				array('jquery', 'promise-polyfill', 'tooltipster-js', 'validate-js', 'chosen-js', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-admin', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common'),
 				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/admin.min.js' ),
 				true
 			);
@@ -192,11 +210,33 @@ class Backend {
 					'itemsPerRequest'						=> $this->DB_Settings_General->get_items_per_request(),
 					'maxItemsPerRequest'				=> WPS_MAX_ITEMS_PER_REQUEST,
 					'settings'									=> [
-						'colorAddToCart' => $this->DB_Settings_General->get_add_to_cart_color(),
-						'colorVariant' => $this->DB_Settings_General->get_variant_color(),
-						'colorCheckout' => $this->DB_Settings_General->get_checkout_color(),
-						'colorCartCounter' => $this->DB_Settings_General->get_cart_counter_color(),
-						'colorCartIcon' => $this->DB_Settings_General->get_cart_icon_color()
+						'colorAddToCart' 											=> $this->DB_Settings_General->get_add_to_cart_color(),
+						'colorVariant' 												=> $this->DB_Settings_General->get_variant_color(),
+						'colorCheckout' 											=> $this->DB_Settings_General->get_checkout_color(),
+						'colorCartCounter' 										=> $this->DB_Settings_General->get_cart_counter_color(),
+						'colorCartIcon' 											=> $this->DB_Settings_General->get_cart_icon_color(),
+						'productsHeading' 										=> $this->DB_Settings_General->get_products_heading(),
+						'collectionsHeading' 									=> $this->DB_Settings_General->get_collections_heading(),
+						'relatedProductsHeading'							=> $this->DB_Settings_General->get_related_products_heading(),
+						'productsHeadingToggle'								=> $this->DB_Settings_General->get_products_heading_toggle(),
+						'collectionsHeadingToggle'						=> $this->DB_Settings_General->get_collections_heading_toggle(),
+						'relatedProductsHeadingToggle'				=> $this->DB_Settings_General->get_related_products_heading_toggle(),
+						'productsImagesSizingToggle'					=> $this->DB_Settings_General->get_products_images_sizing_toggle(),
+						'productsImagesSizingWidth'						=> $this->DB_Settings_General->get_products_images_sizing_width(),
+						'productsImagesSizingHeight'					=> $this->DB_Settings_General->get_products_images_sizing_height(),
+						'productsImagesSizingCrop'						=> $this->DB_Settings_General->get_products_images_sizing_crop(),
+						'productsImagesSizingScale'						=> $this->DB_Settings_General->get_products_images_sizing_scale(),
+						'collectionsImagesSizingToggle'				=> $this->DB_Settings_General->get_collections_images_sizing_toggle(),
+						'collectionsImagesSizingWidth'				=> $this->DB_Settings_General->get_collections_images_sizing_width(),
+						'collectionsImagesSizingHeight'				=> $this->DB_Settings_General->get_collections_images_sizing_height(),
+						'collectionsImagesSizingCrop'					=> $this->DB_Settings_General->get_collections_images_sizing_crop(),
+						'collectionsImagesSizingScale'				=> $this->DB_Settings_General->get_collections_images_sizing_scale(),
+						'relatedProductsImagesSizingToggle'		=> $this->DB_Settings_General->get_related_products_images_sizing_toggle(),
+						'relatedProductsImagesSizingWidth'		=> $this->DB_Settings_General->get_related_products_images_sizing_width(),
+						'relatedProductsImagesSizingHeight'		=> $this->DB_Settings_General->get_related_products_images_sizing_height(),
+						'relatedProductsImagesSizingCrop'			=> $this->DB_Settings_General->get_related_products_images_sizing_crop(),
+						'relatedProductsImagesSizingScale'		=> $this->DB_Settings_General->get_related_products_images_sizing_scale(),
+						'enableCustomCheckoutDomain'					=> $this->DB_Settings_General->get_enable_custom_checkout_domain()
 					],
 					'API' => [
 						'namespace'			=> WP_SHOPIFY_API_NAMESPACE,

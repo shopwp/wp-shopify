@@ -291,4 +291,72 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_DEFAULT_CART_ICON_COLOR') );
   }
 
+  function test_plugin_default_products_heading() {
+    $this->assertTrue( defined('WPS_DEFAULT_PRODUCTS_HEADING') );
+  }
+
+  function test_plugin_default_collections_heading() {
+    $this->assertTrue( defined('WPS_DEFAULT_COLLECTIONS_HEADING') );
+  }
+
+  function test_plugin_default_related_products_heading() {
+    $this->assertTrue( defined('WPS_DEFAULT_RELATED_PRODUCTS_HEADING') );
+  }
+
+  function test_plugin_default_products_images_sizing_width() {
+    $this->assertTrue( defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_WIDTH') );
+  }
+
+  function test_plugin_default_products_images_sizing_height() {
+    $this->assertTrue( defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_HEIGHT') );
+  }
+
+  function test_plugin_default_products_images_sizing_crop() {
+    $this->assertTrue( defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_CROP') );
+  }
+
+  function test_plugin_default_products_images_sizing_scale() {
+    $this->assertTrue( defined('WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_SCALE') );
+  }
+
+  function test_plugin_default_collections_images_sizing_width() {
+    $this->assertTrue( defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_WIDTH') );
+  }
+
+  function test_plugin_default_collections_images_sizing_height() {
+    $this->assertTrue( defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_HEIGHT') );
+  }
+
+  function test_plugin_default_collections_images_sizing_crop() {
+    $this->assertTrue( defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_CROP') );
+  }
+
+  function test_plugin_default_collections_images_sizing_scale() {
+    $this->assertTrue( defined('WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE') );
+  }
+
+  function test_plugin_default_related_products_images_sizing_width() {
+    $this->assertTrue( defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_WIDTH') );
+  }
+
+  function test_plugin_default_related_products_images_sizing_height() {
+    $this->assertTrue( defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_HEIGHT') );
+  }
+
+  function test_plugin_default_related_products_images_sizing_crop() {
+    $this->assertTrue( defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_CROP') );
+  }
+
+  function test_plugin_default_related_products_images_sizing_scale() {
+    $this->assertTrue( defined('WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE') );
+  }
+
+  function test_placeholder_image_src() {
+    $this->assertTrue( defined('WPS_PLACEHOLDER_IMAGE_SRC') );
+  }
+
+  function test_enable_custom_checkout_domain() {
+    $this->assertTrue( defined('WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN') );
+  }
+
 }

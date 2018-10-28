@@ -78,6 +78,7 @@ class Async_Processing_Collections_Custom extends Vendor_Background_Process {
 		if ( $this->DB_Settings_Syncing->max_packet_size_reached($custom_collections) ) {
 
 			$this->DB_Settings_Syncing->save_notice_and_stop_sync( $this->DB_Settings_Syncing->throw_max_allowed_packet() );
+
 			$this->DB_Settings_Syncing->expire_sync();
 			$this->complete();
 
@@ -95,7 +96,7 @@ class Async_Processing_Collections_Custom extends Vendor_Background_Process {
 
 	protected function complete() {
 
-		if (!$this->DB_Settings_Syncing->is_syncing() || $this->DB_Settings_Syncing->all_syncing_complete()) {
+		if ( !$this->DB_Settings_Syncing->is_syncing() ) {
 			$this->DB_Settings_Syncing->expire_sync();
 		}
 
