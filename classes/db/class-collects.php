@@ -19,7 +19,6 @@ class Collects extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_collect_id;
 	public $default_product_id;
 	public $default_collection_id;
@@ -42,7 +41,6 @@ class Collects extends \WPS\DB {
 		$this->type        								= 'collect';
 
 		// Defaults
-		$this->default_id                	= 0;
 		$this->default_collect_id        	= 0;
 		$this->default_product_id        	= 0;
 		$this->default_collection_id     	= 0;
@@ -87,7 +85,6 @@ class Collects extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                   => $this->default_id,
 			'collect_id'           => $this->default_collect_id,
 			'product_id'           => $this->default_product_id,
 			'collection_id'        => $this->default_collection_id,
@@ -264,7 +261,7 @@ class Collects extends \WPS\DB {
 		$collate = $this->collate();
 
 		return "CREATE TABLE $table_name (
-			id bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+			id bigint(100) unsigned AUTO_INCREMENT,
 			collect_id bigint(100) unsigned NOT NULL DEFAULT '{$this->default_collect_id}',
 			product_id bigint(100) DEFAULT '{$this->default_product_id}',
 			collection_id bigint(100) DEFAULT '{$this->default_collection_id}',

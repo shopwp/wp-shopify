@@ -20,7 +20,6 @@ class Settings_Connection extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_domain;
 	public $default_js_access_token;
 	public $default_access_token;
@@ -42,7 +41,6 @@ class Settings_Connection extends \WPS\DB {
 		$this->cache_group     									= 'wps_db_connection';
 		$this->type     												= 'settings_connection';
 
-		$this->default_id 											= 0;
 		$this->default_domain 									= '';
 		$this->default_js_access_token 					= ''; // now storefront access token
 		$this->default_access_token 						= ''; // soon to be deprecated
@@ -77,7 +75,6 @@ class Settings_Connection extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                        										=> $this->default_id,
 			'domain'                    										=> $this->default_domain,
 			'js_access_token'           										=> $this->default_js_access_token,
 			'access_token'              										=> $this->default_access_token,
@@ -178,20 +175,13 @@ class Settings_Connection extends \WPS\DB {
 	*/
 	public function get_auth_token() {
 
-		$auth_token = Transients::get('wp_shopify_auth_token');
-
-		if ( !empty($auth_token) ) {
-			return $auth_token;
-		}
-
-
 		$connection = $this->get();
+
+		// Need to check if $connect is empty. If so, die with connection empy message
 
 		if ( Utils::has($connection, 'api_key') && Utils::has($connection, 'password') ) {
 
 			$built_auth_token = $this->build_auth_token($connection->api_key, $connection->password);
-
-			Transients::set('wp_shopify_auth_token', $built_auth_token);
 
 			return $built_auth_token;
 

@@ -22,7 +22,6 @@ class Orders extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_order_id;
 	public $default_customer_id;
 	public $default_email;
@@ -104,7 +103,6 @@ class Orders extends \WPS\DB {
 		$this->type        												= 'order';
 
 		// Defaults
-		$this->default_id                       	= 0;
 		$this->default_order_id                 	= 0;
 		$this->default_customer_id              	= 0;
 		$this->default_email                    	= '';

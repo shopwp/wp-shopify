@@ -19,7 +19,6 @@ class Shop extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_name;
 	public $default_myshopify_domain;
 	public $default_shop_owner;
@@ -85,7 +84,6 @@ class Shop extends \WPS\DB {
 		$this->cache_group     																= 'wps_db_shop';
 		$this->type     																			= 'shop';
 
-		$this->default_id                          						= 0;
 		$this->default_name                        						= '';
 		$this->default_myshopify_domain            						= '';
 		$this->default_shop_owner                  						= '';
@@ -209,7 +207,6 @@ class Shop extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                          					=> $this->default_id,
 			'name'                        					=> $this->default_name,
 			'myshopify_domain'            					=> $this->default_myshopify_domain,
 			'shop_owner'                  					=> $this->default_shop_owner,

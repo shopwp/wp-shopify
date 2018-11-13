@@ -359,4 +359,8 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN') );
   }
 
+  function test_checkout_button_target() {
+    $this->assertTrue( defined('WPS_DEFAULT_CHECKOUT_BUTTON_TARGET') );
+  }
+
 }

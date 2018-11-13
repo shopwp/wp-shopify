@@ -74,7 +74,6 @@ class Config {
 	public $placeholder_image_src;
 
 
-
 	public function __construct() {
 
 		$this->plugin_dir_path 													= plugin_dir_path( __DIR__ );
@@ -84,7 +83,7 @@ class Config {
 		$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 		$this->plugin_name_js 													= 'WP_Shopify';
 		$this->plugin_text_domain 											= 'wp-shopify';
-		$this->plugin_version 													= '1.2.8';
+		$this->plugin_version 													= '1.2.9';
 		$this->plugin_author 														= 'WP Shopify';
 
 		$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -169,6 +168,8 @@ class Config {
 		$this->plugin_default_collections_heading				= 'Collections';
 		$this->plugin_default_related_products_heading	= 'Related Products';
 		$this->default_enable_custom_checkout_domain		= 0;
+		$this->default_products_compare_at							= 0;
+		$this->default_products_show_price_range				= 1;
 
 		$this->plugin_default_products_images_sizing_width						= 0;
 		$this->plugin_default_products_images_sizing_height						= 0;
@@ -184,6 +185,8 @@ class Config {
 		$this->plugin_default_related_products_images_sizing_height		= 0;
 		$this->plugin_default_related_products_images_sizing_crop			= 'none';
 		$this->plugin_default_related_products_images_sizing_scale		= 0;
+
+		$this->plugin_default_checkout_button_target		= '_self';
 
 
 		if ( !defined('WPS_SHOPIFY_HEADER_VERIFY_WEBHOOKS') ) {
@@ -538,6 +541,17 @@ class Config {
 			define('WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN', $this->default_enable_custom_checkout_domain);
 		}
 
+		if ( !defined('WPS_DEFAULT_PRODUCTS_COMPARE_AT') ) {
+			define('WPS_DEFAULT_PRODUCTS_COMPARE_AT', $this->default_products_compare_at);
+		}
+
+		if ( !defined('WPS_DEFAULT_PRODUCTS_SHOW_PRICE_RANGE') ) {
+			define('WPS_DEFAULT_PRODUCTS_SHOW_PRICE_RANGE', $this->default_products_show_price_range);
+		}
+
+		if ( !defined('WPS_DEFAULT_CHECKOUT_BUTTON_TARGET') ) {
+			define('WPS_DEFAULT_CHECKOUT_BUTTON_TARGET', $this->plugin_default_checkout_button_target);
+		}
 
 	}
 

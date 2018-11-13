@@ -142,6 +142,7 @@ class ColorPickerCartIcon extends React.Component {
 class ColorPicker extends React.Component {
 
   state = {
+    ready: false,
     displayColorPicker: false,
     color: this.props.color,
     pickerStyles: pickerStyles(),
@@ -149,6 +150,11 @@ class ColorPicker extends React.Component {
     componentId: "wps-component-" + this.props.pickerType + "-color-swatch",
     colorHasChanged: false,
     submitButton: jQuery("#submitSettings")
+  }
+
+
+  componentDidMount = (e) => {
+    jQuery('[data-testid="' + this.state.componentId + '"]').closest('.wps-form-group').find('.wps-placeholder').remove();
   }
 
 
@@ -181,17 +187,17 @@ class ColorPicker extends React.Component {
     }
 
 
-    showLoader(this.state.submitButton);
+    // showLoader(this.state.submitButton);
 
     this.closePicker();
 
-    // Updates DB with the new color
-    var [updateError, updateResponse] = await to( this.props.updateColor({ color: this.state.color }) );
-
-
-    showNotice(updateError, updateResponse);
-
-    hideLoader(this.state.submitButton);
+    // // Updates DB with the new color
+    // var [updateError, updateResponse] = await to( this.props.updateColor({ color: this.state.color }) );
+    //
+    //
+    // showNotice(updateError, updateResponse);
+    //
+    // hideLoader(this.state.submitButton);
 
   }
 
@@ -214,6 +220,7 @@ class ColorPicker extends React.Component {
   render() {
 
     return (
+
       <div>
         <div
           className="wps-color-swatch-wrapper"
@@ -239,6 +246,8 @@ class ColorPicker extends React.Component {
           </div>
         ) : null}
       </div>
+
+
     );
 
   }

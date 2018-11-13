@@ -135,8 +135,17 @@ class HTTP {
 				break;
 
 			default:
-				return Messages::get('shopify_api_generic');
-				break;
+
+				$errors = $response->get_error_messages();
+
+				if ( empty($errors) ) {
+					return Messages::get('shopify_api_generic');
+					break;
+
+				} else {
+					return $errors[0];
+					break;
+				}
 
 		}
 
@@ -228,6 +237,7 @@ class HTTP {
 		$request_args['headers'] = $this->default_request_headers($request_args, $this->DB_Settings_Connection->get_auth_token() );
 
 		return $request_args;
+
 	}
 
 
@@ -389,7 +399,19 @@ class HTTP {
 		// Throttles API calls if needed to stay under limit
 		$this->check_rate_limit($response);
 
-		return json_decode( wp_remote_retrieve_body($response) );
+		$json_from_response = wp_remote_retrieve_body($response);
+
+		/*
+
+		JSON_BIGINT_AS_STRING -- Decodes large integers as their original string value. Available since PHP 5.4.0.
+
+		Setting this is important in order to prevent large numbers being coerced into
+		incorrect values. Will turn them into strings instead. 512 here is the default.
+
+		http://blog.pixelastic.com/2011/10/12/fix-floating-issue-json-decode-php-5-3/
+
+		*/
+		return json_decode( $json_from_response, false, 512, JSON_BIGINT_AS_STRING );
 
 	}
 

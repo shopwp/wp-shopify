@@ -235,6 +235,30 @@ class Settings_Products extends \WPS\API {
 
 	/*
 
+	Update setting: related_products_heading
+
+	*/
+	public function update_setting_products_compare_at($request) {
+
+		$value = $request->get_param('value');
+
+		if ( !is_bool($value) ) {
+			return $this->error( $request->get_route(), 'Failed to update products compare at value due to invalid type', 500);
+		}
+
+		$update_result = $this->DB_Settings_General->update_products_compare_at($value);
+
+		if (!$update_result) {
+			return $this->error( $request->get_route(), 'Failed to update products compare at value', 500);
+		}
+
+		return $update_result;
+
+	}
+
+
+	/*
+
 	Register route: add_to_cart_color
 
 	*/
@@ -424,6 +448,27 @@ class Settings_Products extends \WPS\API {
 
 	/*
 
+	Register route: register_route_products_compare_at
+
+	*/
+  public function register_route_products_compare_at() {
+
+		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_compare_at', [
+			[
+				'methods'         => 'GET',
+				'callback'        => [$this, 'get_setting_products_compare_at']
+			],
+			[
+				'methods'         => 'POST',
+				'callback'        => [$this, 'update_setting_products_compare_at']
+			]
+		]);
+
+	}
+
+
+	/*
+
 	Hooks
 
 	*/
@@ -440,6 +485,9 @@ class Settings_Products extends \WPS\API {
 		add_action('rest_api_init', [$this, 'register_route_products_images_sizing_height']);
 		add_action('rest_api_init', [$this, 'register_route_products_images_sizing_crop']);
 		add_action('rest_api_init', [$this, 'register_route_products_images_sizing_scale']);
+
+		add_action('rest_api_init', [$this, 'register_route_products_compare_at']);
+
 
 	}
 

@@ -21,7 +21,7 @@ if ( !defined('ABSPATH') ) {
 <a
 	href="<?= esc_url($data->checkout_base_url); ?>"
 	class="wps-btn wps-btn-checkout <?= apply_filters( 'wps_cart_checkout_button_class', ''); ?>"
-	target="_self"
+	target="<?= $data->button_target; ?>"
 	title="Checkout"
 	style="<?= !empty($data->button_color) ? 'background-color: ' . $data->button_color . ';' : ''; ?>"
 	id="wps-btn-checkout">

@@ -1,7 +1,5 @@
-import {
-  cacheNoticeDismissal
-} from '../ws/ws';
-
+import to from 'await-to-js';
+import { cacheNoticeDismissal } from '../ws/ws';
 import { showAdminNotice } from "../utils/utils-dom";
 import { messageSettingsSuccessfulSave } from "../messages/messages";
 
@@ -19,7 +17,7 @@ Init
 */
 function cacheAdminNoticeDismissal() {
 
-  jQuery('.wps-notice').on('click', '.notice-dismiss', async function(event, el) {
+  jQuery('.wps-notice .notice-dismiss').on('click', async function(event, el) {
 
     var $notice = jQuery(this).parent('.notice.is-dismissible');
     var dismiss_name = $notice.attr('data-dismiss-name');
@@ -27,7 +25,8 @@ function cacheAdminNoticeDismissal() {
     if (dismiss_name) {
 
       try {
-        var response = await cacheNoticeDismissal(dismiss_name);
+
+        var [cacheError, cacheResponse] = await to( cacheNoticeDismissal(dismiss_name) );
 
       } catch (e) {
         console.error('WP Shopify Admin Notice Error: ', e);
@@ -72,6 +71,11 @@ function showNotice(updateError, updateResponse) {
 }
 
 
+function hideNotice() {
+  jQuery('#wps-errors .wps-notice').fadeOut();
+}
+
+
 /*
 
 Init
@@ -84,5 +88,6 @@ function noticesInit() {
 export {
   noticesInit,
   initDismissNoticeEvents,
-  showNotice
+  showNotice,
+  hideNotice
 }

@@ -1,12 +1,8 @@
 import { TextControl } from '@wordpress/components';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import to from 'await-to-js';
-import toInteger from 'lodash/toInteger';
-import { updateSettingRelatedProductsImagesSizingHeight } from "../../ws/ws-api";
-import { showNotice } from "../../notices/notices";
-import { showLoader, hideLoader } from "../../utils/utils";
 import { toBoolean } from '../../utils/utils';
+import { convertToRealSize } from '../../utils/utils-data';
 
 
 /*
@@ -18,19 +14,10 @@ class RelatedProductsImagesSizingHeight extends React.Component {
 
   state = {
     value: WP_Shopify.settings.relatedProductsImagesSizingHeight === 0 ? 'auto' : WP_Shopify.settings.relatedProductsImagesSizingHeight,
-    valueHasChanged: false,
-    submitElement: jQuery("#submitSettings")
+    valueHasChanged: false
   }
 
-  updateValue = newValue => {
-
-    if (toInteger(newValue) === 0) {
-      newValue = 'auto';
-    }
-
-    if (newValue !== this.state.value) {
-      this.state.valueHasChanged = true;
-    }
+  onUpdateHandle = newValue => {
 
     this.setState({
       value: newValue
@@ -38,20 +25,11 @@ class RelatedProductsImagesSizingHeight extends React.Component {
 
   }
 
-  onRelatedProductsImagesSizingHeightBlur = async value => {
+  onBlurHandle = event => {
 
-    // If the user hasn't selected a new color, just exit
-    if (!this.state.valueHasChanged) {
-      return this.state.value;
-    }
-
-    showLoader(this.state.submitElement);
-
-    var [updateError, updateResponse] = await to( updateSettingRelatedProductsImagesSizingHeight({ value: toInteger(this.state.value) }) );
-
-    showNotice(updateError, updateResponse);
-
-    hideLoader(this.state.submitElement);
+    this.setState({
+      value: convertToRealSize(event.currentTarget.value)
+    });
 
   }
 
@@ -61,8 +39,8 @@ class RelatedProductsImagesSizingHeight extends React.Component {
       <TextControl
           type="text"
           value={ this.state.value }
-          onChange={ this.updateValue }
-          onBlur={ this.onRelatedProductsImagesSizingHeightBlur }
+          onChange={ this.onUpdateHandle }
+          onBlur={ this.onBlurHandle }
           aria-describedby="wps-related-products-images-sizing-toggle"
           disabled={ !toBoolean(WP_Shopify.settings.relatedProductsImagesSizingToggle) }
 

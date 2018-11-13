@@ -21,7 +21,6 @@ class Collections_Custom extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_collection_id;
 	public $default_post_id;
 	public $default_title;
@@ -47,7 +46,6 @@ class Collections_Custom extends \WPS\DB {
     $this->cache_group        					= 'wps_db_collections_custom';
 		$this->type        									= 'collection';
 
-		$this->default_id       						= 0;
 		$this->default_collection_id      	= 0;
 		$this->default_post_id            	= 0;
 		$this->default_title              	= '';
@@ -100,7 +98,6 @@ class Collections_Custom extends \WPS\DB {
 	public function get_column_defaults() {
 
     return [
-			'id'       						=> $this->default_id,
       'collection_id'       => $this->default_collection_id,
       'post_id'             => $this->default_post_id,
       'title'               => $this->default_title,

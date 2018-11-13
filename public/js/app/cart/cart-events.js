@@ -145,8 +145,15 @@ function onCheckout(client, checkout) {
       }
 
 
+
       if (isEmpty(WP_Shopify.checkoutAttributes)) {
-        return window.open( getCheckoutURL(freshCheckout) + '&attributes[cartID]=' + getCheckoutID(), '_self');
+
+        window.open( getCheckoutURL(freshCheckout) + '&attributes[cartID]=' + getCheckoutID(), WP_Shopify.settings.checkoutButtonTarget);
+
+        if (WP_Shopify.settings.checkoutButtonTarget === '_blank') {
+          return $checkoutButton.removeClass('wps-is-disabled wps-is-loading');
+        }
+
       }
 
 
@@ -159,7 +166,12 @@ function onCheckout(client, checkout) {
       }
 
 
-      window.open( getCheckoutURL(updatedCheckout) + '&attributes[cartID]=' + getCheckoutID(), '_self');
+      window.open( getCheckoutURL(updatedCheckout) + '&attributes[cartID]=' + getCheckoutID(), WP_Shopify.settings.checkoutButtonTarget);
+
+
+      if (WP_Shopify.settings.checkoutButtonTarget === '_blank') {
+        return $checkoutButton.removeClass('wps-is-disabled wps-is-loading');
+      }
 
 
     });

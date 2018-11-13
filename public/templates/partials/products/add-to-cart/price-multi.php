@@ -23,10 +23,10 @@ if ( !defined('ABSPATH') ) {
   itemprop="offers"
   itemscope
   itemtype="https://schema.org/Offer"
-  class="wps-products-price wps-products-price-multi <?= apply_filters( 'wps_products_price_class', '' ); ?>">
+  class="wps-products-price wps-product-pricing wps-products-price-multi <?= apply_filters( 'wps_products_price_class', '' ); ?>"
+	data-compare-at="<?= $data->showing_compare_at; ?>"
+	>
 
-  <?php
-
-  echo apply_filters('wps_products_price_multi', $data->price, $data->price_first, $data->price_last, $data->product); ?>
+  <?= apply_filters('wps_products_price_multi', $data->price, $data->first_price, $data->last_price, $data->product); ?>
 
 </h3>

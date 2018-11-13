@@ -551,7 +551,30 @@ function updateSettingCheckoutEnableCustomCheckoutDomain(data) {
 
 }
 
+
+/*
+
+Generic Post method for communicating with the WP Shopify REST API
+
+endpoint - string representing the API enpoint
+data - the POST data object
+
+*/
+function post(endpoint, data) {
+
+  return new Promise( (resolve, reject) => {
+
+    axios.post(endpoint, data)
+      .then( response => resolve(response) )
+      .catch ( error => reject( getRestErrorContents(error.response) ) );
+
+  });
+
+}
+
+
 export {
+  post,
   getSettingAddToCartColor,
   updateSettingAddToCartColor,
   updateSettingVariantColor,
@@ -580,5 +603,4 @@ export {
   updateSettingRelatedProductsImagesSizingCrop,
   updateSettingRelatedProductsImagesSizingScale,
   updateSettingCheckoutEnableCustomCheckoutDomain
-
 }

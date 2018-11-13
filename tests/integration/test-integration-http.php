@@ -37,14 +37,14 @@ class Test_HTTP extends WP_UnitTestCase {
   test_it_should_get_client_error_message
 
   */
-  function test_it_should_get_client_error_message() {
-
-    $client_error_messages = self::$HTTP->get_client_error_message(self::$response_client_error);
-
-    $this->assertInternalType('string', $client_error_messages);
-    $this->assertNotEquals(false, $client_error_messages);
-
-  }
+  // function test_it_should_get_client_error_message() {
+  //
+  //   $client_error_messages = self::$HTTP->get_client_error_message(self::$response_client_error);
+  //
+  //   $this->assertInternalType('string', $client_error_messages);
+  //   $this->assertNotEquals(false, $client_error_messages);
+  //
+  // }
 
 
   /*
@@ -52,14 +52,14 @@ class Test_HTTP extends WP_UnitTestCase {
   test_it_should_get_server_error_message
 
   */
-  function test_it_should_get_server_error_message() {
-
-    $server_error_messages = self::$HTTP->get_server_error_message(self::$response_client_error);
-
-    $this->assertInternalType('string', $server_error_messages);
-    $this->assertNotEquals(false, $server_error_messages);
-
-  }
+  // function test_it_should_get_server_error_message() {
+  //
+  //   $server_error_messages = self::$HTTP->get_server_error_message(self::$response_client_error);
+  //
+  //   $this->assertInternalType('string', $server_error_messages);
+  //   $this->assertNotEquals(false, $server_error_messages);
+  //
+  // }
 
 
   /*
@@ -67,14 +67,14 @@ class Test_HTTP extends WP_UnitTestCase {
   test_if_is_client_error
 
   */
-  function test_if_is_client_error() {
-
-    $is_client_error = self::$HTTP->is_client_error(self::$response_client_error);
-
-    $this->assertInternalType('boolean', $is_client_error);
-    $this->assertTrue($is_client_error);
-
-  }
+  // function test_if_is_client_error() {
+  //
+  //   $is_client_error = self::$HTTP->is_client_error(self::$response_client_error);
+  //
+  //   $this->assertInternalType('boolean', $is_client_error);
+  //   $this->assertTrue($is_client_error);
+  //
+  // }
 
   /*
 

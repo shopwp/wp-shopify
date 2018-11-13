@@ -21,7 +21,6 @@ class Images extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_image_id;
 	public $default_product_id;
 	public $default_variant_ids;
@@ -35,24 +34,23 @@ class Images extends \WPS\DB {
 	public function __construct() {
 
 		// Table info
-		$this->table_name_suffix    		= WPS_TABLE_NAME_IMAGES;
-		$this->table_name         			= $this->get_table_name();
-		$this->version            			= '1.0';
-		$this->primary_key        			= 'id';
-		$this->lookup_key        				= 'image_id';
-		$this->cache_group        			= 'wps_db_images';
-		$this->type        							= 'image';
+		$this->table_name_suffix    				= WPS_TABLE_NAME_IMAGES;
+		$this->table_name         					= $this->get_table_name();
+		$this->version            					= '1.0';
+		$this->primary_key        					= 'id';
+		$this->lookup_key        						= 'image_id';
+		$this->cache_group        					= 'wps_db_images';
+		$this->type        									= 'image';
 
 		// Defaults
-		$this->default_id               = 0;
-		$this->default_image_id         = 0;
-		$this->default_product_id       = 0;
-		$this->default_variant_ids      = '';
-		$this->default_src              = '';
-		$this->default_alt              = '';
-		$this->default_position         = 0;
-		$this->default_created_at       = date_i18n( 'Y-m-d H:i:s' );
-		$this->default_updated_at       = date_i18n( 'Y-m-d H:i:s' );
+		$this->default_image_id         		= 0;
+		$this->default_product_id       		= 0;
+		$this->default_variant_ids      		= '';
+		$this->default_src              		= '';
+		$this->default_alt              		= '';
+		$this->default_position         		= 0;
+		$this->default_created_at       		= date_i18n( 'Y-m-d H:i:s' );
+		$this->default_updated_at       		= date_i18n( 'Y-m-d H:i:s' );
 
 	}
 
@@ -89,7 +87,6 @@ class Images extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                   => $this->default_id,
 			'image_id'             => $this->default_image_id,
 			'product_id'           => $this->default_product_id,
 			'variant_ids'          => $this->default_variant_ids,
@@ -262,10 +259,16 @@ class Images extends \WPS\DB {
 		// If an object is passed ...
 		if (is_object($product)) {
 
-			if (empty($product->feat_image)) {
+			if ( empty($product->feat_image) ) {
 
 				$alt = $product->title;
-				$src = WPS_PLUGIN_URL . 'public/imgs/placeholder.png';
+
+				if ( empty($product->image) ) {
+					$src = WPS_PLUGIN_URL . 'public/imgs/placeholder.png';
+
+				} else {
+					$src = $product->image;
+				}
 
 			} else {
 				$src = $product->feat_image[0]->src;

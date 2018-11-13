@@ -19,7 +19,6 @@ class Customers extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_customer_id;
 	public $default_email;
 	public $default_accepts_marketing;
@@ -54,7 +53,6 @@ class Customers extends \WPS\DB {
 		$this->type        										= 'customer';
 
 		// Defaults
-		$this->default_id											= 0;
 		$this->default_customer_id						= 0;
 		$this->default_email									= '';
 		$this->default_accepts_marketing			= 0;

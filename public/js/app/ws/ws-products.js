@@ -198,7 +198,7 @@ function setCurrentlySelectedVariants(selectedVariants) {
   localStorage.setItem('wps-currently-selected-variant', JSON.stringify(selectedVariants));
 }
 
-function setFromPricing() {
+function cacheInitialPricing() {
 
   var existingFromPricing = localStorage.getItem('wps-from-pricing');
 
@@ -208,10 +208,13 @@ function setFromPricing() {
 
 }
 
-function getFromPricing() {
-  return localStorage.getItem('wps-from-pricing');
+function getInitialPricing(handle) {
+  return localStorage.getItem('wps-initial-pricing-' + handle);
 }
 
+function setIntialPricing(handle, html) {
+  return localStorage.setItem('wps-initial-pricing-' + handle, html);
+}
 
 export {
   getProductByID,
@@ -228,8 +231,9 @@ export {
   removeProductOptionIds,
   getCurrentlySelectedVariants,
   setCurrentlySelectedVariants,
-  getFromPricing,
-  setFromPricing,
+  getInitialPricing,
+  setIntialPricing,
+  cacheInitialPricing,
   getProductByHandle,
   getProductIDByHandle,
   setProductIDByHandle,

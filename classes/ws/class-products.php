@@ -172,8 +172,13 @@ class Products extends \WPS\WS {
 	}
 
 
+
 	public function chunk_published_product_ids($published_product_ids) {
+
+		// TODO: Put an empty check in here
+		// Essentially asks, is 'published_product_ids' col empty?
 		return array_chunk($published_product_ids, WPS_MAX_ITEMS_PER_REQUEST);
+
 	}
 
 
@@ -375,8 +380,8 @@ class Products extends \WPS\WS {
 			return $combined_product_ids;
 		}
 
-
 		$result = $this->Shopify_API->get_products_listing_product_ids_per_page($current_page);
+
 
 		if (is_wp_error($result)) {
 			return $result;
@@ -411,11 +416,9 @@ class Products extends \WPS\WS {
 			$product_ids = $this->get_product_ids();
 		}
 
-
 		if ( is_wp_error($product_ids) ) {
 			$this->send_error( $product_ids->get_error_message() . ' (get_product_ids_by_collection_ids)' );
 		}
-
 
 		$this->DB_Settings_Syncing->set_published_product_ids($product_ids);
 

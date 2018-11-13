@@ -19,7 +19,6 @@ class Options extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_option_id;
 	public $default_product_id;
 	public $default_name;
@@ -29,20 +28,19 @@ class Options extends \WPS\DB {
 
 	public function __construct() {
 
-		$this->table_name_suffix  			= WPS_TABLE_NAME_OPTIONS;
-		$this->table_name         			= $this->get_table_name();
-		$this->version            			= '1.0';
-		$this->primary_key        			= 'id';
-		$this->lookup_key        				= 'option_id';
-		$this->cache_group        			= 'wps_db_options';
-		$this->type        							= 'option';
-
-		$this->default_id               = 0;
-		$this->default_option_id        = 0;
-		$this->default_product_id       = 0;
-		$this->default_name             = '';
-		$this->default_position         = 0;
-		$this->default_values           = '';
+		$this->table_name_suffix  					= WPS_TABLE_NAME_OPTIONS;
+		$this->table_name         					= $this->get_table_name();
+		$this->version            					= '1.0';
+		$this->primary_key        					= 'id';
+		$this->lookup_key        						= 'option_id';
+		$this->cache_group        					= 'wps_db_options';
+		$this->type        									= 'option';
+	
+		$this->default_option_id        		= 0;
+		$this->default_product_id       		= 0;
+		$this->default_name             		= '';
+		$this->default_position         		= 0;
+		$this->default_values           		= '';
 
 	}
 
@@ -76,7 +74,6 @@ class Options extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                        => $this->default_id,
 			'option_id'                 => $this->default_option_id,
 			'product_id'                => $this->default_product_id,
 			'name'                      => $this->default_name,

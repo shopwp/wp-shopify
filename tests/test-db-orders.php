@@ -174,7 +174,6 @@ class Test_DB_Orders extends WP_UnitTestCase {
   */
   function test_it_should_have_default_values() {
 
-    $this->assertObjectHasAttribute('default_id', self::$DB_Orders);
     $this->assertObjectHasAttribute('default_order_id', self::$DB_Orders);
     $this->assertObjectHasAttribute('default_customer_id', self::$DB_Orders);
     $this->assertObjectHasAttribute('default_email', self::$DB_Orders);
@@ -269,10 +268,13 @@ class Test_DB_Orders extends WP_UnitTestCase {
   */
   function test_it_should_match_default_values_and_cols_amount() {
 
-    $cols_count = count( self::$DB_Orders->get_columns() );
-    $default_cols_count = count( self::$DB_Orders->get_column_defaults() );
+    $cols = self::$DB_Orders->get_columns();
+    $default_cols = self::$DB_Orders->get_column_defaults();
 
-    $this->assertEquals($cols_count, $default_cols_count);
+    $col_difference = array_diff_key($cols, $default_cols);
+
+    $this->assertCount(1, $col_difference);
+    $this->assertArrayHasKey('id', $col_difference);
 
   }
 

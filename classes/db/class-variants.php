@@ -19,7 +19,6 @@ class Variants extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_variant_id;
 	public $default_product_id;
 	public $default_image_id;
@@ -59,7 +58,6 @@ class Variants extends \WPS\DB {
 		$this->type        												= 'variant';
 
 		// Defaults
-		$this->default_id 												= 0;
 		$this->default_variant_id                	= 0;
 		$this->default_product_id                	= 0;
 		$this->default_image_id                  	= 0;
@@ -140,7 +138,6 @@ class Variants extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                        => $this->default_id,
 			'variant_id'                => $this->default_variant_id,
 			'product_id'                => $this->default_product_id,
 			'image_id'                  => $this->default_image_id,
@@ -198,7 +195,7 @@ class Variants extends \WPS\DB {
 
 		$variant_copy = $this->copy($variant);
 		$variant_copy = $this->maybe_rename_to_lookup_key($variant_copy);
-		
+
 		return $variant_copy;
 
 	}
@@ -362,6 +359,16 @@ class Variants extends \WPS\DB {
 
 	/*
 
+	Responsible for sorting by price
+
+	*/
+	public function sort_by_compare_at_price($item_a, $item_b) {
+		return $item_a->compare_at_price > $item_b->compare_at_price;
+	}
+
+
+	/*
+
 	Responsible for sorting variants by price
 
 	*/
@@ -370,6 +377,53 @@ class Variants extends \WPS\DB {
 		usort($variants, [__CLASS__, 'sort_by_price']);
 
 		return $variants;
+
+	}
+
+
+	/*
+
+	Responsible for sorting variants by price
+
+	*/
+	public function sort_variants_by_compare_at_price($variants) {
+
+		usort($variants, [__CLASS__, 'sort_by_compare_at_price']);
+
+		return $variants;
+
+	}
+
+
+	public function first_variant_compare_at_price_empty($variants) {
+		return empty($variants[0]->compare_at_price);
+	}
+
+
+
+
+	/*
+
+	Responsible for retrieving the first variant price in a list of product variants
+
+	*/
+	public function get_first_variant_compare_at_price($variants) {
+
+		if ( empty($variants) ) {
+			return false;
+		}
+
+		// If first is empty, then just return the largest
+		if ( $this->first_variant_compare_at_price_empty($variants) ) {
+
+			$variants_sorted = $this->sort_variants_by_compare_at_price($variants);
+
+			return $this->get_last_variant_compare_at_price($variants_sorted, Utils::get_last_index( $this->get_variants_amount($variants)) );
+
+		}
+
+		// If first variant compare at price exists, show it
+		return $variants[0]->compare_at_price;
 
 	}
 
@@ -426,6 +480,20 @@ class Variants extends \WPS\DB {
 	}
 
 
+	/*
+
+	Responsible for getting the last variant price
+
+	*/
+	public function get_last_variant_compare_at_price($variants, $last_variant_index) {
+
+		if ($last_variant_index < 0) {
+			return false;
+		}
+
+		return $variants[$last_variant_index]->compare_at_price;
+
+	}
 
 
 

@@ -15,6 +15,8 @@ import pickBy from 'lodash/pickBy';
 import omitBy from 'lodash/omitBy';
 import forEach from 'lodash/forEach';
 import uniqBy from 'lodash/uniqBy';
+import parseInt from 'lodash/parseInt';
+import isNaN from 'lodash/isNaN';
 
 import {
   getStartingURL
@@ -816,6 +818,18 @@ function formatBytes(a, b) {
 }
 
 
+function convertToRealSize(value) {
+
+  var newVal = parseInt(value);
+
+  if ( isNaN(newVal) || newVal <= 0 ) {
+    return 'auto';
+  }
+
+  return newVal;
+
+}
+
 
 export {
   getProductImages,
@@ -850,5 +864,6 @@ export {
   filterForErrors,
   returnOnlyFirstError,
   getConnectionStatus,
-  getRestErrorContents
+  getRestErrorContents,
+  convertToRealSize
 }

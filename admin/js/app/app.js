@@ -1,10 +1,12 @@
-import "@babel/polyfill";
+"use strict";
+
+import "idempotent-babel-polyfill";
+import "@wordpress/components/build-style/style.css";
+
 import { formEventsInit } from './forms/forms';
 import { vendorInit } from './vendor/vendor';
 import { tabsInit } from './utils/utils-tabs';
 import { licenseInit } from './license/license';
-import { connectInit, onAuthRedirect } from './connect/connect';
-import { disconnectInit } from './disconnect/disconnect';
 import { settingsInit } from './settings/settings.jsx';
 import { initAdmin } from './admin/admin';
 import { toolsInit } from './tools/tools';
@@ -12,13 +14,11 @@ import { initMisc } from './misc/misc';
 import { menusInit } from './menus/menus';
 import { noticesInit } from './notices/notices';
 
+_.noConflict();
 
-(function($) {
+jQuery( () => {
 
-	'use strict';
-
-	$(function() {
-
+	if ( jQuery('body').hasClass('wp-shopify_page_wps-settings') ) {
 		initAdmin();
 		tabsInit();
 		vendorInit();
@@ -27,19 +27,9 @@ import { noticesInit } from './notices/notices';
 		settingsInit();
 		toolsInit();
 		menusInit();
-		noticesInit();
 		initMisc();
+	}
 
-		var $formConnect = $("#wps-connect");
-	  var $submitButton = $formConnect.find('input[type="submit"]');
+	noticesInit();
 
-		if ($submitButton.attr('name') === 'submitDisconnect') {
-			disconnectInit();
-
-		} else {
-			connectInit();
-		}
-
-  });
-
-})(jQuery);
+});

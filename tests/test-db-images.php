@@ -227,7 +227,6 @@ class Test_DB_Images extends WP_UnitTestCase {
   */
   function test_it_should_have_default_values() {
 
-    $this->assertObjectHasAttribute('default_id', self::$DB_Images);
     $this->assertObjectHasAttribute('default_image_id', self::$DB_Images);
     $this->assertObjectHasAttribute('default_product_id', self::$DB_Images);
     $this->assertObjectHasAttribute('default_variant_ids', self::$DB_Images);
@@ -265,10 +264,13 @@ class Test_DB_Images extends WP_UnitTestCase {
   */
   function test_it_should_match_default_values_and_cols_amount() {
 
-    $cols_count = count( self::$DB_Images->get_columns() );
-    $default_cols_count = count( self::$DB_Images->get_column_defaults() );
+    $cols = self::$DB_Images->get_columns();
+    $default_cols = self::$DB_Images->get_column_defaults();
 
-    $this->assertEquals($cols_count, $default_cols_count);
+    $col_difference = array_diff_key($cols, $default_cols);
+
+    $this->assertCount(1, $col_difference);
+    $this->assertArrayHasKey('id', $col_difference);
 
   }
 

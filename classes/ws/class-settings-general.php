@@ -49,65 +49,65 @@ class Settings_General extends \WPS\WS {
 		$newGeneralSettings = [];
 
 		if (isset($form_data['wps_settings_general_products_url']) && $form_data['wps_settings_general_products_url']) {
-			$newGeneralSettings['url_products'] = $form_data['wps_settings_general_products_url'];
+			$newGeneralSettings['url_products'] = sanitize_text_field($form_data['wps_settings_general_products_url']);
 		}
 
 		if (isset($form_data['wps_settings_general_collections_url']) && $form_data['wps_settings_general_collections_url']) {
-			$newGeneralSettings['url_collections'] = $form_data['wps_settings_general_collections_url'];
+			$newGeneralSettings['url_collections'] = sanitize_text_field($form_data['wps_settings_general_collections_url']);
 		}
 
 
 		if (isset($form_data['wps_settings_general_num_posts'])) {
 
 			if ($form_data['wps_settings_general_num_posts']) {
-				$newGeneralSettings['num_posts'] = $form_data['wps_settings_general_num_posts'];
+				$newGeneralSettings['num_posts'] = (int) $form_data['wps_settings_general_num_posts'];
 
 			} else {
-				$newGeneralSettings['num_posts'] = null;
+				$newGeneralSettings['num_posts'] = get_option('posts_per_page');
 
 			}
 
 		}
 
 		if (isset($form_data['wps_settings_general_products_link_to_shopify'])) {
-			$newGeneralSettings['products_link_to_shopify'] = (int)$form_data['wps_settings_general_products_link_to_shopify'];
+			$newGeneralSettings['products_link_to_shopify'] = (int) $form_data['wps_settings_general_products_link_to_shopify'];
 		}
 
 		if (isset($form_data['wps_settings_general_show_breadcrumbs'])) {
-			$newGeneralSettings['show_breadcrumbs'] = (int)$form_data['wps_settings_general_show_breadcrumbs'];
+			$newGeneralSettings['show_breadcrumbs'] = (int) $form_data['wps_settings_general_show_breadcrumbs'];
 		}
 
 		if (isset($form_data['wps_settings_general_hide_pagination'])) {
-			$newGeneralSettings['hide_pagination'] = (int)$form_data['wps_settings_general_hide_pagination'];
+			$newGeneralSettings['hide_pagination'] = (int) $form_data['wps_settings_general_hide_pagination'];
 		}
 
 
 		if (isset($form_data['wps_settings_general_styles_all'])) {
-			$newGeneralSettings['styles_all'] = (int)$form_data['wps_settings_general_styles_all'];
+			$newGeneralSettings['styles_all'] = (int) $form_data['wps_settings_general_styles_all'];
 		}
 
 		if (isset($form_data['wps_settings_general_styles_core'])) {
-			$newGeneralSettings['styles_core'] = (int)$form_data['wps_settings_general_styles_core'];
+			$newGeneralSettings['styles_core'] = (int) $form_data['wps_settings_general_styles_core'];
 		}
 
 		if (isset($form_data['wps_settings_general_styles_grid'])) {
-			$newGeneralSettings['styles_grid'] = (int)$form_data['wps_settings_general_styles_grid'];
+			$newGeneralSettings['styles_grid'] = (int) $form_data['wps_settings_general_styles_grid'];
 		}
 
 		if (isset($form_data['wps_settings_general_price_with_currency'])) {
-			$newGeneralSettings['price_with_currency'] = (int)$form_data['wps_settings_general_price_with_currency'];
+			$newGeneralSettings['price_with_currency'] = (int) $form_data['wps_settings_general_price_with_currency'];
 		}
 
 		if (isset($form_data['wps_settings_general_cart_loaded'])) {
-			$newGeneralSettings['cart_loaded'] = (int)$form_data['wps_settings_general_cart_loaded'];
+			$newGeneralSettings['cart_loaded'] = (int) $form_data['wps_settings_general_cart_loaded'];
 		}
 
 		if (isset($form_data['wps_settings_general_enable_beta'])) {
-			$newGeneralSettings['enable_beta'] = (int)$form_data['wps_settings_general_enable_beta'];
+			$newGeneralSettings['enable_beta'] = (int) $form_data['wps_settings_general_enable_beta'];
 		}
 
 		if (isset($form_data['wps_settings_general_enable_cart_terms'])) {
-			$newGeneralSettings['enable_cart_terms'] = (int)$form_data['wps_settings_general_enable_cart_terms'];
+			$newGeneralSettings['enable_cart_terms'] = (int) $form_data['wps_settings_general_enable_cart_terms'];
 		}
 
 		if (isset($form_data['wps_settings_general_cart_terms_content'])) {
@@ -133,12 +133,12 @@ class Settings_General extends \WPS\WS {
 		}
 
 		if (isset($form_data['wps_settings_general_save_connection_only'])) {
-			$newGeneralSettings['save_connection_only'] = (int)$form_data['wps_settings_general_save_connection_only'];
+			$newGeneralSettings['save_connection_only'] = (int) $form_data['wps_settings_general_save_connection_only'];
 		}
 
 		// Always 1 if free version
 		if (isset($form_data['wps_settings_general_selective_sync_all'])) {
-			$newGeneralSettings['selective_sync_all'] = (int)$form_data['wps_settings_general_selective_sync_all'];
+			$newGeneralSettings['selective_sync_all'] = (int) $form_data['wps_settings_general_selective_sync_all'];
 
 		} else {
 			$newGeneralSettings['selective_sync_all'] = 1;
@@ -146,20 +146,20 @@ class Settings_General extends \WPS\WS {
 
 
 		if (isset($form_data['wps_settings_general_selective_sync_products'])) {
-			$newGeneralSettings['selective_sync_products'] = (int)$form_data['wps_settings_general_selective_sync_products'];
+			$newGeneralSettings['selective_sync_products'] = (int) $form_data['wps_settings_general_selective_sync_products'];
 		}
 
 		if (isset($form_data['wps_settings_general_selective_sync_collections'])) {
-			$newGeneralSettings['selective_sync_collections'] = (int)$form_data['wps_settings_general_selective_sync_collections'];
+			$newGeneralSettings['selective_sync_collections'] = (int) $form_data['wps_settings_general_selective_sync_collections'];
 		}
 
 
 		if (isset($form_data['wps_settings_general_selective_sync_tags'])) {
-			$newGeneralSettings['selective_sync_tags'] = (int)$form_data['wps_settings_general_selective_sync_tags'];
+			$newGeneralSettings['selective_sync_tags'] = (int) $form_data['wps_settings_general_selective_sync_tags'];
 		}
 
 		if (isset($form_data['wps_settings_general_selective_sync_images'])) {
-			$newGeneralSettings['selective_sync_images'] = (int)$form_data['wps_settings_general_selective_sync_images'];
+			$newGeneralSettings['selective_sync_images'] = (int) $form_data['wps_settings_general_selective_sync_images'];
 		}
 
 		if (isset($form_data['wps_settings_general_selective_sync_shop'])) {
@@ -167,39 +167,45 @@ class Settings_General extends \WPS\WS {
 		}
 
 		if (isset($form_data['wps_settings_general_related_products_show'])) {
-			$newGeneralSettings['related_products_show'] = (int)$form_data['wps_settings_general_related_products_show'];
+			$newGeneralSettings['related_products_show'] = (int) $form_data['wps_settings_general_related_products_show'];
 		}
 
 		if (isset($form_data['wps_settings_general_related_products_sort'])) {
-			$newGeneralSettings['related_products_sort'] = $form_data['wps_settings_general_related_products_sort'];
+			$newGeneralSettings['related_products_sort'] = sanitize_text_field($form_data['wps_settings_general_related_products_sort']);
+
+			if ( empty($newGeneralSettings['related_products_sort']) ) {
+				$newGeneralSettings['related_products_sort'] = 'random';
+			}
 		}
 
 		if (isset($form_data['wps_settings_general_related_products_amount'])) {
-			$newGeneralSettings['related_products_amount'] = (int)$form_data['wps_settings_general_related_products_amount'];
+			$newGeneralSettings['related_products_amount'] = (int) $form_data['wps_settings_general_related_products_amount'];
 		}
 
 		if (isset($form_data['wps_settings_general_items_per_request'])) {
-			$newGeneralSettings['items_per_request'] = (int)$form_data['wps_settings_general_items_per_request'];
+			$newGeneralSettings['items_per_request'] = (int) $form_data['wps_settings_general_items_per_request'];
 		}
 
+
+
 		if (isset($form_data['wps_settings_general_add_to_cart_color'])) {
-			$newGeneralSettings['add_to_cart_color'] = (string) $form_data['wps_settings_general_add_to_cart_color'];
+			$newGeneralSettings['add_to_cart_color'] = (string) sanitize_text_field($form_data['wps_settings_general_add_to_cart_color']);
 		}
 
 		if (isset($form_data['wps_settings_general_variant_color'])) {
-			$newGeneralSettings['variant_color'] = (string) $form_data['wps_settings_general_variant_color'];
+			$newGeneralSettings['variant_color'] = (string) sanitize_text_field($form_data['wps_settings_general_variant_color']);
 		}
 
 		if (isset($form_data['wps_settings_general_checkout_button_color'])) {
-			$newGeneralSettings['checkout_color'] = (string) $form_data['wps_settings_general_checkout_button_color'];
+			$newGeneralSettings['checkout_color'] = (string) sanitize_text_field($form_data['wps_settings_general_checkout_button_color']);
 		}
 
 		if (isset($form_data['wps_settings_general_cart_icon_color'])) {
-			$newGeneralSettings['cart_icon_color'] = (string) $form_data['wps_settings_general_cart_icon_color'];
+			$newGeneralSettings['cart_icon_color'] = (string) sanitize_text_field($form_data['wps_settings_general_cart_icon_color']);
 		}
 
 		if (isset($form_data['wps_settings_general_cart_counter_color'])) {
-			$newGeneralSettings['cart_counter_color'] = (string) $form_data['wps_settings_general_cart_counter_color'];
+			$newGeneralSettings['cart_counter_color'] = (string) sanitize_text_field($form_data['wps_settings_general_cart_counter_color']);
 		}
 
 
@@ -237,8 +243,6 @@ class Settings_General extends \WPS\WS {
 		}
 
 
-
-
 		if (isset($form_data['wps_settings_products_images_sizing_toggle'])) {
 
 			if ($form_data['wps_settings_products_images_sizing_toggle'] === 'false') {
@@ -251,20 +255,39 @@ class Settings_General extends \WPS\WS {
 		}
 
 		if (isset($form_data['wps_settings_products_images_sizing_width'])) {
-			$newGeneralSettings['products_images_sizing_width'] = (int) $form_data['wps_settings_products_images_sizing_width'];
+			$newGeneralSettings['products_images_sizing_width'] = (int) sanitize_text_field($form_data['wps_settings_products_images_sizing_width']);
 		}
 
 		if (isset($form_data['wps_settings_products_images_sizing_height'])) {
-			$newGeneralSettings['products_images_sizing_height'] = (int) $form_data['wps_settings_products_images_sizing_height'];
+			$newGeneralSettings['products_images_sizing_height'] = (int) sanitize_text_field($form_data['wps_settings_products_images_sizing_height']);
+		}
+
+
+		if (isset($form_data['wps_settings_general_collections_heading'])) {
+			$newGeneralSettings['collections_heading'] = (string) sanitize_text_field($form_data['wps_settings_general_collections_heading']);
+		}
+
+		if (isset($form_data['wps_settings_general_products_heading'])) {
+			$newGeneralSettings['products_heading'] = (string) sanitize_text_field($form_data['wps_settings_general_products_heading']);
+		}
+
+		if (isset($form_data['wps_settings_general_related_products_heading'])) {
+			$newGeneralSettings['related_products_heading'] = (string) sanitize_text_field($form_data['wps_settings_general_related_products_heading']);
 		}
 
 
 		if (isset($form_data['wps_settings_products_images_sizing_crop'])) {
-			$newGeneralSettings['products_images_sizing_crop'] = (string) $form_data['wps_settings_products_images_sizing_crop'];
+			$newGeneralSettings['products_images_sizing_crop'] = (string) sanitize_text_field($form_data['wps_settings_products_images_sizing_crop']);
 		}
 
 		if (isset($form_data['wps_settings_products_images_sizing_scale'])) {
-			$newGeneralSettings['products_images_sizing_scale'] = (string) $form_data['wps_settings_products_images_sizing_scale'];
+
+			$newGeneralSettings['products_images_sizing_scale'] = (string) sanitize_text_field($form_data['wps_settings_products_images_sizing_scale']);
+
+			if ( empty($newGeneralSettings['products_images_sizing_scale']) ) {
+				$newGeneralSettings['products_images_sizing_scale'] = WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_SCALE;
+			}
+
 		}
 
 
@@ -281,21 +304,29 @@ class Settings_General extends \WPS\WS {
 
 		}
 
+
 		if (isset($form_data['wps_settings_collections_images_sizing_width'])) {
-			$newGeneralSettings['collections_images_sizing_width'] = (int) $form_data['wps_settings_collections_images_sizing_width'];
+			$newGeneralSettings['collections_images_sizing_width'] = (int) sanitize_text_field($form_data['wps_settings_collections_images_sizing_width']);
 		}
 
+
 		if (isset($form_data['wps_settings_collections_images_sizing_height'])) {
-			$newGeneralSettings['collections_images_sizing_height'] = (int) $form_data['wps_settings_collections_images_sizing_height'];
+			$newGeneralSettings['collections_images_sizing_height'] = (int) sanitize_text_field($form_data['wps_settings_collections_images_sizing_height']);
 		}
 
 
 		if (isset($form_data['wps_settings_collections_images_sizing_crop'])) {
-			$newGeneralSettings['collections_images_sizing_crop'] = (string) $form_data['wps_settings_collections_images_sizing_crop'];
+			$newGeneralSettings['collections_images_sizing_crop'] = (string) sanitize_text_field($form_data['wps_settings_collections_images_sizing_crop']);
 		}
 
 		if (isset($form_data['wps_settings_collections_images_sizing_scale'])) {
-			$newGeneralSettings['collections_images_sizing_scale'] = (string) $form_data['wps_settings_collections_images_sizing_scale'];
+
+			$newGeneralSettings['collections_images_sizing_scale'] = (string) sanitize_text_field($form_data['wps_settings_collections_images_sizing_scale']);
+
+			if ( empty($newGeneralSettings['collections_images_sizing_scale']) ) {
+				$newGeneralSettings['collections_images_sizing_scale'] = WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE;
+			}
+
 		}
 
 
@@ -313,25 +344,81 @@ class Settings_General extends \WPS\WS {
 		}
 
 		if (isset($form_data['wps_settings_related_products_images_sizing_width'])) {
-			$newGeneralSettings['related_products_images_sizing_width'] = (int) $form_data['wps_settings_related_products_images_sizing_width'];
+			$newGeneralSettings['related_products_images_sizing_width'] = (int) sanitize_text_field($form_data['wps_settings_related_products_images_sizing_width']);
 		}
 
 		if (isset($form_data['wps_settings_related_products_images_sizing_height'])) {
-			$newGeneralSettings['related_products_images_sizing_height'] = (int) $form_data['wps_settings_related_products_images_sizing_height'];
+			$newGeneralSettings['related_products_images_sizing_height'] = (int) sanitize_text_field($form_data['wps_settings_related_products_images_sizing_height']);
 		}
 
 
 		if (isset($form_data['wps_settings_related_products_images_sizing_crop'])) {
-			$newGeneralSettings['related_products_images_sizing_crop'] = (string) $form_data['wps_settings_related_products_images_sizing_crop'];
+
+			$newGeneralSettings['related_products_images_sizing_crop'] = (string) sanitize_text_field($form_data['wps_settings_related_products_images_sizing_crop']);
+
+			if ( empty($newGeneralSettings['related_products_images_sizing_crop']) ) {
+				$newGeneralSettings['related_products_images_sizing_crop'] = WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_CROP;
+			}
+
 		}
+
 
 		if (isset($form_data['wps_settings_related_products_images_sizing_scale'])) {
-			$newGeneralSettings['related_products_images_sizing_scale'] = (string) $form_data['wps_settings_related_products_images_sizing_scale'];
+
+			$newGeneralSettings['related_products_images_sizing_scale'] = (string) sanitize_text_field($form_data['wps_settings_related_products_images_sizing_scale']);
+
+			if ( empty($newGeneralSettings['related_products_images_sizing_scale']) ) {
+				$newGeneralSettings['related_products_images_sizing_scale'] = WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE;
+			}
+
 		}
 
 
+		if (isset($form_data['wps_settings_checkout_button_target'])) {
+
+			$newGeneralSettings['checkout_button_target'] = (string) sanitize_text_field($form_data['wps_settings_checkout_button_target']);
+
+			if ( empty($newGeneralSettings['checkout_button_target']) ) {
+				$newGeneralSettings['checkout_button_target'] = WPS_DEFAULT_CHECKOUT_BUTTON_TARGET;
+			}
+
+		}
 
 
+		if (isset($form_data['wps_settings_products_compare_at'])) {
+
+			if ($form_data['wps_settings_products_compare_at'] === 'false') {
+				$newGeneralSettings['products_compare_at'] = 0;
+
+			} else {
+				$newGeneralSettings['products_compare_at'] = 1;
+			}
+
+		}
+
+
+		if (isset($form_data['wps_settings_checkout_enable_custom_checkout_domain'])) {
+
+			if ($form_data['wps_settings_checkout_enable_custom_checkout_domain'] === 'false') {
+				$newGeneralSettings['enable_custom_checkout_domain'] = 0;
+
+			} else {
+				$newGeneralSettings['enable_custom_checkout_domain'] = 1;
+			}
+
+		}
+
+
+		if (isset($form_data['wps_settings_products_show_price_range'])) {
+
+			if ($form_data['wps_settings_products_show_price_range'] === 'false') {
+				$newGeneralSettings['products_show_price_range'] = 0;
+
+			} else {
+				$newGeneralSettings['products_show_price_range'] = 1;
+			}
+
+		}
 
 
 

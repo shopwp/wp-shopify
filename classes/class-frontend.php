@@ -170,7 +170,9 @@ class Frontend {
 					'settings'								=> [
 						'hasCurrencyCode' 						=> $this->Settings_General->get_price_with_currency(),
 						'enableCustomCheckoutDomain' 	=> $this->Settings_General->get_enable_custom_checkout_domain(),
-						'myShopifyDomain' 						=> $this->Settings_Connection->get_domain()
+						'myShopifyDomain' 						=> $this->Settings_Connection->get_domain(),
+						'checkoutButtonTarget'				=> $this->Settings_General->get_setting('checkout_button_target', 'string'),
+						'itemsLinkToShopify'					=> $this->Settings_General->get_setting('products_link_to_shopify', 'bool')
 					]
 				]
 			);

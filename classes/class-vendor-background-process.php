@@ -68,6 +68,51 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 
 	}
 
+
+
+	public function wp_cron_disabled() {
+
+	    global $wp_version;
+
+	    if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+	        return new \WP_Error( 'error', sprintf( __( 'The DISABLE_WP_CRON constant is set to true as of %s. WP-Cron is disabled and will not run on it\'s own.', 'wcsc' ), current_time( 'm/d/Y g:i:s a' ) ) );
+	    }
+
+	    if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
+	        return new \WP_Error( 'error', sprintf( __( 'The ALTERNATE_WP_CRON constant is set to true as of %s.  This plugin cannot determine the status of your WP-Cron system.', 'wcsc' ), current_time( 'm/d/Y g:i:s a' ) ) );
+	    }
+
+	    $sslverify     = version_compare( $wp_version, 4.0, '<' );
+	    $doing_wp_cron = sprintf( '%.22F', microtime( true ) );
+
+	    $cron_request = apply_filters( 'cron_request', array(
+	        'url'  => site_url( 'wp-cron.php?doing_wp_cron=' . $doing_wp_cron ),
+	        'key'  => $doing_wp_cron,
+	        'args' => array(
+	            'timeout'   => 3,
+	            'blocking'  => true,
+	            'sslverify' => apply_filters( 'https_local_ssl_verify', $sslverify ),
+	        ),
+	    ) );
+
+	    $cron_request['args']['blocking'] = true;
+	    $result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
+
+	    if ( is_wp_error( $result ) ) {
+	        return $result;
+	    } else if ( wp_remote_retrieve_response_code( $result ) >= 300 ) {
+	        return new \WP_Error( 'unexpected_http_response_code', sprintf(
+	            __( 'Unexpected HTTP response code: %s', 'wp-crontrol' ),
+	            intval( wp_remote_retrieve_response_code( $result ) )
+	        ) );
+	    }
+
+	}
+
+
+
+
+
 	/**
 	 * Dispatch
 	 *
@@ -120,7 +165,7 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 		$key = $this->generate_key();
 
 		if ( !empty( $this->data) ) {
-			update_site_option( $key, $this->before_queue_item_save($this->data) );
+			$updated_option = update_site_option( $key, $this->before_queue_item_save($this->data) );
 		}
 
 		return $this;
@@ -318,10 +363,6 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 			LIMIT 1
 		", $key ) );
 
-		// error_log('---- $query -----');
-		// error_log(print_r($query, true));
-		// error_log('---- /$query -----');
-
 		if (!is_object($query) || !isset($query, $column)) {
 			error_log('WP Shopify Error - get_batch query failed in some capacity');
 		}
@@ -377,6 +418,12 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 				}
 
 				if ( $this->time_exceeded() || $this->memory_exceeded() ) {
+
+					$result = $this->wp_cron_disabled();
+
+					if ( is_wp_error( $result ) ) {
+					  $result->get_error_message();
+					}
 
 					// Batch limits reached.
 					break;
@@ -435,6 +482,8 @@ abstract class Vendor_Background_Process extends \WPS\Vendor_Async_Request {
 
 	/**
 	 * Get memory limit
+	 *
+	 * always a 40M minimum
 	 *
 	 * @return int
 	 */

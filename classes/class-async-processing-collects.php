@@ -41,7 +41,7 @@ class Async_Processing_Collects extends Vendor_Background_Process {
 		}
 
 		// Actual work
-		$result = $this->DB_Collects->insert_items_of_type($collect);
+		$result = $this->DB_Collects->insert_items_of_type( $this->DB_Collects->mod_before_change($collect) );
 
 		if (is_wp_error($result)) {
 			$this->DB_Settings_Syncing->save_notice_and_stop_sync($result);

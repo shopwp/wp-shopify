@@ -39,6 +39,7 @@ class Async_Processing_Customers extends Vendor_Background_Process {
 		// Actual work
 		$result = $this->DB_Customers->insert_items_of_type($customer);
 
+
 		// Save warnings if exist ...
 		$this->DB_Settings_Syncing->maybe_save_warning_from_insert($result, 'Customer', $customer->id);
 

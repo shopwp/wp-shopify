@@ -145,9 +145,13 @@ class CPT {
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
 			'capability_type'     => 'post',
-			'rewrite'             => array(
+			'rewrite'             => [
 				'slug' => $permalink
-			)
+			],
+			'capabilities' => [
+			  'create_posts' => false
+			],
+			'map_meta_cap' => true
 		);
 
 		register_post_type(WPS_PRODUCTS_POST_TYPE_SLUG, $args);
@@ -207,10 +211,13 @@ class CPT {
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
 			'capability_type'     => 'post',
-			'rewrite'             => array(
+			'rewrite'             => [
 				'slug' => $permalink
-			)
-
+			],
+			'capabilities' => [
+			  'create_posts' => false
+			],
+			'map_meta_cap' => true
 		);
 
 		register_post_type(WPS_COLLECTIONS_POST_TYPE_SLUG, $args);

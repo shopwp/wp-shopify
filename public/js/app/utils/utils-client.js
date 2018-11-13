@@ -24,6 +24,7 @@ function getClient() {
 
 }
 
+
 function setClient(client) {
   WP_Shopify.client = client;
 }

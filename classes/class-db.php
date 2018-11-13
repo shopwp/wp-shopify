@@ -393,7 +393,7 @@ class DB {
 		$table_name = $this->get_table_name();
 		$results = [];
 
-		if ($this->table_exists($table_name)) {
+		if ( $this->table_exists($table_name) ) {
 
 			if (empty($row_id)) {
 
@@ -426,6 +426,7 @@ class DB {
 		$table_name = $this->get_table_name();
 
 		$column_name = esc_sql($column_name);
+
 		$query = "SELECT * FROM $table_name WHERE $column_name = %s LIMIT 1;";
 
 		$prepared = $wpdb->prepare($query, $column_value);
@@ -618,6 +619,10 @@ class DB {
 	public function has_existing_record($data) {
 
 		global $wpdb;
+
+		if ( !isset($data[$this->lookup_key]) ) {
+			return false;
+		}
 
 		$results = $this->get_row_by($this->lookup_key, $data[$this->lookup_key]);
 
@@ -945,15 +950,8 @@ class DB {
 			return $this->sanitize_db_response(false, 'Failed to update database record. Table does not exist.', 'update');
 		}
 
-
-		/*
-
-		TODO: Currently the below empty check is not working. Will fail silently.
-		The correct where format needs to be: ['primary_key_col', 'primary_key_value']
-
-		*/
 		if ( empty($where) ) {
-			$where = $this->primary_key;
+			return $this->sanitize_db_response(false, 'Failed to update database record. Where clause does not exist.', 'update');
 		}
 
 

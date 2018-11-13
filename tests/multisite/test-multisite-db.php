@@ -198,35 +198,4 @@ class Test_Multisite_DB extends WP_UnitTestCase {
 
   }
 
-
-  /*
-
-  Creates cusom tables for entire multisite
-
-  */
-	// function test_it_should_update_settings_only_for_one_site() {
-  //
-	// 	$value = self::$DB_Settings_General->related_products_amount();
-  //
-  //   error_log('---- before $value -----');
-  //   error_log(print_r($value, true));
-  //   error_log('---- /before $value -----');
-  //
-  //   // switch_to_blog(2);
-  //
-  //   $rrreesult = self::$DB_Settings_General->update_column_single( [ 'related_products_amount' => 10 ], [ 'id' => 1 ]);
-  //   $new_value = self::$DB_Settings_General->get();
-  //
-  //   error_log('---- $rrreesult -----');
-  //   error_log(print_r($rrreesult, true));
-  //   error_log('---- /$rrreesult -----');
-  //
-  //   error_log('---- $new_value -----');
-  //   error_log(print_r($new_value, true));
-  //   error_log('---- /$new_value -----');
-  //
-  //   // restore_current_blog();
-  //
-  // }
-
 }

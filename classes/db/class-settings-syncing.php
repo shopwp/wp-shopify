@@ -21,7 +21,7 @@ class Settings_Syncing extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
+	public $default_primary_key_value;
 	public $default_is_syncing;
 	public $default_syncing_totals_shop;
 	public $default_syncing_totals_smart_collections;
@@ -64,7 +64,6 @@ class Settings_Syncing extends \WPS\DB {
 		$this->cache_group     																			= 'wps_db_syncing';
 		$this->type     																						= 'settings_syncing';
 
-		$this->default_id 																					= 0;
 		$this->default_is_syncing 																	= 0;
 		$this->default_syncing_step_total 													= 0;
 		$this->default_syncing_step_current 												= 0;
@@ -128,7 +127,7 @@ class Settings_Syncing extends \WPS\DB {
 			'finished_product_posts_relationships'					=> '%d',
 			'finished_collection_posts_relationships'				=> '%d',
 			'finished_data_deletions'												=> '%d',
-			'published_product_ids'															=> '%s'
+			'published_product_ids'													=> '%s'
 		];
 
 	}
@@ -137,7 +136,6 @@ class Settings_Syncing extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                        										=> $this->default_id,
 			'is_syncing'                										=> $this->default_is_syncing,
 			'syncing_totals_shop'														=> $this->default_syncing_totals_shop,
 			'syncing_totals_smart_collections'							=> $this->default_syncing_totals_smart_collections,
@@ -419,7 +417,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function reset_syncing_published_product_ids() {
-		return $this->update_column_single(['published_product_ids' => NULL], ['id' => 1]);
+		return $this->update_column_single(['published_product_ids' => ''], ['id' => 1]);
 	}
 
 
@@ -907,7 +905,10 @@ class Settings_Syncing extends \WPS\DB {
 		$published_product_ids = $this->get_column_single('published_product_ids');
 
 		if ( Utils::array_not_empty($published_product_ids) && isset($published_product_ids[0]->published_product_ids) ) {
-			return maybe_unserialize($published_product_ids[0]->published_product_ids);
+
+			$pub_ids = $published_product_ids[0]->published_product_ids;
+
+			return maybe_unserialize($pub_ids);
 
 		} else {
 			return [];
@@ -1140,6 +1141,7 @@ class Settings_Syncing extends \WPS\DB {
 
 
 	public function reset_all_syncing_status() {
+
 		$this->reset_webhooks_deletions_status();
 		$this->reset_data_deletions_status();
 		$this->reset_posts_relationships_status();

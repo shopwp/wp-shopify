@@ -11,6 +11,7 @@ import has from 'lodash/has';
 import merge from 'lodash/merge';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import toString from 'lodash/toString';
 
 
 import {
@@ -58,8 +59,8 @@ import {
   removeProductOptionIds,
   setCurrentlySelectedVariants,
   getCurrentlySelectedVariants,
-  setFromPricing,
-  getFromPricing,
+  cacheInitialPricing,
+  getInitialPricing,
   addLineItems,
   getCheckoutID,
   getProductByHandle,
@@ -153,14 +154,21 @@ function resetSingleProductVariantSelector($addToCartButton) {
 
 
 
+function selectedOptionSameAsProvided(selected, provided) {
+  return toString(selected) === toString(provided);
+}
+
+
 
 
 function variantForOptions(product, options) {
-  return product.variants.find((variant) => {
+
+  return product.variants.find( variant => {
     return variant.selectedOptions.every((selectedOption) => {
-      return options[selectedOption.name] === selectedOption.value.valueOf();
+      return selectedOptionSameAsProvided(options[selectedOption.name], selectedOption.value.valueOf());
     });
   });
+
 }
 
 
@@ -196,6 +204,7 @@ function resetVariantSelection($addToCartButton) {
   resetVariantSelectors(); // Resets DOM related to selecting options
   resetSingleProductVariantSelector($addToCartButton);
   enable($addToCartButton);
+  toggleCompareAtPricing($addToCartButton);
 }
 
 
@@ -252,7 +261,6 @@ function onProductAddToCart(client) {
     showLoader($addToCartButton);
     disable($addToCartButton);
     showHiddenProductVariants();
-
 
 
     var [productError, product] = await to( getProductByHandle(client, productHandle) );
@@ -314,7 +322,6 @@ function onProductAddToCart(client) {
     }
 
 
-
     var { checkoutId, lineItems } = getAddLineItemsConfig(variant, productQuantity);
 
 
@@ -356,7 +363,9 @@ function onProductAddToCart(client) {
     updateCartCounter(client, checkout);
 
     resetVariantSelection($addToCartButton);
-    showVariantPrice( getFromPricing(), $container );
+
+
+    resetVariantPrice( getInitialPricing(productHandle), $container );
 
 
     if ( checkoutConditionsMet() ) {
@@ -649,14 +658,28 @@ function emptyPriceDOM($metaContainer) {
 }
 
 
-function showVariantPrice(price, $metaContainer) {
+function updateVariantPrice(price, $metaContainer) {
 
   if (price) {
 
     emptyPriceDOM($metaContainer);
 
-    $metaContainer.parent().find('.wps-products-price')
-      .append('<span itemprop="price" class="wps-product-individual-price">' + price + '</span>');
+    var $priceElement = $metaContainer.parent().find('.wps-products-price:not([data-compare-at="1"])');
+
+    $priceElement.append('<span itemprop="price" class="wps-product-individual-price">' + price + '</span>');
+
+  }
+
+
+}
+
+
+function resetVariantPrice(priceHTML, $metaContainer) {
+
+
+  if (priceHTML) {
+
+    $metaContainer.parent().find('> .wps-product-pricing').replaceWith(priceHTML);
 
   }
 
@@ -700,7 +723,7 @@ function constructVariantSelectorFromMatch($dropdown, availableMatch) {
 
 /*
 
-Handles showing / hiding the appropriate varints depending on what
+Handles showing / hiding the appropriate variants depending on what
 the user currently has seleected.
 
 Param   => selectedVariant    => Object             => { option1: "Extra Small" }
@@ -998,8 +1021,10 @@ function onProductVariantChange() {
 
       showVariantImage(foundVariant.variant_id);
 
-      setFromPricing();
-      showVariantPrice( formatAsMoney(foundVariant.price), $newProductMetaContainer );
+      toggleCompareAtPricing($newProductMetaContainer);
+
+
+      updateVariantPrice( formatAsMoney(foundVariant.price), $newProductMetaContainer );
 
 
       pulseSoft($addToCartButton);
@@ -1020,7 +1045,15 @@ function onProductVariantChange() {
 }
 
 
+function toggleCompareAtPricing($newProductMetaContainer) {
 
+  var $oo = $newProductMetaContainer.closest('.wps-product-info').find('.wps-products-price[data-compare-at="1"]');
+
+  if ($oo.length) {
+    $oo.toggle();
+  }
+
+}
 
 
 

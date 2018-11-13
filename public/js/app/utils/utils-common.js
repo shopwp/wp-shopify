@@ -8,7 +8,7 @@ import isUndefined from 'lodash/isUndefined';
 import filter from 'lodash/filter';
 import values from 'lodash/values';
 import replace from 'lodash/replace';
-
+import trim from 'lodash/trim';
 
 import {
   cartIsOpen
@@ -230,7 +230,7 @@ function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, 
   if (moneyFormat) {
 
     var extractedMoneyFormat = new RegExp(extractedMoneyFormat, "g");
-    var finalPrice = moneyFormat.replace(extractedMoneyFormat, formattedMoney);
+    var finalPrice = trim(moneyFormat).replace(extractedMoneyFormat, formattedMoney);
 
     finalPrice = finalPrice.replace(/{{/g, '');
     finalPrice = finalPrice.replace(/}}/g, '');
@@ -280,10 +280,15 @@ Format product price into format from Shopify
 
 */
 function formatAsMoney(amount) {
-  return formatTotalAmount(amount, getMoneyFormat( getShop() ) );
+  return formatTotalAmount( trim(amount), getMoneyFormat( getShop() ) );
 }
 
 
+/*
+
+Comes from Shopify
+
+*/
 function maybeAddCurrencyCodeToMoney(formatWithRealAmount) {
 
   if ( hasCurrencyCode() ) {
@@ -309,6 +314,8 @@ function formatTotalAmount(amount, moneyFormat) {
   var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
   var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
   var formatWithRealAmount = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
+
+  formatWithRealAmount = formatWithRealAmount.replace(/ /g,'');
 
   return maybeAddCurrencyCodeToMoney(formatWithRealAmount);
 
@@ -376,7 +383,14 @@ function swapDomains(stringToModify, domainOne, domainTwo) {
   return replace(stringToModify, domainOne, domainTwo);
 }
 
+/*
 
+Element Exist
+
+*/
+function elementExists($element) {
+  return $element.length;
+}
 
 export {
   createSelector,
@@ -388,5 +402,6 @@ export {
   update,
   formatTotalAmount,
   containsInvalidLineItemProps,
-  swapDomains
+  swapDomains,
+  elementExists
 };

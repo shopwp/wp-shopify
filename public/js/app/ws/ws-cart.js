@@ -140,88 +140,6 @@ function createLineItemsFromVariants(options, client) {
 }
 
 
-/*
-
-Only caches if needed ...
-TODO: Currently not used
-
-*/
-function updateCheckoutCache(checkout) {
-
-  return new Promise(async function(resolve, reject) {
-
-    try {
-
-      var checkoutCacheResp = await setCheckoutCache(checkout.id);
-
-      resolve(checkoutCacheResp);
-
-    } catch (error) {
-      reject(error);
-
-    }
-
-  });
-
-}
-
-
-/*
-
-flushCacheIfNeeded
-
-TODO: Not currently used
-
-*/
-function flushCacheIfNeeded(client, checkout) {
-
-  return new Promise( async (resolve, reject) => {
-
-    // Calls LS
-    const currentCartID = getCheckoutID();
-
-    if (!currentCartID) {
-      await to( flushCache(client, checkout) );
-      setCheckout(checkout);
-      resolve();
-    }
-
-
-    var [flushError, transientFound] = await to( needsCacheFlush(currentCartID) ); // only called here
-
-    if (flushError) {
-      await to( flushCache(client, checkout) );
-      setCheckout(checkout);
-      resolve();
-    }
-
-
-    // If a new checkout exists (user cleared cache or finished checking out)
-    if (!transientFound) {
-
-      await flushCache(client, checkout);
-      setCheckout(checkout);
-
-    }
-
-    resolve();
-
-  });
-
-}
-
-
-// function getLineItemFromProductHandle(checkout, handle) {
-//
-// return checkout.lineItems.find((lineItem) => {
-//   return lineItem.selectedOptions.every((selectedOption) => {
-//     return options[selectedOption.name] === selectedOption.value.valueOf();
-//   });
-// });
-//
-// }
-
-
 function cartTermsState() {
 
   var cartTermsState = localStorage.getItem('wps-cart-terms-accepted');
@@ -243,8 +161,6 @@ export {
   getCheckout,
   createCheckout,
   setCheckout,
-  updateCheckoutCache,
-  flushCacheIfNeeded,
   createLineItemsFromVariants,
   getCheckoutID,
   createLineItemsMarkup,

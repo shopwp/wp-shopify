@@ -3,7 +3,7 @@ import { shopifyInit, formatCredsFromServer, findShopifyCreds } from '../ws/ws-a
 import { getCheckout, setCheckout, checkoutCompleted, createCheckout } from '../ws/ws-cart';
 import { getShopInfo, setShop } from '../ws/ws-shop';
 import { productEvents } from '../products/products-events';
-import { showProductsMetaUI } from '../products/products-ui';
+import { showProductsMetaUI, cacheInitialProductPricing } from '../products/products-ui';
 import { resetVariantSelectors } from '../products/products-meta';
 import { cartEvents } from '../cart/cart-events';
 import { isCheckoutEmpty, clearLS } from './utils-cart';
@@ -39,6 +39,7 @@ function bootstrapProductsUI(client, checkout) {
   removeProductOptionIds();
   resetVariantSelectors(); // Resets DOM related to selecting options
   showProductsMetaUI();
+  cacheInitialProductPricing();
 }
 
 
@@ -143,6 +144,7 @@ function bootstrap() {
       checkout = newCheckout;
 
     }
+
 
     cacheGlobalObjects(shop, checkout);
 

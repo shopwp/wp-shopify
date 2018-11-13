@@ -194,12 +194,12 @@ class Admin_Notices {
 	*/
 	public function cache_admin_notice_dismissal() {
 
-		$noticeDismissal = $_POST['dismiss_name'];
+		$notice_dismissal = $_POST['dismiss_name'];
 
-		if ($noticeDismissal) {
+		if ($notice_dismissal) {
 
-			$trasnientsSet = Transients::set("wps_admin_dismissed_{$noticeDismissal}", true, 0);
-			$this->WS->send_success($trasnientsSet);
+			$trasnients_set = Transients::set("wps_admin_dismissed_{$notice_dismissal}", true, 0);
+			$this->WS->send_success($trasnients_set);
 
 		}
 

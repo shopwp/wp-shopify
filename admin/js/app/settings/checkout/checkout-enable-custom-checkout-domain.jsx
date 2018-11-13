@@ -16,21 +16,14 @@ import to from 'await-to-js';
 class ToggleCustomCheckoutDomain extends React.Component {
 
 	state = {
-		submitElement: jQuery("#submitSettings"),
 		checked: toBoolean(WP_Shopify.settings.enableCustomCheckoutDomain)
 	}
 
-	onToggle = async state => {
+	onUpdateHandle = state => {
 
-		this.setState( state => ( { checked: !this.state.checked } ) );
-
-		showLoader(this.state.submitElement);
-
-		var [updateError, updateResponse] = await to( updateSettingCheckoutEnableCustomCheckoutDomain({ value: !this.state.checked }) );
-
-		showNotice(updateError, updateResponse);
-
-    hideLoader(this.state.submitElement);
+		this.setState({
+			checked: !this.state.checked
+		});
 
 	}
 
@@ -40,7 +33,7 @@ class ToggleCustomCheckoutDomain extends React.Component {
     return (
 			<CheckboxControl
         checked={ this.state.checked }
-        onChange={ this.onToggle }
+        onChange={ this.onUpdateHandle }
     	/>
     );
 

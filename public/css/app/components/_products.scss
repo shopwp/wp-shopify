@@ -632,3 +632,39 @@ WP Shopify namespaced styles go here
 .wps-product-individual-price-format {
   margin-left: 7px;
 }
+
+.wps-products-price[data-compare-at="1"] {
+  text-decoration: line-through;
+  margin: 0;
+  padding: 0;
+
+  + .wps-products-price {
+
+  }
+
+  &:before {
+    display: none;
+  }
+
+}
+
+
+.wps-price-wrapper {
+  justify-content: center;
+
+  .wps-products-price {
+    margin-top: 0;
+    padding-top: 0;
+
+    &[data-compare-at="1"] {
+      margin-right: 12px;
+      opacity: 0.5;
+    }
+
+    &:before {
+      display: none;
+    }
+
+  }
+
+}

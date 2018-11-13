@@ -37,7 +37,7 @@ class CPT_Query {
 
 	*/
 	public function construct_posts_col_names_as_string() {
-		return "(ID, post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent, guid, menu_order, post_type, post_mime_type, comment_count)";
+		return "(post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent, guid, menu_order, post_type, post_mime_type, comment_count)";
 	}
 
 
@@ -171,7 +171,7 @@ class CPT_Query {
 				$values_string .=',';
 			}
 
-			$post_id 									= esc_sql( $this->return_post_id($post) );
+			//$post_id 									= esc_sql( $this->return_post_id($post) );
 			$post_author_id 					= esc_sql( CPT::return_author_id() );
 			$post_date 								= esc_sql( $this->return_post_date() );
 			$post_date_gmt 						= esc_sql( $this->return_post_date_gmt() );
@@ -196,7 +196,6 @@ class CPT_Query {
 			$comment_count 						= esc_sql( $this->return_comment_count() );
 
 			$values_string .= "(" .
-				"'" . $post_id . "', " .
 				"'" . $post_author_id . "', " .
 				"'" . $post_date . "', " .
 				"'" . $post_date_gmt . "', " .
@@ -224,39 +223,6 @@ class CPT_Query {
 		}
 
 		return $values_string;
-
-	}
-
-
-	/*
-
-	Construct postmeta col values as string
-	TODO: Currently not used
-
-	*/
-	public function construct_postmeta_col_values_as_string($posts, $post_type) {
-
-		$index = 0;
-		$values_string = '';
-
-		foreach ($posts as $post) {
-
-			$index++;
-
-			if ($index > 1) {
-				$values_string .=',';
-			}
-
-			$values_string .= "(" .
-				"'" . esc_sql( intval(0) ) . "', " .
-				"'" . esc_sql( intval($post->ID) ) . "', " .
-				"'" . esc_sql( sanitize_text_field($post_type . '_id') ) . "', " .
-				"'" . esc_sql( intval($post['meta_input'][$post_type . '_id']) ) . "', " .
-			")";
-
-		}
-
-		return $results;
 
 	}
 

@@ -185,6 +185,7 @@ function onResyncSubmit() {
 
       var [removeExistingDataError, removeExistingDataResponse] = await to( removeExistingData() );
 
+
       if (removeExistingDataError) {
         cleanUpAfterSync( syncingConfigJavascriptError(removeExistingDataError) );
         resolve();

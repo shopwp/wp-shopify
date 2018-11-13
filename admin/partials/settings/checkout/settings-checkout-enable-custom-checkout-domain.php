@@ -16,7 +16,9 @@ Enable custom checkout domain
         </th>
 
         <td class="forminp forminp-text wps-checkbox-row-input">
-          <div id="wps-enable-custom-checkout-domain"></div>
+          <div id="wps-enable-custom-checkout-domain">
+            <span class="wps-placeholder wps-placeholder-checkbox"></span>
+          </div>
         </td>
 
       </tr>

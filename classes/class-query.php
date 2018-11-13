@@ -353,7 +353,7 @@ class Query {
 
 				if ( Utils::is_collections_sorted($args) ) {
 
-					$wps_products = Utils::sort_posts_by_position($products_query->posts);
+					$wps_products = Utils::sort_items_by_position($products_query->posts);
 
 				} else if ( Utils::is_manually_sorted($args) ) {
 					$wps_products = Utils::manually_sort_posts_by_title($args['custom']['titles'], $products_query->posts);

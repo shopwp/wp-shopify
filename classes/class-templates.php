@@ -186,6 +186,7 @@ class Templates {
 		$image = Images::get_image_details_from_product($product);
 		$data = [];
 
+
 		if ( !Images::has_placeholder($image->src) ) {
 
 			// If single, then we're on the related products section
@@ -260,13 +261,20 @@ class Templates {
 	Responsible for getting data for a multple prices
 
 	*/
-	public function gather_multi_price_template_data($price_markup, $price_first, $price_last, $product) {
+	public function gather_multi_price_template_data($price_markup, $params) {
 
 		return [
-			'price'				=> $price_markup,
-			'price_first' => $price_first,
-			'price_last' 	=> $price_last,
-			'product' 		=> $product
+			'price'										=> $price_markup,
+			'price_last' 							=> isset($params['last_price']) ? $params['last_price'] : false, // legacy
+			'price_first' 						=> isset($params['first_price']) ? $params['first_price'] : false, // legacy
+			'product' 								=> isset($params['product']) ? $params['product'] : false,
+			'showing_compare_at' 			=> isset($params['showing_compare_at']) ? $params['showing_compare_at'] : false,
+			'showing_price_range' 		=> isset($params['showing_price_range']) ? $params['showing_price_range'] : false,
+			'variants_amount' 				=> isset($params['variants_amount']) ? $params['variants_amount'] : false,
+			'first_price' 						=> isset($params['first_price']) ? $params['first_price'] : false,
+			'first_price_formatted' 	=> isset($params['first_price_formatted']) ? $params['first_price_formatted'] : false,
+			'last_price' 							=> isset($params['last_price']) ? $params['last_price'] : false,
+			'last_price_formatted' 		=> isset($params['last_price_formatted']) ? $params['last_price_formatted'] : false
 		];
 
 	}
@@ -277,11 +285,18 @@ class Templates {
 	Responsible for getting data for a single price
 
 	*/
-	public function gather_single_price_data($price, $product) {
+	public function gather_single_price_data($params) {
 
 		return [
-			'price'		=> $price,
-			'product' => $product
+			'price'										=> isset($params['first_price_formatted']) ? $params['first_price_formatted'] : false,
+			'product' 								=> isset($params['product']) ? $params['product'] : false,
+			'showing_compare_at' 			=> isset($params['showing_compare_at']) ? $params['showing_compare_at'] : false,
+			'showing_price_range' 		=> isset($params['showing_price_range']) ? $params['showing_price_range'] : false,
+			'variants_amount' 				=> isset($params['variants_amount']) ? $params['variants_amount'] : false,
+			'first_price' 						=> isset($params['first_price']) ? $params['first_price'] : false,
+			'first_price_formatted' 	=> isset($params['first_price_formatted']) ? $params['first_price_formatted'] : false,
+			'last_price' 							=> isset($params['last_price']) ? $params['last_price'] : false,
+			'last_price_formatted' 		=> isset($params['last_price_formatted']) ? $params['last_price_formatted'] : false
 		];
 
 	}
@@ -292,8 +307,141 @@ class Templates {
 	Responsible for getting markup for multiple prices
 
 	*/
-	public function get_multi_price_markup($price_first, $price_last) {
-		return apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">' . esc_html__('From: ', WPS_PLUGIN_TEXT_DOMAIN) . '</small>') . apply_filters('wps_products_price_multi_first', $price_first) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $price_last);
+	public function get_multi_price_markup($first_price, $last_price) {
+
+		return apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">' . esc_html__('From: ', WPS_PLUGIN_TEXT_DOMAIN) . '</small>') . apply_filters('wps_products_price_multi_first', $first_price) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $last_price);
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public function wps_products_price_wrapper_start() {
+		return $this->Template_Loader->set_template_data([])->get_template_part( 'partials/products/add-to-cart/price-wrapper', 'start' );
+	}
+
+	public function wps_products_price_wrapper_end() {
+		return $this->Template_Loader->set_template_data([])->get_template_part( 'partials/products/add-to-cart/price-wrapper', 'end' );
+	}
+
+
+
+
+
+
+	public function get_pricing_template($params) {
+
+		if ( $params['showing_price_range'] && $this->Money->has_more_than_one_price($params['variants_amount']) ) {
+
+			if ( $this->DB_Variants->check_if_all_variant_prices_match($params['last_price'], $params['first_price']) ) {
+
+				$data = $this->gather_single_price_data($params);
+
+				return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'one' );
+
+
+			} else {
+
+				$price_markup = $this->get_multi_price_markup($params['first_price_formatted'], $params['last_price_formatted']);
+
+				$data = $this->gather_multi_price_template_data($price_markup, $params);
+
+				return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'multi' );
+
+			}
+
+
+		} else {
+
+			$data = $this->gather_single_price_data($params);
+
+			return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'one' );
+
+		}
+
+
+	}
+
+
+
+
+
+
+	public function get_range_pricing_params($variants_in_stock, $product, $showing_compare_at) {
+
+		$variants_amount 					= $this->DB_Variants->get_variants_amount($variants_in_stock);
+
+		if ( $showing_compare_at ) {
+
+			$variants_sorted 					= $this->DB_Variants->sort_variants_by_compare_at_price($variants_in_stock);
+			$first_price 							= $this->DB_Variants->get_first_variant_compare_at_price($variants_sorted);
+			$last_price 							= $this->DB_Variants->get_last_variant_compare_at_price($variants_sorted, Utils::get_last_index($variants_amount) );
+
+		} else {
+
+			$variants_sorted 					= $this->DB_Variants->sort_variants_by_price($variants_in_stock);
+			$first_price 							= $this->DB_Variants->get_first_variant_price($variants_sorted);
+			$last_price 							= $this->DB_Variants->get_last_variant_price($variants_sorted, Utils::get_last_index($variants_amount) );
+
+		}
+
+		return [
+			'showing_compare_at'			=> $showing_compare_at,
+			'showing_price_range'			=> true,
+			'variants_amount' 				=> $variants_amount,
+			'first_price' 						=> $first_price,
+			'first_price_formatted' 	=> $this->Money->format_price($first_price, $product->product_id),
+			'last_price' 							=> $last_price,
+			'last_price_formatted' 		=> $this->Money->format_price($last_price, $product->product_id),
+			'product'									=> $product
+		];
+
+	}
+
+
+
+
+	public function get_single_pricing_params($variants_in_stock, $product, $showing_compare_at) {
+
+		$variants_amount = $this->DB_Variants->get_variants_amount($variants_in_stock);
+
+		if ( $showing_compare_at ) {
+
+			$first_price 							= $this->DB_Variants->get_first_variant_compare_at_price($variants_in_stock);
+			$last_price 							= $this->DB_Variants->get_last_variant_compare_at_price($variants_in_stock, Utils::get_last_index($variants_amount) );
+
+		} else {
+
+			$first_price 							= $this->DB_Variants->get_first_variant_price($variants_in_stock);
+			$last_price 							= $this->DB_Variants->get_last_variant_price($variants_in_stock, Utils::get_last_index($variants_amount) );
+
+		}
+
+		$first_price_formatted 		= $this->Money->format_price($first_price, $product->product_id);
+		$last_price_formatted 		= $this->Money->format_price($last_price, $product->product_id);
+
+		return [
+			'showing_compare_at'			=> $showing_compare_at,
+			'showing_price_range'			=> false,
+			'variants_amount' 				=> $variants_amount,
+			'first_price' 						=> $first_price,
+			'first_price_formatted' 	=> $first_price_formatted,
+			'last_price' 							=> $last_price,
+			'last_price_formatted' 		=> $last_price_formatted,
+			'product'									=> $product
+		];
+
 	}
 
 
@@ -302,50 +450,89 @@ class Templates {
 	Template: partials/products/loop/item-price
 
 	*/
-	public function wps_products_price($product) {
+	public function wps_products_price($product, $showing_compare_at = false) {
 
-		$product = Utils::convert_array_to_object($product);
+		$product 									= Utils::convert_array_to_object($product);
+		$post_id 									= $this->DB_Products->get_post_id_from_product($product);
+		$variants_in_stock 				= $this->DB_Variants->get_all_variants_from_post_id($post_id);
+		$showing_price_range 			= $this->DB_Settings_General->get_products_show_price_range();
 
-		$post_id 								= $this->DB_Products->get_post_id_from_product($product);
-		$variants_in_stock 			= $this->DB_Variants->get_all_variants_from_post_id($post_id);
-		$variants_amount 				= $this->DB_Variants->get_variants_amount($variants_in_stock);
-		$variants_sorted 				= $this->DB_Variants->sort_variants_by_price($variants_in_stock);
-
-		$first_price 						= $this->DB_Variants->get_first_variant_price($variants_sorted);
-		$last_price 						= $this->DB_Variants->get_last_variant_price($variants_sorted, Utils::get_last_index($variants_amount) );
-
-		$first_price_formatted 	= $this->Money->format_price($first_price, $product->product_id);
-		$last_price_formatted 	= $this->Money->format_price($last_price, $product->product_id);
-
-
-		if ( $this->Money->has_more_than_one_price($variants_amount) ) {
-
-			if ( $this->DB_Variants->check_if_all_variant_prices_match($last_price, $first_price) ) {
-
-				$data = $this->gather_single_price_data($first_price_formatted, $product);
-
-				return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'one' );
-
-			} else {
-
-				$price_markup = $this->get_multi_price_markup($first_price_formatted, $last_price_formatted);
-
-				$data = $this->gather_multi_price_template_data($price_markup, $first_price_formatted, $last_price_formatted, $product);
-
-				return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'multi' );
-
-			}
+		if ( $showing_price_range ) {
+			$params = $this->get_range_pricing_params($variants_in_stock, $product, $showing_compare_at);
 
 		} else {
 
-			$data = $this->gather_single_price_data($first_price_formatted, $product);
-
-			return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/price', 'one' );
+			$params = $this->get_single_pricing_params($variants_in_stock, $product, $showing_compare_at);
 
 		}
 
+		return $this->get_pricing_template([
+			'showing_compare_at' 			=> $showing_compare_at,
+			'showing_price_range' 		=> $params['showing_price_range'],
+			'variants_amount' 				=> $params['variants_amount'],
+			'last_price' 							=> $params['last_price'],
+			'last_price_formatted' 		=> $params['last_price_formatted'],
+			'first_price' 						=> $params['first_price'],
+			'first_price_formatted' 	=> $params['first_price_formatted'],
+			'product' 								=> $params['product']
+		]);
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	/*
@@ -454,7 +641,7 @@ class Templates {
 
 		$button_color = apply_filters( 'wps_products_variant_button_color', $this->DB_Settings_General->get_variant_color() );
 
-		// Only show product options if more than one variant exists, otherwise just shoe add to cart button
+		// Only show product options if more than one variant exists, otherwise just show add to cart button
 		if (count($product->variants) > 1) {
 
 			$data = [
@@ -1411,11 +1598,13 @@ class Templates {
 	*/
 	public function wps_cart_checkout_btn() {
 
-		$button_color = apply_filters( 'wps_products_checkout_button_color', $this->DB_Settings_General->get_checkout_color() );
+		$button_color = apply_filters( 'wps_products_checkout_button_color', $this->DB_Settings_General->get_setting('checkout_color', 'string') );
+		$button_target = apply_filters( 'wps_cart_checkout_button_target', $this->DB_Settings_General->get_setting('checkout_button_target', 'string') );
 
 		$data = [
 			'checkout_base_url' => WPS_CHECKOUT_BASE_URL,
-			'button_color'			=> $button_color !== WPS_DEFAULT_VARIANT_COLOR ? $button_color : ''
+			'button_color'			=> $button_color !== WPS_DEFAULT_VARIANT_COLOR ? $button_color : '',
+			'button_target'			=> $button_target
 		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/cart/cart-button', 'checkout' );
@@ -1946,6 +2135,11 @@ class Templates {
 		add_action('wps_products_img', [$this, 'wps_products_img']);
 		add_action('wps_products_title', [$this, 'wps_products_title']);
 		add_action('wps_products_price', [$this, 'wps_products_price']);
+		add_action('wps_products_compare_at_price', [$this, 'wps_products_price'], 10, 2);
+
+		add_action('wps_products_price_wrapper_start', [$this, 'wps_products_price_wrapper_start']);
+		add_action('wps_products_price_wrapper_end', [$this, 'wps_products_price_wrapper_end']);
+
 		add_action('wps_products_no_results', [$this, 'wps_products_no_results']);
 		add_action('wps_products_add_to_cart', [$this, 'wps_products_add_to_cart']);
 		add_action('wps_products_meta_start', [$this, 'wps_products_meta_start']);
@@ -1980,6 +2174,9 @@ class Templates {
 
 		add_filter('wps_products_pagination_start', [$this, 'wps_products_pagination_start']);
 		add_filter('wps_products_pagination_end', [$this, 'wps_products_pagination_end']);
+
+
+
 
 		/*
 

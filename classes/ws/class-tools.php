@@ -25,7 +25,7 @@ class Tools extends \WPS\WS {
 	Clear Cache
 
 	Once this point is reached, all the data has been synced.
-	set_transident allows for /products and /collections permalinks to work
+	set_transient allows for /products and /collections permalinks to work
 
 	Does not save errors / warnings to DB. Passes them to client directly.
 

@@ -14,8 +14,10 @@ Related products heading toggle
           <span class="wps-help-tip" title="<?php esc_attr_e( 'Hide / show the heading within the related products section.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
-        <td class="forminp forminp-text">
-          <div id="wps-settings-related-products-heading-toggle"></div>
+        <td class="">
+          <div id="wps-settings-related-products-heading-toggle">
+            <span class="wps-placeholder wps-placeholder-toggle"></span>
+          </div>
         </td>
 
       </tr>

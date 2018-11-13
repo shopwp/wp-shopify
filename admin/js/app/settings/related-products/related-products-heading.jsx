@@ -17,8 +17,7 @@ class RelatedProductsHeading extends React.Component {
 
   state = {
     value: WP_Shopify.settings.relatedProductsHeading,
-    valueHasChanged: false,
-    submitButton: jQuery("#submitSettings")
+    valueHasChanged: false
   }
 
   updateValue = newValue => {
@@ -39,15 +38,6 @@ class RelatedProductsHeading extends React.Component {
     if (!this.state.valueHasChanged) {
       return this.state.value;
     }
-
-    showLoader(this.state.submitButton);
-
-    // Updates DB with the new color
-    var [updateError, updateResponse] = await to( updateSettingRelatedProductsHeading({ value: this.state.value }) );
-
-    showNotice(updateError, updateResponse);
-
-    hideLoader(this.state.submitButton);
 
   }
 

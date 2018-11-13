@@ -14,8 +14,10 @@ Products Heading
           <span class="wps-help-tip" title="<?php esc_attr_e( 'Changes the heading within the related products section', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
-        <td class="forminp forminp-text">
-          <div id="wps-settings-related-products-heading"></div>
+        <td class="wps-input">
+          <div id="wps-settings-related-products-heading">
+            <span class="wps-placeholder wps-placeholder-input"></span>
+          </div>
         </td>
 
       </tr>

@@ -141,7 +141,6 @@ class Test_DB_General extends WP_UnitTestCase {
   function test_it_should_have_default_values() {
 
     $this->assertObjectHasAttribute('default_webhooks', self::$DB_Settings_General);
-    $this->assertObjectHasAttribute('default_id', self::$DB_Settings_General);
     $this->assertObjectHasAttribute('default_plugin_version', self::$DB_Settings_General);
     $this->assertObjectHasAttribute('default_plugin_author', self::$DB_Settings_General);
     $this->assertObjectHasAttribute('default_plugin_textdomain', self::$DB_Settings_General);
@@ -199,6 +198,8 @@ class Test_DB_General extends WP_UnitTestCase {
   	$this->assertObjectHasAttribute('default_related_products_images_sizing_height', self::$DB_Settings_General);
   	$this->assertObjectHasAttribute('default_related_products_images_sizing_crop', self::$DB_Settings_General);
   	$this->assertObjectHasAttribute('default_related_products_images_sizing_scale', self::$DB_Settings_General);
+    $this->assertObjectHasAttribute('default_enable_custom_checkout_domain', self::$DB_Settings_General);
+    $this->assertObjectHasAttribute('default_products_compare_at', self::$DB_Settings_General);
 
   }
 
@@ -228,11 +229,14 @@ class Test_DB_General extends WP_UnitTestCase {
   */
   function test_it_should_match_default_values_and_cols_amount() {
 
-    $cols_count = count( self::$DB_Settings_General->get_columns() );
-    $default_cols_count = count( self::$DB_Settings_General->get_column_defaults() );
+    $cols = self::$DB_Settings_General->get_columns();
+    $default_cols = self::$DB_Settings_General->get_column_defaults();
 
-    $this->assertEquals($cols_count, $default_cols_count);
+    $col_difference = array_diff_key($cols, $default_cols);
 
+    $this->assertCount(1, $col_difference);
+    $this->assertArrayHasKey('id', $col_difference);
+    
   }
 
 }

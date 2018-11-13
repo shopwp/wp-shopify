@@ -2,10 +2,7 @@ import { FormToggle } from '@wordpress/components';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { toBoolean } from '../../utils/utils';
-import { updateSettingProductsImagesSizingToggle } from "../../ws/ws-api";
-import { showNotice } from "../../notices/notices";
-import { showLoader, hideLoader } from "../../utils/utils";
-import to from 'await-to-js';
+
 
 
 /*
@@ -16,19 +13,15 @@ import to from 'await-to-js';
 class ProductsImagesSizingToggle extends React.Component {
 
 	state = {
-		submitButton: jQuery("#submitSettings"),
 		checked: toBoolean(WP_Shopify.settings.productsImagesSizingToggle)
 	}
 
 
-	onToggle = async state => {
+	onToggleHandle = async state => {
 
-		this.setState( state => ( { checked: ! this.state.checked } ) );
+		this.setState({ checked: ! this.state.checked });
+
 		jQuery('[aria-describedby="wps-products-images-sizing-toggle"]').attr('disabled', this.state.checked);
-
-		var [updateError, updateResponse] = await to( updateSettingProductsImagesSizingToggle({
-			value: jQuery('#wps-products-images-sizing-toggle').prop('checked')
-		}) );
 
 	}
 
@@ -38,7 +31,7 @@ class ProductsImagesSizingToggle extends React.Component {
     return (
       <FormToggle
 				checked={ this.state.checked }
-				onChange={ this.onToggle }
+				onChange={ this.onToggleHandle }
 				id="wps-products-images-sizing-toggle"
 			/>
     );

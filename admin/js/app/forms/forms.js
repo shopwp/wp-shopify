@@ -13,6 +13,9 @@ import {
   getProducts
 } from '../ws/ws';
 
+import { connectInit } from '../connect/connect';
+import { disconnectInit } from '../disconnect/disconnect';
+
 
 /*
 
@@ -113,13 +116,28 @@ function formConnectionRules() {
 }
 
 
+function initConnectFormSubmit() {
+
+  var $formConnect = jQuery("#wps-connect");
+  var $submitButton = $formConnect.find('input[type="submit"]');
+
+  if ($submitButton.attr('name') === 'submitDisconnect') {
+    disconnectInit();
+
+  } else {
+    connectInit();
+  }
+
+}
+
+
 /*
 
 Form Events Init
 
 */
 function formEventsInit() {
-
+  initConnectFormSubmit();
 }
 
 export {

@@ -226,8 +226,7 @@ function webpackConfig(outputFinalname) {
 
   var webpackConfigObj = {
     watch: false,
-    // mode: config.isBuilding ? 'production' : 'development',
-    mode: 'production',
+    mode: config.isBuilding ? 'production' : 'development',
     cache: true,
 
     // IMPORTANT: This entry will override an entry set within webpack stream
@@ -238,6 +237,7 @@ function webpackConfig(outputFinalname) {
     output: {
       filename: '[name].min.js',
       chunkFilename: '[name].min.js',
+      jsonpFunction: 'wpshopify'
     },
     resolve: {
       extensions: ['.js']

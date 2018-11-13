@@ -1691,20 +1691,34 @@ Taken from Migrate DB Pro
 
 
 
+.wps-placeholder {
+  display: block;
+  background: #ddd;
+  height: 28px;
+}
 
+.wps-placeholder-picker {
+  width: 50px;
+}
 
+.wps-placeholder-checkbox {
+  width: 28px;
+}
 
+.wps-placeholder-toggle {
+  background: #ddd;
+  width: 50px;
+}
 
+.wps-placeholder-input {
+  background: #ddd;
+  width: 300px;
+}
 
-
-
-
-
-
-
-
-
-
+.wps-input {
+  position: relative;
+  top: 3px;
+}
 
 
 

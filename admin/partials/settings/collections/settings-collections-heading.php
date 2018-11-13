@@ -14,8 +14,10 @@ Products Heading
           <span class="wps-help-tip" title="<?php esc_attr_e( 'Changes the heading found on the main Collections page', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
-        <td class="forminp forminp-text">
-          <div id="wps-settings-collections-heading"></div>
+        <td class="wps-input">
+          <div id="wps-settings-collections-heading">
+            <span class="wps-placeholder wps-placeholder-input"></span>
+          </div>
         </td>
 
       </tr>

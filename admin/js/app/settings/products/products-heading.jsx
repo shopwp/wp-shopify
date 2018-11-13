@@ -1,10 +1,6 @@
 import { TextControl } from '@wordpress/components';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import to from 'await-to-js';
-import { updateSettingProductsHeading, updateSettingProductsHeadingToggle } from "../../ws/ws-api";
-import { showNotice } from "../../notices/notices";
-import { showLoader, hideLoader } from "../../utils/utils";
 import { toBoolean } from '../../utils/utils';
 
 
@@ -16,38 +12,14 @@ import { toBoolean } from '../../utils/utils';
 class ProductsHeading extends React.Component {
 
   state = {
-    value: WP_Shopify.settings.productsHeading,
-    valueHasChanged: false,
-    submitElement: jQuery("#submitSettings")
+    value: WP_Shopify.settings.productsHeading
   }
 
-  updateValue = newValue => {
-
-    if (newValue !== this.state.value) {
-      this.state.valueHasChanged = true;
-    }
+  onUpdateHandle = newValue => {
 
     this.setState({
       value: newValue
     });
-
-  }
-
-  onProductsHeadingBlur = async value => {
-
-    // If the user hasn't selected a new color, just exit
-    if (!this.state.valueHasChanged) {
-      return this.state.value;
-    }
-
-    showLoader(this.state.submitElement);
-
-    // Updates DB with the new color
-    var [updateError, updateResponse] = await to( updateSettingProductsHeading({ value: this.state.value }) );
-
-    showNotice(updateError, updateResponse);
-
-    hideLoader(this.state.submitElement);
 
   }
 
@@ -56,8 +28,7 @@ class ProductsHeading extends React.Component {
     return (
       <TextControl
           value={ this.state.value }
-          onChange={ this.updateValue }
-          onBlur={ this.onProductsHeadingBlur }
+          onChange={ this.onUpdateHandle }
           aria-describedby="wps-products-heading-toggle"
           disabled={ !toBoolean(WP_Shopify.settings.productsHeadingToggle) }
 

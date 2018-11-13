@@ -160,7 +160,6 @@ class Backend {
 				false
 			);
 
-
 			// Third-party libs first ...
 			wp_enqueue_script(
 				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-admin',
@@ -236,7 +235,10 @@ class Backend {
 						'relatedProductsImagesSizingHeight'		=> $this->DB_Settings_General->get_related_products_images_sizing_height(),
 						'relatedProductsImagesSizingCrop'			=> $this->DB_Settings_General->get_related_products_images_sizing_crop(),
 						'relatedProductsImagesSizingScale'		=> $this->DB_Settings_General->get_related_products_images_sizing_scale(),
-						'enableCustomCheckoutDomain'					=> $this->DB_Settings_General->get_enable_custom_checkout_domain()
+						'enableCustomCheckoutDomain'					=> $this->DB_Settings_General->get_enable_custom_checkout_domain(),
+						'productsCompareAt'										=> $this->DB_Settings_General->get_products_compare_at(),
+						'productsShowPriceRange'							=> $this->DB_Settings_General->get_setting('products_show_price_range', 'bool'),
+						'checkoutButtonTarget'								=> $this->DB_Settings_General->get_setting('checkout_button_target', 'string')
 					],
 					'API' => [
 						'namespace'			=> WP_SHOPIFY_API_NAMESPACE,

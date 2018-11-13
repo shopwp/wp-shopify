@@ -110,6 +110,10 @@ function endpointSettingCheckoutEnableCustomCheckoutDomain() {
   return endpointPrefix() + 'settings/checkout_enable_custom_checkout_domain';
 }
 
+function endpointSettingProductsCompareAt() {
+  return endpointPrefix() + 'settings/products_compare_at';
+}
+
 export {
   endpointSettingAddToCartColor,
   endpointSettingVariantColor,
@@ -137,5 +141,6 @@ export {
   endpointSettingRelatedProductsImagesSizingHeight,
   endpointSettingRelatedProductsImagesSizingCrop,
   endpointSettingRelatedProductsImagesSizingScale,
-  endpointSettingCheckoutEnableCustomCheckoutDomain
+  endpointSettingCheckoutEnableCustomCheckoutDomain,
+  endpointSettingProductsCompareAt
 }

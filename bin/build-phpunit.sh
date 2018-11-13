@@ -15,6 +15,7 @@ set -o errexit
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+
 #
 # Clear out old tmp wp folders
 #

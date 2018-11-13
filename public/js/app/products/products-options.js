@@ -111,6 +111,7 @@ function addNewSelectionToMetaContainer($newProductMetaContainer, selectedString
 }
 
 
+
 /*
 
 Main wrapper for building out the selected options

@@ -10,7 +10,7 @@ import uniqBy from 'lodash/uniqBy';
 import has from 'lodash/has';
 
 
-import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount } from '../utils/utils-common';
+import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount, elementExists } from '../utils/utils-common';
 import { createLineItemsFromVariants, createLineItemsMarkup, cartTermsState } from '../ws/ws-cart';
 import { getMoneyFormat, getShop } from '../ws/ws-shop';
 import { enable, disable } from '../utils/utils-ux';
@@ -483,7 +483,7 @@ function getLineItemWordPressURL(lineItem) {
   var wordpressURLsParsed = JSON.parse(wordpressURLs);
   var foundTheStoredStuff = getWordPressURLCustomAttribute(wordpressURLsParsed, lineItem);
 
-  if (isEmpty(foundTheStoredStuff)) {
+  if ( isEmpty(foundTheStoredStuff) ) {
     return '#!';
 
   } else {
@@ -508,8 +508,15 @@ function renderLineItemImage(lineItem, lineItemHTML) {
 
   $image.css('background-image', 'url(\'' + getLineItemImage(lineItem) + '\')');
 
-  if (wordpressURL) {
-    $lineItem.find('.wps-cart-item-img-link').attr('href', wordpressURL);
+  if (WP_Shopify.settings.itemsLinkToShopify) {
+    $lineItem.find('.wps-cart-item-img-link').attr('href', WP_Shopify.shop.primaryDomain.url + '/products/' +  lineItem.title.replace(/\s+/g, '-').toLowerCase());
+
+  } else {
+
+    if (wordpressURL) {
+      $lineItem.find('.wps-cart-item-img-link').attr('href', wordpressURL);
+    }
+
   }
 
   return $lineItem.prop('outerHTML');
@@ -714,16 +721,6 @@ function appendSingleCartItem(cartLineItemHTML, client, checkout) {
 
 /*
 
-Element Exist
-
-*/
-function elementExists($element) {
-  return $element.length;
-}
-
-
-/*
-
 Cart Has Items in DOM
 
 */
@@ -817,7 +814,7 @@ Render Cart Items
 We have nested promises here ...
 
 */
-async function renderCartItems(checkout) {
+function renderCartItems(checkout) {
   return emptyAndAppendCartItems( createLineItemsMarkup(checkout), checkout );
 }
 

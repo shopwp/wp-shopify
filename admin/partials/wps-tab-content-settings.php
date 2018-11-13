@@ -4,44 +4,59 @@ Tab Content: Settings
 
 -->
 
-<div class="tab-content <?php echo $active_tab === 'tab-settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
+<?php
+
+if ('wp-shopify_page_wps-settings' == get_current_screen()->id ) {
+
+  if (isset($_GET['activesubnav']) && $_GET['activesubnav']) {
+    $active_sub_nav = $_GET['activesubnav'];
+
+  } else {
+    $active_sub_nav = 'wps-admin-section-general'; // default sub nav
+  }
+
+}
+
+?>
+
+<div class="tab-content <?= $active_tab === 'tab-settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
 
   <ul class="subsubsub wps-submenu">
 
     <li>
-      <a class="wps-sub-section-link current" href="#!" data-sub-section="wps-admin-section-general">General</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-general' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-general">General</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-syncing">Syncing</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-syncing' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-syncing">Syncing</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-layout">Layout</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-layout' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-layout">Layout</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-products">Products</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-products' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-products">Products</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-collections">Collections</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-collections' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-collections">Collections</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-related-products">Related Products</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-related' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-related-products">Related Products</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-cart">Cart</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-cart' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-cart">Cart</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-checkout">Checkout</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-checkout' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-checkout">Checkout</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link" href="#!" data-sub-section="wps-admin-section-plugin">Plugin</a>
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-plugin' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-plugin">Plugin</a>
     </li>
 
   </ul>
@@ -54,7 +69,7 @@ Tab Content: Settings
     General Settings
 
     -->
-    <div class="wps-admin-sub-section is-active" id="wps-admin-section-general">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-general' ? 'is-active' : ''; ?>" id="wps-admin-section-general">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-admin-settings"></span> <?php esc_html_e( 'General ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -81,7 +96,7 @@ Tab Content: Settings
     Syncing
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-syncing">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-syncing' ? 'is-active' : ''; ?>" id="wps-admin-section-syncing">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e( 'Syncing ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -109,7 +124,7 @@ Tab Content: Settings
     Layout Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-layout">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-layout' ? 'is-active' : ''; ?>" id="wps-admin-section-layout">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-layout"></span> <?php esc_html_e( 'General Layout ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -135,7 +150,7 @@ Tab Content: Settings
     Products Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-products">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-products' ? 'is-active' : ''; ?>" id="wps-admin-section-products">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-tag"></span> <?php esc_html_e( 'Pricing ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -145,6 +160,8 @@ Tab Content: Settings
 
           <?php
 
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-compare-at.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-show-price-range.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-pricing.php';
 
           ?>
@@ -208,7 +225,7 @@ Tab Content: Settings
     Collections Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-collections">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-collections' ? 'is-active' : ''; ?>" id="wps-admin-section-collections">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-format-aside"></span> <?php esc_html_e( 'Content ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -252,7 +269,7 @@ Tab Content: Settings
     Related Products
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-related-products">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-related-products' ? 'is-active' : ''; ?>" id="wps-admin-section-related-products">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-networking"></span> <?php esc_html_e( 'Related Products ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -309,7 +326,7 @@ Tab Content: Settings
     Cart Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-cart">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-cart' ? 'is-active' : ''; ?>" id="wps-admin-section-cart">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-cart"></span> <?php esc_html_e( 'Cart ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -352,7 +369,7 @@ Tab Content: Settings
     Checkout Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-checkout">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-checkout' ? 'is-active' : ''; ?>" id="wps-admin-section-checkout">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-cart"></span> <?php esc_html_e( 'Checkout ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
@@ -363,6 +380,7 @@ Tab Content: Settings
           <?php
 
           require_once plugin_dir_path( __FILE__ ) . 'settings/checkout/settings-checkout-enable-custom-checkout-domain.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/checkout/settings-checkout-button-target.php';
 
           ?>
 
@@ -376,7 +394,7 @@ Tab Content: Settings
     Assets Settings
 
     -->
-    <div class="wps-admin-sub-section" id="wps-admin-section-plugin">
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-plugin' ? 'is-active' : ''; ?>" id="wps-admin-section-plugin">
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-admin-plugins"></span> <?php esc_html_e( 'Plugin ', WPS_PLUGIN_TEXT_DOMAIN ); ?>

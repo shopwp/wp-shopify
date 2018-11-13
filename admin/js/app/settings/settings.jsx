@@ -30,7 +30,10 @@ import { initRelatedProductsImagesSizingCrop } from './related-products/related-
 import { initRelatedProductsImagesSizingScale } from './related-products/related-products-images-sizing-scale.jsx';
 
 import { initEnableCustomCheckoutDomain } from './checkout/checkout-enable-custom-checkout-domain.jsx';
+import { initProductsCompareAt } from './products/products-compare-at.jsx';
+import { initProductsShowPriceRange } from './products/products-show-price-range.jsx';
 
+import { initCheckoutButtonTarget } from './checkout/checkout-button-target.jsx';
 
 
 import {
@@ -74,7 +77,6 @@ import {
   hasConnection,
   returnOnlyFirstError
 } from '../utils/utils-data';
-
 
 
 /*
@@ -151,6 +153,13 @@ function onSettingsFormSubmit() {
       var productsHeadingToggle = jQuery(form).find('#wps-products-heading-toggle').prop('checked');
       var collectionsHeadingToggle = jQuery(form).find('#wps-collections-heading-toggle').prop('checked');
       var relatedProductsHeadingToggle = jQuery(form).find('#wps-related-products-heading-toggle').prop('checked');
+      var relatedProductsHeading = jQuery(form).find('#wps-settings-related-products-heading input').val();
+      var productsHeading = jQuery(form).find('#wps-settings-products-heading input').val();
+
+      var collectionsHeading = jQuery(form).find('#wps-settings-collections-heading input').val();
+      var enableCustomCheckoutDomain = jQuery(form).find('#wps-enable-custom-checkout-domain input').prop('checked');
+
+      var productsShowPriceRange = jQuery(form).find('#wps-settings-products-show-price-range input').prop('checked');
 
       var productsImagesSizingToggle = jQuery(form).find('#wps-products-images-sizing-toggle').prop('checked');
       var productsImagesSizingWidth = jQuery(form).find('#wps-settings-products-images-sizing-width input').val();
@@ -158,7 +167,7 @@ function onSettingsFormSubmit() {
       var productsImagesSizingCrop = jQuery(form).find('#wps-settings-products-images-sizing-crop select').val();
       var productsImagesSizingScale = jQuery(form).find('#wps-settings-products-images-sizing-scale select').val();
 
-      var collectionsImagesSizingToggle = jQuery(form).find('#wps-collections-images-sizing-toggle').prop('checked');
+      var collectionsImagesSizingToggle = jQuery(form).find('#wps-settings-collections-images-sizing-toggle input').prop('checked');
       var collectionsImagesSizingWidth = jQuery(form).find('#wps-settings-collections-images-sizing-width input').val();
       var collectionsImagesSizingHeight = jQuery(form).find('#wps-settings-collections-images-sizing-height input').val();
       var collectionsImagesSizingCrop = jQuery(form).find('#wps-settings-collections-images-sizing-crop select').val();
@@ -170,7 +179,9 @@ function onSettingsFormSubmit() {
       var relatedProductsImagesSizingCrop = jQuery(form).find('#wps-settings-related-products-images-sizing-crop select').val();
       var relatedProductsImagesSizingScale = jQuery(form).find('#wps-settings-related-products-images-sizing-scale select').val();
 
+      var productsCompareAt = jQuery(form).find('#wps-settings-products-compare-at input').prop('checked');
 
+      var checkoutButtonTarget = jQuery(form).find('#wps-settings-checkout-button-target select').val();
 
       var relatedProductsSort;
       var relatedProductsShow = 0;
@@ -412,8 +423,11 @@ function onSettingsFormSubmit() {
         wps_settings_general_cart_icon_color: cartIconColor,
         wps_settings_general_cart_counter_color: cartCounterColor,
         wps_settings_general_products_heading_toggle: productsHeadingToggle,
+        wps_settings_general_products_heading: productsHeading,
         wps_settings_general_collections_heading_toggle: collectionsHeadingToggle,
+        wps_settings_general_collections_heading: collectionsHeading,
         wps_settings_general_related_products_heading_toggle: relatedProductsHeadingToggle,
+        wps_settings_general_related_products_heading: relatedProductsHeading,
         wps_settings_products_images_sizing_toggle: productsImagesSizingToggle,
         wps_settings_products_images_sizing_width: productsImagesSizingWidth,
         wps_settings_products_images_sizing_height: productsImagesSizingHeight,
@@ -429,6 +443,10 @@ function onSettingsFormSubmit() {
         wps_settings_related_products_images_sizing_height: relatedProductsImagesSizingHeight,
         wps_settings_related_products_images_sizing_crop: relatedProductsImagesSizingCrop,
         wps_settings_related_products_images_sizing_scale: relatedProductsImagesSizingScale,
+        wps_settings_products_compare_at: productsCompareAt,
+        wps_settings_checkout_enable_custom_checkout_domain: enableCustomCheckoutDomain,
+        wps_settings_products_show_price_range: productsShowPriceRange,
+        wps_settings_checkout_button_target: checkoutButtonTarget,
 
 
       }
@@ -490,6 +508,7 @@ function onSettingsFormSubmit() {
       WP_Shopify.itemsPerRequest = itemsPerRequest;
 
       showAdminNotice( messageSettingsSuccessfulSave(), 'updated' );
+      // showAdminNoticeNew('success', 'THIS IS A TEST')
 
     }
 
@@ -664,6 +683,74 @@ function initItemsPerRequest() {
 }
 
 
+function imageCropTypes() {
+
+  return [
+    {
+      label: 'None',
+      value: 'none'
+    },
+    {
+      label: 'Top',
+      value: 'top'
+    },
+    {
+      label: 'Center',
+      value: 'center'
+    },
+    {
+      label: 'Bottom',
+      value: 'bottom'
+    },
+    {
+      label: 'Left',
+      value: 'left'
+    },
+    {
+      label: 'Right',
+      value: 'right'
+    }
+  ];
+
+}
+
+
+function imageScaleTypes() {
+
+  return [
+    {
+      label: 'None',
+      value: false
+    },
+    {
+      label: '2',
+      value: 2
+    },
+    {
+      label: '3',
+      value: 3
+    }
+  ];
+
+}
+
+
+function checkoutButtonTargets() {
+
+  return [
+    {
+      label: 'Current tab / window',
+      value: '_self'
+    },
+    {
+      label: 'New tab / window',
+      value: '_blank'
+    }
+  ];
+
+}
+
+
 /*
 
 Form Events Init
@@ -710,11 +797,18 @@ function settingsInit() {
   initRelatedProductsImagesSizingScale();
 
   initEnableCustomCheckoutDomain();
+  initProductsCompareAt();
+  initProductsShowPriceRange();
+
+  initCheckoutButtonTarget();
 
 }
 
 export {
   settingsInit,
   getSelectiveSyncOptions,
-  populateSyncByCollections
+  populateSyncByCollections,
+  imageCropTypes,
+  imageScaleTypes,
+  checkoutButtonTargets
 }

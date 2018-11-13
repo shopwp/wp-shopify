@@ -19,7 +19,6 @@ class Tags extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_tag_id;
 	public $default_product_id;
 	public $default_post_id;
@@ -28,19 +27,18 @@ class Tags extends \WPS\DB {
 
 	public function __construct() {
 
-		$this->table_name_suffix  		= WPS_TABLE_NAME_TAGS;
-		$this->table_name         		= $this->get_table_name();
-		$this->version            		= '1.0';
-		$this->primary_key        		= 'id';
-		$this->lookup_key        			= 'tag_id';
-		$this->cache_group        		= 'wps_db_tags';
-		$this->type        						= 'tag';
+		$this->table_name_suffix  				= WPS_TABLE_NAME_TAGS;
+		$this->table_name         				= $this->get_table_name();
+		$this->version            				= '1.0';
+		$this->primary_key        				= 'id';
+		$this->lookup_key        					= 'tag_id';
+		$this->cache_group        				= 'wps_db_tags';
+		$this->type        								= 'tag';
 
-		$this->default_id 						= 0;
-		$this->default_tag_id 				= 0;
-		$this->default_product_id 		= 0;
-		$this->default_post_id 				= 0;
-		$this->default_tag 						= '';
+		$this->default_tag_id 						= 0;
+		$this->default_product_id 				= 0;
+		$this->default_post_id 						= 0;
+		$this->default_tag 								= '';
 
 	}
 
@@ -73,7 +71,6 @@ class Tags extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                    		=> $this->default_id,
 			'tag_id'										=> $this->default_tag_id,
 			'product_id'                => $this->default_product_id,
 			'post_id'                   => $this->default_post_id,

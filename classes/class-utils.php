@@ -312,7 +312,7 @@ class Utils {
 	Construct proper path to wp-admin folder
 
 	*/
-	public static function sort_posts_by_position($posts) {
+	public static function sort_items_by_position($posts) {
 
 		usort($posts, [ __CLASS__, 'sort_by_position'] );
 

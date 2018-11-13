@@ -14,8 +14,10 @@ Images sizing
           <span class="wps-help-tip" title="<?php esc_attr_e( 'Enable to change the size of all collection images', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
-        <td class="forminp forminp-text">
-          <div id="wps-settings-collections-images-sizing-toggle"></div>
+        <td class="">
+          <div id="wps-settings-collections-images-sizing-toggle">
+            <span class="wps-placeholder wps-placeholder-toggle"></span>
+          </div>
         </td>
 
       </tr>

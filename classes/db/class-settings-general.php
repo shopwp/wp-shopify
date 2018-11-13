@@ -23,7 +23,6 @@ class Settings_General extends \WPS\DB {
 
 	// Defaults
 	public $default_webhooks;
-	public $default_id;
 	public $default_plugin_version;
 	public $default_plugin_author;
 	public $default_plugin_textdomain;
@@ -58,6 +57,7 @@ class Settings_General extends \WPS\DB {
 	public $default_add_to_cart_color;
 	public $default_variant_color;
 	public $default_checkout_color;
+	public $default_checkout_button_target;
 	public $default_cart_counter_color;
 	public $default_cart_icon_color;
 	public $default_products_heading_toggle;
@@ -82,6 +82,8 @@ class Settings_General extends \WPS\DB {
 	public $default_related_products_images_sizing_crop;
 	public $default_related_products_images_sizing_scale;
 	public $default_enable_custom_checkout_domain;
+	public $default_products_compare_at;
+	public $default_products_show_price_range;
 
 
 	public function __construct() {
@@ -95,7 +97,6 @@ class Settings_General extends \WPS\DB {
 		$this->type     																	= 'settings_general';
 
 		$this->default_webhooks                 					= Utils::convert_to_https_url( get_home_url() );
-		$this->default_id                       					= 0;
 		$this->default_plugin_version           					= WPS_NEW_PLUGIN_VERSION;
 		$this->default_plugin_author            					= WPS_NEW_PLUGIN_AUTHOR;
 		$this->default_plugin_textdomain        					= WPS_PLUGIN_NAME;
@@ -134,6 +135,7 @@ class Settings_General extends \WPS\DB {
 		$this->default_add_to_cart_color        					= WPS_DEFAULT_ADD_TO_CART_COLOR;
 		$this->default_variant_color        							= WPS_DEFAULT_VARIANT_COLOR;
 		$this->default_checkout_color											= WPS_DEFAULT_VARIANT_COLOR;
+		$this->default_checkout_button_target							= WPS_DEFAULT_CHECKOUT_BUTTON_TARGET;
 		$this->default_cart_counter_color									= WPS_DEFAULT_CART_COUNTER_COLOR;
 		$this->default_cart_icon_color										= WPS_DEFAULT_CART_ICON_COLOR;
 		$this->default_products_heading_toggle						= 1;
@@ -143,6 +145,9 @@ class Settings_General extends \WPS\DB {
 		$this->default_related_products_heading_toggle		= 1;
 		$this->default_related_products_heading						= WPS_DEFAULT_RELATED_PRODUCTS_HEADING;
 		$this->default_enable_custom_checkout_domain      = WPS_DEFAULT_ENABLE_CUSTOM_CHECKOUT_DOMAIN;
+		$this->default_products_compare_at      					= WPS_DEFAULT_PRODUCTS_COMPARE_AT;
+		$this->default_products_show_price_range      		= WPS_DEFAULT_PRODUCTS_SHOW_PRICE_RANGE;
+
 
 		$this->default_products_images_sizing_toggle						= 0;
 		$this->default_products_images_sizing_width							= WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_WIDTH;
@@ -236,7 +241,10 @@ class Settings_General extends \WPS\DB {
 			'related_products_images_sizing_height'    	=> '%d',
 			'related_products_images_sizing_crop'      	=> '%s',
 			'related_products_images_sizing_scale'     	=> '%d',
-			'enable_custom_checkout_domain'							=> '%d'
+			'enable_custom_checkout_domain'							=> '%d',
+			'products_compare_at'												=> '%d',
+			'products_show_price_range'									=> '%d',
+			'checkout_button_target'										=> '%s'
 		];
 
 	}
@@ -250,7 +258,6 @@ class Settings_General extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'                            						=> $this->default_id,
 			'url_products'                  						=> $this->default_url_products,
 			'url_collections'               						=> $this->default_url_collections,
 			'url_webhooks'                  						=> $this->default_webhooks,
@@ -313,7 +320,10 @@ class Settings_General extends \WPS\DB {
 			'related_products_images_sizing_height'    	=> $this->default_related_products_images_sizing_height,
 			'related_products_images_sizing_crop'      	=> $this->default_related_products_images_sizing_crop,
 			'related_products_images_sizing_scale'     	=> $this->default_related_products_images_sizing_scale,
-			'enable_custom_checkout_domain'     				=> $this->default_enable_custom_checkout_domain
+			'enable_custom_checkout_domain'     				=> $this->default_enable_custom_checkout_domain,
+			'products_compare_at'												=> $this->default_products_compare_at,
+			'products_show_price_range'									=> $this->default_products_show_price_range,
+			'checkout_button_target'										=> $this->default_checkout_button_target
 		];
 
 	}
@@ -1617,6 +1627,54 @@ class Settings_General extends \WPS\DB {
 
 	/*
 
+	Gets get_products_compare_at
+
+	*/
+	public function get_products_compare_at() {
+
+		$products_compare_at = $this->get_column_single('products_compare_at');
+
+		if ( Utils::array_not_empty($products_compare_at) && isset($products_compare_at[0]->products_compare_at) ) {
+			return (bool) $products_compare_at[0]->products_compare_at;
+
+		} else {
+			return $products_compare_at;
+		}
+
+	}
+
+
+	/*
+
+	Gets get_products_compare_at
+
+	*/
+	public function get_products_show_price_range() {
+
+		$products_show_price_range = $this->get_column_single('products_show_price_range');
+
+		if ( Utils::array_not_empty($products_show_price_range) && isset($products_show_price_range[0]->products_show_price_range) ) {
+			return (bool) $products_show_price_range[0]->products_show_price_range;
+
+		} else {
+			return $products_show_price_range;
+		}
+
+	}
+
+
+	/*
+
+	Reset syncing timing
+
+	*/
+	public function update_products_compare_at($compare_at) {
+		return $this->update_column_single( ['products_compare_at' => $compare_at], ['id' => 1] );
+	}
+
+
+	/*
+
 	Reset syncing timing
 
 	*/
@@ -1885,6 +1943,54 @@ class Settings_General extends \WPS\DB {
 	}
 
 
+
+
+
+
+
+
+
+	/*
+
+	General wrapper for updating a single col value
+
+	*/
+	public function update_setting($column_name, $column_value) {
+		return $this->update_column_single( [$column_name => $column_value], ['id' => 1] );
+	}
+
+
+	/*
+
+	General wrapper for getting a single setting
+
+	*/
+	public function get_setting($setting_name, $return_type = false) {
+
+		$setting = $this->get_column_single($setting_name);
+
+		if ( Utils::array_not_empty($setting) && isset($setting[0]->{$setting_name}) ) {
+
+			if ($return_type) {
+				
+				$setting_to_return = $setting[0]->{$setting_name};
+
+				settype($setting_to_return, $return_type);
+
+				return $setting_to_return;
+
+			} else {
+				return $setting[0]->{$setting_name};
+			}
+
+		} else {
+			return $setting;
+		}
+
+	}
+
+
+
 	/*
 
 	Creates a table query string
@@ -1963,6 +2069,9 @@ class Settings_General extends \WPS\DB {
 			related_products_images_sizing_crop varchar(100) NOT NULL DEFAULT '{$this->default_related_products_images_sizing_crop}',
 			related_products_images_sizing_scale int(1) NOT NULL DEFAULT '{$this->default_related_products_images_sizing_scale}',
 			enable_custom_checkout_domain tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_enable_custom_checkout_domain}',
+			products_compare_at tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_products_compare_at}',
+			products_show_price_range tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_products_show_price_range}',
+			checkout_button_target varchar(100) NOT NULL DEFAULT '{$this->default_checkout_button_target}',
 			PRIMARY KEY  (id)
 		) ENGINE=InnoDB $collate";
 

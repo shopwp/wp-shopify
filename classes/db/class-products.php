@@ -22,7 +22,6 @@ class Products extends \WPS\DB {
 	public $cache_group;
 	public $type;
 
-	public $default_id;
 	public $default_product_id;
 	public $default_post_id;
 	public $default_title;
@@ -50,7 +49,6 @@ class Products extends \WPS\DB {
 		$this->cache_group        						= 'wps_db_products';
 		$this->type        										= 'product';
 
-		$this->default_id											= 0;
 		$this->default_product_id							= 0;
 		$this->default_post_id								= 0;
 		$this->default_title									= '';
@@ -109,7 +107,6 @@ class Products extends \WPS\DB {
 	public function get_column_defaults() {
 
 		return [
-			'id'										=> $this->default_id,
 			'product_id'            => $this->default_product_id,
 			'post_id'               => $this->default_post_id,
 			'title'                 => $this->default_title,

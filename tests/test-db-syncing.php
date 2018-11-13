@@ -17,7 +17,7 @@ class Test_DB_Syncing extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Settings_Syncing       = DB_Settings_Syncing_Factory::build();
+    self::$DB_Settings_Syncing = DB_Settings_Syncing_Factory::build();
 
   }
 
@@ -29,7 +29,6 @@ class Test_DB_Syncing extends WP_UnitTestCase {
   */
   function test_it_should_have_default_values() {
 
-  	$this->assertObjectHasAttribute('default_id', self::$DB_Settings_Syncing);
   	$this->assertObjectHasAttribute('default_is_syncing', self::$DB_Settings_Syncing);
   	$this->assertObjectHasAttribute('default_syncing_totals_shop', self::$DB_Settings_Syncing);
   	$this->assertObjectHasAttribute('default_syncing_totals_smart_collections', self::$DB_Settings_Syncing);
@@ -87,10 +86,13 @@ class Test_DB_Syncing extends WP_UnitTestCase {
   */
   function test_it_should_match_default_values_and_cols_amount() {
 
-    $cols_count = count( self::$DB_Settings_Syncing->get_columns() );
-    $default_cols_count = count( self::$DB_Settings_Syncing->get_column_defaults() );
+    $cols = self::$DB_Settings_Syncing->get_columns();
+    $default_cols = self::$DB_Settings_Syncing->get_column_defaults();
 
-    $this->assertEquals($cols_count, $default_cols_count);
+    $col_difference = array_diff_key($cols, $default_cols);
+
+    $this->assertCount(1, $col_difference);
+    $this->assertArrayHasKey('id', $col_difference);
 
   }
 

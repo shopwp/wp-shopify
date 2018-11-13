@@ -14,7 +14,7 @@ Pricing
           <span class="wps-help-tip" title="<?php esc_attr_e( 'Changes the background color of all add to cart buttons. Note, changing this value may potentially override any custom CSS from your theme.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         </th>
 
-        <td class="forminp forminp-text">
+        <td class="wps-input">
           <div id="wps-color-picker-checkout"></div>
         </td>
 

@@ -15,7 +15,9 @@ Collections Heading Show
         </th>
 
         <td class="forminp forminp-text">
-          <div id="wps-settings-collections-heading-toggle"></div>
+          <div id="wps-settings-collections-heading-toggle">
+            <span class="wps-placeholder wps-placeholder-toggle"></span>
+          </div>
         </td>
 
       </tr>

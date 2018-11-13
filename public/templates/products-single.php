@@ -19,9 +19,11 @@ if ( !defined('ABSPATH') ) {
 
 use WPS\Utils;
 use WPS\Factories\Templates_Factory;
+use WPS\Factories\DB_Settings_General_Factory;
 
-$Templates = Templates_Factory::build();
-$wps_product = $Templates->get_product_data();
+$Templates 						= Templates_Factory::build();
+$DB_Settings_General 	= DB_Settings_General_Factory::build();
+$wps_product 					= $Templates->get_product_data();
 
 get_header('wps');
 
@@ -45,7 +47,20 @@ if ( is_single() ) {
   do_action('wps_product_single_header_after', $wps_product);
 
   do_action('wps_products_price_before', $wps_product);
+
+
+	if ( $DB_Settings_General->get_products_compare_at() ) {
+		do_action('wps_products_price_wrapper_start', $wps_product);
+		do_action('wps_products_compare_at_price', $wps_product, true);
+	}
+
   do_action('wps_products_price', $wps_product);
+
+	if ( $DB_Settings_General->get_products_compare_at() ) {
+		do_action('wps_products_price_wrapper_end', $wps_product);
+	}
+
+
   do_action('wps_products_price_after', $wps_product);
 
   do_action('wps_product_single_content_before', $wps_product);
