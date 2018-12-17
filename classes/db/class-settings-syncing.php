@@ -5,6 +5,7 @@ namespace WPS\DB;
 use WPS\Utils;
 use WPS\Transients;
 use WPS\Messages;
+use WPS\Options;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -176,16 +177,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_shop() {
-
-		$syncing_totals_shop = $this->get_column_single('syncing_totals_shop');
-
-		if ( Utils::array_not_empty($syncing_totals_shop) && isset($syncing_totals_shop[0]->syncing_totals_shop) ) {
-			return $syncing_totals_shop[0]->syncing_totals_shop;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_shop', 'int');
 	}
 
 
@@ -195,16 +187,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_smart_collections() {
-
-		$syncing_totals_smart_collections = $this->get_column_single('syncing_totals_smart_collections');
-
-		if ( Utils::array_not_empty($syncing_totals_smart_collections) && isset($syncing_totals_smart_collections[0]->syncing_totals_smart_collections) ) {
-			return $syncing_totals_smart_collections[0]->syncing_totals_smart_collections;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_smart_collections', 'int');
 	}
 
 
@@ -214,16 +197,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_products() {
-
-		$syncing_totals_products = $this->get_column_single('syncing_totals_products');
-
-		if ( Utils::array_not_empty($syncing_totals_products) && isset($syncing_totals_products[0]->syncing_totals_products) ) {
-			return $syncing_totals_products[0]->syncing_totals_products;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_products', 'int');
 	}
 
 
@@ -233,16 +207,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_collects() {
-
-		$syncing_totals_collects = $this->get_column_single('syncing_totals_collects');
-
-		if ( Utils::array_not_empty($syncing_totals_collects) && isset($syncing_totals_collects[0]->syncing_totals_collects) ) {
-			return $syncing_totals_collects[0]->syncing_totals_collects;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_collects', 'int');
 	}
 
 
@@ -252,16 +217,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_orders() {
-
-		$syncing_totals_orders = $this->get_column_single('syncing_totals_orders');
-
-		if ( Utils::array_not_empty($syncing_totals_orders) && isset($syncing_totals_orders[0]->syncing_totals_orders) ) {
-			return $syncing_totals_orders[0]->syncing_totals_orders;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_orders', 'int');
 	}
 
 
@@ -271,16 +227,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_customers() {
-
-		$syncing_totals_customers = $this->get_column_single('syncing_totals_customers');
-
-		if ( Utils::array_not_empty($syncing_totals_customers) && isset($syncing_totals_customers[0]->syncing_totals_customers) ) {
-			return $syncing_totals_customers[0]->syncing_totals_customers;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_customers', 'int');
 	}
 
 
@@ -290,16 +237,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_webhooks() {
-
-		$syncing_totals_webhooks = $this->get_column_single('syncing_totals_webhooks');
-
-		if ( Utils::array_not_empty($syncing_totals_webhooks) && isset($syncing_totals_webhooks[0]->syncing_totals_webhooks) ) {
-			return $syncing_totals_webhooks[0]->syncing_totals_webhooks;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_webhooks', 'int');
 	}
 
 
@@ -318,6 +256,8 @@ class Settings_Syncing extends \WPS\DB {
 			'collects' 							=> $this->get_syncing_totals_collects(),
 		];
 
+
+
 	}
 
 
@@ -326,7 +266,7 @@ class Settings_Syncing extends \WPS\DB {
 	Get the syncing totals
 
 	*/
-	public function set_syncing_totals($counts, $exclusions = []) {
+	public function set_syncing_totals( $counts, $exclusions = [] ) {
 
 		$counts_shop = isset($counts['shop']) ? $counts['shop'] : 0;
 		$counts_smart_collections = isset($counts['smart_collections']) ? $counts['smart_collections'] : 0;
@@ -336,7 +276,6 @@ class Settings_Syncing extends \WPS\DB {
 		$counts_orders = isset($counts['orders']) ? $counts['orders'] : 0;
 		$counts_customers = isset($counts['customers']) ? $counts['customers'] : 0;
 		$counts_webhooks = isset($counts['webhooks']) ? $counts['webhooks'] : 0;
-
 
 		if ($exclusions) {
 			$exclusions = array_flip($exclusions);
@@ -496,16 +435,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_current_amounts_products() {
-
-		$syncing_current_amounts_products = $this->get_column_single('syncing_current_amounts_products');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_products) && isset($syncing_current_amounts_products[0]->syncing_current_amounts_products) ) {
-			return $syncing_current_amounts_products[0]->syncing_current_amounts_products;
-
-		} else {
-			return false;
-		}
-
+		return $this->get_col_value('syncing_current_amounts_products', 'int');
 	}
 
 
@@ -516,35 +446,10 @@ class Settings_Syncing extends \WPS\DB {
 	*/
 	public function is_syncing_products() {
 
-		$syncing_current_amounts_products = $this->get_syncing_current_amounts_products();
+		$total_products = $this->get_syncing_totals_products();
 
-		if ($syncing_current_amounts_products !== false && $syncing_current_amounts_products !== '0') {
+		if ($total_products > 0) {
 			return true;
-
-		} else {
-			return false;
-		}
-
-	}
-
-
-
-
-
-
-
-
-	/*
-
-	Gets the get_syncing_current_amounts_smart_collections
-
-	*/
-	public function get_syncing_current_amounts_smart_collections() {
-
-		$syncing_current_amounts_smart_collections = $this->get_column_single('syncing_current_amounts_smart_collections');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_smart_collections) && isset($syncing_current_amounts_smart_collections[0]->syncing_current_amounts_smart_collections) ) {
-			return $syncing_current_amounts_smart_collections[0]->syncing_current_amounts_smart_collections;
 
 		} else {
 			return false;
@@ -560,10 +465,10 @@ class Settings_Syncing extends \WPS\DB {
 	*/
 	public function is_syncing_collections() {
 
-		$smart_collections = $this->get_syncing_current_amounts_smart_collections();
-		$custom_collections = $this->get_syncing_current_amounts_custom_collections();
+		$smart_collections = $this->get_syncing_totals_smart_collections();
+		$custom_collections = $this->get_syncing_totals_custom_collections();
 
-		if ($smart_collections !== false && $smart_collections !== '0' || $custom_collections !== false && $custom_collections !== '0') {
+		if ($smart_collections > 0 || $custom_collections > 0) {
 			return true;
 
 		} else {
@@ -574,22 +479,25 @@ class Settings_Syncing extends \WPS\DB {
 
 
 
+
+
+	/*
+
+	Gets the get_syncing_current_amounts_smart_collections
+
+	*/
+	public function get_syncing_current_amounts_smart_collections() {
+		return $this->get_col_value('syncing_current_amounts_smart_collections', 'int');
+	}
+
+
 	/*
 
 	Gets the get_syncing_current_amounts_smart_collections
 
 	*/
 	public function get_syncing_current_amounts_shop() {
-
-		$syncing_current_amounts_shop = $this->get_column_single('syncing_current_amounts_shop');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_shop) && isset($syncing_current_amounts_shop[0]->syncing_current_amounts_shop) ) {
-			return $syncing_current_amounts_shop[0]->syncing_current_amounts_shop;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_current_amounts_shop', 'int');
 	}
 
 
@@ -599,16 +507,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_current_amounts_custom_collections() {
-
-		$syncing_current_amounts_custom_collections = $this->get_column_single('syncing_current_amounts_custom_collections');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_custom_collections) && isset($syncing_current_amounts_custom_collections[0]->syncing_current_amounts_custom_collections) ) {
-			return $syncing_current_amounts_custom_collections[0]->syncing_current_amounts_custom_collections;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_current_amounts_custom_collections', 'int');
 	}
 
 
@@ -618,32 +517,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_current_amounts_collects() {
-
-		$syncing_current_amounts_collects = $this->get_column_single('syncing_current_amounts_collects');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_collects) && isset($syncing_current_amounts_collects[0]->syncing_current_amounts_collects) ) {
-			return $syncing_current_amounts_collects[0]->syncing_current_amounts_collects;
-
-		} else {
-			return 0;
-		}
-
-	}
-
-
-	public function add_to_current_collects_amount($collects_to_increment) {
-
-		// Don't update if not needed
-		if ($collects_to_increment <= 0) {
-			return;
-		}
-
-		$current_amount_total = $this->get_syncing_current_amounts_collects();
-
-		$current_amount_total_new = $current_amount_total + $collects_to_increment;
-
-		return $this->update_column_single(['syncing_current_amounts_collects' => $current_amount_total_new], ['id' => 1]);
-
+		return $this->get_col_value('syncing_current_amounts_collects', 'int');
 	}
 
 
@@ -653,16 +527,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_current_amounts_orders() {
-
-		$syncing_current_amounts_orders = $this->get_column_single('syncing_current_amounts_orders');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_orders) && isset($syncing_current_amounts_orders[0]->syncing_current_amounts_orders) ) {
-			return $syncing_current_amounts_orders[0]->syncing_current_amounts_orders;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_current_amounts_orders', 'int');
 	}
 
 
@@ -672,16 +537,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_current_amounts_customers() {
-
-		$syncing_current_amounts_customers = $this->get_column_single('syncing_current_amounts_customers');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_customers) && isset($syncing_current_amounts_customers[0]->syncing_current_amounts_customers) ) {
-			return $syncing_current_amounts_customers[0]->syncing_current_amounts_customers;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_current_amounts_customers', 'int');
 	}
 
 
@@ -691,16 +547,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_current_amounts_webhooks() {
-
-		$syncing_current_amounts_webhooks = $this->get_column_single('syncing_current_amounts_webhooks');
-
-		if ( Utils::array_not_empty($syncing_current_amounts_webhooks) && isset($syncing_current_amounts_webhooks[0]->syncing_current_amounts_webhooks) ) {
-			return $syncing_current_amounts_webhooks[0]->syncing_current_amounts_webhooks;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_current_amounts_webhooks', 'int');
 	}
 
 
@@ -785,14 +632,14 @@ class Settings_Syncing extends \WPS\DB {
 	*/
 	public function posts_relationships_status() {
 
-		if ($this->is_syncing_products()) {
+		if ( $this->is_syncing_products() ) {
 			$products_posts_status = $this->get_finished_product_posts_relationships();
 
 		} else {
 			$products_posts_status = true;
 		}
 
-		if ($this->is_syncing_collections()) {
+		if ( $this->is_syncing_collections() ) {
 			$collections_posts_status = $this->get_finished_collection_posts_relationships();
 
 		} else {
@@ -854,25 +701,11 @@ class Settings_Syncing extends \WPS\DB {
 
 	/*
 
-	End WordPress if not syncing
-
-	*/
-	public function die_if_not_syncing($break_from_loops = false) {
-
-		if (!$this->is_syncing()) {
-			wp_die();
-		}
-
-	}
-
-
-	/*
-
 	Turns syncing on
 
 	*/
-	public function toggle_syncing($state) {
-		return $this->update_column_single(['is_syncing' => $state], ['id' => 1]);
+	public function toggle_syncing($syncing_status) {
+		return $this->update_column_single(['is_syncing' => $syncing_status], ['id' => 1]);
 	}
 
 
@@ -882,16 +715,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function get_syncing_totals_custom_collections() {
-
-		$syncing_totals_custom_collections = $this->get_column_single('syncing_totals_custom_collections');
-
-		if ( Utils::array_not_empty($syncing_totals_custom_collections) && isset($syncing_totals_custom_collections[0]->syncing_totals_custom_collections) ) {
-			return $syncing_totals_custom_collections[0]->syncing_totals_custom_collections;
-
-		} else {
-			return 0;
-		}
-
+		return $this->get_col_value('syncing_totals_custom_collections', 'int');
 	}
 
 
@@ -945,6 +769,21 @@ class Settings_Syncing extends \WPS\DB {
 
 	/*
 
+	Represents the actual (true) number of custom collections that exist in Shopify
+
+	*/
+	public function syncing_totals_collections_actual() {
+
+		$total_collections_to_sync = $this->syncing_totals_custom_collections_actual();
+		$total_collections_to_sync += $this->syncing_totals_smart_collections_actual();
+
+		return $total_collections_to_sync;
+
+	}
+
+
+	/*
+
 	Represents the actual (true) number of products that exist in Shopify
 
 	*/
@@ -952,6 +791,24 @@ class Settings_Syncing extends \WPS\DB {
 
 		$total_gross = $this->get_syncing_totals_products();
 		return $total_gross / 6;
+
+	}
+
+
+	/*
+
+	Helper for getting the syncing totals based on a post type
+
+	*/
+	public function syncing_totals_by_type($post_type) {
+
+		if ($post_type === WPS_PRODUCTS_POST_TYPE_SLUG) {
+			return $this->syncing_totals_products_actual();
+		}
+
+		if ($post_type === WPS_COLLECTIONS_POST_TYPE_SLUG) {
+			return $this->syncing_totals_collections_actual();
+		}
 
 	}
 
@@ -1039,6 +896,8 @@ class Settings_Syncing extends \WPS\DB {
 
 	Sets post relationships status
 
+	$published_product_ids should be an array
+
 	*/
 	public function set_published_product_ids($published_product_ids) {
 
@@ -1046,6 +905,19 @@ class Settings_Syncing extends \WPS\DB {
 		$this->reset_syncing_published_product_ids();
 
 		return $this->update_column_single(['published_product_ids' => maybe_serialize($published_product_ids)], ['id' => 1]);
+
+	}
+
+
+	public function set_finished_relationship($post_type) {
+
+		if ($post_type === WPS_PRODUCTS_POST_TYPE_SLUG) {
+			$this->set_finished_product_posts_relationships(1);
+		}
+
+		if ($post_type === WPS_COLLECTIONS_POST_TYPE_SLUG) {
+			$this->set_finished_collection_posts_relationships(1);
+		}
 
 	}
 
@@ -1076,7 +948,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function turn_syncing_off() {
-		$this->toggle_syncing(0);
+		return $this->toggle_syncing(0);
 	}
 
 
@@ -1086,7 +958,7 @@ class Settings_Syncing extends \WPS\DB {
 
 	*/
 	public function turn_syncing_on() {
-		$this->toggle_syncing(1);
+		return $this->toggle_syncing(1);
 	}
 
 
@@ -1141,7 +1013,6 @@ class Settings_Syncing extends \WPS\DB {
 
 
 	public function reset_all_syncing_status() {
-
 		$this->reset_webhooks_deletions_status();
 		$this->reset_data_deletions_status();
 		$this->reset_posts_relationships_status();
@@ -1150,21 +1021,31 @@ class Settings_Syncing extends \WPS\DB {
 
 	/*
 
-	Wrapper function to clear syncing cache
+	Saves error and stops the syncing process
 
 	*/
-	public function reset_syncing_cache() {
+	public function save_notice_and_expire_sync($WP_Error) {
 
-		update_site_option('wps_settings_updated', true);
+		$this->save_notice($WP_Error);
+		$this->expire_sync();
 
-		$this->turn_syncing_off();
+	}
 
-		$this->reset_all_syncing_totals();
-		$this->reset_all_syncing_status();
 
-		flush_rewrite_rules();
+	/*
 
-		return Transients::delete_short_term_cache();
+	Ends a progress bar instance
+
+	*/
+	public function expire_sync() {
+
+		return [
+			'turn_syncing_off' 						=> $this->turn_syncing_off(),
+			'reset_all_syncing_totals' 		=> $this->reset_all_syncing_totals(),
+			'reset_all_syncing_status' 		=> $this->reset_all_syncing_status(),
+			'delete_short_term_cache' 		=> Transients::delete_short_term_cache(),
+			'delete_long_term_cache' 			=> Transients::delete_long_term_cache()
+		];
 
 	}
 
@@ -1200,7 +1081,9 @@ class Settings_Syncing extends \WPS\DB {
 
 		$serialized_errors = $this->prepare_notice_for_save($current_errors, $error_message, 'error');
 
-		return $this->update_column_single(['syncing_errors' => $serialized_errors], ['id' => 1]);
+		$saved_Results = $this->update_column_single(['syncing_errors' => $serialized_errors], ['id' => 1]);
+
+		return $saved_Results;
 
 	}
 
@@ -1222,13 +1105,25 @@ class Settings_Syncing extends \WPS\DB {
 
 	/*
 
+	At this point we've set our custum error / warning messages
+
 	Wrapper for saving a notice (error or warning)
 
 	*/
-	public function save_notice($maybe_wp_error) {
+	public function save_notice($maybe_wp_error, $type = 'error') {
 
 		if ( !is_wp_error($maybe_wp_error) ) {
-			return $this->save_error($maybe_wp_error);
+
+			if ($type === 'error') {
+				return $this->save_error($maybe_wp_error);
+
+			} else if ($type === 'warning') {
+				return $this->save_warning($maybe_wp_error);
+
+			} else {
+				return $this->save_error($maybe_wp_error);
+			}
+
 		}
 
 		$error_message 	= $maybe_wp_error->get_error_message();
@@ -1238,47 +1133,16 @@ class Settings_Syncing extends \WPS\DB {
 
 			if ($type === 'error') {
 				return $this->save_error($error_message);
-			}
 
-			if ($type === 'warning') {
+			} else if ($type === 'warning') {
 				return $this->save_warning($error_message);
+
+			} else {
+				return $this->save_error($error_message);
 			}
 
 		}
 
-	}
-
-
-	/*
-
-	Saves error and stops the syncing process
-
-	*/
-	public function save_notice_and_stop_sync($WP_Error) {
-
-		$this->save_notice($WP_Error);
-		$this->expire_sync();
-
-	}
-
-
-	/*
-
-	Ends a progress bar instance
-
-	*/
-	public function expire_sync() {
-
-		if ($this->is_syncing()) {
-			$this->reset_all_syncing_totals();
-			$this->reset_syncing_cache();
-		}
-
-	}
-
-
-	public function throw_max_allowed_packet() {
-		return Utils::wp_error( Messages::get('max_allowed_packet') );
 	}
 
 
@@ -1359,33 +1223,8 @@ class Settings_Syncing extends \WPS\DB {
 	Runs on plugin activation, sets default row
 
 	*/
-	public function init($network_wide = false) {
-
-		// Creates custom tables for each blog
-		if ( is_multisite() && $network_wide ) {
-
-			$blog_ids = $this->get_network_sites();
-			$result = [];
-
-			// $site_blog_id is a string!
-			foreach ( $blog_ids as $site_blog_id ) {
-
-				switch_to_blog( $site_blog_id );
-
-				$result = $this->init_table_defaults();
-
-				restore_current_blog();
-
-			}
-
-		} else {
-
-			$result = $this->init_table_defaults();
-
-		}
-
-		return $result;
-
+	public function init() {
+		return $this->init_table_defaults();
 	}
 
 

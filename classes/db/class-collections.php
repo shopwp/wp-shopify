@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) {
 class Collections extends \WPS\DB {
 
 	private $DB_Collects;
-	private $WS_Collects;
 	private $CPT_Model;
 
 	private $DB_Collections_Smart;
@@ -25,10 +24,9 @@ class Collections extends \WPS\DB {
 
 
 
-	public function __construct($DB_Collects, $WS_Collects, $CPT_Model, $DB_Collections_Smart, $DB_Collections_Custom) {
+	public function __construct($DB_Collects, $CPT_Model, $DB_Collections_Smart, $DB_Collections_Custom) {
 
 		$this->DB_Collects 								= $DB_Collects;
-		$this->WS_Collects 								= $WS_Collects;
 		$this->CPT_Model 									= $CPT_Model;
 
 		$this->DB_Collections_Smart 			= $DB_Collections_Smart;
@@ -442,27 +440,6 @@ class Collections extends \WPS\DB {
 
 	/*
 
-	Responsible for assigning a post_id to collection_id
-
-	*/
-	public function set_post_id_to_collection($post_id, $collection) {
-
-		$collection = Utils::convert_array_to_object($collection);
-
-		if ($this->is_smart_collection($collection)) {
-			$update_result = $this->DB_Collections_Smart->update_column_single(['post_id' => $post_id], [WPS_COLLECTIONS_LOOKUP_KEY => $collection->collection_id]);
-
-		} else {
-			$update_result = $this->DB_Collections_Custom->update_column_single(['post_id' => $post_id], [WPS_COLLECTIONS_LOOKUP_KEY => $collection->collection_id]);
-		}
-
-		return $update_result;
-
-	}
-
-
-	/*
-
 	Gets collections from post name
 
 	*/
@@ -525,6 +502,10 @@ class Collections extends \WPS\DB {
 	public function get_collections_from_posts($posts) {
 
 		$collections = [];
+
+		if ( is_object($posts) ) {
+			$posts = [$posts];
+		}
 
 		foreach ($posts as $post) {
 

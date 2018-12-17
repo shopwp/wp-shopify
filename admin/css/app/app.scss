@@ -10,7 +10,6 @@ body.wp-shopify_page_wps-settings #wpbody {
 
 }
 
-
 .wps-animated {
   animation-duration: 0.7s;
   animation-fill-mode: both;
@@ -33,6 +32,8 @@ body.wp-shopify_page_wps-settings #wpbody {
   animation-name: wpsSlideInDown;
   animation-duration: 0.3s;
 }
+
+
 
 
 /*
@@ -216,6 +217,7 @@ div[class^="wps-postbox-"] {
 #wps-settings {
   float: left;
   width: 100%;
+  margin-bottom: 10em;
 
   .notice,
   div.error,
@@ -286,11 +288,6 @@ div[class^="wps-postbox-"] {
 
 }
 
-.wps-admin-wrap {
-  position: relative;
-  display: block !important;
-}
-
 .wps-l-contain {
   max-width: 700px;
 }
@@ -349,8 +346,9 @@ div[class^="wps-postbox-"] {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   margin-top: 15px;
   padding: 1em;
-  max-height: 900px;
-  overflow: hidden;
+  max-height: 800px;
+  overflow-x: hidden;
+  overflow-y: scroll;
 
   .notice {
     padding: 1em;
@@ -434,12 +432,12 @@ div[class^="wps-postbox-"] {
 
 
 .wps-connector-content {
-  // background-color: white;
-  // height: 100%;
   padding: 20px;
   position: relative;
   min-height: 300px;
+  max-height: 800px;
   margin-top: 25px;
+  overflow-y: scroll;
 }
 
 
@@ -769,6 +767,12 @@ Tabs
 
 
 .wps-admin-wrap {
+  position: relative;
+  display: block !important;
+
+  * {
+    box-sizing: border-box;
+  }
 
   input.error,
   textarea.error {
@@ -1165,6 +1169,10 @@ TODO: Remove for Phase 2
   color: #85d937;
 }
 
+.wps-col-license-status {
+  text-transform: capitalize;
+}
+
 .wps-table-supporting {
   display: block;
   margin-top: 10px;
@@ -1267,7 +1275,8 @@ TODO: Remove for Phase 2
 
 
 #wps-plugin-info,
-#wps-license {
+#wps-license,
+#wps-license-info {
   min-height: 80px;
 
   > .spinner {
@@ -1290,7 +1299,8 @@ TODO: Remove for Phase 2
 
 }
 
-#wps-plugin-info {
+#wps-plugin-info,
+#wps-license-info {
   min-height: 140px;
 }
 
@@ -1720,7 +1730,58 @@ Taken from Migrate DB Pro
   top: 3px;
 }
 
+.notice {
 
+  p + .wps-syncing-docs-check {
+    margin-top: 0;
+  }
+
+  .wps-syncing-docs-check {
+    margin-bottom: 0;
+  }
+
+  .wps-syncing-error-message {
+    margin-top: 0;
+  }
+
+}
+
+
+.wps-modal-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  opacity: 0.5;
+
+  &:hover {
+    cursor: pointer;
+    opacity: 1;
+  }
+
+}
+
+
+.wps-is-syncing .wps-modal-footer {
+  display: block;
+}
+
+.wps-modal-footer {
+  position: fixed;
+  bottom: 0;
+  border-top: 1px solid #dadada;
+  background: #f3f3f3;
+  display: none;
+  width: calc(100% - 60px);
+  left: 0;
+  padding: 10px 30px;
+  line-height: 1;
+  font-family: monospace;
+  font-size: 90%;
+  margin-top: 10px;
+}
 
 /*
 

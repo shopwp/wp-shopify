@@ -3,8 +3,7 @@
 namespace WPS\Factories;
 
 use WPS\Backend;
-use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\DB_Settings_Connection_Factory;
+use WPS\Factories;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -19,8 +18,8 @@ class Backend_Factory {
 		if (is_null(self::$instantiated)) {
 
 			$Backend = new Backend(
-				DB_Settings_General_Factory::build(),
-				DB_Settings_Connection_Factory::build()
+				Factories\DB\Settings_General_Factory::build(),
+				Factories\DB\Settings_Connection_Factory::build()
 			);
 
 			self::$instantiated = $Backend;

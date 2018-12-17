@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Images_Factory;
+use WPS\Factories;
 use WPS\Utils;
 
 
@@ -30,7 +30,7 @@ class Test_DB_Images extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Images                     = DB_Images_Factory::build();
+    self::$DB_Images                     = Factories\DB\Images_Factory::build();
 
     self::$mock_product                  = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );
     self::$mock_data_image               = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/images/image.json") );

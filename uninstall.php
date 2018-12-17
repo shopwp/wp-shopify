@@ -14,15 +14,14 @@ if ( !current_user_can('activate_plugins') ) {
 require_once('lib/autoloader.php'); // Our autoloader
 require_once('vendor/autoload.php'); // Composer autoloader
 
-use WPS\Factories\Async_Processing_Database_Factory;
+use WPS\Factories\Processing\Database_Factory;
 
-$Async_Processing_Database = Async_Processing_Database_Factory::build();
-
+$Processing_Database = Database_Factory::build();
 
 if ( is_multisite() ) {
-	$Async_Processing_Database->uninstall_plugin_multisite();
+	$Processing_Database->uninstall_plugin_multisite();
 
 } else {
-	$Async_Processing_Database->uninstall_plugin();
+	$Processing_Database->uninstall_plugin();
 
 }

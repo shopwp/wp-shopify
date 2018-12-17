@@ -1,37 +1,9 @@
 import to from 'await-to-js';
-import { getCheckoutCache } from '../ws/ws-settings';
 import { removeAllLineItems } from '../ws/ws-cart';
 import { logNotice } from './utils-notices';
 import isObject from 'lodash/isObject';
 import isEmpty from 'lodash/isEmpty';
 import size from 'lodash/size';
-
-
-/*
-
-Needs Cache Flush
-Calls Server
-
-*/
-function needsCacheFlush(cartID) {
-
-  return new Promise(async function (resolve, reject) {
-
-    var [cartCacheError, cartCache] = await to( getCheckoutCache(cartID) );
-
-    if (cartCacheError) {
-      return reject();
-    }
-
-    if (isWordPressError(cartCache)) {
-      return reject();
-    }
-
-    resolve();
-
-  });
-
-}
 
 
 /*
@@ -141,7 +113,6 @@ function emptyCartID(cartID) {
 
 
 export {
-  needsCacheFlush,
   flushCache,
   clearLS,
   emptyCartID,

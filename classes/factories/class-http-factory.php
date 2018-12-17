@@ -2,7 +2,7 @@
 
 namespace WPS\Factories;
 
-use WPS\Factories\DB_Settings_Connection_Factory;
+use WPS\Factories;
 use WPS\HTTP;
 
 if (!defined('ABSPATH')) {
@@ -17,11 +17,9 @@ class HTTP_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$HTTP = new HTTP(
-				DB_Settings_Connection_Factory::Build()
+			self::$instantiated = new HTTP(
+				Factories\DB\Settings_Connection_Factory::Build()
 			);
-
-			self::$instantiated = $HTTP;
 
 		}
 

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+use WPS\Options;
 
 class Deactivator {
 
@@ -26,7 +27,7 @@ class Deactivator {
 
 	*/
 	public function on_plugin_deactivate() {
-		delete_option('rewrite_rules');
+		return Options::delete('rewrite_rules');
 	}
 
 

@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Options;
 
 
 if (!defined('ABSPATH')) {
@@ -27,9 +28,10 @@ class Activator {
 	private $DB_Customers;
 	private $DB_Orders;
 	private $DB_Settings_Syncing;
+	private $Routes;
 
 
-	public function __construct($DB_Settings_Connection, $DB_Settings_General, $DB_Settings_License, $DB_Shop, $DB_Products, $DB_Variants, $DB_Collects, $DB_Options, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Images, $DB_Tags, $CPT, $DB_Customers, $DB_Orders, $DB_Settings_Syncing) {
+	public function __construct($DB_Settings_Connection, $DB_Settings_General, $DB_Settings_License, $DB_Shop, $DB_Products, $DB_Variants, $DB_Collects, $DB_Options, $DB_Collections_Custom, $DB_Collections_Smart, $DB_Images, $DB_Tags, $CPT, $DB_Customers, $DB_Orders, $DB_Settings_Syncing, $Routes) {
 
 		$this->DB_Settings_Connection 			= $DB_Settings_Connection;
 		$this->DB_Settings_General 					= $DB_Settings_General;
@@ -44,12 +46,14 @@ class Activator {
 		$this->DB_Images 										= $DB_Images;
 		$this->DB_Tags 											= $DB_Tags;
 		$this->CPT 													= $CPT;
+		$this->DB 													= $DB_Tags; // alias only
 
 		// Pro only
 		$this->DB_Customers 								= $DB_Customers;
 		$this->DB_Orders 										= $DB_Orders;
 
 		$this->DB_Settings_Syncing					= $DB_Settings_Syncing;
+		$this->Routes												= $Routes;
 
 	}
 
@@ -59,23 +63,23 @@ class Activator {
 	Create DB Tables
 
 	*/
-	public function create_db_tables($network_wide) {
+	public function create_db_tables() {
 
 		$results = [];
 
-		$results['DB_Settings_Connection'] 		= $this->DB_Settings_Connection->create_table($network_wide);
-		$results['DB_Settings_General'] 			= $this->DB_Settings_General->create_table($network_wide);
-		$results['DB_Settings_License'] 			= $this->DB_Settings_License->create_table($network_wide);
-		$results['DB_Shop'] 									= $this->DB_Shop->create_table($network_wide);
-		$results['DB_Products'] 							= $this->DB_Products->create_table($network_wide);
-		$results['DB_Variants'] 							= $this->DB_Variants->create_table($network_wide);
-		$results['DB_Collects'] 							= $this->DB_Collects->create_table($network_wide);
-		$results['DB_Options'] 								= $this->DB_Options->create_table($network_wide);
-		$results['DB_Collections_Custom'] 		= $this->DB_Collections_Custom->create_table($network_wide);
-		$results['DB_Collections_Smart'] 			= $this->DB_Collections_Smart->create_table($network_wide);
-		$results['DB_Images'] 								= $this->DB_Images->create_table($network_wide);
-		$results['DB_Tags'] 									= $this->DB_Tags->create_table($network_wide);
-		$results['DB_Settings_Syncing'] 			= $this->DB_Settings_Syncing->create_table($network_wide);
+		$results['DB_Settings_Connection'] 		= $this->DB_Settings_Connection->create_table();
+		$results['DB_Settings_General'] 			= $this->DB_Settings_General->create_table();
+		$results['DB_Settings_License'] 			= $this->DB_Settings_License->create_table();
+		$results['DB_Shop'] 									= $this->DB_Shop->create_table();
+		$results['DB_Products'] 							= $this->DB_Products->create_table();
+		$results['DB_Variants'] 							= $this->DB_Variants->create_table();
+		$results['DB_Collects'] 							= $this->DB_Collects->create_table();
+		$results['DB_Options'] 								= $this->DB_Options->create_table();
+		$results['DB_Collections_Custom'] 		= $this->DB_Collections_Custom->create_table();
+		$results['DB_Collections_Smart'] 			= $this->DB_Collections_Smart->create_table();
+		$results['DB_Images'] 								= $this->DB_Images->create_table();
+		$results['DB_Tags'] 									= $this->DB_Tags->create_table();
+		$results['DB_Settings_Syncing'] 			= $this->DB_Settings_Syncing->create_table();
 
 
 		return $results;
@@ -88,12 +92,12 @@ class Activator {
 	Sets default plugin settings and inserts default rows
 
 	*/
-	public function set_default_table_values($network_wide) {
+	public function set_default_table_values() {
 
 		$results = [];
 
-		$results['DB_Settings_General'] = $this->DB_Settings_General->init($network_wide);
-		$results['DB_Settings_Syncing'] = $this->DB_Settings_Syncing->init($network_wide);
+		$results['DB_Settings_General'] = $this->DB_Settings_General->init();
+		$results['DB_Settings_Syncing'] = $this->DB_Settings_Syncing->init();
 
 		return $results;
 
@@ -120,12 +124,12 @@ class Activator {
 	}
 
 
-	public function bootstrap_tables($network_wide) {
+	public function bootstrap_tables() {
 
 		$results = [];
 
-		$results['create_db_tables'] = $this->create_db_tables($network_wide);
-		$results['set_default_table_values'] = $this->set_default_table_values($network_wide);
+		$results['create_db_tables'] = $this->create_db_tables();
+		$results['set_default_table_values'] = $this->set_default_table_values();
 
 		$this->set_table_charset_cache();
 
@@ -164,7 +168,7 @@ class Activator {
 	*/
 	public function toggle_activation_flags() {
 
-		if ( Utils::plugin_ready() ) {
+		if ( $this->plugin_ready() ) {
 
 
 			if ( Utils::is_free_active() ) {
@@ -176,20 +180,48 @@ class Activator {
 	}
 
 
+	/*
 
-	public function get_ready($network_wide) {
+	Helper for checking whether the bootstrapping has occured or not.
+
+	*/
+	public function plugin_ready() {
+		return Options::get('wp_shopify_is_ready');
+	}
+
+
+	public function get_ready() {
+
+		$results = [];
 
 		// Builds the custom tables
-		$this->bootstrap_tables($network_wide);
+		$results['bootstrap_tables'] = $this->bootstrap_tables();
 
 		// Registers our CPTs
 		$this->CPT->init();
 
 		// Forces WP to check for plugin updates on activation
-		delete_option('_site_transient_update_plugins');
+		Options::delete('_site_transient_update_plugins');
 
-		// Ensure out CPTs work as expected
-		flush_rewrite_rules();
+		// Ensure our CPTs work as expected
+		$this->Routes->flush_routes();
+
+		return $results;
+
+	}
+
+
+
+	public function bootstrap_blogs() {
+
+		$blog_ids = $this->DB->get_network_sites();
+		$results = [];
+
+		foreach ( $blog_ids as $blog_id ) {
+			$results[] = $this->bootstrap_blog($blog_id);
+		}
+
+		return $results;
 
 	}
 
@@ -203,34 +235,59 @@ class Activator {
 	*/
 	public function on_plugin_activate($network_wide) {
 
-		if ( !Utils::plugin_ready() ) {
+		// Ensures any object cache is reset
+		// TODO: remove ... this is a global operation
+		wp_cache_flush();
 
-			$this->get_ready($network_wide);
+		if ( is_multisite() && $network_wide ) {
+			$this->bootstrap_blogs();
 
-			update_option('wp_shopify_is_ready', true);
+		} else {
+
+			if ( !$this->plugin_ready() ) {
+
+				// Bootstraps tables, creates CPTs, and flushes rewrites
+				$this->get_ready();
+
+				Options::update('wp_shopify_is_ready', true);
+
+			}
 
 		}
 
 	}
 
 
-	/*
+	public function bootstrap_blog($blog_id) {
 
-	Runs when a new blog is created within a multi-site setup
+		switch_to_blog($blog_id);
 
-	*/
-	function on_blog_create($blog_id, $user_id, $domain, $path, $site_id, $meta) {
+		if ( !$this->plugin_ready() ) {
 
-		if ( is_plugin_active_for_network( Utils::get_subdir_and_file() ) ) {
+			// Bootstraps tables, creates CPTs, and flushes rewrites
+			$ready_result = $this->get_ready();
 
-			switch_to_blog($blog_id);
-
-			$this->get_ready(false);
-
-			update_option('wp_shopify_is_ready', true);
+			// Forces WP to check for plugin updates on activation
+			Options::update('wp_shopify_is_ready', true);
 
 			restore_current_blog();
 
+		}
+
+		return $ready_result;
+
+	}
+
+
+	/*
+
+	Runs when a new blog is created within a multi-site setup. NOT when activated network wide.
+
+	*/
+	public function on_blog_create($blog_id, $user_id, $domain, $path, $site_id, $meta) {
+
+		if ( Utils::is_network_wide() ) {
+			$this->bootstrap_blog($blog_id);
 		}
 
 	}
@@ -243,7 +300,7 @@ class Activator {
 	$tables is an array containing a list of table names in string format
 
 	*/
-	function on_blog_delete($tables) {
+	public function on_blog_delete($tables) {
 
 		$tables[] = $this->DB_Settings_Connection->get_table_name();
 		$tables[] = $this->DB_Settings_General->get_table_name();

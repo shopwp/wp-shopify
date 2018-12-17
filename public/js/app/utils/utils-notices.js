@@ -222,18 +222,6 @@ function createDefaultNotice() {
 
 
 
-function authenticationError(noticeData) {
-
-  if (has(noticeData, 'action_name') && noticeData.action_name === 'get_shopify_credssss') {
-    return true;
-
-  } else {
-    return false;
-  }
-
-}
-
-
 function quantitySelectionError(noticeData) {
 
   if (has(noticeData, 'message') && noticeData.message === "Cannot read property 'checkoutLineItemsUpdate' of undefined") {
@@ -288,10 +276,6 @@ function shopifyGraphQLQueryMessage() {
 
 
 function getUserFriendlyMessage(noticeData) {
-
-  if (authenticationError(noticeData)) {
-    return authenticationMessage();
-  }
 
   if (quantitySelectionError(noticeData)) {
     return quantitySelectionMessage();
@@ -432,6 +416,15 @@ function isWordPressError(response) {
 
   }
 
+  // REST API error
+  if (isObject(response) && has(response, 'data') && has(response.data, 'type') ) {
+
+    if (response.data.type === 'error') {
+      foundError = true;
+    }
+
+  }
+
   // Used when using promise all for checking more than one returned response
   if (isArray(response) && !isEmpty(response)) {
 
@@ -482,7 +475,7 @@ function noticeConfigUnableToBuildCheckout() {
 
   return {
     type: 'error',
-    message: 'Unable to connect to store. This could be because your network is down or the Shop owners credentials are wrong. A possible <a href="https://wpshop.io/docs" target="_blank">solution can be found here</a>. Try double checking the API keys used in WP Shopify, clearing your browser cache and reloading the page.'
+    message: 'Unable to connect to store. This could be because your network is down or your browser is blocking cookies. A possible <a href="https://wpshop.io/docs" target="_blank">solution can be found here</a>. Try disabling any browser extensions and clearing your browser cache.'
   }
 
 }

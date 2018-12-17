@@ -3,13 +3,7 @@
 namespace WPS\Factories;
 
 use WPS\CPT;
-
-use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\DB_Products_Factory;
-use WPS\Factories\DB_Collections_Custom_Factory;
-use WPS\Factories\DB_Collections_Smart_Factory;
-use WPS\Factories\DB_Collects_Factory;
-use WPS\Factories\DB_Tags_Factory;
+use WPS\Factories;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -24,12 +18,12 @@ class CPT_Factory {
 		if (is_null(self::$instantiated)) {
 
 			$CPT = new CPT(
-				DB_Settings_General_Factory::build(),
-				DB_Products_Factory::build(),
-				DB_Collections_Custom_Factory::build(),
-				DB_Collections_Smart_Factory::build(),
-				DB_Collects_Factory::build(),
-				DB_Tags_Factory::build()
+				Factories\DB\Settings_General_Factory::build(),
+				Factories\DB\Products_Factory::build(),
+				Factories\DB\Collections_Custom_Factory::build(),
+				Factories\DB\Collections_Smart_Factory::build(),
+				Factories\DB\Collects_Factory::build(),
+				Factories\DB\Tags_Factory::build()
 			);
 
 			self::$instantiated = $CPT;

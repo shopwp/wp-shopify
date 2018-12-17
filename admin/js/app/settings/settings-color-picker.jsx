@@ -16,7 +16,7 @@ import {
   updateSettingCheckoutColor,
   updateSettingCartCounterColor,
   updateSettingCartIconColor
-} from "../ws/ws-api";
+} from "../ws/api/api-settings";
 
 
 /*

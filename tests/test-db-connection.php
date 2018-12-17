@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Settings_Connection_Factory;
+use WPS\Factories;
 
 /*
 
@@ -21,7 +21,7 @@ class Test_DB_Connection extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Settings_Connection       = DB_Settings_Connection_Factory::build();
+    self::$DB_Settings_Connection       = Factories\DB\Settings_Connection_Factory::build();
     self::$mock_connection              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection.json") );
     self::$mock_connection_update       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/connection-update.json") );
     self::$mock_connection_id           = self::$mock_connection->id;

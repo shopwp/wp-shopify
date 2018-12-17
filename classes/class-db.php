@@ -3,8 +3,10 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Utils\Data;
 use WPS\CPT;
 use WPS\Transients;
+use WPS\Options;
 
 use function WPS\Vendor\DeepCopy\deep_copy;
 
@@ -27,35 +29,8 @@ class DB {
 	Never called directly. Only used as a method on a DB class such as:
 
 	*/
-	public function create_table($network_wide) {
-
-		// Creates custom tables for each blog
-		if ( is_multisite() && $network_wide ) {
-
-			$blog_ids = $this->get_network_sites();
-
-			// $site_blog_id is a string!
-			foreach ( $blog_ids as $site_blog_id ) {
-
-				switch_to_blog( $site_blog_id );
-
-				$table_name = $this->get_table_name();
-
-				$result = $this->create_table_if_doesnt_exist($table_name);
-
-				restore_current_blog();
-
-			}
-
-
-		} else {
-
-			$result = $this->create_table_if_doesnt_exist($this->table_name);
-
-		}
-
-		return $result;
-
+	public function create_table() {
+		return $this->create_table_if_doesnt_exist( $this->get_table_name() );
 	}
 
 
@@ -72,8 +47,9 @@ class DB {
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-			$result = \dbDelta( $this->create_table_query( $table_name ) );
-			update_site_option('wp_shopify_table_exists_' . $table_name, 1);
+			$result = \dbDelta( $this->create_table_query($table_name) );
+
+			Options::update('wp_shopify_table_exists_' . $table_name, 1);
 
 		}
 
@@ -331,7 +307,7 @@ class DB {
 
 	/*
 
-	Returns corrosponding table name. Contains prefix.
+	Returns corrosponding table name. Contains prefix of single blog in multisite.
 
 	*/
 	public function get_table_name() {
@@ -367,11 +343,7 @@ class DB {
 
 	public function max_packet_size_reached($query) {
 
-		$postmax_size_in_bytes = $this->get_max_packet_size();
-
-		$query_size_in_bytes = strlen(serialize($query));
-
-		if ($query_size_in_bytes > $postmax_size_in_bytes) {
+		if (Data::size_in_bytes($query) > $this->get_max_packet_size()) {
 			return true;
 
 		} else {
@@ -680,6 +652,12 @@ class DB {
 		- insert
 
 
+	Possible return values:
+
+	WP_Error
+	false
+	true
+
 	*/
 	public function sanitize_db_response($result, $fallback_message = 'Uncaught error. Please clear the plugin cache and try again.', $type) {
 
@@ -688,12 +666,18 @@ class DB {
 
 		/*
 
-		If $wpdb->last_error doesnt contain an empty string, then we know the query failed in some capacity. We can safely
-		return this wrapped inside a WP_Error.
+		If $wpdb->last_error doesnt contain an empty string, then we know the query
+		failed in some capacity. We can safely return this wrapped inside a WP_Error.
 
 		*/
 		if ( $this->has_mysql_error() ) {
-			return Utils::wp_error( __($wpdb->last_error . '. Please clear the plugin cache and try again.', WPS_PLUGIN_TEXT_DOMAIN) );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> $wpdb->last_error,
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 
@@ -812,16 +796,27 @@ class DB {
 
 
 
+		$max_col_size_limit_reached = Utils::data_values_size_limit_reached($data, $table_name);
+
+
+
 		/*
 
 		If data to insert is too big, preemptively throw error. If we don't, $wpdb fails silently
 
 		*/
-		if ( Utils::data_values_size_limit_reached($data, $table_name) ) {
-			return Utils::wp_error( __('Data size limit reached for table: ' . $table_name, WPS_PLUGIN_TEXT_DOMAIN) );
+		if ( $max_col_size_limit_reached !== false ) {
+
+			$message_aux = 'insert within "' . $table_name . '" on column "' . $max_col_size_limit_reached['column_name'] . '". <br><br><b>Attempted to insert value:</b> ' . $max_col_size_limit_reached['value_attempted'] . '<br><b>Max column size:</b> ' . $max_col_size_limit_reached['max_size'];
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'max_column_size_reached',
+				'message_aux' 		=> $message_aux,
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
-
-
 
 		$column_formats = array_merge( array_flip($data_keys), $column_formats);
 
@@ -1149,18 +1144,35 @@ class DB {
 			if ($result !== true) {
 
 				if ( $this->has_mysql_error() ) {
-					return Utils::wp_error( __($wpdb->last_error, WPS_PLUGIN_TEXT_DOMAIN) );
+
+					return Utils::wp_error([
+						'message_lookup' 	=> $wpdb->last_error,
+						'call_method' 		=> __METHOD__,
+						'call_line' 			=> __LINE__
+					]);
 
 				} else {
-					return Utils::wp_error( __('Unable to create migration table. Unknown reason.', WPS_PLUGIN_TEXT_DOMAIN) );
+
+					return Utils::wp_error([
+						'message_lookup' 	=> 'migration_table_creation_error',
+						'call_method' 		=> __METHOD__,
+						'call_line' 			=> __LINE__
+					]);
+
 				}
 
 			}
 
 			return $result;
 
+
 		} else {
-			return Utils::wp_error( __('Unable to create migration table. Already exists.', WPS_PLUGIN_TEXT_DOMAIN) );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'migration_table_already_exists',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		}
 
@@ -1258,22 +1270,22 @@ class DB {
 	*/
 	public function table_exists($table_name) {
 
-		if ( get_site_option('wp_shopify_table_exists_' . $table_name) ) {
+		if ( Options::get('wp_shopify_table_exists_' . $table_name) ) {
+			return true;
+		}
+
+		$table_name_from_db = $this->search_for_table($table_name);
+
+		// Tables exists
+		if ($table_name_from_db === $table_name) {
+
+			Options::update('wp_shopify_table_exists_' . $table_name, 1);
+
 			return true;
 
-		} else {
-
-			$table_name_from_db = $this->search_for_table($table_name);
-
-			// Tables exists
-			if ($table_name_from_db === $table_name) {
-				update_site_option('wp_shopify_table_exists_' . $table_name, 1);
-				return true;
-			}
-
-			return false;
-
 		}
+
+		return false;
 
 	}
 
@@ -1327,42 +1339,6 @@ class DB {
 	}
 
 
-	public function sanitize_update_post_meta_response($response, $post_id, $meta_key, $new_meta_value) {
-
-		if ( !is_wp_error($response) ) {
-			return true;
-		}
-
-		// Not a real error
-		if ( get_post_meta($post_id, $meta_key, true) === $new_meta_value ) {
-			return true;
-
-		} else {
-			return $result;
-
-		}
-
-	}
-
-
-	/*
-
-	Wrapper function for updating post meta
-
-	*/
-	public function update_post_meta_helper($post_id, $meta_key, $meta_value) {
-
-		$response = $this->sanitize_db_response(
-			update_post_meta($post_id, $meta_key, $meta_value),
-			'Failed to update post meta table with key value',
-			'update_post_meta'
-		);
-
-		return $this->sanitize_update_post_meta_response($response, $post_id, $meta_key, $meta_value);
-
-	}
-
-
 	/*
 
 	Checks if the tables has been initialized or not
@@ -1398,7 +1374,13 @@ class DB {
 		$results = $wpdb->get_results( "SHOW FULL COLUMNS FROM $table" );
 
 		if (!$results) {
-			return Utils::wp_error('WP Shopify Error - Unable to get charset for table ' . $table);
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'charset_not_found',
+				'message_aux' 		=> $table,
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -1767,8 +1749,8 @@ class DB {
 	}
 
 
-	public function insert_default_values() {
-		return $this->insert( $this->get_column_defaults() );
+	public function insert_default_values($blog_id = false) {
+		return $this->insert( $this->get_column_defaults($blog_id) );
 	}
 
 
@@ -2085,6 +2067,34 @@ class DB {
 		}
 
 		return $results;
+
+	}
+
+
+	/*
+
+	General wrapper for getting a single setting
+
+	*/
+	public function get_col_value($col_name, $return_type = false) {
+
+		$col_value = $this->get_column_single($col_name);
+
+		if ( Utils::array_not_empty($col_value) && isset($col_value[0]->{$col_name}) ) {
+
+			if ($return_type) {
+
+				$col_value_to_return = $col_value[0]->{$col_name};
+
+				return Data::coerce($col_value_to_return, $return_type);
+
+			} else {
+				return $col_value[0]->{$col_name};
+			}
+
+		} else {
+			return $col_value;
+		}
 
 	}
 

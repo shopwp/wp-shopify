@@ -211,8 +211,6 @@ class Collects extends \WPS\DB {
 
 
 
-
-
 	public function get_published_collects($collects, $published_product_ids) {
 
 		return array_filter($collects, function($collect) use($published_product_ids) {

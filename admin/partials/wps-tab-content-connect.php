@@ -3,7 +3,7 @@
 Tab Content: Connect
 
 -->
-<div class="tab-content <?php echo $active_tab === 'tab-connect' ? 'tab-content-active' : ''; ?> <?php echo $connected ? 'wps-connected' : ''; ?>" data-tab-content="tab-connect">
+<div class="tab-content <?php echo $active_tab === 'tab-connect' ? 'tab-content-active' : ''; ?> <?= $has_connection ? 'wps-connected' : ''; ?>" data-tab-content="tab-connect">
 
   <div class="wps-admin-section-heading-group wps-l-row wps-l-space-between">
 
@@ -13,7 +13,7 @@ Tab Content: Connect
 
     <h3 class="wps-status-heading wps-admin-section-heading wps-l-box-2"><?php esc_html_e( 'Status:', WPS_PLUGIN_TEXT_DOMAIN ); ?>
 
-      <?php if($connected) { ?>
+      <?php if ($has_connection) { ?>
         <span class="wps-status is-connected"><?php esc_html_e('Connected', WPS_PLUGIN_TEXT_DOMAIN ); ?></span>
       <?php } else { ?>
         <span class="wps-status is-disconnected"><?php esc_html_e('Disconnected', WPS_PLUGIN_TEXT_DOMAIN ); ?></span>
@@ -47,7 +47,7 @@ Tab Content: Connect
 
 
 
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_api_key" name="api_key" value="<?php if(!empty($connection->api_key)) echo $connection->api_key; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API key you must create a "Private App" within your Shopify account.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span><div class="wps-form-icon wps-animated"></div>
+        <input required <?= $has_connection ? 'disabled' : ''; ?> type="text" class="regular-text <?= $has_connection ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_api_key" name="api_key" value="<?php if(!empty($connection->api_key)) echo $connection->api_key; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API key you must create a "Private App" within your Shopify account.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span><div class="wps-form-icon wps-animated"></div>
 
       </div>
 
@@ -61,7 +61,7 @@ Tab Content: Connect
 
         <h4><?php esc_attr_e('API Password', WPS_PLUGIN_TEXT_DOMAIN); ?></h4>
 
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_password" name="password" autocomplete="off" value="<?php if(!empty($connection->password)) echo $connection->password; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API Password you must create a "Private App" within your Shopify account.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span> <div class="wps-form-icon wps-animated"></div>
+        <input required <?= $has_connection ? 'disabled' : ''; ?> type="text" class="regular-text <?= $has_connection ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_password" name="password" autocomplete="off" value="<?php if(!empty($connection->password)) echo $connection->password; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate an API Password you must create a "Private App" within your Shopify account.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span> <div class="wps-form-icon wps-animated"></div>
 
       </div>
 
@@ -75,7 +75,7 @@ Tab Content: Connect
 
         <h4><?php esc_attr_e('Shared Secret', WPS_PLUGIN_TEXT_DOMAIN); ?></h4>
 
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_shared_secret" name="shared_secret" autocomplete="off" value="<?php if(!empty($connection->shared_secret)) echo $connection->shared_secret; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate a Shared Secret you must create a "Private App" within your Shopify account. The Shared Secret is used to validate webhook requests and provide security for WP Shopify.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span> <div class="wps-form-icon wps-animated"></div>
+        <input required <?= $has_connection ? 'disabled' : ''; ?> type="text" class="regular-text <?= $has_connection ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_shared_secret" name="shared_secret" autocomplete="off" value="<?php if(!empty($connection->shared_secret)) echo $connection->shared_secret; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate a Shared Secret you must create a "Private App" within your Shopify account. The Shared Secret is used to validate webhook requests and provide security for WP Shopify.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span> <div class="wps-form-icon wps-animated"></div>
 
       </div>
 
@@ -89,7 +89,7 @@ Tab Content: Connect
 
         <h4><?php esc_attr_e('Storefront Access Token', WPS_PLUGIN_TEXT_DOMAIN); ?></h4>
 
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_js_access_token" name="js_access_token" value="<?php if(!empty($connection->js_access_token)) echo $connection->js_access_token; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate a Storefront Access Token you must create a "Private App" within your Shopify account. The Storefront Access Token is used to create the front-end cart experience.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span><div class="wps-form-icon wps-animated"></div>
+        <input required <?= $has_connection ? 'disabled' : ''; ?> type="text" class="regular-text <?= $has_connection ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_js_access_token" name="js_access_token" value="<?php if(!empty($connection->js_access_token)) echo $connection->js_access_token; ?>" placeholder=""> <span class="wps-help-tip wps-help-tip-inline-no-position" title="<?php esc_attr_e( 'To generate a Storefront Access Token you must create a "Private App" within your Shopify account. The Storefront Access Token is used to create the front-end cart experience.', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span><div class="wps-form-icon wps-animated"></div>
 
       </div>
 
@@ -101,7 +101,7 @@ Tab Content: Connect
       <div class="wps-form-group">
 
         <h4><?php esc_attr_e( 'Domain', WPS_PLUGIN_TEXT_DOMAIN ); ?></h4>
-        <input required <?php echo $connected ? 'disabled' : ''; ?> type="text" class="regular-text <?php echo $connected ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_domain" name="domain" value="<?php if ( !empty($connection->domain) ) echo $connection->domain; ?>" placeholder="<?php esc_attr_e('shop.myshopify.com', WPS_PLUGIN_TEXT_DOMAIN ); ?>" id="domain"> <span class="wps-help-tip wps-help-tip-inline" title="<?php esc_attr_e( 'example: yourshop.myshopify.com', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
+        <input required <?= $has_connection ? 'disabled' : ''; ?> type="text" class="regular-text <?= $has_connection ? 'valid' : ''; ?>" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_domain" name="domain" value="<?php if ( !empty($connection->domain) ) echo $connection->domain; ?>" placeholder="<?php esc_attr_e('shop.myshopify.com', WPS_PLUGIN_TEXT_DOMAIN ); ?>" id="domain"> <span class="wps-help-tip wps-help-tip-inline" title="<?php esc_attr_e( 'example: yourshop.myshopify.com', WPS_PLUGIN_TEXT_DOMAIN ); ?>"></span>
         <div class="wps-form-icon wps-animated"></div>
 
       </div>
@@ -122,12 +122,13 @@ Tab Content: Connect
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax">
 
-        <?php if($connected) { ?>
+        <?php if ($has_connection) { ?>
           <?php submit_button( esc_html__('Disconnect your Shopify store', WPS_PLUGIN_TEXT_DOMAIN), 'primary large', 'submitDisconnect', false, array()); ?>
 
         <?php } else { ?>
           <?php submit_button( esc_html__('Connect your Shopify store', WPS_PLUGIN_TEXT_DOMAIN), 'primary large', 'submitConnect', false, array()); ?>
         <?php } ?>
+        
         <div class="spinner"></div>
 
       </div>

@@ -2,8 +2,11 @@
 
 namespace WPS;
 
-use WPS\Utils;
 use WPS\CPT;
+use WPS\Utils;
+use WPS\Utils\Posts as Utils_Posts;
+use WPS\Utils\Data as Utils_Data;
+
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -12,9 +15,10 @@ if (!defined('ABSPATH')) {
 
 class CPT_Query {
 
-	private $DB;
-	private $DB_Settings_General;
-	private $DB_Settings_Connection;
+	public $DB;
+	public $DB_Settings_General;
+	public $DB_Settings_Connection;
+	public $CPT_Meta;
 
 
 	/*
@@ -22,11 +26,12 @@ class CPT_Query {
 	Initialize the class and set its properties.
 
 	*/
-	public function __construct($DB_Settings_General, $DB_Settings_Connection) {
+	public function __construct($DB_Settings_General, $DB_Settings_Connection, $CPT_Meta) {
 
 		$this->DB 											= $DB_Settings_General;
 		$this->DB_Settings_General 			= $DB_Settings_General;
 		$this->DB_Settings_Connection 	= $DB_Settings_Connection;
+		$this->CPT_Meta 								= $CPT_Meta;
 
 	}
 
@@ -36,7 +41,7 @@ class CPT_Query {
 	Construct posts col names as string
 
 	*/
-	public function construct_posts_col_names_as_string() {
+	public function posts_col_names() {
 		return "(post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_content_filtered, post_parent, guid, menu_order, post_type, post_mime_type, comment_count)";
 	}
 
@@ -63,7 +68,9 @@ class CPT_Query {
 	}
 
 
-
+	public function return_author_id() {
+		return CPT::return_author_id();
+	}
 
 	public function return_post_date() {
 		return sanitize_text_field( date_i18n('Y-m-d H:i:s') );
@@ -150,6 +157,41 @@ class CPT_Query {
 	}
 
 
+	public function build_query_from_values($carry, $post, $post_type) {
+
+		if ( !empty($carry) ) {
+			$carry .=',';
+		}
+
+		$carry .= "(" .
+			"'" . esc_sql( $this->return_author_id() ) . "', " .
+			"'" . esc_sql( $this->return_post_date() ) . "', " .
+			"'" . esc_sql( $this->return_post_date_gmt() ) . "', " .
+			"'" . esc_sql( $this->return_post_content($post) ) . "', " .
+			"'" . esc_sql( $this->return_post_title($post) ) . "', " .
+			"'" . esc_sql( $this->return_post_excerpt($post) ) . "', " .
+			"'" . esc_sql( $this->return_post_status() ) . "', " .
+			"'" . esc_sql( $this->return_comment_status() ) . "', " .
+			"'" . esc_sql( $this->return_ping_status() ) . "', " .
+			"'" . esc_sql( $this->return_post_password() ) . "', " .
+			"'" . esc_sql( $this->return_post_name($post) ) . "', " .
+			"'" . esc_sql( $this->return_to_ping() ) . "', " .
+			"'" . esc_sql( $this->return_pinged() ) . "', " .
+			"'" . esc_sql( $this->return_post_modified() ) . "', " .
+			"'" . esc_sql( $this->return_post_modified_gmt() ) . "', " .
+			"'" . esc_sql( $this->return_post_content_filtered() ) . "', " .
+			"'" . esc_sql( $this->return_post_parent() ) . "', " .
+			"'" . esc_sql( $this->return_guid( $this->construct_post_guid($post, $post_type) ) ) . "', " .
+			"'" . esc_sql( $this->return_menu_order() ) . "', " .
+			"'" . esc_sql( $this->return_post_type($post_type) ) . "', " .
+			"'" . esc_sql( $this->return_post_mime_type() ) . "', " .
+			"'" . esc_sql( $this->return_comment_count() ) . "'" .
+		")";
+
+		return $carry;
+
+	}
+
 
 	/*
 
@@ -158,71 +200,16 @@ class CPT_Query {
 	$post_type = 'wps_products' or 'wps_collections'
 
 	*/
-	public function construct_posts_col_values_as_string($posts, $post_type) {
+	public function construct_posts_col_values($posts, $post_type) {
 
-		$index = 0;
-		$values_string = '';
-
-		foreach ($posts as $post) {
-
-			$index++;
-
-			if ($index > 1) {
-				$values_string .=',';
-			}
-
-			//$post_id 									= esc_sql( $this->return_post_id($post) );
-			$post_author_id 					= esc_sql( CPT::return_author_id() );
-			$post_date 								= esc_sql( $this->return_post_date() );
-			$post_date_gmt 						= esc_sql( $this->return_post_date_gmt() );
-			$post_content 						= esc_sql( $this->return_post_content($post) );
-			$post_title 							= esc_sql( $this->return_post_title($post) );
-			$post_excerpt 						= esc_sql( $this->return_post_excerpt($post) );
-			$post_status 							= esc_sql( $this->return_post_status() );
-			$comment_status 					= esc_sql( $this->return_comment_status() );
-			$ping_status 							= esc_sql( $this->return_ping_status() );
-			$post_password 						= esc_sql( $this->return_post_password() );
-			$post_name 								= esc_sql( $this->return_post_name($post) );
-			$to_ping 									= esc_sql( $this->return_to_ping() );
-			$pinged 									= esc_sql( $this->return_pinged() );
-			$post_modified 						= esc_sql( $this->return_post_modified() );
-			$post_modified_gmt 				= esc_sql( $this->return_post_modified_gmt() );
-			$post_content_filtered 		= esc_sql( $this->return_post_content_filtered() );
-			$post_parent 							= esc_sql( $this->return_post_parent() );
-			$guid 										= esc_sql( $this->return_guid( $this->construct_post_guid($post, $post_type) ) );
-			$menu_order 							= esc_sql( $this->return_menu_order() );
-			$post_type 								= esc_sql( $this->return_post_type($post_type) );
-			$post_mime_type 					= esc_sql( $this->return_post_mime_type() );
-			$comment_count 						= esc_sql( $this->return_comment_count() );
-
-			$values_string .= "(" .
-				"'" . $post_author_id . "', " .
-				"'" . $post_date . "', " .
-				"'" . $post_date_gmt . "', " .
-				"'" . $post_content . "', " .
-				"'" . $post_title . "', " .
-				"'" . $post_excerpt . "', " .
-				"'" . $post_status . "', " .
-				"'" . $comment_status . "', " .
-				"'" . $ping_status . "', " .
-				"'" . $post_password . "', " .
-				"'" . $post_name . "', " .
-				"'" . $to_ping . "', " .
-				"'" . $pinged . "', " .
-				"'" . $post_modified . "', " .
-				"'" . $post_modified_gmt . "', " .
-				"'" . $post_content_filtered . "', " .
-				"'" . $post_parent . "', " .
-				"'" . $guid . "', " .
-				"'" . $menu_order . "', " .
-				"'" . $post_type . "', " .
-				"'" . $post_mime_type . "', " .
-				"'" . $comment_count . "'" .
-			")";
-
+		if ( !is_array($posts) ) {
+			$posts = [$posts];
 		}
 
-		return $values_string;
+		return array_reduce($posts, function ($carry, $item) use ($post_type) {
+		  return $this->build_query_from_values($carry, $item, $post_type);
+		});
+
 
 	}
 
@@ -347,7 +334,25 @@ class CPT_Query {
 			$slug = $this->DB_Settings_General->products_slug();
 		}
 
-		return get_home_url() . '/' . $slug . '/' . $post->handle;
+		return Utils::get_site_url() . '/' . $slug . '/' . $post->handle;
+
+	}
+
+
+	/*
+
+	Only posts with maching handle / post_name
+
+	*/
+	public function only_posts_with_matching_handle($new_items, $existing_posts) {
+
+		return array_filter($new_items, function($item, $index) use($existing_posts) {
+
+			if (CPT::post_exists_by_handle($existing_posts, $item->handle)) {
+				return true;
+			}
+
+		}, ARRAY_FILTER_USE_BOTH);
 
 	}
 
@@ -357,17 +362,17 @@ class CPT_Query {
 	Find posts for update
 
 	*/
-	public function find_posts_to_update($shopify_items, $existing_posts) {
+	public function find_posts_to_update($new_items, $post_type) {
 
-		$shopify_items_updated = array_filter($shopify_items, function($item, $index) use($existing_posts) {
+		if ( is_object($new_items) ) {
+			$new_items = [$new_items];
+		}
 
-			if (CPT::post_exists($existing_posts, $item->handle)) {
-				return true;
-			}
+		$existing_posts = CPT::get_all_posts_compressed($post_type);
+		$matching_items = $this->only_posts_with_matching_handle($new_items, $existing_posts);
 
-		}, ARRAY_FILTER_USE_BOTH);
+		return $this->add_post_id_before_update($matching_items, $existing_posts);
 
-		return $this->add_post_id_before_update($shopify_items_updated, $existing_posts);
 
 	}
 
@@ -408,15 +413,17 @@ class CPT_Query {
 	*/
 	public function find_posts_to_insert($items_from_shopify, $existing_posts) {
 
-		 if (!$existing_posts) {
-			 return $items_from_shopify;
-		 }
+		if ( is_object($items_from_shopify) ) {
+			$items_from_shopify = [$items_from_shopify];
+		}
 
-		 return array_filter($items_from_shopify, function($item, $index) use($existing_posts) {
+		if (empty($existing_posts) || !$existing_posts) {
+			return $items_from_shopify;
+		}
 
-			if (!CPT::post_exists($existing_posts, $item->handle)) {
-				return true;
-			}
+		return array_filter($items_from_shopify, function($item, $index) use($existing_posts) {
+
+			return !CPT::post_exists_by_handle($existing_posts, $item->handle);
 
 		}, ARRAY_FILTER_USE_BOTH);
 
@@ -477,30 +484,40 @@ class CPT_Query {
 
 	/*
 
-	Construct posts insert query
+	Query for inseting posts
 
 	*/
-	public function construct_posts_insert_query($shopify_items, $existing_posts = false, $post_type) {
-
-		if ( empty($shopify_items) ) {
-			return false;
-		}
+	public function posts_insert_query($posts_column_names, $posts_column_values_insert) {
 
 		global $wpdb;
 
-		$posts_column_names = $this->construct_posts_col_names_as_string();
+		return "INSERT INTO " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . $posts_column_names . " VALUES " . $posts_column_values_insert . ";";
+
+	}
+
+
+	/*
+
+	Construct posts insert query
+
+	*/
+	public function construct_posts_insert_query($items, $post_type) {
+
+		if ( empty($items) ) {
+			return false;
+		}
 
 		// Should return an array of Shopify items
-		$items_to_insert = $this->find_posts_to_insert($shopify_items, $existing_posts);
+		$items_to_insert = $this->find_posts_to_insert($items, CPT::get_all_posts_compressed($post_type) );
 
 		// If we didn't find any posts to insert, return false and don't perform the query.
 		if ( empty($items_to_insert) ) {
 			return false;
 		}
 
-		$posts_column_values_insert = $this->construct_posts_col_values_as_string($items_to_insert, $post_type);
+		$posts_column_values_insert = $this->construct_posts_col_values($items_to_insert, $post_type);
 
-		return "INSERT INTO " . $wpdb->prefix . WPS_TABLE_NAME_WP_POSTS . $posts_column_names . " VALUES " . $posts_column_values_insert . ";";
+		return $this->posts_insert_query( $this->posts_col_names(), $posts_column_values_insert);
 
 	}
 
@@ -528,21 +545,45 @@ class CPT_Query {
 
 	/*
 
-	Wrapper for inserting data coming from Shopify as WordPress posts
+	Checks if inserting only
 
 	*/
-	public function insert_posts($items_from_shopify, $existing_posts, $post_type) {
+	public function inserting_only($type) {
+		return !CPT::posts_exist($type);
+	}
 
-		$query = $this->construct_posts_insert_query($items_from_shopify, $existing_posts, $post_type);
+
+	/*
+
+	Checks if updating only
+
+	*/
+	public function updating_only($post_type, $total_new_items) {
+		return CPT::num_of_posts($post_type) === $total_new_items;
+	}
+
+
+	/*
+
+	Wrapper for inserting Shopify items as posts
+
+	*/
+	public function insert_posts($items, $post_type) {
+
+		$query = $this->construct_posts_insert_query($items, $post_type);
 
 		if ($query) {
 			return $this->DB->query($query);
 		}
 
-
 	}
 
 
+	/*
+
+	Wrapper for updating Shopify items as posts
+
+	*/
 	public function update_posts($posts_to_update, $post_type) {
 
 		$query = $this->construct_posts_update_query( $this->format_posts_for_update($posts_to_update, $post_type) );
@@ -550,6 +591,109 @@ class CPT_Query {
 		if ($query) {
 			return $this->DB->query($query);
 		}
+
+	}
+
+
+	/*
+
+	Process post relationships
+
+	*/
+	public function process_post_relationship($db_class, $post, $params) {
+
+		$result = $this->CPT_Meta->update_posts_relationship($post, $db_class, $params);
+
+		if ( Utils_Posts::is_modify_posts_error($result) ) {
+
+			return Utils::wp_warning([
+				'message_lookup' 	=> 'failed_to_set_post_id_custom_table',
+				'message_aux'			=> $post['post_id'] . ' to the custom <b>' . $db_class . '</b> table. The ' . $params['lookup_key'] . ' affected is: ' . $post[$params['lookup_key']],
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
+		}
+
+		return $result;
+
+	}
+
+
+	/*
+
+	Modifies post relationships
+
+	*/
+	public function modify_posts_relationship($post, $params) {
+
+		return array_map(function($relationship) use($params, $post) {
+			return $this->process_post_relationship($relationship, $post, $params);
+		}, $params['relationships']);
+
+	}
+
+
+	/*
+
+	General modify posts relationships
+
+	*/
+	public function modify_posts_relationships($params) {
+
+		$results = array_map(function($post) use($params) {
+
+			return [
+				'custom'			=> $this->modify_posts_relationship($post, $params),
+				'post_meta'		=> $this->CPT_Meta->update_posts_meta_relationship($post, $params)
+			];
+
+		}, $params['posts']);
+
+		return Utils::flatten_array($results);
+
+	}
+
+
+	/*
+
+	General modify posts
+
+	*/
+	public function modify_posts($params) {
+
+		// Inserting only ...
+		if ( $this->inserting_only($params['post_type']) ) {
+			return $this->insert_posts($params['items'], $params['post_type']);
+		}
+
+		// Updating only ...
+		if ( $this->updating_only($params['post_type'], $params['totals']) ) {
+
+			return $this->update_posts(
+				$this->find_posts_to_update($params['items'], $params['post_type']),
+				$params['post_type']
+			);
+
+		}
+
+		// Inserting and Updating ...
+		$result_insert = $this->insert_posts($params['items'], $params['post_type']);
+
+		$result_update = $this->update_posts(
+			$this->find_posts_to_update($params['items'], $params['post_type']),
+			$params['post_type']
+		);
+
+		if (is_wp_error($result_insert)) {
+			return $result_insert;
+		}
+
+		if (is_wp_error($result_update)) {
+			return $result_update;
+		}
+
+		return true;
 
 	}
 

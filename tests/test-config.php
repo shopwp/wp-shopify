@@ -55,6 +55,10 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_PLUGIN_NAME_FULL') );
   }
 
+  function test_plugin_name_full_pro() {
+    $this->assertTrue( defined('WPS_PLUGIN_NAME_FULL_PRO') );
+  }
+
   function test_plugin_name_full_encoded() {
     $this->assertTrue( defined('WPS_PLUGIN_NAME_ENCODED') );
   }

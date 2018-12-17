@@ -10,7 +10,7 @@ import uniqBy from 'lodash/uniqBy';
 import has from 'lodash/has';
 
 
-import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount, elementExists } from '../utils/utils-common';
+import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount, elementExists, trimHTMLFromMoneyFormat } from '../utils/utils-common';
 import { createLineItemsFromVariants, createLineItemsMarkup, cartTermsState } from '../ws/ws-cart';
 import { getMoneyFormat, getShop } from '../ws/ws-shop';
 import { enable, disable } from '../utils/utils-ux';
@@ -604,7 +604,7 @@ function getLineItemImage(lineItem) {
 
 function renderLineItemUniqueIDs(lineItem, lineItemHTML) {
 
-  if ( !lineItemExists(lineItem) ) {
+  if ( !lineItemExists(lineItem) || !lineItemHTML ) {
     return false;
   }
 
@@ -859,7 +859,7 @@ Toggle Cart
 */
 function openCart() {
 
-  if (!cartIsOpen()) {
+  if ( !cartIsOpen() ) {
     slideInLeft( jQuery('.wps-cart') );
   }
 
@@ -874,7 +874,7 @@ Empty Cart Total
 function emptyCartTotal(checkout) {
 
   jQuery('.wps-cart .wps-pricing')
-    .text( formatTotalAmount( checkout.subtotalPrice, getMoneyFormat(getShop())) );
+    .text( formatTotalAmount( checkout.subtotalPrice,  trimHTMLFromMoneyFormat( getMoneyFormat( getShop() ) ) ) );
 
 }
 

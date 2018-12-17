@@ -190,7 +190,7 @@ class Templates {
 		if ( !Images::has_placeholder($image->src) ) {
 
 			// If single, then we're on the related products section
-			if ( is_single() ) {
+			if ( is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
 
 				$custom_sizing = apply_filters( 'wps_related_products_images_sizing', $this->DB_Settings_General->get_related_products_images_sizing_toggle() );
 
@@ -549,7 +549,7 @@ class Templates {
 			'heading'	=> $heading
 		];
 
-		if ( !is_single() ) {
+		if ( !is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
 			return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/loop/header' );
 		}
 
@@ -816,23 +816,17 @@ class Templates {
 	*/
 	public function wps_related_products() {
 
-		if (apply_filters('wps_products_related_show', true)) {
-
-			if ( !is_single() ) {
-				return;
-
-			} else {
-
-				$data = [];
-
-				return $this->Template_Loader->set_template_data($data)->get_template_part( 'products', 'related' );
-
-			}
-
-		} else {
+		if ( !apply_filters('wps_products_related_show', true) ) {
 			return;
-
 		}
+
+		if ( !is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
+			return;
+		}
+
+		$data = [];
+
+		return $this->Template_Loader->set_template_data($data)->get_template_part( 'products', 'related' );
 
 	}
 
@@ -1598,8 +1592,8 @@ class Templates {
 	*/
 	public function wps_cart_checkout_btn() {
 
-		$button_color = apply_filters( 'wps_products_checkout_button_color', $this->DB_Settings_General->get_setting('checkout_color', 'string') );
-		$button_target = apply_filters( 'wps_cart_checkout_button_target', $this->DB_Settings_General->get_setting('checkout_button_target', 'string') );
+		$button_color = apply_filters( 'wps_products_checkout_button_color', $this->DB_Settings_General->get_col_value('checkout_color', 'string') );
+		$button_target = apply_filters( 'wps_cart_checkout_button_target', $this->DB_Settings_General->get_col_value('checkout_button_target', 'string') );
 
 		$data = [
 			'checkout_base_url' => WPS_CHECKOUT_BASE_URL,
@@ -1726,7 +1720,7 @@ class Templates {
 
 	There's a few things going on here.
 
-	1. 'wps_format_products_shortcode_args' formats the provided shortcode args
+	1. 'format_products_shortcode_args' formats the provided shortcode args
 			by taking the comma seperated list of values in each attribute and constructing
 			an array. It also uses the attribute name as the array key. For example"
 
@@ -1754,7 +1748,7 @@ class Templates {
 
 		 ================================================================
 		 wps_products_shortcode ->
-		 wps_format_products_shortcode_args ->
+		 format_products_shortcode_args ->
 		 wps_map_products_args_to_query ->
 		 wps_products_display -> wps_clauses_mod (via WP_Query)
 				either a. construct_clauses_from_products_shortcode
@@ -1765,7 +1759,7 @@ class Templates {
 	public function wps_products_shortcode($atts) {
 
 		$shortcode_output = '';
-		$shortcodeArgs = Utils::wps_format_products_shortcode_args($atts);
+		$shortcodeArgs = Utils::format_products_shortcode_args($atts);
 
 		$data = [
 			'shortcodeArgs' => $shortcodeArgs,
@@ -1812,7 +1806,6 @@ class Templates {
 	}
 
 
-
 	/*
 
 	Main Template - products-single
@@ -1820,21 +1813,15 @@ class Templates {
 	*/
 	public function wps_single_template($template) {
 
-		if ( is_single() ) {
-
-			global $post;
-
-			if ($post->post_type === WPS_PRODUCTS_POST_TYPE_SLUG) {
-				$template = $this->Template_Loader->get_template_part( 'products', 'single', false ); // passing false will return string and not load template
-
-			} else if ($post->post_type === WPS_COLLECTIONS_POST_TYPE_SLUG) {
-				$template = $this->Template_Loader->get_template_part( 'collections', 'single', false );
-
-			}
-
-			return $template;
-
+		if ( is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
+			return $this->Template_Loader->get_template_part( 'products', 'single', false );
 		}
+
+		if ( is_singular(WPS_COLLECTIONS_POST_TYPE_SLUG) ) {
+			return $this->Template_Loader->get_template_part( 'collections', 'single', false );
+		}
+
+		return $template;
 
 	}
 
@@ -1847,13 +1834,11 @@ class Templates {
 	public function wps_all_template($template) {
 
 		if ( is_post_type_archive(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
+			return $this->Template_Loader->get_template_part( 'products', 'all', false );
+		}
 
-			// Passing false will return string and not template contents
-			$template = $this->Template_Loader->get_template_part( 'products', 'all', false );
-
-		} else if (is_post_type_archive(WPS_COLLECTIONS_POST_TYPE_SLUG)) {
-			$template = $this->Template_Loader->get_template_part( 'collections', 'all', false );
-
+		if (is_post_type_archive(WPS_COLLECTIONS_POST_TYPE_SLUG)) {
+			return $this->Template_Loader->get_template_part( 'collections', 'all', false );
 		}
 
 		return $template;
@@ -2174,17 +2159,6 @@ class Templates {
 
 		add_filter('wps_products_pagination_start', [$this, 'wps_products_pagination_start']);
 		add_filter('wps_products_pagination_end', [$this, 'wps_products_pagination_end']);
-
-
-
-
-		/*
-
-		Notices
-
-		*/
-		add_action('wp_ajax_wps_notice', [$this, 'wps_notice']);
-		add_action('wp_ajax_nopriv_wps_notice', [$this, 'wps_notice']);
 
 	}
 

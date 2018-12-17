@@ -1,7 +1,7 @@
 {
   "rootDir": "../../",
   "verbose": false,
-  "testURL": "http://wpstest.test",
+  "testURL": "http://wpshopify.loc",
   "modulePathIgnorePatterns": [
     "<rootDir>/node_modules",
     "<rootDir>/classes",

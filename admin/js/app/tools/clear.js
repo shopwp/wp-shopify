@@ -24,17 +24,21 @@ import {
 } from '../ws/localstorage';
 
 import {
-  removeWebhooks,
-  checkForActiveConnection,
-  deleteOnlySyncedData,
-  removeConnectionData,
-  resetNoticeFlags,
-  deletePostsAndSyncedData,
-  checkForValidServerConnection
+  post,
+  deletion
 } from '../ws/ws';
 
 import {
-  resetNoticesAndClearCache,
+  endpointConnectionCheck,
+  endpointToolsClearAll
+} from '../ws/api/api-endpoints';
+
+import {
+  deleteWebhooks
+} from '../ws/api/api-webhooks';
+
+import {
+  clearAllCache,
   deleteStandAloneData
 } from '../ws/wrappers';
 
@@ -48,10 +52,6 @@ import {
   getJavascriptErrorMessage,
   getWordPressErrorType
 } from '../utils/utils';
-
-import {
-  clearAllCache
-} from '../tools/cache';
 
 import {
   syncOn
@@ -83,20 +83,42 @@ function onClearSubmit() {
       WP_Shopify.isClearing = true;
 
 
+
       /*
 
       Checks for an open connection to the server ...
 
       */
+      var [serverCheckError, serverCheckData] = await to( post( endpointConnectionCheck() ) );
+
+      if (serverCheckError) {
+        return showAdminNotice( getJavascriptErrorMessage(serverCheckError) );
+      }
+
+      if (isWordPressError(serverCheckData)) {
+
+        return showAdminNotice(
+          getWordPressErrorMessage(serverCheckData),
+          getWordPressErrorType(serverCheckData)
+        );
+
+      }
+
+
+      /*
+
+      Turn syncing flag on
+
+      */
       try {
 
-        var checkForValidServerResp = await checkForValidServerConnection();
+        var syncOnResponse = await syncOn();
 
-        if (isWordPressError(checkForValidServerResp)) {
+        if (isWordPressError(syncOnResponse)) {
 
           showAdminNotice(
-            getWordPressErrorMessage(checkForValidServerResp),
-            getWordPressErrorType(checkForValidServerResp)
+            getWordPressErrorMessage(syncOnResponse),
+            getWordPressErrorType(syncOnResponse)
           );
 
           return;
@@ -147,7 +169,6 @@ function onClearSubmit() {
         Removing data that doesnt require an active Shopify connection
 
         */
-
         var [deletionError, deletionData] = await to( deleteStandAloneData() );
 
         if (deletionError) {
@@ -181,25 +202,19 @@ function onClearSubmit() {
         Delete posts and synced data from custom tables
 
         */
-        try {
 
-          var removedResponse = await deletePostsAndSyncedData();
+        var [removedError, removedResponse] = await to( deletion( endpointToolsClearAll() ) );
 
-          if (isWordPressError(removedResponse)) {
+        if (removedError) {
+          return showAdminNotice( getJavascriptErrorMessage(removedError) );
+        }
 
-            showAdminNotice(
-              getWordPressErrorMessage(removedResponse),
-              getWordPressErrorType(removedResponse)
-            );
+        if (isWordPressError(removedResponse)) {
 
-            return;
-
-          }
-
-        } catch(error) {
-
-          showAdminNotice( getJavascriptErrorMessage(error) );
-          return;
+          return showAdminNotice(
+            getWordPressErrorMessage(removedResponse),
+            getWordPressErrorType(removedResponse)
+          );
 
         }
 
@@ -208,35 +223,7 @@ function onClearSubmit() {
         afterDataRemoval(async () => {
 
 
-          /*
-
-          Turn syncing flag on
-
-          */
-          try {
-
-            var syncOnResponse = await syncOn();
-
-            if (isWordPressError(syncOnResponse)) {
-
-              showAdminNotice(
-                getWordPressErrorMessage(syncOnResponse),
-                getWordPressErrorType(syncOnResponse)
-              );
-
-              return;
-
-            }
-
-          } catch (error) {
-
-            showAdminNotice( getJavascriptErrorMessage(error) );
-            return;
-
-          }
-
-
-          if (hasConnection()) {
+          if ( hasConnection() ) {
 
 
 
@@ -250,7 +237,7 @@ function onClearSubmit() {
               */
               try {
 
-                var clearAllCacheResponse = await resetNoticesAndClearCache();
+                var clearAllCacheResponse = await clearAllCache();
 
                 if (isWordPressError(clearAllCacheResponse)) {
 
@@ -286,7 +273,7 @@ function onClearSubmit() {
             */
             try {
 
-              var clearAllCacheResponse = await resetNoticesAndClearCache();
+              var clearAllCacheResponse = await clearAllCache();
 
               if (isWordPressError(clearAllCacheResponse)) {
 

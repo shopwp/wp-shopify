@@ -4,8 +4,6 @@ namespace WPS\Factories;
 
 use WPS\Checkouts;
 
-use WPS\Factories\WS_Factory;
-
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -18,11 +16,7 @@ class Checkouts_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$Checkouts = new Checkouts(
-				WS_Factory::build()
-			);
-
-			self::$instantiated = $Checkouts;
+			self::$instantiated = new Checkouts();
 
 		}
 

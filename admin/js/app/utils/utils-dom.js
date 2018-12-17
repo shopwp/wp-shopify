@@ -141,7 +141,7 @@ function modalDOM(heading = 'Connecting ...', cancelText = 'Cancel connection') 
 
   if (getModalCache() === null) {
 
-    return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><h1 class="wps-connector-heading"><span>' + heading + '</span> <img class="wps-connector-logo" src="' + WP_Shopify.pluginsDirURL + 'admin/imgs/shopify.svg" /> to <img class="wps-connector-logo" src="' + WP_Shopify.pluginsDirURL + 'admin/imgs/logo-wp.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">' + cancelText + '</button></div><div class="wps-connector-content"></div></ div></div>');
+    return jQuery('<div class="wps-connector-wrapper"><div class="wps-connector wps-connector-progress wps-animated wps-fadeInDown"><span class="wps-modal-close dashicons dashicons-no-alt"></span><h1 class="wps-connector-heading"><span>' + heading + '</span> <img class="wps-connector-logo" src="' + WP_Shopify.pluginsDirURL + 'admin/imgs/shopify.svg" /> to <img class="wps-connector-logo" src="' + WP_Shopify.pluginsDirURL + 'admin/imgs/logo-wp.svg" /></h1><div class="l-row"><button type="button" name="button" class="button button-primary wps-btn wps-btn-cancel">' + cancelText + '</button></div><div class="wps-connector-content"></div></ div><footer class="wps-modal-footer"><span>Sync duration: </span><span id="wps-sync-duration"></span></footer></div>');
 
   } else {
     return getModalCache();
@@ -160,6 +160,7 @@ function createModal(heading = '', cancelText = '') {
   prepareBeforeSync();
 
   var $connectorModal = modalDOM(heading, cancelText);
+
   injectConnectorModal($connectorModal);
   onModalClose();
   showConnectorModal($connectorModal);
@@ -307,7 +308,7 @@ Returns: undefined
 */
 function initCloseModalEvents() {
 
-  jQuery('.wps-btn-cancel').unbind().on('click', function() {
+  jQuery('.wps-btn-cancel, .wps-modal-close').unbind().on('click', function() {
 
     jQuery('.wps-connector-wrapper').remove();
     jQuery(document).unbind();
@@ -373,6 +374,7 @@ function updateModalButtonText(text) {
 }
 
 
+
 function showCollectionsNotice(message, type) {
 
   if (message) {
@@ -383,6 +385,11 @@ function showCollectionsNotice(message, type) {
 }
 
 
+/*
+
+Reset sync by collections options
+
+*/
 function resetSyncByCollectionOptions() {
   jQuery("#wps-sync-by-collections option:selected").removeAttr("selected");
   jQuery("#wps-sync-by-collections").trigger("chosen:updated");
@@ -460,8 +467,12 @@ function removeCheckmarks($form) {
 Clear Connect Inputs
 
 */
-function clearConnectInputs() {
-  jQuery('#wps-connect .wps-form-group input').val('').removeClass('valid').prop('disabled', false);
+function clearConnectInputs(options = false) {
+
+  if (!options.keepInputs) {
+    jQuery('#wps-connect .wps-form-group input').val('').removeClass('valid').prop('disabled', false);
+  }
+
 }
 
 
@@ -558,10 +569,8 @@ Show any warnings
 */
 function showAnyWarnings(warnings, msg = '') {
 
-  var type = 'warning';
-
   forOwn(warnings, (value, key) => {
-    addNotice(msg + key, type);
+    addNotice(msg + key, 'warning');
   });
 
 }

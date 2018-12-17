@@ -4,7 +4,8 @@ Related Products Sort Type
 
 -->
 <div class="wps-admin-section">
-  <div class="wps-form-group wps-form-group-tight wps-form-group-align-top">
+
+  <div class="wps-form-group wps-form-group-tight wps-form-group-align-top" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_related_products_sort_type">
 
     <table class="form-table">
 

@@ -3,16 +3,8 @@
 namespace WPS\Factories;
 
 use WPS\Templates;
+use WPS\Factories;
 
-use WPS\Factories\Template_Loader_Factory;
-use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\Money_Factory;
-use WPS\Factories\DB_Variants_Factory;
-use WPS\Factories\DB_Products_Factory;
-use WPS\Factories\DB_Images_Factory;
-use WPS\Factories\DB_Tags_Factory;
-use WPS\Factories\DB_Options_Factory;
-use WPS\Factories\DB_Collections_Factory;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -27,15 +19,15 @@ class Templates_Factory {
 		if (is_null(self::$instantiated)) {
 
 			$Templates = new Templates(
-				Template_Loader_Factory::build(),
-				DB_Settings_General_Factory::build(),
-				Money_Factory::build(),
-				DB_Variants_Factory::build(),
-				DB_Products_Factory::build(),
-				DB_Images_Factory::build(),
-				DB_Tags_Factory::build(),
-				DB_Options_Factory::build(),
-				DB_Collections_Factory::build()
+				Factories\Template_Loader_Factory::build(),
+				Factories\DB\Settings_General_Factory::build(),
+				Factories\Money_Factory::build(),
+				Factories\DB\Variants_Factory::build(),
+				Factories\DB\Products_Factory::build(),
+				Factories\DB\Images_Factory::build(),
+				Factories\DB\Tags_Factory::build(),
+				Factories\DB\Options_Factory::build(),
+				Factories\DB\Collections_Factory::build()
 			);
 
 			self::$instantiated = $Templates;

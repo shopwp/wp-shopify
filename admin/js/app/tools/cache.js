@@ -7,12 +7,11 @@ import {
 
 import {
   clearLocalstorageCache
-} from '../ws/localstorage.js';
+} from '../ws/localstorage';
 
 import {
-  setSyncingIndicator,
-  clearCache
-} from '../ws/ws';
+  clearAllCache
+} from '../ws/wrappers';
 
 import {
   enable,
@@ -64,17 +63,6 @@ function onCacheClear() {
 }
 
 
-/*
-
-Clear All Cache
-
-*/
-function clearAllCache() {
-  return clearCache(); // Returns a Promise
-}
-
-
 export {
-  onCacheClear,
-  clearAllCache
+  onCacheClear
 }

@@ -3,7 +3,7 @@
 namespace WPS\Factories;
 
 use WPS\CPT_Model;
-use WPS\Factories\DB_Settings_General_Factory;
+use WPS\Factories;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -17,11 +17,9 @@ class CPT_Model_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$CPT_Model = new CPT_Model(
-				DB_Settings_General_Factory::build()
+			self::$instantiated = new CPT_Model(
+				Factories\DB\Settings_General_Factory::build()
 			);
-
-			self::$instantiated = $CPT_Model;
 
 		}
 

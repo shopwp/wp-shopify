@@ -87,8 +87,8 @@ class Test_Transients extends WP_UnitTestCase {
 	*/
 	function test_it_should_delete_cached_product_queries() {
 
-		set_transient('wps_products_query_hash_cache_123', ['this' => 'is', ['a' => 'product']]);
-		set_transient('wps_products_query_hash_cache_456', ['this' => 'is', ['a' => 'product']]);
+		set_transient('wp_shopify_products_query_hash_cache_123', ['this' => 'is', ['a' => 'product']]);
+		set_transient('wp_shopify_products_query_hash_cache_456', ['this' => 'is', ['a' => 'product']]);
 
 		$result = Transients::delete_cached_product_queries();
 

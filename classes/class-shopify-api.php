@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\Utils\Data as Utils_Data;
+
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -23,9 +25,9 @@ class Shopify_API extends \WPS\HTTP {
 		return "/admin/products.json";
 	}
 
-	public function endpoint_product_listings() {
-		return "/admin/product_listings.json";
-	}
+	// public function endpoint_product_listings() {
+	// 	return "/admin/product_listings.json";
+	// }
 
 	public function endpoint_product_listings_count() {
 		return "/admin/product_listings/count.json";
@@ -461,5 +463,126 @@ class Shopify_API extends \WPS\HTTP {
 		return $this->get( $this->endpoint_custom_collections_count() );
 	}
 
+
+	/*
+
+	Takes an array of ids such as ...
+
+	[1,2,3,4,5,6,7,8,9,10]
+
+	And turns it into a URL param like ...
+
+	'1,2,3,4,5'
+	'6,7,8,9,10'
+
+	*/
+	public function create_param_ids($ids, $items_per_chunk, $current_page) {
+
+		return Utils_Data::array_to_comma_string(
+			Utils_Data::current_index_value_less_one( Utils_Data::chunk_data($ids, $items_per_chunk), $current_page)
+		);
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*
+
+	Responsible for normalizing product total
+
+	*/
+	public function normalize_items_total($total_items) {
+
+		if ( is_null($total_items) ) {
+			// error_log('WP Shopify Warning: Total product amount is of type NULL and not Int. Returning 1 instead.');
+			return 1;
+		}
+
+		if ( is_array($total_items) ) {
+			// error_log('WP Shopify Warning: Total product amount is of type Array and not Int. Returning 1 instead.');
+			return 1;
+		}
+
+		if ( is_object($total_items) ) {
+			// error_log('WP Shopify Warning: Total product amount is of type Object and not Int. Returning 1 instead.');
+			return 1;
+		};
+
+		if ( is_string($total_items) ) {
+			// error_log('WP Shopify Warning: Total product amount is of type String and not Int. Casting to Int.');
+			return (int) $total_items;
+		}
+
+		return $total_items;
+
+	}
+
+
+	/*
+
+	Responsible for dividing the product amount with the request limit
+
+	*/
+	public function divide_items_amount_with_limit($total_items) {
+		return $this->normalize_items_total($total_items) / WPS_MAX_IDS_PER_REQUEST;
+	}
+
+
+	/*
+
+	Finds the total number of pages per item count
+
+	*/
+	public function get_total_pages($total_items) {
+		return (int) ceil( $this->divide_items_amount_with_limit($total_items) );
+	}
+
+
+	/*
+
+	Utility to check whether any items are left to sync
+
+	*/
+	public function no_items_left($prev_count) {
+
+		if ( $prev_count < 1 ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+
+	/*
+
+	Normalize the product API responses
+
+	*/
+	public function normalize_products_response($response) {
+
+		if ( is_array($response) ) {
+			return $response;
+		}
+
+		if ( is_object($response) && property_exists($response, 'products') ) {
+			return $response->products;
+		}
+
+		if ( is_object($response) && property_exists($response, 'product_listings') ) {
+			return $response->product_listings;
+		}
+
+	}
 
 }

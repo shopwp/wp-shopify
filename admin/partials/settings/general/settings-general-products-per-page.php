@@ -1,3 +1,9 @@
+<?php
+
+use WPS\Options;
+
+?>
+
 <!--
 
 Products per page
@@ -15,7 +21,7 @@ Products per page
         </th>
 
         <td class="forminp forminp-text">
-          <input type="number" class="small-text" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_num_posts" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_num_posts]" value="<?php echo !empty($general->num_posts) ? $general->num_posts : get_option('posts_per_page'); ?>" placeholder="">
+          <input type="number" class="small-text" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_num_posts" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_num_posts]" value="<?php echo !empty($general->num_posts) ? $general->num_posts : Options::get('posts_per_page'); ?>" placeholder="">
         </td>
 
       </tr>

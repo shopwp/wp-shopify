@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Collects_Factory;
+use WPS\Factories;
 use WPS\Utils;
 
 
@@ -29,7 +29,7 @@ class Test_DB_Collects extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Collects                    = DB_Collects_Factory::build();
+    self::$DB_Collects                    = Factories\DB\Collects_Factory::build();
     self::$mock_product                   = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );
     self::$mock_data_collect              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collects/collect.json") );
     self::$mock_collect_insert            = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collects/collects-insert.json") );

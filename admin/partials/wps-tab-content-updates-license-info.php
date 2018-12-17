@@ -3,18 +3,13 @@
 License Info
 
 -->
-<div class="postbox wps-postbox-license-info <?php echo $activeLicense ? '' : 'wps-is-hidden'; ?>">
-  <table class="form-table">
+<div class="postbox wps-postbox-license-info <?= $DB_Settings_License->has_license_key($license) ? '' : 'wps-is-hidden'; ?>" id="wps-license-info">
 
-    <tr valign="top">
+  <div class="spinner"></div>
 
-      <th class="row-title">
-        <?php esc_html_e('License Key Information', WPS_PLUGIN_TEXT_DOMAIN); ?>
-      </th>
+  <h3><?php esc_html_e('License Details', WPS_PLUGIN_TEXT_DOMAIN); ?></h3>
 
-      <th></th>
-
-    </tr>
+  <table class="form-table wps-is-hidden">
 
     <tr valign="top" class="alternate">
 
@@ -24,9 +19,7 @@ License Info
         </label>
       </td>
 
-      <td class="wps-col wps-col-license-status wps-col-license-status-<?php echo strtolower($status); ?>">
-        <?php printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $status); ?>
-      </td>
+      <td class="wps-col wps-col-license-status"></td>
 
     </tr>
 
@@ -39,7 +32,7 @@ License Info
       </td>
 
       <td class="wps-col wps-col-license-name">
-        <?php printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $custName); ?>
+        <?php printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $DB_Settings_License->get_license_customer_name($license)); ?>
       </td>
 
     </tr>
@@ -53,7 +46,7 @@ License Info
       </td>
 
       <td class="wps-col wps-col-license-email">
-        <?php printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $custEmail); ?>
+        <?php printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $DB_Settings_License->get_license_customer_email($license)); ?>
       </td>
 
     </tr>
@@ -70,12 +63,13 @@ License Info
 
         <?php
 
-        if (strpos($expires, '1970-01-01') !== false || $expires === 0 || $expires === false) {
-          esc_html_e('Never expires', WPS_PLUGIN_TEXT_DOMAIN);
+        $expiration = $DB_Settings_License->get_license_expiration( $license );
+
+        if ( $DB_Settings_License->license_expires($expiration) ) {
+          echo $DB_Settings_License->format_license_expiration_date($expiration);
 
         } else {
-          echo date_i18n("F j, Y", strtotime($expires));
-
+          esc_html_e('Never expires', WPS_PLUGIN_TEXT_DOMAIN);
         }
 
         ?>
@@ -94,15 +88,32 @@ License Info
 
       <td class="wps-col wps-col-license-limit">
 
-        <?php printf(esc_html__('%1$d / %2$d', WPS_PLUGIN_TEXT_DOMAIN), $count, $licenseLimit); ?>
+        <?php
 
-        <?php if ($license && isset($license->is_local)) { ?>
+        printf( esc_html__('%1$d / %2$d', WPS_PLUGIN_TEXT_DOMAIN), $DB_Settings_License->get_license_site_count($license), $DB_Settings_License->get_license_limit( $license ));
+
+        ?>
+
+        <?php if ( $DB_Settings_License->is_local($license) ) { ?>
           <small class="wps-table-supporting">
             <?php esc_html_e('(Activations on dev environments don\'t add to total)', WPS_PLUGIN_TEXT_DOMAIN); ?>
           </small>
         <?php } ?>
 
       </td>
+
+    </tr>
+
+
+    <tr valign="top" class="alternate">
+
+      <td scope="row">
+        <label for="tablecell">
+          <?php esc_html_e('Activations left', WPS_PLUGIN_TEXT_DOMAIN); ?>
+        </label>
+      </td>
+
+      <td class="wps-col wps-col-license-activations-left"></td>
 
     </tr>
 

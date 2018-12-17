@@ -1,3 +1,9 @@
+<?php
+
+use WPS\Options;
+
+?>
+
 <!--
 
 Tab Content: Tools
@@ -21,7 +27,7 @@ Tab Content: Tools
         'id' => 'wps-button-migrate'
       ];
 
-      if ( get_site_option('wp_shopify_migration_needed') != true ) {
+      if ( Options::get('wp_shopify_migration_needed') != true ) {
         $attributes['disabled'] = true;
       }
 

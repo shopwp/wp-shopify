@@ -2,10 +2,9 @@ import to from 'await-to-js';
 import isArray from 'lodash/isArray';
 import has from 'lodash/has';
 
-import { needsCacheFlush, flushCache, emptyCartID } from '../utils/utils-cart';
+import { flushCache, emptyCartID } from '../utils/utils-cart';
 import { clientActive, getClient } from '../utils/utils-client';
 import { getCheckoutID } from './ws-products';
-import { setCheckoutCache } from './ws-settings';
 import { createLineItemMarkup } from '../cart/cart-ui';
 
 
@@ -40,11 +39,9 @@ function createLineItemsMarkup(checkout) {
   return checkout.lineItems.map( lineItem => createLineItemMarkup(lineItem) );
 }
 
-
 function getCheckoutByID(client, existingCheckoutID) {
   return client.checkout.fetch(existingCheckoutID);
 }
-
 
 function updateLineItems(client, checkout, lineItemsToUpdate) {
   return client.checkout.updateLineItems(checkout.id, lineItemsToUpdate);
@@ -95,6 +92,8 @@ Set cart items
 
 */
 function setCheckout(checkout) {
+
+  WP_Shopify.checkout = checkout;
 
   if (isArray(checkout)) {
     var checkoutID = checkout[0].id;

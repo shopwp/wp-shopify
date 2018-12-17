@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Settings_General_Factory;
+use WPS\Factories;
 
 
 /*
@@ -21,7 +21,7 @@ class Test_DB_General extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Settings_General       = DB_Settings_General_Factory::build();
+    self::$DB_Settings_General       = Factories\DB\Settings_General_Factory::build();
     self::$mock_general_update       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/general-update.json") );
     self::$mock_general_id           = self::$mock_general_update->id;
     self::$lookup_key                = self::$DB_Settings_General->lookup_key;
@@ -236,7 +236,7 @@ class Test_DB_General extends WP_UnitTestCase {
 
     $this->assertCount(1, $col_difference);
     $this->assertArrayHasKey('id', $col_difference);
-    
+
   }
 
 }

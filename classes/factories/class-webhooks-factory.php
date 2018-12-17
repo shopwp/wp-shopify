@@ -3,9 +3,7 @@
 namespace WPS\Factories;
 
 use WPS\Webhooks;
-
-use WPS\Factories\DB_Settings_Connection_Factory;
-use WPS\Factories\DB_Settings_General_Factory;
+use WPS\Factories;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -19,12 +17,10 @@ class Webhooks_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$Webhooks = new Webhooks(
-				DB_Settings_Connection_Factory::build(),
-				DB_Settings_General_Factory::build()
+			self::$instantiated = new Webhooks(
+				Factories\DB\Settings_Connection_Factory::build(),
+				Factories\DB\Settings_General_Factory::build()
 			);
-
-			self::$instantiated = $Webhooks;
 
 		}
 

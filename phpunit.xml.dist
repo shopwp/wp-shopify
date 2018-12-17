@@ -31,6 +31,30 @@
 			<directory prefix="test-integration" suffix=".php">./tests/</directory>
 		</testsuite>
 
+		<testsuite name="API">
+			<directory prefix="test-api" suffix=".php">./tests/</directory>
+		</testsuite>
+
+		<testsuite name="Syncing">
+			<directory prefix="test-syncing" suffix=".php">./tests/</directory>
+		</testsuite>
+
+		<testsuite name="Utils">
+			<directory prefix="test-utils" suffix=".php">./tests/</directory>
+		</testsuite>
+
+		<testsuite name="CPT">
+			<directory prefix="test-cpt" suffix=".php">./tests/</directory>
+		</testsuite>
+
+		<testsuite name="Multisite">
+			<directory prefix="test-multisite" suffix=".php">./tests/</directory>
+		</testsuite>
+
+		<testsuite name="Query">
+			<directory prefix="test-query" suffix=".php">./tests/</directory>
+		</testsuite>
+
 	</testsuites>
 
 </phpunit>

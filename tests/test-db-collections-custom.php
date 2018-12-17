@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Collections_Custom_Factory;
+use WPS\Factories;
 
 /*
 
@@ -23,7 +23,7 @@ class Test_DB_Collections_Custom extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Collections_Custom             = DB_Collections_Custom_Factory::build();
+    self::$DB_Collections_Custom             = Factories\DB\Collections_Custom_Factory::build();
     self::$mock_collections                  = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-custom.json") );
     self::$mock_collections_for_update       = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-custom-update.json") );
     self::$mock_collections_id               = self::$mock_collections->id;

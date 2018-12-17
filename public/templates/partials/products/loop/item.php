@@ -46,8 +46,8 @@ if ($data->settings->products_compare_at) {
 do_action('wps_products_price_after', $data->product);
 
 
-// If single, then we're on the related products section
-if ( is_single() ) {
+// If is_singular, then we're on the related products section
+if ( is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
 
   if ( apply_filters('wps_products_related_show_add_to_cart', false) ) {
 

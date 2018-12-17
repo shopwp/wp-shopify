@@ -3,13 +3,14 @@
     [
       "@babel/preset-env",
       {
-        "useBuiltIns": "usage"
+        "useBuiltIns": "entry"
       }
     ]
     ,
     "@babel/preset-react"
   ],
   "plugins": [
+    "@babel/plugin-transform-regenerator",
     "@babel/plugin-transform-runtime",
     "@babel/plugin-syntax-dynamic-import",
     "@babel/plugin-syntax-import-meta",

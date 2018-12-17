@@ -14,22 +14,20 @@ import { initMisc } from './misc/misc';
 import { menusInit } from './menus/menus';
 import { noticesInit } from './notices/notices';
 
-_.noConflict();
 
 jQuery( () => {
 
-	if ( jQuery('body').hasClass('wp-shopify_page_wps-settings') ) {
-		initAdmin();
-		tabsInit();
-		vendorInit();
-		formEventsInit();
-		licenseInit();
-		settingsInit();
-		toolsInit();
-		menusInit();
-		initMisc();
-	}
+	initAdmin();
+	tabsInit();
+	vendorInit();
+	formEventsInit();
+	licenseInit();
+	settingsInit();
+	toolsInit();
+	menusInit();
+	initMisc();
 
+	// Notices will only show on pages whitelisted by should_load_js() 
 	noticesInit();
 
 });

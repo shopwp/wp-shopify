@@ -13,6 +13,7 @@ class Config {
 	public $plugin_url;
 	public $plugin_name;
 	public $plugin_name_full;
+	public $plugin_name_full_pro;
 	public $plugin_name_full_encoded;
 	public $plugin_name_js;
 	public $plugin_text_domain;
@@ -80,10 +81,11 @@ class Config {
 		$this->plugin_url 															= plugin_dir_url( __DIR__ );
 		$this->plugin_name 															= 'wps';
 		$this->plugin_name_full 												= 'WP Shopify';
+		$this->plugin_name_full_pro 										= 'WP Shopify Pro';
 		$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 		$this->plugin_name_js 													= 'WP_Shopify';
 		$this->plugin_text_domain 											= 'wp-shopify';
-		$this->plugin_version 													= '1.2.9';
+		$this->plugin_version 													= '1.3.0';
 		$this->plugin_author 														= 'WP Shopify';
 
 		$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -128,7 +130,7 @@ class Config {
 		$this->api_version 															= 'v1';
 		$this->api_namespace 														= $this->api_slug . '/' . $this->api_version;
 
-		// Settings
+		// Settings. TODO: Remove?
 		$this->settings_connection_option_name 					= $this->plugin_name . '_settings_connection';
 		$this->settings_general_option_name 						= $this->plugin_name . '_settings_general';
 		$this->settings_license_option_name 						= $this->plugin_name . '_settings_license';
@@ -219,6 +221,10 @@ class Config {
 
 		if ( !defined('WPS_PLUGIN_NAME_FULL') ) {
 			define('WPS_PLUGIN_NAME_FULL', $this->plugin_name_full);
+		}
+
+		if ( !defined('WPS_PLUGIN_NAME_FULL_PRO') ) {
+			define('WPS_PLUGIN_NAME_FULL_PRO', $this->plugin_name_full_pro);
 		}
 
 		if ( !defined('WPS_PLUGIN_NAME_ENCODED') ) {

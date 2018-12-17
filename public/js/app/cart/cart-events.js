@@ -31,11 +31,6 @@ import {
   hasCartElements
 } from './cart-ui';
 
-import { anyCustomAttrs } from '../ws/ws-checkout';
-
-
-
-
 
 
 function onCartTermsChange(client) {
@@ -160,7 +155,7 @@ function onCheckout(client, checkout) {
       var [updatedCheckoutError, updatedCheckout] = await to( addCheckoutAttributes(client, freshCheckout, WP_Shopify.checkoutAttributes) );
 
       if (updatedCheckoutError) {
-        logNotice('anyCustomAttrs', updatedCheckoutError, 'error');
+        logNotice('updatedCheckoutError', updatedCheckoutError, 'error');
         $checkoutButton.removeClass('wps-is-disabled wps-is-loading');
         return reject(updatedCheckoutError);
       }

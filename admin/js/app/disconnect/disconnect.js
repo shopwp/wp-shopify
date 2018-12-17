@@ -46,12 +46,20 @@ import {
 } from '../utils/utils-data';
 
 import {
-  removeConnectionData,
-  removeWebhooks,
-  checkForActiveConnection,
-  deleteOnlySyncedData,
-  resetNoticeFlags
+  deletion,
+  post
 } from '../ws/ws';
+
+import {
+  deleteWebhooks
+} from '../ws/api/api-webhooks';
+
+import {
+  endpointConnection,
+  endpointConnectionCheck,
+  endpointToolsClearAll,
+  endpointToolsClearSynced
+} from '../ws/api/api-endpoints';
 
 import {
   afterWebhooksRemoval,
@@ -60,8 +68,7 @@ import {
 } from '../utils/utils-progress';
 
 import {
-  syncOff,
-  resetNoticesAndClearCache,
+  clearAllCache,
   noConnectionReset
 } from '../ws/wrappers';
 
@@ -72,16 +79,14 @@ import {
 } from '../ws/localstorage';
 
 import {
-  connectInit
+  connectInit,
+  getConnectionFormData
 } from '../connect/connect';
 
 import {
-  clearAllCache
-} from '../tools/cache';
-
-import {
   removeExistingData,
-  syncOn
+  syncOn,
+  syncOff
 } from '../ws/syncing';
 
 import {
@@ -136,56 +141,21 @@ function disconnectionFormSubmitHandler(e) {
 
 
 
-    /*
+    var [syncOnError, syncOnData] = await to( syncOn() );
 
-    Step 1. Clearing current data
+    if (syncOnError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(syncOnError) );
+      return resolve();
+    }
 
-    */
-    var [checkForActiveConnectionError, checkForActiveConnectionData] = await to( checkForActiveConnection() );
-
-    if (checkForActiveConnectionError) {
-      cleanUpAfterSync( syncingConfigJavascriptError(checkForActiveConnectionError) );
-      resolve();
-      return
+    if (isWordPressError(syncOnData)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(syncOnData) ) );
+      return resolve();
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
-    }
-
-    if (isWordPressError(checkForActiveConnectionData)) {
-
-      // No active connection exists. Just drop data and clear cache.
-      var [noConnectionResetError, noConnectionResetData] = await to( noConnectionReset() );
-
-      if (noConnectionResetError) {
-        cleanUpAfterSync( syncingConfigJavascriptError(noConnectionResetError) );
-        resolve();
-        return
-      }
-
-      if (isWordPressError(noConnectionResetData)) {
-        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(noConnectionResetData) ) );
-        resolve();
-        return;
-      }
-
-      if (manuallyCanceled()) {
-        cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
-      }
-
-      showAdminNotice('Successfully removed all data', 'updated');
-      hideAdminNoticeByType('notice_warning_app_uninstalled');
-      setConnectionStatus(false);
-
-      cleanUpAfterSync( syncingConfigDisconnection() );
-      resolve();
-      return;
-
+      return resolve();
     }
 
 
@@ -198,50 +168,27 @@ function disconnectionFormSubmitHandler(e) {
     insertCheckmark();
     setConnectionStepMessage('Removing added Shopify data ...', '(Please wait, this may take up to 5 minutes depending on the size of your store and speed of internet connection.)');
 
-    var [syncOnError, syncOnData] = await to( syncOn() );
-
-    if (syncOnError) {
-      cleanUpAfterSync( syncingConfigJavascriptError(syncOnError) );
-      resolve();
-      return
-    }
-
-    if (isWordPressError(syncOnData)) {
-      cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(syncOnData) ) );
-      resolve();
-      return;
-    }
-
-    if (manuallyCanceled()) {
-      cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
-    }
-
 
     /*
 
     3. Remove product data
 
     */
-    var [removeExistingDataError, removeExistingDataResp] = await to( removeExistingData() );
+    var [removeExistingDataError, removeExistingDataResp] = await to( deletion( endpointToolsClearSynced() ) );
 
     if (removeExistingDataError) {
       cleanUpAfterSync( syncingConfigJavascriptError(removeExistingDataError) );
-      resolve();
-      return
+      return resolve();
     }
 
     if (isWordPressError(removeExistingDataResp)) {
       cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(removeExistingDataResp) ) );
-      resolve();
-      return;
+      return resolve();
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
+      return resolve();
     }
 
 
@@ -257,24 +204,21 @@ function disconnectionFormSubmitHandler(e) {
 
 
       // Remove connection data
-      var [removeConnectionDataError, removeConnectionDataData] = await to( removeConnectionData() );
+      var [deleteConnectionError, deleteConnectionData] = await to( deletion( endpointConnection() ));
 
-      if (removeConnectionDataError) {
-        cleanUpAfterSync( syncingConfigJavascriptError(removeConnectionDataError) );
-        resolve();
-        return
+      if (deleteConnectionError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(deleteConnectionError) );
+        return resolve();
       }
 
-      if (isWordPressError(removeConnectionDataData)) {
-        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(removeConnectionDataData) ) );
-        resolve();
-        return;
+      if (isWordPressError(deleteConnectionData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(deleteConnectionData) ) );
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 
@@ -291,20 +235,17 @@ function disconnectionFormSubmitHandler(e) {
 
       if (syncOffError) {
         cleanUpAfterSync( syncingConfigJavascriptError(syncOffError) );
-        resolve();
-        return
+        return resolve();
       }
 
       if (isWordPressError(syncOffData)) {
         cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(syncOffData) ) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 
@@ -313,24 +254,21 @@ function disconnectionFormSubmitHandler(e) {
       2. Clear all cache
 
       */
-      var [resetNoticesAndClearCacheError, resetNoticesAndClearCacheData] = await to( resetNoticesAndClearCache() );
+      var [clearAllCacheError, clearAllCacheData] = await to( clearAllCache() );
 
-      if (resetNoticesAndClearCacheError) {
-        cleanUpAfterSync( syncingConfigJavascriptError(resetNoticesAndClearCacheError) );
-        resolve();
-        return
+      if (clearAllCacheError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(clearAllCacheError) );
+        return resolve();
       }
 
-      if (isWordPressError(resetNoticesAndClearCacheData)) {
-        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(resetNoticesAndClearCacheData) ) );
-        resolve();
-        return;
+      if (isWordPressError(clearAllCacheData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(clearAllCacheData) ) );
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 

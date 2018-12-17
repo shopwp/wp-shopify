@@ -223,51 +223,44 @@ class Products extends \WPS\DB {
 	}
 
 
-	/*
+	public function query_products_by_post_id($table_name) {
+		return "SELECT products.* FROM " . $this->table_name . " as products WHERE products.post_id = %d";
+	}
 
-	Get Single Product
-	Without: Images, variants
-
-	*/
-	public function get_product_from_post_id($postID = null) {
+	public function query_prepared_products_by_post_id($query, $postID) {
 
 		global $wpdb;
 
-		if ($postID === null) {
-			$postID = get_the_ID();
-		}
-
-		if (get_transient('wps_product_single_' . $postID)) {
-			$results = get_transient('wps_product_single_' . $postID);
-
-		} else {
-			$query = "SELECT products.* FROM " . $this->table_name . " as products WHERE products.post_id = %d";
-			$results = $wpdb->get_row( $wpdb->prepare($query, $postID) );
-
-			set_transient('wps_product_single_' . $postID, $results);
-
-		}
-
-		return $results;
+		return $wpdb->prepare($query, $postID);
 
 	}
 
 
 	/*
 
-	Finds product row from WordPress post iD
+	Get Single Product
+	Without: Images, variants
 
 	*/
-	public function get_product_from_post_name($post_name = false) {
+	public function get_product_from_post_id($post_id = null) {
 
 		global $wpdb;
 
-		if ($post_name === false) {
-			return;
+		if ($post_id === null) {
+			$post_id = get_the_ID();
 		}
 
-		$query = "SELECT products.* FROM " . $this->table_name . " as products WHERE products.post_name = %s";
-		$results = $wpdb->get_row( $wpdb->prepare($query, $post_name) );
+		if (get_transient('wps_product_single_' . $post_id)) {
+			return get_transient('wps_product_single_' . $post_id);
+		}
+
+
+		$results = $wpdb->get_row(
+			$this->query_prepared_products_by_post_id( $this->query_products_by_post_id($this->table_name),  $post_id)
+		);
+
+		set_transient('wps_product_single_' . $post_id, $results);
+
 
 		return $results;
 
@@ -388,7 +381,12 @@ class Products extends \WPS\DB {
 		));
 
 		if ($response === 0) {
-			return Utils::wp_error( sprintf( esc_html__('Warning: Unable to update product: %s', WPS_PLUGIN_TEXT_DOMAIN), $product->title) );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'Warning: Unable to update product: ' . $product->title,
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $response;
@@ -471,10 +469,10 @@ class Products extends \WPS\DB {
 		if ($cpt) {
 
 			$post = get_post( $this->get_post_id_from_object($product) );
-			return Utils::hash_unique($post->{$content});
+			return Utils::hash_string($post->{$content});
 
 		} else {
-			return Utils::hash_unique($product->{$content});
+			return Utils::hash_string($product->{$content});
 
 		}
 

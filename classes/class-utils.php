@@ -2,6 +2,8 @@
 
 namespace WPS;
 
+use WPS\Messages;
+use WPS\Utils\Data as Utils_Data;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -67,8 +69,18 @@ class Utils {
 	Helper for throwing WP_Errors
 
 	*/
-	public static function wp_error($message) {
-		return new \WP_Error('error', $message);
+	public static function wp_error($params) {
+		return new \WP_Error('error', Messages::error($params) );
+	}
+
+
+	/*
+
+	Helper for throwing WP_Errors
+
+	*/
+	public static function wp_warning($params) {
+		return new \WP_Error('warning', Messages::error($params) );
 	}
 
 
@@ -120,8 +132,8 @@ class Utils {
 	Generate and return hash
 
 	*/
-	public static function hash_unique($content) {
-		return wp_hash($content);
+	public static function hash_string($string) {
+		return wp_hash($string);
 	}
 
 
@@ -130,8 +142,14 @@ class Utils {
 	Generate and return hash
 
 	*/
-	public static function hash_static($content) {
+	public static function hash($content, $serialize = false) {
+
+		if ($serialize) {
+			return md5( serialize($content) );
+		}
+
 		return md5($content);
+
 	}
 
 
@@ -141,7 +159,7 @@ class Utils {
 
 	*/
 	public static function hash_static_num($content) {
-		return crc32( self::hash_static($content) );
+		return crc32( self::hash($content) );
 	}
 
 
@@ -250,7 +268,7 @@ class Utils {
 
 	/*
 
-	Check if user is using the "collections" attribute. If they are, they we should
+	Check if user is using the "collections" attribute. If they are, then we should
 	default to the order they've established within Shopify.
 
 	To do this, we need to first get the list of collects associated with the query.
@@ -636,7 +654,13 @@ class Utils {
 
 		// Unable to convert to Object from these. Return false.
 		if (is_float($maybe_object) || is_int($maybe_object) || is_bool($maybe_object)) {
-			return self::wp_error( __('Unabled to convert data type to Array', WPS_PLUGIN_TEXT_DOMAIN ) );
+
+			return self::wp_error([
+				'message_lookup' 	=> 'unable_to_convert_to_array',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		return (array) $maybe_object;
@@ -657,7 +681,13 @@ class Utils {
 
 		// Unable to convert to Object from these. Return false.
 		if (is_float($maybe_array) || is_int($maybe_array) || is_bool($maybe_array)) {
-			return self::wp_error( __('Unabled to convert data type to Object', WPS_PLUGIN_TEXT_DOMAIN ) );
+
+			return self::wp_error([
+				'message_lookup' 	=> 'unable_to_convert_to_object',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if (is_array($maybe_array)) {
@@ -723,9 +753,16 @@ class Utils {
 			$db_col_size = $wpdb->get_col_length( $table_name, $key );
 
 			if ($db_col_size !== false && !is_wp_error($db_col_size) ) {
+;
+				if ( Utils_Data::size_in_bytes($value) > $db_col_size['length'] ) {
 
-				if ( mb_strlen($value) > $db_col_size['length'] ) {
-					return true;
+					return [
+						'table_name'				=> $table_name,
+						'value_attempted'		=> $value,
+						'column_name'				=> $key,
+						'max_size'					=> $db_col_size['length']
+					];
+
 				}
 
 			}
@@ -756,7 +793,7 @@ class Utils {
 	Remove all spaces from string
 
 	*/
-	public static function wps_mask_value($string) {
+	public static function mask($string) {
 		$length = strlen($string);
 		$stringNew = str_repeat('•', $length - 4) . $string[$length-4] . $string[$length-3] . $string[$length-2] . $string[$length-1];
 		return $stringNew;
@@ -1134,7 +1171,7 @@ class Utils {
 	TODO: Combine with wps_format_collections_shortcode_args
 
 	*/
-	public static function wps_format_products_shortcode_args($shortcodeArgs) {
+	public static function format_products_shortcode_args($shortcodeArgs) {
 
 		if ( isset($shortcodeArgs) && $shortcodeArgs ) {
 
@@ -1168,7 +1205,7 @@ class Utils {
 	Formats collections shortcode args
 	Returns SQL query
 
-	TODO: Combine with wps_format_products_shortcode_args
+	TODO: Combine with format_products_shortcode_args
 
 	*/
 	public static function wps_format_collections_shortcode_args($shortcodeArgs) {
@@ -1280,133 +1317,6 @@ class Utils {
 		}
 
 		return $collectionIDs;
-
-	}
-
-
-	/*
-
-	Find existing products
-
-	*/
-	public static function wps_find_existing_products() {
-
-		$existingProducts = array();
-
-		$posts = get_posts(array(
-			'posts_per_page'   => -1,
-			'post_type'        => WPS_PRODUCTS_POST_TYPE_SLUG,
-			'post_status'      => 'publish'
-		));
-
-		foreach ($posts as $post) {
-			$existingProducts[$post->ID] = $post->post_name;
-		}
-
-		return $existingProducts;
-
-	}
-
-
-	/*
-
-	Get collection ID by Handle
-
-	*/
-	public static function wps_get_collection_id_by_handle($handle) {
-
-		$args = array(
-			'post_type' => WPS_COLLECTIONS_POST_TYPE_SLUG,
-			'post_status' => 'publish',
-			'posts_per_page' -1,
-			'meta_query' => array(
-				array(
-					'key'    => 'wps_collection_handle',
-					'value'  => $handle
-				)
-			)
-		);
-
-		$collection = get_posts($args);
-
-
-		if(isset($collection) && $collection) {
-			$collectionID = get_post_meta( $collection[0]->ID, 'wps_collection_id', true );
-			return $collectionID;
-
-		} else {
-			return false;
-		}
-
-	}
-
-
-	/*
-
-	Construct Products Args
-
-	*/
-	public function wps_construct_products_args() {
-
-		/*
-
-		Check what was passed in and contruct our arguments for WP_Query
-
-		*/
-		if( isset($wps_shortcode_atts['collections']) && $wps_shortcode_atts['collections']) {
-
-			// Removing all spaces
-			// $collections = Utils::remove_spaces_from_string($wps_shortcode_atts['collections']);
-
-			// If user passed in collection as handle, find ID version
-			if(!ctype_digit($wps_shortcode_atts['collections'])) {
-				$collections = Utils::wps_get_collection_id_by_handle($wps_shortcode_atts['collections']);
-			} else {
-				$collections = $wps_shortcode_atts['collections'];
-			}
-
-
-			// $collectionIDs = self::comma_list_to_array($collections);
-
-			$args = array(
-				'post_type' => WPS_PRODUCTS_POST_TYPE_SLUG,
-				'post_status' => 'publish',
-				'posts_per_page' => $wps_shortcode_atts['limit'] ? $wps_shortcode_atts['limit'] : -1,
-				'paged' => $paged,
-				'meta_query' => array(
-					array(
-						'key'    => 'wps_product_collections',
-						'value'  => $collections
-					)
-				)
-			);
-
-		} else {
-
-			if( isset($wps_shortcode_atts['products']) && $wps_shortcode_atts['products'] ) {
-				$products = Utils::remove_spaces_from_string($wps_shortcode_atts['products']);
-				$productIDs = self::comma_list_to_array($products);
-
-				$args = array(
-					'post__in' => $productIDs,
-					'post_type' => WPS_PRODUCTS_POST_TYPE_SLUG,
-					'post_status' => 'publish',
-					'paged' => $paged,
-					'posts_per_page' => $wps_shortcode_atts['limit']
-				);
-
-			} else {
-
-				$args = array(
-					'post_type' => WPS_PRODUCTS_POST_TYPE_SLUG,
-					'post_status' => 'publish',
-					'paged' => $paged,
-					'posts_per_page' => $wps_shortcode_atts['limit']
-				);
-
-			}
-
-		}
 
 	}
 
@@ -1997,9 +1907,9 @@ class Utils {
 	Wraps something with an array
 
 	*/
-	public static function wrap_in_array($something) {
+	public static function maybe_wrap_in_array($something) {
 
-		if (!is_array($something)) {
+		if ( !is_array($something) ) {
 			$something = [$something];
 		}
 
@@ -2205,16 +2115,6 @@ class Utils {
 
 	/*
 
-	Helper for checking whether the bootstrapping has occured or not.
-
-	*/
-	public static function plugin_ready() {
-		return get_option('wp_shopify_is_ready');
-	}
-
-
-	/*
-
 	Calculates row difference
 
 	*/
@@ -2327,5 +2227,34 @@ class Utils {
 		return is_plugin_active_for_network( self::get_subdir_and_file() );
 
 	}
+
+
+	/*
+
+	Responsible for getting the site URL
+
+	*/
+	public static function get_site_url($blog_id = false) {
+
+    if ( is_multisite() ) {
+
+			if ($blog_id) {
+				$blog_details = get_blog_details($blog_id);
+
+			} else {
+				$blog_details = get_blog_details( get_current_blog_id() );
+			}
+
+			if ( !empty($blog_details) ) {
+				return $blog_details->siteurl;
+			}
+
+    } else {
+
+      return get_home_url();
+
+    }
+
+  }
 
 }

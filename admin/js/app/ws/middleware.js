@@ -1,35 +1,46 @@
 import filter from 'lodash/filter';
+import concat from 'lodash/concat';
 import isEmpty from 'lodash/isEmpty';
 
 import {
-  getProductsCount,
-  getCollectsCount,
   getSmartCollectionsCount,
+  getSmartCollections,
   getCustomCollectionsCount,
+  getCustomCollections
+} from './api/api-collections';
+
+import {
+  getShop,
+  getShopCount
+} from './api/api-shop';
+
+import {
+  getProducts,
+  getProductsCount,
+} from './api/api-products';
+
+import {
+  getCollects,
+  getCollectsCount,
+} from './api/api-collects';
+
+import {
+  getOrders,
   getOrdersCount,
+} from './api/api-orders';
+
+import {
+  getCustomers,
   getCustomersCount,
-  getWebhooksCount,
-  getShopCount,
-  setDataRelationships
-} from '../ws/ws';
+} from './api/api-customers';
 
 import {
-  syncShop,
-  syncProducts,
-  syncSmartCollections,
-  syncCustomCollections,
-  syncOrders,
-  syncCustomers,
-  syncWebhooks,
-} from './syncing';
+  registerWebhooks,
+  getWebhooksCount
+} from './api/api-webhooks';
 
 import {
-  streamProducts,
-  streamCollects,
-  streamOrders,
-  streamCustomers,
-  streamSmartCollections,
-  streamCustomCollections
+  streamItems
 } from './streaming';
 
 import {
@@ -51,6 +62,23 @@ import {
 } from '../tools/tools';
 
 
+
+import {
+  isSyncingProducts,
+  isSyncingCollects,
+  isSyncingOrders,
+  isSyncingCustomers,
+  isSyncingSmartCollections,
+  isSyncingCustomCollections,
+  isSyncingCollections,
+  isSyncingShop
+} from '../globals/globals-syncing';
+
+
+
+
+
+
 /*
 
 Syncing Shopify data with WordPress CPT
@@ -59,19 +87,29 @@ Each Promise here loops through the counted number of items and kicks off
 the batch process
 
 */
-async function syncPluginData(counts, inital = false) {
-
-  WP_Shopify.isSyncing = true;
+function syncPluginData(counts, inital = false) {
 
   counts = convertArrayWrapToObject(counts);
 
-  var promises = [
-    streamSmartCollections(counts.smart_collections),
-    streamCustomCollections(counts.custom_collections),
-    syncShop(), // insert_shop
-    streamProducts(counts.products),
-    streamCollects(counts.collects),
-  ];
+  var promises = [];
+
+  if ( isSyncingCollections() ) {
+    promises = concat(promises, streamItems(counts.smart_collections, getSmartCollections) );
+    promises = concat(promises, streamItems(counts.custom_collections, getCustomCollections) );
+  }
+
+  if ( isSyncingShop() ) {
+    promises = concat(promises, streamItems(counts.shop, getShop) );
+  }
+
+  if ( isSyncingProducts() ) {
+    promises = concat(promises, streamItems(counts.products, getProducts) );
+  }
+
+  if ( isSyncingCollects() ) {
+    promises = concat(promises, streamItems(counts.collects, getCollects) );
+  }
+
 
 
   return Promise.all(promises);
@@ -86,16 +124,27 @@ Syncing Shopify data with WordPress CPT
 */
 function getItemCounts() {
 
-  return Promise.all([
+  var promises = [];
+
+  if ( isSyncingCollections() ) {
+    promises = concat(promises, getSmartCollectionsCount() );
+    promises = concat(promises, getCustomCollectionsCount() );
+  }
+
+  if ( isSyncingShop() ) {
+    promises = concat(promises, getShopCount() );
+  }
+
+  if ( isSyncingProducts() ) {
+    promises = concat(promises, getProductsCount() );
+  }
+
+  if ( isSyncingCollects() ) {
+    promises = concat(promises, getCollectsCount() );
+  }
 
 
-    getSmartCollectionsCount(),
-    getCustomCollectionsCount(),
-    getProductsCount(),
-    getCollectsCount(),
-    getShopCount()
-
-  ]);
+  return Promise.all(promises);
 
 }
 

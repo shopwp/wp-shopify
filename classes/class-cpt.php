@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Utils\Data as Utils_Data;
 use WPS\Transients;
 
 if (!defined('ABSPATH')) {
@@ -64,32 +65,36 @@ class CPT {
 	}
 
 
-	public static function get_all_posts($type) {
+	public static function get_all_posts($post_type) {
 
 		return get_posts([
 			'posts_per_page' 		=> -1,
-			'post_type' 				=> $type
+			'post_type' 				=> $post_type,
+			'nopaging' 					=> true
 		]);
 
 	}
 
 
-	public static function get_all_posts_by_type($type) {
-		return self::add_meta_to_cpt( self::get_all_posts($type) );
+	public static function get_all_posts_by_type($post_type) {
+		return self::add_meta_to_cpt( self::get_all_posts($post_type) );
 	}
 
+	public static function get_all_posts_compressed($post_type) {
+		return self::truncate_post_data( self::get_all_posts($post_type) );
+	}
+
+	public static function only_id_and_post_name($post) {
+
+		return [
+			'ID'					=> $post->ID,
+			'post_name'		=> $post->post_name
+		];
+
+	}
 
 	public static function truncate_post_data($posts) {
-
-		return array_map(function($post) {
-
-			return [
-				'ID'					=> $post->ID,
-				'post_name'		=> $post->post_name
-			];
-
-		}, $posts );
-
+		return array_map([__CLASS__, 'only_id_and_post_name'], $posts);
 	}
 
 
@@ -104,14 +109,14 @@ class CPT {
 			return;
 		}
 
-		$settings_general = $this->DB_Settings_General->get();
+		$products_slug = $this->DB_Settings_General->products_slug();
 
 		// If falsey or not an object ...
-		if (empty($settings_general) || !is_object($settings_general)) {
-			$permalink = 'products';
+		if (!$products_slug) {
+			$permalink = 'collections';
 
 		} else {
-			$permalink = $settings_general->url_products;
+			$permalink = $products_slug;
 		}
 
 
@@ -171,14 +176,14 @@ class CPT {
 			return;
 		}
 
-		$settings_general = $this->DB_Settings_General->get();
+		$collections_slug = $this->DB_Settings_General->collections_slug();
 
 		// If falsey or not an object ...
-		if (empty($settings_general) || !is_object($settings_general)) {
+		if (!$collections_slug) {
 			$permalink = 'collections';
 
 		} else {
-			$permalink = $settings_general->url_collections;
+			$permalink = $collections_slug;
 		}
 
 
@@ -311,12 +316,8 @@ class CPT {
 	Post exists
 
 	*/
-	public static function post_exists($posts, $post_handle) {
-
-		if ( in_array($post_handle, array_column($posts, 'post_name')) ) {
-			return true;
-		}
-
+	public static function post_exists_by_handle($posts, $post_handle) {
+		return in_array($post_handle, array_column($posts, 'post_name'));
 	}
 
 
@@ -684,28 +685,18 @@ class CPT {
 
 
 	public static function num_of_posts($type) {
-
-		$amounts = wp_count_posts($type);
-		$amounts_total = [];
-
-		$amounts_array = get_object_vars($amounts);
-		$amounts_values_array = array_values($amounts_array);
-
-		$total_amounts = array_reduce($amounts_values_array, function($carry, $item) {
-
-			$carry += $item;
-			return $carry;
-
-		});
-
-		return $total_amounts;
-
+		return Utils_Data::add_totals( array_values( get_object_vars( wp_count_posts($type) ) ) );
 	}
 
 
-	public static function collections_posts_exist() {
+	/*
 
-		if (self::num_of_posts(WPS_COLLECTIONS_POST_TYPE_SLUG) > 0) {
+	Checks whether any posts of a given type exist or not
+
+	*/
+	public static function posts_exist($type) {
+
+		if (self::num_of_posts($type) > 0) {
 			return true;
 
 		} else {
@@ -713,20 +704,6 @@ class CPT {
 		}
 
 	}
-
-
-	public static function products_posts_exist() {
-
-		if (self::num_of_posts(WPS_PRODUCTS_POST_TYPE_SLUG) > 0) {
-			return true;
-
-		} else {
-			return false;
-		}
-
-	}
-
-
 
 
 
@@ -810,6 +787,34 @@ class CPT {
 		return $post;
 
 	}
+
+
+	public static function get_all_posts_truncated($post_type, $inclusions) {
+		return Utils::lessen_array_by( CPT::get_all_posts($post_type), $inclusions);
+	}
+
+
+
+
+
+	public static function add_props($item, $props) {
+
+		foreach ($props as $key => $value) {
+			$item->{$key} = $value;
+		}
+
+		return $item;
+
+	}
+
+	public static function add_props_to_items($items, $props) {
+
+		return array_map(function ($item) use ($props) {
+	    return self::add_props($item, $props);
+		}, $items);
+
+	}
+
 
 
 	/*

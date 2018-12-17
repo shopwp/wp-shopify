@@ -106,8 +106,8 @@ var config = {
       './_tmp/public/css/app',
       './_tmp/dist/public.min.js.LICENSE'
     ],
-    buildZip: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wpshopify/wpshopify.zip' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
-    buildRoot: argvs.argv.tier === 'free' ? '/Users/arobbins/www/wpstest/assets/wpshopify' : '/Users/arobbins/www/wpstest/assets/wp-shopify-pro',
+    buildZip: argvs.argv.tier === 'free' ? '/Users/andrew/www/wpstest/assets/wpshopify/wpshopify.zip' : '/Users/andrew/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
+    buildRoot: argvs.argv.tier === 'free' ? '/Users/andrew/www/wpstest/assets/wpshopify' : '/Users/andrew/www/wpstest/assets/wp-shopify-pro',
     buildEntry: [
       './admin/js/app/tools/tools.js',
       './admin/partials/wps-tab-content-tools.php'
@@ -171,7 +171,7 @@ var config = {
     cssAdmin: 'admin.min.css'
   },
   bs: browserSync.create(),
-  serverName: 'wpstest.test',
+  serverName: 'wpshopify.loc',
   isBuilding: argvs.argv.tier ? true : false,
   buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
   buildRelease: argvs.argv.release ? argvs.argv.release : false, // Plugin version number
@@ -187,7 +187,7 @@ Jest Config
 function jestConfig() {
 
   return {
-    "testURL": "http://wpstest.test",
+    "testURL": "https://wpshopify.loc",
     "testEnvironment": "node",
     "verbose": true,
     "roots": [

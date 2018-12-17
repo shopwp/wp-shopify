@@ -8,10 +8,27 @@ import {
 
 import {
   syncOn,
-  saveConnection,
-  saveCounts,
   removeExistingData
 } from '../ws/syncing';
+
+import {
+  noConnectionReset,
+  clearAllCache
+} from '../ws/wrappers';
+
+import {
+  saveCounts
+} from '../ws/api/api-syncing';
+
+import {
+  endpointConnection,
+  endpointConnectionCheck,
+  endpointToolsClearSynced,
+} from '../ws/api/api-endpoints';
+
+import {
+  getShop
+} from '../ws/api/api-shop';
 
 import {
   syncingConfigErrorBeforeSync,
@@ -19,14 +36,6 @@ import {
   syncingConfigSavedConnectionOnly,
   syncingConfigManualCancel
 } from '../ws/syncing-config';
-
-import {
-  streamShop
-} from '../ws/streaming';
-
-import {
-  onModalClose
-} from '../forms/events';
 
 import {
   unbindConnectForm,
@@ -45,6 +54,10 @@ import {
   isWordPressError,
   getDataFromArray
 } from '../utils/utils';
+
+import {
+  initSyncingTimer
+} from '../utils/utils-timer';
 
 import {
   createProgressLoader,
@@ -73,7 +86,8 @@ import {
   resetConnectSubmit,
   updateDomAfterSync,
   ejectConnectorModal,
-  createModal
+  createModal,
+  hideAdminNoticeByType
 } from '../utils/utils-dom';
 
 import {
@@ -82,31 +96,29 @@ import {
   addToWarningList,
   filterOutAnyNotice,
   filterOutSelectiveSync,
-  filterOutSelectedDataForSync,
   filterOutEmptySets,
   setConnectionStatus,
   returnOnlyFirstError
 } from '../utils/utils-data';
 
 import {
-  setPluginSettings,
-  getConnectionData,
-  setSyncingIndicator,
-  endProgress,
-  removeWebhooks,
-  checkForValidServerConnection,
-  getPublishedProductIds
+  post,
+  deletion,
+  endProgress
 } from '../ws/ws';
 
 import {
-  syncOff
-} from '../ws/wrappers';
+  deleteWebhooks
+} from '../ws/api/api-webhooks';
+
+import {
+  getPublishedProductIds
+} from '../ws/api/api-products';
 
 import {
   setModalCache,
   clearLocalstorageCache,
   setStartingURL,
-  syncIsCanceled,
   setWebhooksReconnect,
   setCancelSync,
   setConnectionProgress
@@ -119,11 +131,6 @@ import {
 import {
   activateToolButtons
 } from '../tools/tools';
-
-import {
-  clearAllCache
-} from '../tools/cache';
-
 
 
 
@@ -174,7 +181,6 @@ function onConnectionFormSubmit() {
 }
 
 
-
 function sanitizeDomainField() {
 
   var domain = jQuery('#wps_settings_general_domain').val();
@@ -188,7 +194,7 @@ function sanitizeDomainField() {
 
 
 function getConnectionFormData(form) {
-  return formatConnectorFormData(jQuery(form).serializeArray());
+  return formatConnectorFormData( jQuery(form).serializeArray() );
 }
 
 
@@ -219,7 +225,7 @@ function prepareBeforeSync() {
 
 function saveConnectionOnly(saveConnectionResponse) {
 
-  if (saveConnectionResponse.data.save_connection_only == '1') {
+  if (WP_Shopify.settings.connection.saveConnectionOnly) {
     return true;
 
   } else {
@@ -245,62 +251,27 @@ function connectionFormSubmitHandler(form) {
 
     setConnectionStepMessage('Preparing Shopify connection ...');
 
+
     /*
 
-    1. Clear all plugin cache
+    1. Clear all plugin cache and reset previous syncing notices
 
     */
     var [clearAllCacheError, clearAllCacheResponse] = await to( clearAllCache() );
 
     if (clearAllCacheError) {
       cleanUpAfterSync( syncingConfigJavascriptError(clearAllCacheError) );
-      resolve();
-      return;
-
+      return resolve();
     }
 
     if (isWordPressError(clearAllCacheResponse)) {
       cleanUpAfterSync( syncingConfigErrorBeforeSync(clearAllCacheResponse) );
-      resolve();
-      return;
-
+      return resolve();
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
-    }
-
-
-    /*
-
-    Checks for an open connection to the server ...
-
-    */
-
-    insertCheckmark();
-    setConnectionStepMessage('Validating Shopify connection ...');
-
-    var [checkForValidServerConnectionError, checkForValidServerConnectionData] = await to( checkForValidServerConnection() );
-
-    if (checkForValidServerConnectionError) {
-      cleanUpAfterSync( syncingConfigJavascriptError(checkForValidServerConnectionError) );
-      resolve();
-      return
-    }
-
-    if (isWordPressError(checkForValidServerConnectionData)) {
-      cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(checkForValidServerConnectionData) ) );
-      resolve();
-      return;
-
-    }
-
-    if (manuallyCanceled()) {
-      cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
+      return resolve();
     }
 
 
@@ -313,27 +284,83 @@ function connectionFormSubmitHandler(form) {
     insertCheckmark();
     setConnectionStepMessage('Saving Shopify connection ...');
 
-    var [saveConnectionError, saveConnectionData] = await to( saveConnection( getConnectionFormData(form) ) );
+    var [saveConnectionError, saveConnectionData] = await to( post(
+      endpointConnection(),
+      { connection: getConnectionFormData(form) }
+    ));
 
     if (saveConnectionError) {
       cleanUpAfterSync( syncingConfigJavascriptError(saveConnectionError) );
-      resolve();
-      return
+      return resolve();
     }
 
     if (isWordPressError(saveConnectionData)) {
       cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(saveConnectionData) ) );
-      resolve();
-      return;
+      return resolve();;
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
+      return resolve();;
     }
 
 
+    /*
+
+    Checks for an open connection to the server ...
+
+    */
+
+    insertCheckmark();
+    setConnectionStepMessage('Validating Shopify connection ...');
+
+
+    var [serverCheckError, serverCheckData] = await to( post( endpointConnectionCheck(), {
+      type: 'shopify',
+      creds: getConnectionFormData(form)
+    }));
+
+
+
+    if (serverCheckError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(serverCheckError) );
+      return resolve();
+    }
+
+    if (isWordPressError(serverCheckData)) {
+
+      // No active connection exists. Just drop data and clear cache.
+      var [noConnectionResetError, noConnectionResetData] = await to( noConnectionReset() );
+
+      if (noConnectionResetError) {
+        cleanUpAfterSync( syncingConfigJavascriptError(noConnectionResetError) );
+        return resolve();
+      }
+
+      if (isWordPressError(noConnectionResetData)) {
+        cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(noConnectionResetData) ) );
+        return resolve();
+      }
+
+      if (manuallyCanceled()) {
+        cleanUpAfterSync( syncingConfigManualCancel() );
+        return resolve();
+      }
+
+      showAdminNotice('Your Shopify API credentials appear to be incorrect. Please double check and try again', 'error');
+      hideAdminNoticeByType('notice_warning_app_uninstalled');
+      setConnectionStatus(false);
+
+      cleanUpAfterSync({ keepInputs: true  });
+
+      return resolve();;
+
+    }
+
+    if (manuallyCanceled()) {
+      cleanUpAfterSync( syncingConfigManualCancel() );
+      return resolve();;
+    }
 
 
     WP_Shopify.isConnecting = true;
@@ -342,30 +369,26 @@ function connectionFormSubmitHandler(form) {
 
     if (saveConnectionOnly(saveConnectionData)) {
 
-      var [streamShopError, streamShopData] = await to( streamShop() );
+      var [streamShopError, streamShopData] = await to( getShop() );
 
       if (streamShopError) {
         cleanUpAfterSync( syncingConfigJavascriptError(streamShopError) );
-        resolve();
-        return
+        return resolve();
       }
 
       if (isWordPressError(streamShopData)) {
         cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(streamShopData) ) );
-        resolve();
-        return;
+        return resolve();;
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();;
       }
 
       cleanUpAfterSync( syncingConfigSavedConnectionOnly() );
 
-      resolve();
-      return;
+      return resolve();
 
     }
 
@@ -379,25 +402,26 @@ function connectionFormSubmitHandler(form) {
     insertCheckmark();
     setConnectionStepMessage('Removing any existing data first ...', '(Please wait, this might take 30 seconds or so)');
 
-    var [removeExistingError, removeExistingDataResp] = await to( removeExistingData() );
+
+    var [removeExistingError, removeExistingDataResp] = await to( deletion( endpointToolsClearSynced() ) );
 
     if (removeExistingError) {
       cleanUpAfterSync( syncingConfigJavascriptError(removeExistingError) );
-      resolve();
-      return
+      return resolve();
     }
 
     if (isWordPressError(removeExistingDataResp)) {
       cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(removeExistingDataResp) ) );
-      resolve();
-      return;
+      return resolve();
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
+      return resolve();
     }
+
+
+    WP_Shopify.isSyncing = true;
 
 
     /*
@@ -405,26 +429,23 @@ function connectionFormSubmitHandler(form) {
     Only fires once data has been removed ...
 
     */
-    afterDataRemoval(async () => {
+    afterDataRemoval( async () => {
 
       var [syncOnError, syncOnData] = await to( syncOn() );
 
       if (syncOnError) {
         cleanUpAfterSync( syncingConfigJavascriptError(syncOnError) );
-        resolve();
-        return
+        return resolve();
       }
 
       if (isWordPressError(syncOnData)) {
         cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(syncOnData) ) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 
@@ -440,20 +461,17 @@ function connectionFormSubmitHandler(form) {
 
         if (startProgressBarError) {
           cleanUpAfterSync( syncingConfigJavascriptError(startProgressBarError) );
-          resolve();
-          return
+          return resolve();
         }
 
         if (isWordPressError(startProgressBarResponse)) {
           cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(startProgressBarResponse) ) );
-          resolve();
-          return;
+          return resolve();
         }
 
         if (manuallyCanceled()) {
           cleanUpAfterSync( syncingConfigManualCancel() );
-          resolve();
-          return;
+          return resolve();
         }
 
 
@@ -465,20 +483,17 @@ function connectionFormSubmitHandler(form) {
 
         if (itemCountsError) {
           cleanUpAfterSync( syncingConfigJavascriptError(itemCountsError) );
-          resolve();
-          return
+          return resolve();
         }
 
         if (isWordPressError(itemCountsResp)) {
           cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(itemCountsResp) ) );
-          resolve();
-          return;
+          return resolve();
         }
 
         if (manuallyCanceled()) {
           cleanUpAfterSync( syncingConfigManualCancel() );
-          resolve();
-          return;
+          return resolve();
         }
 
 
@@ -491,20 +506,17 @@ function connectionFormSubmitHandler(form) {
 
         if (publishedIdsError) {
           cleanUpAfterSync( syncingConfigJavascriptError(publishedIdsError) );
-          resolve();
-          return;
+          return resolve();
         }
 
         if (isWordPressError(publishedIdsData)) {
           cleanUpAfterSync( syncingConfigErrorBeforeSync(publishedIdsData) );
-          resolve();
-          return;
+          return resolve();
         }
 
         if (manuallyCanceled()) {
           cleanUpAfterSync( syncingConfigManualCancel() );
-          resolve();
-          return;
+          return resolve();
         }
 
 
@@ -516,24 +528,23 @@ function connectionFormSubmitHandler(form) {
 
         var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
 
-        var [saveCountsError, saveCountsResponse] = await to( saveCounts(allCounts) ); // insert_syncing_totals
+        var [saveCountsError, saveCountsResponse] = await to( saveCounts({
+          counts: allCounts
+        }) );
 
         if (saveCountsError) {
           cleanUpAfterSync( syncingConfigJavascriptError(saveCountsError) );
-          resolve();
-          return
+          return resolve();
         }
 
         if (isWordPressError(saveCountsResponse)) {
           cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(saveCountsResponse) ) );
-          resolve();
-          return;
+          return resolve();
         }
 
         if (manuallyCanceled()) {
           cleanUpAfterSync( syncingConfigManualCancel() );
-          resolve();
-          return;
+          return resolve();
         }
 
 
@@ -545,6 +556,7 @@ function connectionFormSubmitHandler(form) {
         appendProgressBars(allCounts);
 
         // 7. Begin polling for the status ... creates a cancelable loop
+        initSyncingTimer();
         progressStatus();
 
         syncPluginData(allCounts, true);
@@ -569,5 +581,6 @@ function connectInit() {
 
 export {
   connectInit,
-  prepareBeforeSync
+  prepareBeforeSync,
+  getConnectionFormData
 }

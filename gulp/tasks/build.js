@@ -333,10 +333,10 @@ Requires:
 gulp.task('build:zip:deploy', done => {
 
   if (config.buildTier === 'pro') {
-    var command = 'rsync -avz /Users/arobbins/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip arobbins@162.243.170.76:~';
+    var command = 'rsync -avz /Users/andrew/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip arobbins@162.243.170.76:~';
 
   } else {
-    var command = 'rsync -avz /Users/arobbins/www/wpstest/assets/wpshopify/wpshopify.zip arobbins@162.243.170.76:~';
+    var command = 'rsync -avz /Users/andrew/www/wpstest/assets/wpshopify/wpshopify.zip arobbins@162.243.170.76:~';
   }
 
   return childProcess.exec(command, function (err, stdout, stderr) {

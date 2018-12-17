@@ -1,11 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Factory;
-use WPS\Factories\DB_Products_Factory;
-use WPS\Factories\Activator_Factory;
-use WPS\Factories\Async_Processing_Database_Factory;
-use WPS\Factories\DB_Settings_General_Factory;
-
+use WPS\Factories;
 
 /*
 
@@ -28,13 +23,14 @@ class Test_Multisite_DB extends WP_UnitTestCase {
   */
   static function wpSetUpBeforeClass() {
 
-    self::$DB                           = DB_Factory::build();
-    self::$DB_Products                  = DB_Products_Factory::build();
-    self::$Activator                    = Activator_Factory::build();
-    self::$Async_Processing_Database    = Async_Processing_Database_Factory::build();
-    self::$DB_Settings_General          = DB_Settings_General_Factory::build();
+    self::$DB                           = Factories\DB\DB_Factory::build();
+    self::$DB_Products                  = Factories\DB\Products_Factory::build();
+    self::$Activator                    = Factories\Activator_Factory::build();
+    self::$Async_Processing_Database    = Factories\Processing\Database_Factory::build();
+    self::$DB_Settings_General          = Factories\DB\Settings_General_Factory::build();
 
     wpmu_create_blog('blog-2', '/', 'Blog 2', 1);
+    wpmu_create_blog('blog-3', '/', 'Blog 3', 1);
 
   }
 
@@ -47,6 +43,7 @@ class Test_Multisite_DB extends WP_UnitTestCase {
   static function wpTearDownAfterClass() {
 
     wpmu_delete_blog(2, true);
+    wpmu_delete_blog(3, true);
 
   }
 
@@ -74,9 +71,10 @@ class Test_Multisite_DB extends WP_UnitTestCase {
 
     $this->assertInternalType('array', $blog_ids);
     $this->assertNotEmpty($blog_ids);
-    $this->assertCount(2, $blog_ids);
+    $this->assertCount(3, $blog_ids);
 
   }
+
 
 
   /*
@@ -87,7 +85,6 @@ class Test_Multisite_DB extends WP_UnitTestCase {
   function test_it_should_get_network_sites_table_names() {
 
     $blog_ids = self::$DB->get_network_sites();
-
 
     foreach ( $blog_ids as $site_blog_id ) {
 
@@ -103,11 +100,31 @@ class Test_Multisite_DB extends WP_UnitTestCase {
         $this->assertEquals('wptests_2_wps_products', $table_name);
       }
 
+      if ($site_blog_id === '3') {
+        $this->assertEquals('wptests_3_wps_products', $table_name);
+      }
+
       $this->assertInternalType('string', $table_name);
 
       restore_current_blog();
 
     }
+
+
+  }
+  
+
+
+  function test_it_should_get_all_table_names() {
+
+    global $wpdb;
+
+    $query = "SELECT table_name FROM information_schema.tables where table_schema='wps_unit_testing'";
+
+    $tables = $wpdb->get_results($query);
+
+    $this->assertInternalType('array', $tables);
+    $this->assertCount(53, $tables);
 
 
   }
@@ -120,26 +137,27 @@ class Test_Multisite_DB extends WP_UnitTestCase {
   */
 	function test_it_should_bootstrap_tables_on_multisite() {
 
+    global $wpdb;
+
 		// true simulates network_wide variable
-		$results = self::$Activator->bootstrap_tables(true);
+		$results = self::$Activator->bootstrap_blogs();
+
 
     $this->assertInternalType('array', $results);
-    $this->assertCount(15, $results['create_db_tables']);
-    $this->assertCount(2, $results['set_default_table_values']);
+    $this->assertCount(15, $results[1]['bootstrap_tables']['create_db_tables']);
+    $this->assertCount(2, $results[1]['bootstrap_tables']['set_default_table_values']);
 
+    $this->assertCount(15, $results[2]['bootstrap_tables']['create_db_tables']);
+    $this->assertCount(2, $results[2]['bootstrap_tables']['set_default_table_values']);
 
-    foreach ($results['create_db_tables'] as $result) {
-      $this->assertNotFalse($result);
-      $this->assertNotWPError($result);
+    $query = "SELECT table_name FROM information_schema.tables where table_schema='wps_unit_testing'";
+
+    $results = $wpdb->get_results($query);
+
+    foreach ($results as $result) {
+      $this->assertNotFalse($result->table_name);
+      $this->assertNotWPError($result->table_name);
     }
-
-    foreach ($results['set_default_table_values'] as $result) {
-      $this->assertNotFalse($result);
-      $this->assertNotWPError($result);
-      $this->assertInternalType('int', $result);
-      $this->assertEquals(1, $result);
-    }
-
 
   }
 

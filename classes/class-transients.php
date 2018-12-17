@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Messages;
+use WPS\Options;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -22,8 +23,8 @@ class Transients {
 	Delete Transient
 
 	*/
-	public static function delete_single($transientName) {
-		return delete_transient($transientName);
+	public static function delete_single($name) {
+		return delete_transient($name);
 	}
 
 
@@ -31,9 +32,11 @@ class Transients {
 
 	Set Transient
 
+	$time = 0 = does not expire
+
 	*/
-	public static function set($transientName, $value, $time = 0) {
-		return set_transient($transientName, $value, $time);
+	public static function set($name, $value, $time = 0) {
+		return set_transient($name, $value, $time);
 	}
 
 
@@ -42,53 +45,8 @@ class Transients {
 	Get Transient
 
 	*/
-	public static function get($transientName) {
-		return get_transient($transientName);
-	}
-
-
-	/*
-
-	check_rewrite_rules
-
-	*/
-	public static function check_rewrite_rules() {
-
-		if (get_site_option('wps_settings_updated') !== false) {
-
-			flush_rewrite_rules();
-			delete_site_option('wps_settings_updated');
-
-		}
-
-	}
-
-
-	/*
-
-	Check Money Format
-
-	*/
-	public static function check_money_format() {
-
-		if (get_transient('wps_money_format_updated') !== false) {
-			delete_transient('wps_money_format_updated');
-		}
-
-	}
-
-
-	/*
-
-	Check Money Format
-
-	*/
-	public static function check_money_with_currency_format() {
-
-		if (get_transient('wps_money_with_currency_format_updated') !== false) {
-			delete_transient('wps_money_with_currency_format_updated');
-		}
-
+	public static function get($name) {
+		return get_transient($name);
 	}
 
 
@@ -98,7 +56,7 @@ class Transients {
 
 	*/
 	public static function database_migration_needed() {
-		return get_site_option('wp_shopify_migration_needed');
+		return Options::get('wp_shopify_migration_needed');
 	}
 
 
@@ -106,10 +64,10 @@ class Transients {
 
 		global $wpdb;
 
-		$plugin_options = $wpdb->get_results("SELECT option_name FROM $wpdb->options WHERE option_name LIKE 'wp_shopify_%'" );
+		$plugin_options = $wpdb->get_results("SELECT option_name FROM $wpdb->options WHERE option_name LIKE 'wp_shopify_%' OR option_name LIKE 'wps_settings_%'" );
 
 		foreach($plugin_options as $option) {
-			delete_site_option( $option->option_name );
+			Options::delete($option->option_name);
 		}
 
 	}
@@ -123,9 +81,7 @@ class Transients {
 
 		$results = [];
 
-		$results['wp_shopify_custom_options']			= self::delete_all_custom_options();
-		$results['wps_settings_general'] 					= delete_site_option('wps_settings_general');
-		$results['wps_settings_updated'] 					= delete_site_option('wps_settings_updated');
+		$results['wp_shopify_custom_options']	= self::delete_all_custom_options();
 
 		return $results;
 
@@ -145,7 +101,12 @@ class Transients {
 		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_price_id_ " . $productID . "'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_product_prices') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_product_prices',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;
@@ -163,10 +124,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_price\_id\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_product_price_id_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_product_prices') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_product_prices',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -184,11 +150,16 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_%' OR `option_name` LIKE '%\_transient\_timeout_\wps\_%' OR `option_name` LIKE '%_wps_background_processing_process_lock%' OR `option_name` LIKE '%wp_wps_background_processing_batch%' OR `option_name` LIKE '%_transient_wps_async_processing_%' OR `option_name` LIKE '%wp_wps_background_processing%' OR `option_name` LIKE '%wps_sync_by_collections%' OR `option_name` LIKE '%wps_product_data_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_%' OR `option_name` LIKE '%_transient_timeout_wps_%' OR `option_name` LIKE '%_wps_background_processing_process_lock%' OR `option_name` LIKE '%wp_wps_background_processing_batch%' OR `option_name` LIKE '%_transient_wps_async_processing_%' OR `option_name` LIKE '%wp_wps_background_processing%' OR `option_name` LIKE '%wps_sync_by_collections%' OR `option_name` LIKE '%wps_product_data_%'");
 
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_all_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_all_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;
@@ -206,10 +177,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wp_shopify\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%wp_shopify_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cache_general') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cache_general',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;
@@ -227,10 +203,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wp_shopify_table_exists\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wp_shopify_table_exists_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cache_general') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cache_general',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;
@@ -275,10 +256,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_with\_variants\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_product_with_variants_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_variants_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_variants_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -296,10 +282,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_settings\_%' OR `option_name` LIKE '%\_transient\_wps\_table\_single\_row\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_settings_%' OR `option_name` LIKE '%_transient_wps_table_single_row_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cached_settings') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cached_settings',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;
@@ -317,10 +308,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_products\_query\_hash\_cache\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wp_shopify_products_query_hash_cache_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cached_products_queries') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cached_products_queries',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -338,10 +334,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_product\_single\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_product_single_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -359,10 +360,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collection\_single\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_collection_single_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_single_collections_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_collections_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -380,10 +386,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_collection_single_" . $postID . "'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_collection_single_" . $postID . "'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_single_collection_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_collection_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return $results;
@@ -401,16 +412,17 @@ class Transients {
 
 		global $wpdb;
 
-		$resultsSingle = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_" . $postID . "'");
-		$resultsImages = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_images_" . $postID . "'");
-		$resultsTags = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_tags_" . $postID . "'");
-		$resultsVariants = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_variants_" . $postID . "'");
-		$resultsOptions = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_options_" . $postID . "'");
-		$resultsProductData = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_data_" . $postID . "'");
+		$resultsSingle = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_" . $postID . "'");
+		$resultsImages = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_images_" . $postID . "'");
+		$resultsTags = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_tags_" . $postID . "'");
+		$resultsVariants = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_variants_" . $postID . "'");
+		$resultsOptions = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_options_" . $postID . "'");
+		$resultsProductData = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_data_" . $postID . "'");
 
 		// TODO: Add error + message handling for these two operations
-		$resultsAllVariants = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_all_variants_" . $postID . "'");
-		$resultsInStockVariants = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` = '_transient_wps_product_single_variants_in_stock_" . $postID . "'");
+		$resultsAllVariants = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_all_variants_" . $postID . "'");
+
+		$resultsInStockVariants = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` = '_transient_wps_product_single_variants_in_stock_" . $postID . "'");
 
 
 		/*
@@ -419,27 +431,63 @@ class Transients {
 
 		*/
 		if ($resultsSingle === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if ($resultsImages === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_images_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_images_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if ($resultsTags === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_tags_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_tags_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if ($resultsVariants === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_variants_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_variants_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if ($resultsOptions === false) {
-			return Utils::wp_error( Messages::get('delete_single_product_options_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_single_product_options_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if ($resultsProductData === false) {
-			return Utils::wp_error( Messages::get('delete_product_data_cache') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_product_data_cache',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		return [
@@ -465,10 +513,16 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_collections\_query\_hash\_cache\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_collections_query_hash_cache_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cached_collection_queries') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cached_collection_queries',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		return $results;
@@ -487,10 +541,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_connection\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_connection_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cached_connection') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cached_connection',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;
@@ -508,10 +567,15 @@ class Transients {
 
 		global $wpdb;
 
-		$results = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '%\_transient\_wps\_admin\_dismissed\_notice\_%'");
+		$results = $wpdb->query("DELETE FROM " . $wpdb->options . " WHERE `option_name` LIKE '%_transient_wps_admin_dismissed_notice_%'");
 
 		if ($results === false) {
-			return Utils::wp_error( Messages::get('delete_cached_admin_notices') );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'delete_cached_admin_notices',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		} else {
 			return true;

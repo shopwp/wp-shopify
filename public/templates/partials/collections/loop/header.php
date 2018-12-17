@@ -18,7 +18,7 @@ if ( !defined('ABSPATH') ) {
 
 ?>
 
-<?php if (!is_single()) { ?>
+<?php if ( !is_singular(WPS_COLLECTIONS_POST_TYPE_SLUG) ) { ?>
 
   <header class="wps-collections-header wps-contain wps-row <?= apply_filters('wps_collections_header_class', '', $data->collections); ?>">
 

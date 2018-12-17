@@ -8,7 +8,7 @@ fi
 DB_NAME=$1
 DB_USER=$2
 DB_PASS=$3
-DB_HOST=${4-localhost}
+DB_HOST=${4-127.0.0.1}
 WP_VERSION=${5-latest}
 SKIP_DB_CREATE=${6-false}
 
@@ -90,7 +90,7 @@ install_test_suite() {
 		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR"/wp-tests-config.php
 		sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR"/wp-tests-config.php
 		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s|127.0.0.1|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
 	fi
 
 }

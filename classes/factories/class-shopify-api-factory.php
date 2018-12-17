@@ -2,8 +2,7 @@
 
 namespace WPS\Factories;
 
-use WPS\Factories\DB_Settings_Connection_Factory;
-
+use WPS\Factories;
 use WPS\Shopify_API;
 
 if (!defined('ABSPATH')) {
@@ -18,11 +17,9 @@ class Shopify_API_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$Shopify_API = new Shopify_API(
-				DB_Settings_Connection_Factory::Build()
+			self::$instantiated = new Shopify_API(
+				Factories\DB\Settings_Connection_Factory::Build()
 			);
-
-			self::$instantiated = $Shopify_API;
 
 		}
 

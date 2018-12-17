@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Shop_Factory;
+use WPS\Factories;
 
 /*
 
@@ -24,7 +24,7 @@ class Test_DB_Shop extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Shop                 = DB_Shop_Factory::build();
+    self::$DB_Shop                 = Factories\DB\Shop_Factory::build();
     self::$mock_shop               = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/shop.json") );
     self::$mock_shop_for_update    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/shop-update.json") );
     self::$mock_shop_id            = self::$mock_shop->id;
@@ -217,7 +217,7 @@ class Test_DB_Shop extends WP_UnitTestCase {
 
     $this->assertCount(1, $col_difference);
     $this->assertArrayHasKey('id', $col_difference);
-    
+
   }
 
 

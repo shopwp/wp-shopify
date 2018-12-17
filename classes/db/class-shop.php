@@ -295,26 +295,30 @@ class Shop extends \WPS\DB {
 	insert_shop
 
 	*/
-	public function insert_shop($shop_data) {
+	// public function insert_shop($shop_data) {
+	//
+	// 	global $wpdb;
+	//
+	// 	if (is_array($shop_data) && isset($shop_data['shop']['id']) && $shop_data['shop']['id']) {
+	//
+	// 		if ($this->get_row_by('id', $shop_data['shop']['id'])) {
+	// 			$results = $this->update($this->lookup_key, $shop_data['shop']['id'], $shop_data['shop']);
+	//
+	// 		} else {
+	// 			$results = $this->insert($shop_data['shop']);
+	// 		}
+	//
+	// 	} else {
+	// 		$results = false;
+	//
+	// 	}
+	//
+	// 	return $results;
+	//
+	// }
 
-		global $wpdb;
-
-		if (is_array($shop_data) && isset($shop_data['shop']['id']) && $shop_data['shop']['id']) {
-
-			if ($this->get_row_by('id', $shop_data['shop']['id'])) {
-				$results = $this->update($this->lookup_key, $shop_data['shop']['id'], $shop_data['shop']);
-
-			} else {
-				$results = $this->insert($shop_data['shop']);
-			}
-
-		} else {
-			$results = false;
-
-		}
-
-		return $results;
-
+	public function insert_shop($shop) {
+		return $this->insert($shop);
 	}
 
 

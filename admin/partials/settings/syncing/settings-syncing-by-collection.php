@@ -8,13 +8,13 @@
           <?php esc_attr_e( 'Sync products by collection', WPS_PLUGIN_TEXT_DOMAIN ); ?>
         </th>
 
-        <td class="forminp forminp-text wps-checkbox-wrapper <?php echo $connected ? 'wps-is-hidden' : ''; ?>" id="wps-sync-by-collections-checkbox-wrapper">
+        <td class="forminp forminp-text wps-checkbox-wrapper <?= $has_connection ? 'wps-is-hidden' : ''; ?>" id="wps-sync-by-collections-checkbox-wrapper">
           <div class="notice notice-info inline">
             <p>You need to connect your Shopify store before using this feature. If you don't want to sync <em>all</em> your data, use the "Save connection only" option before connecting.</p>
           </div>
         </td>
 
-        <td class="forminp forminp-text wps-checkbox-wrapper <?php echo !$connected ? 'wps-is-hidden' : ''; ?>" id="wps-sync-by-collections-wrapper">
+        <td class="forminp forminp-text wps-checkbox-wrapper <?= !$has_connection ? 'wps-is-hidden' : ''; ?>" id="wps-sync-by-collections-wrapper">
 
           <div class="spinner"></div>
 

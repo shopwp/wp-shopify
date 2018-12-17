@@ -12,11 +12,11 @@ Tab Content: Tools
     <h3><?php esc_attr_e('Resync Shopify', WPS_PLUGIN_TEXT_DOMAIN); ?> <span class="wps-help-tip wps-help-tip-inline" title="<?php esc_attr_e("Note: To fix syncing issues you may want to ensure that the 'Webhooks callback URL' located on the Settings tab is set to a publicly accessible URL. Also be aware that this does not delete the custom post types or any custom fields you\'ve added."); ?>"></span></h3>
     <p><?php esc_attr_e('Manually resync your Shopify data.', WPS_PLUGIN_TEXT_DOMAIN); ?></p>
 
-    <div class="wps-button-group button-group button-group-ajax <?php echo $connected ? 'wps-is-active' : 'wps-is-not-active'; ?>">
+    <div class="wps-button-group button-group button-group-ajax <?= $has_connection ? 'wps-is-active' : 'wps-is-not-active'; ?>">
 
       <?php
 
-      if ($connected) {
+      if ($has_connection) {
 
         $props = array(
           'id'        => 'wps-button-sync'
@@ -42,7 +42,7 @@ Tab Content: Tools
 
   <div class="wps-admin-section">
 
-    <h3><?php esc_html_e('Clear Transients', WPS_PLUGIN_TEXT_DOMAIN); ?></h3>
+    <h3><?php esc_html_e('Clear Cache', WPS_PLUGIN_TEXT_DOMAIN); ?></h3>
     <p><?php esc_html_e('If you\'re noticing various changes not appearing, try clearing the WP Shopify transient cache here.', WPS_PLUGIN_TEXT_DOMAIN); ?></p>
 
     <div class="wps-button-group button-group button-group-ajax wps-is-active">
@@ -53,7 +53,7 @@ Tab Content: Tools
         'id' => 'wps-button-clear-cache'
       );
 
-      submit_button(esc_html__('Clear WP Shopify Transient Cache', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitSettings', false, $props); ?>
+      submit_button(esc_html__('Clear WP Shopify Cache', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submitSettings', false, $props); ?>
 
       <div class="spinner"></div>
 

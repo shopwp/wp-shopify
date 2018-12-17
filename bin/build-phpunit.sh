@@ -31,7 +31,7 @@ printf "${GREEN}Success: ${NC}Removed testing database\n"
 #
 # Create the testing database
 #
-bash ./bin/install-wp-tests.sh wps_unit_testing root 'qp05ofilterZ!@' localhost latest
+bash ./bin/install-wp-tests.sh wps_unit_testing root 'qp05ofilterZ!@' 127.0.0.1 latest
 printf "${GREEN}Success: ${NC}Installed testing database\n"
 
 #

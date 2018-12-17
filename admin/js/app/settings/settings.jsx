@@ -2,6 +2,7 @@ import isError from 'lodash/isError';
 import forEach from 'lodash/forEach';
 import has from 'lodash/has';
 import to from 'await-to-js';
+import { post } from '../ws/ws';
 
 import { initColorPickers } from './settings-color-picker.jsx';
 import { initProductsHeading } from './products/products-heading.jsx';
@@ -35,22 +36,18 @@ import { initProductsShowPriceRange } from './products/products-show-price-range
 
 import { initCheckoutButtonTarget } from './checkout/checkout-button-target.jsx';
 
-
 import {
-  updateSettings
-} from '../ws/ws';
+  endpointSettings
+} from '../ws/api/api-endpoints';
 
 import {
   messageSettingsSuccessfulSave
 } from '../messages/messages';
 
 import {
-  getSelectiveCollections
-} from '../ws/wrappers';
-
-import {
+  getSelectiveCollections,
   clearAllCache
-} from '../tools/cache';
+} from '../ws/wrappers';
 
 import {
   enable,
@@ -77,6 +74,123 @@ import {
   hasConnection,
   returnOnlyFirstError
 } from '../utils/utils-data';
+
+
+
+function isUndefined(value) {
+  return typeof value === typeof undefined;
+}
+
+
+function getDataState($form, selector, dataAttr) {
+
+  var val = $form.find(selector).attr(dataAttr);
+
+  if ( isUndefined(val) ) {
+    return false;
+  }
+
+  return val;
+
+}
+
+function getCheckedState($form, selector) {
+
+  var state = $form.find(selector).prop("checked");
+
+  if ( isUndefined(state) ) {
+    return false;
+  }
+
+  return state;
+
+}
+
+
+function getInputState($form, selector) {
+
+  var val = $form.find(selector).val();
+
+  if ( isUndefined(val) ) {
+    return false;
+  }
+
+  return val;
+
+}
+
+
+function setGlobals(settingsData) {
+
+
+  // Need to keep the global updated during AJAX requests
+  WP_Shopify.itemsPerRequest = settingsData.wps_settings_general_items_per_request;
+  WP_Shopify.settings.connection.saveConnectionOnly = settingsData.wps_settings_general_save_connection_only;
+
+}
+
+
+function gatherSettingsData($submitForm) {
+
+  return {
+
+    wps_settings_general_products_url: getInputState($submitForm, '#wps_settings_general_url_products'),
+    wps_settings_general_collections_url: getInputState($submitForm, '#wps_settings_general_url_collections'),
+    wps_settings_general_num_posts: getInputState($submitForm, '#wps_settings_general_num_posts'),
+    wps_settings_general_products_link_to_shopify: getCheckedState($submitForm, '#wps_settings_general_products_link_to_shopify'),
+    wps_settings_general_show_breadcrumbs: getCheckedState($submitForm, '#wps_settings_general_show_breadcrumbs'),
+    wps_settings_general_hide_pagination: getCheckedState($submitForm, '#wps_settings_general_hide_pagination'),
+    wps_settings_general_styles_all: getCheckedState($submitForm, '#wps_settings_general_styles_all'),
+    wps_settings_general_styles_core: getCheckedState($submitForm, '#wps_settings_general_styles_core'),
+    wps_settings_general_styles_grid: getCheckedState($submitForm, '#wps_settings_general_styles_grid'),
+    wps_settings_general_price_with_currency: getCheckedState($submitForm, '#wps_settings_general_price_with_currency'),
+    wps_settings_general_cart_loaded: getCheckedState($submitForm, '#wps_settings_general_cart_loaded'),
+    wps_settings_general_enable_beta: getCheckedState($submitForm, '#wps_settings_general_enable_beta'),
+    wps_settings_general_enable_cart_terms: getCheckedState($submitForm, '#wps_settings_general_enable_cart_terms'),
+    wps_settings_general_save_connection_only: getCheckedState($submitForm, '#wps_settings_general_save_connection_only'),
+    wps_settings_general_related_products_show: getCheckedState($submitForm, '#wps_settings_general_related_products_show'),
+    wps_settings_general_related_products_sort: getInputState($submitForm, '#wps_settings_general_related_products_sort_type input:checked'),
+    wps_settings_general_related_products_amount: getInputState($submitForm, '#wps_settings_general_related_products_amount'),
+    wps_settings_general_cart_terms_content: getInputState($submitForm, '#wps_settings_general_cart_terms_content'),
+    wps_settings_general_items_per_request: parseInt( $submitForm.find("#wps-items-per-request-amount").text() ),
+    wps_settings_general_add_to_cart_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="add-to-cart"]', 'data-color'),
+    wps_settings_general_variant_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="variant"]', 'data-color'),
+    wps_settings_general_checkout_button_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="checkout"]', 'data-color'),
+
+    wps_settings_general_cart_icon_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-icon"]', 'data-color'),
+    wps_settings_general_cart_counter_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-counter"]', 'data-color'),
+
+    wps_settings_general_products_heading_toggle: getCheckedState($submitForm, '#wps-products-heading-toggle'),
+    wps_settings_general_products_heading: getInputState($submitForm, '#wps-settings-products-heading input'),
+    wps_settings_general_collections_heading_toggle: getCheckedState($submitForm, '#wps-collections-heading-toggle'),
+    wps_settings_general_collections_heading: getInputState($submitForm, '#wps-settings-collections-heading input'),
+    wps_settings_general_related_products_heading_toggle: getCheckedState($submitForm, '#wps-related-products-heading-toggle'),
+    wps_settings_general_related_products_heading: getInputState($submitForm, '#wps-settings-related-products-heading input'),
+    wps_settings_products_images_sizing_toggle: getCheckedState($submitForm, '#wps-products-images-sizing-toggle'),
+    wps_settings_products_images_sizing_width: getInputState($submitForm, '#wps-settings-products-images-sizing-width input'),
+    wps_settings_products_images_sizing_height: getInputState($submitForm, '#wps-settings-products-images-sizing-height input'),
+    wps_settings_products_images_sizing_crop: getInputState($submitForm, '#wps-settings-products-images-sizing-crop select'),
+    wps_settings_products_images_sizing_scale: getInputState($submitForm, '#wps-settings-products-images-sizing-scale select'),
+    wps_settings_collections_images_sizing_toggle: getCheckedState($submitForm, '#wps-settings-collections-images-sizing-toggle input'),
+    wps_settings_collections_images_sizing_width: getInputState($submitForm, '#wps-settings-collections-images-sizing-width input'),
+    wps_settings_collections_images_sizing_height: getInputState($submitForm, '#wps-settings-collections-images-sizing-height input'),
+    wps_settings_collections_images_sizing_crop: getInputState($submitForm, '#wps-settings-collections-images-sizing-crop select'),
+    wps_settings_collections_images_sizing_scale: getInputState($submitForm, '#wps-settings-collections-images-sizing-scale select'),
+    wps_settings_related_products_images_sizing_toggle: getCheckedState($submitForm, '#wps-related-products-images-sizing-toggle'),
+    wps_settings_related_products_images_sizing_width: getInputState($submitForm, '#wps-settings-related-products-images-sizing-width input'),
+    wps_settings_related_products_images_sizing_height: getInputState($submitForm, '#wps-settings-related-products-images-sizing-height input'),
+    wps_settings_related_products_images_sizing_crop: getInputState($submitForm, '#wps-settings-related-products-images-sizing-crop select'),
+    wps_settings_related_products_images_sizing_scale: getInputState($submitForm, '#wps-settings-related-products-images-sizing-scale select'),
+    wps_settings_products_compare_at: getCheckedState($submitForm, '#wps-settings-products-compare-at input'),
+    wps_settings_checkout_enable_custom_checkout_domain: getCheckedState($submitForm, '#wps-enable-custom-checkout-domain input'),
+    wps_settings_products_show_price_range: getCheckedState($submitForm, '#wps-settings-products-show-price-range input'),
+    wps_settings_checkout_button_target: getInputState($submitForm, '#wps-settings-checkout-button-target select'),
+
+
+  }
+
+
+}
 
 
 /*
@@ -108,349 +222,23 @@ function onSettingsFormSubmit() {
     },
     submitHandler: async function(form) {
 
-      var $submitButton = jQuery(form).find('input[type="submit"]');
-      var $spinner = jQuery(form).find('.spinner');
-      var nonce = jQuery("#wps_settings_general_urls_nonce_id").val();
-      var productsURL = jQuery(form).find("#wps_settings_general_url_products").val();
-      var collectionsURL = jQuery(form).find("#wps_settings_general_url_collections").val();
-      var numPosts = jQuery(form).find("#wps_settings_general_num_posts").val();
+      const $submitForm = jQuery(form);
 
-      // var styles = jQuery(form).find("#wps_settings_general_styles").val();
+      var $submitButton = $submitForm.find('input[type="submit"]');
+      var $spinner = $submitForm.find('.spinner');
+
+
+
 
       disable($submitButton);
       toggleActive($spinner);
 
 
-      // If URL contains a trailing forward slash
 
-      var stylesAllAttr = jQuery(form).find("#wps_settings_general_styles_all").attr("checked");
-      var stylesCoreAttr = jQuery(form).find("#wps_settings_general_styles_core").attr("checked");
-      var stylesGridAttr = jQuery(form).find("#wps_settings_general_styles_grid").attr("checked");
-      var priceFormatAttr = jQuery(form).find("#wps_settings_general_price_with_currency").attr("checked");
-      var cartLoaddedAttr = jQuery(form).find("#wps_settings_general_cart_loaded").attr("checked");
-      var enableBetaAttr = jQuery(form).find("#wps_settings_general_enable_beta").attr("checked");
-      var enableCartTermsAttr = jQuery(form).find("#wps_settings_general_enable_cart_terms").attr("checked");
-      var cartTermsContent = jQuery(form).find("#wps_settings_general_cart_terms_content").val();
-      var productsLinkToShopifyAttr = jQuery(form).find("#wps_settings_general_products_link_to_shopify").attr("checked");
-      var showBreadcrumbsAttr = jQuery(form).find("#wps_settings_general_show_breadcrumbs").attr("checked");
-      var hidePaginationAttr = jQuery(form).find("#wps_settings_general_hide_pagination").attr("checked");
-      var saveConnectionOnlyAttr = jQuery(form).find("#wps_settings_general_save_connection_only").attr("checked");
+      var settings = gatherSettingsData($submitForm);
 
-      var $relatedProductsShow = jQuery(form).find("#wps_settings_general_related_products_show");
-      var $relatedProductsSortRandom = jQuery(form).find("#wps_settings_general_related_products_sort_random");
-      var $relatedProductsSortCollections = jQuery(form).find("#wps_settings_general_related_products_sort_collections");
-      var $relatedProductsSortTags = jQuery(form).find("#wps_settings_general_related_products_sort_tags");
-      var $relatedProductsSortVendors = jQuery(form).find("#wps_settings_general_related_products_sort_vendors");
-      var $relatedProductsSortTypes = jQuery(form).find("#wps_settings_general_related_products_sort_types");
-      var relatedProductsAmount = jQuery(form).find("#wps_settings_general_related_products_amount").val();
 
-      var addToCartColor = jQuery(form).find('.wps-color-swatch[data-picker-type="add-to-cart"]').attr('data-color');
-      var variantColor = jQuery(form).find('.wps-color-swatch[data-picker-type="variant"]').attr('data-color');
-      var checkoutButtonColor = jQuery(form).find('.wps-color-swatch[data-picker-type="checkout"]').attr('data-color');
-      var cartIconColor = jQuery(form).find('.wps-color-swatch[data-picker-type="cart-icon"]').attr('data-color');
-      var cartCounterColor = jQuery(form).find('.wps-color-swatch[data-picker-type="cart-counter"]').attr('data-color');
-
-      var productsHeadingToggle = jQuery(form).find('#wps-products-heading-toggle').prop('checked');
-      var collectionsHeadingToggle = jQuery(form).find('#wps-collections-heading-toggle').prop('checked');
-      var relatedProductsHeadingToggle = jQuery(form).find('#wps-related-products-heading-toggle').prop('checked');
-      var relatedProductsHeading = jQuery(form).find('#wps-settings-related-products-heading input').val();
-      var productsHeading = jQuery(form).find('#wps-settings-products-heading input').val();
-
-      var collectionsHeading = jQuery(form).find('#wps-settings-collections-heading input').val();
-      var enableCustomCheckoutDomain = jQuery(form).find('#wps-enable-custom-checkout-domain input').prop('checked');
-
-      var productsShowPriceRange = jQuery(form).find('#wps-settings-products-show-price-range input').prop('checked');
-
-      var productsImagesSizingToggle = jQuery(form).find('#wps-products-images-sizing-toggle').prop('checked');
-      var productsImagesSizingWidth = jQuery(form).find('#wps-settings-products-images-sizing-width input').val();
-      var productsImagesSizingHeight = jQuery(form).find('#wps-settings-products-images-sizing-height input').val();
-      var productsImagesSizingCrop = jQuery(form).find('#wps-settings-products-images-sizing-crop select').val();
-      var productsImagesSizingScale = jQuery(form).find('#wps-settings-products-images-sizing-scale select').val();
-
-      var collectionsImagesSizingToggle = jQuery(form).find('#wps-settings-collections-images-sizing-toggle input').prop('checked');
-      var collectionsImagesSizingWidth = jQuery(form).find('#wps-settings-collections-images-sizing-width input').val();
-      var collectionsImagesSizingHeight = jQuery(form).find('#wps-settings-collections-images-sizing-height input').val();
-      var collectionsImagesSizingCrop = jQuery(form).find('#wps-settings-collections-images-sizing-crop select').val();
-      var collectionsImagesSizingScale = jQuery(form).find('#wps-settings-collections-images-sizing-scale select').val();
-
-      var relatedProductsImagesSizingToggle = jQuery(form).find('#wps-related-products-images-sizing-toggle').prop('checked');
-      var relatedProductsImagesSizingWidth = jQuery(form).find('#wps-settings-related-products-images-sizing-width input').val();
-      var relatedProductsImagesSizingHeight = jQuery(form).find('#wps-settings-related-products-images-sizing-height input').val();
-      var relatedProductsImagesSizingCrop = jQuery(form).find('#wps-settings-related-products-images-sizing-crop select').val();
-      var relatedProductsImagesSizingScale = jQuery(form).find('#wps-settings-related-products-images-sizing-scale select').val();
-
-      var productsCompareAt = jQuery(form).find('#wps-settings-products-compare-at input').prop('checked');
-
-      var checkoutButtonTarget = jQuery(form).find('#wps-settings-checkout-button-target select').val();
-
-      var relatedProductsSort;
-      var relatedProductsShow = 0;
-
-      var syncByCollectionsValue = jQuery(form).find("#wps-sync-by-collections").val();
-      var itemsPerRequest = parseInt( jQuery(form).find("#wps-items-per-request-amount").text() );
-
-      var $selectiveSyncAll = jQuery(form).find("#wps_settings_general_selective_sync_all");
-
-      if ($selectiveSyncAll !== undefined) {
-        var selectiveSyncAllAttr = jQuery(form).find("#wps_settings_general_selective_sync_all").attr("checked");
-
-      } else {
-        var selectiveSyncAllAttr = false;
-      }
-
-      var selectiveSyncProductsAttr = jQuery(form).find("#wps_settings_general_selective_sync_products").attr("checked");
-      var selectiveSyncCollectionsAttr = jQuery(form).find("#wps_settings_general_selective_sync_collections").attr("checked");
-      var selectiveSyncCustomersAttr = jQuery(form).find("#wps_settings_general_selective_sync_customers").attr("checked");
-      var selectiveSyncOrdersAttr = jQuery(form).find("#wps_settings_general_selective_sync_orders").attr("checked");
-
-
-
-      /*
-
-      Related Products: Show
-
-      */
-      if ($relatedProductsShow.is(':checked')) {
-        relatedProductsShow = 1;
-      }
-
-
-      /*
-
-      Related Products Sort: Random
-
-      */
-      if ($relatedProductsSortRandom.is(':checked')) {
-        relatedProductsSort = $relatedProductsSortRandom.val();
-      }
-
-
-      /*
-
-      Related Products Sort: Collection
-
-      */
-      if ($relatedProductsSortCollections.is(':checked')) {
-        relatedProductsSort = $relatedProductsSortCollections.val();
-      }
-
-
-      /*
-
-      Related Products Sort: Tag
-
-      */
-      if ($relatedProductsSortTags.is(':checked')) {
-        relatedProductsSort = $relatedProductsSortTags.val();
-      }
-
-
-      /*
-
-      Related Products Sort: Vendor
-
-      */
-      if ($relatedProductsSortVendors.is(':checked')) {
-        relatedProductsSort = $relatedProductsSortVendors.val();
-      }
-
-
-      /*
-
-      Related Products Sort: Type
-
-      */
-      if ($relatedProductsSortTypes.is(':checked')) {
-        relatedProductsSort = $relatedProductsSortTypes.val();
-      }
-
-
-
-
-
-      if ($selectiveSyncAll === undefined || selectiveSyncAllAttr !== undefined && selectiveSyncAllAttr !== false) {
-        var selectiveSyncAll = 1;
-
-      } else {
-        var selectiveSyncAll = 0;
-      }
-
-
-      if (typeof selectiveSyncProductsAttr !== typeof undefined && selectiveSyncProductsAttr !== false) {
-        var selectiveSyncProducts = 1;
-
-      } else {
-        var selectiveSyncProducts = 0;
-      }
-
-      if (typeof selectiveSyncCollectionsAttr !== typeof undefined && selectiveSyncCollectionsAttr !== false) {
-        var selectiveSyncCollections = 1;
-
-      } else {
-        var selectiveSyncCollections = 0;
-      }
-
-      if (typeof selectiveSyncCustomersAttr !== typeof undefined && selectiveSyncCustomersAttr !== false) {
-        var selectiveSyncCustomers = 1;
-
-      } else {
-        var selectiveSyncCustomers = 0;
-      }
-
-      if (typeof selectiveSyncOrdersAttr !== typeof undefined && selectiveSyncOrdersAttr !== false) {
-        var selectiveSyncOrders = 1;
-
-      } else {
-        var selectiveSyncOrders = 0;
-      }
-
-
-      if (typeof productsLinkToShopifyAttr !== typeof undefined && productsLinkToShopifyAttr !== false) {
-        var productsLinkToShopify = 1;
-
-      } else {
-        var productsLinkToShopify = 0;
-      }
-
-
-      if (typeof showBreadcrumbsAttr !== typeof undefined && showBreadcrumbsAttr !== false) {
-        var showBreadcrumbs = 1;
-
-      } else {
-        var showBreadcrumbs = 0;
-      }
-
-
-      if (typeof hidePaginationAttr !== typeof undefined && hidePaginationAttr !== false) {
-        var hidePagination = 1;
-
-      } else {
-        var hidePagination = 0;
-      }
-
-
-      if (typeof saveConnectionOnlyAttr !== typeof undefined && saveConnectionOnlyAttr !== false) {
-        var saveConnectionOnly = 1;
-
-      } else {
-        var saveConnectionOnly = 0;
-      }
-
-
-      if (typeof cartLoaddedAttr !== typeof undefined && cartLoaddedAttr !== false) {
-        var cartLoaded = 1;
-
-      } else {
-        var cartLoaded = 0;
-      }
-
-
-      if (typeof enableBetaAttr !== typeof undefined && enableBetaAttr !== false) {
-        var enableBeta = 1;
-
-      } else {
-        var enableBeta = 0;
-      }
-
-
-      if (typeof enableCartTermsAttr !== typeof undefined && enableCartTermsAttr !== false) {
-        var enableCartTerms = 1;
-
-      } else {
-        var enableCartTerms = 0;
-      }
-
-
-      if (typeof stylesAllAttr !== typeof undefined && stylesAllAttr !== false) {
-        var stylesAll = 1;
-
-      } else {
-        var stylesAll = 0;
-      }
-
-
-      if (typeof stylesCoreAttr !== typeof undefined && stylesCoreAttr !== false) {
-        var stylesCore = 1;
-
-      } else {
-        var stylesCore = 0;
-      }
-
-
-      if (typeof stylesGridAttr !== typeof undefined && stylesGridAttr !== false) {
-        var stylesGrid = 1;
-
-      } else {
-        var stylesGrid = 0;
-      }
-
-
-      if (typeof priceFormatAttr !== typeof undefined && priceFormatAttr !== false) {
-        var priceFormat = 1;
-
-      } else {
-        var priceFormat = 0;
-      }
-
-
-      var settings = {
-
-        wps_settings_general_products_url: productsURL,
-        wps_settings_general_collections_url: collectionsURL,
-
-
-        wps_settings_general_num_posts: numPosts,
-        wps_settings_general_products_link_to_shopify: productsLinkToShopify,
-        wps_settings_general_show_breadcrumbs: showBreadcrumbs,
-        wps_settings_general_hide_pagination: hidePagination,
-        wps_settings_general_styles_all: stylesAll,
-        wps_settings_general_styles_core: stylesCore,
-        wps_settings_general_styles_grid: stylesGrid,
-        wps_settings_general_price_with_currency: priceFormat,
-        wps_settings_general_cart_loaded: cartLoaded,
-        wps_settings_general_enable_beta: enableBeta,
-        wps_settings_general_enable_cart_terms: enableCartTerms,
-        wps_settings_general_enable_cart_terms: enableCartTerms,
-        wps_settings_general_save_connection_only: saveConnectionOnly,
-        wps_settings_general_related_products_show: relatedProductsShow,
-        wps_settings_general_related_products_sort: relatedProductsSort,
-        wps_settings_general_related_products_amount: relatedProductsAmount,
-        wps_settings_general_cart_terms_content: cartTermsContent,
-        wps_settings_general_items_per_request: itemsPerRequest,
-        wps_settings_general_add_to_cart_color: addToCartColor,
-        wps_settings_general_variant_color: variantColor,
-        wps_settings_general_checkout_button_color: checkoutButtonColor,
-        wps_settings_general_cart_icon_color: cartIconColor,
-        wps_settings_general_cart_counter_color: cartCounterColor,
-        wps_settings_general_products_heading_toggle: productsHeadingToggle,
-        wps_settings_general_products_heading: productsHeading,
-        wps_settings_general_collections_heading_toggle: collectionsHeadingToggle,
-        wps_settings_general_collections_heading: collectionsHeading,
-        wps_settings_general_related_products_heading_toggle: relatedProductsHeadingToggle,
-        wps_settings_general_related_products_heading: relatedProductsHeading,
-        wps_settings_products_images_sizing_toggle: productsImagesSizingToggle,
-        wps_settings_products_images_sizing_width: productsImagesSizingWidth,
-        wps_settings_products_images_sizing_height: productsImagesSizingHeight,
-        wps_settings_products_images_sizing_crop: productsImagesSizingCrop,
-        wps_settings_products_images_sizing_scale: productsImagesSizingScale,
-        wps_settings_collections_images_sizing_toggle: collectionsImagesSizingToggle,
-        wps_settings_collections_images_sizing_width: collectionsImagesSizingWidth,
-        wps_settings_collections_images_sizing_height: collectionsImagesSizingHeight,
-        wps_settings_collections_images_sizing_crop: collectionsImagesSizingCrop,
-        wps_settings_collections_images_sizing_scale: collectionsImagesSizingScale,
-        wps_settings_related_products_images_sizing_toggle: relatedProductsImagesSizingToggle,
-        wps_settings_related_products_images_sizing_width: relatedProductsImagesSizingWidth,
-        wps_settings_related_products_images_sizing_height: relatedProductsImagesSizingHeight,
-        wps_settings_related_products_images_sizing_crop: relatedProductsImagesSizingCrop,
-        wps_settings_related_products_images_sizing_scale: relatedProductsImagesSizingScale,
-        wps_settings_products_compare_at: productsCompareAt,
-        wps_settings_checkout_enable_custom_checkout_domain: enableCustomCheckoutDomain,
-        wps_settings_products_show_price_range: productsShowPriceRange,
-        wps_settings_checkout_button_target: checkoutButtonTarget,
-
-
-      }
-
+      setGlobals(settings);
 
 
 
@@ -458,11 +246,11 @@ function onSettingsFormSubmit() {
 
       Step 1. Update settings
 
-      update_settings_general
-
       */
-
-      var [settingsError, settingsData] = await to( updateSettings(settings) );
+      var [settingsError, settingsData] = await to( post(
+        endpointSettings(),
+        { settings: settings }
+      ));
 
       if (settingsError) {
         showAdminNotice( getJavascriptErrorMessage(settingsError) );
@@ -504,11 +292,9 @@ function onSettingsFormSubmit() {
 
       }
 
-      // Needed to keep the global updated during AJAX requests
-      WP_Shopify.itemsPerRequest = itemsPerRequest;
 
       showAdminNotice( messageSettingsSuccessfulSave(), 'updated' );
-      // showAdminNoticeNew('success', 'THIS IS A TEST')
+
 
     }
 
@@ -648,7 +434,8 @@ async function populateSyncByCollections() {
   var allCollections = collectionsData[0];
   var selectedCollections = collectionsData[1];
 
-  if (allCollections.success && has(allCollections, 'data')) {
+  if (allCollections.status === 200 && has(allCollections, 'data')) {
+
     populateCollectionOptions(allCollections.data);
 
 

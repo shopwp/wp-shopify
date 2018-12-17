@@ -3,13 +3,7 @@
 namespace WPS\Factories;
 
 use WPS\Query;
-
-use WPS\Factories\Template_loader_Factory;
-use WPS\Factories\DB_Collections_Factory;
-use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\DB_Images_Factory;
-use WPS\Factories\Pagination_Factory;
-use WPS\Factories\DB_Products_Factory;
+use WPS\Factories;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -24,12 +18,12 @@ class Query_Factory {
 		if (is_null(self::$instantiated)) {
 
 			$Query = new Query(
-				Template_loader_Factory::build(),
-				DB_Collections_Factory::build(),
-				DB_Settings_General_Factory::build(),
-				DB_Images_Factory::build(),
-				Pagination_Factory::build(),
-				DB_Products_Factory::build()
+				Factories\Template_loader_Factory::build(),
+				Factories\DB\Collections_Factory::build(),
+				Factories\DB\Settings_General_Factory::build(),
+				Factories\DB\Images_Factory::build(),
+				Factories\Pagination_Factory::build(),
+				Factories\DB\Products_Factory::build()
 			);
 
 			self::$instantiated = $Query;

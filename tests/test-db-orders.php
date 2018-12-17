@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Orders_Factory;
+use WPS\Factories;
 
 /*
 
@@ -27,7 +27,7 @@ class Test_DB_Orders extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Orders                 = DB_Orders_Factory::build();
+    self::$DB_Orders                 = Factories\DB\Orders_Factory::build();
     self::$mock_order                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/orders/order.json") );
     self::$mock_order_for_update     = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/orders/order-update.json") );
     self::$mock_order_update         = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/orders/orders-update.json") );

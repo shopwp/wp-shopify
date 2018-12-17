@@ -8,6 +8,7 @@ import 'core-js/fn/array/find';
 
 import to from 'await-to-js';
 import bootstrap from "./utils/utils-bootstrap";
+
 import { showGlobalNotice } from "./utils/utils-notices";
 
 (function($) {

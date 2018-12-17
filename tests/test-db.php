@@ -1,8 +1,8 @@
 <?php
 
-use WPS\Factories\DB_Factory;
-use WPS\Factories\DB_Settings_Syncing_Factory;
-use WPS\Factories\DB_Products_Factory;
+use WPS\Factories\DB\DB_Factory;
+use WPS\Factories\DB\Settings_Syncing_Factory;
+use WPS\Factories\DB\Products_Factory;
 
 
 /*
@@ -34,8 +34,8 @@ class Test_DB extends WP_UnitTestCase {
 
     // Assemble
     self::$DB                                       = DB_Factory::build();
-    self::$DB_Settings_Syncing                      = DB_Settings_Syncing_Factory::build();
-    self::$DB_Products                              = DB_Products_Factory::build();
+    self::$DB_Settings_Syncing                      = Settings_Syncing_Factory::build();
+    self::$DB_Products                              = Products_Factory::build();
 
     self::$mock_data_product_sync_insert            = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-sync-insert.json") );
     self::$mock_data_collect_sync_insert            = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collect-sync-insert.json") );

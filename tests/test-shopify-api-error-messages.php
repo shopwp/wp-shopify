@@ -2,6 +2,7 @@
 
 use WPS\Factories\HTTP_Factory;
 use WPS\Messages;
+use WPS\Utils\HTTP as Utils_HTTP;
 
 /*
 
@@ -65,7 +66,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     $mock_error_response = $this->mock_shopify_error(400);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		$this->assertEquals( Messages::get('shopify_api_400'), $error_message );
 
@@ -80,7 +81,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_401() {
 
     $mock_error_response = $this->mock_shopify_error(401);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_401'), $error_message );
@@ -97,7 +98,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     $mock_error_response = $this->mock_shopify_error(402);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_402'), $error_message );
@@ -114,7 +115,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
 
     // Act
     $mock_error_response = $this->mock_shopify_error(403);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_403'), $error_message );
@@ -130,7 +131,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_404() {
 
     $mock_error_response = $this->mock_shopify_error(404);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_404'), $error_message );
@@ -146,7 +147,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_406() {
 
     $mock_error_response = $this->mock_shopify_error(406);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_406'), $error_message );
@@ -162,7 +163,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_422() {
 
     $mock_error_response = $this->mock_shopify_error(422);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_422'), $error_message );
@@ -178,7 +179,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_429() {
 
     $mock_error_response = $this->mock_shopify_error(429);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_429'), $error_message );
@@ -194,7 +195,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_500() {
 
     $mock_error_response = $this->mock_shopify_error(500);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_500'), $error_message );
@@ -210,7 +211,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_501() {
 
     $mock_error_response = $this->mock_shopify_error(501);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_501'), $error_message );
@@ -226,7 +227,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_503() {
 
     $mock_error_response = $this->mock_shopify_error(503);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_503'), $error_message );
@@ -242,7 +243,7 @@ class Test_Shopify_API_Error_Messages extends WP_UnitTestCase {
   function test_shopify_error_message_504() {
 
     $mock_error_response = $this->mock_shopify_error(504);
-		$error_message = self::$HTTP->get_error_message_from_status_code($mock_error_response);
+		$error_message = Utils_HTTP::get_error_message_from_status_code($mock_error_response);
 
 		// Assert
 		$this->assertEquals( Messages::get('shopify_api_504'), $error_message );

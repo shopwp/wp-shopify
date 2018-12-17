@@ -586,7 +586,7 @@ class Migrations_122 {
 
 
 		Transients::delete_all_cache();
-		delete_site_option('wp_shopify_migration_needed');
+		Options::delete('wp_shopify_migration_needed');
 
 		wp_send_json_success();
 

@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Settings_License_Factory;
+use WPS\Factories;
 
 /*
 
@@ -19,7 +19,7 @@ class Test_DB_License extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Settings_License      = DB_Settings_License_Factory::build();
+    self::$DB_Settings_License      = Factories\DB\Settings_License_Factory::build();
     self::$mock_license             = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/license.json") );
     self::$mock_license_key         = self::$mock_license->license_key;
 

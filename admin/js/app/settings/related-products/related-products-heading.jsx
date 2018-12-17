@@ -3,7 +3,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import to from 'await-to-js';
 import { toBoolean } from '../../utils/utils';
-import { updateSettingRelatedProductsHeading } from "../../ws/ws-api";
 import { showNotice } from "../../notices/notices";
 import { showLoader, hideLoader } from "../../utils/utils";
 

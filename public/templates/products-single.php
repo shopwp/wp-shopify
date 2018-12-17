@@ -4,7 +4,7 @@
 
 @description   The main entry point for the 'products single' page. Used internally by the custom post type single template
 
-@version       1.0.2
+@version       2.0.0
 @since         1.0.49
 @path          templates/products-single.php
 @partials      templates/partials/products/single
@@ -18,16 +18,15 @@ if ( !defined('ABSPATH') ) {
 }
 
 use WPS\Utils;
-use WPS\Factories\Templates_Factory;
-use WPS\Factories\DB_Settings_General_Factory;
+use WPS\Factories;
 
-$Templates 						= Templates_Factory::build();
-$DB_Settings_General 	= DB_Settings_General_Factory::build();
+$Templates 						= Factories\Templates_Factory::build();
+$DB_Settings_General 	= Factories\DB\Settings_General_Factory::build();
 $wps_product 					= $Templates->get_product_data();
 
 get_header('wps');
 
-if ( is_single() ) {
+if ( is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
 
 	do_action('wps_breadcrumbs');
   do_action('wps_product_single_start', $wps_product);
@@ -67,6 +66,7 @@ if ( is_single() ) {
   do_action('wps_product_single_content', $wps_product);
   do_action('wps_product_single_content_after', $wps_product);
 
+	// wps-product-meta wrapper
   do_action('wps_products_meta_start', $wps_product);
   do_action('wps_products_quantity', $wps_product);
   do_action('wps_product_single_actions_group_start', $wps_product);
@@ -86,6 +86,8 @@ if ( is_single() ) {
   do_action('wps_product_single_actions_group_end', $wps_product);
   do_action('wps_products_notice_inline', $wps_product);
   do_action('wps_products_meta_end', $wps_product);
+
+
   do_action('wps_product_single_info_end', $wps_product);
   do_action('wps_product_single_end', $wps_product);
 

@@ -1,12 +1,23 @@
 import $ from 'jquery';
+import 'babel-polyfill';
+// import '@babel/preset-env';
+// import '@babel/preset-react';
+// import '@babel/polyfill';
+// import '@wordpress/components';
+// import '@babel/plugin-transform-runtime',
+// import '@babel/plugin-syntax-dynamic-import',
+// import '@babel/plugin-syntax-import-meta',
+// import '@babel/plugin-proposal-class-properties',
+// import '@babel/plugin-proposal-json-string'
+
 global.$ = global.jQuery = $;
 
 global.WP_Shopify = {
-  ajax: "http://wpstest.test/wp/wp-admin/admin-ajax.php",
+  ajax: "http://wpshopify.loc/wp-admin/admin-ajax.php",
   API: {
-    baseUrl: "http://wpstest.test/wp",
+    baseUrl: "http://wpshopify.loc/",
     namespace: "wpshopify/v1",
-    restUrl: "http://wpstest.test/wp/api/",
+    restUrl: "http://wpshopify.loc/api/",
     urlPrefix: "api"
   },
   hasConnection: "",
@@ -21,8 +32,8 @@ global.WP_Shopify = {
   maxItemsPerRequest: "250",
   migrationNeeded: "",
   nonce: "2488872091",
-  pluginsDirURL: "http://wpstest.test/wp-content/plugins/wp-shopify-pro/",
-  pluginsPath: "http://wpstest.test/wp-content/plugins",
+  pluginsDirURL: "http://wpshopify.loc/wp-content/plugins/wp-shopify-pro/",
+  pluginsPath: "http://wpshopify.loc/wp-content/plugins",
   reconnectingWebhooks: "",
   hasCartTerms: "0",
   selective_sync: {
@@ -34,7 +45,7 @@ global.WP_Shopify = {
     shop: 1,
     smart_collections: 0,
   },
-  siteUrl: "http://wpstest.test/wp",
+  siteUrl: "http://wpshopify.loc",
   settings: {
     colorAddToCart: "#FFFFFF"
   }

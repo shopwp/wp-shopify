@@ -1,8 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\DB_Settings_Syncing_Factory;
-use WPS\Factories\Activator_Factory;
+use WPS\Factories;
 use WPS\Utils;
 
 /*
@@ -24,9 +22,9 @@ class Test_Activator extends WP_UnitTestCase {
 	*/
   static function wpSetUpBeforeClass() {
 
-		self::$DB_Settings_General		= DB_Settings_General_Factory::build();
-		self::$DB_Settings_Syncing		= DB_Settings_Syncing_Factory::build();
-    self::$Activator 							= Activator_Factory::build();
+		self::$DB_Settings_General		= Factories\DB\Settings_General_Factory::build();
+		self::$DB_Settings_Syncing		= Factories\DB\Settings_Syncing_Factory::build();
+    self::$Activator 							= Factories\Activator_Factory::build();
 
   }
 

@@ -1,5 +1,7 @@
 <?php
 
+use WPS\Utils;
+
 /*
 
 @description   Breadcrumbs
@@ -31,7 +33,7 @@ if ( !is_front_page() ) {
 	echo '<div class="wps-breadcrumbs ' . apply_filters('wps_breadcrumbs_class', '') . ' wps-row wps-contain"><ul id="' . $breadcrums_id . '" class="' . $breadcrums_class . '" itemscope itemtype="http://schema.org/BreadcrumbList">';
 
 	// Home page
-	echo '<li class="wps-breadcrumbs-item-home" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-link wps-breadcrumbs-home" href="' . get_home_url() . '" title="' . $home_title . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $home_title . '</span></a></li>';
+	echo '<li class="wps-breadcrumbs-item-home" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a class="wps-breadcrumbs-link wps-breadcrumbs-home" href="' . Utils::get_site_url() . '" title="' . $home_title . '" itemprop="item"><span class="wps-breadcrumbs-name" itemprop="name">' . $home_title . '</span></a></li>';
 	echo '<li class="wps-breadcrumbs-separator wps-breadcrumbs-separator-home"> ' . $separator . ' </li>';
 
 	if ( is_archive() && !is_tax() && !is_category() && !is_tag() ) {

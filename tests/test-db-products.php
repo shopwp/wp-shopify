@@ -1,7 +1,8 @@
 <?php
 
-use WPS\Factories\DB_Products_Factory;
-use WPS\Factories\Templates_Factory;
+use WPS\Factories;
+use WPS\Options;
+
 
 /*
 
@@ -32,8 +33,8 @@ class Test_DB_Products extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Products                      = DB_Products_Factory::build();
-    self::$Templates                        = Templates_Factory::build();
+    self::$DB_Products                      = Factories\DB\Products_Factory::build();
+    self::$Templates                        = Factories\Templates_Factory::build();
     self::$mock_data_product                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product.json") );
     self::$mock_data_product_sync_insert    = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-sync-insert.json") );
     self::$mock_data_product_for_update     = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/product-update.json") );
@@ -223,10 +224,9 @@ class Test_DB_Products extends WP_UnitTestCase {
 
     $result = self::$DB_Products->create_table_if_doesnt_exist('this_is_a_new_table');
 
-    $created_table_transient = get_site_option('wp_shopify_table_exists_this_is_a_new_table');
+    $created_table_transient = Options::get('wp_shopify_table_exists_this_is_a_new_table');
 
-    $this->assertInternalType('integer', $created_table_transient);
-    $this->assertEquals(1, $created_table_transient);
+    $this->assertEquals('1', $created_table_transient);
 
     $this->assertInternalType('array', $result);
     $this->assertEquals(['this_is_a_new_table' => 'Created table this_is_a_new_table'], $result);

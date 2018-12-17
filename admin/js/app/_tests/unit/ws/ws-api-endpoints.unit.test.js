@@ -1,6 +1,6 @@
 import {
   endpointSettingAddToCartColor
-} from '../../../ws/ws-api-endpoints';
+} from '../../../ws/api/api-endpoints';
 
 
 it('Should return correct settings add to cart color endpoint', () => {
@@ -9,6 +9,6 @@ it('Should return correct settings add to cart color endpoint', () => {
 
   expect(result)
     .toBeString()
-    .toEqual('http://wpstest.test/wp/api/wpshopify/v1/settings/products_add_to_cart_color');
+    .toEqual('http://wpshopify.loc/api/wpshopify/v1/settings/products_add_to_cart_color');
 
 });

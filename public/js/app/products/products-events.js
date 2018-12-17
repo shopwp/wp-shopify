@@ -51,7 +51,6 @@ import {
 import {
   getProductByID,
   getProductVariantID,
-  getVariantIdFromOptions,
   setProductSelectionID,
   getProductSelectionID,
   getProductOptionIds,
@@ -67,6 +66,10 @@ import {
   getProductIDByHandle,
   setProductIDByHandle
 } from '../ws/ws-products';
+
+import {
+  getVariantIdFromOptions
+} from '../ws/api/api-variants';
 
 import {
   buildSelectedOptions
@@ -396,13 +399,7 @@ function onProductAddToCart(client) {
 
     triggerEventAfterAddToCart(product, checkout);
 
-
     openCart();
-
-
-
-
-
 
 
   });
@@ -971,8 +968,11 @@ function onProductVariantChange() {
 
       */
 
-      // Calls get_variant_id_from_product_options
-      var [foundVariantError, foundVariantResponse] = await to( getVariantIdFromOptions(newCurrentProductID, selectedOptions) );
+      var [foundVariantError, foundVariantResponse] = await to( getVariantIdFromOptions({
+        'selectedOptions': selectedOptions,
+        'productID': newCurrentProductID
+      }) );
+
 
       if (foundVariantError) {
 
@@ -1013,8 +1013,8 @@ function onProductVariantChange() {
       }
 
 
-
       var foundVariant = foundVariantResponse.data;
+
 
       $newProductMetaContainer.data('product-selected-variant', foundVariant.variant_id);
       $newProductMetaContainer.attr('data-product-selected-variant', foundVariant.variant_id);

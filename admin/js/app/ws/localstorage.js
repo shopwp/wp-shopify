@@ -220,16 +220,6 @@ function getWebhooksReconnect() {
 Set canceling indicator
 
 */
-function removeWebhooksReconnect() {
-  localStorage.removeItem('wps-webhooks-reconnect');
-}
-
-
-/*
-
-Set canceling indicator
-
-*/
 function syncIsCanceled() {
 
   if (getCancelSync() === 'true') {
@@ -261,7 +251,6 @@ function clearLocalstorageCache() {
   // removeMoneyFormat();
   // removeStartingURL();
   // removeCancelSync();
-  // removeWebhooksReconnect();
   localStorage.clear();
 
   WP_Shopify.manuallyCanceled = false;

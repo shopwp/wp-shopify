@@ -7,7 +7,7 @@ Tab Content: Updates
 
   <h3 class="wps-admin-section-heading">
     <span class="dashicons dashicons-download"></span>
-    <?php esc_html_e('License Key Info', WPS_PLUGIN_TEXT_DOMAIN) ?>
+    <?php esc_html_e('License', WPS_PLUGIN_TEXT_DOMAIN) ?>
   </h3>
 
   <div id="post-body" class="metabox-holder columns-2">

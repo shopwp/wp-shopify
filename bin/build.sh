@@ -8,9 +8,9 @@ set -o errexit
 #
 # Setting up our variables ...
 #
-PLUGINS_FOLDER="/Users/arobbins/www/wpstest/public/wp-content/plugins/"
-PLUGIN_PATH="/Users/arobbins/www/wpstest/public/wp-content/plugins/wp-shopify-pro/"
-BUILD_FOLDER="/Users/arobbins/www/wpstest/assets/_build/wp-shopify-pro"
+PLUGINS_FOLDER="/Users/andrew/www/wpstest/public/wp-content/plugins/"
+PLUGIN_PATH="/Users/andrew/www/wpstest/public/wp-content/plugins/wp-shopify-pro/"
+BUILD_FOLDER="/Users/andrew/www/wpstest/assets/_build/wp-shopify-pro"
 
 GREEN='\033[0;32m'
 NC='\033[0m'

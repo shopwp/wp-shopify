@@ -274,13 +274,32 @@ function cacheExpired() {
 }
 
 
+function hasHTML(string) {
+  return /<[a-z][\s\S]*>/i.test(string);
+}
+
+function removeHTML(moneyFormat) {
+  return jQuery(moneyFormat).unwrap().html();
+}
+
+function trimHTMLFromMoneyFormat(moneyFormat) {
+
+  if ( hasHTML(moneyFormat) ) {
+    moneyFormat = removeHTML(moneyFormat);
+  }
+
+  return moneyFormat;
+
+}
+
+
 /*
 
 Format product price into format from Shopify
 
 */
 function formatAsMoney(amount) {
-  return formatTotalAmount( trim(amount), getMoneyFormat( getShop() ) );
+  return formatTotalAmount( trim(amount), trimHTMLFromMoneyFormat( getMoneyFormat( getShop() ) ) );
 }
 
 
@@ -403,5 +422,6 @@ export {
   formatTotalAmount,
   containsInvalidLineItemProps,
   swapDomains,
-  elementExists
+  elementExists,
+  trimHTMLFromMoneyFormat
 };

@@ -30,7 +30,7 @@ class Test_CPT extends WP_UnitTestCase {
 
 	function test_it_should_construct_posts_insert_query() {
 
-		$query_string = self::$CPT_Query->construct_posts_insert_query( self::$mock_products, false, WPS_PRODUCTS_POST_TYPE_SLUG );
+		$query_string = self::$CPT_Query->construct_posts_insert_query( self::$mock_products, WPS_PRODUCTS_POST_TYPE_SLUG );
 
 		$this->assertStringStartsWith('INSERT INTO', $query_string);
 
@@ -149,7 +149,7 @@ class Test_CPT extends WP_UnitTestCase {
 	*/
 	function test_it_should_insert_posts() {
 
-		$results = self::$CPT_Query->insert_posts( self::$mock_products, false, WPS_PRODUCTS_POST_TYPE_SLUG );
+		$results = self::$CPT_Query->insert_posts( self::$mock_products, WPS_PRODUCTS_POST_TYPE_SLUG );
 
 		$this->assertNotWPError($results);
 		$this->assertGreaterThan(1, $results);
@@ -162,8 +162,9 @@ class Test_CPT extends WP_UnitTestCase {
       $this->factory->post->create( self::$CPT_Model->set_product_model_defaults($product) );
     }
 
-		$existing_products = CPT::truncate_post_data( CPT::get_all_posts(WPS_PRODUCTS_POST_TYPE_SLUG) );
-		$products_to_update = self::$CPT_Query->find_posts_to_update(self::$mock_products, $existing_products);
+
+		$existing_products = CPT::get_all_posts_compressed(WPS_PRODUCTS_POST_TYPE_SLUG);
+		$products_to_update = self::$CPT_Query->find_posts_to_update(self::$mock_products, WPS_PRODUCTS_POST_TYPE_SLUG);
 
 		$results = self::$CPT_Query->update_posts( $products_to_update, false, WPS_PRODUCTS_POST_TYPE_SLUG );
 
@@ -180,11 +181,11 @@ class Test_CPT extends WP_UnitTestCase {
 	*/
 	function test_it_should_check_whether_collections_posts_exist() {
 
-		$this->assertFalse( CPT::collections_posts_exist() );
+		$this->assertFalse( CPT::posts_exist(WPS_COLLECTIONS_POST_TYPE_SLUG) );
 
 		$this->factory->post->create( self::$CPT_Model->set_collection_model_defaults( self::$mock_collection ) );
 
-		$this->assertTrue( CPT::collections_posts_exist() );
+		$this->assertTrue( CPT::posts_exist(WPS_COLLECTIONS_POST_TYPE_SLUG) );
 
   }
 
@@ -232,6 +233,23 @@ class Test_CPT extends WP_UnitTestCase {
 
 		$this->assertObjectHasAttribute('post_id', $result);
 		$this->assertEquals(123, $result->post_id);
+
+	}
+
+
+
+	function test_it_should_get_all_posts_compressed() {
+
+		$result = self::$CPT_Query->insert_posts(self::$mock_product, WPS_PRODUCTS_POST_TYPE_SLUG);
+
+		$posts = CPT::get_all_posts_compressed(WPS_PRODUCTS_POST_TYPE_SLUG);
+
+		$this->assertInternalType('array', $posts);
+		$this->assertCount(1, $posts);
+
+		$this->assertArrayHasKey('ID', $posts[0]);
+		$this->assertArrayHasKey('post_name', $posts[0]);
+
 
 	}
 

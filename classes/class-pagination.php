@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 }
 
 use WPS\Utils;
+use WPS\Options;
 
 
 class Pagination {
@@ -41,7 +42,7 @@ class Pagination {
 
 			} else {
 
-				$posts_per_page = get_option('posts_per_page');
+				$posts_per_page = Options::get('posts_per_page');
 
 				$minNumProducts = ($currentPage - 1) * $posts_per_page;
 				$maxNumProducts = $posts_per_page;
@@ -88,7 +89,7 @@ class Pagination {
 		global $post;
 
 		$general_settings = $this->DB_Settings_General->get();
-		$homeURL = get_home_url();
+		$homeURL = Utils::get_site_url();
 
 
 		/*

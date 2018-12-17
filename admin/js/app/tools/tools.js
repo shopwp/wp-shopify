@@ -1,5 +1,5 @@
 import { onResyncSubmit } from './resync';
-import { onCacheClear, clearAllCache } from './cache';
+import { onCacheClear } from './cache';
 import { onClearSubmit } from './clear';
 import { onWebhooksSubmit } from './webhooks';
 

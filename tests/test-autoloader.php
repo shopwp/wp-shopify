@@ -258,7 +258,7 @@ class Test_Autoloader extends WP_UnitTestCase {
     $file_path_two = find_file_to_autoload('WPS', $plugin_path);
     $file_path_three = find_file_to_autoload('WPS\API', $plugin_path);
     $file_path_four = find_file_to_autoload('WPS\DB\Variants', $plugin_path);
-    $file_path_five = find_file_to_autoload('WPS\Factories\Async_Processing_Posts_Products_Relationships_Factory', $plugin_path);
+    $file_path_five = find_file_to_autoload('WPS\Factories\Processing\Posts_Relationships_Factory', $plugin_path);
 
     $this->assertInternalType('boolean', $file_path_one);
     $this->assertFalse($file_path_one);

@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Options_Factory;
+use WPS\Factories;
 use WPS\Utils;
 
 
@@ -30,7 +30,7 @@ class Test_DB_Options extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Options                     = DB_Options_Factory::build();
+    self::$DB_Options                     = Factories\DB\Options_Factory::build();
     self::$mock_data_option               = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/options/option.json") );
     self::$mock_option_for_update         = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/options/option-update.json") );
 

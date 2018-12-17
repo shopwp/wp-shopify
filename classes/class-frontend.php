@@ -115,42 +115,43 @@ class Frontend {
 				'anime-js',
 				WPS_PLUGIN_URL . 'public/js/vendor/anime.min.js',
 				[],
-				filemtime( WPS_PLUGIN_DIR_PATH . 'public/js/vendor/anime.min.js' ),
-				true
+				filemtime( WPS_PLUGIN_DIR_PATH . 'public/js/vendor/anime.min.js' )
 			);
 
 			wp_enqueue_script(
 				'promise-polyfill',
 				WPS_PLUGIN_URL . 'public/js/vendor/es6-promise.auto.min.js',
 				['jquery'],
-				filemtime( WPS_PLUGIN_DIR_PATH . 'public/js/vendor/es6-promise.auto.min.js' ),
-				true
+				filemtime( WPS_PLUGIN_DIR_PATH . 'public/js/vendor/es6-promise.auto.min.js' )
 			);
 
-			// Third-party libs first ...
-			wp_enqueue_script(
-				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-public',
-				WPS_PLUGIN_URL . 'dist/vendors-public.min.js',
-				[],
-				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-public.min.js' ),
-				true
-			);
-
-			// Commonly shared third-party libs second ...
+			// Commonly shared third-party libs first ...
 			wp_enqueue_script(
 				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common',
 				WPS_PLUGIN_URL . 'dist/vendors-admin-public.min.js',
 				[],
-				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-admin-public.min.js' ),
-				false
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-admin-public.min.js' )
+			);
+
+
+			// Public third-party libs second ...
+			wp_enqueue_script(
+				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-public',
+				WPS_PLUGIN_URL . 'dist/vendors-public.min.js',
+				[],
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/vendors-public.min.js' )
 			);
 
 			wp_enqueue_script(
 				WPS_PLUGIN_TEXT_DOMAIN . '-scripts-frontend',
 				WPS_PLUGIN_URL . 'dist/public.min.js',
-				['jquery', 'promise-polyfill', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-public', WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common'],
-				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/public.min.js' ),
-				true
+				[
+					'jquery',
+					'promise-polyfill',
+					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-common',
+					WPS_PLUGIN_TEXT_DOMAIN . '-scripts-vendors-public'
+				],
+				filemtime( WPS_PLUGIN_DIR_PATH . 'dist/public.min.js' )
 			);
 
 			wp_localize_script(
@@ -165,14 +166,21 @@ class Frontend {
 					'post_id' 								=> is_object($post) ? $post->ID : false,
 					'nonce'										=> wp_create_nonce(WPS_FRONTEND_NONCE_ACTION),
 					'note_attributes'					=> '',
+					'nonce_api'								=> wp_create_nonce('wp_rest'),
 					'checkoutAttributes' 			=> [],
 					'hasCartTerms' 						=> $this->Settings_General->enable_cart_terms(),
 					'settings'								=> [
 						'hasCurrencyCode' 						=> $this->Settings_General->get_price_with_currency(),
 						'enableCustomCheckoutDomain' 	=> $this->Settings_General->get_enable_custom_checkout_domain(),
 						'myShopifyDomain' 						=> $this->Settings_Connection->get_domain(),
-						'checkoutButtonTarget'				=> $this->Settings_General->get_setting('checkout_button_target', 'string'),
-						'itemsLinkToShopify'					=> $this->Settings_General->get_setting('products_link_to_shopify', 'bool')
+						'checkoutButtonTarget'				=> $this->Settings_General->get_col_value('checkout_button_target', 'string'),
+						'itemsLinkToShopify'					=> $this->Settings_General->get_col_value('products_link_to_shopify', 'bool')
+					],
+					'API' => [
+						'namespace'			=> WP_SHOPIFY_API_NAMESPACE,
+						'baseUrl' 			=> site_url(),
+						'urlPrefix'			=> rest_get_url_prefix(),
+						'restUrl'				=> get_rest_url()
 					]
 				]
 			);

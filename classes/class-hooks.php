@@ -4,6 +4,7 @@ namespace WPS;
 
 use WPS\Utils;
 use WPS\Transients;
+use WPS\Options;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -733,9 +734,9 @@ class Hooks {
 
 			if (version_compare($current_version_number, '1.2.2', '<')) {
 
-				if ( !Transients::database_migration_needed() ) {
-					update_site_option('wp_shopify_migration_needed', true);
-				}
+				// if ( !Transients::database_migration_needed() ) {
+				// 	Options::update('wp_shopify_migration_needed', true);
+				// }
 
 			} else {
 
@@ -747,7 +748,7 @@ class Hooks {
 			$this->DB_Settings_General->update_plugin_version($new_version_number);
 
 			Transients::delete_all_cache();
-			delete_site_option('wp_shopify_migration_needed');
+			Options::delete('wp_shopify_migration_needed');
 
 		}
 

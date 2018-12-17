@@ -16,9 +16,7 @@ class Template_Loader_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$Template_Loader = new Template_Loader();
-
-			self::$instantiated = $Template_Loader;
+			self::$instantiated = new Template_Loader();
 
 		}
 

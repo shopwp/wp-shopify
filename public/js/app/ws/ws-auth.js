@@ -1,6 +1,10 @@
 import has from 'lodash/has';
 import isObject from 'lodash/isObject';
 import to from 'await-to-js';
+
+import { get } from './ws';
+import { endpointConnection } from './api/api-endpoints';
+
 import { getErrorContents, isWordPressError, noticeConfigBadCredentials } from '../utils/utils-notices';
 import { clientActive, getClient, setClient } from '../utils/utils-client';
 import { buildClient } from './ws-client';
@@ -53,38 +57,7 @@ function shopifyInit(creds) {
 
   });
 
-};
-
-
-/*
-
-Get Shopify credentials from WordPress
-Returns: Promise
-
-*/
-function getShopifyCreds() {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'get_shopify_creds';
-
-    jQuery.ajax({
-      method: 'GET',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-};
+}
 
 
 /*
@@ -129,7 +102,7 @@ function findShopifyCreds() {
 
       localStorage.clear();
 
-      var [credsError, creds] = await to( getShopifyCreds() ); // get_shopify_creds
+      var [credsError, creds] = await to( get( endpointConnection() ) );
 
       if (credsError) {
         return reject(credsError);

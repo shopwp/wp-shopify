@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Tags_Factory;
+use WPS\Factories;
 use WPS\Utils;
 
 
@@ -29,7 +29,7 @@ class Test_DB_Tags extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Tags                        = DB_Tags_Factory::build();
+    self::$DB_Tags                        = Factories\DB\Tags_Factory::build();
     self::$mock_product                   = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );
     self::$mock_data_tag                  = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/tags/tag.json") );
     self::$mock_product_without_tags      = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/tags/tags-insert.json") );

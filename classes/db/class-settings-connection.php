@@ -108,7 +108,12 @@ class Settings_Connection extends \WPS\DB {
 			}
 
 		} else {
-			$results = Utils::wp_error( __('Please make sure you\'ve entered your Shopify domain.', WPS_PLUGIN_TEXT_DOMAIN) );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'Please make sure you\'ve entered your Shopify domain.',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
 
 		}
 

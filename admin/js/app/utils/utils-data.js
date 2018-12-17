@@ -22,6 +22,19 @@ import {
   getStartingURL
 } from '../ws/localstorage';
 
+import {
+  isSyncingAll,
+  isSyncingProducts,
+  isSyncingCollects,
+  isSyncingOrders,
+  isSyncingCustomers,
+  isSyncingSmartCollections,
+  isSyncingCustomCollections,
+  isSyncingShop,
+  isConnecting,
+  isReconnectingWebhooks,
+  getSelectiveSync
+} from '../globals/globals-syncing';
 
 
 /*
@@ -397,30 +410,28 @@ function onlyNonNotice(obj) {
 
 /*
 
-Runs for each sync type: products, webhooks, etc
+Callback to a filter(). Runs for each sync type: products, webhooks, etc
+
 {webhooks: 27}
 {orders: 55}
 
 */
-function onlyAvailableSyncOptions(obj) {
+function onlyAvailableSyncOptions(syncType) {
 
-
-  // If syncing everything, return full list
-  if (WP_Shopify.selective_sync.all) {
-    return obj;
+  // If syncing everything, return every type
+  if ( isSyncingAll() ) {
+    return syncType;
   }
 
   // If initial connect, or syncing webhooks, return webhooks
-  if (WP_Shopify.isConnecting || WP_Shopify.reconnectingWebhooks) {
-    if (obj.hasOwnProperty('webhooks')) {
-      return obj;
+  if ( isConnecting() || isReconnectingWebhooks() ) {
+    if (syncType.hasOwnProperty('webhooks')) {
+      return syncType;
     }
   }
 
-
-
-  var onlySelectedSyncs = filterOutDeselectedSyncs(WP_Shopify.selective_sync);
-  var nameOfSync = Object.getOwnPropertyNames(obj)[0];
+  var onlySelectedSyncs = filterOutDeselectedSyncs( getSelectiveSync() );
+  var nameOfSync = Object.getOwnPropertyNames(syncType)[0];
 
 
   /*
@@ -429,7 +440,7 @@ function onlyAvailableSyncOptions(obj) {
 
   */
   if (onlySelectedSyncs.hasOwnProperty(nameOfSync)) {
-    return obj;
+    return syncType;
 
   } else {
 
@@ -443,67 +454,14 @@ function onlyAvailableSyncOptions(obj) {
     */
     if (has(onlySelectedSyncs, 'products')) {
 
-      if ( has(obj, 'collects') ) {
-        return obj;
+      if ( has(syncType, 'collects') ) {
+        return syncType;
       }
 
     }
 
   }
 
-
-}
-
-
-
-
-/*
-
-Checks if user is attempting to sync products
-
-*/
-function isSyncingProducts() {
-
-  if (WP_Shopify.reconnectingWebhooks) {
-    return false;
-  }
-
-  if (WP_Shopify.selective_sync.all) {
-    return true;
-
-  } else if (WP_Shopify.selective_sync.products) {
-    return true;
-
-  } else {
-    return false;
-  }
-
-}
-
-
-/*
-
-Checks if user is attempting to sync collections
-
-*/
-function isSyncingCollections() {
-
-  if (WP_Shopify.reconnectingWebhooks) {
-    return false;
-  }
-
-  if (WP_Shopify.selective_sync.all) {
-    return true;
-
-  } else if (WP_Shopify.selective_sync.custom_collections) {
-    return true;
-
-  } else if (WP_Shopify.selective_sync.smart_collections) {
-    return true;
-
-  } else {
-    return false;
-  }
 
 }
 
@@ -575,9 +533,20 @@ function filterOutAnyNotice(array) {
 
 Filter Out Any Notice
 
+syncTypes: Array of objects like:
+
+{webhooks: 27} object
+{orders: 364} object
+{customers: 219} object
+{smart_collections: 1} object
+{custom_collections: 2} object
+{products: 4} object
+{collects: 181} object
+{shop: 1} object
+
 */
-function filterOutSelectiveSync(array) {
-  return filter(array, onlyAvailableSyncOptions);
+function filterOutSelectiveSync(syncTypes) {
+  return filter(syncTypes, onlyAvailableSyncOptions);
 }
 
 
@@ -856,8 +825,6 @@ export {
   filterOutSelectedDataForSync,
   filterOutEmptySets,
   formatBytes,
-  isSyncingProducts,
-  isSyncingCollections,
   hasConnection,
   setConnectionStatus,
   getErrorContents,

@@ -1,3 +1,9 @@
+<?php
+
+use WPS\Options;
+
+?>
+
 <!--
 
 Tab Content: Help / Debug
@@ -18,7 +24,6 @@ Tab Content: Help / Debug
     <textarea name="name" rows="30" cols="95" readonly>
 
 <?php
-
 
 
 // TODO: Clean this up and restructure
@@ -245,7 +250,7 @@ echo "Active Plugins:\r\n";
 //   $blacklist = array();
 // }
 
-$active_plugins = (array) get_option( 'active_plugins', array() );
+$active_plugins = (array) Options::get('active_plugins', []);
 
 // if ( is_multisite() ) {
 //   $network_active_plugins = wp_get_active_network_plugins();

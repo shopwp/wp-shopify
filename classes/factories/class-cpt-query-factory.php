@@ -3,9 +3,7 @@
 namespace WPS\Factories;
 
 use WPS\CPT_Query;
-
-use WPS\Factories\DB_Settings_General_Factory;
-use WPS\Factories\DB_Settings_Connection_Factory;
+use WPS\Factories;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -19,12 +17,11 @@ class CPT_Query_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$CPT_Query = new CPT_Query(
-				DB_Settings_General_Factory::build(),
-				DB_Settings_Connection_Factory::build()
+			self::$instantiated = new CPT_Query(
+				Factories\DB\Settings_General_Factory::build(),
+				Factories\DB\Settings_Connection_Factory::build(),
+				Factories\CPT_Meta_Factory::build()
 			);
-
-			self::$instantiated = $CPT_Query;
 
 		}
 

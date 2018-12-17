@@ -4,21 +4,6 @@ Tab Content: Settings
 
 -->
 
-<?php
-
-if ('wp-shopify_page_wps-settings' == get_current_screen()->id ) {
-
-  if (isset($_GET['activesubnav']) && $_GET['activesubnav']) {
-    $active_sub_nav = $_GET['activesubnav'];
-
-  } else {
-    $active_sub_nav = 'wps-admin-section-general'; // default sub nav
-  }
-
-}
-
-?>
-
 <div class="tab-content <?= $active_tab === 'tab-settings' ? 'tab-content-active' : ''; ?>" data-tab-content="tab-settings">
 
   <ul class="subsubsub wps-submenu">

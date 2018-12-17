@@ -34,6 +34,15 @@ function isWordPressError(response) {
 
   }
 
+  // REST API error
+  if (isObject(response) && has(response, 'data') && has(response.data, 'type') ) {
+
+    if (response.data.type === 'error') {
+      foundError = true;
+    }
+
+  }
+
   // Used when using promise all for checking more than one returned response
   if (isArray(response) && !isEmpty(response)) {
 
@@ -572,12 +581,13 @@ function formatExpireDate(dateString) {
 
 }
 
-function getDataFromArray(array) {
 
-  return array.map(function(item) {
-    return item.data;
-  });
+function returnItemData(item) {
+  return item.data;
+}
 
+function getDataFromArray(items) {
+  return items.map(returnItemData);
 }
 
 

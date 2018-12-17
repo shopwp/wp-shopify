@@ -150,6 +150,195 @@ class Settings_License extends \WPS\DB {
 
 	/*
 
+	Checks whether the added license key expires or not.
+
+	Returns false if unlimited, or string date if expires
+
+	*/
+	public function get_license_expiration($license) {
+
+		if ( empty($license) ) {
+			return false;
+		}
+
+		return $license->expires ? $license->expires : false;
+
+	}
+
+
+	/*
+
+	Formats a license expiration date
+
+	*/
+	public function format_license_expiration_date($expiration_date_raw) {
+		return date_i18n("F j, Y", strtotime($expiration_date_raw));
+	}
+
+
+	public function license_expires($expiration_date) {
+
+		if (strpos($expiration_date, '1970-01-01') !== false || $expiration_date === 0 || $expiration_date === false) {
+			return false;
+		}
+
+		return true;
+
+	}
+
+
+	/*
+
+	Checks whether the added license key expires or not.
+
+	Returns false if unlimited, or string date if expires
+
+	*/
+	public function get_license_limit($license) {
+
+		if ( empty($license) ) {
+			return false;
+		}
+
+		return $license->license_limit ? $license->license_limit : 'unlimited';
+
+	}
+
+
+	public function whitelist_site_count($site_count) {
+		return $site_count - 1;
+	}
+
+
+	/*
+
+	Checks whether the added license key expires or not.
+
+	Returns false if unlimited, or string date if expires
+
+	*/
+	public function get_license_site_count($license) {
+
+		if ( empty($license) ) {
+			return false;
+		}
+
+		if ( $this->is_local($license) ) {
+	    return $this->whitelist_site_count($license->site_count);
+
+	  } else {
+	    return $license->site_count;
+
+	  }
+
+	}
+
+
+	/*
+
+	Returns customer name from license details
+
+	*/
+	public function get_license_customer_name($license) {
+
+		if ( empty($license) ) {
+			return false;
+		}
+
+		return $license->customer_name ? $license->customer_name : false;
+
+	}
+
+
+	/*
+
+	Returns customer email from license details
+
+	*/
+	public function get_license_customer_email($license) {
+
+		if ( empty($license) ) {
+			return false;
+		}
+
+		return $license->customer_email ? $license->customer_email : false;
+
+	}
+
+
+	/*
+
+	Checks whether the added license key expires or not.
+
+	Returns false if unlimited, or string date if expires
+
+	*/
+	public function is_local($license) {
+
+		if ( empty($license) ) {
+			return false;
+		}
+
+		if ( isset($license->is_local) && $license->is_local ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+
+	/*
+
+	Masks a license key
+
+	*/
+	public function mask_license_key($license) {
+
+		if ( empty($license->license_key) ) {
+			return;
+		}
+
+		return Utils::mask($license->license_key);
+
+	}
+
+
+	public function has_license_key($license) {
+
+		if ( !empty($license->license_key) ) {
+	   	return true;
+	  }
+
+		if ( !empty($license->key) ) {
+	    return true;
+	  }
+
+		return false;
+
+	}
+
+
+
+	public function has_active_license_key($license) {
+
+		if (empty($license)) {
+			return false;
+		}
+
+		return $license->license === 'valid';
+		
+	}
+
+
+
+
+
+
+
+
+	/*
+
 	Creates a table query string
 
 	*/

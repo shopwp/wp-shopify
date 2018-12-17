@@ -1,5 +1,6 @@
 import React from "react";
 import { render, cleanup, fireEvent } from 'react-testing-library'
+
 import 'jest-dom/extend-expect';
 
 import {
@@ -9,6 +10,7 @@ import {
   ColorPickerCheckout,
   ColorPickerCartCounter
 } from "../../../settings/settings-color-picker.jsx";
+
 
 
 // Cleans up after each test

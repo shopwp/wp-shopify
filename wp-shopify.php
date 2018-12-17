@@ -3,14 +3,14 @@
 /*
 
 @link              https://wpshop.io
-@since             1.2.9
+@since             1.3.0
 @package           wp-shopify
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress.
-Version:           1.2.9
+Version:           1.3.0
 Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
@@ -20,8 +20,14 @@ Domain Path:       /languages
 
 */
 
+global $wp_version;
+
 if ( !function_exists('version_compare') || version_compare(PHP_VERSION, '5.6.0', '<' )) {
 	wp_die( __("Sorry, WP Shopify requires PHP version 5.6 or higher. Please look through <a href=\"https://wpshop.io/docs/requirements\" target=\"_blank\">our requirements</a> page to learn more. Often times you can simply ask your webhost to upgrade for you. <br><br><a href=" . admin_url('plugins.php') . " class=\"button button-primary\">Back to plugins</a>.", 'wp-shopify') );
+}
+
+if ( version_compare($wp_version, '4.7', '<' )) {
+	wp_die( __("Sorry, WP Shopify requires WordPress version 4.7 or higher. Please look through <a href=\"https://wpshop.io/docs/requirements\" target=\"_blank\">our requirements</a> page to learn more. Often times you can simply ask your webhost to upgrade for you. <br><br><a href=" . admin_url('plugins.php') . " class=\"button button-primary\">Back to plugins</a>.", 'wp-shopify') );
 }
 
 // If this file is called directly, abort.

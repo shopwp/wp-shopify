@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Settings_Syncing_Factory;
+use WPS\Factories;
 
 
 /*
@@ -17,7 +17,7 @@ class Test_DB_Syncing extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Settings_Syncing = DB_Settings_Syncing_Factory::build();
+    self::$DB_Settings_Syncing = Factories\DB\Settings_Syncing_Factory::build();
 
   }
 

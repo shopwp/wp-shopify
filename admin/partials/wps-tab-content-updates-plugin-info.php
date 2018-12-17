@@ -1,14 +1,3 @@
-<!--
-
-Plugin Info
-
--->
-<?php
-
-$plugin_data_latest = false;
-
-?>
-
 <div class="postbox wps-postbox-plugin-info" id="wps-plugin-info">
 
   <div class="spinner"></div>
@@ -25,7 +14,9 @@ $plugin_data_latest = false;
         </label>
       </td>
 
-      <td class="wps-col wps-col-plugin-name">WP Shopify</td>
+      <td class="wps-col wps-col-plugin-name">
+        <?php esc_attr_e(WPS_PLUGIN_NAME_FULL_PRO, WPS_PLUGIN_TEXT_DOMAIN); ?>
+      </td>
 
     </tr>
 
@@ -66,18 +57,7 @@ $plugin_data_latest = false;
       </td>
 
       <td class="wps-col wps-col-plugin-version">
-
-        <?php
-
-          if (is_object($plugin_data_latest) && isset($plugin_data_latest->new_version)) {
-            printf(esc_html__('%s', WPS_PLUGIN_TEXT_DOMAIN), $plugin_data_latest->new_version);
-
-          } else {
-            _e('Add your license key to receive updates', WPS_PLUGIN_TEXT_DOMAIN);
-          }
-
-        ?>
-
+        <?= WPS_NEW_PLUGIN_VERSION; ?>
       </td>
 
     </tr>

@@ -1,3 +1,9 @@
+<?php
+
+use WPS\Utils;
+
+?>
+
 <div class="wps-form-group wps-form-group-tight">
 
   <table class="form-table">
@@ -10,9 +16,9 @@
         </th>
 
         <td class="forminp forminp-text">
-          <input required type="text" class="regular-text" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_url_webhooks" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_webhooks_products]" value="<?php if(!empty($general->url_webhooks)) echo $general->url_webhooks; ?>" placeholder="<?php esc_attr_e(get_home_url(), WPS_PLUGIN_TEXT_DOMAIN ); ?>">
+          <input required type="text" class="regular-text" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_url_webhooks" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[wps_general_webhooks_products]" value="<?php if(!empty($general->url_webhooks)) echo $general->url_webhooks; ?>" placeholder="<?php esc_attr_e( Utils::get_site_url(), WPS_PLUGIN_TEXT_DOMAIN ); ?>">
         </td>
-        
+
       </tr>
     </tbody>
   </table>

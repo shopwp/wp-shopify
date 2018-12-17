@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Utils\HTTP as Utils_HTTP;
 use WPS\Messages;
 
 if (!defined('ABSPATH')) {
@@ -63,93 +64,10 @@ class HTTP {
 	}
 
 
-	/*
-
-	Gets a response status code
-
-	$response : Guzzle response
-
-	*/
-	public function get_status_code($response) {
-		return (int) wp_remote_retrieve_response_code($response);
-	}
 
 
-	/*
 
-	Returns a custom error message depending on the API response code
 
-	*/
-	public function get_error_message_from_status_code($response) {
-
-		$response_code = $this->get_status_code($response);
-
-		switch ($response_code) {
-
-			case 400:
-				return Messages::get('shopify_api_400');
-				break;
-
-			case 401:
-				return Messages::get('shopify_api_401');
-				break;
-
-			case 402:
-				return Messages::get('shopify_api_402');
-				break;
-
-			case 403:
-				return Messages::get('shopify_api_403');
-				break;
-
-			case 404:
-				return Messages::get('shopify_api_404');
-				break;
-
-			case 406:
-				return Messages::get('shopify_api_406');
-				break;
-
-			case 422:
-				return Messages::get('shopify_api_422');
-				break;
-
-			case 429:
-				return Messages::get('shopify_api_429');
-				break;
-
-			case 500:
-				return Messages::get('shopify_api_500');
-				break;
-
-			case 501:
-				return Messages::get('shopify_api_501');
-				break;
-
-			case 503:
-				return Messages::get('shopify_api_503');
-				break;
-
-			case 504:
-				return Messages::get('shopify_api_504');
-				break;
-
-			default:
-
-				$errors = $response->get_error_messages();
-
-				if ( empty($errors) ) {
-					return Messages::get('shopify_api_generic');
-					break;
-
-				} else {
-					return $errors[0];
-					break;
-				}
-
-		}
-
-	}
 
 
 	/*
@@ -277,52 +195,15 @@ class HTTP {
 
 	}
 
-	public function is_client_error($response) {
 
-		$first_num = Utils::first_num( $this->get_status_code($response) );
-
-		if ( $first_num === 4) {
-			return true;
-		}
-
-	}
 
 
 	public function get_server_error_message($response) {
-		return $this->get_error_message_from_status_code($response);
+		return Utils_HTTP::get_error_message_from_status_code($response);
 	}
 
 
-	public function get_client_error_message($response) {
 
-		$response_message = json_decode( wp_remote_retrieve_body($response) );
-
-		if ( empty($response_message) ) {
-			return $response['http_response']->get_response_object()->status_code . ' ' . $response['http_response']->get_response_object()->url;
-		}
-
-		if ( Utils::has($response_message, 'error') ) {
-			return $response_message->error;
-		}
-
-		if ( Utils::has($response_message, 'errors') ) {
-
-			$errors = array_values( Utils::convert_object_to_array($response_message->errors) );
-
-			if ( Utils::is_multi_array($errors) ) {
-				return $errors[0][0];
-
-			} else {
-				return $errors[0];
-			}
-
-		}
-
-		if ( Utils::has($response_message, 'message') ) {
-			return $response_message->message;
-		}
-
-	}
 
 
 	/*
@@ -377,29 +258,50 @@ class HTTP {
 
 		$request_args = $this->build_request_args($method, $body, $blocking);
 
-		$url = apply_filters('wps_remote_request_url', $url, $request_args);
+		$url_filtered = apply_filters('wps_remote_request_url', $url, $request_args);
 
-		do_action('wps_before_remote_request', $url, $request_args);
+		do_action('wps_before_remote_request', $url_filtered, $request_args);
 
-		if (!$url) {
-			return false;
+		if (!$url_filtered) {
+
+			return Utils::wp_error([
+				'message_lookup' 	=> 'request_url_not_found',
+				'message_aux'			=> 'Attempted to call URL: ' . $url,
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		$response = wp_remote_request($url, $request_args);
 
 
-		if ( $this->is_client_error($response) ) {
-			return Utils::wp_error( __( $this->get_client_error_message($response), WPS_PLUGIN_TEXT_DOMAIN ) );
+		if ( Utils_HTTP::is_client_error($response) ) {
+
+			return Utils::wp_error([
+				'message_lookup' 	=> Utils_HTTP::get_client_error_message($response),
+				'message_aux' 		=> '<p>Tried calling URL: ' . Utils_HTTP::error_url($response) . '</p>',
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		if ( $this->is_server_error($response) ) {
-			return Utils::wp_error( __( $this->get_server_error_message($response), WPS_PLUGIN_TEXT_DOMAIN ) );
+
+			return Utils::wp_error([
+				'message_lookup' 	=> $this->get_server_error_message($response),
+				'call_method' 		=> __METHOD__,
+				'call_line' 			=> __LINE__
+			]);
+
 		}
 
 		// Throttles API calls if needed to stay under limit
 		$this->check_rate_limit($response);
 
 		$json_from_response = wp_remote_retrieve_body($response);
+
 
 		/*
 

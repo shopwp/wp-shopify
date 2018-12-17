@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Variants_Factory;
+use WPS\Factories;
 use WPS\Utils;
 
 
@@ -32,7 +32,7 @@ class Test_DB_Variants extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Variants                 = DB_Variants_Factory::build();
+    self::$DB_Variants                 = Factories\DB\Variants_Factory::build();
 
     // Simulates the actual product payload from Shopify
     self::$mock_product                = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/product.json") );

@@ -5,8 +5,6 @@ License Activation
 -->
 <div class="postbox wps-postbox-license-activation">
 
-  <div class="handlediv" title="Click to toggle"><br></div>
-
   <div class="inside">
 
     <form method="post" name="cleanup_options" action="" id="wps-license" class="wps-admin-form">
@@ -30,14 +28,17 @@ License Activation
           <?php printf(__('You can find your license key <a href="%1$s" target="_blank">within your account</a> or contained inside your payment confirmation email.', WPS_PLUGIN_TEXT_DOMAIN), esc_url("https://wpshop.io/login")); ?>
         </small>
 
-        <input autocomplete="off" required <?php echo $activeLicense ? 'disabled' : ''; ?> type="text" class="regular-text wps-input-license-key <?php echo $activeLicense ? 'valid' : ''; ?> wps-is-hidden" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_license" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[license_key]" value="<?php if(!empty($license->license_key)) echo $maskedKey; ?>" placeholder=""><div class="wps-form-icon wps-animated wps-is-hidden"></div>
+
+        <input autocomplete="off" required <?= $DB_Settings_License->has_license_key($license) ? 'disabled' : ''; ?> type="text" class="regular-text wps-input-license-key <?= $DB_Settings_License->has_license_key($license) ? 'valid' : ''; ?> wps-is-hidden" id="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>_license" name="<?= WPS_SETTINGS_GENERAL_OPTION_NAME; ?>[license_key]" value="<?= $DB_Settings_License->mask_license_key($license); ?>" placeholder=""><div class="wps-form-icon wps-animated wps-is-hidden"></div>
+
+
 
       </div>
 
       <!-- Submit -->
       <div class="wps-button-group button-group button-group-ajax wps-is-hidden">
 
-        <?php if($activeLicense) { ?>
+        <?php if ( $DB_Settings_License->has_license_key($license) ) { ?>
           <?php submit_button(esc_html__('Deactivate License', WPS_PLUGIN_TEXT_DOMAIN), 'primary', 'submit-license', false, array('data-status' => 'deactivate')); ?>
 
         <?php } else { ?>

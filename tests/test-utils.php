@@ -94,7 +94,12 @@ class Test_Utils extends WP_UnitTestCase {
 		$empty_array = [];
 		$false = false;
 		$true = true;
-		$wp_error = Utils::wp_error('Test');
+		$wp_error = Utils::wp_error([
+      'message_lookup' 	=> 'test',
+      'call_method' 		=> __METHOD__,
+      'call_line' 			=> __LINE__
+    ]);
+
 
 		$this->assertTrue( Utils::array_not_empty($non_empty_array) );
 		$this->assertFalse( Utils::array_not_empty($empty_array) );
@@ -235,5 +240,19 @@ class Test_Utils extends WP_UnitTestCase {
     $this->assertEquals(false, $result_false);
 
   }
+
+
+	function test_it_should_get_proper_wp_error() {
+
+		$request_url_error = Utils::wp_error([
+  		'message_lookup' 	=> 'request_url_not_found',
+  		'call_method' 		=> __METHOD__,
+  		'call_line' 			=> __LINE__
+  	]);
+
+    $this->assertWPError($request_url_error);
+    $this->assertInternalType('string', $request_url_error->get_error_message());
+
+	}
 
 }

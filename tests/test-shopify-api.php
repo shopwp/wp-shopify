@@ -570,4 +570,86 @@ class Test_Shopify_API extends WP_UnitTestCase {
 
 
 
+	function test_it_should_normalize_products_response() {
+
+		$test_products_obj = new \stdClass;
+		$test_products_obj->products = 'products';
+
+		$test_product_listings_obj = new \stdClass;
+		$test_product_listings_obj->product_listings = 'product_listings';
+
+		$test_products_obj_response = self::$Shopify_API->normalize_products_response($test_products_obj);
+		$test_product_listings_obj_response = self::$Shopify_API->normalize_products_response($test_product_listings_obj);
+
+		$this->assertEquals('products', $test_products_obj_response);
+		$this->assertEquals('product_listings', $test_product_listings_obj_response);
+
+	}
+
+
+
+
+
+
+
+	function test_it_should_get_total_pages() {
+
+		// The number we pass in replicate the total number of products found
+		$result = self::$Shopify_API->get_total_pages(1);
+		$result_2 = self::$Shopify_API->get_total_pages(2);
+		$result_3 = self::$Shopify_API->get_total_pages(null);
+		$result_4 = self::$Shopify_API->get_total_pages('1');
+		$result_5 = self::$Shopify_API->get_total_pages('10000');
+		$result_6 = self::$Shopify_API->get_total_pages('10001');
+		$result_7 = self::$Shopify_API->get_total_pages(49999);
+
+		$this->assertInternalType('int', $result);
+		$this->assertEquals(1, $result);
+
+		$this->assertInternalType('int', $result_2);
+		$this->assertEquals(1, $result_2);
+
+		$this->assertInternalType('int', $result_3);
+		$this->assertEquals(1, $result_3);
+
+		$this->assertInternalType('int', $result_4);
+		$this->assertEquals(1, $result_4);
+
+		$this->assertInternalType('int', $result_5);
+		$this->assertEquals(1, $result_5);
+
+		$this->assertInternalType('int', $result_6);
+		$this->assertEquals(2, $result_6);
+
+		$this->assertInternalType('int', $result_7);
+		$this->assertEquals(5, $result_7);
+
+	}
+
+
+	function test_it_should_find_no_items_left() {
+
+		$result_one = self::$Shopify_API->no_items_left(0);
+		$result_two = self::$Shopify_API->no_items_left([]);
+		$result_three = self::$Shopify_API->no_items_left(1);
+
+		$this->assertTrue($result_one);
+		$this->assertFalse($result_two);
+		$this->assertFalse($result_three);
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

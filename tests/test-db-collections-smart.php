@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Collections_Smart_Factory;
+use WPS\Factories;
 
 /*
 
@@ -24,7 +24,7 @@ class Test_DB_Collections_Smart extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Collections_Smart             = DB_Collections_Smart_Factory::build();
+    self::$DB_Collections_Smart             = Factories\DB\Collections_Smart_Factory::build();
     self::$mock_collections                 = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-smart.json") );
     self::$mock_collections_for_update      = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collection-smart-update.json") );
     self::$mock_collections_id              = self::$mock_collections->id;

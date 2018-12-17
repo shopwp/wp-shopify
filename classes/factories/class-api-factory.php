@@ -7,8 +7,7 @@ if ( !defined('ABSPATH') ) {
 }
 
 use WPS\API;
-use WPS\Factories\DB_Settings_General_Factory;
-
+use WPS\Factories;
 
 class API_Factory {
 
@@ -18,11 +17,9 @@ class API_Factory {
 
 		if (is_null(self::$instantiated)) {
 
-			$API = new API(
-				DB_Settings_General_Factory::build()
+			self::$instantiated = new API(
+				Factories\DB\Settings_Syncing_Factory::build()
 			);
-
-			self::$instantiated = $API;
 
 		}
 

@@ -13,39 +13,41 @@ import {
 } from '../utils/utils';
 
 import {
-  isSyncingProducts,
-  isSyncingCollections
-} from '../utils/utils-data';
-
-import {
   setCancelSync,
   syncIsCanceled,
   clearLocalstorageCache
 } from './localstorage';
 
 import {
-  setSyncingIndicator,
-  setProductPostsRelationships,
-  setCollectionPostsRelationships,
-  getAllCollections,
-  getSelectedCollections,
-  resetNoticeFlags,
-  clearCache,
-  removeConnectionData,
-  deletePostsAndSyncedData,
-  deleteOnlySyncedData
+  deletion
 } from '../ws/ws';
 
+import {
+  setProductPostsRelationships,
+  setCollectionPostsRelationships
+} from './api/api-posts';
 
-/*
+import {
+  getSelectedCollections
+} from './api/api-settings';
 
-End Sync
-expire_sync
+import {
+  endpointConnection,
+  endpointToolsClearAll,
+  endpointSyncingNotices,
+  endpointToolsClearSynced,
+  endpointNotices,
+  endpointToolsClearCache
+} from './api/api-endpoints';
 
-*/
-async function syncOff() {
-  return setSyncingIndicator(0);
-}
+import {
+  getAllCollections
+} from '../ws/api/api-collections';
+
+import {
+  isSyncingProducts,
+  isSyncingCollections
+} from '../globals/globals-syncing';
 
 
 /*
@@ -80,16 +82,13 @@ function checkForProductPostsRelationships() {
 
   return new Promise(async function(resolve, reject) {
 
-    if (isSyncingProducts()) {
-
-      var [error, data] = await to( setProductPostsRelationships() );
-
-      error ? reject(error) : resolve(data);
-
-    } else {
-      resolve();
+    if ( !isSyncingProducts() ) {
+      return resolve();
     }
 
+    var [error, data] = await to( setProductPostsRelationships() );
+
+    error ? reject(error) : resolve(data);
 
   });
 
@@ -105,15 +104,13 @@ function checkForCollectionPostsRelationships() {
 
   return new Promise(async function(resolve, reject) {
 
-    if (isSyncingCollections()) {
-
-      var [error, data] = await to( setCollectionPostsRelationships() );
-
-      error ? reject(error) : resolve(data);
-
-    } else {
-      resolve();
+    if ( !isSyncingCollections() ) {
+      return resolve();
     }
+
+    var [error, data] = await to( setCollectionPostsRelationships() );
+
+    error ? reject(error) : resolve(data);
 
   });
 
@@ -135,17 +132,18 @@ function getSelectiveCollections() {
 }
 
 
-function resetNoticesAndClearCache() {
+function clearAllCache() {
 
   return Promise.all([
-    resetNoticeFlags(),
-    clearCache()
+    deletion( endpointNotices() ),
+    deletion( endpointSyncingNotices() ),
+    deletion( endpointToolsClearCache() )
   ]);
 
 }
 
 
-function checkPostRelationships() {
+function setPostRelationships() {
 
   return Promise.all([
     checkForProductPostsRelationships(),
@@ -158,9 +156,8 @@ function checkPostRelationships() {
 function deleteStandAloneData() {
 
   return Promise.all([
-    deletePostsAndSyncedData(),
-    removeConnectionData(),
-    resetNoticeFlags()
+    deletion( endpointToolsClearAll() ),
+    deletion( endpointConnection() )
   ]);
 
 }
@@ -169,23 +166,21 @@ function deleteStandAloneData() {
 function noConnectionReset() {
 
   return Promise.all([
-    clearCache(),
-    deleteOnlySyncedData(),
-    removeConnectionData(),
-    resetNoticeFlags()
+    deletion( endpointToolsClearCache() ),
+    deletion( endpointToolsClearSynced() ),
+    deletion( endpointConnection() )
   ]);
 
 }
 
 
 export {
-  syncOff,
   clearSync,
   checkForProductPostsRelationships,
   checkForCollectionPostsRelationships,
   getSelectiveCollections,
-  resetNoticesAndClearCache,
-  checkPostRelationships,
+  clearAllCache,
+  setPostRelationships,
   deleteStandAloneData,
   noConnectionReset
 }

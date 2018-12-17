@@ -4,7 +4,7 @@
 
 @description   The main entry point for the 'collections single' page. Used internally by the custom post type single template
 
-@version       1.0.2
+@version       2.0.0
 @since         1.0.49
 @path          templates/collections-single.php
 @partials      templates/partials/collections/single
@@ -20,11 +20,10 @@ if ( !defined('ABSPATH') ) {
 
 global $post;
 
-use WPS\Factories\Templates_Factory;
-use WPS\Factories\DB_Collections_Factory;
+use WPS\Factories;
 
-$Templates = Templates_Factory::build();
-$DB_Collections = DB_Collections_Factory::build();
+$Templates = Factories\Templates_Factory::build();
+$DB_Collections = Factories\DB\Collections_Factory::build();
 
 $wps_products = $Templates->get_collection_products_data($post->ID);
 $wps_collection = $DB_Collections->get_collection($post->ID);

@@ -1,5 +1,7 @@
 import to from 'await-to-js';
-import { cacheNoticeDismissal } from '../ws/ws';
+import { post } from '../ws/ws';
+import { endpointNoticesDismiss } from '../ws/api/api-endpoints';
+
 import { showAdminNotice } from "../utils/utils-dom";
 import { messageSettingsSuccessfulSave } from "../messages/messages";
 
@@ -9,6 +11,8 @@ import {
   getWordPressErrorMessage,
   getWordPressErrorType
 } from "../utils/utils";
+
+
 
 /*
 
@@ -24,13 +28,10 @@ function cacheAdminNoticeDismissal() {
 
     if (dismiss_name) {
 
-      try {
-
-        var [cacheError, cacheResponse] = await to( cacheNoticeDismissal(dismiss_name) );
-
-      } catch (e) {
-        console.error('WP Shopify Admin Notice Error: ', e);
-      }
+      var [cacheError, cacheResponse] = await to( post(
+        endpointNoticesDismiss(),
+        { dismiss_name: dismiss_name }
+      ));
 
     }
 

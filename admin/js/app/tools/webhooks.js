@@ -2,6 +2,10 @@ import isError from 'lodash/isError';
 import to from 'await-to-js';
 
 import {
+  initSyncingTimer
+} from '../utils/utils-timer';
+
+import {
   injectConnectorModal,
   showConnectorModal,
   setConnectionStepMessage,
@@ -20,7 +24,6 @@ import {
 
 import {
   setModalCache,
-  syncIsCanceled,
   setWebhooksReconnect,
   setCancelSync
 } from '../ws/localstorage';
@@ -30,20 +33,17 @@ import {
 } from '../ws/middleware';
 
 import {
-  setSyncingIndicator,
-  removeWebhooks,
+  deleteWebhooks,
   registerWebhooks
-} from '../ws/ws';
+} from '../ws/api/api-webhooks';
 
 import {
-  syncWebhooks,
-  syncOn,
   saveCounts
-} from '../ws/syncing';
+} from '../ws/api/api-syncing';
 
 import {
-  syncOff
-} from '../ws/wrappers.js';
+  syncOn
+} from '../ws/syncing';
 
 import {
   enable,
@@ -119,20 +119,17 @@ async function webhooksSubmitCallback(e) {
 
     if (syncOnResponseError) {
       cleanUpAfterSync( syncingConfigJavascriptError(syncOnResponseError) );
-      resolve();
-      return;
+      return resolve();
     }
 
     if (isWordPressError(syncOnResponse)) {
       cleanUpAfterSync( syncingConfigErrorBeforeSync(syncOnResponse) );
-      resolve();
-      return;
+      return resolve();
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
+      return resolve();
     }
 
 
@@ -147,24 +144,21 @@ async function webhooksSubmitCallback(e) {
 
     */
 
-    var [removeWebhooksError, removeWebhooksResponse] = await to( removeWebhooks() ); // delete_webhooks
+    var [deleteWebhooksError, deleteWebhooksResponse] = await to( deleteWebhooks() );
 
-    if (removeWebhooksError) {
-      cleanUpAfterSync( syncingConfigJavascriptError(removeWebhooksError) );
-      resolve();
-      return;
+    if (deleteWebhooksError) {
+      cleanUpAfterSync( syncingConfigJavascriptError(deleteWebhooksError) );
+      return resolve();
     }
 
-    if (isWordPressError(removeWebhooksResponse)) {
-      cleanUpAfterSync( syncingConfigErrorBeforeSync(removeWebhooksResponse) );
-      resolve();
-      return;
+    if (isWordPressError(deleteWebhooksResponse)) {
+      cleanUpAfterSync( syncingConfigErrorBeforeSync(deleteWebhooksResponse) );
+      return resolve();
     }
 
     if (manuallyCanceled()) {
       cleanUpAfterSync( syncingConfigManualCancel() );
-      resolve();
-      return;
+      return resolve();
     }
 
 
@@ -173,32 +167,29 @@ async function webhooksSubmitCallback(e) {
     Only fires once webhooks have been removed ...
 
     */
-    afterWebhooksRemoval(async () => {
+    afterWebhooksRemoval( async () => {
 
       var [itemCountsRespError, itemCountsResp] = await to( getItemCounts() ); // delete_webhooks
 
       if (itemCountsRespError) {
         cleanUpAfterSync( syncingConfigJavascriptError(itemCountsRespError) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (isWordPressError(itemCountsResp)) {
         cleanUpAfterSync( syncingConfigErrorBeforeSync(itemCountsResp) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 
 
-
       var allCounts = filterOutEmptySets( filterOutSelectiveSync( filterOutAnyNotice( getDataFromArray(itemCountsResp) ) ) );
+
 
 
       /*
@@ -206,33 +197,35 @@ async function webhooksSubmitCallback(e) {
       5. Save item counts
 
       */
-      var [saveCountsError, saveCountsResponse] = await to( saveCounts( allCounts, [
-        'connection',
-        'shop',
-        'smart_collections',
-        'custom_collections',
-        'products',
-        'collects',
-        'orders',
-        'customers'
-      ]) ); // delete_webhooks
+      var [saveCountsError, saveCountsResponse] = await to( saveCounts({
+        counts: allCounts,
+        exclusions: [
+          'connection',
+          'shop',
+          'smart_collections',
+          'custom_collections',
+          'products',
+          'collects',
+          'orders',
+          'customers'
+        ]
+      }) );
+
+
 
       if (saveCountsError) {
         cleanUpAfterSync( syncingConfigJavascriptError(saveCountsError) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (isWordPressError(saveCountsResponse)) {
         cleanUpAfterSync( syncingConfigErrorBeforeSync(saveCountsResponse) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 
@@ -250,22 +243,20 @@ async function webhooksSubmitCallback(e) {
 
       var [progressSessionError, progressSession] = await to( startProgressBar(true, ['webhooks']) );
 
+
       if (progressSessionError) {
         cleanUpAfterSync( syncingConfigJavascriptError(progressSessionError) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (isWordPressError(progressSession)) {
         cleanUpAfterSync( syncingConfigErrorBeforeSync(progressSession) );
-        resolve();
-        return;
+        return resolve();
       }
 
       if (manuallyCanceled()) {
         cleanUpAfterSync( syncingConfigManualCancel() );
-        resolve();
-        return;
+        return resolve();
       }
 
 
@@ -275,12 +266,22 @@ async function webhooksSubmitCallback(e) {
 
       */
 
-      appendProgressBars(progressSession.data);
+
+
+      appendProgressBars( filterOutSelectedDataForSync(allCounts, [
+        'shop',
+        'smart_collections',
+        'custom_collections',
+        'products',
+        'collects',
+        'orders',
+        'customers'
+      ]) );
+
       setWebhooksReconnect(true);
-
+      initSyncingTimer();
       progressStatus();
-
-      syncWebhooks(removeWebhooksResponse.data); // register_all_webhooks
+      registerWebhooks();
 
 
     });

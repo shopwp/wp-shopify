@@ -8,6 +8,11 @@ import forEach from 'lodash/forEach';
 import orderBy from 'lodash/orderBy';
 import has from 'lodash/has';
 import isEqual from 'lodash/isEqual';
+import toInteger from 'lodash/toInteger';
+import toString from 'lodash/toString';
+import isNaN from 'lodash/isNaN';
+import isFinite from 'lodash/isFinite';
+
 import to from 'await-to-js';
 
 import {
@@ -15,15 +20,23 @@ import {
 } from './utils-animations';
 
 import {
-  getProgressCount,
-  startProgress,
-  progressSessionStart,
-  getSyncNotices,
-  getWebhooksRemovalStatus,
-  getPostsRelationshipsStatus,
-  killSyncing,
-  getDataRemovalStatus
+  get,
+  post
 } from '../ws/ws';
+
+import {
+  getSyncingStatus
+} from '../ws/api/api-syncing';
+
+import {
+  endpointSyncingCounts,
+  endpointSyncingCount,
+  endpointSyncingStatusPosts,
+  endpointSyncingStatusWebhooks,
+  endpointSyncingStatusRemoval,
+  endpointSyncingStop,
+  endpointSyncingNotices
+} from '../ws/api/api-endpoints';
 
 import {
   isWordPressError,
@@ -53,16 +66,16 @@ import {
   filterOutAnyNotice,
   filterOutSelectiveSync,
   filterOutEmptySets,
-  filterOutSelectedDataForSync,
   hasConnection,
   returnOnlyFirstError
 } from './utils-data';
 
 import {
-  syncOff,
-  checkForProductPostsRelationships,
-  checkForCollectionPostsRelationships,
-  checkPostRelationships
+  stopTimer
+} from './utils-timer';
+
+import {
+  setPostRelationships
 } from '../ws/wrappers';
 
 import {
@@ -71,6 +84,10 @@ import {
   isConnectionInProgress,
   setConnectionProgress
 } from '../ws/localstorage';
+
+import {
+  isReconnectingWebhooks
+} from '../globals/globals-syncing';
 
 import {
   syncingConfigManualCancel,
@@ -85,7 +102,9 @@ import {
   toolsInit
 } from '../tools/tools';
 
-import { clearAllCache } from '../tools/cache';
+import {
+  clearAllCache
+} from '../ws/wrappers';
 
 import {
   connectInit
@@ -305,9 +324,9 @@ function constructXMark(options) {
 }
 
 
-function setConnectionFieldsState() {
+function setConnectionFieldsState(options) {
 
-  if (hasConnection()) {
+  if ( hasConnection() ) {
 
     toolsInit();
     disconnectInit();
@@ -319,7 +338,7 @@ function setConnectionFieldsState() {
   } else {
 
     showSyncByCollectionsNotice();
-    clearConnectInputs();
+    clearConnectInputs(options);
     enable( getConnectorCancelButton() );
     disable( getToolsButtons() );
     resetConnectSubmit();
@@ -340,35 +359,26 @@ async function cleanUpAfterSync(options = false) {
 
   if ( isConnectionInProgress() ) {
 
-    try {
-      await killSyncing();
-
-    } catch (error) {
-      console.error('WP Shopify error: Failed to kill sync: ', error);
-    }
-
+    var [stopSyncError, stopSync] = await to( post( endpointSyncingStop() ) );
 
     if ( manuallyCanceled() ) {
       setConnectorFinishState();
+      removeIsSyncingClass();
       updateDomAfterSync(options); // We pass in the config object from higher up
-      setConnectionFieldsState();
+      setConnectionFieldsState(options);
+      stopTimer();
       return;
     }
 
-
-    try {
-      var noticeList = await getSyncNotices();
-
-    } catch (error) {
-      console.error('WP Shopify error: Failed to get sync notices: ', error);
-    }
+    var [noticeListError, noticeList] = await to( get( endpointSyncingNotices() ) );
 
 
     WP_Shopify.reconnectingWebhooks = false;
 
     setConnectorFinishState();
-    setConnectionFieldsState();
-
+    removeIsSyncingClass();
+    setConnectionFieldsState(options);
+    stopTimer();
 
     // Any client-side JS errors will automatically replace any server-level errors
     if (options.noticeList) {
@@ -382,7 +392,6 @@ async function cleanUpAfterSync(options = false) {
      // We dont really need to wait for this. If the cache doesnt clear in time its not the end of the world.
     clearLocalstorageCache();
     clearAllCache();
-
 
 
     /*
@@ -405,7 +414,6 @@ async function cleanUpAfterSync(options = false) {
 
     setConnectionProgress(false);
 
-
   }
 
 }
@@ -424,20 +432,13 @@ Update Progress Loader
 */
 function startProgressBar(resync = false, includes = [], excludes = []) {
 
-  return new Promise( async (resolve, reject) => {
-
-    try {
-      var sessionVariables = await progressSessionStart(resync, includes, excludes); // progress_session_create
-
-    } catch (error) {
-      reject(error);
-      return;
+  return to( get(
+    endpointSyncingCounts(), {
+      resync: resync,
+      includes: includes,
+      excludes: excludes
     }
-
-    resolve(sessionVariables);
-    return sessionVariables;
-
-  });
+  ));
 
 }
 
@@ -480,21 +481,21 @@ function mapProgressDataFromSessionValues(session) {
 Create Progress Bar
 
 */
-function createProgressBar(stepName, stepTotal) {
+function createProgressBar(stepName, stepMaxTotal) {
 
   var stepNamePretty = stepName.split('_').join(' ');
 
   if (stepNamePretty === 'products') {
     stepNamePretty = 'Products <small>(includes images, tags, variants, etc)</small>';
-    stepTotal = stepTotal * 6;
+    stepMaxTotal = stepMaxTotal * 6;
   }
 
   if (stepNamePretty === 'custom_collections') {
-    stepTotal = stepTotal * 2;
+    stepMaxTotal = stepMaxTotal * 2;
   }
 
   if (stepNamePretty === 'smart_collections') {
-    stepTotal = stepTotal * 2;
+    stepMaxTotal = stepMaxTotal * 2;
   }
 
   if (stepNamePretty === 'shop') {
@@ -505,7 +506,7 @@ function createProgressBar(stepName, stepTotal) {
     stepNamePretty = 'Collects <small>(used to assign products to collections)</small>';
   }
 
-  return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepTotal + '" id="wps-progress-bar-' + stepName + '"><span class="wps-progress-step-name">' + stepNamePretty + '</span><span class="wps-progress-step-percentage">0%</span><div class="wps-progress-bar"></div><span class="dashicons dashicons-yes"></span></div>');
+  return jQuery('<div class="wps-progress-bar-wrapper" data-wps-progress-total="' + stepMaxTotal + '" id="wps-progress-bar-' + stepName + '"><span class="wps-progress-step-name">' + stepNamePretty + '</span><span class="wps-progress-step-percentage">0%</span><div class="wps-progress-bar"></div><span class="dashicons dashicons-yes"></span></div>');
 
 }
 
@@ -515,8 +516,12 @@ function createProgressBar(stepName, stepTotal) {
 Insert Progress Bar
 
 */
-function insertProgressBar(stepTotal, stepName) {
-  jQuery('.wps-connector-content > .wps-progress-notice').first().after(createProgressBar(stepName, stepTotal));
+function insertProgressBar(stepMaxTotal, stepName) {
+
+  jQuery('.wps-connector-content > .wps-progress-notice')
+    .first()
+    .after( createProgressBar(stepName, stepMaxTotal) );
+
 }
 
 
@@ -546,6 +551,32 @@ function updateProgressBarCurrentAmounts(currentAmounts) {
 
 /*
 
+Is greater than 100 percent
+
+*/
+function isGreaterThan100Percent(percentage) {
+  return toInteger(percentage) > 100;
+}
+
+
+/*
+
+Forces syncing percentages to never be more than 100
+
+*/
+function forceMax100(percentage) {
+
+  if ( isGreaterThan100Percent(percentage) ) {
+    percentage = 100;
+  }
+
+  return percentage;
+
+}
+
+
+/*
+
 Get Progress Bar Percentage
 
 */
@@ -553,12 +584,22 @@ function getProgressBarPercentage(stepCurrentValue, stepName) {
 
   var $progressBarWrapper = jQuery('#wps-progress-bar-' + stepName),
       $progressBar = $progressBarWrapper.find('.wps-progress-bar'),
-      maxTotal = $progressBarWrapper.data('wps-progress-total'),
-      currentTotal = stepCurrentValue;
+      maxTotal = toInteger($progressBarWrapper.data('wps-progress-total'));
+
+  var currentTotal = toInteger(stepCurrentValue);
 
   var percentage = ((currentTotal / maxTotal) * 100);
 
-  return percentage;
+  if (isGreaterThan100Percent(percentage)) {
+
+    post( endpointSyncingCount(), {
+      stepName: stepName,
+      matchTotal: true
+    });
+
+  }
+
+  return forceMax100(percentage);
 
 }
 
@@ -590,22 +631,35 @@ function updateProgressCurrentAmount(stepCurrentValue, stepName) {
   var percentage = getProgressBarPercentage(stepCurrentValue, stepName),
       $progressWrapper = jQuery('#wps-progress-bar-' + stepName);
 
-  if (!isNaN(percentage)) {
 
-    if (stepCurrentValue == $progressWrapper.data('wps-progress-total')) {
+  if ( isNaN(percentage) || !isFinite(percentage) ) {
+    return;
+  }
 
-      if (!$progressWrapper.hasClass('wps-is-complete')) {
-        $progressWrapper.addClass('wps-is-complete');
-        checkMark($progressWrapper.find('.dashicons-yes'));
-      }
 
+  if (stepCurrentValue == $progressWrapper.data('wps-progress-total')) {
+
+    if (!$progressWrapper.hasClass('wps-is-complete')) {
+      $progressWrapper.addClass('wps-is-complete');
+      checkMark($progressWrapper.find('.dashicons-yes'));
     }
-
-    $progressWrapper.find('.wps-progress-bar').css('width', percentage + '%');
-    $progressWrapper.find('.wps-progress-step-percentage').text( getPercentTextFromNumber( Math.round(percentage) ) );
 
   }
 
+  $progressWrapper.find('.wps-progress-bar').css('width', percentage + '%');
+  $progressWrapper.find('.wps-progress-step-percentage').text( getPercentTextFromNumber( Math.round(percentage) ) );
+
+
+
+}
+
+
+function toggleIsSyncingClass() {
+  jQuery('.wps-connector').toggleClass('wps-is-syncing');
+}
+
+function removeIsSyncingClass() {
+  jQuery('.wps-connector').removeClass('wps-is-syncing');
 }
 
 
@@ -616,15 +670,17 @@ Append Progress Bars
 */
 function appendProgressBars(allCounts) {
 
-  if (isArray(allCounts)) {
+  toggleIsSyncingClass();
+
+  if ( isArray(allCounts) ) {
 
     return forEach(allCounts, function(count) {
       return forOwn(count, insertProgressBar);
     });
 
-  } else {
-    return forOwn(allCounts.wps_syncing_totals, insertProgressBar);
   }
+
+  return forOwn(allCounts.wps_syncing_totals, insertProgressBar);
 
 }
 
@@ -652,17 +708,32 @@ function syncingTotalsMatch(totals, currentAmounts) {
 }
 
 
+function isStillSyncing(status) {
+  return status.data.is_syncing;
+}
+
+function hasSyncingErrors(status) {
+  return status.data.has_fatal_errors;
+}
+
+
 /*
 
 Progress Status
 
 */
-async function progressStatus(setRelationships = false) {
-
-  // progress_status
-  var [statusError, status] = await to( getProgressCount() );
+async function progressStatus() {
 
 
+  var [statusError, status] = await to( getSyncingStatus() );
+
+
+  /*
+
+  This check will stop the syncing process if the poll
+  request contained a 4xx error.
+
+  */
   if (statusError) {
 
     forceProgressBarsComplete();
@@ -674,93 +745,105 @@ async function progressStatus(setRelationships = false) {
   }
 
 
+  /*
+
+  This check will stop the syncing process if the poll
+  response was malformed in someway.
+
+  */
   if ( !has(status, 'data') ) {
+
     forceProgressBarsComplete();
-    return cleanUpAfterSync({ xMark: true });
+
+    return cleanUpAfterSync({
+      xMark: true
+    });
+
   }
 
+
+  /*
+
+  This check will stop the syncing process if
+  the user manually canceled.
+
+  */
+  if ( manuallyCanceled() ) {
+    return cleanUpAfterSync();
+  }
+
+
+  /*
+
+  This check will stop the syncing process if any fatal errors
+  have occured including Shopify API errors, database errors, etc.
+
+  */
+  if ( !isStillSyncing(status) && hasSyncingErrors(status) || hasSyncingErrors(status) ) {
+
+    return cleanUpAfterSync({
+      xMark: true
+    });
+
+  }
 
   updateProgressBarTotals(status.data.syncing_totals);
   updateProgressBarCurrentAmounts(status.data.syncing_current_amounts);
 
 
+
+
   if ( !syncingTotalsMatch(status.data.syncing_totals, status.data.syncing_current_amounts) ) {
-    setTimeout(progressStatus, 800);
+    setTimeout(progressStatus, 1000);
 
   } else {
 
-    if (status.data.has_fatal_errors) {
+    /*
 
-      return cleanUpAfterSync({
-        xMark: true
-      });
+    If execution gets here, that means the syncing has finished. Now we
+    need to clean up and update the UI.
 
-    } else {
-
-
-      /*
-
-      If finished syncing Webhooks ...
-
-      */
-
-      if (reconnectingWebhooks() && isSyncing()) {
-
-        forceProgressBarsComplete();
-
-        insertCheckmark();
-        setConnectionStepMessage('Cleaning up ...');
-
-        return cleanUpAfterSync(
-          syncingConfigWebhooksSuccess()
-        );
-
-      }
+    */
+    forceProgressBarsComplete();
+    insertCheckmark();
 
 
-      /*
+    // If finished syncing Webhooks ...
+    if ( isReconnectingWebhooks() ) {
 
-      If syncing manually canceled ...
+      setConnectionStepMessage('Finishing sync ...');
 
-      */
-      if (!isSyncing() || manuallyCanceled() || isDisconnecting()) {
-
-        return cleanUpAfterSync();
-
-      } else {
-
-        forceProgressBarsComplete();
-
-        insertCheckmark();
-        setConnectionStepMessage('Finishing sync ...');
-
-        /*
-
-        Syncing products finished
-
-        */
-
-        var [postsError, postsData] = await to( checkPostRelationships() );
-
-        if (postsError) {
-          return cleanUpAfterSync( syncingConfigJavascriptError(postsError) );
-        }
-
-        if (isWordPressError(postsData)) {
-          return cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(postsData) ) );
-        }
-
-        afterPostRelationships(async () => {
-
-          return cleanUpAfterSync();
-
-        });
-
-
-      }
-
+      return cleanUpAfterSync(
+        syncingConfigWebhooksSuccess()
+      );
 
     }
+
+    if ( manuallyCanceled() || isDisconnecting() ) {
+      return cleanUpAfterSync();
+    }
+
+    setConnectionStepMessage('Finalizing data ...', '(Please wait, this may take up to 60 seconds depending on the number of products and collections)');
+
+
+    /*
+
+    Only gets to this point if were syncing products and need to
+    reestablish the post type ID connections.
+
+    */
+    var [postsError, postsData] = await to( setPostRelationships() );
+
+    if (postsError) {
+      return cleanUpAfterSync( syncingConfigJavascriptError(postsError) );
+    }
+
+    if (isWordPressError(postsData)) {
+      return cleanUpAfterSync( syncingConfigErrorBeforeSync( returnOnlyFirstError(postsData) ) );
+    }
+
+    afterPostRelationships(cleanUpAfterSync);
+
 
   }
 
@@ -776,7 +859,7 @@ Polls for post relationships. Fires callback when done.
 */
 async function afterPostRelationships(callback) {
 
-  if (!isSyncing()) {
+  if ( !isSyncing() && !isConnecting() ) {
 
     return cleanUpAfterSync(
       syncingConfigManualCancel()
@@ -785,24 +868,22 @@ async function afterPostRelationships(callback) {
   }
 
 
-  try {
+  var [postsStatusError, postsStatus] = await to( get( endpointSyncingStatusPosts() ) );
 
-    var postRelationshipsStatus = await getPostsRelationshipsStatus(); // get_posts_relationships_status
 
-    if (postRelationshipsStatus.data) {
-      callback();
+  if (postsStatusError) {
 
-    } else {
+    return cleanUpAfterSync(
+      syncingConfigJavascriptError(postsStatusError)
+    );
 
-      setTimeout(function() {
-        afterPostRelationships(callback);
-      }, 500);
-
-    }
-
-  } catch (error) {
-    console.error('getPostRelationshipsStatus error: ', error);
   }
+
+  if (postsStatus.data) {
+    return callback();
+  }
+
+  afterPostRelationships(callback);
 
 }
 
@@ -840,8 +921,7 @@ Polls for webhooks removal status. Fires callback when done.
 */
 async function afterWebhooksRemoval(callback) {
 
-
-  if (!isSyncing() && !isClearing() && !isDisconnecting() && !isConnecting()) {
+  if ( !isSyncing() && !isClearing() && !isDisconnecting() && !isConnecting() ) {
 
     return cleanUpAfterSync(
       syncingConfigManualCancel()
@@ -850,24 +930,21 @@ async function afterWebhooksRemoval(callback) {
   }
 
 
-  try {
+  var [webhooksStatusError, webhooksStatus] = await to( get( endpointSyncingStatusWebhooks() ) );
 
-    var webhooksRemoved = await getWebhooksRemovalStatus(); // get_webhooks_removal_status
+  if (webhooksStatusError) {
 
-    if (webhooksRemoved.data) {
-      callback();
+    return cleanUpAfterSync(
+      syncingConfigJavascriptError(webhooksStatusError)
+    );
 
-    } else {
-
-      setTimeout(function() {
-        afterWebhooksRemoval(callback);
-      }, 1000);
-
-    }
-
-  } catch (error) {
-    console.error('afterWebhooksRemoval error: ', error);
   }
+
+  if (webhooksStatus.data) {
+    return callback();
+  }
+
+  afterWebhooksRemoval(callback);
 
 }
 
@@ -876,30 +953,23 @@ async function afterWebhooksRemoval(callback) {
 
 Polls for webhooks removal status. Fires callback when done.
 
-get_data_removal_status
-
 */
 async function afterDataRemoval(callback) {
 
-  var [afterDataRemovalError, afterDataRemovalData] = await to( getDataRemovalStatus() );
+  var [removalStatusError, removalStatus] = await to( get( endpointSyncingStatusRemoval() ) );
 
-  if (afterDataRemovalError) {
-    callback(afterDataRemovalError);
-    return;
+  if (removalStatusError) {
+    return callback(removalStatusError);
   }
 
-  if (afterDataRemovalData.data) {
-    callback(afterDataRemovalData);
-
-  } else {
-
-    setTimeout(() => {
-      afterDataRemoval(callback);
-    }, 1000);
-
+  if (removalStatus.data) {
+    return callback(removalStatus);
   }
+
+  afterDataRemoval(callback);
 
 }
+
 
 export {
   createProgressLoader,

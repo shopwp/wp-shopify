@@ -3,6 +3,7 @@
 namespace WPS\DB;
 
 use WPS\Utils;
+use WPS\Options;
 
 
 if (!defined('ABSPATH')) {
@@ -95,13 +96,12 @@ class Settings_General extends \WPS\DB {
 		$this->lookup_key                    							= 'id';
 		$this->cache_group                    						= 'wps_db_general';
 		$this->type     																	= 'settings_general';
-
-		$this->default_webhooks                 					= Utils::convert_to_https_url( get_home_url() );
+		$this->default_webhooks                 					= Utils::convert_to_https_url( Utils::get_site_url() );
 		$this->default_plugin_version           					= WPS_NEW_PLUGIN_VERSION;
 		$this->default_plugin_author            					= WPS_NEW_PLUGIN_AUTHOR;
 		$this->default_plugin_textdomain        					= WPS_PLUGIN_NAME;
 		$this->default_plugin_name              					= WPS_PLUGIN_NAME_FULL;
-		$this->default_num_posts                					= get_option('posts_per_page');
+		$this->default_num_posts                					= Options::get('posts_per_page');
 		$this->default_title_as_alt             					= 0;
 		$this->default_cart_loaded              					= 1;
 		$this->default_price_with_currency      					= 0;
@@ -255,12 +255,12 @@ class Settings_General extends \WPS\DB {
 	Default table values
 
 	*/
-	public function get_column_defaults() {
+	public function get_column_defaults($blog_id = false) {
 
 		return [
 			'url_products'                  						=> $this->default_url_products,
 			'url_collections'               						=> $this->default_url_collections,
-			'url_webhooks'                  						=> $this->default_webhooks,
+			'url_webhooks'                  						=> Utils::convert_to_https_url( Utils::get_site_url($blog_id) ),
 			'num_posts'                     						=> $this->default_num_posts,
 			'styles_all'                    						=> $this->default_styles_all,
 			'styles_core'                   						=> $this->default_styles_core,
@@ -334,33 +334,8 @@ class Settings_General extends \WPS\DB {
 	Runs on plugin activation, sets default row
 
 	*/
-	public function init($network_wide = false) {
-
-		// Creates custom tables for each blog
-		if ( is_multisite() && $network_wide ) {
-
-			$blog_ids = $this->get_network_sites();
-			$result = [];
-
-			// $site_blog_id is a string!
-			foreach ( $blog_ids as $site_blog_id ) {
-
-				switch_to_blog( $site_blog_id );
-
-				$result = $this->init_table_defaults();
-
-				restore_current_blog();
-
-			}
-
-		} else {
-
-			$result = $this->init_table_defaults();
-
-		}
-
-		return $result;
-
+	public function init($blog_id = false) {
+		return $this->init_table_defaults($blog_id);
 	}
 
 
@@ -369,12 +344,12 @@ class Settings_General extends \WPS\DB {
 	Sets table defaults
 
 	*/
-	public function init_table_defaults() {
+	public function init_table_defaults($blog_id = false) {
 
 		$results = [];
 
 		if ( !$this->table_has_been_initialized('id') ) {
-			$results = $this->insert_default_values();
+			$results = $this->insert_default_values($blog_id);
 		}
 
 		return $results;
@@ -417,7 +392,7 @@ class Settings_General extends \WPS\DB {
 				$results = $data[0]->num_posts;
 
 			} else {
-				$results = get_option('posts_per_page');
+				$results = Options::get('posts_per_page');
 
 			}
 
@@ -599,6 +574,22 @@ class Settings_General extends \WPS\DB {
 		} else {
 			return false;
 		}
+
+	}
+
+
+	/*
+
+	Returns the plugin nice name. I.e., WP Shopify Pro / WP Shopify
+
+	*/
+	public function plugin_nice_name() {
+
+		if ( $this->is_pro_tier() ) {
+			return WPS_PLUGIN_NAME_FULL_PRO;
+		}
+
+		return WPS_PLUGIN_NAME_FULL;
 
 	}
 
@@ -1053,7 +1044,7 @@ class Settings_General extends \WPS\DB {
 
 	*/
 	public function update_webhooks_callback_url_to_https() {
-		return $this->update_column_single( ['url_webhooks' => Utils::convert_to_https_url( get_home_url() )], ['id' => 1] );
+		return $this->update_column_single( ['url_webhooks' => Utils::convert_to_https_url( Utils::get_site_url() )], ['id' => 1] );
 	}
 
 
@@ -1958,37 +1949,6 @@ class Settings_General extends \WPS\DB {
 	public function update_setting($column_name, $column_value) {
 		return $this->update_column_single( [$column_name => $column_value], ['id' => 1] );
 	}
-
-
-	/*
-
-	General wrapper for getting a single setting
-
-	*/
-	public function get_setting($setting_name, $return_type = false) {
-
-		$setting = $this->get_column_single($setting_name);
-
-		if ( Utils::array_not_empty($setting) && isset($setting[0]->{$setting_name}) ) {
-
-			if ($return_type) {
-				
-				$setting_to_return = $setting[0]->{$setting_name};
-
-				settype($setting_to_return, $return_type);
-
-				return $setting_to_return;
-
-			} else {
-				return $setting[0]->{$setting_name};
-			}
-
-		} else {
-			return $setting;
-		}
-
-	}
-
 
 
 	/*

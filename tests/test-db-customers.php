@@ -1,7 +1,7 @@
 <?php
 
 
-use WPS\Factories\DB_Customers_Factory;
+use WPS\Factories;
 
 
 /*
@@ -26,7 +26,7 @@ class Test_DB_Customers extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Customers                    = DB_Customers_Factory::build();
+    self::$DB_Customers                    = Factories\DB\Customers_Factory::build();
     self::$mock_data_customer              = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/customers/customer.json") );
     self::$mock_data_customer_for_update   = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/customers/customer-update.json") );
     self::$mock_existing_customer_id       = 698883932183;
@@ -168,7 +168,7 @@ class Test_DB_Customers extends WP_UnitTestCase {
 
     $this->assertCount(1, $col_difference);
     $this->assertArrayHasKey('id', $col_difference);
-    
+
   }
 
 

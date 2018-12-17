@@ -9,10 +9,6 @@ import {
   showAdminNotice
 } from '../utils/utils-dom';
 
-import {
-  getProducts
-} from '../ws/ws';
-
 import { connectInit } from '../connect/connect';
 import { disconnectInit } from '../disconnect/disconnect';
 

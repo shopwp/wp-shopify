@@ -1,6 +1,6 @@
 <?php
 
-use WPS\Factories\DB_Collections_Factory;
+use WPS\Factories;
 
 class Test_DB_Collections extends WP_UnitTestCase {
 
@@ -11,7 +11,7 @@ class Test_DB_Collections extends WP_UnitTestCase {
   static function wpSetUpBeforeClass() {
 
     // Assemble
-    self::$DB_Collections             = DB_Collections_Factory::build();
+    self::$DB_Collections             = Factories\DB\Collections_Factory::build();
     self::$mock_posts_collections     = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/_common/posts-collections.json") );
     self::$mock_collection_to_delete  = json_decode( file_get_contents( dirname(__FILE__) . "/mock-data/collections/collection-to-delete.json") );
 

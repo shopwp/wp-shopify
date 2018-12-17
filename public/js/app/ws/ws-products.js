@@ -74,37 +74,6 @@ function getCheckoutID() {
 }
 
 
-/*
-
-Getting product variant ID from product options
-TODO: Move to WS
-
-*/
-function getVariantIdFromOptions(productID, selectedOptions) {
-
-  return new Promise((resolve, reject) => {
-
-    const action_name = 'get_variant_id_from_product_options';
-
-    jQuery.ajax({
-      method: 'POST',
-      url: WP_Shopify.ajax,
-      dataType: 'json',
-      data: {
-        action: action_name,
-        productID: productID,
-        selectedOptions: selectedOptions,
-        nonce: WP_Shopify.nonce
-      },
-      success: data => resolve(data),
-      error: (xhr, txt, err) => {
-        reject( getErrorContents(xhr, err, action_name) );
-      }
-    });
-
-  });
-
-}
 
 
 /*
@@ -220,7 +189,6 @@ export {
   getProductByID,
   getProductVariantID,
   getCheckoutID,
-  getVariantIdFromOptions,
   setMoneyFormatCache,
   setCacheTime,
   getCacheTime,
