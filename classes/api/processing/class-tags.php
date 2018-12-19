@@ -34,7 +34,7 @@ class Tags extends \WPS\API {
 	*/
   public function register_route_process_tags() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/tags', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/tags', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_tags']

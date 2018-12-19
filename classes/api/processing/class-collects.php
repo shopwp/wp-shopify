@@ -34,7 +34,7 @@ class Collects extends \WPS\API {
 	*/
   public function register_route_process_collects() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/collects', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/collects', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_collects']

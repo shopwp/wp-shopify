@@ -34,7 +34,7 @@ class Options extends \WPS\API {
 	*/
   public function register_route_process_options() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/options', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/options', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_options']

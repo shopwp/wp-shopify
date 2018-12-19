@@ -34,7 +34,7 @@ class Variants extends \WPS\API {
 	*/
   public function register_route_process_variants() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/variants', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/variants', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_variants']

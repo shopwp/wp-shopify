@@ -96,7 +96,7 @@ class Cart extends \WPS\API {
 	*/
   public function register_route_cart_checkout_color() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/cart_checkout_color', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_checkout_color', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_checkout_color']
@@ -117,7 +117,7 @@ class Cart extends \WPS\API {
 	*/
   public function register_route_cart_counter_color() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/cart_counter_color', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_counter_color', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_cart_counter_color']
@@ -138,7 +138,7 @@ class Cart extends \WPS\API {
 	*/
   public function register_route_cart_icon_color() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/cart_icon_color', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_icon_color', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_cart_icon_color']

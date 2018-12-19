@@ -4,8 +4,6 @@ namespace WPS\DB;
 
 use WPS\Utils;
 use WPS\Transients;
-use WPS\Messages;
-use WPS\Options;
 
 if (!defined('ABSPATH')) {
 	exit;

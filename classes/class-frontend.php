@@ -177,7 +177,7 @@ class Frontend {
 						'itemsLinkToShopify'					=> $this->Settings_General->get_col_value('products_link_to_shopify', 'bool')
 					],
 					'API' => [
-						'namespace'			=> WP_SHOPIFY_API_NAMESPACE,
+						'namespace'			=> WPS_SHOPIFY_API_NAMESPACE,
 						'baseUrl' 			=> site_url(),
 						'urlPrefix'			=> rest_get_url_prefix(),
 						'restUrl'				=> get_rest_url()

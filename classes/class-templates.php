@@ -13,17 +13,18 @@ if (!defined('ABSPATH')) {
 class Templates {
 
 	public $Template_Loader;
-	private $DB_Settings_General;
-	private $Money;
-	private $DB_Variants;
-	private $DB_Products;
-	private $DB_Images;
-	private $DB_Tags;
-	private $DB_Options;
-	private $DB_Collections;
+	public $DB_Settings_General;
+	public $Money;
+	public $DB_Variants;
+	public $DB_Products;
+	public $DB_Images;
+	public $DB_Tags;
+	public $DB_Options;
+	public $DB_Collections;
+	public $Layout_Data;
 
 
-	public function __construct($Template_Loader, $DB_Settings_General, $Money, $DB_Variants, $DB_Products, $DB_Images, $DB_Tags, $DB_Options, $DB_Collections) {
+	public function __construct($Template_Loader, $DB_Settings_General, $Money, $DB_Variants, $DB_Products, $DB_Images, $DB_Tags, $DB_Options, $DB_Collections, $Layout_Data) {
 
 		$this->Template_Loader 				= $Template_Loader;
 		$this->DB_Settings_General		= $DB_Settings_General;
@@ -34,6 +35,7 @@ class Templates {
 		$this->DB_Tags								= $DB_Tags;
 		$this->DB_Options							= $DB_Options;
 		$this->DB_Collections					= $DB_Collections;
+		$this->Layout_Data						= $Layout_Data;
 
 	}
 
@@ -236,6 +238,22 @@ class Templates {
 		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/loop/item', 'title' );
+
+	}
+
+
+	/*
+
+	Template: partials/products/loop/item-title
+
+	*/
+	public function wps_products_description($product) {
+
+		$data = [
+			'product' => $product
+		];
+
+		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/loop/item', 'description' );
 
 	}
 
@@ -669,11 +687,13 @@ class Templates {
 
 		$button_width = Utils::get_add_to_cart_button_width($product);
 		$button_color = apply_filters( 'wps_products_add_to_cart_button_color', $this->DB_Settings_General->get_add_to_cart_color() );
+		$button_text = apply_filters( 'wps_products_add_to_cart_button_text', WPS_DEFAULT_ADD_TO_CART_TEXT );
 
 		$data = [
 			'product' 			=> $product,
 			'button_width'	=> $button_width,
-			'button_color'	=> $button_color !== WPS_DEFAULT_ADD_TO_CART_COLOR ? $button_color : ''
+			'button_color'	=> $button_color !== WPS_DEFAULT_ADD_TO_CART_COLOR ? $button_color : WPS_DEFAULT_ADD_TO_CART_COLOR,
+			'button_text'		=> $button_text !== WPS_DEFAULT_ADD_TO_CART_TEXT ? $button_text : WPS_DEFAULT_ADD_TO_CART_TEXT
 		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/products/add-to-cart/button-add-to', 'cart' );
@@ -1730,7 +1750,7 @@ class Templates {
 				)
 			)''
 
-	2. Next, it passes the array of args to 'wps_map_products_args_to_query'
+	2. Next, it passes the array of args to 'build_shortcode_args'
 		 which is the main function that constructs our custom SQL query. This is where
 		 the "custom" property is set that we eventually check for within 'wps_clauses_mod'.
 
@@ -1749,20 +1769,20 @@ class Templates {
 		 ================================================================
 		 wps_products_shortcode ->
 		 format_products_shortcode_args ->
-		 wps_map_products_args_to_query ->
+		 build_shortcode_args ->
 		 wps_products_display -> wps_clauses_mod (via WP_Query)
 				either a. construct_clauses_from_products_shortcode
 				either b. construct_clauses_from_collections_shortcode
 		 ================================================================
 
 	*/
-	public function wps_products_shortcode($atts) {
+	public function wps_products_shortcode($attrs) {
 
 		$shortcode_output = '';
-		$shortcodeArgs = Utils::format_products_shortcode_args($atts);
+		$shortcode_args = $this->Layout_Data->format_products_shortcode_args($attrs);
 
 		$data = [
-			'shortcodeArgs' => $shortcodeArgs,
+			'shortcodeArgs' => $shortcode_args,
 			'is_shortcode' 	=> true
 		];
 
@@ -2119,6 +2139,7 @@ class Templates {
 		add_action('wps_products_item_link_end', [$this, 'wps_products_item_link_end']);
 		add_action('wps_products_img', [$this, 'wps_products_img']);
 		add_action('wps_products_title', [$this, 'wps_products_title']);
+		add_action('wps_products_description', [$this, 'wps_products_description']);
 		add_action('wps_products_price', [$this, 'wps_products_price']);
 		add_action('wps_products_compare_at_price', [$this, 'wps_products_price'], 10, 2);
 

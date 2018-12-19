@@ -250,7 +250,7 @@ class Collects extends \WPS\API {
 	*/
   public function register_route_collects_count() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/collects/count', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/collects/count', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_collects_count']
@@ -267,7 +267,7 @@ class Collects extends \WPS\API {
 	*/
   public function register_route_collects() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/collects', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/collects', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_collects']

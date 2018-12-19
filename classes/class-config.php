@@ -85,7 +85,7 @@ class Config {
 		$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 		$this->plugin_name_js 													= 'WP_Shopify';
 		$this->plugin_text_domain 											= 'wp-shopify';
-		$this->plugin_version 													= '1.3.0';
+		$this->plugin_version 													= '1.3.1';
 		$this->plugin_author 														= 'WP Shopify';
 
 		$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -162,6 +162,7 @@ class Config {
 		$this->plugin_products_lookup_key								=	'product_id';
 		$this->plugin_collections_lookup_key						=	'collection_id';
 		$this->plugin_cart_default_terms_content				=	'I agree with the terms and conditions.';
+		$this->plugin_default_add_to_cart_text					= 'Add to cart';
 		$this->plugin_default_add_to_cart_color					= '#14273b';
 		$this->plugin_default_variant_color							= '#52a7a6';
 		$this->plugin_default_cart_counter_color				= '#6ae06a';
@@ -451,6 +452,10 @@ class Config {
 			define('WPS_DEFAULT_CART_TERMS_CONTENT', $this->plugin_cart_default_terms_content);
 		}
 
+		if ( !defined('WPS_DEFAULT_ADD_TO_CART_TEXT') ) {
+			define('WPS_DEFAULT_ADD_TO_CART_TEXT', $this->plugin_default_add_to_cart_text);
+		}
+
 		if ( !defined('WPS_DEFAULT_ADD_TO_CART_COLOR') ) {
 			define('WPS_DEFAULT_ADD_TO_CART_COLOR', $this->plugin_default_add_to_cart_color);
 		}
@@ -467,16 +472,16 @@ class Config {
 			define('WPS_DEFAULT_CART_ICON_COLOR', $this->plugin_default_cart_icon_color);
 		}
 
-		if ( !defined('WP_SHOPIFY_API_SLUG') ) {
-			define('WP_SHOPIFY_API_SLUG', $this->api_slug);
+		if ( !defined('WPS_SHOPIFY_API_SLUG') ) {
+			define('WPS_SHOPIFY_API_SLUG', $this->api_slug);
 		}
 
-		if ( !defined('WP_SHOPIFY_API_VERSION') ) {
-			define('WP_SHOPIFY_API_VERSION', $this->api_version);
+		if ( !defined('WPS_SHOPIFY_API_VERSION') ) {
+			define('WPS_SHOPIFY_API_VERSION', $this->api_version);
 		}
 
-		if ( !defined('WP_SHOPIFY_API_NAMESPACE') ) {
-			define('WP_SHOPIFY_API_NAMESPACE', $this->api_namespace);
+		if ( !defined('WPS_SHOPIFY_API_NAMESPACE') ) {
+			define('WPS_SHOPIFY_API_NAMESPACE', $this->api_namespace);
 		}
 
 		if ( !defined('WPS_DEFAULT_PRODUCTS_HEADING') ) {

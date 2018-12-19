@@ -67,7 +67,7 @@ class Shop extends \WPS\API {
 	*/
   public function register_route_shop_count() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/shop/count', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/shop/count', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_shop_count']
@@ -84,7 +84,7 @@ class Shop extends \WPS\API {
 	*/
   public function register_route_shop() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/shop', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/shop', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_shop']

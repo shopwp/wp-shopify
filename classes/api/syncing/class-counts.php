@@ -176,7 +176,7 @@ class Counts extends \WPS\API {
 	*/
   public function register_route_syncing_set_counts() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/counts', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/counts', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'set_syncing_counts']
@@ -197,7 +197,7 @@ class Counts extends \WPS\API {
 	*/
   public function register_route_syncing_set_single_count() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/count', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/count', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'set_syncing_count']

@@ -34,7 +34,7 @@ class Webhooks_Deletions extends \WPS\API {
 	*/
   public function register_route_process_webhooks() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/webhooks_delete', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/webhooks_delete', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_webhooks']

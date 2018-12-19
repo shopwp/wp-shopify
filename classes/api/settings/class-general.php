@@ -226,7 +226,7 @@ class General extends \WPS\API {
 	*/
   public function register_route_settings() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_settings']

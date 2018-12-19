@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 
 use WPS\Options;
 
+
 class Backend {
 
 	private $DB_Settings_General;
@@ -359,7 +360,7 @@ class Backend {
 						]
 					],
 					'API' => [
-						'namespace'			=> WP_SHOPIFY_API_NAMESPACE,
+						'namespace'			=> WPS_SHOPIFY_API_NAMESPACE,
 						'baseUrl' 			=> site_url(),
 						'urlPrefix'			=> rest_get_url_prefix(),
 						'restUrl'				=> get_rest_url()

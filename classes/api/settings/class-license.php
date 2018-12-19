@@ -90,7 +90,7 @@ class License extends \WPS\API {
 	*/
   public function register_route_license() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/license', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/license', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_license']

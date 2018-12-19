@@ -92,7 +92,7 @@ class Posts extends \WPS\API {
 	*/
   public function register_route_products_posts() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/posts/products', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/posts/products', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'connect_products_posts_relationships']
@@ -109,7 +109,7 @@ class Posts extends \WPS\API {
 	*/
   public function register_route_collections_posts() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/posts/collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/posts/collections', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'connect_collections_posts_relationships']
@@ -126,7 +126,7 @@ class Posts extends \WPS\API {
 	*/
   public function register_route_posts() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/posts', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/posts', [
 			[
 				'methods'         => 'DELETE',
 				'callback'        => [$this, 'delete_posts']

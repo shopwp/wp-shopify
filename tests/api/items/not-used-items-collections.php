@@ -27,7 +27,7 @@ class Test_API_Collections extends WP_UnitTestCase {
   */
   // function test_it_should_200_set_collections_posts() {
   //
-  //   $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/collections/posts');
+  //   $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/collections/posts');
   //   $response       = self::$server->dispatch( $mock_request );
   //
   //   $this->assertEquals( 200, $response->get_status() );
@@ -42,7 +42,7 @@ class Test_API_Collections extends WP_UnitTestCase {
   */
   // function test_it_should_200_set_smart_collections_count() {
   //
-  //   $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/smart_collections/count');
+  //   $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/smart_collections/count');
   //   $response       = self::$server->dispatch( $mock_request );
   //
   //   $this->assertEquals( 200, $response->get_status() );
@@ -57,7 +57,7 @@ class Test_API_Collections extends WP_UnitTestCase {
   // */
   // function test_it_should_200_set_custom_collections_count() {
   //
-  //   $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/custom_collections/count');
+  //   $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/custom_collections/count');
   //   $response       = self::$server->dispatch( $mock_request );
   //
   //   $this->assertEquals( 200, $response->get_status() );
@@ -72,7 +72,7 @@ class Test_API_Collections extends WP_UnitTestCase {
   // */
   // function test_it_should_200_set_smart_collections() {
   //
-  //   $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/smart_collections');
+  //   $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/smart_collections');
   //   $response       = self::$server->dispatch( $mock_request );
   //
   //   $this->assertEquals( 200, $response->get_status() );
@@ -87,7 +87,7 @@ class Test_API_Collections extends WP_UnitTestCase {
   // */
   // function test_it_should_200_set_custom_collections() {
   //
-  //   $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/custom_collections');
+  //   $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/custom_collections');
   //   $response       = self::$server->dispatch( $mock_request );
   //
   //   $this->assertEquals( 200, $response->get_status() );
@@ -104,7 +104,7 @@ class Test_API_Collections extends WP_UnitTestCase {
   */
   // function test_it_should_200_set_collections() {
   //
-  //   $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/collections');
+  //   $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/collections');
   //   $response       = self::$server->dispatch( $mock_request );
   //
   //   $this->assertEquals( 200, $response->get_status() );

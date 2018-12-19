@@ -27,7 +27,8 @@ class Templates_Factory {
 				Factories\DB\Images_Factory::build(),
 				Factories\DB\Tags_Factory::build(),
 				Factories\DB\Options_Factory::build(),
-				Factories\DB\Collections_Factory::build()
+				Factories\DB\Collections_Factory::build(),
+				Factories\Layout\Data_Factory::build()
 			);
 
 			self::$instantiated = $Templates;

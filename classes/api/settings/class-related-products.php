@@ -192,7 +192,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_heading() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_heading', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_heading', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_heading']
@@ -213,7 +213,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_heading_toggle() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_heading_toggle', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_heading_toggle', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_heading_toggle']
@@ -234,7 +234,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_images_sizing_toggle() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_toggle', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_toggle', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_images_sizing_toggle']
@@ -255,7 +255,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_images_sizing_width() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_width', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_width', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_images_sizing_width']
@@ -276,7 +276,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_images_sizing_height() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_height', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_height', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_images_sizing_height']
@@ -297,7 +297,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_images_sizing_crop() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_crop', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_crop', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_images_sizing_crop']
@@ -318,7 +318,7 @@ class Related_Products extends \WPS\API {
 	*/
   public function register_route_related_products_images_sizing_scale() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_scale', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/related_products_images_sizing_scale', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_related_products_images_sizing_scale']

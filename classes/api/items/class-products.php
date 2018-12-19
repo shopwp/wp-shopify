@@ -296,7 +296,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_ids() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/products/ids', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/products/ids', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_published_product_ids']
@@ -313,7 +313,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_count() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/products/count', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/products/count', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_products_count']
@@ -330,7 +330,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/products', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/products', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_products']

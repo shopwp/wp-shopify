@@ -20,7 +20,8 @@
     "tests-server-utils": "phpunit-watcher watch --testsuite 'Utils'",
     "tests-server-cpt": "phpunit-watcher watch --testsuite 'CPT'",
     "tests-server-multisite": "phpunit-watcher watch --testsuite 'Multisite'",
-    "tests-server-query": "phpunit-watcher watch --testsuite 'Query'"
+    "tests-server-query": "phpunit-watcher watch --testsuite 'Query'",
+    "tests-server-layout": "phpunit-watcher watch --testsuite 'Layout'"
   },
   "author": "WP Shopify https://wpshop.io",
   "license": "MIT",

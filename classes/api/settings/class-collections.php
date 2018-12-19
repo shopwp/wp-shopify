@@ -207,7 +207,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_heading_toggle() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_heading_toggle', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_heading_toggle', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_heading_toggle']
@@ -228,7 +228,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_heading() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_heading', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_heading', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_heading']
@@ -249,7 +249,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_images_sizing_toggle() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_toggle', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_toggle', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_images_sizing_toggle']
@@ -270,7 +270,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_images_sizing_width() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_width', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_width', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_images_sizing_width']
@@ -291,7 +291,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_images_sizing_height() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_height', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_height', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_images_sizing_height']
@@ -312,7 +312,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_images_sizing_crop() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_crop', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_crop', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_images_sizing_crop']
@@ -333,7 +333,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_images_sizing_scale() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_scale', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_scale', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_collections_images_sizing_scale']
@@ -354,7 +354,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_selected_collections() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/selected_collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/selected_collections', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_selected_collections']

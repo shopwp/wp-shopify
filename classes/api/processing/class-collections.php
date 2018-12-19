@@ -55,7 +55,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_process_smart_collections() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/smart_collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/smart_collections', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_smart_collections']
@@ -72,7 +72,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_process_custom_collections() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/custom_collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/custom_collections', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_custom_collections']

@@ -367,4 +367,24 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_DEFAULT_CHECKOUT_BUTTON_TARGET') );
   }
 
+  function test_default_add_to_cart_text() {
+    $this->assertTrue( defined('WPS_DEFAULT_ADD_TO_CART_TEXT') );
+  }
+
+
+  function test_total_num_of_constants() {
+
+    $const = get_defined_constants(true);
+
+    $total_constants = array_filter($const['user'], function($const_key) {
+      return substr( $const_key, 0, 4 ) === "WPS_";
+    }, ARRAY_FILTER_USE_KEY);
+
+    $this->assertInternalType('array', $total_constants);
+    $this->assertNotEmpty($total_constants);
+    $this->assertCount(93, $total_constants);
+
+
+  }
+
 }

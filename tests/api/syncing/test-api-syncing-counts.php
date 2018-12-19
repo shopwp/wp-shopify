@@ -38,7 +38,7 @@ class Test_API_Syncing_Counts extends WP_UnitTestCase {
   */
   function test_it_should_200_set_syncing_counts() {
 
-    $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/counts');
+    $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/counts');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -53,7 +53,7 @@ class Test_API_Syncing_Counts extends WP_UnitTestCase {
   */
   function test_it_should_200_set_syncing_counts_total() {
 
-    $mock_request   = new \WP_REST_Request('GET', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/counts');
+    $mock_request   = new \WP_REST_Request('GET', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/counts');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -68,7 +68,7 @@ class Test_API_Syncing_Counts extends WP_UnitTestCase {
   */
   function test_it_should_set_syncing_counts() {
 
-    $mock_request = new WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/counts');
+    $mock_request = new WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/counts');
 
     $response           = self::$server->dispatch( $mock_request );
     $response_data      = $response->get_data();

@@ -27,10 +27,10 @@ if ( !defined('ABSPATH') ) {
     itemtype="https://schema.org/BuyAction"
     href="#!"
     class="wps-btn wps-col-1 wps-btn-secondary wps-add-to-cart <?= apply_filters('wps_add_to_cart_class', ''); ?>"
-    title="<?php esc_attr_e('Add to cart', WPS_PLUGIN_TEXT_DOMAIN); ?>"
+    title="<?php esc_attr_e($data->button_text, WPS_PLUGIN_TEXT_DOMAIN); ?>"
 		style="<?= !empty($data->button_color) ? 'background-color: ' . $data->button_color . ';' : ''; ?>">
 
-    <?php esc_html_e('Add to cart', WPS_PLUGIN_TEXT_DOMAIN); ?>
+    <?php esc_html_e($data->button_text, WPS_PLUGIN_TEXT_DOMAIN); ?>
 
   </button>
 

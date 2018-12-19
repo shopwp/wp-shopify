@@ -180,7 +180,7 @@ class Connection extends \WPS\API {
 	*/
   public function register_route_connection() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/connection', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/connection', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_connection']
@@ -205,7 +205,7 @@ class Connection extends \WPS\API {
 	*/
   public function register_route_connection_check() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/connection/check', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/connection/check', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'check_connection']

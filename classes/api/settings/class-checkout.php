@@ -49,7 +49,7 @@ class Checkout extends \WPS\API {
 	*/
   public function register_route_enable_custom_checkout_domain() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/checkout_enable_custom_checkout_domain', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/checkout_enable_custom_checkout_domain', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_enable_custom_checkout_domain']

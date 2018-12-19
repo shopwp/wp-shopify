@@ -150,4 +150,9 @@ class Data {
 
 	}
 
+
+	public static function contains_comma($string) {
+    return strpos($string, ',') !== false;
+  }
+
 }

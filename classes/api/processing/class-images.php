@@ -34,7 +34,7 @@ class Images extends \WPS\API {
 	*/
   public function register_route_process_images() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/images', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/images', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_images']

@@ -27,8 +27,12 @@ do_action('wps_products_title_before', $data->product);
 do_action('wps_products_title', $data->product);
 do_action('wps_products_item_link_end', $data->product);
 
-do_action('wps_products_price_before', $data->product);
 
+if (isset($data->args->custom->description) && $data->args->custom->description === 'true') {
+	do_action('wps_products_description', $data->product);
+}
+
+do_action('wps_products_price_before', $data->product);
 
 if ($data->settings->products_compare_at) {
 	do_action('wps_products_price_wrapper_start', $data->product);

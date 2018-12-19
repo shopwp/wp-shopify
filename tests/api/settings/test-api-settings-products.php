@@ -36,7 +36,7 @@ class Test_API_Settings_Products extends WP_UnitTestCase {
 
   function test_it_should_200_update_color_from_api_request() {
 
-    $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/settings/products_add_to_cart_color');
+    $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/settings/products_add_to_cart_color');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -46,7 +46,7 @@ class Test_API_Settings_Products extends WP_UnitTestCase {
 
   function test_it_should_update_color_from_api_request() {
 
-    $mock_request = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/settings/products_add_to_cart_color');
+    $mock_request = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/settings/products_add_to_cart_color');
 
     $mock_request->set_body_params([
       'color' => '#ffffff'

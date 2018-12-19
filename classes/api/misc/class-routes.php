@@ -2,10 +2,6 @@
 
 namespace WPS\API\Misc;
 
-use WPS\Options;
-use WPS\Messages;
-use WPS\Transients;
-
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -40,7 +36,7 @@ class Routes extends \WPS\API {
 	*/
   public function register_route_routes_flush() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/routes/flush', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/routes/flush', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'flush_routes']

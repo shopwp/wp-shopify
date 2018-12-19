@@ -34,7 +34,7 @@ class Orders extends \WPS\API {
 	*/
   public function register_route_process_orders() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/orders', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/orders', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_orders']

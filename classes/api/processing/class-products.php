@@ -33,7 +33,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_process_products() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/products', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/products', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_products']

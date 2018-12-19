@@ -34,7 +34,7 @@ class Customers extends \WPS\API {
 	*/
   public function register_route_process_customers() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/customers', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/customers', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_customers']

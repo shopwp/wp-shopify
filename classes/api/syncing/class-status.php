@@ -89,7 +89,7 @@ class Status extends \WPS\API {
 	*/
   public function register_route_syncing_status() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/status', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_syncing_status']
@@ -106,7 +106,7 @@ class Status extends \WPS\API {
 	*/
   public function register_route_syncing_status_posts() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/status/posts', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status/posts', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_syncing_status_posts']
@@ -123,7 +123,7 @@ class Status extends \WPS\API {
 	*/
   public function register_route_syncing_status_webhooks() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/status/webhooks', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status/webhooks', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_syncing_status_webhooks']
@@ -140,7 +140,7 @@ class Status extends \WPS\API {
 	*/
   public function register_route_syncing_status_removal() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/status/removal', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status/removal', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_syncing_status_removal']
@@ -157,7 +157,7 @@ class Status extends \WPS\API {
 	*/
   public function register_route_syncing_stop() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/stop', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/stop', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'expire_sync']
@@ -174,7 +174,7 @@ class Status extends \WPS\API {
 	*/
   public function register_route_syncing_notices() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/notices', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/notices', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_syncing_notices']

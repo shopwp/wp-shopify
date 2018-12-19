@@ -55,6 +55,10 @@
 			<directory prefix="test-query" suffix=".php">./tests/</directory>
 		</testsuite>
 
+		<testsuite name="Layout">
+			<directory prefix="test-layout" suffix=".php">./tests/</directory>
+		</testsuite>
+
 	</testsuites>
 
 </phpunit>

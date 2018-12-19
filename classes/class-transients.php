@@ -2,8 +2,8 @@
 
 namespace WPS;
 
-use WPS\Messages;
 use WPS\Options;
+
 
 if (!defined('ABSPATH')) {
 	exit;

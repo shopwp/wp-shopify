@@ -52,7 +52,7 @@ class Indicator extends \WPS\API {
 	*/
   public function register_route_syncing_indicator() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/syncing/indicator', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/indicator', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'set_syncing_indicator']

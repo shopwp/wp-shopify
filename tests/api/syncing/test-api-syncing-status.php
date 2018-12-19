@@ -27,7 +27,7 @@ class Test_API_Syncing_Status extends WP_UnitTestCase {
   */
   function test_it_should_200_get_syncing_status() {
 
-    $mock_request   = new \WP_REST_Request('GET', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/status');
+    $mock_request   = new \WP_REST_Request('GET', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/status');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -42,7 +42,7 @@ class Test_API_Syncing_Status extends WP_UnitTestCase {
   */
   function test_it_should_200_get_syncing_status_posts() {
 
-    $mock_request   = new \WP_REST_Request('GET', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/status/posts');
+    $mock_request   = new \WP_REST_Request('GET', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/status/posts');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -57,7 +57,7 @@ class Test_API_Syncing_Status extends WP_UnitTestCase {
   */
   function test_it_should_200_get_syncing_status_webhooks() {
 
-    $mock_request   = new \WP_REST_Request('GET', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/status/webhooks');
+    $mock_request   = new \WP_REST_Request('GET', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/status/webhooks');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -72,7 +72,7 @@ class Test_API_Syncing_Status extends WP_UnitTestCase {
   */
   function test_it_should_200_get_syncing_status_removal() {
 
-    $mock_request   = new \WP_REST_Request('GET', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/status/removal');
+    $mock_request   = new \WP_REST_Request('GET', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/status/removal');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -87,7 +87,7 @@ class Test_API_Syncing_Status extends WP_UnitTestCase {
   */
   function test_it_should_200_get_syncing_stop() {
 
-    $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/stop');
+    $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/stop');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );
@@ -102,7 +102,7 @@ class Test_API_Syncing_Status extends WP_UnitTestCase {
   */
   function test_it_should_200_get_syncing_notices() {
 
-    $mock_request   = new \WP_REST_Request('GET', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/notices');
+    $mock_request   = new \WP_REST_Request('GET', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/notices');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );

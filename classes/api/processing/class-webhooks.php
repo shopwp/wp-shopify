@@ -34,7 +34,7 @@ class Webhooks extends \WPS\API {
 	*/
   public function register_route_process_webhooks() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/process/webhooks', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/webhooks', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'process_webhooks']

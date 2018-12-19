@@ -30,13 +30,13 @@ class Test_API_Endpoints extends WP_UnitTestCase {
   }
 
 	function test_it_should_have_valid_api_namespace() {
-		$this->assertEquals('wpshopify/v1', WP_SHOPIFY_API_NAMESPACE );
+		$this->assertEquals('wpshopify/v1', WPS_SHOPIFY_API_NAMESPACE );
   }
 
 
 	function test_it_should_find_api_routes() {
 
-		$the_route = WP_SHOPIFY_API_NAMESPACE;
+		$the_route = WPS_SHOPIFY_API_NAMESPACE;
 		$routes = self::$server->get_routes();
 
 		$routes_com = [];

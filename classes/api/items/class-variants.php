@@ -123,7 +123,7 @@ class Variants extends \WPS\API {
 	*/
   public function register_route_variants() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/variants', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/variants', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_variant_id_from_product_options']

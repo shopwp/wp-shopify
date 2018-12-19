@@ -27,7 +27,7 @@ class Test_API_Indicator extends WP_UnitTestCase {
   */
   function test_it_should_200_set_syncing_indicator() {
 
-    $mock_request   = new \WP_REST_Request('POST', '/' . WP_SHOPIFY_API_NAMESPACE . '/syncing/indicator');
+    $mock_request   = new \WP_REST_Request('POST', '/' . WPS_SHOPIFY_API_NAMESPACE . '/syncing/indicator');
     $response       = self::$server->dispatch( $mock_request );
 
     $this->assertEquals( 200, $response->get_status() );

@@ -246,7 +246,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections_posts() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/collections/posts', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/collections/posts', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'insert_collections_posts']
@@ -263,7 +263,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_smart_collections_count() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/smart_collections/count', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/smart_collections/count', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_smart_collections_count']
@@ -280,7 +280,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_custom_collections_count() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/custom_collections/count', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/custom_collections/count', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_custom_collections_count']
@@ -297,7 +297,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_smart_collections() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/smart_collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/smart_collections', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_smart_collections']
@@ -314,7 +314,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_custom_collections() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/custom_collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/custom_collections', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_custom_collections']
@@ -331,7 +331,7 @@ class Collections extends \WPS\API {
 	*/
   public function register_route_collections() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/collections', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/collections', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'get_all_collections']

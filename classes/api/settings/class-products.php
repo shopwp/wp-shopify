@@ -264,7 +264,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_add_to_cart_color() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_add_to_cart_color', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_add_to_cart_color', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_add_to_cart_color']
@@ -285,7 +285,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_variant_color() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_variant_color', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_variant_color', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_products_variant_color']
@@ -306,7 +306,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_heading_toggle() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_heading_toggle', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_heading_toggle', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_heading_toggle']
@@ -327,7 +327,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_heading() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_heading', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_heading', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_heading']
@@ -348,7 +348,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_images_sizing_toggle() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_toggle', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_toggle', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_images_sizing_toggle']
@@ -369,7 +369,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_images_sizing_width() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_width', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_width', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_images_sizing_width']
@@ -390,7 +390,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_images_sizing_height() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_height', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_height', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_images_sizing_height']
@@ -411,7 +411,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_images_sizing_crop() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_crop', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_crop', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_images_sizing_crop']
@@ -432,7 +432,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_images_sizing_scale() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_scale', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_images_sizing_scale', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_images_sizing_scale']
@@ -453,7 +453,7 @@ class Products extends \WPS\API {
 	*/
   public function register_route_products_compare_at() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/settings/products_compare_at', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/products_compare_at', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_setting_products_compare_at']

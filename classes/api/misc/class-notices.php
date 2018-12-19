@@ -192,7 +192,7 @@ class Notices extends \WPS\API {
 	*/
   public function register_route_notices() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/notices', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/notices', [
 			[
 				'methods'         => 'GET',
 				'callback'        => [$this, 'get_notices']
@@ -213,7 +213,7 @@ class Notices extends \WPS\API {
 	*/
   public function register_route_notices_dismiss() {
 
-		return register_rest_route( WP_SHOPIFY_API_NAMESPACE, '/notices/dismiss', [
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/notices/dismiss', [
 			[
 				'methods'         => 'POST',
 				'callback'        => [$this, 'dismiss_notice']
