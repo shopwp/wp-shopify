@@ -20,5 +20,5 @@ if ( !defined('ABSPATH') ) {
 
 <span
 	class="<?= apply_filters( 'wps_cart_counter_class', ''); ?> wps-cart-counter wps-is-hidden"
-	style="<?= !empty($data->button_color) ? 'background-color: ' . $data->button_color . ';' : ''; ?>">
+	style="<?= 'background-color: ' . $data->button_color . ';'; ?>">
 </span>

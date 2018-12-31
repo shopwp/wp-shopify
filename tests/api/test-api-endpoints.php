@@ -50,7 +50,7 @@ class Test_API_Endpoints extends WP_UnitTestCase {
 		}
 
 		$this->assertEquals('/wpshopify/v1', array_shift($routes_com) );
-		$this->assertCount(79, $routes_com );
+		$this->assertCount(80, $routes_com );
 
   }
 

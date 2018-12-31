@@ -42,6 +42,18 @@ function endpointSettingCartCounterColor() {
   return endpointPrefix() + 'settings/cart_counter_color';
 }
 
+function endpointSettingCartCounterFixedColor() {
+  return endpointPrefix() + 'settings/cart_counter_fixed_color';
+}
+
+function endpointSettingCartFixedBackgroundColor() {
+  return endpointPrefix() + 'settings/cart_fixed_background_color';
+}
+
+function endpointSettingCartIconFixedColor() {
+  return endpointPrefix() + 'settings/cart_icon_fixed_color';
+}
+
 function endpointSettingCartIconColor() {
   return endpointPrefix() + 'settings/cart_icon_color';
 }
@@ -378,6 +390,9 @@ export {
   endpointSettingCheckoutColor,
   endpointSettingCartCounterColor,
   endpointSettingCartIconColor,
+  endpointSettingCartIconFixedColor,
+  endpointSettingCartFixedBackgroundColor,
+  endpointSettingCartCounterFixedColor,
   endpointSettingProductsHeading,
   endpointSettingCollectionsHeading,
   endpointSettingRelatedProductsHeading,

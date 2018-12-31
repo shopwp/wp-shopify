@@ -18,7 +18,16 @@ import server from "./gulp/tasks/server";
 import watch from "./gulp/tasks/watch";
 
 
+
+/*
+
+Builds
+
+*/
+import buildGit from "./gulp/tasks/build/git";
+
 import cleanTmp from "./gulp/tasks/clean-tmp";
+import cleanDist from "./gulp/tasks/clean-dist";
 import cleanFreeRepo from "./gulp/tasks/clean-free-repo";
 
 import build from "./gulp/tasks/build";

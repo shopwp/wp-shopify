@@ -22,6 +22,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import OptimizeCSSClassnamesPlugin from 'optimize-css-classnames-plugin';
 import BundleAnalyzerPlugin from 'webpack-bundle-analyzer';
+import { isFree, isPro, isBuilding, getTier, hasRelease, getRelease, hasCurrent, getCurrent } from './utils/utils';
 
 
 /*
@@ -32,13 +33,13 @@ Main Config Object
 var config = {
 
   files: {
-    entry: './_tmp/wp-shopify.php',
+    entryTmp: './_tmp/wp-shopify.php',
     versionLocations: [
       './_tmp/wp-shopify.php',
       './_tmp/classes/class-config.php'
     ],
     // Manually setting files for now to improve performance
-    toBeProcessed: [
+    toBeProcessedTmp: [
       './_tmp/admin/js/**/*',
       './_tmp/admin/partials/**/*',
       './_tmp/public/js/**/*',
@@ -90,7 +91,10 @@ var config = {
     ],
     build: './**/*',
     buildProContent: '../../../../assets/wp-shopify-pro/**/*',
+    distProFiles: '../../../../assets/wp-shopify-pro/**/*',
     buildFreeContent: '../../../../assets/wpshopify/**/*',
+    tmpFreeFiles: '../../../../assets/wpshopify/wpshopify/**/*',
+    coreRepoReadme: '../../../../assets/wp-core-repo/trunk/README.txt',
     // Files / folders that DONT exist in the free version
     buildFreeClear: [
       './_tmp/webhooks',
@@ -99,15 +103,15 @@ var config = {
       './_tmp/.git/**',
       './_tmp/.gitignore'
     ],
-    buildSuperfluousClear: [
+    superfluousTmp: [
       './_tmp/admin/js/app',
       './_tmp/public/js/app',
       './_tmp/admin/css/app',
       './_tmp/public/css/app',
       './_tmp/dist/public.min.js.LICENSE'
     ],
-    buildZip: argvs.argv.tier === 'free' ? '/Users/andrew/www/wpstest/assets/wpshopify/wpshopify.zip' : '/Users/andrew/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
-    buildRoot: argvs.argv.tier === 'free' ? '/Users/andrew/www/wpstest/assets/wpshopify' : '/Users/andrew/www/wpstest/assets/wp-shopify-pro',
+    buildZip: isFree(argvs) ? '/Users/andrew/www/wpstest/assets/wpshopify/wpshopify.zip' : '/Users/andrew/www/wpstest/assets/wp-shopify-pro/wp-shopify-pro.zip',
+    buildRoot: isFree(argvs) ? '/Users/andrew/www/wpstest/assets/wpshopify' : '/Users/andrew/www/wpstest/assets/wp-shopify-pro',
     buildEntry: [
       './admin/js/app/tools/tools.js',
       './admin/partials/wps-tab-content-tools.php'
@@ -138,26 +142,34 @@ var config = {
       '!./admin/js/vendor.min.js',
       '!./admin/js/app.min.js.map'
     ],
-    jsEntryPublic: argvs.argv.tier ? './_tmp/public/js/app/app.js' : './public/js/app/app.js',
-    jsEntryAdmin: argvs.argv.tier ? './_tmp/admin/js/app/app.js' : './admin/js/app/app.js',
+    freeRepoFiles: './_free/*',
+    freeRepoFilesAll: ['./_free/**/*', './_free/**/.*', './_free/.**/*', './_free/.**/.*'],
+    proRepoFiles: './*',
+    jsEntryPublic: isBuilding(argvs) ? './_tmp/public/js/app/app.js' : './public/js/app/app.js',
+    jsEntryAdmin: isBuilding(argvs) ? './_tmp/admin/js/app/app.js' : './admin/js/app/app.js',
     cssPublic: './public/css/**/*.scss', // doesnt need tmp check
-    cssEntryPublic: argvs.argv.tier ? './_tmp/public/css/app/app.scss' : './public/css/app/app.scss',
-    cssEntryPublicCore: argvs.argv.tier ? './_tmp/public/css/app/core.scss' : './public/css/app/core.scss',
-    cssEntryPublicGrid: argvs.argv.tier ? './_tmp/public/css/app/grid.scss' : './public/css/app/grid.scss',
+    cssEntryPublic: isBuilding(argvs) ? './_tmp/public/css/app/app.scss' : './public/css/app/app.scss',
+    cssEntryPublicCore: isBuilding(argvs) ? './_tmp/public/css/app/core.scss' : './public/css/app/core.scss',
+    cssEntryPublicGrid: isBuilding(argvs) ? './_tmp/public/css/app/grid.scss' : './public/css/app/grid.scss',
     cssAdmin: './admin/css/**/*.scss', // doesnt need tmp check
-    cssEntryAdmin: argvs.argv.tier ? './_tmp/admin/css/app/app.scss' : './admin/css/app/app.scss',
-    svgsPublic: argvs.argv.tier ? './_tmp/public/imgs/**/*.svg' : './public/imgs/**/*.svg',
-    svgsAdmin: argvs.argv.tier ? './_tmp/admin/imgs/**/*.svg' : './admin/imgs/**/*.svg'
+    cssEntryAdmin: isBuilding(argvs) ? './_tmp/admin/css/app/app.scss' : './admin/css/app/app.scss',
+    svgsPublic: isBuilding(argvs) ? './_tmp/public/imgs/**/*.svg' : './public/imgs/**/*.svg',
+    svgsAdmin: isBuilding(argvs) ? './_tmp/admin/imgs/**/*.svg' : './admin/imgs/**/*.svg'
   },
   folders: {
     tmp: './_tmp',
     freeRepo: './_free',
     plugin: './',
-    dist: argvs.argv.tier ? './_tmp/dist' : './dist',
+    dist: isBuilding(argvs) ? './_tmp/dist' : './dist',
     pro: '../../../../assets/wp-shopify-pro',
+    proTmp: '../../../../assets/wp-shopify-pro/_tmp',
+    proTmpRenamed: '../../../../assets/wp-shopify-pro/wp-shopify-pro',
     free: '../../../../assets/wpshopify',
-    svgsPublic: argvs.argv.tier ? './_tmp/public/imgs' : './public/imgs',
-    svgsAdmin: argvs.argv.tier ? './_tmp/admin/imgs' : './admin/imgs',
+    freeDistRepo: '../../../../assets/wpshopify/_free',
+    freeTmpRenamed: '../../../../assets/wpshopify/wpshopify',
+    coreRepo: '../../../../assets/wp-core-repo/trunk',
+    svgsPublic: isBuilding(argvs) ? './_tmp/public/imgs' : './public/imgs',
+    svgsAdmin: isBuilding(argvs) ? './_tmp/admin/imgs' : './admin/imgs',
     cache: './node_modules/.cache'
   },
   names: {
@@ -168,15 +180,24 @@ var config = {
     cssPublicCore: 'core.min.css',
     cssPublicGrid: 'grid.min.css',
     jsAdmin: 'admin.min.js',
-    cssAdmin: 'admin.min.css'
+    cssAdmin: 'admin.min.css',
+    pro: 'WP Shopify Pro',
+    free: 'WP Shopify',
+    zips: {
+      pro: 'wp-shopify-pro.zip',
+      free: 'wpshopify.zip'
+    }
   },
   bs: browserSync.create(),
   serverName: 'wpshopify.loc',
-  isBuilding: argvs.argv.tier ? true : false,
-  buildTier: argvs.argv.tier ? argvs.argv.tier : false, // Build type can be either 'free' or 'pro'
-  buildRelease: argvs.argv.release ? argvs.argv.release : false, // Plugin version number
-  currentRelease: argvs.argv.current ? argvs.argv.current : false // Plugin version number
-};
+  isBuilding: isBuilding(argvs),
+  isFree: isFree(argvs),
+  isPro: isPro(argvs),
+  buildTier: isBuilding(argvs) ? getTier(argvs) : false, // Build type can be either 'free' or 'pro'
+  buildRelease: hasRelease(argvs) ? getRelease(argvs) : false, // Plugin version number
+  currentRelease: hasCurrent(argvs) ? getCurrent(argvs) : false // Plugin version number
+}
+
 
 
 /*

@@ -14,7 +14,7 @@ import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount, elementExists, t
 import { createLineItemsFromVariants, createLineItemsMarkup, cartTermsState } from '../ws/ws-cart';
 import { getMoneyFormat, getShop } from '../ws/ws-shop';
 import { enable, disable } from '../utils/utils-ux';
-import { bounceIn, slideInLeft, slideOutRight, pulse } from '../utils/utils-animations';
+import { bounceIn, slideInLeft, slideInRight, slideOutRight, pulse } from '../utils/utils-animations';
 import { isCheckoutEmpty, lineItemExists } from '../utils/utils-cart';
 
 
@@ -219,7 +219,11 @@ function addCheckoutQuantityToCounter($counter, totalItems) {
 }
 
 function showCheckoutCounter($counter) {
+
+  jQuery('.wps-btn-cart-fixed').removeClass('wps-is-cart-empty');
+
   $counter.removeClass('wps-is-hidden');
+  
 }
 
 function setCheckoutCounterSize($checkoutCounter, checkout) {
@@ -838,6 +842,11 @@ function hideCart() {
 }
 
 
+function showFixedCartIcon() {
+  slideInRight( jQuery('.wps-btn-cart-fixed') );
+}
+
+
 /*
 
 Close Cart
@@ -1009,5 +1018,6 @@ export {
   getTermsCheckbox,
   hasCartElements,
   hasCartTerms,
-  cartTermsAccepted
+  cartTermsAccepted,
+  showFixedCartIcon
 }

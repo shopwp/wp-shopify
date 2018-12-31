@@ -291,8 +291,20 @@ class Test_Config extends WP_UnitTestCase {
     $this->assertTrue( defined('WPS_DEFAULT_CART_COUNTER_COLOR') );
   }
 
+  function test_plugin_default_cart_counter_fixed_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_CART_COUNTER_FIXED_COLOR') );
+  }
+
+  function test_plugin_default_cart_fixed_background_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_CART_FIXED_BACKGROUND_COLOR') );
+  }
+
   function test_plugin_default_cart_icon_color() {
     $this->assertTrue( defined('WPS_DEFAULT_CART_ICON_COLOR') );
+  }
+
+  function test_plugin_default_cart_icon_fixed_color() {
+    $this->assertTrue( defined('WPS_DEFAULT_CART_ICON_FIXED_COLOR') );
   }
 
   function test_plugin_default_products_heading() {
@@ -382,7 +394,7 @@ class Test_Config extends WP_UnitTestCase {
 
     $this->assertInternalType('array', $total_constants);
     $this->assertNotEmpty($total_constants);
-    $this->assertCount(93, $total_constants);
+    $this->assertCount(96, $total_constants);
 
 
   }

@@ -62,7 +62,10 @@ class Config {
 	public $plugin_products_lookup_key;
 	public $plugin_collections_lookup_key;
 	public $plugin_default_cart_counter_color;
+	public $plugin_default_cart_counter_fixed_color;
+	public $plugin_default_cart_fixed_background_color;
 	public $plugin_default_cart_icon_color;
+	public $plugin_default_cart_icon_fixed_color;
 	public $plugin_default_variant_color;
 	public $plugin_default_add_to_cart_color;
 	public $plugin_default_products_heading;
@@ -85,7 +88,7 @@ class Config {
 		$this->plugin_name_full_encoded 								= urlencode($this->plugin_name_full);
 		$this->plugin_name_js 													= 'WP_Shopify';
 		$this->plugin_text_domain 											= 'wp-shopify';
-		$this->plugin_version 													= '1.3.1';
+		$this->plugin_version 													= '1.3.2';
 		$this->plugin_author 														= 'WP Shopify';
 
 		$this->plugin_nonce_action_backend 							= 'wp-shopify-backend';
@@ -166,13 +169,17 @@ class Config {
 		$this->plugin_default_add_to_cart_color					= '#14273b';
 		$this->plugin_default_variant_color							= '#52a7a6';
 		$this->plugin_default_cart_counter_color				= '#6ae06a';
+		$this->plugin_default_cart_counter_fixed_color	= '#FFF';
 		$this->plugin_default_cart_icon_color						= '#000';
+		$this->plugin_default_cart_icon_fixed_color			= '#FFF';
 		$this->plugin_default_products_heading					= 'Products';
 		$this->plugin_default_collections_heading				= 'Collections';
 		$this->plugin_default_related_products_heading	= 'Related Products';
 		$this->default_enable_custom_checkout_domain		= 0;
 		$this->default_products_compare_at							= 0;
 		$this->default_products_show_price_range				= 1;
+
+		$this->plugin_default_cart_fixed_background_color							= '#52a7a6';
 
 		$this->plugin_default_products_images_sizing_width						= 0;
 		$this->plugin_default_products_images_sizing_height						= 0;
@@ -468,8 +475,20 @@ class Config {
 			define('WPS_DEFAULT_CART_COUNTER_COLOR', $this->plugin_default_cart_counter_color);
 		}
 
+		if ( !defined('WPS_DEFAULT_CART_COUNTER_FIXED_COLOR') ) {
+			define('WPS_DEFAULT_CART_COUNTER_FIXED_COLOR', $this->plugin_default_cart_counter_fixed_color);
+		}
+
+		if ( !defined('WPS_DEFAULT_CART_FIXED_BACKGROUND_COLOR') ) {
+			define('WPS_DEFAULT_CART_FIXED_BACKGROUND_COLOR', $this->plugin_default_cart_fixed_background_color);
+		}
+
 		if ( !defined('WPS_DEFAULT_CART_ICON_COLOR') ) {
 			define('WPS_DEFAULT_CART_ICON_COLOR', $this->plugin_default_cart_icon_color);
+		}
+
+		if ( !defined('WPS_DEFAULT_CART_ICON_FIXED_COLOR') ) {
+			define('WPS_DEFAULT_CART_ICON_FIXED_COLOR', $this->plugin_default_cart_icon_fixed_color);
 		}
 
 		if ( !defined('WPS_SHOPIFY_API_SLUG') ) {

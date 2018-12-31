@@ -773,6 +773,10 @@ class Query {
 	*/
 	public function construct_order_clauses($shortcode_query, $attrs) {
 
+		if ( isset($attrs['orderby']) && $attrs['orderby'] === 'manual') {
+			return $shortcode_query;
+		}
+
 		// Defaults to DESC if nothing passed in
 		if ( !isset($attrs['order']) ) {
 			$shortcode_query['orderby'] .= ' DESC';
@@ -786,6 +790,23 @@ class Query {
 	}
 
 
+	public function orderby_products_whitelist() {
+		return ['title', 'price', 'published_at', 'updated_at', 'vendor', 'manual'];
+	}
+
+	public function orderby_collections_whitelist() {
+		return ['title', 'published_at', 'updated_at', 'manual'];
+	}
+
+
+	public function orderby_in_products_whitelist($orderby) {
+		return in_array( $orderby, $this->orderby_products_whitelist() );
+	}
+
+	public function orderby_in_collections_whitelist($orderby) {
+		return in_array( $orderby, $this->orderby_collections_whitelist() );
+	}
+
 	/*
 
 	Construct Order By Clauses
@@ -793,17 +814,13 @@ class Query {
 	*/
 	public function construct_orderby_clauses($shortcode_query, $orderby, $table_name) {
 
-		if (!empty($orderby)) {
+		if ( !empty($orderby) ) {
 			$shortcode_query['orderby'] .= $table_name . '.' . $orderby;
 		}
 
 		return $shortcode_query;
 
 	}
-
-
-
-
 
 
 
@@ -928,8 +945,9 @@ class Query {
 		}
 
 
+		if (array_key_exists('orderby', $attrs) && $this->orderby_in_products_whitelist( strtolower($attrs['orderby'])) ) {
 
-		if (array_key_exists('orderby', $attrs)) {
+			$attrs['orderby'] = strtolower($attrs['orderby']);
 
 			// Default to products table
 			$table_name_orderby = 'products';
@@ -948,7 +966,6 @@ class Query {
 			$query_array = $this->construct_order_clauses($query_array, $attrs);
 
 		}
-
 
 
 		if (array_key_exists('limit', $attrs)) {
@@ -1010,7 +1027,7 @@ class Query {
 		}
 
 
-		if (array_key_exists('orderby', $attrs)) {
+		if (array_key_exists('orderby', $attrs) && $this->orderby_in_collections_whitelist($attrs['orderby']) ) {
 
 			if ($attrs['orderby'] !== 'manual') {
 				$shortcode_query = $this->construct_orderby_clauses($shortcode_query, $attrs['orderby'], 'collections');

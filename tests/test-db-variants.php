@@ -224,9 +224,9 @@ class Test_DB_Variants extends WP_UnitTestCase {
 
     $variants = self::$DB_Variants->sort_variants_by_price(self::$mock_variants);
 
-    $this->assertEquals(6, $variants[0]->price);
-    $this->assertEquals(16.82, $variants[1]->price);
-    $this->assertEquals(26.82, $variants[2]->price);
+    $this->assertEquals(0.0, $variants[0]->price);
+    $this->assertEquals(6.0, $variants[1]->price);
+    $this->assertEquals(16.82, $variants[2]->price);
     $this->assertEquals(136.82, $variants[3]->price);
 
   }
@@ -241,7 +241,7 @@ class Test_DB_Variants extends WP_UnitTestCase {
 
     $price = self::$DB_Variants->get_first_variant_price(self::$mock_variants);
 
-    $this->assertEquals(26.82, $price);
+    $this->assertEquals(16.82, $price);
 
   }
 

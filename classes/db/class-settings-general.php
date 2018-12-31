@@ -85,6 +85,10 @@ class Settings_General extends \WPS\DB {
 	public $default_enable_custom_checkout_domain;
 	public $default_products_compare_at;
 	public $default_products_show_price_range;
+	public $default_show_fixed_cart_tab;
+	public $default_cart_icon_fixed_color;
+	public $default_cart_counter_fixed_color;
+	public $default_cart_fixed_background_color;
 
 
 	public function __construct() {
@@ -138,6 +142,9 @@ class Settings_General extends \WPS\DB {
 		$this->default_checkout_button_target							= WPS_DEFAULT_CHECKOUT_BUTTON_TARGET;
 		$this->default_cart_counter_color									= WPS_DEFAULT_CART_COUNTER_COLOR;
 		$this->default_cart_icon_color										= WPS_DEFAULT_CART_ICON_COLOR;
+		$this->default_cart_icon_fixed_color							= WPS_DEFAULT_CART_ICON_FIXED_COLOR;
+		$this->default_cart_counter_fixed_color						= WPS_DEFAULT_CART_COUNTER_FIXED_COLOR;
+		$this->default_cart_fixed_background_color				= WPS_DEFAULT_CART_FIXED_BACKGROUND_COLOR;
 		$this->default_products_heading_toggle						= 1;
 		$this->default_products_heading										= WPS_DEFAULT_PRODUCTS_HEADING;
 		$this->default_collections_heading_toggle					= 1;
@@ -166,6 +173,8 @@ class Settings_General extends \WPS\DB {
 		$this->default_related_products_images_sizing_height		= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_HEIGHT;
 		$this->default_related_products_images_sizing_crop			= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_CROP;
 		$this->default_related_products_images_sizing_scale			= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE;
+
+		$this->default_show_fixed_cart_tab											= 0;
 
 	}
 
@@ -244,7 +253,11 @@ class Settings_General extends \WPS\DB {
 			'enable_custom_checkout_domain'							=> '%d',
 			'products_compare_at'												=> '%d',
 			'products_show_price_range'									=> '%d',
-			'checkout_button_target'										=> '%s'
+			'checkout_button_target'										=> '%s',
+			'show_fixed_cart_tab'												=> '%d',
+			'cart_icon_fixed_color'											=> '%s',
+			'cart_counter_fixed_color'									=> '%s',
+			'cart_fixed_background_color'								=> '%s'
 		];
 
 	}
@@ -323,7 +336,11 @@ class Settings_General extends \WPS\DB {
 			'enable_custom_checkout_domain'     				=> $this->default_enable_custom_checkout_domain,
 			'products_compare_at'												=> $this->default_products_compare_at,
 			'products_show_price_range'									=> $this->default_products_show_price_range,
-			'checkout_button_target'										=> $this->default_checkout_button_target
+			'checkout_button_target'										=> $this->default_checkout_button_target,
+			'show_fixed_cart_tab'												=> $this->default_show_fixed_cart_tab,
+			'cart_icon_fixed_color'											=> $this->default_cart_icon_fixed_color,
+			'cart_counter_fixed_color'									=> $this->default_cart_counter_fixed_color,
+			'cart_fixed_background_color'								=> $this->default_cart_fixed_background_color
 		];
 
 	}
@@ -402,6 +419,25 @@ class Settings_General extends \WPS\DB {
 
 
 		return $results;
+
+	}
+
+
+	/*
+
+	Get the current products slug
+
+	*/
+	public function show_fixed_cart_tab() {
+
+		$show_fixed_cart_tab = $this->get_column_single('show_fixed_cart_tab');
+
+		if ( Utils::array_not_empty($show_fixed_cart_tab) && isset($show_fixed_cart_tab[0]->show_fixed_cart_tab) ) {
+			return (bool) $show_fixed_cart_tab[0]->show_fixed_cart_tab;
+
+		} else {
+			return false;
+		}
 
 	}
 
@@ -1756,6 +1792,16 @@ class Settings_General extends \WPS\DB {
 
 	/*
 
+	update_cart_icon_fixed_color
+
+	*/
+	public function update_cart_icon_fixed_color($color) {
+		return $this->update_column_single( ['cart_icon_fixed_color' => $color], ['id' => 1] );
+	}
+
+
+	/*
+
 	update_products_heading_toggle
 
 	*/
@@ -1934,13 +1980,6 @@ class Settings_General extends \WPS\DB {
 	}
 
 
-
-
-
-
-
-
-
 	/*
 
 	General wrapper for updating a single col value
@@ -2032,6 +2071,10 @@ class Settings_General extends \WPS\DB {
 			products_compare_at tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_products_compare_at}',
 			products_show_price_range tinyint(1) unsigned NOT NULL DEFAULT '{$this->default_products_show_price_range}',
 			checkout_button_target varchar(100) NOT NULL DEFAULT '{$this->default_checkout_button_target}',
+			show_fixed_cart_tab tinyint(1) NOT NULL DEFAULT '{$this->default_show_fixed_cart_tab}',
+			cart_icon_fixed_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_icon_fixed_color}',
+			cart_counter_fixed_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_counter_fixed_color}',
+			cart_fixed_background_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_fixed_background_color}',
 			PRIMARY KEY  (id)
 		) ENGINE=InnoDB $collate";
 

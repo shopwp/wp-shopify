@@ -107,6 +107,19 @@ function slideInLeft($element) {
 }
 
 
+// Used for notices
+function slideInRight($element) {
+
+  return anime({
+    targets: $element.toArray(),
+    translateX: ['110%', '0%'],
+    duration: 350,
+    elasticity: 200
+  });
+
+}
+
+
 function slideOutRight($element) {
 
   return anime({
@@ -129,6 +142,7 @@ export {
   slideInDown,
   slideInTop,
   slideInLeft,
+  slideInRight,
   slideOutRight,
   pulseSoft
 }

@@ -35,6 +35,7 @@ import { initProductsCompareAt } from './products/products-compare-at.jsx';
 import { initProductsShowPriceRange } from './products/products-show-price-range.jsx';
 
 import { initCheckoutButtonTarget } from './checkout/checkout-button-target.jsx';
+import { initCartShowFixedCartTab } from './cart/cart-show-fixed-cart-tab.jsx';
 
 import {
   endpointSettings
@@ -160,6 +161,10 @@ function gatherSettingsData($submitForm) {
     wps_settings_general_cart_icon_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-icon"]', 'data-color'),
     wps_settings_general_cart_counter_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-counter"]', 'data-color'),
 
+    wps_settings_general_cart_icon_fixed_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-icon-fixed"]', 'data-color'),
+    wps_settings_general_cart_counter_fixed_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-counter-fixed"]', 'data-color'),
+    wps_settings_general_cart_fixed_background_color: getDataState($submitForm, '.wps-color-swatch[data-picker-type="cart-fixed-background-color"]', 'data-color'),
+
     wps_settings_general_products_heading_toggle: getCheckedState($submitForm, '#wps-products-heading-toggle'),
     wps_settings_general_products_heading: getInputState($submitForm, '#wps-settings-products-heading input'),
     wps_settings_general_collections_heading_toggle: getCheckedState($submitForm, '#wps-collections-heading-toggle'),
@@ -185,6 +190,7 @@ function gatherSettingsData($submitForm) {
     wps_settings_checkout_enable_custom_checkout_domain: getCheckedState($submitForm, '#wps-enable-custom-checkout-domain input'),
     wps_settings_products_show_price_range: getCheckedState($submitForm, '#wps-settings-products-show-price-range input'),
     wps_settings_checkout_button_target: getInputState($submitForm, '#wps-settings-checkout-button-target select'),
+    wps_settings_show_fixed_cart_tab: getCheckedState($submitForm, '#wps-settings-cart-show-fixed-cart-tab input'),
 
 
   }
@@ -588,6 +594,7 @@ function settingsInit() {
   initProductsShowPriceRange();
 
   initCheckoutButtonTarget();
+  initCartShowFixedCartTab();
 
 }
 

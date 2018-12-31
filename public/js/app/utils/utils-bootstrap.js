@@ -10,7 +10,7 @@ import { isCheckoutEmpty, clearLS } from './utils-cart';
 import { globalEvents } from './utils-events';
 import { logNotice, noticeConfigUnableToBuildCheckout, noticeConfigUnableToFlushCache, noticeConfigUnableToCreateNewShoppingSession } from './utils-notices';
 import { triggerEventAfterBootstrap, triggerEventBeforeBootstrap } from './utils-triggers';
-import { updateCartCounter, updateTotalCartPricing, renderCartItems, emptyCartUI, enableCartIcon, renderCartState } from '../cart/cart-ui';
+import { updateCartCounter, updateTotalCartPricing, renderCartItems, emptyCartUI, enableCartIcon, renderCartState, showFixedCartIcon } from '../cart/cart-ui';
 import { removeProductOptionIds, getCheckoutID } from '../ws/ws-products';
 
 
@@ -44,6 +44,8 @@ function bootstrapProductsUI(client, checkout) {
 
 
 function bootstrapCartUI(client, checkout) {
+
+  showFixedCartIcon();
 
   if ( isCheckoutEmpty(checkout) ) {
     emptyCartUI(checkout);
@@ -106,8 +108,8 @@ function bootstrap() {
 
     getCheckout is responsible for returning a workable 'checkout' instance. We cache the result further down
     within setCheckout, so getCheckout will check the cache for the ID each time and use that if it exists.
-    Therefore it's important that we clear this ID each time the user finishes checking out. Also since we
-    store it in LS, each time the user clears their cache they will lose their checkout contents.
+    Therefore it's important that we clear this ID each time the user finishes checking out. Also, since we
+    store the ID in LS each time the user clears their cache they will lose their checkout contents.
 
     */
     var [shopAndCheckoutError, shopAndCheckout] = await to( Promise.all([ getShopInfo(client), getCheckout(client) ]) );

@@ -324,6 +324,7 @@ Tab Content: Settings
           require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-load-cart.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-enable-terms.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-terms-content.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-show-fixed-cart-tab.php';
 
           ?>
 
@@ -341,6 +342,10 @@ Tab Content: Settings
           require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-checkout-button-color.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-icon-color.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-counter-color.php';
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-icon-fixed-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-counter-fixed-color.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/cart/settings-cart-fixed-background-color.php';
 
         ?>
 

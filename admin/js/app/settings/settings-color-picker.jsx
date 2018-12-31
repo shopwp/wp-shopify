@@ -15,7 +15,10 @@ import {
   updateSettingVariantColor,
   updateSettingCheckoutColor,
   updateSettingCartCounterColor,
-  updateSettingCartIconColor
+  updateSettingCartIconColor,
+  updateSettingCartIconFixedColor,
+  updateSettingCartCounterFixedColor,
+  updateSettingCartFixedBackgroundColor
 } from "../ws/api/api-settings";
 
 
@@ -120,6 +123,54 @@ class ColorPickerCartCounter extends React.Component {
 Picker: Cart Counter
 
 */
+class ColorPickerCartCounterFixed extends React.Component {
+
+  updateColor = (colorData) => {
+    return updateSettingCartCounterFixedColor(colorData);
+  };
+
+  render() {
+    return (
+      <ColorPicker
+        color={WP_Shopify.settings.cartCounterFixedColor}
+        updateColor={this.updateColor}
+        pickerType="cart-counter-fixed"
+      />
+    );
+  }
+
+}
+
+
+/*
+
+Picker: Cart Counter
+
+*/
+class ColorPickerCartCounterFixedBackground extends React.Component {
+
+  updateColor = (colorData) => {
+    return updateSettingCartFixedBackgroundColor(colorData);
+  };
+
+  render() {
+    return (
+      <ColorPicker
+        color={WP_Shopify.settings.cartFixedBackgroundColor}
+        updateColor={this.updateColor}
+        pickerType="cart-fixed-background-color"
+      />
+    );
+  }
+
+}
+
+
+/*
+
+Picker: Cart Counter
+
+*/
 class ColorPickerCartIcon extends React.Component {
 
   updateColor = (colorData) => {
@@ -132,6 +183,30 @@ class ColorPickerCartIcon extends React.Component {
         color={WP_Shopify.settings.colorCartIcon}
         updateColor={this.updateColor}
         pickerType="cart-icon"
+      />
+    );
+  }
+
+}
+
+
+/*
+
+Picker: Cart Counter
+
+*/
+class ColorPickerCartIconFixed extends React.Component {
+
+  updateColor = (colorData) => {
+    return updateSettingCartIconFixedColor(colorData);
+  };
+
+  render() {
+    return (
+      <ColorPicker
+        color={WP_Shopify.settings.cartIconFixedColor}
+        updateColor={this.updateColor}
+        pickerType="cart-icon-fixed"
       />
     );
   }
@@ -285,6 +360,22 @@ function initColorPickers() {
   ReactDOM.render(
     <ColorPickerCartIcon />,
     document.getElementById("wps-color-picker-cart-icon")
+  );
+
+
+  ReactDOM.render(
+    <ColorPickerCartCounterFixed />,
+    document.getElementById("wps-color-picker-cart-counter-fixed")
+  );
+
+  ReactDOM.render(
+    <ColorPickerCartCounterFixedBackground />,
+    document.getElementById("wps-color-picker-cart-fixed-background-color")
+  );
+
+  ReactDOM.render(
+    <ColorPickerCartIconFixed />,
+    document.getElementById("wps-color-picker-cart-icon-fixed")
   );
 
 }

@@ -1,16 +1,16 @@
 /*
 
-Clears out Free repo folder
+Clears out tmp folder
 
 */
 import gulp from 'gulp';
 import config from '../config';
 import del from 'del';
 
-gulp.task('clean:free:repo', done => {
+gulp.task('clean:dist', done => {
 
   return del([
-    config.folders.freeRepo
+    config.files.buildProContent
   ], { force: true });
 
 });

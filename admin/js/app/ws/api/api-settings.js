@@ -9,6 +9,7 @@ import {
   endpointSettingCheckoutColor,
   endpointSettingCartCounterColor,
   endpointSettingCartIconColor,
+  endpointSettingCartIconFixedColor,
   endpointSettingProductsHeading,
   endpointSettingCollectionsHeading,
   endpointSettingRelatedProductsHeading,
@@ -82,6 +83,40 @@ Update setting: Cart icon color
 */
 function updateSettingCartIconColor(data) {
   return post( endpointSettingCartIconColor(), data );
+}
+
+
+/*
+
+,
+  ,
+
+
+Update setting: Cart icon color
+
+*/
+function updateSettingCartFixedBackgroundColor(data) {
+  return post( endpointSettingCartIconColor(), data );
+}
+
+
+/*
+
+Update setting: Cart icon color
+
+*/
+function updateSettingCartCounterFixedColor(data) {
+  return post( endpointSettingCartCounterFixedColor(), data );
+}
+
+
+/*
+
+Update setting: Cart icon color
+
+*/
+function updateSettingCartIconFixedColor(data) {
+  return post( endpointSettingCartIconFixedColor(), data );
 }
 
 
@@ -326,6 +361,7 @@ export {
   updateSettingCheckoutColor,
   updateSettingCartCounterColor,
   updateSettingCartIconColor,
+  updateSettingCartIconFixedColor,
   updateSettingProductsHeadingToggle,
   updateSettingProductsHeading,
   updateSettingCollectionsHeading,

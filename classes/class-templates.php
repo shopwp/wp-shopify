@@ -392,10 +392,11 @@ class Templates {
 	}
 
 
+	/*
 
+	Gets range pricing params
 
-
-
+	*/
 	public function get_range_pricing_params($variants_in_stock, $product, $showing_compare_at) {
 
 		$variants_amount 					= $this->DB_Variants->get_variants_amount($variants_in_stock);
@@ -428,21 +429,24 @@ class Templates {
 	}
 
 
+	/*
 
+	Gets single pricing params
 
+	*/
 	public function get_single_pricing_params($variants_in_stock, $product, $showing_compare_at) {
 
 		$variants_amount = $this->DB_Variants->get_variants_amount($variants_in_stock);
 
 		if ( $showing_compare_at ) {
 
-			$first_price 							= $this->DB_Variants->get_first_variant_compare_at_price($variants_in_stock);
-			$last_price 							= $this->DB_Variants->get_last_variant_compare_at_price($variants_in_stock, Utils::get_last_index($variants_amount) );
+			$first_price 	= $this->DB_Variants->get_first_variant_compare_at_price($variants_in_stock);
+			$last_price 	= $this->DB_Variants->get_last_variant_compare_at_price($variants_in_stock, Utils::get_last_index($variants_amount) );
 
 		} else {
 
-			$first_price 							= $this->DB_Variants->get_first_variant_price($variants_in_stock);
-			$last_price 							= $this->DB_Variants->get_last_variant_price($variants_in_stock, Utils::get_last_index($variants_amount) );
+			$first_price 	= $this->DB_Variants->get_first_variant_price($variants_in_stock);
+			$last_price 	= $this->DB_Variants->get_last_variant_price($variants_in_stock, Utils::get_last_index($variants_amount) );
 
 		}
 
@@ -479,7 +483,6 @@ class Templates {
 			$params = $this->get_range_pricing_params($variants_in_stock, $product, $showing_compare_at);
 
 		} else {
-
 			$params = $this->get_single_pricing_params($variants_in_stock, $product, $showing_compare_at);
 
 		}
@@ -1574,9 +1577,14 @@ class Templates {
 	Template: partials/cart/cart-counter
 
 	*/
-	public function wps_cart_counter() {
+	public function wps_cart_counter($custom_color = false) {
 
-		$button_color = apply_filters( 'wps_products_cart_counter_button_color', $this->DB_Settings_General->get_cart_counter_color() );
+		if (!$custom_color) {
+			$button_color = apply_filters( 'wps_products_cart_counter_button_color', $this->DB_Settings_General->get_cart_counter_color() );
+
+		} else {
+			$button_color = $custom_color;
+		}
 
 		$data = [
 			'button_color'			=> $button_color !== WPS_DEFAULT_CART_COUNTER_COLOR ? $button_color : ''
@@ -1592,9 +1600,14 @@ class Templates {
 	Template: partials/cart/cart-icon
 
 	*/
-	public function wps_cart_icon() {
+	public function wps_cart_icon($custom_color = false) {
 
-		$button_color = apply_filters( 'wps_products_cart_icon_button_color', $this->DB_Settings_General->get_cart_icon_color() );
+		if (!$custom_color) {
+			$button_color = apply_filters( 'wps_products_cart_icon_button_color', $this->DB_Settings_General->get_cart_icon_color() );
+
+		} else {
+			$button_color = $custom_color;
+		}
 
 		$data = [
 			'button_color'			=> $button_color !== WPS_DEFAULT_CART_COUNTER_COLOR ? $button_color : ''
@@ -1708,6 +1721,38 @@ class Templates {
 
 			ob_start();
 			$this->Template_Loader->set_template_data($data)->get_template_part( 'partials/cart/cart' );
+			$content = ob_get_contents();
+			ob_end_clean();
+			echo $content;
+
+		}
+
+	}
+
+
+	/*
+
+	Template - partials/cart/cart/
+
+	This is slow. We should think of a better way to do this.
+
+	*/
+	public function wps_cart_show_fixed_cart_tab() {
+
+		$data = [
+			'counter' => true,
+			'fixed'		=> true,
+			'colors'	=> [
+				'icon' 				=> $this->DB_Settings_General->get_col_value('cart_icon_fixed_color', 'string'),
+				'counter' 		=> $this->DB_Settings_General->get_col_value('cart_counter_fixed_color', 'string'),
+				'background' 	=> $this->DB_Settings_General->get_col_value('cart_fixed_background_color', 'string')
+			]
+		];
+
+		if ( $this->DB_Settings_General->show_fixed_cart_tab() ) {
+
+			ob_start();
+			$this->Template_Loader->set_template_data($data)->get_template_part( 'partials/cart/cart-icon', 'fixed' );
 			$content = ob_get_contents();
 			ob_end_clean();
 			echo $content;
@@ -2082,6 +2127,7 @@ class Templates {
 		add_action('wps_breadcrumbs', [$this, 'wps_breadcrumbs']);
 		add_action('wp_footer', [$this, 'wps_notice']);
 		add_action('wp_footer', [$this, 'wps_cart']);
+		add_action('wp_footer', [$this, 'wps_cart_show_fixed_cart_tab']);
 		add_action('wps_cart_icon', [$this, 'wps_cart_icon']);
 		add_action('wps_cart_counter', [$this, 'wps_cart_counter']);
 		add_action('wps_cart_checkout_btn', [$this, 'wps_cart_checkout_btn']);

@@ -45,14 +45,14 @@ class Data {
 		// Order
 		//
 		if ( !empty($shortcode_args['order']) ) {
-			$data['custom']['order'] = $shortcode_args['order'];
+			$data['custom']['order'] = strtolower( $shortcode_args['order'] );
 		}
 
 		//
 		// Order by
 		//
 		if ( !empty($shortcode_args['orderby']) ) {
-			$data['custom']['orderby'] = $shortcode_args['orderby'];
+			$data['custom']['orderby'] = strtolower( $shortcode_args['orderby'] );
 		}
 
 		//

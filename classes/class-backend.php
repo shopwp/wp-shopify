@@ -355,6 +355,10 @@ class Backend {
 						'productsCompareAt'										=> $this->DB_Settings_General->get_products_compare_at(),
 						'productsShowPriceRange'							=> $this->DB_Settings_General->get_col_value('products_show_price_range', 'bool'),
 						'checkoutButtonTarget'								=> $this->DB_Settings_General->get_col_value('checkout_button_target', 'string'),
+						'cartShowFixedCartTab'								=> $this->DB_Settings_General->get_col_value('show_fixed_cart_tab', 'bool'),
+						'cartIconFixedColor'									=> $this->DB_Settings_General->get_col_value('cart_icon_fixed_color', 'string'),
+						'cartCounterFixedColor'								=> $this->DB_Settings_General->get_col_value('cart_counter_fixed_color', 'string'),
+						'cartFixedBackgroundColor'						=> $this->DB_Settings_General->get_col_value('cart_fixed_background_color', 'string'),
 						'connection'	=> [
 							'saveConnectionOnly' => $this->DB_Settings_General->get_col_value('save_connection_only', 'bool')
 						]

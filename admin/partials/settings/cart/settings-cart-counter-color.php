@@ -15,7 +15,9 @@ Pricing
         </th>
 
         <td class="wps-input">
-          <div id="wps-color-picker-cart-counter"></div>
+          <div id="wps-color-picker-cart-counter">
+            <span class="wps-placeholder wps-placeholder-checkbox"></span>
+          </div>
         </td>
 
       </tr>

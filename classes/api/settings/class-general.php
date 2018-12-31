@@ -157,6 +157,10 @@ class General extends \WPS\API {
 		$new_settings['collections_heading'] = $this->setting_to_string($settings, 'wps_settings_general_collections_heading');
 		$new_settings['products_heading'] = $this->setting_to_string($settings, 'wps_settings_general_products_heading');
 
+		$new_settings['cart_fixed_background_color'] = $this->setting_to_string($settings, 'wps_settings_general_cart_fixed_background_color');
+		$new_settings['cart_counter_fixed_color'] = $this->setting_to_string($settings, 'wps_settings_general_cart_counter_fixed_color');
+		$new_settings['cart_icon_fixed_color'] = $this->setting_to_string($settings, 'wps_settings_general_cart_icon_fixed_color');
+
 		$new_settings['related_products_heading'] = $this->setting_to_string($settings, 'wps_settings_general_related_products_heading');
 		$new_settings['products_images_sizing_crop'] = $this->setting_to_string($settings, 'wps_settings_products_images_sizing_crop');
 		$new_settings['products_images_sizing_scale'] = $this->setting_to_string($settings, 'wps_settings_products_images_sizing_scale', WPS_DEFAULT_PRODUCTS_IMAGES_SIZING_SCALE);
@@ -167,6 +171,15 @@ class General extends \WPS\API {
 		$new_settings['related_products_images_sizing_scale'] = $this->setting_to_string($settings, 'wps_settings_related_products_images_sizing_scale', WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE);
 
 		$new_settings['checkout_button_target'] = $this->setting_to_string($settings, 'wps_settings_checkout_button_target', WPS_DEFAULT_CHECKOUT_BUTTON_TARGET);
+
+		/*
+
+		Cart
+
+		*/
+		$new_settings['show_fixed_cart_tab'] = $this->setting_to_bool_int($settings, 'wps_settings_show_fixed_cart_tab');
+
+
 		$new_settings['collections_images_sizing_scale'] = $this->setting_to_string($settings, 'wps_settings_collections_images_sizing_scale', WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE);
 
 		$new_settings['url_products'] = $this->setting_to_string($settings, 'wps_settings_general_products_url');

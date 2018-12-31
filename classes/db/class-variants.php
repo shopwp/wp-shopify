@@ -3,6 +3,8 @@
 namespace WPS\DB;
 
 use WPS\Utils;
+use WPS\Utils\Pricing;
+
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -400,8 +402,6 @@ class Variants extends \WPS\DB {
 	}
 
 
-
-
 	/*
 
 	Responsible for retrieving the first variant price in a list of product variants
@@ -430,6 +430,48 @@ class Variants extends \WPS\DB {
 
 	/*
 
+	First variant price
+
+	*/
+	public function first_variant_price($variants) {
+		return $variants[0]->price;
+	}
+
+
+	/*
+
+	Find first non zero variant price
+
+	*/
+	public function find_first_non_zero_variant_price($variants) {
+
+		return array_filter($variants, function($variant) {
+			return !Pricing::has_zero_price( $variant->price );
+		});
+
+	}
+
+
+	/*
+
+	First non zero variant price
+
+	*/
+	public function first_non_zero_variant_price($variants) {
+
+		$found_variants = array_values( $this->find_first_non_zero_variant_price($variants) );
+
+		if ( empty($found_variants) ) {
+			return '0.00';
+		}
+
+		return $this->first_variant_price($found_variants);
+
+	}
+
+
+	/*
+
 	Responsible for retrieving the first variant price in a list of product variants
 
 	*/
@@ -439,7 +481,11 @@ class Variants extends \WPS\DB {
 			return false;
 		}
 
-		return $variants[0]->price;
+		if ( Pricing::has_zero_price( $this->first_variant_price($variants) ) ) {
+			return $this->first_non_zero_variant_price($variants);
+		}
+
+		return $this->first_variant_price($variants);
 
 	}
 
@@ -494,27 +540,6 @@ class Variants extends \WPS\DB {
 		return $variants[$last_variant_index]->compare_at_price;
 
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
