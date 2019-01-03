@@ -193,9 +193,9 @@ var config = {
   isBuilding: isBuilding(argvs),
   isFree: isFree(argvs),
   isPro: isPro(argvs),
-  buildTier: isBuilding(argvs) ? getTier(argvs) : false, // Build type can be either 'free' or 'pro'
-  buildRelease: hasRelease(argvs) ? getRelease(argvs) : false, // Plugin version number
-  currentRelease: hasCurrent(argvs) ? getCurrent(argvs) : false // Plugin version number
+  buildTier: getTier(argvs), // Build type can be either 'free' or 'pro'
+  buildRelease: getRelease(argvs), // Plugin version number
+  currentRelease: getCurrent(argvs) // Current Plugin version number
 }
 
 

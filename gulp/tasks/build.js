@@ -157,7 +157,7 @@ Runs preprocess
 - gulp.src always refers to files within _tmp folder
 
 */
-gulp.task('build:removeProCode', (done) => {
+gulp.task('build:preprocess', (done) => {
 
   return gulp
     .src( config.files.toBeProcessedTmp, { base: "./" } )
@@ -518,6 +518,7 @@ gulp.task('build:pro', done => {
     'clean:free:repo', // Non-tmp -- Removes ./_free folder
     'build:git', // Non-tmp -- Runs our git flow process (add / commit, release start, release pub, release finish)
     'build:copyToTmp', // Tmp -- Copies all app files to _tmp folder
+    'build:preprocess', // Runs through preprocess code 
     'build:rename:version', // Tmp -- Updates the version number within the main wp-shopify.php file and the config class
     'build:remove:testversion', // Tmp -- Ensures that the $new_version_number variable is commented out
     'build:assets', // Tmp
@@ -544,7 +545,7 @@ gulp.task('build:free', done => {
     'clean:tmp', // Deletes the _tmp folder
     'clean:free:repo', // Deletes the _free folder
     'build:free:copy:tmp', // copies working files to new _tmp folder
-    'build:removeProCode', // removes non-free code within _tmp folder
+    'build:preprocess', // removes non-free code within _tmp folder
     'build:rename:plugin', // Renames the @wordpress Plugin Name within the _tmp folder
     'build:rename:version', // Updates the version number within the main wp-shopify.php file and the config class
     'build:rename:misc', // Updates the title within _tmp/admin/partials/wps-admin-display.php
@@ -580,7 +581,7 @@ gulp.task('build:prerelease', done => {
     'clean:tmp',
     'clean:free:repo',
     'build:copyToTmp',
-    'build:removeProCode',
+    'build:preprocess',
     'build:rename:plugin',
     'build:rename:version',
     'build:rename:misc',

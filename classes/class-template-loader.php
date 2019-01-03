@@ -51,7 +51,6 @@ class Template_Loader extends \WPS\Vendor_Template_Loader_Gamajo {
 	protected $plugin_template_directory = WPS_RELATIVE_TEMPLATE_DIR;
 
 
-
 	public function locate_template( $template_names, $load = false, $require_once = true ) {
 
 		// Use $template_names as a cache key - either first element of array or the variable itself if it's a string
@@ -98,8 +97,6 @@ class Template_Loader extends \WPS\Vendor_Template_Loader_Gamajo {
 				}
 			}
 		}
-
-
 
 		if ( $load && $located ) {
 			load_template( $located, $require_once );

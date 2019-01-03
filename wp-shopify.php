@@ -3,14 +3,14 @@
 /*
 
 @link              https://wpshop.io
-@since             1.3.2
+@since             1.3.3
 @package           wp-shopify
 
 @wordpress-plugin
 Plugin Name:       WP Shopify
 Plugin URI:        https://wpshop.io
 Description:       Sell and build custom Shopify experiences on WordPress.
-Version:           1.3.2
+Version:           1.3.3
 Author:            WP Shopify
 Author URI:        https://wpshop.io
 License:           GPL-2.0+
@@ -46,8 +46,8 @@ if ( !defined('ABSPATH') ) {
 Autoload everything
 
 */
-require_once('lib/autoloader.php'); // Our autoloader
-require_once('vendor/autoload.php'); // Composer autoloader
+require plugin_dir_path(__FILE__) . 'lib/autoloader.php'; // Our autoloader
+require plugin_dir_path(__FILE__) . 'vendor/autoload.php'; // Composer autoloader
 
 
 /*

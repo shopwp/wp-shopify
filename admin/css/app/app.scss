@@ -1785,6 +1785,17 @@ Taken from Migrate DB Pro
 
 /*
 
+Plugin conflicts
+
+Fixes broken height within the plugin's settings page coming from the CSS within PW-Pro-Slider-And-Carousel-For-VC
+
+*/
+.wps-admin-wrap .tab-content {
+  height: auto !important;
+}
+
+/*
+
 New Gutenberg styles
 
 */
