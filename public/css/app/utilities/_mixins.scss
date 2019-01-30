@@ -67,7 +67,31 @@
 }
 
 @mixin siteMaxWidth() {
+
   @include respond-to(1600, 'min') {
     max-width: $siteMaxWidth;
   }
+
+}
+
+
+@mixin contentLoader() {
+  transition: all 0.2s ease;
+  color: transparent;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+  background: linear-gradient(to right, #e3e3e3 8%, #eeeeee 38%, #e3e3e3 54%);
+  background-size: 1000px 640px;
+  border-radius: 6px;
+  position: relative;
+
+  &.wps-is-ready {
+    color: color(grey);
+    background: none;
+    border-radius: 0;
+  }
+
 }

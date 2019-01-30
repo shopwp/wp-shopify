@@ -350,6 +350,7 @@ async function onQuantityChange($trigger, client, checkout) {
 
 
   if ( isCheckoutEmpty(updatedCheckout) ) {
+
     emptyCartUI(updatedCheckout);
 
   } else {

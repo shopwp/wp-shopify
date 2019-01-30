@@ -92,15 +92,28 @@ class License extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/license', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_license']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'set_license']
-			],
+			]
+		]);
+
+	}
+
+
+	/*
+
+	Register route: collections_heading
+
+	*/
+  public function register_route_license_delete() {
+
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/license/delete', [
 			[
-				'methods'         => 'DELETE',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'delete_license']
 			]
 		]);
@@ -116,6 +129,7 @@ class License extends \WPS\API {
 	public function hooks() {
 
     add_action('rest_api_init', [$this, 'register_route_license']);
+		add_action('rest_api_init', [$this, 'register_route_license_delete']);
 
 	}
 

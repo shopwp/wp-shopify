@@ -91,7 +91,7 @@ class Status extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_syncing_status']
 			]
 		]);
@@ -108,7 +108,7 @@ class Status extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status/posts', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_syncing_status_posts']
 			]
 		]);
@@ -125,7 +125,7 @@ class Status extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status/webhooks', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_syncing_status_webhooks']
 			]
 		]);
@@ -142,7 +142,7 @@ class Status extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/status/removal', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_syncing_status_removal']
 			]
 		]);
@@ -159,7 +159,7 @@ class Status extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/stop', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'expire_sync']
 			]
 		]);
@@ -176,11 +176,11 @@ class Status extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/notices', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_syncing_notices']
 			],
 			[
-				'methods'         => 'DELETE',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'delete_syncing_notices']
 			]
 		]);

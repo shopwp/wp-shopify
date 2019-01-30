@@ -39,14 +39,12 @@ import {
 
 import {
   returnOnlyFailedRequests,
-  constructFinalNoticeList,
   addToWarningList,
   setConnectionStatus,
   returnOnlyFirstError
 } from '../utils/utils-data';
 
 import {
-  deletion,
   post
 } from '../ws/ws';
 
@@ -55,7 +53,7 @@ import {
 } from '../ws/api/api-webhooks';
 
 import {
-  endpointConnection,
+  endpointConnectionDelete,
   endpointConnectionCheck,
   endpointToolsClearAll,
   endpointToolsClearSynced
@@ -174,7 +172,7 @@ function disconnectionFormSubmitHandler(e) {
     3. Remove product data
 
     */
-    var [removeExistingDataError, removeExistingDataResp] = await to( deletion( endpointToolsClearSynced() ) );
+    var [removeExistingDataError, removeExistingDataResp] = await to( post( endpointToolsClearSynced() ) );
 
     if (removeExistingDataError) {
       cleanUpAfterSync( syncingConfigJavascriptError(removeExistingDataError) );
@@ -204,7 +202,7 @@ function disconnectionFormSubmitHandler(e) {
 
 
       // Remove connection data
-      var [deleteConnectionError, deleteConnectionData] = await to( deletion( endpointConnection() ));
+      var [deleteConnectionError, deleteConnectionData] = await to( post( endpointConnectionDelete() ));
 
       if (deleteConnectionError) {
         cleanUpAfterSync( syncingConfigJavascriptError(deleteConnectionError) );

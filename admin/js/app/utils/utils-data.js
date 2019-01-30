@@ -700,17 +700,20 @@ Add Success Notice
 */
 function addSuccessNotice() {
 
-  if (hasConnection()) {
+  if ( hasConnection() ) {
+
     return [{
       type: 'success',
       message: 'Success! You\'ve finished syncing your Shopify store with WordPress.'
     }];
 
   } else {
+
     return [{
       type: 'success',
       message: 'Success! You\'ve finished disconnecting your Shopify store from WordPress.'
     }];
+    
   }
 
 }

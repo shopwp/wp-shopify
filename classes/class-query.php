@@ -790,10 +790,21 @@ class Query {
 	}
 
 
+	/*
+
+	TODO: We can use these values in our documentation
+
+	*/
 	public function orderby_products_whitelist() {
-		return ['title', 'price', 'published_at', 'updated_at', 'vendor', 'manual'];
+		return ['title', 'price', 'published_at', 'updated_at', 'vendor', 'manual', 'position'];
 	}
 
+
+	/*
+
+	TODO: We can use these values in our documentation
+
+	*/
 	public function orderby_collections_whitelist() {
 		return ['title', 'published_at', 'updated_at', 'manual'];
 	}
@@ -924,7 +935,6 @@ class Query {
 		if (array_key_exists('collections', $attrs)) {
 
 			$collections = $this->construct_in_clause($attrs, 'collections');
-
 			$query_array = $this->construct_collections_clauses($query_array, $collections);
 
 		}
@@ -945,7 +955,7 @@ class Query {
 		}
 
 
-		if (array_key_exists('orderby', $attrs) && $this->orderby_in_products_whitelist( strtolower($attrs['orderby'])) ) {
+		if (array_key_exists('orderby', $attrs) && $this->orderby_in_products_whitelist( strtolower($attrs['orderby']) ) ) {
 
 			$attrs['orderby'] = strtolower($attrs['orderby']);
 
@@ -957,6 +967,12 @@ class Query {
 				$table_name_orderby = 'variants';
 			}
 
+			// Added in 1.3.4. Ability to order by manual collections position
+			if ($attrs['orderby'] === 'position') {
+				$table_name_orderby = 'collects';
+			}
+
+
 			// If manual is set we order elsewhere
 			if ($attrs['orderby'] !== 'manual') {
 				$query_array = $this->construct_orderby_clauses($query_array, $attrs['orderby'], $table_name_orderby);
@@ -967,11 +983,9 @@ class Query {
 
 		}
 
-
 		if (array_key_exists('limit', $attrs)) {
 			$query_array = $this->construct_limit_clauses($query_array, $attrs['limit']);
 		}
-
 
 		return $query_array;
 

@@ -11,6 +11,7 @@ import bootstrap from "./utils/utils-bootstrap";
 
 import { showGlobalNotice } from "./utils/utils-notices";
 
+
 (function($) {
 
   "use strict";

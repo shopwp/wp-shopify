@@ -16,6 +16,6 @@
   "setupFiles": [
     "<rootDir>/jest-test-env.js"
   ],
-  "setupTestFrameworkScriptFile": "<rootDir>/jest-test-setup.js",
+  "setupFilesAfterEnv": ["<rootDir>/jest-test-setup.js"],
   "testRegex": "integration.test.js"
 }

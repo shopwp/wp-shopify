@@ -130,6 +130,17 @@ class Collections extends \WPS\DB {
 	}
 
 
+	public function has_collection($maybe_collection) {
+
+		if ( is_object($maybe_collection[0]) && property_exists($maybe_collection[0], 'collection_id') ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+
 	/*
 
 	Get all collections query
@@ -203,7 +214,7 @@ class Collections extends \WPS\DB {
 	Get Collection
 
 	*/
-	public function get_collection($postID = null) {
+	public function get_collection_by_post_id($postID = null) {
 
 		global $wpdb;
 		global $post;

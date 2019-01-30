@@ -31,11 +31,14 @@ import { initRelatedProductsImagesSizingCrop } from './related-products/related-
 import { initRelatedProductsImagesSizingScale } from './related-products/related-products-images-sizing-scale.jsx';
 
 import { initEnableCustomCheckoutDomain } from './checkout/checkout-enable-custom-checkout-domain.jsx';
-import { initProductsCompareAt } from './products/products-compare-at.jsx';
-import { initProductsShowPriceRange } from './products/products-show-price-range.jsx';
-
 import { initCheckoutButtonTarget } from './checkout/checkout-button-target.jsx';
 import { initCartShowFixedCartTab } from './cart/cart-show-fixed-cart-tab.jsx';
+
+import { initPricingCompareAt } from './pricing/pricing-compare-at.jsx';
+import { initPricingShowPriceRange } from './pricing/pricing-show-price-range.jsx';
+import { initPricingLocalCurrencyToggle } from './pricing/pricing-local-currency-toggle.jsx';
+import { initPricingLocalCurrencyWithBase } from './pricing/pricing-local-currency-with-base.jsx';
+import { initSynchronousSync } from './syncing/synchronous-sync.jsx';
 
 import {
   endpointSettings
@@ -186,11 +189,12 @@ function gatherSettingsData($submitForm) {
     wps_settings_related_products_images_sizing_height: getInputState($submitForm, '#wps-settings-related-products-images-sizing-height input'),
     wps_settings_related_products_images_sizing_crop: getInputState($submitForm, '#wps-settings-related-products-images-sizing-crop select'),
     wps_settings_related_products_images_sizing_scale: getInputState($submitForm, '#wps-settings-related-products-images-sizing-scale select'),
-    wps_settings_products_compare_at: getCheckedState($submitForm, '#wps-settings-products-compare-at input'),
+    wps_settings_products_compare_at: getCheckedState($submitForm, '#wps-settings-pricing-compare-at input'),
     wps_settings_checkout_enable_custom_checkout_domain: getCheckedState($submitForm, '#wps-enable-custom-checkout-domain input'),
-    wps_settings_products_show_price_range: getCheckedState($submitForm, '#wps-settings-products-show-price-range input'),
+    wps_settings_products_show_price_range: getCheckedState($submitForm, '#wps-settings-pricing-show-price-range input'),
     wps_settings_checkout_button_target: getInputState($submitForm, '#wps-settings-checkout-button-target select'),
     wps_settings_show_fixed_cart_tab: getCheckedState($submitForm, '#wps-settings-cart-show-fixed-cart-tab input'),
+    wps_settings_synchronous_sync: getCheckedState($submitForm, '#wps-settings-syncing-synchronous input'),
 
 
   }
@@ -590,11 +594,15 @@ function settingsInit() {
   initRelatedProductsImagesSizingScale();
 
   initEnableCustomCheckoutDomain();
-  initProductsCompareAt();
-  initProductsShowPriceRange();
+  initPricingCompareAt();
+  initPricingShowPriceRange();
 
   initCheckoutButtonTarget();
   initCartShowFixedCartTab();
+  initSynchronousSync();
+
+
+  // initPricingLocalCurrencyWithBase();
 
 }
 

@@ -26,7 +26,7 @@ $Templates = Factories\Templates_Factory::build();
 $DB_Collections = Factories\DB\Collections_Factory::build();
 
 $wps_products = $Templates->get_collection_products_data($post->ID);
-$wps_collection = $DB_Collections->get_collection($post->ID);
+$wps_collection = $DB_Collections->get_collection_by_post_id($post->ID);
 
 get_header('wps');
 

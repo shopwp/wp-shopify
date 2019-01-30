@@ -146,7 +146,7 @@ function endpointSettingCheckoutEnableCustomCheckoutDomain() {
   return endpointPrefix() + 'settings/checkout_enable_custom_checkout_domain';
 }
 
-function endpointSettingProductsCompareAt() {
+function endpointSettingPricingCompareAt() {
   return endpointPrefix() + 'settings/products_compare_at';
 }
 
@@ -340,6 +340,10 @@ function endpointWebhooksCount() {
   return endpointPrefix() + 'webhooks/count';
 }
 
+function endpointWebhooksDelete() {
+  return endpointPrefix() + 'webhooks/delete';
+}
+
 
 /*
 
@@ -368,6 +372,10 @@ function endpointLicense() {
   return endpointPrefix() + 'license';
 }
 
+function endpointLicenseDelete() {
+  return endpointPrefix() + 'license/delete';
+}
+
 
 /*
 
@@ -376,6 +384,10 @@ Connection Endpoints
 */
 function endpointConnection() {
   return endpointPrefix() + 'connection';
+}
+
+function endpointConnectionDelete() {
+  return endpointPrefix() + 'connection/delete';
 }
 
 function endpointConnectionCheck() {
@@ -415,7 +427,7 @@ export {
   endpointSettingRelatedProductsImagesSizingCrop,
   endpointSettingRelatedProductsImagesSizingScale,
   endpointSettingCheckoutEnableCustomCheckoutDomain,
-  endpointSettingProductsCompareAt,
+  endpointSettingPricingCompareAt,
   endpointSettingSelectedCollections,
   endpointSyncingStatus,
   endpointSyncingStatusPosts,
@@ -443,6 +455,7 @@ export {
   endpointCustomers,
   endpointCustomersCount,
   endpointWebhooksCount,
+  endpointWebhooksDelete,
   endpointWebhooks,
   endpointPublishedProductIds,
   endpointAllCollections,
@@ -452,8 +465,10 @@ export {
   endpointToolsClearAll,
   endpointPosts,
   endpointLicense,
+  endpointLicenseDelete,
   endpointNotices,
   endpointNoticesDismiss,
   endpointConnection,
-  endpointConnectionCheck
+  endpointConnectionCheck,
+  endpointConnectionDelete
 }

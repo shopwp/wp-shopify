@@ -9,39 +9,43 @@ Tab Content: Settings
   <ul class="subsubsub wps-submenu">
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-general' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-general">General</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-general' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-general" title="General">General</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-syncing' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-syncing">Syncing</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-syncing' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-syncing" title="Syncing">Syncing</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-layout' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-layout">Layout</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-pricing' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-pricing" title="Pricing">Pricing</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-products' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-products">Products</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-layout' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-layout" title="Layout">Layout</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-collections' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-collections">Collections</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-products' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-products" title="Products">Products</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-related' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-related-products">Related Products</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-collections' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-collections" title="Collections">Collections</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-cart' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-cart">Cart</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-related' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-related-products" title="Related Products">Related Products</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-checkout' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-checkout">Checkout</a> |
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-cart' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-cart" title="Cart">Cart</a> |
     </li>
 
     <li>
-      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-plugin' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-plugin">Plugin</a>
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-checkout' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-checkout" title="Checkout">Checkout</a> |
+    </li>
+
+    <li>
+      <a class="wps-sub-section-link <?= $active_sub_nav === 'wps-admin-section-plugin' ? 'current' : ''; ?>" href="#!" data-sub-section="wps-admin-section-plugin" title="Plugin">Plugin</a>
     </li>
 
   </ul>
@@ -94,12 +98,41 @@ Tab Content: Settings
 
           require_once plugin_dir_path( __FILE__ ) . 'settings/syncing/settings-syncing-items-per-request.php';
           require_once plugin_dir_path( __FILE__ ) . 'settings/syncing/settings-syncing-save-connection-only.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/syncing/settings-syncing-synchronous.php';
 
 
 
           ?>
 
       </div>
+
+    </div>
+
+
+    <!--
+
+    Pricing Settings
+
+    -->
+    <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-pricing' ? 'is-active' : ''; ?>" id="wps-admin-section-pricing">
+
+      <h2 class="wps-admin-section-heading">
+        <span class="dashicons dashicons-tag"></span> <?php esc_html_e( 'General', WPS_PLUGIN_TEXT_DOMAIN ); ?>
+      </h2>
+
+      <div class="wps-admin-section">
+
+          <?php
+
+          require_once plugin_dir_path( __FILE__ ) . 'settings/pricing/settings-pricing-compare-at.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/pricing/settings-pricing-show-price-range.php';
+          require_once plugin_dir_path( __FILE__ ) . 'settings/pricing/settings-pricing-pricing.php';
+
+          ?>
+
+      </div>
+
+      
 
     </div>
 
@@ -136,22 +169,6 @@ Tab Content: Settings
 
     -->
     <div class="wps-admin-sub-section <?= $active_sub_nav === 'wps-admin-section-products' ? 'is-active' : ''; ?>" id="wps-admin-section-products">
-
-      <h2 class="wps-admin-section-heading">
-        <span class="dashicons dashicons-tag"></span> <?php esc_html_e( 'Pricing ', WPS_PLUGIN_TEXT_DOMAIN ); ?>
-      </h2>
-
-      <div class="wps-admin-section">
-
-          <?php
-
-          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-compare-at.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-show-price-range.php';
-          require_once plugin_dir_path( __FILE__ ) . 'settings/products/settings-products-pricing.php';
-
-          ?>
-
-      </div>
 
       <h2 class="wps-admin-section-heading">
         <span class="dashicons dashicons-art"></span> <?php esc_html_e( 'Colors ', WPS_PLUGIN_TEXT_DOMAIN ); ?>

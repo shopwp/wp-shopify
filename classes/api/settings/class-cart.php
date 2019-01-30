@@ -122,11 +122,11 @@ class Cart extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_checkout_color', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_checkout_color']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_checkout_color']
 			]
 		]);
@@ -143,11 +143,11 @@ class Cart extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_counter_color', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_cart_counter_color']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_cart_counter_color']
 			]
 		]);
@@ -164,11 +164,11 @@ class Cart extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_icon_color', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_cart_icon_color']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_cart_icon_color']
 			]
 		]);
@@ -185,11 +185,11 @@ class Cart extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/cart_icon_fixed_color', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_cart_icon_fixed_color']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_cart_icon_fixed_color']
 			]
 		]);

@@ -19,7 +19,8 @@ class Frontend_Factory {
 
 			$Frontend = new Frontend(
 				Factories\DB\Settings_General_Factory::build(),
-				Factories\DB\Settings_Connection_Factory::build()
+				Factories\DB\Settings_Connection_Factory::build(),
+				Factories\DB\Shop_Factory::build()
 			);
 
 			self::$instantiated = $Frontend;

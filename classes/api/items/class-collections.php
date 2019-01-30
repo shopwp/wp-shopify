@@ -248,7 +248,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/collections/posts', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'insert_collections_posts']
 			]
 		]);
@@ -265,7 +265,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/smart_collections/count', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'get_smart_collections_count']
 			]
 		]);
@@ -282,7 +282,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/custom_collections/count', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'get_custom_collections_count']
 			]
 		]);
@@ -299,7 +299,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/smart_collections', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'get_smart_collections']
 			]
 		]);
@@ -316,7 +316,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/custom_collections', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'get_custom_collections']
 			]
 		]);
@@ -333,7 +333,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/collections', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'get_all_collections']
 			]
 		]);

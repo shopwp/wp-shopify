@@ -3,6 +3,7 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Utils\Server;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -13,6 +14,7 @@ class Frontend {
 
 	private $Settings_General;
 	private $Settings_Connection;
+	private $Settings_Shop;
 
 
 	/*
@@ -20,10 +22,11 @@ class Frontend {
 	Initialize the class and set its properties.
 
 	*/
-	public function __construct($Settings_General, $Settings_Connection) {
+	public function __construct($Settings_General, $Settings_Connection, $Settings_Shop) {
 
 		$this->Settings_General 		= $Settings_General;
 		$this->Settings_Connection	= $Settings_Connection;
+		$this->Settings_Shop 				= $Settings_Shop;
 
 	}
 
@@ -174,7 +177,12 @@ class Frontend {
 						'enableCustomCheckoutDomain' 	=> $this->Settings_General->get_enable_custom_checkout_domain(),
 						'myShopifyDomain' 						=> $this->Settings_Connection->get_domain(),
 						'checkoutButtonTarget'				=> $this->Settings_General->get_col_value('checkout_button_target', 'string'),
-						'itemsLinkToShopify'					=> $this->Settings_General->get_col_value('products_link_to_shopify', 'bool')
+						'itemsLinkToShopify'					=> $this->Settings_General->get_col_value('products_link_to_shopify', 'bool'),
+						'pricing' => [
+							'baseCurrencyCode' 			=> $this->Settings_Shop->get_col_value('currency', 'string'),
+							'enableLocalCurrency' 	=> $this->Settings_General->get_col_value('pricing_local_currency_toggle', 'bool')
+						],
+						'currentLocale' => Server::get_current_locale()
 					],
 					'API' => [
 						'namespace'			=> WPS_SHOPIFY_API_NAMESPACE,

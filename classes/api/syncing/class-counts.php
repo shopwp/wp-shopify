@@ -178,11 +178,11 @@ class Counts extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/counts', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'set_syncing_counts']
 			],
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_syncing_total_counts']
 			]
 		]);
@@ -199,7 +199,7 @@ class Counts extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/syncing/count', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'set_syncing_count']
 			]
 		]);

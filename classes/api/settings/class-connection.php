@@ -90,7 +90,7 @@ class Connection extends \WPS\API {
 	*/
 	public function check_connection($request) {
 
-		if ($request->get_param('type') === 'shopify') {
+		if ( $request->get_param('type') === 'shopify' ) {
 
 			$response = $this->handle_response([
 				'response' 		=> $this->Shopify_API->get_storefront_access_tokens(),
@@ -182,15 +182,28 @@ class Connection extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/connection', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_connection']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'set_connection']
-			],
+			]
+		]);
+
+	}
+
+
+	/*
+
+	Register route: collections_heading
+
+	*/
+  public function register_route_connection_delete() {
+
+		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/connection/delete', [
 			[
-				'methods'         => 'DELETE',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'delete_connection']
 			]
 		]);
@@ -207,7 +220,7 @@ class Connection extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/connection/check', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'check_connection']
 			]
 		]);
@@ -224,6 +237,7 @@ class Connection extends \WPS\API {
 
     add_action('rest_api_init', [$this, 'register_route_connection']);
 		add_action('rest_api_init', [$this, 'register_route_connection_check']);
+		add_action('rest_api_init', [$this, 'register_route_connection_delete']);
 
 	}
 

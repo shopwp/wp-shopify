@@ -44,7 +44,7 @@ class Cache extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/cache', [
 			[
-				'methods'         => 'DELETE',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'delete_cache']
 			]
 		]);

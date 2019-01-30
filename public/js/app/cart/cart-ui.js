@@ -9,13 +9,15 @@ import isEmpty from 'lodash/isEmpty';
 import uniqBy from 'lodash/uniqBy';
 import has from 'lodash/has';
 
-
-import { formatAsMoney, turnAnimationFlagOn, formatTotalAmount, elementExists, trimHTMLFromMoneyFormat } from '../utils/utils-common';
+import { turnAnimationFlagOn, elementExists, maybeTrimHTML } from '../utils/utils-common';
 import { createLineItemsFromVariants, createLineItemsMarkup, cartTermsState } from '../ws/ws-cart';
 import { getMoneyFormat, getShop } from '../ws/ws-shop';
 import { enable, disable } from '../utils/utils-ux';
 import { bounceIn, slideInLeft, slideInRight, slideOutRight, pulse } from '../utils/utils-animations';
 import { isCheckoutEmpty, lineItemExists } from '../utils/utils-cart';
+import { maybeConvertPriceToLocalCurrency } from '../pricing/pricing-conversion';
+import { convertAndFormatPrice } from '../pricing/pricing-currency';
+
 
 
 function disableCartIcon() {
@@ -157,19 +159,23 @@ function disableCheckoutButton() {
 Update product variant price
 
 */
-function updateSubtotal(formattedSubtotal) {
+function updateSubtotalDOM(priceMarkup) {
+  jQuery('.wps-cart .wps-pricing').html(priceMarkup);
+}
 
-  var $subtotal = jQuery('.wps-cart .wps-pricing');
 
-  $subtotal.text(formattedSubtotal);
-
-  pulse(jQuery('.wps-cart .wps-cart-info__pricing'));
-
+function pulseSubtotal() {
+  pulse( jQuery('.wps-cart .wps-cart-info__pricing') );
 }
 
 
 function updateTotalCartPricing(checkout) {
-  updateSubtotal( formatAsMoney(checkout.subtotalPrice) );
+
+  // Should return the numeric checkout value whether in base or local currency
+  updateSubtotalDOM( convertAndFormatPrice(checkout.subtotalPrice) );
+
+  pulseSubtotal();
+
 }
 
 
@@ -223,7 +229,7 @@ function showCheckoutCounter($counter) {
   jQuery('.wps-btn-cart-fixed').removeClass('wps-is-cart-empty');
 
   $counter.removeClass('wps-is-hidden');
-  
+
 }
 
 function setCheckoutCounterSize($checkoutCounter, checkout) {
@@ -369,7 +375,8 @@ function formatLineItemMoney(lineItem, lineItemHTML) {
     return false;
   }
 
-  var formatedPrice = formatAsMoney(lineItem.variant.price);
+  // Don't think we need to format here
+  var formatedPrice = maybeConvertPriceToLocalCurrency(lineItem.variant.price);
 
   return renderCartItemQuantity( lineItem.quantity, renderCartItemPrice(formatedPrice, lineItemHTML) );
 
@@ -399,9 +406,9 @@ Returns the HTML of the price
 function renderCartItemPrice(price, lineItemHTML) {
 
   var $lineItem = jQuery(lineItemHTML);
-  var $price = $lineItem.find('.wps-cart-item__price');
+  var $priceElement = $lineItem.find('.wps-cart-item__price');
 
-  $price.text(price);
+  $priceElement.text(price);
 
   return $lineItem.prop('outerHTML');
 
@@ -881,10 +888,7 @@ Empty Cart Total
 
 */
 function emptyCartTotal(checkout) {
-
-  jQuery('.wps-cart .wps-pricing')
-    .text( formatTotalAmount( checkout.subtotalPrice,  trimHTMLFromMoneyFormat( getMoneyFormat( getShop() ) ) ) );
-
+  jQuery('.wps-cart .wps-pricing').html( convertAndFormatPrice( checkout.totalPrice ) );
 }
 
 
@@ -897,13 +901,14 @@ function emptyCartUI(checkout) {
 
   jQuery('.wps-cart-counter').addClass('wps-is-hidden');
   jQuery('.wps-btn-cart').addClass('wps-is-cart-empty').removeClass('wps-is-disabled wps-is-loading');
+
   renderEmptyCartMessage();
   emptyCartTotal(checkout);
+
   disableCheckoutButton();
   enableCartIcon();
 
 }
-
 
 
 

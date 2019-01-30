@@ -46,7 +46,7 @@ class Clear extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/clear/all', [
 			[
-				'methods'         => 'DELETE',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'clear_all']
 			]
 		]);
@@ -63,7 +63,7 @@ class Clear extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/clear/synced', [
 			[
-				'methods'         => 'DELETE',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'clear_synced']
 			]
 		]);

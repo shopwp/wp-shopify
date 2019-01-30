@@ -15,8 +15,7 @@ import toString from 'lodash/toString';
 
 
 import {
-  update,
-  formatAsMoney
+  update
 } from '../utils/utils-common';
 
 import {
@@ -85,7 +84,8 @@ import {
 } from './products-meta';
 
 import {
-  hideAllOpenProductDropdowns
+  hideAllOpenProductDropdowns,
+  changePriceMarkup
 } from './products-ui';
 
 import {
@@ -113,8 +113,6 @@ import {
 import {
   getPluginInstance
 } from "../plugin/plugin";
-
-
 
 
 
@@ -207,7 +205,7 @@ function resetVariantSelection($addToCartButton) {
   resetVariantSelectors(); // Resets DOM related to selecting options
   resetSingleProductVariantSelector($addToCartButton);
   enable($addToCartButton);
-  toggleCompareAtPricing($addToCartButton);
+  showCompareAtPricing($addToCartButton);
 }
 
 
@@ -298,7 +296,6 @@ function onProductAddToCart(client) {
 
 
 
-
     var availVariants = getAvailableVariants(product);
 
     if ( size(availVariants) > 1) {
@@ -328,7 +325,6 @@ function onProductAddToCart(client) {
     var { checkoutId, lineItems } = getAddLineItemsConfig(variant, productQuantity);
 
 
-
     /*
 
     Adding new item to checkout ...
@@ -336,17 +332,8 @@ function onProductAddToCart(client) {
     */
     var [addLineitemsError, checkout] = await to( addLineItems(client, checkoutId, lineItems) );
 
-
-
     var foundLineItem = getLineItemFromVariantID(checkout.lineItems, lineItems[0].variantId);
     var storedWordPressURLs = getStoredWordPressURLs();
-
-
-
-
-
-
-
 
 
 
@@ -357,9 +344,6 @@ function onProductAddToCart(client) {
       resetVariantSelection($addToCartButton);
       return;
     }
-
-
-
 
 
 
@@ -663,7 +647,7 @@ function updateVariantPrice(price, $metaContainer) {
 
     var $priceElement = $metaContainer.parent().find('.wps-products-price:not([data-compare-at="1"])');
 
-    $priceElement.append('<span itemprop="price" class="wps-product-individual-price">' + price + '</span>');
+    $priceElement.append('<span itemprop="price" class="wps-product-individual-price wps-is-ready">' + price + '</span>');
 
   }
 
@@ -824,7 +808,6 @@ function turnOnMetaSelectingState($newProductMetaContainer) {
 
 
 
-
 /*
 
 Product Variant Change
@@ -943,10 +926,11 @@ function onProductVariantChange() {
 
       setCurrentlySelectedVariants({});
 
-      var newCurrentProductID = $newProductMetaContainer.attr('data-product-post-id');
+      var newCurrentPostID = $newProductMetaContainer.attr('data-product-post-id');
       var selectedOptions = $trigger.closest('.wps-product-meta').data('product-selected-options');
       var $optionButtons = $newProductMetaContainer.find('.wps-btn-dropdown .wps-btn');
       var $addToCartButton = $newProductMetaContainer.find('.wps-add-to-cart');
+      var $priceElement = $newProductMetaContainer.closest('[data-wps-product-wrapper="true"]').find('.wps-products-price:not([data-compare-at="1"]) [data-wps-is-price-wrapper]');
 
 
       disable($optionButtons);
@@ -970,8 +954,9 @@ function onProductVariantChange() {
 
       var [foundVariantError, foundVariantResponse] = await to( getVariantIdFromOptions({
         'selectedOptions': selectedOptions,
-        'productID': newCurrentProductID
+        'postID': newCurrentPostID
       }) );
+
 
 
       if (foundVariantError) {
@@ -1021,10 +1006,10 @@ function onProductVariantChange() {
 
       showVariantImage(foundVariant.variant_id);
 
-      toggleCompareAtPricing($newProductMetaContainer);
+      hideCompareAtPricing($newProductMetaContainer);
 
 
-      updateVariantPrice( formatAsMoney(foundVariant.price), $newProductMetaContainer );
+      changePriceMarkup($priceElement, foundVariant.price);
 
 
       pulseSoft($addToCartButton);
@@ -1044,17 +1029,30 @@ function onProductVariantChange() {
 
 }
 
+function findCompareAtElement($startingElement) {
+  return $startingElement.closest('.wps-product-info').find('.wps-products-price[data-compare-at="1"]');
+}
 
-function toggleCompareAtPricing($newProductMetaContainer) {
+function hideCompareAtPricing($newProductMetaContainer) {
 
-  var $oo = $newProductMetaContainer.closest('.wps-product-info').find('.wps-products-price[data-compare-at="1"]');
+  var $compareAtElements = findCompareAtElement( $newProductMetaContainer );
 
-  if ($oo.length) {
-    $oo.toggle();
+  if ($compareAtElements.length) {
+    $compareAtElements.hide();
   }
 
 }
 
+
+function showCompareAtPricing($newProductMetaContainer) {
+
+  var $compareAtElements = findCompareAtElement( $newProductMetaContainer );
+
+  if ($compareAtElements.length) {
+    $compareAtElements.show();
+  }
+
+}
 
 
 function toggleProductDropdownOpenState($clickedDropdown) {

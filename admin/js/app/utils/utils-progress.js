@@ -372,7 +372,6 @@ async function cleanUpAfterSync(options = false) {
 
     var [noticeListError, noticeList] = await to( get( endpointSyncingNotices() ) );
 
-
     WP_Shopify.reconnectingWebhooks = false;
 
     setConnectorFinishState();
@@ -380,12 +379,11 @@ async function cleanUpAfterSync(options = false) {
     setConnectionFieldsState(options);
     stopTimer();
 
+    var finalNoticeList = constructFinalNoticeList( sortSyncNoticeList( constructErrorsAndWarnings(noticeList) ) );
+
     // Any client-side JS errors will automatically replace any server-level errors
     if (options.noticeList) {
-      var finalNoticeList = options.noticeList;
-
-    } else {
-      var finalNoticeList = constructFinalNoticeList( sortSyncNoticeList( constructErrorsAndWarnings(noticeList) ) );
+      finalNoticeList = removeMultipleSuccessNotices( finalNoticeList.concat(options.noticeList) );
     }
 
 
@@ -415,6 +413,46 @@ async function cleanUpAfterSync(options = false) {
     setConnectionProgress(false);
 
   }
+
+}
+
+
+
+function removeMultipleSuccessNotices(finalNoticeList) {
+
+  var originSArray = finalNoticeList;
+
+  var successNotices = getOnlySuccessNotices(originSArray);
+
+  if ( successNotices.length > 1 ) {
+    return onlyNonSuccessNotices(originSArray).concat( onlyNonDefaultSuccessNotice(successNotices) );
+  }
+
+  return successNotices;
+
+}
+
+function getOnlySuccessNotices(finalNoticeList) {
+
+  return filter(finalNoticeList, function(notice) {
+    return notice.type === 'success';
+  });
+
+}
+
+function onlyNonSuccessNotices(finalNoticeList) {
+
+  return filter(finalNoticeList, function(notice) {
+    return notice.type !== 'success';
+  });
+
+}
+
+function onlyNonDefaultSuccessNotice(finalNoticeList) {
+
+  return filter(finalNoticeList, function(notice) {
+    return notice.message !== 'Success! You\'ve finished syncing your Shopify store with WordPress.';
+  });
 
 }
 

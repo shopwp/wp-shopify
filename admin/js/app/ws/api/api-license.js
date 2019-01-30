@@ -1,11 +1,11 @@
 import {
   get,
-  post,
-  deletion
+  post
 } from '../ws';
 
 import {
-  endpointLicense
+  endpointLicense,
+  endpointLicenseDelete
 } from './api-endpoints';
 
 
@@ -41,7 +41,7 @@ Returns: promise
 
 */
 function deleteLicense(data = {}) {
-  return deletion( endpointLicense(), data);
+  return post( endpointLicenseDelete(), data);
 }
 
 

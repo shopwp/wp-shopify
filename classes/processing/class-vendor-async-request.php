@@ -93,7 +93,7 @@ abstract class Vendor_Async_Request {
 		return wp_remote_post( esc_url_raw( $url ), $args );
 
 	}
-	
+
 
 	/**
 	 * Get query args
@@ -138,11 +138,11 @@ abstract class Vendor_Async_Request {
 		}
 
 		return [
-			'timeout'   => 0.01,
-			'blocking'  => false,
+			'timeout'   => apply_filters('wps_syncing_settings_timeout', 0.01),
+			'blocking'  => apply_filters('wps_syncing_settings_blocking', false),
 			'body'      => $this->data,
 			'cookies'   => $_COOKIE,
-			'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+			'sslverify' => apply_filters('https_local_ssl_verify', false ),
 		];
 
 	}

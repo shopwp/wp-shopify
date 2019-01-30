@@ -1,4 +1,3 @@
-import currencyFormatter from 'currency-formatter';
 import forOwn from 'lodash/forOwn';
 import isEmpty from 'lodash/isEmpty';
 import has from 'lodash/has';
@@ -23,10 +22,6 @@ import {
 } from '../utils/utils-client';
 
 import {
-  hasCurrencyCode
-} from '../utils/utils-settings';
-
-import {
   setMoneyFormatCache,
   getCacheTime,
   setCacheTime
@@ -36,7 +31,6 @@ import {
   getMoneyFormat,
   getShop
 } from '../ws/ws-shop';
-
 
 
 /*
@@ -97,149 +91,13 @@ function createSelector(classname) {
 }
 
 
-/*
-
-Extract Money Format Type
-
-*/
-function extractMoneyFormatType(format) {
-
-  if (format) {
-    var newFormat = format;
-    newFormat = newFormat.split('{{').pop().split('}}').shift();
-
-    return newFormat.replace(/\s+/g, " ").trim();
-
-  } else {
-    return false;
-  }
-
-}
 
 
-/*
-
-Format Money per settings
-
-*/
-function formatMoneyPerSetting(amount, format, origFormat) {
-
-  if (format === 'amount') {
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: '.',
-      thousand: ',',
-      precision: 2,
-      format: '%v'
-    });
-
-  } else if (format === 'amount_no_decimals') {
-
-    amount = Number(amount);
-    amount = Math.round(amount);
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: '.',
-      thousand: ',',
-      precision: 0,
-      format: '%v'
-    });
-
-  } else if (format === 'amount_with_comma_separator') {
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: ',',
-      thousand: ',',
-      precision: 2,
-      format: '%v'
-    });
-
-  } else if (format === 'amount_no_decimals_with_comma_separator') {
-
-    amount = Number(amount);
-    amount = Math.round(amount);
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: ',',
-      thousand: ',',
-      precision: 0,
-      format: '%v'
-    });
-
-  } else if (format === 'amount_with_space_separator') {
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: ',',
-      thousand: ' ',
-      precision: 2,
-      format: '%v'
-    });
-
-  } else if (format === 'amount_no_decimals_with_space_separator') {
-
-    amount = Number(amount);
-    amount = Math.round(amount);
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: ',',
-      thousand: ' ',
-      precision: 0,
-      format: '%v'
-    });
-
-  } else if (format === 'amount_with_apostrophe_separator') {
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: '.',
-      thousand: '\'',
-      precision: 2,
-      format: '%v'
-    });
-
-  } else {
-
-    var string = currencyFormatter.format(amount, {
-      symbol: '',
-      decimal: '.',
-      thousand: ',',
-      precision: 2,
-      format: '%v'
-    });
-
-  }
-
-  return string;
-
-}
 
 
-/*
 
-Replace money format with real amount
 
-*/
-function replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat = '') {
 
-  if (moneyFormat) {
-
-    var extractedMoneyFormat = new RegExp(extractedMoneyFormat, "g");
-    var finalPrice = trim(moneyFormat).replace(extractedMoneyFormat, formattedMoney);
-
-    finalPrice = finalPrice.replace(/{{/g, '');
-    finalPrice = finalPrice.replace(/}}/g, '');
-
-    return finalPrice;
-
-  }
-
-}
 
 
 
@@ -278,11 +136,11 @@ function hasHTML(string) {
   return /<[a-z][\s\S]*>/i.test(string);
 }
 
-function removeHTML(moneyFormat) {
-  return jQuery(moneyFormat).unwrap().html();
+function removeHTML(html) {
+  return jQuery(html).unwrap().html();
 }
 
-function trimHTMLFromMoneyFormat(moneyFormat) {
+function maybeTrimHTML(moneyFormat) {
 
   if ( hasHTML(moneyFormat) ) {
     moneyFormat = removeHTML(moneyFormat);
@@ -293,52 +151,12 @@ function trimHTMLFromMoneyFormat(moneyFormat) {
 }
 
 
-/*
-
-Format product price into format from Shopify
-
-*/
-function formatAsMoney(amount) {
-  return formatTotalAmount( trim(amount), trimHTMLFromMoneyFormat( getMoneyFormat( getShop() ) ) );
-}
 
 
-/*
-
-Comes from Shopify
-
-*/
-function maybeAddCurrencyCodeToMoney(formatWithRealAmount) {
-
-  if ( hasCurrencyCode() ) {
-
-    var shop = getShop();
-
-    return formatWithRealAmount + ' ' + shop.currencyCode;
-
-  }
-
-  return formatWithRealAmount;
-
-}
 
 
-/*
 
-Formats the total amount
 
-*/
-function formatTotalAmount(amount, moneyFormat) {
-
-  var extractedMoneyFormat = extractMoneyFormatType(moneyFormat);
-  var formattedMoney = formatMoneyPerSetting(amount, extractedMoneyFormat, moneyFormat);
-  var formatWithRealAmount = replaceMoneyFormatWithRealAmount(formattedMoney, extractedMoneyFormat, moneyFormat);
-
-  formatWithRealAmount = formatWithRealAmount.replace(/ /g,'');
-
-  return maybeAddCurrencyCodeToMoney(formatWithRealAmount);
-
-}
 
 
 /*
@@ -413,15 +231,13 @@ function elementExists($element) {
 
 export {
   createSelector,
-  formatAsMoney,
   quantityFinder,
   isError,
   isObject,
   convertCustomAttrsToQueryString,
   update,
-  formatTotalAmount,
   containsInvalidLineItemProps,
   swapDomains,
   elementExists,
-  trimHTMLFromMoneyFormat
-};
+  maybeTrimHTML
+}

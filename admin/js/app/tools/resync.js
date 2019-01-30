@@ -30,8 +30,7 @@ import {
 } from '../ws/localstorage';
 
 import {
-  post,
-  deletion
+  post
 } from '../ws/ws';
 
 import {
@@ -89,7 +88,6 @@ import {
 
 import {
   returnOnlyFailedRequests,
-  constructFinalNoticeList,
   addToWarningList,
   filterOutAnyNotice,
   filterOutSelectiveSync,
@@ -209,7 +207,7 @@ function onResyncSubmit() {
       insertCheckmark();
       setConnectionStepMessage('Removing any existing data first ...', '(Please wait, this might take 30 seconds or so)');
 
-      var [removeExistingDataError, removeExistingDataResponse] = await to( deletion( endpointToolsClearSynced() ) );
+      var [removeExistingDataError, removeExistingDataResponse] = await to( post( endpointToolsClearSynced() ) );
 
 
       if (removeExistingDataError) {

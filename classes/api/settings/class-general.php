@@ -180,10 +180,13 @@ class General extends \WPS\API {
 		$new_settings['show_fixed_cart_tab'] = $this->setting_to_bool_int($settings, 'wps_settings_show_fixed_cart_tab');
 
 
+		$new_settings['synchronous_sync'] = $this->setting_to_bool_int($settings, 'wps_settings_synchronous_sync');
+
 		$new_settings['collections_images_sizing_scale'] = $this->setting_to_string($settings, 'wps_settings_collections_images_sizing_scale', WPS_DEFAULT_COLLECTIONS_IMAGES_SIZING_SCALE);
 
 		$new_settings['url_products'] = $this->setting_to_string($settings, 'wps_settings_general_products_url');
 		$new_settings['url_collections'] = $this->setting_to_string($settings, 'wps_settings_general_collections_url');
+
 
 
 
@@ -241,11 +244,11 @@ class General extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_settings']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_settings']
 			]
 		]);

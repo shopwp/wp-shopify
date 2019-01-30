@@ -50,8 +50,22 @@ $post_name = CPT::get_post_name($data);
 
 		<?php do_action('wps_product_single_header_price_before', $data->product); ?>
 
-    <h3 class="wps-products-price">
-      <?= $Money->format_price($data->product->variants[0]->price, $data->product->product_id); ?>
+    <h3
+			itemprop="offers"
+			itemscope
+			itemtype="https://schema.org/Offer"
+			class="wps-products-price"
+			data-compare-at="<?= $data->product->showing_compare_at; ?>"
+			data-showing-local="<?= $data->product->showing_local; ?>">
+
+			<?php if ( !empty($data->product->variants) ) { ?>
+			
+				<div class="wps-price-wrapper <?= $data->product->showing_local ? 'wps-is-loading-content' : ''; ?>">
+	      	<?= $Money->format_price($data->product->variants[0]->price, $data->product->product_id); ?>
+				</div>
+
+			<?php } ?>
+
     </h3>
 
 		<?php do_action('wps_product_single_header_price_after', $data->product); ?>

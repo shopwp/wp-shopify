@@ -209,11 +209,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_heading_toggle', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_heading_toggle']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_heading_toggle']
 			]
 		]);
@@ -230,11 +230,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_heading', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_heading']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_heading']
 			]
 		]);
@@ -251,11 +251,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_toggle', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_images_sizing_toggle']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_images_sizing_toggle']
 			]
 		]);
@@ -272,11 +272,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_width', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_images_sizing_width']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_images_sizing_width']
 			]
 		]);
@@ -293,11 +293,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_height', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_images_sizing_height']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_images_sizing_height']
 			]
 		]);
@@ -314,11 +314,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_crop', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_images_sizing_crop']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_images_sizing_crop']
 			]
 		]);
@@ -335,11 +335,11 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/collections_images_sizing_scale', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_collections_images_sizing_scale']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_collections_images_sizing_scale']
 			]
 		]);
@@ -356,7 +356,7 @@ class Collections extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/selected_collections', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_selected_collections']
 			]
 		]);

@@ -62,7 +62,13 @@ class Webhooks extends \WPS\Processing\Vendor_Background_Process {
 		// Actual work
 		$result = $this->Shopify_API->register_webhook( $this->Webhooks->get_webhook_body_from_topic($topic) );
 
-		if (is_wp_error($result)) {
+		if ( is_wp_error($result) ) {
+
+			if ( $this->Webhooks->is_invalid_topic_error($result) ) {
+				$this->DB_Settings_Syncing->save_warning('Unable to register webhook of topic: ' . $topic);
+				return false;
+			}
+
 			$this->DB_Settings_Syncing->save_notice_and_expire_sync($result);
 			$this->complete();
 			return false;

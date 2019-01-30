@@ -143,9 +143,8 @@
   height: calc(100% - 170px);
   position: relative;
 
-  // overflow-x: hidden;
-  // overflow-y: auto;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: scroll;
 
   -webkit-overflow-scrolling: touch;
   perspective: 400px;
@@ -154,15 +153,9 @@
   max-width: auto;
   margin: 0 auto;
 
-
-  &.wps-is-disabled {
-
-    // :after {
-    //   height: 100vh;
-    // }
-
+  > div:last-child {
+    margin-bottom: 7em;
   }
-
 
   &.wps-is-loading {
 
@@ -190,7 +183,7 @@
   &.wps-is-disabled {
 
     &:before {
-      top: calc(50% - 43px);
+      top: calc(50% - 1.6em);
       left: 23px;
     }
 

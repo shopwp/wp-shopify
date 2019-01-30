@@ -208,11 +208,25 @@ div[class^="wps-postbox-"] {
   margin-bottom: 5em;
 }
 
-.wps-sub-section-link.current {
+.wps-admin-wrap .wps-sub-section-link.current {
+  font-weight: normal;
+
+  :after {
+    display: block;
+    content: attr(title);
+    font-weight: bold;
+    height: 1px;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
+  }
+
   &:focus {
     box-shadow: none;
   }
+
 }
+
 
 #wps-settings {
   float: left;

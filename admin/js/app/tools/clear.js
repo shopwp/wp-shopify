@@ -24,8 +24,7 @@ import {
 } from '../ws/localstorage';
 
 import {
-  post,
-  deletion
+  post
 } from '../ws/ws';
 
 import {
@@ -203,7 +202,7 @@ function onClearSubmit() {
 
         */
 
-        var [removedError, removedResponse] = await to( deletion( endpointToolsClearAll() ) );
+        var [removedError, removedResponse] = await to( post( endpointToolsClearAll() ) );
 
         if (removedError) {
           return showAdminNotice( getJavascriptErrorMessage(removedError) );

@@ -51,11 +51,11 @@ class Checkout extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/settings/checkout_enable_custom_checkout_domain', [
 			[
-				'methods'         => 'GET',
+				'methods'         => \WP_REST_Server::READABLE,
 				'callback'        => [$this, 'get_setting_enable_custom_checkout_domain']
 			],
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'update_setting_enable_custom_checkout_domain']
 			]
 		]);

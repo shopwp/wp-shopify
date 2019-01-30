@@ -92,7 +92,6 @@ import {
 
 import {
   returnOnlyFailedRequests,
-  constructFinalNoticeList,
   addToWarningList,
   filterOutAnyNotice,
   filterOutSelectiveSync,
@@ -103,7 +102,6 @@ import {
 
 import {
   post,
-  deletion,
   endProgress
 } from '../ws/ws';
 
@@ -403,7 +401,7 @@ function connectionFormSubmitHandler(form) {
     setConnectionStepMessage('Removing any existing data first ...', '(Please wait, this might take 30 seconds or so)');
 
 
-    var [removeExistingError, removeExistingDataResp] = await to( deletion( endpointToolsClearSynced() ) );
+    var [removeExistingError, removeExistingDataResp] = await to( post( endpointToolsClearSynced() ) );
 
     if (removeExistingError) {
       cleanUpAfterSync( syncingConfigJavascriptError(removeExistingError) );

@@ -4,6 +4,7 @@ namespace WPS;
 
 use WPS\Messages;
 use WPS\Utils\Data as Utils_Data;
+use WPS\Utils\Sorting as Utils_Sorting;
 
 if (!defined('ABSPATH')) {
 	exit;
@@ -314,29 +315,7 @@ class Utils {
 	}
 
 
-	public static function sort_by_position($a, $b) {
 
-		if ($a->position == $b->position) {
-			return 0;
-		}
-
-		return ($a->position < $b->position) ? -1 : 1;
-
-	}
-
-
-	/*
-
-	Construct proper path to wp-admin folder
-
-	*/
-	public static function sort_items_by_position($posts) {
-
-		usort($posts, [ __CLASS__, 'sort_by_position'] );
-
-		return $posts;
-
-	}
 
 
 	/*
@@ -1153,12 +1132,24 @@ class Utils {
 	$variant->inventory_quantity
 	$variant->inventory_policy
 
+	UNDER TEST
+
 	*/
 	public static function is_available_to_buy($variant) {
 
-		if ( !is_object($variant) ) {
+		// Sanity checks
+		if ( empty($variant) && !is_array($variant) && !is_object($variant) ) {
+			return false;
+		}
+
+		if ( is_array($variant) ) {
 			$variant = self::convert_array_to_object($variant);
 		}
+
+		if ( !property_exists($variant, 'inventory_management') ) {
+			return false;
+		}
+
 
 		// User has set Shopify to track the product's inventory
 		if ($variant->inventory_management === 'shopify') {
@@ -1191,22 +1182,26 @@ class Utils {
 	/*
 
 	Product Inventory
+
 	Checks whether a product's variant(s) are in stock or not
 
 	*/
-	public static function product_inventory($product, $variants = false) {
+	public static function only_available_variants( $variants = [] ) {
 
-		$product = self::convert_array_to_object($product);
-
-		if ($variants) {
-			return array_values( array_filter($variants, [__CLASS__, 'is_available_to_buy']) );
-		}
-
-		if (!self::has($product, 'variants')) {
+		if ( empty($variants) ) {
 			return [];
 		}
 
-		return array_values( array_filter($product->variants, [__CLASS__, 'is_available_to_buy']) );
+		return array_values( array_filter($variants, [__CLASS__, 'is_available_to_buy']) );
+
+	}
+
+
+	public static function has_available_variants($variants) {
+
+		$variants_copy = $variants;
+
+		return !empty( self::only_available_variants($variants_copy) );
 
 	}
 
@@ -1344,33 +1339,6 @@ class Utils {
 		}
 
 		return array_map( [__CLASS__, 'only_option_properties'], $variants );
-
-	}
-
-
-	/*
-
-	Generic function to sort by a specific key / value
-
-	*/
-	public static function sort_by($array, $key) {
-
-		$array = self::convert_object_to_array($array);
-
-		usort($array, function($a, $b) use (&$key) {
-
-			$a = self::convert_object_to_array($a);
-			$b = self::convert_object_to_array($b);
-
-			$a = $a[$key];
-			$b = $b[$key];
-
-			if ($a == $b) return 0;
-			return ($a < $b) ? -1 : 1;
-
-		});
-
-		return self::convert_array_to_object($array);
 
 	}
 
@@ -1545,8 +1513,7 @@ class Utils {
 
 		$variants_with_options = self::connect_options_to_variants($product->variants);
 
-
-		$sorted_options = self::sort_by($product->options, 'position');
+		$sorted_options = Utils_Sorting::sort_by($product->options, 'position');
 
 		foreach ($sorted_options as $sorted_option) {
 			$position = $sorted_option->position;

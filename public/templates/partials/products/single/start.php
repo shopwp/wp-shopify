@@ -21,4 +21,5 @@ if ( !defined('ABSPATH') ) {
 <div
   itemscope
   itemtype="https://schema.org/Product"
-  class="wps-product-single wps-row wps-contain <?= apply_filters('wps_products_single_start_class', ''); ?>">
+  class="wps-product-single wps-row wps-contain <?= apply_filters('wps_products_single_start_class', ''); ?>"
+	data-wps-product-wrapper="true">

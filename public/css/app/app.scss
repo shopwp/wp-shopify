@@ -1,13 +1,14 @@
 /*!
 
-Author:         Andrew M Robbins
-Author URI:     https://simpleblend.net
+Author:         WP Shopify
+Author URI:     https://wpshop.io
 
 */
 
 @import "utilities/colors";
 @import "utilities/functions";
 @import "utilities/variables";
+@import "utilities/animations";
 @import "utilities/mixins";
 @import "base/global";
 @import "base/icons";
@@ -16,6 +17,7 @@ Author URI:     https://simpleblend.net
 @import "layout/pagination";
 @import "components/forms";
 @import "components/products";
+@import "components/pricing";
 @import "components/collections";
 @import "components/cart";
 @import "components/icons";

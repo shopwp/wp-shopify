@@ -71,15 +71,15 @@ if ( is_singular(WPS_PRODUCTS_POST_TYPE_SLUG) ) {
   do_action('wps_products_quantity', $wps_product);
   do_action('wps_product_single_actions_group_start', $wps_product);
 
-  if (count($wps_product->variants) > 1) {
-    do_action('wps_products_options', $wps_product);
-  }
 
-  if (Utils::product_inventory($wps_product)) {
+  if ( Utils::has_available_variants($wps_product->variants) ) {
+
+		do_action('wps_products_options', $wps_product);
     do_action('wps_products_button_add_to_cart', $wps_product);
 
   } else {
     do_action('wps_products_notice_out_of_stock', $wps_product);
+		
   }
 
   do_action('wps_product_cart_buttons_after', $wps_product);

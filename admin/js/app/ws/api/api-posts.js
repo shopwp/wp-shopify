@@ -1,6 +1,5 @@
 import {
-  post,
-  deletion
+  post
 } from '../ws';
 
 import {
@@ -18,7 +17,7 @@ Returns: promise
 
 */
 function deletePosts(data = {}) {
-  return deletion( endpointPosts(), data);
+  return post( endpointPosts(), data);
 }
 
 function setProductPostsRelationships() {

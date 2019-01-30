@@ -3,7 +3,7 @@ import { shopifyInit, formatCredsFromServer, findShopifyCreds } from '../ws/ws-a
 import { getCheckout, setCheckout, checkoutCompleted, createCheckout } from '../ws/ws-cart';
 import { getShopInfo, setShop } from '../ws/ws-shop';
 import { productEvents } from '../products/products-events';
-import { showProductsMetaUI, cacheInitialProductPricing } from '../products/products-ui';
+import { showProductsMetaUI, cacheInitialProductPricing, changeAllPricingToLocal } from '../products/products-ui';
 import { resetVariantSelectors } from '../products/products-meta';
 import { cartEvents } from '../cart/cart-events';
 import { isCheckoutEmpty, clearLS } from './utils-cart';
@@ -12,7 +12,7 @@ import { logNotice, noticeConfigUnableToBuildCheckout, noticeConfigUnableToFlush
 import { triggerEventAfterBootstrap, triggerEventBeforeBootstrap } from './utils-triggers';
 import { updateCartCounter, updateTotalCartPricing, renderCartItems, emptyCartUI, enableCartIcon, renderCartState, showFixedCartIcon } from '../cart/cart-ui';
 import { removeProductOptionIds, getCheckoutID } from '../ws/ws-products';
-
+import { bootstrapLocalCurrencyRequirements, showingLocalCurrency } from '../pricing/pricing-currency';
 
 /*
 
@@ -36,10 +36,12 @@ Bootstrap: UI elements
 
 */
 function bootstrapProductsUI(client, checkout) {
+
   removeProductOptionIds();
   resetVariantSelectors(); // Resets DOM related to selecting options
   showProductsMetaUI();
   cacheInitialProductPricing();
+
 }
 
 
@@ -146,6 +148,8 @@ function bootstrap() {
       checkout = newCheckout;
 
     }
+
+
 
 
     cacheGlobalObjects(shop, checkout);

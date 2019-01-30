@@ -63,3 +63,9 @@ printf "${GREEN}Success: ${NC}Checked out data folder from SVN\n"
 #
 sudo mkdir /tmp/wordpress/wp-content/uploads
 printf "${GREEN}Success: ${NC}Created uploads folder\n"
+
+#
+# Creates empty uploads folder if absent
+#
+sudo sed -i.bak s/localhost/127.0.0.1/g /tmp/wordpress-tests-lib/wp-tests-config.php
+printf "${GREEN}Success: ${NC}Replaced localhost with 127.0.0.1\n"

@@ -19,7 +19,7 @@ import {
 } from './localstorage';
 
 import {
-  deletion
+  post
 } from '../ws/ws';
 
 import {
@@ -32,7 +32,7 @@ import {
 } from './api/api-settings';
 
 import {
-  endpointConnection,
+  endpointConnectionDelete,
   endpointToolsClearAll,
   endpointSyncingNotices,
   endpointToolsClearSynced,
@@ -135,9 +135,9 @@ function getSelectiveCollections() {
 function clearAllCache() {
 
   return Promise.all([
-    deletion( endpointNotices() ),
-    deletion( endpointSyncingNotices() ),
-    deletion( endpointToolsClearCache() )
+    post( endpointNotices() ),
+    post( endpointSyncingNotices() ),
+    post( endpointToolsClearCache() )
   ]);
 
 }
@@ -156,8 +156,8 @@ function setPostRelationships() {
 function deleteStandAloneData() {
 
   return Promise.all([
-    deletion( endpointToolsClearAll() ),
-    deletion( endpointConnection() )
+    post( endpointToolsClearAll() ),
+    post( endpointConnectionDelete() )
   ]);
 
 }
@@ -166,9 +166,9 @@ function deleteStandAloneData() {
 function noConnectionReset() {
 
   return Promise.all([
-    deletion( endpointToolsClearCache() ),
-    deletion( endpointToolsClearSynced() ),
-    deletion( endpointConnection() )
+    post( endpointToolsClearCache() ),
+    post( endpointToolsClearSynced() ),
+    post( endpointConnectionDelete() )
   ]);
 
 }

@@ -3,6 +3,9 @@
 namespace WPS;
 
 use WPS\Utils;
+use WPS\Utils\Sorting as Utils_Sorting;
+use WPS\Utils\Filtering as Utils_Filtering;
+
 use WPS\DB\Images;
 
 if (!defined('ABSPATH')) {
@@ -287,6 +290,7 @@ class Templates {
 			'price_first' 						=> isset($params['first_price']) ? $params['first_price'] : false, // legacy
 			'product' 								=> isset($params['product']) ? $params['product'] : false,
 			'showing_compare_at' 			=> isset($params['showing_compare_at']) ? $params['showing_compare_at'] : false,
+			'showing_local' 					=> isset($params['showing_local']) ? $params['showing_local'] : false,
 			'showing_price_range' 		=> isset($params['showing_price_range']) ? $params['showing_price_range'] : false,
 			'variants_amount' 				=> isset($params['variants_amount']) ? $params['variants_amount'] : false,
 			'first_price' 						=> isset($params['first_price']) ? $params['first_price'] : false,
@@ -309,6 +313,7 @@ class Templates {
 			'price'										=> isset($params['first_price_formatted']) ? $params['first_price_formatted'] : false,
 			'product' 								=> isset($params['product']) ? $params['product'] : false,
 			'showing_compare_at' 			=> isset($params['showing_compare_at']) ? $params['showing_compare_at'] : false,
+			'showing_local' 					=> isset($params['showing_local']) ? $params['showing_local'] : false,
 			'showing_price_range' 		=> isset($params['showing_price_range']) ? $params['showing_price_range'] : false,
 			'variants_amount' 				=> isset($params['variants_amount']) ? $params['variants_amount'] : false,
 			'first_price' 						=> isset($params['first_price']) ? $params['first_price'] : false,
@@ -320,6 +325,18 @@ class Templates {
 	}
 
 
+	public function price_multi_from_default() {
+		return '<small class="wps-product-from-price">' . esc_html__('From: ', WPS_PLUGIN_TEXT_DOMAIN) . '</small>';
+	}
+
+	public function price_multi_separator_default() {
+		return ' <span class="wps-product-from-price-separator">-</span> ';
+	}
+
+	public function add_price_wrapper($price_markup, $type) {
+		return '<div class="wps-price-wrapper">' . $price_markup . '</div>';
+	}
+
 	/*
 
 	Responsible for getting markup for multiple prices
@@ -327,7 +344,9 @@ class Templates {
 	*/
 	public function get_multi_price_markup($first_price, $last_price) {
 
-		return apply_filters('wps_products_price_multi_from', '<small class="wps-product-from-price">' . esc_html__('From: ', WPS_PLUGIN_TEXT_DOMAIN) . '</small>') . apply_filters('wps_products_price_multi_first', $first_price) . apply_filters('wps_products_price_multi_separator', ' <span class="wps-product-from-price-separator">-</span> ') . apply_filters('wps_products_price_multi_last', $last_price);
+		return apply_filters('wps_products_price_multi_from', $this->price_multi_from_default() ) .
+		apply_filters('wps_products_price_multi_first', $this->add_price_wrapper($first_price, 'from') ) .
+		apply_filters('wps_products_price_multi_separator', $this->price_multi_separator_default() ) . apply_filters('wps_products_price_multi_last', $this->add_price_wrapper($last_price, 'to') );
 
 	}
 
@@ -399,25 +418,27 @@ class Templates {
 	*/
 	public function get_range_pricing_params($variants_in_stock, $product, $showing_compare_at) {
 
-		$variants_amount 					= $this->DB_Variants->get_variants_amount($variants_in_stock);
-
 		if ( $showing_compare_at ) {
 
-			$variants_sorted 					= $this->DB_Variants->sort_variants_by_compare_at_price($variants_in_stock);
-			$first_price 							= $this->DB_Variants->get_first_variant_compare_at_price($variants_sorted);
-			$last_price 							= $this->DB_Variants->get_last_variant_compare_at_price($variants_sorted, Utils::get_last_index($variants_amount) );
+			$variants_sorted 		= $this->DB_Variants->sort_variants_by_compare_at_price($variants_in_stock);
+			$variants_amount 		= $this->DB_Variants->get_variants_amount($variants_sorted);
+
+			$first_price 				= $this->DB_Variants->get_first_variant_compare_at_price($variants_sorted);
+			$last_price 				= $this->DB_Variants->get_last_variant_compare_at_price($variants_sorted, Utils::get_last_index($variants_amount) );
 
 		} else {
 
-			$variants_sorted 					= $this->DB_Variants->sort_variants_by_price($variants_in_stock);
-			$first_price 							= $this->DB_Variants->get_first_variant_price($variants_sorted);
-			$last_price 							= $this->DB_Variants->get_last_variant_price($variants_sorted, Utils::get_last_index($variants_amount) );
+			$variants_sorted 		= $this->DB_Variants->sort_variants_by_price($variants_in_stock);
+			$first_price 				= $this->DB_Variants->get_first_variant_price($variants_sorted);
+			$variants_amount 		= $this->DB_Variants->get_variants_amount($variants_in_stock);
+			$last_price 				= $this->DB_Variants->get_last_variant_price($variants_sorted, Utils::get_last_index($variants_amount) );
 
 		}
 
 		return [
 			'showing_compare_at'			=> $showing_compare_at,
 			'showing_price_range'			=> true,
+			'showing_local'						=> $this->DB_Settings_General->get_col_value('pricing_local_currency_toggle', 'bool'),
 			'variants_amount' 				=> $variants_amount,
 			'first_price' 						=> $first_price,
 			'first_price_formatted' 	=> $this->Money->format_price($first_price, $product->product_id),
@@ -434,21 +455,23 @@ class Templates {
 	Gets single pricing params
 
 	*/
-	public function get_single_pricing_params($variants_in_stock, $product, $showing_compare_at) {
+	public function get_single_pricing_params($variants, $product, $showing_compare_at) {
 
-		$variants_amount = $this->DB_Variants->get_variants_amount($variants_in_stock);
+		$variants_amount = $this->DB_Variants->get_variants_amount($variants);
 
 		if ( $showing_compare_at ) {
 
-			$first_price 	= $this->DB_Variants->get_first_variant_compare_at_price($variants_in_stock);
-			$last_price 	= $this->DB_Variants->get_last_variant_compare_at_price($variants_in_stock, Utils::get_last_index($variants_amount) );
+			// Here we would always want to prefer to show the largest which would always be the last
+			$first_price 	= $this->DB_Variants->get_last_variant_compare_at_price($variants, Utils::get_last_index($variants_amount) );
+			$last_price 	= $first_price;
 
 		} else {
 
-			$first_price 	= $this->DB_Variants->get_first_variant_price($variants_in_stock);
-			$last_price 	= $this->DB_Variants->get_last_variant_price($variants_in_stock, Utils::get_last_index($variants_amount) );
+			$first_price 	= $this->DB_Variants->get_first_variant_price($variants);
+			$last_price 	= $this->DB_Variants->get_last_variant_price($variants, Utils::get_last_index($variants_amount) );
 
 		}
+
 
 		$first_price_formatted 		= $this->Money->format_price($first_price, $product->product_id);
 		$last_price_formatted 		= $this->Money->format_price($last_price, $product->product_id);
@@ -456,6 +479,7 @@ class Templates {
 		return [
 			'showing_compare_at'			=> $showing_compare_at,
 			'showing_price_range'			=> false,
+			'showing_local'						=> $this->DB_Settings_General->get_col_value('pricing_local_currency_toggle', 'bool'),
 			'variants_amount' 				=> $variants_amount,
 			'first_price' 						=> $first_price,
 			'first_price_formatted' 	=> $first_price_formatted,
@@ -474,21 +498,31 @@ class Templates {
 	*/
 	public function wps_products_price($product, $showing_compare_at = false) {
 
-		$product 									= Utils::convert_array_to_object($product);
-		$post_id 									= $this->DB_Products->get_post_id_from_product($product);
-		$variants_in_stock 				= $this->DB_Variants->get_all_variants_from_post_id($post_id);
-		$showing_price_range 			= $this->DB_Settings_General->get_products_show_price_range();
+		$product 				= Utils::convert_array_to_object($product);
+		$post_id 				= $this->DB_Products->get_post_id_from_product($product);
+		$all_variants 	= $this->DB_Variants->get_all_variants_from_post_id($post_id);
+
+
+		// If user hasn't set any compare at prices, don't show anything. Better safe than sorry ...
+		if ($showing_compare_at && !$this->DB_Variants->has_compare_at_pricing($all_variants) ) {
+			return;
+		}
+
+
+		$showing_price_range = $this->DB_Settings_General->get_products_show_price_range();
 
 		if ( $showing_price_range ) {
-			$params = $this->get_range_pricing_params($variants_in_stock, $product, $showing_compare_at);
+			$params = $this->get_range_pricing_params( Utils_Sorting::sort_by($all_variants, 'price'), $product, $showing_compare_at);
 
 		} else {
-			$params = $this->get_single_pricing_params($variants_in_stock, $product, $showing_compare_at);
+
+			$params = $this->get_single_pricing_params( Utils_Sorting::sort_by( Utils::only_available_variants($all_variants), 'position'), $product, $showing_compare_at);
 
 		}
 
 		return $this->get_pricing_template([
 			'showing_compare_at' 			=> $showing_compare_at,
+			'showing_local' 					=> $params['showing_local'],
 			'showing_price_range' 		=> $params['showing_price_range'],
 			'variants_amount' 				=> $params['variants_amount'],
 			'last_price' 							=> $params['last_price'],
@@ -657,8 +691,13 @@ class Templates {
 
 	Template: partials/products/add-to-cart/options
 
+	This only runs if available variants exist. Variants are NOT filtered, only checked.
+
 	*/
 	public function wps_products_options($product) {
+
+		// Filtering the variants
+		$product->variants = Utils::only_available_variants($product->variants);
 
 		$button_color = apply_filters( 'wps_products_variant_button_color', $this->DB_Settings_General->get_variant_color() );
 
@@ -688,9 +727,9 @@ class Templates {
 	*/
 	public function wps_products_button_add_to_cart($product) {
 
-		$button_width = Utils::get_add_to_cart_button_width($product);
-		$button_color = apply_filters( 'wps_products_add_to_cart_button_color', $this->DB_Settings_General->get_add_to_cart_color() );
-		$button_text = apply_filters( 'wps_products_add_to_cart_button_text', WPS_DEFAULT_ADD_TO_CART_TEXT );
+		$button_width 	= Utils::get_add_to_cart_button_width($product);
+		$button_color 	= apply_filters( 'wps_products_add_to_cart_button_color', $this->DB_Settings_General->get_add_to_cart_color() );
+		$button_text 		= apply_filters( 'wps_products_add_to_cart_button_text', WPS_DEFAULT_ADD_TO_CART_TEXT );
 
 		$data = [
 			'product' 			=> $product,
@@ -1486,8 +1525,8 @@ class Templates {
 	public function wps_collection_single_product($product) {
 
 		$data = [
-			'product'		=> $product,
-			'settings'	=> $this->DB_Settings_General->get_all_rows()[0]
+			'product'							=> $product,
+			'settings'						=> $this->DB_Settings_General->get_all_rows()[0]
 		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/collections/single/product' );
@@ -1507,8 +1546,10 @@ class Templates {
 		}
 
 		$data = [
-			'products'			=> $products,
-			'collection'		=> $collection
+			'products'						=> $products,
+			'collection'					=> $collection,
+			'showing_compare_at' 	=> $this->DB_Settings_General->get_col_value('products_compare_at', 'bool'),
+			'showing_local' 			=> $this->DB_Settings_General->get_col_value('pricing_local_currency_toggle', 'bool')
 		];
 
 		return $this->Template_Loader->set_template_data($data)->get_template_part( 'partials/collections/single/products', 'list' );
@@ -2010,10 +2051,11 @@ class Templates {
 	*/
 	public function get_collection_products_data($post_id) {
 
-		$collection = $this->DB_Collections->get_collection($post_id);
+		$collection = $this->DB_Collections->get_collection_by_post_id($post_id);
+
 		$products = [];
 
-		if ( is_object($collection[0]) && property_exists($collection[0], 'collection_id')) {
+		if ( $this->DB_Collections->has_collection($collection) ) {
 
 			$products = $this->DB_Products->get_products_by_collection_id($collection[0]->collection_id);
 
@@ -2023,8 +2065,10 @@ class Templates {
 
 			*/
 			foreach ($products as $key => $product) {
-				$product->variants = $this->DB_Variants->get_in_stock_variants_from_post_id($product->post_id);
+
+				$product->variants = $this->DB_Variants->get_all_variants_from_post_id($product->post_id);
 				$product->feat_image = $this->DB_Images->get_feat_image_by_post_id($product->post_id);
+
 			}
 
 		}

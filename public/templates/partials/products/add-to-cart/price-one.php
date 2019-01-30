@@ -25,7 +25,14 @@ if ( !defined('ABSPATH') ) {
   itemtype="https://schema.org/Offer"
   class="wps-products-price wps-product-pricing wps-products-price-one <?= apply_filters( 'wps_products_price_class', '' ); ?>"
 	data-compare-at="<?= $data->showing_compare_at; ?>"
+	data-showing-local="<?= $data->showing_local; ?>">
 
-  <?= apply_filters('wps_products_price_one', $data->price, $data->product); ?>
+	<div class="wps-price-wrapper <?= $data->showing_local ? 'wps-is-loading-content' : ''; ?>"
+		data-wps-is-multi-price="false"
+		data-wps-is-price-wrapper="true">
+
+		<?= apply_filters('wps_products_price_one', $data->price, $data->product); ?>
+		
+	</div>
 
 </h3>

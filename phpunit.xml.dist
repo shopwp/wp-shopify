@@ -59,6 +59,10 @@
 			<directory prefix="test-layout" suffix=".php">./tests/</directory>
 		</testsuite>
 
+		<testsuite name="Render">
+			<directory prefix="test-render" suffix=".php">./tests/</directory>
+		</testsuite>
+
 	</testsuites>
 
 </phpunit>

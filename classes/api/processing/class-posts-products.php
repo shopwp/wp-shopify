@@ -47,7 +47,7 @@ class Posts_Products extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/posts_products', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'process_posts_products']
 			]
 		]);
@@ -64,7 +64,7 @@ class Posts_Products extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/process/posts_products_relationships', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'process_posts_products_relationships']
 			]
 		]);

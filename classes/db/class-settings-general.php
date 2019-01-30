@@ -3,7 +3,7 @@
 namespace WPS\DB;
 
 use WPS\Utils;
-use WPS\Options;
+use WPS\Options as Options_Class;
 
 
 if (!defined('ABSPATH')) {
@@ -89,6 +89,9 @@ class Settings_General extends \WPS\DB {
 	public $default_cart_icon_fixed_color;
 	public $default_cart_counter_fixed_color;
 	public $default_cart_fixed_background_color;
+	public $default_pricing_local_currency_toggle;
+	public $default_pricing_local_currency_with_base;
+	public $default_synchronous_sync;
 
 
 	public function __construct() {
@@ -105,7 +108,7 @@ class Settings_General extends \WPS\DB {
 		$this->default_plugin_author            					= WPS_NEW_PLUGIN_AUTHOR;
 		$this->default_plugin_textdomain        					= WPS_PLUGIN_NAME;
 		$this->default_plugin_name              					= WPS_PLUGIN_NAME_FULL;
-		$this->default_num_posts                					= Options::get('posts_per_page');
+		$this->default_num_posts                					= Options_Class::get('posts_per_page');
 		$this->default_title_as_alt             					= 0;
 		$this->default_cart_loaded              					= 1;
 		$this->default_price_with_currency      					= 0;
@@ -175,6 +178,11 @@ class Settings_General extends \WPS\DB {
 		$this->default_related_products_images_sizing_scale			= WPS_DEFAULT_RELATED_PRODUCTS_IMAGES_SIZING_SCALE;
 
 		$this->default_show_fixed_cart_tab											= 0;
+
+		$this->default_pricing_local_currency_toggle						= 0;
+		$this->default_pricing_local_currency_with_base					= 0;
+
+		$this->default_synchronous_sync													= 0;
 
 	}
 
@@ -257,7 +265,10 @@ class Settings_General extends \WPS\DB {
 			'show_fixed_cart_tab'												=> '%d',
 			'cart_icon_fixed_color'											=> '%s',
 			'cart_counter_fixed_color'									=> '%s',
-			'cart_fixed_background_color'								=> '%s'
+			'cart_fixed_background_color'								=> '%s',
+			'pricing_local_currency_toggle'							=> '%d',
+			'pricing_local_currency_with_base'					=> '%d',
+			'synchronous_sync'													=> '%d'
 		];
 
 	}
@@ -340,7 +351,10 @@ class Settings_General extends \WPS\DB {
 			'show_fixed_cart_tab'												=> $this->default_show_fixed_cart_tab,
 			'cart_icon_fixed_color'											=> $this->default_cart_icon_fixed_color,
 			'cart_counter_fixed_color'									=> $this->default_cart_counter_fixed_color,
-			'cart_fixed_background_color'								=> $this->default_cart_fixed_background_color
+			'cart_fixed_background_color'								=> $this->default_cart_fixed_background_color,
+			'pricing_local_currency_toggle'							=> $this->default_pricing_local_currency_toggle,
+			'pricing_local_currency_with_base'					=> $this->default_pricing_local_currency_with_base,
+			'synchronous_sync'													=> $this->default_synchronous_sync
 		];
 
 	}
@@ -409,7 +423,7 @@ class Settings_General extends \WPS\DB {
 				$results = $data[0]->num_posts;
 
 			} else {
-				$results = Options::get('posts_per_page');
+				$results = Options_Class::get('posts_per_page');
 
 			}
 
@@ -2075,6 +2089,9 @@ class Settings_General extends \WPS\DB {
 			cart_icon_fixed_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_icon_fixed_color}',
 			cart_counter_fixed_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_counter_fixed_color}',
 			cart_fixed_background_color varchar(100) NOT NULL DEFAULT '{$this->default_cart_fixed_background_color}',
+			pricing_local_currency_toggle tinyint(1) NOT NULL DEFAULT '{$this->default_pricing_local_currency_toggle}',
+			pricing_local_currency_with_base tinyint(1) NOT NULL DEFAULT '{$this->default_pricing_local_currency_with_base}',
+			synchronous_sync tinyint(1) NOT NULL DEFAULT '{$this->default_synchronous_sync}',
 			PRIMARY KEY  (id)
 		) ENGINE=InnoDB $collate";
 

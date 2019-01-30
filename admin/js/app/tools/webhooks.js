@@ -64,7 +64,6 @@ import {
 
 import {
   returnOnlyFailedRequests,
-  constructFinalNoticeList,
   addToWarningList,
   filterOutAnyNotice,
   filterOutSelectiveSync,

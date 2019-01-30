@@ -1,6 +1,5 @@
 import {
-  post,
-  deletion
+  post
 } from '../ws';
 
 import {
@@ -16,7 +15,7 @@ Returns: promise
 
 */
 function clearCache() {
-  return deletion( endpointToolsClearCache() );
+  return post( endpointToolsClearCache() );
 }
 
 

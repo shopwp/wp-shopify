@@ -28,12 +28,12 @@ class Variants extends \WPS\API {
 	public function get_variant_id_from_product_options($request) {
 
 		$selected_options = $request->get_param('selectedOptions');
-		$product_id = $request->get_param('productID');
+		$post_id = $request->get_param('postID');
 
 		if ( isset($selected_options) ) {
 
-			$product_data = $this->DB_Products->get_product_from_post_id($product_id);
-			$variant_data = $this->DB_Variants->get_in_stock_variants_from_post_id($product_id);
+			$product_data = $this->DB_Products->get_product_from_post_id($post_id);
+			$variant_data = $this->DB_Variants->get_in_stock_variants_from_post_id($post_id);
 
 			// $productVariants = maybe_unserialize( unserialize( $product_data['variants'] ));
 
@@ -68,7 +68,7 @@ class Variants extends \WPS\API {
 			}
 
 
-			$constructedOptions = Utils::construct_option_selections($selected_options);
+			$constructed_options = Utils::construct_option_selections($selected_options);
 
 			// TODO -- Breakout into own function
 			$found = false;
@@ -86,14 +86,14 @@ class Variants extends \WPS\API {
 				}
 
 
-				if ( $clean_variants === $constructedOptions ) {
+				if ( $clean_variants === $constructed_options ) {
 
 					$variant_obj = $this->DB_Variants->get_row_by('variant_id', $variant['variant_id']);
-					$product_data->variants = $variant_data;
+					// $product_data->variants = $variant_data;
 
-					if (Utils::product_inventory($product_data, [ (array) $variant_obj ] )) {
+					if ( Utils::has_available_variants( [ (array) $variant_obj ] ) ) {
 
-						$found = true;
+						// $found = true;
 						return $variant;
 
 					} else {
@@ -125,7 +125,7 @@ class Variants extends \WPS\API {
 
 		return register_rest_route( WPS_SHOPIFY_API_NAMESPACE, '/variants', [
 			[
-				'methods'         => 'POST',
+				'methods'         => \WP_REST_Server::CREATABLE,
 				'callback'        => [$this, 'get_variant_id_from_product_options']
 			]
 		]);

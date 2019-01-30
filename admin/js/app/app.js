@@ -1,6 +1,6 @@
 "use strict";
 
-import "idempotent-babel-polyfill";
+import "@babel/polyfill/noConflict";
 import "@wordpress/components/build-style/style.css";
 
 import { formEventsInit } from './forms/forms';
@@ -27,7 +27,7 @@ jQuery( () => {
 	menusInit();
 	initMisc();
 
-	// Notices will only show on pages whitelisted by should_load_js() 
+	// Notices will only show on pages whitelisted by should_load_js()
 	noticesInit();
 
 });

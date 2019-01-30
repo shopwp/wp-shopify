@@ -241,7 +241,7 @@ class Test_DB_Variants extends WP_UnitTestCase {
 
     $price = self::$DB_Variants->get_first_variant_price(self::$mock_variants);
 
-    $this->assertEquals(16.82, $price);
+    $this->assertEquals(0.00, $price);
 
   }
 

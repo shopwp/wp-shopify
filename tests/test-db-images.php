@@ -494,25 +494,68 @@ class Test_DB_Images extends WP_UnitTestCase {
 
   It should add custom size to image url
 
+  Size is added to the URL first because that's what the function assumes
+
   */
   function test_it_should_add_custom_crop_to_image_url() {
 
-    $url_one = self::$DB_Images->add_custom_crop_to_image_url('top', 'https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313');
+    $settings_1 = [
+      'crop'    => 'top',
+      'width'   => 200,
+      'height'  => 200
+    ];
+
+    // Size is added to the URL first because that's what the function assumes
+    $url_one = self::$DB_Images->add_custom_crop_to_image_url($settings_1, 'https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313');
 
     $this->assertInternalType('string', $url_one);
     $this->assertEquals('https://cdn.shopify.com/tesyyt_img_200x200_crop_top.jpg?v=12313', $url_one);
 
 
-    $url_two = self::$DB_Images->add_custom_crop_to_image_url('', 'https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313');
+    $settings_2 = [
+      'crop' => '',
+      'width'   => 200,
+      'height'  => 200
+    ];
+
+    $url_two = self::$DB_Images->add_custom_crop_to_image_url($settings_2, 'https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313');
 
     $this->assertInternalType('string', $url_two);
     $this->assertEquals('https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313', $url_two);
 
 
-    $url_three = self::$DB_Images->add_custom_crop_to_image_url(false, 'https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313');
+    $settings_3 = [
+      'crop' => false,
+      'width'   => 200,
+      'height'  => 200
+    ];
+
+    $url_three = self::$DB_Images->add_custom_crop_to_image_url($settings_3, 'https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313');
 
     $this->assertInternalType('string', $url_three);
     $this->assertEquals('https://cdn.shopify.com/tesyyt_img_200x200.jpg?v=12313', $url_three);
+
+
+    $settings_4 = [
+      'crop' => 'top',
+      'width'   => 0,
+      'height'  => 0
+    ];
+
+    $url_four = self::$DB_Images->add_custom_crop_to_image_url($settings_4, 'https://cdn.shopify.com/tesyyt_img.jpg?v=12313');
+
+    $this->assertInternalType('string', $url_four);
+    $this->assertEquals('https://cdn.shopify.com/tesyyt_img.jpg?v=12313', $url_four);
+
+
+    $settings_5 = [
+      'crop' => 'top'
+    ];
+
+    $url_five = self::$DB_Images->add_custom_crop_to_image_url($settings_5, 'https://cdn.shopify.com/tesyyt_img.jpg?v=12313');
+
+    $this->assertInternalType('string', $url_five);
+    $this->assertEquals('https://cdn.shopify.com/tesyyt_img.jpg?v=12313', $url_five);
 
   }
 

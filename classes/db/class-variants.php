@@ -3,6 +3,8 @@
 namespace WPS\DB;
 
 use WPS\Utils;
+use WPS\Utils\Sorting as Utils_Sorting;
+use WPS\Utils\Filtering as Utils_Filtering;
 use WPS\Utils\Pricing;
 
 
@@ -283,13 +285,20 @@ class Variants extends \WPS\DB {
 
 		$variants = $wpdb->get_results($query_prepared);
 
-		$variants = Utils::product_inventory(false, $variants);
+		// Only returns variants that are available for purchase
+		$variants = Utils::only_available_variants($variants);
 
 		set_transient('wps_product_single_variants_in_stock_' . $post_id, $variants);
 
 		return $variants;
 
 	}
+
+
+	public function has_compare_at_pricing($variants) {
+		return Utils_Filtering::filter_by($variants, 'compare_at_price');
+	}
+
 
 
 	/*
@@ -351,35 +360,11 @@ class Variants extends \WPS\DB {
 
 	/*
 
-	Responsible for sorting by price
-
-	*/
-	public function sort_by_price($item_a, $item_b) {
-		return $item_a->price > $item_b->price;
-	}
-
-
-	/*
-
-	Responsible for sorting by price
-
-	*/
-	public function sort_by_compare_at_price($item_a, $item_b) {
-		return $item_a->compare_at_price > $item_b->compare_at_price;
-	}
-
-
-	/*
-
 	Responsible for sorting variants by price
 
 	*/
 	public function sort_variants_by_price($variants) {
-
-		usort($variants, [__CLASS__, 'sort_by_price']);
-
-		return $variants;
-
+		return Utils_Sorting::sort_by($variants, 'price');
 	}
 
 
@@ -389,11 +374,7 @@ class Variants extends \WPS\DB {
 
 	*/
 	public function sort_variants_by_compare_at_price($variants) {
-
-		usort($variants, [__CLASS__, 'sort_by_compare_at_price']);
-
-		return $variants;
-
+		return array_values( $this->has_compare_at_pricing( Utils_Sorting::sort_by($variants, 'compare_at_price') ) );
 	}
 
 
@@ -413,18 +394,14 @@ class Variants extends \WPS\DB {
 			return false;
 		}
 
-		// If first is empty, then just return the largest
-		if ( $this->first_variant_compare_at_price_empty($variants) ) {
-
-			$variants_sorted = $this->sort_variants_by_compare_at_price($variants);
-
-			return $this->get_last_variant_compare_at_price($variants_sorted, Utils::get_last_index( $this->get_variants_amount($variants)) );
-
-		}
-
 		// If first variant compare at price exists, show it
-		return $variants[0]->compare_at_price;
+		return $this->first_variant_compare_at_price($variants);
 
+	}
+
+
+	public function first_variant_compare_at_price($variants) {
+		return $variants[0]->compare_at_price;
 	}
 
 
@@ -443,10 +420,10 @@ class Variants extends \WPS\DB {
 	Find first non zero variant price
 
 	*/
-	public function find_first_non_zero_variant_price($variants) {
+	public function find_first_non_zero_compare_at_price($variants) {
 
 		return array_filter($variants, function($variant) {
-			return !Pricing::has_zero_price( $variant->price );
+			return !Pricing::has_zero_price( $variant->compare_at_price );
 		});
 
 	}
@@ -457,12 +434,12 @@ class Variants extends \WPS\DB {
 	First non zero variant price
 
 	*/
-	public function first_non_zero_variant_price($variants) {
+	public function first_non_zero_compare_at_price($variants) {
 
-		$found_variants = array_values( $this->find_first_non_zero_variant_price($variants) );
+		$found_variants = array_values( $this->find_first_non_zero_compare_at_price($variants) );
 
 		if ( empty($found_variants) ) {
-			return '0.00';
+			return false;
 		}
 
 		return $this->first_variant_price($found_variants);
@@ -479,10 +456,6 @@ class Variants extends \WPS\DB {
 
 		if ( empty($variants) ) {
 			return false;
-		}
-
-		if ( Pricing::has_zero_price( $this->first_variant_price($variants) ) ) {
-			return $this->first_non_zero_variant_price($variants);
 		}
 
 		return $this->first_variant_price($variants);

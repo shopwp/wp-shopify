@@ -277,6 +277,26 @@ class Hooks {
 		return 'Checkout';
 	}
 
+	public function wps_syncing_settings_timeout() {
+
+		if ( $this->DB_Settings_General->get_col_value('synchronous_sync', 'bool') ) {
+			return 99999;
+		}
+
+		return 0.01;
+
+	}
+
+	public function wps_syncing_settings_blocking() {
+
+		if ( $this->DB_Settings_General->get_col_value('synchronous_sync', 'bool') ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
 
 	/*
 
@@ -727,7 +747,7 @@ class Hooks {
 		$new_version_number = WPS_NEW_PLUGIN_VERSION;
 		$current_version_number = $this->DB_Settings_General->get_current_plugin_version();
 
-		// // $new_version_number = '67.3.11';
+		// // $new_version_number = '91.3.11';
 
 		// If current version is behind new version
 		if (version_compare($current_version_number, $new_version_number, '<')) {
@@ -816,6 +836,9 @@ class Hooks {
 		add_filter('wps_product_single_price_multi', [$this, 'wps_product_single_price_multi'], 10, 4);
 		add_filter('wps_product_single_price_one', [$this, 'wps_product_single_price_one'], 10, 3);
 		add_filter('wps_products_link', [$this, 'wps_products_link'], 10, 3);
+
+		add_filter('wps_syncing_settings_timeout', [$this, 'wps_syncing_settings_timeout']);
+		add_filter('wps_syncing_settings_blocking', [$this, 'wps_syncing_settings_blocking']);
 
 	}
 

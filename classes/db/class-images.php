@@ -542,20 +542,31 @@ class Images extends \WPS\DB {
 	}
 
 
+	public function auto_width_and_height($settings) {
+
+		if ( isset($settings['width']) && isset($settings['width']) ) {
+			return $settings['width'] === 0 && $settings['height'] === 0;
+		}
+
+		return true;
+
+	}
+
+
 	/*
 
 	Responsible for adding crop filter to image URL
 
 	*/
-	public function add_custom_crop_to_image_url($crop, $image_url) {
+	public function add_custom_crop_to_image_url($settings, $image_url) {
 
 		$split_parts = $this->split_image_url($image_url);
 
-		if ($split_parts === false) {
+		if ($split_parts === false || !isset($settings['crop']) || $this->auto_width_and_height($settings) ) {
 			return $image_url;
 		}
 
-		return $split_parts['before_extension'] . $this->build_crop_filter($crop) . '.' . $split_parts['extension'] . $split_parts['after_extension'];
+		return $split_parts['before_extension'] . $this->build_crop_filter($settings['crop']) . '.' . $split_parts['extension'] . $split_parts['after_extension'];
 
 	}
 
@@ -590,6 +601,8 @@ class Images extends \WPS\DB {
 		'scale'		=> 0
 	]
 
+	TODO: Just pass the $settings instead
+
 	*/
 	public function add_custom_sizing_to_image_url($settings) {
 
@@ -603,7 +616,7 @@ class Images extends \WPS\DB {
 		return $this->add_custom_scale_to_image_url(
 			$scale,
 			$this->add_custom_crop_to_image_url(
-				$crop,
+				$settings,
 				$this->add_custom_size_to_image_url($width, $height, $src)
 			)
 		);

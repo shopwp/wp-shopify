@@ -634,9 +634,13 @@ WP Shopify namespaced styles go here
 }
 
 .wps-products-price[data-compare-at="1"] {
-  text-decoration: line-through;
+  // text-decoration: line-through;
   margin: 0;
   padding: 0;
+
+  .wps-price-wrapper {
+    text-decoration: line-through;
+  }
 
   + .wps-products-price {
 
@@ -646,6 +650,13 @@ WP Shopify namespaced styles go here
     display: none;
   }
 
+}
+
+
+
+
+.wps-is-loading-content {
+  @include contentLoader();
 }
 
 

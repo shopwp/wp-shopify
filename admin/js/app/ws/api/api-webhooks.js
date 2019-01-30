@@ -1,11 +1,11 @@
 import {
-  post,
-  deletion
+  post
 } from '../ws';
 
 import {
   endpointWebhooksCount,
-  endpointWebhooks
+  endpointWebhooks,
+  endpointWebhooksDelete
 } from './api-endpoints';
 
 
@@ -41,7 +41,7 @@ Returns: promise
 
 */
 function deleteWebhooks(data = {}) {
-  return deletion( endpointWebhooks(), data );
+  return post( endpointWebhooksDelete(), data );
 }
 
 
