@@ -11,7 +11,7 @@ function gitOptions() {
 
   return {
     newVersionNumber: config.buildRelease,
-    gitFolder: config.isPro ? config.folders.plugin : config.folders.freeDistRepo,
+    gitFolder: config.isPro ? config.folders.plugin : config.folders.free,
     repoFiles: config.isPro ? config.files.proRepoFiles : config.files.freeRepoFiles
   }
 
@@ -26,7 +26,9 @@ Git flow release start
 gulp.task('build:git:release:start', done => {
 
   const options = gitOptions();
+
   console.log('options.gitFolder', options.gitFolder);
+
   return gulp
     .src(options.gitFolder, { base: "./" })
     .pipe( shell([

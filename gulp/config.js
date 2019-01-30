@@ -165,7 +165,7 @@ var config = {
     proTmp: '../../../../assets/wp-shopify-pro/_tmp',
     proTmpRenamed: '../../../../assets/wp-shopify-pro/wp-shopify-pro',
     free: '../../../../assets/wpshopify',
-    freeDistRepo: '../../../../assets/wpshopify/_free',
+    freeDistRepo: '../../../../assets/wpshopify',
     freeTmpRenamed: '../../../../assets/wpshopify/wpshopify',
     coreRepo: '../../../../assets/wp-core-repo/trunk',
     svgsPublic: isBuilding(argvs) ? './_tmp/public/imgs' : './public/imgs',

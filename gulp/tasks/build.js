@@ -518,7 +518,7 @@ gulp.task('build:pro', done => {
     'clean:free:repo', // Non-tmp -- Removes ./_free folder
     'build:git', // Non-tmp -- Runs our git flow process (add / commit, release start, release pub, release finish)
     'build:copyToTmp', // Tmp -- Copies all app files to _tmp folder
-    'build:preprocess', // Runs through preprocess code 
+    'build:preprocess', // Runs through preprocess code
     'build:rename:version', // Tmp -- Updates the version number within the main wp-shopify.php file and the config class
     'build:remove:testversion', // Tmp -- Ensures that the $new_version_number variable is commented out
     'build:assets', // Tmp
@@ -554,7 +554,7 @@ gulp.task('build:free', done => {
     'build:assets',
     'build:free:repo:clone', // clones the free repo into the _free folder
     'build:free:repo:copy', // copies the files inside _tmp (which we just processed) into the _free folder
-    // 'build:free:repo:move',
+    'build:free:repo:move'
     // 'build:git', // Runs our git flow process (add / commit, release start, release pub, release finish)
     // 'build:free:copy:readme', // copies the core repo readme to the wpshopify/wpshopify folder
     // 'build:free:mergeWithCore', // merges _free files / folders with the wp-core folder in assets
